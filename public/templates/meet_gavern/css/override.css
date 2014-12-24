@@ -1,0 +1,9 @@
+#gk-logo img {
+  padding-top: 10px;
+}
+.gk-mainmenu-toggle {
+  padding-bottom: 10px;
+}
+body > header + section#gk-main:before {
+  padding-top: 0;
+}

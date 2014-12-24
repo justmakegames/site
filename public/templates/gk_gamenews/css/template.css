@@ -1,0 +1,1088 @@
+/*
+#------------------------------------------------------------------------
+# GameNews - August Joomla! template (for Joomla 2.5)
+#
+# Copyright (C) 2007-2012 Gavick.com. All Rights Reserved.
+# License:  Copyrighted Commercial Software
+# Website:  http://www.gavick.com
+# Support:  support@gavick.com
+ */
+
+/* Basic elements */
+body {
+	min-height: 100%;
+	background: #fff;
+	font-size: 14px;
+	line-height: 2;
+	color: #555;
+	padding: 0 10px!important;
+	font-weight: 300;
+	word-wrap: break-word;
+}
+body[data-bg="1"] {
+	background: #f4f4f4 url('../images/bg1.jpg') no-repeat center 0;
+}
+body[data-bg="2"] {
+	background: #fff url('../images/bg2.jpg') repeat 0 0;
+}
+body[data-bg="3"] {
+	background: #fff url('../images/bg3.jpg') repeat 0 0;
+}
+a {
+	color: #418cd1;
+	-webkit-transition: background-color 0.2s linear, color 0.2s linear;
+	   -moz-transition: background-color 0.2s linear, color 0.2s linear;
+	     -o-transition: background-color 0.2s linear, color 0.2s linear;
+	        transition: background-color 0.2s linear, color 0.2s linear;
+	text-decoration: none;
+}
+a:hover,
+a:active,
+a:focus {
+	color: #2f3336;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin: 0;
+	padding: 0;
+	color: #333;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+h1 {
+	font-size: 36px;  
+}
+h2,
+.componentheading {
+	font-size: 30px;
+	color: #212121;
+}
+h3 {
+	font-size: 18px;
+}
+h4 {
+	font-size: 110%;
+	text-transform: uppercase;
+}
+h5 {
+	font-size: 105%;
+}
+ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+ul li {
+	line-height: 2.0;
+}
+p {
+	margin: 0.5em 0 1.5em;
+}
+iframe {
+	max-width: 100%!important;
+}
+
+/* Containers */
+#gkPage {
+	background: #fff;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	     -o-box-sizing: border-box;
+	        box-sizing: border-box;
+	margin: 60px auto 0 auto!important;
+	padding: 30px;
+}
+
+#gkPageWrap {
+	margin: 0 auto;
+}
+#gkPageContent {
+	width: 100%;
+}
+#gkInset {
+	display: block;
+	position: absolute;
+}
+#gkPage {
+	display: block;
+	margin: 0 auto;
+	overflow: visible;
+}
+#gkSidebar,
+#gkMainbody,
+#gkBreadcrumb {
+	margin-top: 28px!important;
+}
+
+/* Logo  */
+#gkLogo {
+	margin: 0 0 10px 0;
+	padding: 0;
+	text-indent: -999em;
+	text-shadow: none;
+	width: 210px;
+	display: block;
+	float: left;
+}
+#gkLogo img {
+	display: block;
+	margin: 0;
+}
+#gkLogo.cssLogo {
+	background: transparent url('../images/style1/logo.png') no-repeat 0 0;
+	/* You can specify there logo size and background */
+	height: 48px;
+	width: 240px;
+}
+#gkLogo.text {
+	color: #333;
+	font-size: 36px;
+	min-height: 48px;
+	padding: 0;
+	text-indent: 0;
+}
+#gkLogo.text > span {
+	display: block;
+	font-size: 36px;
+	line-height: 35px;
+}
+#gkLogo.text .gkLogoSlogan {
+	color: #bbb;
+	display: block;
+	font-family: Arial, Verdana, sans-serif;
+	font-size: 11px;
+	line-height: 11px;
+}
+
+/* Topbar */
+#gkTopBar {
+	background: #282828;
+	height: 40px;
+	margin: 0 -10px!important;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 10001;
+}
+
+#gkTopBar > div {
+	margin: 0 auto;
+}
+
+#gkTopBar ul li {
+	float: left;
+	padding: 0 16px;
+	font: normal 11px/40px Arial, Helvetica, sans-serif;
+	color: #777;
+}
+
+#gkTopBar ul li a {
+	color: #909090;
+}
+
+#gkTopBar ul li a:active,
+#gkTopBar ul li a:focus,
+#gkTopBar ul li a:hover {
+	color: #fff;
+}
+
+/* top */
+#gkTopBanner {
+	float: right;
+	margin: -16px 0 10px 0;
+}
+#gkTopBanner p,
+#gkTopBar p  {
+	line-height: 1.0!important;
+	margin: 0!important;
+}
+#gkTopBar .social-icons {
+	float: left;
+}
+#gkTopBar .social-icons a {
+	float: left;
+	display: block;
+	width: 19px;
+	height: 20px;
+	margin: 11px 0 0 0;
+	padding: 0 12px;
+	border-left: 1px solid #444;
+	background: url('../images/social_icons.png') no-repeat 18px 2px;
+	text-indent: -9999px;
+	-webkit-transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
+	   -moz-transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
+	     -o-transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
+	        transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
+}
+
+#gkTopBar .social-icons a.gkFb:hover {
+	background-position: 18px -50px;
+}
+
+#gkTopBar .social-icons a.gkTwitter {
+	background-position: -22px 2px;	
+}
+
+#gkTopBar .social-icons a.gkTwitter:hover {
+	background-position: -22px -50px;
+}
+
+#gkTopBar .social-icons a.gkGplus {
+	background-position: -68px 2px;
+}
+
+#gkTopBar .social-icons a.gkGplus:hover {
+	background-position: -68px -50px;
+}
+
+#gkTopBar .social-icons a.gkRss {
+	background-position: -115px 2px;
+	border-right: 1px solid #444;
+	margin-right: 32px;
+}
+
+#gkTopBar .social-icons a.gkRss:hover {
+	background-position: -115px -50px;
+}
+
+/* Topbar menu */
+#gkTopBarUsermenu ul > li a, 
+#gkTopBarUsermenu ul > li span { 
+	padding: 0 26px; 
+}
+#gkTopBarUsermenu,
+#gkTopBarUsermenu ul { 
+	float: right; 
+	margin: 0; 
+	padding: 0; 
+	list-style: none; 
+}
+#gkTopBarUsermenu > ul > li {
+	float: left; 
+	height: 40px; 
+	padding: 0!important;
+}
+#gkTopBarUsermenu > ul > li > a { 
+	display: block;
+	height: 40px; 
+	margin: 0 0 0 1px;  
+	font-weight: bold; 
+	font-size: 12px;
+	line-height: 40px; 
+	background: #3b3b3b; 
+	color: #fff; 
+	cursor: pointer; 
+}
+#gkTopBarUsermenu li:hover a { 
+	background: #418cd1; 
+}
+#gkTopBarUsermenu li a {
+	color: #fff!important;
+}
+#gkTopBarUsermenu > ul li ul { 
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	     -o-box-sizing: border-box;
+	        box-sizing: border-box;
+	clear: both;
+	display: block;
+	list-style: none; 
+	padding: 12px 0; 
+	position: absolute; 
+	left: -9999px; 
+	background: #418cd1; 
+	width: 180px; 
+	z-index: 2; 
+}
+#gkTopBarUsermenu ul li ul li { 
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	     -o-box-sizing: border-box;
+	        box-sizing: border-box; 
+	display: block;
+	font-size: 12px;
+	font-weight: bold;
+	margin: 0; 
+	padding: 0 24px; 
+	width: 100%;
+}
+#gkTopBarUsermenu ul li ul li a { 
+	border-top: 1px solid #61a6e6;
+	color: #d9ebfc!important;
+	display: block; 
+	line-height: 40px;
+	padding: 2px 0; 
+}
+#gkTopBarUsermenu ul li ul li:hover a,
+#gkTopBarUsermenu ul li ul li a:hover { 
+	color: #fff!important; 
+}
+#gkTopBarUsermenu ul li ul li:first-child a { 
+	border: none; 
+}
+#gkTopBarUsermenu ul li:hover ul { 
+	left: auto; 
+	margin-left: 1px;
+	opacity: 1; 
+}
+#gkTopBarUsermenu ul .sign-up,
+#gkTopBarUsermenu ul a[title="sign-up"] { 
+	background: #e5c235; 
+}
+
+/* Top modules */
+#gkTop1 {
+	background: #fff;
+}
+#gkTop1,
+#gkTop2,
+#gkBottom1,
+#gkBottom2 {
+	margin-top: 28px!important;
+}
+#gkTopBanner .search {
+	margin: 18px 0 0 0!important;
+}
+
+/* standard breadcrumb */
+#gkBreadcrumb {
+	margin: 0 0 24px;
+	padding: 8px 18px;	
+	background: url('../images/header_bg.png') ;
+}
+#gkBreadcrumb .breadcrumbs {
+	float: left;
+	color: #999
+}
+#gkBreadcrumb .breadcrumbs li.separator {
+	width: 10px;
+	text-align: center;
+	padding: 0 4px!important;
+	color: #ccc;
+}
+#gkBreadcrumb .breadcrumbs li.pathway {
+	padding-right: 20px;
+}
+#gkBreadcrumb .breadcrumbs > ul > li {
+	float: left;
+	font-size: 12px;
+	font-weight: 600
+}
+#gkBreadcrumb .breadcrumbs a { color: #2f3336}
+#gkBreadcrumb .breadcrumbs a:hover { color: #418CD1}
+#gkTools {
+	float: right;
+	margin: 4px 0 0 10px;
+}
+#gkTools a {
+	display: block;
+	float: left;
+	width: 22px;
+	height: 16px;
+	margin: 0 0 0 0px !important;
+	text-indent: -99999em;
+	background: url('../images/font_size.png') no-repeat -38px 50%;
+}
+a#gkToolsReset {
+	background-position: -15px 50%;
+	margin-left: 6px;
+}
+a#gkToolsDec {
+	background-position: 6px 50%;
+}
+
+/* Top menu */
+#gkTopMenu {
+	border-bottom: 3px solid #eee;
+	clear: both;
+	min-height: 41px;
+}
+
+#gkTopMenu ul {
+	min-height: 41px;
+	padding: 0 6px;
+}
+
+#gkTopMenu ul li {
+	float: left;
+	font-size: 11px;
+	font-weight: bold;
+	height: 11px;
+	line-height: 11px;
+	margin: 0;
+	padding: 17px 0 13px 0;
+	position: relative;
+	text-transform: uppercase;
+}
+
+#gkTopMenu ul li:first-child a {
+	border-left: none!important;
+}
+
+#gkTopMenu ul li:hover::after { 
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 5px solid #eee;
+	content: "";
+	height: 0;
+	left: 50%;
+	margin-left: -5px;
+	position: absolute;
+	top: 36px;
+	width: 0;
+}
+
+#gkTopMenu a {
+	border-left: 1px solid #e5e5e5;
+	color: #717171;
+	padding: 0 12px;
+}
+
+#gkTopMenu a:active,
+#gkTopMenu a:focus,
+#gkTopMenu a:hover {
+	color: #212121;
+}
+
+/* top & bottom modules */
+#gkTop1 {
+	margin: 0;
+	padding: 0;
+}
+#gkTop1 > div,
+#gkTop2 > div,
+#gkBottom1 > div,
+#gkBottom2 > div {
+	margin: 0 -14px!important;
+}
+#gkBottom1,
+#gkBottom2 {
+	padding-bottom: 30px;
+}
+
+/* Bottom I modules */
+#gkBottom1 {
+	border-top: 4px solid #eee;
+	margin-top: 28px;
+	padding: 35px 0 0 0;
+}
+
+#gkBottom1 .header {
+	background: transparent!important;
+}
+
+#gkBottom1 a {
+	color: #2f3336;
+}
+
+#gkBottom1 a:active,
+#gkBottom1 a:focus,
+#gkBottom1 a:hover {
+	color: #418cd1;
+}
+
+/* Bottom II modules */
+#gkBottom2 {
+	background: #2f3336;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	     -o-box-sizing: border-box;
+	        box-sizing: border-box;
+	color: #ccc;
+	font-size: 12px;
+	margin-top: 0!important;
+	padding: 30px;
+}
+
+#gkBottom2 a {
+	color: #848484;
+}
+
+#gkBottom2 a:active,
+#gkBottom2 a:focus,
+#gkBottom2 a:hover {
+	color: #fff;
+}
+
+#gkBottom2 .header {
+	background: transparent;
+	color: #d4d4d4;
+	font-size: 12px;
+	font-weight: bold!important;
+	line-height: 12px;
+	min-height: 12px;
+}
+
+#gkBottom2 .header > span {
+	background: transparent!important;
+	line-height: 12px;
+	padding: 0!important;
+	text-transform: uppercase;
+}
+
+/* footer */
+.gkFooter {
+	background: #2f3336;
+	border-top: 1px solid #3b3e41;
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	     -o-box-sizing: border-box;
+	        box-sizing: border-box;
+	color: #747474;
+	font-size: 12px;
+	line-height: 51px;
+	margin: 0 auto 100px auto;
+	min-height: 10px;
+	padding: 0 30px;
+}
+.gkFooter a {
+	color: #888;
+}
+.gkFooter a:active,
+.gkFooter a:focus,
+.gkFooter a:hover {
+	color: #fff;
+}
+.gkCopyrights {
+	float: right;
+	margin: 0;
+}
+
+/* other footer elements */
+#gkStyleArea {
+	display: block;
+	float: right;
+	line-height: 7px;
+	margin: 0 0 0 12px;
+	text-align: center;
+	-webkit-transform-style: preserve-3d;
+	   -moz-transform-style: preserve-3d;
+	    -ms-transform-style: preserve-3d;
+	     -o-transform-style: preserve-3d;
+	        transform-style: preserve-3d;
+}
+#gkStyleArea > div {
+	float: left;
+	margin: 13px 0 12px 0;
+}
+#gkStyleArea > div:first-child a {
+	-webkit-border-radius: 50%;
+	   -moz-border-radius: 50%;
+	        border-radius: 50%;
+	display: inline-block;
+	height: 7px;
+	text-indent: -9999px;
+	-webkit-transform: scale(1.0);
+	   -moz-transform: scale(1.0);
+	    -ms-transform: scale(1.0);
+	     -o-transform: scale(1.0);
+	        transform: scale(1.0);
+	-webkit-transform-style: preserve-3d;
+	   -moz-transform-style: preserve-3d;
+	    -ms-transform-style: preserve-3d;
+	     -o-transform-style: preserve-3d;
+	        transform-style: preserve-3d;
+	-webkit-transition: -webkit-transform 0.2s ease-out;
+	   -moz-transition:    -moz-transform 0.2s ease-out;
+	     -o-transition:      -o-transform 0.2s ease-out;
+	        transition:         transform 0.2s ease-out;
+	width: 7px;
+}
+#gkStyleArea > div + div a {
+	border: 1px solid #666;
+	-webkit-border-radius: 50%;
+	   -moz-border-radius: 50%;
+	        border-radius: 50%;
+	display: block;
+	float: left;
+	font-size: 10px;
+	line-height: 12px;
+	margin: 5px 0 0 4px;
+	text-align: center;
+	width: 12px;
+}
+#gkStyleArea > div:first-child a:hover {
+	-webkit-transform: scale(1.5);
+	   -moz-transform: scale(1.5);
+	    -ms-transform: scale(1.5);
+	     -o-transform: scale(1.5);
+	        transform: scale(1.5);
+}
+#gkStyleArea > div + div a:hover  {
+	border: 1px solid #eee;
+}
+#gkStyleArea > div:first-child a {
+	margin: 9px 3px 9px 0;
+}
+#gkStyleArea > div a {
+	margin: 9px 0 9px 3px;
+}
+#gkColor1 {
+	background: #418cd1;
+}
+#gkColor2 {
+	background: #fb581e;
+}
+#gkColor3 {
+	background: #a2b269;
+}
+
+#gkFrameworkLogo {
+	display: block;
+	width: 90px;
+	height: 36px;
+	float: left;
+	background: url('../images/gavern-logo.png') no-repeat 0 0;
+	text-indent: -9999em;
+	margin: 12px 20px 0 0px;
+	
+}
+#gkSocial {
+	width: 100%;
+	position: absolute;
+	text-align: center;
+	top: 13px;
+}
+#gkSocial p {
+	width: 100%;
+}
+#gkFooterNav {
+	float: left;
+}
+#gkFooterNav ul li {
+	float: left;
+	line-height: 50px;
+	margin-right: 12px;
+}
+#gkFooterNav ul li a {
+	color: #b0b0b0;	 
+}
+#gkFooterNav ul li a:active,
+#gkFooterNav ul li a:focus,
+#gkFooterNav ul li a:hover {
+	color: #fff;
+}
+
+/* Suffixes */
+.box {
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	    -ms-box-sizing: border-box;
+	     -o-box-sizing: border-box;
+	        box-sizing: border-box;
+	margin-top: 28px;
+	overflow: hidden;
+	width: 100%;
+}
+.box > div {
+	overflow: hidden;
+}
+div.content {
+	clear: both;
+}
+.box li a {
+	text-decoration: none;
+}
+.box a {
+	text-decoration: none;
+}
+#gkContent .box:first-child {
+	padding-top: 0 !important;
+}
+
+/* suffix banner */
+.box.banner p {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+/* default suffix */
+.box .header {
+	background: transparent url('../images/header_bg.png') repeat 0 0;
+	color: #fff;
+	font-size: 15px;
+	font-weight: normal!important;
+	margin-bottom: 10px;
+	min-height: 36px;
+	text-transform: uppercase;
+}
+
+.box .header > span {
+	background: #418cd1;
+	display: block;
+	float: left;
+	line-height: 36px;
+	padding: 0 12px;
+}
+
+/* color1 suffix */
+.box.color1 .header > span {
+	background: #d24747;
+}
+
+/* color2 suffix */
+.box.color2 .header > span {
+	background: #e5c235;
+}
+
+/* color3 suffix */
+.box.color3 .header > span {
+	background: #2f3336;
+}
+
+/* color4 suffix */
+.box.color4 .header,
+.box.color5 .header,
+.box.color6 .header,
+.box.color7 .header {
+	background: #fbfbfb;
+	border: 1px solid #e5e5e5;
+	-webkit-border-radius: 2px;
+	   -moz-border-radius: 2px;
+	        border-radius: 2px;
+	height: auto;
+	margin-bottom: 30px;
+	min-height: 36px;
+}
+
+.box.color4 .header > span,
+.box.color5 .header > span,
+.box.color6 .header > span,
+.box.color7 .header > span {
+	background: transparent;
+	color: #d24747;
+	font-size: 15px;
+	line-height: 36px;
+	min-height: 36px;
+}
+
+/* color5 suffix */
+.box.color5 .header > span {
+	color: #418cd1;
+}
+
+/* color6 suffix */
+.box.color6 .header > span {
+	color: #e5c235;
+}
+
+/* color7 suffix */
+.box.color7 .header > span {
+	color: #2f3336;
+}
+
+/* clear suffix */
+.box.clear {
+	margin: 0;
+}
+.box.clear > div {
+	margin: 0;
+	padding: 0;
+}
+.clear div.content {
+	clear: both;
+}
+
+/* nomargin suffix */
+.box.nomargin {
+	margin: 0!important;
+}
+
+/* nooverflow suffix */
+.box.nooverflow,
+.box.nooverflow > div {
+	overflow: visible!important;
+}
+
+/* advertisement suffix */
+.box.advertisement .header {
+	background: transparent;
+	border-bottom: 1px solid #e5e5e5;
+	color: #a5a5a5!important;
+	font-size: 9px!important;
+	font-weight: 300;
+	margin: 0 0 10px 0;
+	min-height: 16px;
+	text-align: right;
+	text-transform: uppercase;
+	line-height: 16px;
+	font-family: Arial, Verdana, sans-serif!important;
+}
+
+.box.advertisement .header span {
+	background: transparent;
+	float: right;
+	line-height: 16px;
+	padding: 0;
+}
+
+/* suffix _text */
+.box_text > div {
+	background: #fff;
+}
+
+/* suffix dark */
+.box.dark > div {
+	background: #2f3336!important;
+	color: #8d8d8d;
+	padding: 20px;
+}
+
+.box.dark .header {
+	background: transparent!important;
+}
+
+.box.dark h1,
+.box.dark h2,
+.box.dark h3,
+.box.dark h4,
+.box.dark h5,
+.box.dark h6 {
+	color: #fff;
+}
+
+.box.dark ul {
+	margin: 0;
+	padding: 0;
+}
+.box.dark ul li {
+	border-top: 1px solid #444;
+	position: relative;
+	padding: 4px 0;
+}
+.box.dark ul li:first-child {
+	border-top: none;
+}
+.box.dark a {
+	color: #fff;
+}
+.box.dark a:active,
+.box.dark a:focus,
+.box.dark a:hover {
+	color: #ccc;
+}
+.box.dark ul ul {
+	margin: 0 0 0 20px;
+}
+.box.dark b,
+.box.dark strong {
+	color: #aaa;
+	font-weight: bold;
+}
+
+/* suffix light */
+.box.light > div {
+	background: #f8f8f8!important;
+	color: #555;
+	padding: 20px;
+}
+
+.box.light .header,
+.box.light .header span {
+	background: transparent!important;
+	color: #2f3133;
+	padding: 0;
+}
+
+.box.light ul {
+	margin: 0;
+	padding: 0;
+}
+.box.light ul li {
+	border-top: 1px solid #e5e5e5;
+	position: relative;
+}
+.box.light ul li:first-child {
+	border-top: none;
+}
+.box.light ul ul {
+	margin: 0 0 0 20px;
+}
+.box.light b,
+.box.light strong {
+	color: #666;
+	font-weight: bold;
+}
+
+/* mainbody restrictions */
+section#gkBreadcrumb + section#gkMainbody {
+	margin-top: 0!important;
+}
+#gkMainbody .box,
+#gkMainbodyTop .box,
+#gkMainbodyBottom .box {
+	margin-top: 14px;
+}
+#gkMainbody .box:first-child,
+#gkMainbodyTop .box:first-child
+#gkMainbodyBottom .box:first-child {
+	margin-top: 0;
+}
+/* tablet/mobile suffixes */
+.onlytablet {
+	display: none;
+}
+.onlymobile {
+	display: none;
+}
+/* Login form */
+#gkFBLogin {
+	float: left;
+	width: 45%;
+}
+#gkFBLogin p {
+	line-height: 18px;
+	margin: 14px 0 20px;
+}
+#gkFBLogin + #login-form,
+#gkFBLogin + #com-login-form {
+	float: left;
+	width: 45%;
+	margin-left: 4%;
+	padding-left: 30px;
+	border-left: 1px solid #e7e7e7;
+}
+#form-login-remember {
+	margin: 10px 0;
+}
+#form-login-remember label {
+	color: #777;
+	font-size: 11px;
+	font-weight: normal;
+	line-height: 27px;
+}
+#login-form fieldset {
+	margin: 0 0 20px;
+}
+#login-form fieldset p {
+	margin: 0.5em 0;
+}
+#login-form ul {
+	border-top: 1px solid #E7E7E7;
+	overflow: hidden;
+	padding: 12px 0 0;
+}
+#login-form ul li {
+	font-size: 11px;
+	line-height: 1.6;
+}
+#login-form ul li a {
+	color: #999;
+}
+#login-form ul li a:hover {
+	color: #222;
+}
+#login-form input[type="text"],
+#login-form input[type="password"] {
+	width: 85%;
+}
+label#jform_spacer-lbl {
+	font-size: 11px;
+	font-weight: normal;
+	color: #666;
+}
+.logout-button .login-greeting {
+	float: left;
+	margin-right: 32px;
+	font-size: 14px;
+}
+.gkUsermenu {
+	border-top: 1px solid #eee;
+	clear: both;
+	padding-top: 10px;
+	position: relative;
+	top: 10px;
+}
+.gkUsermenu li {
+	font-size: 12px;
+	padding-left: 16px;
+}
+/* Login with Facebook button */
+span#fb-auth small {
+	width: 20px;
+	background: transparent url('../images/fbauth.png') no-repeat 0 2px;
+	text-indent: -999em;
+	display: block;
+	float: left;
+	border-right: 1px solid #a0aecd;
+	margin: 2px 7px 0 0;
+	height: 17px;
+}
+span#fb-auth {
+	background-color: #798db9;
+	border: 1px solid #4d576b;
+	display: inline-block;
+	color: #fff;
+	font-family: arial;
+	line-height: 22px;
+	font-size: 12px;
+	font-weight: bold;
+	margin: 12px 0 6px;
+	padding: 2px 24px 7px 12px;
+	text-decoration: none;
+	text-shadow: 1px 1px 0px #445375;
+	cursor: pointer;
+	height: 17px;
+	-webkit-border-radius: 3px;
+	   -moz-border-radius: 3px;
+	        border-radius: 3px;
+	-webkit-transition: background-color 0.2s ease-out;
+	   -moz-transition: background-color 0.2s ease-out;
+	     -o-transition: background-color 0.2s ease-out;
+	        transition: background-color 0.2s ease-out;
+	position: relative;
+	top: -3px;
+}
+span#fb-auth:hover {
+	background-color: #556b9b;
+}
+.login span#fb-auth {
+	margin: 6px 0 0 10px;
+}
+
+/* fix for the tablets */
+body[data-tablet="true"] #gkTopBar {
+	height: auto!important;
+	min-height: 40px!important;
+	overflow: hidden;
+	position: static!important;
+	width: auto!important;
+}
+body[data-tablet="true"] #gkTopBar > div > nav {
+	float: right!important;
+}
+body[data-tablet="true"] #gkTopBar nav#gkTopBarUsermenu {
+	clear: both;
+	float: left!important;
+}
+body[data-tablet="true"] #gkTopBarUsermenu,
+body[data-tablet="true"] #gkTopBarUsermenu ul,
+body[data-tablet="true"] #gkTopBarUsermenu ul > li {
+	width:100%;
+}
+body[data-tablet="true"] #gkTopBarUsermenu ul > li a, 
+body[data-tablet="true"] #gkTopBarUsermenu ul > li span {
+	float: none!important;
+	padding: 0!important;
+	text-align: center!important;
+	width:100%;
+}
+body[data-tablet="true"] #gkTopBarUsermenu ul ul {
+	display: none!important;
+}
+.gkMenu > ul > li > a {
+	text-transform: uppercase;
+}
+body[data-mobile="true"] #gkMobileMenu select {
+    font-size: 50px;
+}  

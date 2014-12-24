@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyBlog Related Posts</name>
+	<author>imarklee</author>
+	<creationDate>16/05/2012</creationDate>
+	<copyright>Copyright 2009 - 2012 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>3.9.2</version>
+	<description>
+		<![CDATA[
+		This module displays a list of related blog post based on the current blog post a user is currently viewing.
+		]]>
+	</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easyblogrelatedpost.ini</language>
+	</languages>
+	<files>
+		<filename module="mod_easyblogrelatedpost">mod_easyblogrelatedpost.php</filename>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<folder>tmpl</folder>
+		<folder>elements</folder>
+		<folder>assets</folder>
+	</files>
+	<params addpath="/administrator/components/com_easyblog/elements">
+		<param name="routingtype" type="list" default="default" label="Routing Type" description="Choose the routing type when generate blog post link">
+			<option value="default">Use default behaviour</option>
+			<option value="menuitem">Use menu item</option>
+			<option value="category">Use post's category</option>
+			<option value="tag">Use post's tag</option>
+		</param>
+		<param name="menuitemid" type="easyblogmenuitem" default="" label="Use Menu Item" description="Select menu item if you have choose to use 'menu item' as routing type" state="1" />
+		<param name="@spacer" type="spacer" default="" label="" description="" />
+		<param name="striptags" type="list" default="0" label="Strip HTML Tags" description="If enabled, all html tags are stripped off">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="count" type="text" default="5" label="Count" description="The number of items to display (set it to 0 if post limiting if not required)." />
+		<param name="dateformat" type="text" default="%d %B %Y" label="Date format" description="Enter a date format for the " />
+		<param name="showintro" type="list" default="-1" label="Content be taken from" description="Choose where should the module take the contents from. Or choose not to show any content.">
+			<option value="-1">Do not show any content</option>
+			<option value="0">Introtext</option>
+			<option value="1">Main content</option>
+		</param>
+		<param name="textcount" type="text" default="0" label="Total characters" description="Set the number of characters should be displayed (set 0 to disable truncating). Only applicable if you did not enable the option to only pickup featured post." />
+		<param name="showauthor" type="list" default="1" label="Show Author of blog" description="If disabled, the author section will not be displayed.">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="showdate" type="list" default="1" label="Show written date" description="If enabled, the date of the post will be displayed.">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="showcommentcount" type="list" default="1" label="Show Comment Count" description="Show or hide the post's comment total count in the module.">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="showratings" type="list" default="1" label="Show Ratings" description="Show or hide the rating for the post">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="enableratings" type="list" default="1" label="Enable Ratings" description="Enable rating for the post">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</param>
+		<param name="showhits" type="list" default="1" label="Show Hits" description="Show or hide the hits.">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="showavatar" type="list" default="1" label="Show Blogger Avatar" description="Show or hide the post's blogger avatar.">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="showreadmore" type="list" default="1" label="Show Read More" description="Show or hide the read more link.">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="showcategory" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_CATEGORY" description="MOD_EASYBLOGRELATED_SHOW_CATEGORY_DESC">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="includesubcategory" type="list" default="0" label="Include SubCategories" description="Whether or not to include subcategories of the category id specified in the filter.">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="sortby" type="list" default="0" label="MOD_EASYBLOGRELATED_SORTING_BY" description="MOD_EASYBLOGRELATED_SORTING_BY_DESC">
+			<option value="latest">MOD_EASYBLOGRELATED_CREATED_DATE</option>
+			<option value="modified">MOD_EASYBLOGRELATED_MODIFIED_DATE</option>
+		</param>
+
+		<param name="@spacer" type="spacer" default="" label="" description="" />
+		<param name="video_show" type="list" default="1" label="MOD_EASYBLOGRELATED_VIDEO_SHOW" description="MOD_EASYBLOGRELATED_VIDEO_SHOW_DESC">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="video_width" type="text" default="250" size="5" label="MOD_EASYBLOGRELATED_VIDEO_WIDTH" description="MOD_EASYBLOGRELATED_VIDEO_WIDTH_DESC" />
+		<param name="video_height" type="text" default="250" size="5" label="MOD_EASYBLOGRELATED_VIDEO_HEIGHT" description="MOD_EASYBLOGRELATED_VIDEO_HEIGHT_DESC" />
+
+		<param name="@spacer" type="spacer" default="" label="" description="" />
+		<param name="photo_show" type="list" default="1" label="MOD_EASYBLOGRELATED_PHOTO_SHOW" description="MOD_EASYBLOGRELATED_PHOTO_SHOW_DESC">
+			<option value="0">MOD_EASYBLOGRELATED_NO</option>
+			<option value="1">MOD_EASYBLOGRELATED_YES</option>
+		</param>
+		<param name="photo_width" type="text" default="250" size="5" label="MOD_EASYBLOGRELATED_PHOTO_MAX_WIDTH" description="MOD_EASYBLOGRELATED_PHOTO_MAX_WIDTH_DESC" />
+		<param name="photo_height" type="text" default="250" size="5" label="MOD_EASYBLOGRELATED_PHOTO_MAX_HEIGHT" description="MOD_EASYBLOGRELATED_PHOTO_MAX_HEIGHT_DESC" />
+		<param name="alignment" type="list" default="default" label="Alignment" description="Set the photo alignment.">
+            <option value="default">Default</option>
+			<option value="left">Left</option>
+			<option value="right">Right</option>
+		</param>
+	</params>
+	<params group="advanced">
+		<param name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
+		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
+			<option value="1">Use global</option>
+			<option value="0">No caching</option>
+		</param>
+		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
+	</params>
+
+	<config>
+		<fields name="params" addfieldpath="/administrator/components/com_easyblog/elements/fields">
+
+			<fieldset name="basic" addfieldpath="/modules/mod_latestblogs/elements">
+				<field name="routingtype" type="list" default="default" label="MOD_EASYBLOGRELATED_ROUTING_BEHAVIOR" description="MOD_EASYBLOGRELATED_ROUTING_BEHAVIOR_DESC">
+					<option value="default">MOD_EASYBLOGRELATED_DEFAULT_BEHAVIOR</option>
+					<option value="menuitem">MOD_EASYBLOGRELATED_RESPECT_CURRENT_MENU</option>
+					<option value="category">MOD_EASYBLOGRELATED_RESPECT_POST_CATEGORY</option>
+					<option value="tag">MOD_EASYBLOGRELATED_RESPECT_POST_TAG</option>
+				</field>
+				<field name="menuitemid" type="modal_easyblogmenuitem" default="" label="MOD_EASYBLOGRELATED_USE_MENU_ITEM" description="MOD_EASYBLOGRELATED_USE_MENU_ITEM_DESC" state="1" />
+			</fieldset>
+
+			<fieldset name="standard">
+				<field name="striptags" type="list" default="0" label="MOD_EASYBLOGRELATED_STRIP_HTML_CODES" description="MOD_EASYBLOGRELATED_STRIP_HTML_CODES_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+
+				<field name="count" type="text" default="5" label="MOD_EASYBLOGRELATED_TOTAL_POSTS_TO_SHOW" description="MOD_EASYBLOGRELATED_TOTAL_POSTS_TO_SHOW_DESC" />
+				<field name="showintro" type="list" default="-1" label="MOD_EASYBLOGRELATED_CONTENT_SOURCE" description="MOD_EASYBLOGRELATED_CONTENT_SOURCE_DESC" >
+					<option value="-1">Do not show any content</option>
+					<option value="0">Introtext</option>
+					<option value="1">Main content</option>
+				</field>
+				<field name="textcount" type="text" default="0" label="MOD_EASYBLOGRELATED_TOTAL_CHARACTERS" description="MOD_EASYBLOGRELATED_TOTAL_CHARACTERS_DESC" />
+				<field name="showcontent" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_CONTENT" description="MOD_EASYBLOGRELATED_SHOW_CONTENT_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="showauthor" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_AUTHOR" description="MOD_EASYBLOGRELATED_SHOW_AUTHOR_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="showavatar" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_AUTHOR_AVATAR" description="MOD_EASYBLOGRELATED_SHOW_AUTHOR_AVATAR_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="showcommentcount" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_COMMENTS" description="MOD_EASYBLOGRELATED_SHOW_COMMENTS_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="showratings" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_RATINGS" description="MOD_EASYBLOGRELATED_SHOW_RATINGS_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="enableratings" type="list" default="1" label="Enable Ratings" description="Enable ratings for the post">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="showhits" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_HITS" description="MOD_EASYBLOGRELATED_SHOW_HITS_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+
+				<field name="showreadmore" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_READMORE" description="MOD_EASYBLOGRELATED_SHOW_READMORE_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="showdate" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_DATE" description="MOD_EASYBLOGRELATED_SHOW_DATE_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="showcategory" type="list" default="1" label="MOD_EASYBLOGRELATED_SHOW_CATEGORY" description="MOD_EASYBLOGRELATED_SHOW_CATEGORY_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="includesubcategory" type="list" default="0" label="MOD_EASYBLOGRELATED_INCLUDE_SUBCATEGORIES" description="MOD_EASYBLOGRELATED_INCLUDE_SUBCATEGORIES_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="sortby" type="list" default="0" label="MOD_EASYBLOGRELATED_SORTING_BY" description="MOD_EASYBLOGRELATED_SORTING_BY_DESC">
+					<option value="latest">MOD_EASYBLOGRELATED_CREATED_DATE</option>
+					<option value="modified">MOD_EASYBLOGRELATED_MODIFIED_DATE</option>
+				</field>
+			</fieldset>
+			<fieldset name="Videos">
+				<field name="video_show" type="list" default="1" label="MOD_EASYBLOGRELATED_VIDEO_SHOW" description="MOD_EASYBLOGRELATED_VIDEO_SHOW_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="video_width" type="text" default="250" size="5" label="MOD_EASYBLOGRELATED_VIDEO_WIDTH" description="MOD_EASYBLOGRELATED_VIDEO_WIDTH_DESC" />
+				<field name="video_height" type="text" default="250" size="5" label="MOD_EASYBLOGRELATED_VIDEO_HEIGHT" description="MOD_EASYBLOGRELATED_VIDEO_HEIGHT_DESC" />
+			</fieldset>
+
+			<fieldset name="Photos">
+				<field name="photo_show" type="list" default="1" label="MOD_EASYBLOGRELATED_PHOTO_SHOW" description="MOD_EASYBLOGRELATED_PHOTO_SHOW_DESC">
+					<option value="0">MOD_EASYBLOGRELATED_NO</option>
+					<option value="1">MOD_EASYBLOGRELATED_YES</option>
+				</field>
+				<field name="photo_width" type="text" default="250" size="5" label="MOD_EASYBLOGRELATED_PHOTO_MAX_WIDTH" description="MOD_EASYBLOGRELATED_PHOTO_MAX_WIDTH_DESC" />
+				<field name="photo_height" type="text" default="250" size="5" label="MOD_EASYBLOGRELATED_PHOTO_MAX_HEIGHT" description="MOD_EASYBLOGRELATED_PHOTO_MAX_HEIGHT_DESC" />
+				<field name="alignment" type="list" default="default" label="Alignment" description="Set the photo alignment.">
+                    <option value="default">MOD_EASYBLOGRELATED_DEFAULT</option>
+					<option value="left">MOD_EASYBLOGRELATED_LEFT</option>
+					<option value="right">MOD_EASYBLOGRELATED_RIGHT</option>
+				</field>
+			</fieldset>
+
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC">
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING
+					</option>
+				</field>
+
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+
+</extension>

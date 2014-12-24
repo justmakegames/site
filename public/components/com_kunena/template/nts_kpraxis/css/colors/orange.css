@@ -1,0 +1,74 @@
+/*-----------------------------------------------------------------------------------------------
+ * NTS KPraxis ( Theme for the Kunena 3.0.x )
+ * Current version: 3.0.1
+ * Author: Nice Theme Store
+ * @copyright	Copyright (C) Dec 2009 9themestore.com <@email:9themestore@gmail.com>.All rights reserved.
+ * License: GNU General Public License version 2
+-----------------------------------------------------------------------------------------------*/
+
+
+#Kunena .kbutton:hover,
+#Kunena .kbutton:focus,
+#Kunena .kbutton:active {
+  background: #008EED;
+  border-color: #008EED;
+  color: #fff;
+}
+
+#Kunena .kbutton:hover,
+#Kunena .kbutton:focus,
+#Kunena .kbutton:active {
+  background: #008EED;
+  border-color: #008EED;
+  color: #fff;
+}
+
+#Kunena .kblock div.kheader h2 {
+  background: url(../../images/border-mask.png) repeat-x left bottom #008EED;
+  color: #fff;
+}
+
+#Kunena .kblocktable .kcol-category-icon a:hover .kicon {
+  background-color: #008EED;
+}
+
+#Kunena .kblocktable .kthead-title a {
+  color: #008EED;
+  transition: all 0.3s;
+}
+
+#Kunena a.kicon-button:hover,
+#Kunena .klist-actions .kicon-button:hover,
+#Kunena .kmessage-buttons-cover .kicon-button:hover {
+  background: #008EED;
+  border-color: #27ae60 !important;
+  color: #fff;
+}
+
+#Kunena span.kbuttononline-yes,
+#Kunena span.kbuttononline-no {
+  background: none !important;
+  color: #008EED;
+  font-weight: 700;
+  font-size: 1em;
+  margin: 0;
+}
+
+#Kunena dl.tabs dt:hover {
+  color: #008EED;
+  
+}
+
+#Kunena dl.tabs dt.open {
+  color: #008EED;
+}
+
+#Kunena #userlist-tbody th a:hover,
+#Kunena #userlist-tbody th a:focus,
+#Kunena #userlist-tbody th a:active {
+  color: #008EED !important;
+}
+
+#Kunena div.kpost-thankyou a {
+  background-color: #008EED;
+}

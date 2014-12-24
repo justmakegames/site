@@ -1,0 +1,394 @@
+/**
+* @package 		EasySocial
+* @copyright	Copyright (C) 2010 - 2013 Stack Ideas Sdn Bhd. All rights reserved.
+* @license 		Proprietary Use License http://stackideas.com/licensing.html
+* @author 		Stack Ideas Sdn Bhd
+**/
+/*------------------------------------*\
+	group-entry.less
+\*------------------------------------*/
+
+.es-groups-item
+{
+	.es-header
+	{
+		h2
+		{
+			margin-bottom: 0;
+			word-break: break-all;
+		}
+
+		.group-meta
+		{
+			margin-bottom: 8px;
+			font-size: 11px;
+		}
+
+		.es-desp
+		{
+			max-width: 70%;
+		}
+
+		.es-header-cover
+		{
+			position: relative;
+
+			.es-cover {
+				z-index: 1;
+			}
+
+			.es-group-avatar
+			{
+				z-index: 2;
+				padding: 1px;
+				background: rgba(0,0,0,.1);
+			}
+
+			// Standardizes flyout
+			.es-flyout-content
+			{
+				text-align: center;
+				background: rgba(0,0,0,.6);
+				text-align: right;
+				font-size: 11px;
+				padding: 10px;
+				.transition(opacity .2s ease);
+
+				.es-flyout-button
+				{
+					color: #fff;
+				}
+
+				.dropdown-menu
+				{
+					left: auto;
+					right: 0;
+					text-align: left;
+					margin-top: 6px;
+				}
+			}
+
+			.es-profile-avatar
+			{
+				.es-flyout-content
+				{
+					text-align: center;
+				}
+			}
+		}
+
+		.without-cover
+		{
+			+ .es-header-content
+			{
+				margin-left: 145px;
+			}
+		}
+
+		.es-header-info
+		{
+			font-size: 11px;
+
+			.group-user-actions
+			{
+				padding-bottom: 15px;
+			}
+		}
+
+		// Heading block
+		.es-header-content
+		{
+			.group-actions
+			{
+				li
+				{
+					position: relative;
+					a
+					{
+						color: #666;
+						font-size: 11px;
+
+						&.btn-es-primary,
+						&.btn-es-success,
+						&.btn-es-danger
+						{
+							color: #fff;
+						}
+						> i
+						{
+							margin-right: 8px;
+						}
+					}
+				}
+			}
+		}
+
+		&.loading
+		{
+			.es-content-wrap
+			{
+				background: url("@{media_uri}/images/loading.gif") center center no-repeat;
+			}
+		}
+
+		.es-header-footer
+		{
+			border-top: 1px solid #d7d7d7;
+			padding: 10px;
+			font-size: 11px;
+			.clearfix();
+			.fd-nav
+			{
+				margin: 0;
+				line-height: 24px;
+
+				> li
+				{
+					color: @esColor;
+					display: inline;
+
+					>span,
+					>a
+					{
+						padding: 4px 0;
+						margin: 0 8px;
+					}
+
+					i
+					{
+						margin-right: 3px;
+					}
+
+					+ li
+					{
+						border-left: 1px dotted #ccc;
+
+						>span,
+						>a
+						{
+							margin: 0 12px;
+						}
+					}
+				}
+			}
+
+			.creator-info
+			{
+				color: @esColor;
+				height: 24px;
+				line-height: 24px;
+
+				>span
+				{
+					margin-right: 5px;
+					+span
+					{
+						border-left: 1px dotted #d7d7d7;
+						padding-left: 8px;
+					}
+				}
+			}
+		}
+	}
+
+	.es-content
+	{
+		.es-content-wrap
+		{
+			.stream-filter
+			{
+				.stream-filter-heading
+				{
+					h3
+					{
+						font-size: 16px;
+						padding: 5px 0 0 0;
+						margin: 10px 0 0 20px;
+					}
+
+					hr
+					{
+						margin: 10px 0;
+					}
+				}
+
+				.stream-filter-contents
+				{
+					margin: 0 20px 0 20px;
+
+					.filter-title
+					{
+						width: 100%;
+					}
+				}
+
+				.form-actions
+				{
+					margin-top: 80px;
+					padding-left: 10px;
+				}
+			}
+
+			// Group apps with hr
+			.app-groups
+			{
+				.es-group-nav
+				{
+					font-size: 11px;
+
+					>li
+					{
+						margin-right: 8px;
+
+						+li
+						{
+							padding-left: 8px;
+						}
+
+						>a
+						{
+							.no-focus-outline();
+							padding: 2px 8px;
+						}
+					}
+				}
+
+				.app-header
+				{
+					.es-group-nav
+					{
+						line-height: 28px;
+
+						>li
+						{
+							.no-focus-outline();
+							> a
+							{
+								font-size: 11px;
+							}
+							>a:focus{
+								outline: none;
+							}
+						}
+					}
+
+					.btn{
+						margin-top: 3px;
+					}
+				}
+
+				.app-contents-wrap
+				{
+					padding: 10px 0 0 20px;
+
+					.app-contents
+					{
+						&.is-empty{
+
+							.app-contents-list {
+								display: none;
+							}
+
+							.app-contents-empty {
+								display: block;
+							}
+						}
+
+						.app-contents-empty
+						{
+							>i
+							{
+								display: block;
+								margin-bottom: 20px;
+								font-size: 48px;
+							}
+
+							display: none;
+							padding: 30px 20px;
+							margin-top: 20px;
+							font-size: 22px;
+							background: #fff;
+							border: 1px dashed #d7d7d7;
+							font-weight: 700;
+							color: #666;
+							text-align: center;
+						}
+
+						&.is-loading
+						{
+							background: url("@{media_uri}/images/loading.gif") center center no-repeat;
+						}
+					}
+				}
+
+
+				> hr{
+					margin: 5px 0 10px -20px;
+				}
+			}
+		}
+	}
+}
+
+//Responsive
+&.w480 {
+	.es-header.es-group-header {
+		.es-header-content {
+			margin-left: 170px;
+			min-height: 100px;
+		}
+		.es-header-info {
+			bottom: 15px;
+			margin: 0;
+			left: 0;
+			position: absolute;
+			.es-desp {
+				display: none;
+			}
+		}
+		.es-header-footer {
+			text-align: center;
+		}
+	}
+
+	.es-groups-item .es-content .es-content-wrap .app-groups .app-contents-wrap
+	{
+		padding: 10px 0 0 0;
+	}
+}
+&.w320 {
+	.es-header.es-group-header {
+		.es-header-group-cover {
+			height: 110px;
+		}
+
+		.es-header-content {
+			margin-left: 90px;
+			min-height: 60px;
+		}
+		.es-header-main-info {
+			bottom: 60px;
+			width: 100%;
+			.es-title {
+				font-size: 20px;
+				height: 30px;
+				.text-overflow();
+			}
+		}
+		.es-header-avatar {
+			// left: 50%;
+			// margin-left: -45px;
+			top: 55px;
+			.es-avatar {
+				width: 68px;
+				height: 68px;
+				padding: 2px;
+				img {
+					width: 60px;
+					height: 60px;
+				}
+			}
+		}
+
+	}
+}

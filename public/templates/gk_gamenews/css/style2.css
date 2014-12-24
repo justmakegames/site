@@ -1,0 +1,215 @@
+/*
+#------------------------------------------------------------------------
+# GameNews - August Joomla! template (for Joomla 2.5)
+#
+# Copyright (C) 2007-2012 Gavick.com. All Rights Reserved.
+# License:  Copyrighted Commercial Software
+# Website:  http://www.gavick.com
+# Support:  support@gavick.com
+ */
+ 
+/* Style 1 */
+
+/* template.css */
+a {
+	color: #fb581e;
+}
+#gkLogo.cssLogo {
+	background-image: url('../images/style2/logo.png');
+}
+#gkTopBarUsermenu li:hover a { 
+	background: #fb581e; 
+}
+#gkTopBarUsermenu > ul li ul { 
+	background: #fb581e; 
+}
+#gkTopBarUsermenu ul li ul li a { 
+	border-top: 1px solid #fb9e7d;
+	color: #fde5dd!important;
+	display: block; 
+	line-height: 40px;
+	padding: 2px 0; 
+}
+#gkTopBarUsermenu ul .sign-up,
+#gkTopBarUsermenu ul a[title="sign-up"] { 
+	background: #8496a4; 
+}
+#gkBreadcrumb .breadcrumbs a:hover { 
+	color: #fb581e;
+}
+#gkBottom1 a:active,
+#gkBottom1 a:focus,
+#gkBottom1 a:hover {
+	color: #fb581e;
+}
+.box .header > span {
+	background: #fb581e;
+}
+.box.color1 .header > span {
+	background: #84736c;
+}
+.box.color2 .header > span {
+	background: #8496a4;
+}
+.box.color3 .header > span {
+	background: #2f3336;
+}
+.box.color4 .header > span,
+.box.color5 .header > span,
+.box.color6 .header > span,
+.box.color7 .header > span {
+	color: #84736c;
+}
+.box.color5 .header > span {
+	color: #fb581e;
+}
+.box.color6 .header > span {
+	color: #8496a4;
+}
+
+/* joomla.css */
+button:hover,
+.button:hover,
+input.button:hover,
+span.button:hover,
+button.button:hover,
+div.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.pagenav-prev a:hover,
+.pagenav-next a:hover {
+	background: #fb581e;
+}
+article header h1 a:hover,
+article header h2 a:hover {
+	color: #fb581e;
+}
+article header li a:hover {
+	color: #fb581e;
+}
+p.img_caption {
+	background: #fb581e;
+}
+.tip-title {
+	background: #fb581e;
+}
+#system-message .alert-error {
+	color: #fff;
+	background: #e55e48;
+}
+#system-message .alert-notice {
+	color: #fff;
+	background: #fb581e;
+}
+.pagination ul li a:hover {
+	background: #fb581e;
+}
+#article-index li a:hover {
+	color: #fb581e;
+}
+.autocompleter-queried {
+	color: #fb581e !important;
+}
+
+/* gk_stuff.css */
+.nspArt h4.nspHeader a:active,
+.nspArt h4.nspHeader a:focus,
+.nspArt h4.nspHeader a:hover {
+	color: #fb581e;
+}
+.nspLinks ul li h4 a:active,
+.nspLinks ul li h4 a:focus,
+.nspLinks ul li h4 a:hover {
+	color: #fb581e;
+}
+.color1 .nspPagination li:hover,
+.color1 .nspPagination li.active,
+.color4 .nspPagination li:hover,
+.color4 .nspPagination li.active {
+	background: #84736c;
+}
+.color5 .nspPagination li:hover,
+.color5 .nspPagination li.active {
+	background: #fb581e;
+}
+.color2 .nspPagination li:hover,
+.color2 .nspPagination li.active,
+.color6 .nspPagination li:hover,
+.color6 .nspPagination li.active {
+	background: #8496a4;
+}
+
+/* menu.css */
+.gkMenu > ul > li {
+	border-right: 1px solid #484b4d;
+}
+.gkMenu > ul > li:hover > a,
+.gkMenu > ul > li:active > a,
+.gkMenu > ul > li:focus > a,
+.gkMenu > ul > li.active:hover > a,
+.gkMenu > ul > li.active:active > a,
+.gkMenu > ul > li.active:focus > a,
+.gkMenu > ul > li.active > a {
+	background: #fb581e;
+}
+.gkMenu > ul div.childcontent-inner {
+	background: #fb581e;
+}
+.gkMenu > ul div.childcontent-inner div.childcontent-inner {
+	border: 1px solid #fd7a3f;
+}
+.gkMenu > ul div.childcontent li {
+	border-top: 1px solid #fd7a3f;	
+}
+.gkMenu > ul div.childcontent small {
+	color: #fecbb5;
+}
+.gkMenu > ul div.childcontent li.active > a,
+.gkMenu > ul div.childcontent li:hover > a,
+.gkMenu > ul div.childcontent li > a:hover {
+	color: #fecbb5;
+}
+.gkMenu > ul div.childcontent header a {
+	border-bottom: 2px solid #fd7a3f;
+}
+
+/* k2.css */
+h1 > sup {
+	color: #fb581e;
+}
+span#formLog {
+	background: #fb581e;
+}
+.itemTags li a,
+.k2TagCloudBlock a,
+.moduleItemTags a,
+div.tags a {
+	background-image: url('../images/style2/tags.png');
+}
+.k2TagCloudBlock a:hover {
+	background: #fb581e;
+}
+.k2TagCloudBlock a {
+	background: url('../images/header_bg.png') repeat 0 0 #F9F9F9!important;
+}
+.itemAttachmentsBlock {
+	background-image: url('../images/style2/typography/tips.png');
+}
+.itemComments h3 { 
+	background: #fb581e; 
+}
+#itemListLinks li {
+	background-image: url('../images/style2/typography/bullet-square2.png');
+}
+.k2CalendarBlock table.calendar tr td.calendarToday {
+	background: #84736c;
+}
+table.calendar tr td.calendarTodayLinked a {
+	color: #84736c;
+}
+.calendarNavLink { 
+	color: #84736c;
+}
+.k2TagCloudBlock a:hover {
+	background: #fb581e !important;
+}

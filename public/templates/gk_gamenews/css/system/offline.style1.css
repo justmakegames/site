@@ -1,0 +1,235 @@
+/*
+#------------------------------------------------------------------------
+# GameNews - August Joomla! template (for Joomla 2.5)
+#
+# Copyright (C) 2007-2012 Gavick.com. All Rights Reserved.
+# License: Copyrighted Commercial Software
+# Website: http://www.gavick.com
+# Support: support@gavick.com 
+*/
+
+/* Basic elements */
+html {
+	height: 100%;
+}
+body,
+html {
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+}
+body {
+	min-height: 100%;
+	background: #fff;
+	font-size: 14px;
+	line-height: 2;
+	color: #7d7b7a;
+	padding: 0 15px;
+	font-weight: 300;
+	font-family: Arial, sans-serif;
+	padding: 0 15px;
+}
+a {
+	color: #6a9edb;
+	text-decoration: none;
+	-webkit-transition: color 0.15s linear;
+	-moz-transition: color 0.15s linear;
+	-ms-transition: color 0.15s linear;
+	-o-transition: color 0.15s linear;
+	transition: color 0.15s linear;
+}
+a:hover,
+a:active,
+a:focus {
+	color: #212121;
+}
+/* containers */
+#gkPage {
+	min-width: 280px;
+	max-width: 100%;
+	padding: 15px 0 0 0;
+	margin: 0 auto;
+}
+#gkPageWrap {
+	background: transparent;
+	padding: 0 0 30px 0;
+	width: 100%;
+}
+#frame {
+	background: #2F3336;
+	clear: both;
+	margin: 0;
+	overflow: hidden;
+	padding: 42px 15px;
+}
+/* Logo  */
+#gkLogo {
+	margin: 20px auto!important;
+	padding: 0;
+	text-indent: -999em;
+	text-shadow: none;
+	width: 240px;
+	display: block;
+}
+#gkLogo img {
+	display: block;
+	margin: 0;
+}
+#gkLogo.cssLogo {
+	/* You can specify there logo size and background */
+	background: transparent url('../../images/style1/logo.png') no-repeat 0 0;
+	height: 48px;
+	width: 240px;
+}
+#gkLogo.text {
+	color: #333;
+	min-height: 48px;
+	padding-top: 14px;
+	text-indent: 0;
+}
+#gkLogo.text > span {
+	display: block;
+	font-size: 20px;
+	line-height: 20px;
+}
+#gkLogo.text .gkLogoSlogan {
+	color: #aaa;
+	display: block;
+	font-size: 11px;
+	line-height: 11px;
+}
+/* Other elements */
+h2 {
+	color: #888;
+	font-size: 56px;
+	font-weight: 400;
+	line-height: 1.2;
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+fieldset {
+	border: none;
+	border-top: 1px solid #444;
+	padding: 24px 0 0;
+	margin: 46px auto 0;
+	width: 660px;
+	overflow: hidden;
+}
+p#username,
+p#password {
+	margin: 0 15px 15px 0;
+	float: left;
+	width: 265px;
+}
+p#remember,
+#form-login ul {
+	clear: both;
+}
+label {
+	font: 16px;
+	line-height: 1.2;
+	display: block;
+	margin: 0 0 10px 0;
+}
+div.buttons {
+	margin: 28px 0 0;
+}
+input[type="checkbox"] {
+	margin: 5px 5px 0 0;
+}
+input[type="text"],
+input[type="password"],
+input[type="url"],
+input[type="email"] {
+	border: 1px solid #555;
+	background: #444;
+	color: #aaa;
+	height: 36px;
+	line-height: 36px;
+	padding: 0 10px;
+	box-sizing: border-box;
+	font-weight: 100;
+	width: 240px;
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="url"]:focus,
+input[type="email"]:focus {
+	background: #ffffdd;
+}
+button,
+.button,
+input[type="submit"],
+input[type="button"] {
+	display: block;
+	border-radius: 2px;
+	float: left;
+	height: 36px;
+	line-height: 36px;
+	margin: 0 5px 20px 2px;
+	padding: 0 12px;
+	border: none;
+	background: #418cd1;
+	font-size: 12px;
+	font-weight: 600;
+	text-align: center;
+	color: #fff;
+	cursor: pointer;
+	text-transform: uppercase;
+	-webkit-transition: background-color 0.25s ease-out;
+	-moz-transition: background-color 0.25s ease-out;
+	-ms-transition: background-color 0.25s ease-out;
+	-o-transition: background-color 0.25s ease-out;
+	transition: background-color 0.25s ease-out;
+}
+button:hover,
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+	background: #d24747;
+	color: #fff;
+}
+#remember {
+	float: left;
+	width: auto;
+}
+label[for="remember"] {
+	float: left;
+	line-height: 21px;
+}
+/* messages */
+#system-message dt {
+	display: none;
+}
+#system-message {
+	margin: 0 auto 10px auto;
+	max-width: 640px;
+}
+#system-message dd ul {
+	list-style: none !important;
+	margin: 0;
+	padding: 0;
+}
+#system-message dd {
+	padding: 0 12px;
+	color: #fff;
+	font-size: 16px;
+	text-align: center;
+	font-weight: 300;
+	margin: 0 auto;
+	background: #353636;
+}
+#system-message dd.error {
+	color: #fff;
+	background: #d24747;
+}
+#system-message dd.notice {
+	color: #333;
+	background: #fff;
+}
+#system-message-container {
+	padding: 0;
+	margin: 0;
+}

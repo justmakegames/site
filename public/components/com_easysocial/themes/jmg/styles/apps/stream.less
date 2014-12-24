@@ -1,0 +1,165 @@
+/**
+* @package 		EasySocial
+* @copyright	Copyright (C) 2010 - 2013 Stack Ideas Sdn Bhd. All rights reserved.
+* @license 		Proprietary Use License http://stackideas.com/licensing.html
+* @author 		Stack Ideas Sdn Bhd
+**/
+/*------------------------------------*\
+	stream.less
+\*------------------------------------*/
+// Contains stream related styling for apps
+
+// Generic stream styling
+.es-streams
+{
+	h4
+	{
+		&.content-title
+		{
+			font-size: 14px;
+			font-weight: 700;
+		}
+
+		>a
+		{
+			font-size: 14px;
+		}
+	}
+
+	ul.nav-actions
+	{
+		li
+		{
+			margin-right: 8px;
+			display: inline-block;
+
+			+li
+			{
+				border-left: 1px dotted @esBorder;
+				padding-left: 10px;
+			}
+		}
+	}
+
+}
+
+.es-streams
+{
+	/**
+	 * Repost stream items
+	 */
+	.stream-repost
+	{
+		.stream-meta
+		{
+			border: 1px dashed @esBorder;
+			padding: 8px;
+			margin: 15px 0;
+
+			.meta-title
+			{
+				font-weight: 700;
+			}
+		}
+
+	}
+
+	.stream-links {
+		background: @esStreamPreviewBackground;
+		.clearfix();
+		padding: 12px;
+
+		h4 {
+			margin: 0;
+
+			&.has-info {
+				margin-bottom: 10px;
+			}
+		}
+
+		.es-stream-preview {
+			padding: 0px;
+		}
+
+		.stream-preview-image {
+			padding: 2px;
+			border: 1px solid @esBorder;
+			background: @esBackground;
+
+			img
+			{
+				border: 1px solid @esBorder;
+			}
+		}
+	}
+
+	.stream-files
+	{
+		h4
+		{
+			margin-bottom: 20px;
+		}
+
+		.file-contents
+		{
+			margin-bottom: 15px;
+		}
+
+		.file-download
+		{
+			// max-width: 250px;
+			border: 1px dashed @esBorder;
+			padding: 10px;
+			background: @esStreamPreviewBackground;
+			text-align: center;
+			display: block;
+
+			i {
+				color: #666;
+				display: block;
+				font-size: 32px;
+			}
+		}
+
+		.file-preview
+		{
+			max-width: 250px;
+			display: inline-block;
+			border: 1px dashed @esBorder;
+			padding: 5px;
+
+			img
+			{
+				border: 1px solid @esBorder;
+			}
+		}
+	}
+
+	.stream-groups
+	{
+		.groups-meta
+		{
+			background: #fff;
+			margin-top: 4px;
+			padding: 8px 0 4px 4px;
+
+			li
+			{
+				font-size: 12px;
+				color: #666;
+				display: inline-block;
+				margin-right: 8px;
+
+				i
+				{
+					margin-right: 3px;
+				}
+				+ li
+				{
+					padding-left: 8px;
+					border-left: 1px dotted @esBorder;
+				}
+			}
+		}
+	}
+}

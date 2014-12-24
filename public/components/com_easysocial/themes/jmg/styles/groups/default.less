@@ -1,0 +1,196 @@
+/**
+* @package 		EasySocial
+* @copyright	Copyright (C) 2010 - 2013 Stack Ideas Sdn Bhd. All rights reserved.
+* @license 		Proprietary Use License http://stackideas.com/licensing.html
+* @author 		Stack Ideas Sdn Bhd
+**/
+
+
+// THIS SHOULD BE GENERIC ELEMENTS IN THE FUTURE FOR MEDIA LISTING
+
+
+.list-media
+{
+	.media
+	{
+		margin: 0;
+	}
+	>li
+	{
+		+li
+		{
+			border-top: 1px solid @esBorder;
+			padding-top: 15px;
+			margin-top: 15px;
+		}
+	}
+
+	.media-object
+	{
+		margin: 0 15px 0 0;
+		position: relative;
+
+		img
+		{
+			width: 64px;
+			height: auto;
+		}
+	}
+}
+
+
+
+.media-name
+{
+	font-weight: bold;
+	font-size: @font-size-lg;
+}
+
+.media-meta
+{
+	font-size: @font-size-sm;
+
+	>span
+	{
+		+span
+		{
+			margin: 0 0 0 15px;
+		}
+	}
+}
+
+.list-pagination
+{
+	text-align:center;
+}
+
+.es-groups
+{
+
+	&.is-loading
+	{
+		.groups-content-wrapper
+		{
+			background: url("@{media_uri}/images/loading.gif") center center no-repeat;
+		}
+	}
+	.btn-create
+	{
+		padding: 6px 10px;
+	}
+}
+
+
+.es-header
+{
+	&.es-group-header-mini
+	{
+		.es-header-info
+		{
+			h2
+			{
+				&.h4
+				{
+					display: inline-block;
+					margin-right: 10px;
+				}
+			}
+
+			.info-actions
+			{
+				font-size: 12px;
+				margin-top: 5px;
+			}
+		}
+
+		.es-header-footer
+		{
+			padding: 10px 0 5px 0;
+			.group-stats
+			{
+				margin-top: 5px;
+				li
+				{
+					margin-right: 8px;
+					color: #666;
+					a
+					{
+						i
+						{
+							margin-right: 3px;
+						}
+					}
+					+li
+					{
+						border-left: 1px dotted @esBorder;
+						padding-left: 8px;
+					}
+				}
+			}
+		}
+	}
+}
+
+.es-group-nav
+{
+	> li {
+		a {
+
+			border-radius: 10px;
+			padding: 3px 8px;
+			&.active {
+				border: 1px solid #ddd;
+			}
+		}
+		+ li {
+			border-left: 1px dotted #ddd;
+			padding-left: 4px;
+		}
+	}
+}
+
+
+// Responsive
+&.w480 {
+	.es-groups-item .es-header .es-header-footer {
+		.fd-nav,
+		.creator-info {
+			float: none !important;
+		}
+
+	}
+}
+
+
+.groups-content-wrapper.w320 {
+	//Featured
+	.group-featured,
+	.es-group {
+		.media-object {
+			float: none !important;
+			margin-bottom: 20px;
+		}
+		.group-name {
+			.label {
+				font-size: 60%;
+			}
+		}
+		.group-actions {
+			text-align: left;
+			.btn {
+				width: 100% !important;
+				+ .btn {
+					margin-top: 15px;
+				}
+			}
+		}
+	}
+
+	//Group item
+	// .es-group {
+	// 	.media-object {
+	// 		float: none !important;
+	// 		margin-bottom: 20px;
+	// 	}
+	// }
+}

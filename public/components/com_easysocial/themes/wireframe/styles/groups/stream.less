@@ -1,0 +1,120 @@
+/**
+* @package 		EasySocial
+* @copyright	Copyright (C) 2010 - 2013 Stack Ideas Sdn Bhd. All rights reserved.
+* @license 		Proprietary Use License http://stackideas.com/licensing.html
+* @author 		Stack Ideas Sdn Bhd
+**/
+/*------------------------------------*\
+	stream.less
+\*------------------------------------*/
+
+// Application stream styling.
+.es-stream-list
+{
+	.stream-context-discussions
+	{
+		// Discussion stream styles
+		.es-stream-content
+		{
+			hr
+			{
+				margin: 10px 2px;
+			}
+
+			.media-body
+			{
+				.discussion-title
+				{
+					a
+					{
+						font-size: 18px !important;
+					}
+				}
+
+				.discussion-meta
+				{
+					margin-top: 10px;
+				}
+			}
+			.media-object
+			{
+				margin: 0;
+				ul // ul
+				{
+					li
+					{
+						background: #fff;
+						font-size: 11px;
+						text-align: center;
+						padding: 2px 4px;
+						min-width: 60px;
+						// max-width: 60px; // #2918
+						overflow: hidden;
+						display: inline-block;
+						border: 1px solid #d7d7d7;
+						border-radius: 3px;
+						color: #666;
+
+						span
+						{
+							font-size: 14px;
+							display: block;
+							margin-bottom: 3px;
+							font-weight: 700;
+						}
+
+						+li
+						{
+							margin-left: 15px;
+						}
+					}
+				}
+			}
+		}
+
+		.milestone-stream
+		{
+			.meta
+			{
+				>span
+				{
+					margin-right: 5px;
+
+
+					+ span
+					{
+						margin-right: 0;
+						padding-left: 10px;
+						border-left: 1px dotted #d7d7d7;
+					}
+				}
+			}
+		}
+		.tasks-stream
+		{
+			.milestone-tasks
+			{
+				.checkbox
+				{
+					margin: 0;
+				}
+				li
+				{
+					padding: 4px;
+					margin-bottom: 5px;
+					+li
+					{
+						padding-top: 5px;
+					}
+
+					&.completed
+					{
+						color: #666;
+						background: #fffccc;
+						text-decoration: line-through;
+					}
+				}
+			}
+		}
+	}
+}

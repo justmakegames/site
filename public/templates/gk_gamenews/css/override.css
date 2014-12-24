@@ -1,0 +1,146 @@
+/****************************************\
+	Layout
+\****************************************/
+
+body[data-bg="2"]{
+	background: #418cd1;
+}
+
+.box{
+	margin-top: 0;
+}
+
+/*
+.box .header{
+	background: none;
+	max-height: 36px;
+	overflow: hidden;
+	background: #333;
+}
+
+.box .header span{
+	padding-left: 10px;
+	padding-right: 0;
+}
+
+.box .header span:after{
+	display: inline-block;
+	height: 36px;
+	min-width: 64px;
+	overflow: hidden;
+	background: #fff url('../images/header_bg.png') left center no-repeat;
+	background: #333;
+	content: ' ';
+	float: right;
+}
+*/
+
+/****************************************\
+	Top
+\****************************************/
+
+#gkLogo{
+	width: 400px;
+}
+
+#gkTopBarUsermenu > ul > li > a{
+	text-transform: uppercase;
+}
+
+/****************************************\
+	Login Form
+\****************************************/
+
+#login-form{
+	display: inline;
+	float: right;
+}
+
+#login-form input[type="text"], #login-form input[type="password"]{
+	width: inherit;
+}
+
+#login-form .span6{
+	width: 50%;
+	float: right;
+}
+
+/****************************************\
+	EasyBlog
+\****************************************/
+
+#discuss-wrapper{
+	padding: 0;
+}
+
+#discuss-wrapper .mt-10{
+	margin-top: 0;
+}
+
+#eblog-wrapper{
+	display: block;
+}
+
+/****************************************\
+	Top Members
+\****************************************/
+
+#cModule-TopMembers .cThumb-Detail{
+	
+}
+
+#cModule-TopMembers .cThumb-Brief, #cModule-TopMembers br{
+	line-height: 1;
+}
+
+/****************************************\
+	EasyDiscuss
+\****************************************/
+
+#discuss-wrapper #community-wrap{
+	display: none;
+}
+
+/****************************************\
+	EasyDiscuss Recent Replies
+\****************************************/
+
+div.discuss-mod.recent-replies .story{
+	max-height: 78px;
+	overflow: hidden;
+}
+
+div.discuss-mod.recent-replies .item-user{
+	height: auto !important;
+	padding: 0 !important;
+}
+
+div.discuss-mod.recent-replies .item-avatar{
+	display: inline;
+	width: 24px;
+	height: 24px;
+	margin-right: 10px !important;
+}
+
+div.discuss-mod.recent-replies .item-avatar img{
+	border: 0 !important;
+}
+
+div.discuss-mod.recent-replies .item-title{
+	display: inline !important;
+	height: 26px !important;
+	overflow: hidden;
+}
+
+div.discuss-mod.recent-replies span{
+	font-size: 10px;
+}
+
+div.discuss-mod.recent-replies .readmore{
+	font-size: 12px;
+	background: url('../images/style1/typography/bullet-square2.png') left 0 no-repeat;
+	padding-left: 20px;
+	font-weight: bold;
+	letter-spacing: 1px;
+}
+

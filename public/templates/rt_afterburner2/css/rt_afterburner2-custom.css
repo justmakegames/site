@@ -1,0 +1,114 @@
+body{
+	background: #eee;
+}
+
+#rt-mainbody-surround>.rt-container{
+	background: #fff;
+	margin-top: 15px;
+}
+
+#rt-header .menu-block{
+	margin: 15px 25px 0 25px
+}
+
+div.kheader{
+	height: 42px;
+}
+
+#rt-top .gf-menu{
+	float: right;
+	margin: 0 10px;
+}
+
+#rt-top .rt-grid-4 .rt-block{
+	margin: 0;
+	padding: 0;
+	margin-left: 25px;
+}
+
+/* Mobile Menu */
+@media only screen and (max-width: 767px){
+	#rt-top .rt-grid-4 .rt-block{
+		margin-top: 30px;
+	}
+
+	#rt-top .rt-grid-8 .menu-block{
+		margin: 15px;
+	}
+
+	#rt-top .gf-menu{
+		margin: 0;
+	}
+
+	#rt-top .gf-menu-device-container{
+		margin: 15px;
+	}
+
+}
+
+#rt-top{
+	padding: 10px 0;
+}
+
+#rt-top .rt-grid-8 .menu-block{
+	margin: 0;
+	margin-right: 15px;
+}
+
+#rt-top .rt-block .custom{
+	height: 44px;
+	line-height: 44px;
+}
+
+#rt-top .rt-block .custom img{
+	
+}
+
+#rt-top .gf-menu .item{
+	font-weight: bold;
+	letter-spacing: 1px;
+}
+
+/* Easy Social Easy Blog */
+
+#ezblog-head .component-links{
+	display: none;
+}
+
+#eblog-wrapper img.avatar{
+	border: 0;
+}
+
+#eblog-wrapper.home #ezblog-head{
+	display: none;
+}
+
+.comment-content .form-row.mbm label{
+	display: inline;
+}
+
+.comment-content label.label{
+	padding: 4px 8px;
+}
+
+.comment-content label[for="subscribe-to-blog"]{
+	line-height: 14px;
+	margin-bottom: 10px;
+}
+
+body div#fd.es.popbox.popbox-toolbar .arrow{
+	display: none;	
+}
+
+#rt-sidebar-a .module-content .mod-es-dropdown-menu{
+	float: right;
+}
+
+body div#fd.es .es-toolbar .fd-nav>li>a [class^="ies-"],
+body div#fd.es .es-toolbar .fd-nav>li>a [class*=" ies-"]{
+	color: #fff;
+}
+
+.center.mt-20{
+	display: none;
+}
