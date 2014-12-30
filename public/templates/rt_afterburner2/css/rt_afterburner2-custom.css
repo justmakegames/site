@@ -123,5 +123,5 @@ body div#fd.es.mod-es-groups-categories ul li .es-category-meta{
 }
 
 .klatest-items .knewchar{
-	display: none;
+	display: none !important;
 }
