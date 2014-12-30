@@ -52,7 +52,6 @@ div.kheader{
 
 #rt-top .rt-grid-8 .menu-block{
 	margin: 0;
-	margin-right: 15px;
 }
 
 #rt-top .rt-block .custom{
@@ -109,6 +108,20 @@ body div#fd.es .es-toolbar .fd-nav>li>a [class*=" ies-"]{
 	color: #fff;
 }
 
+body div#fd.es.mod-es-groups ul li .es-avatar{
+	border: none !important;
+	width: 40px !important;
+	height: 40px !important;
+}
+
+body div#fd.es.mod-es-groups-categories ul li .es-category-meta{
+	display: none;
+}
+
 .center.mt-20{
+	display: none;
+}
+
+.klatest-items .knewchar{
 	display: none;
 }

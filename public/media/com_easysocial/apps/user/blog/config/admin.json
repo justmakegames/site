@@ -1,0 +1,61 @@
+[
+	{
+		"title"		: "Default Settings",
+		"desc"		: "This settings will only be affected when you set this app as the default application for users on the site. Configure the default application settings for this app here.",
+		"fields"	:
+		[
+			{
+				"label"		: "Total blog posts to display",
+				"tooltip"	: "Specify the number of feed items to display in the profile",
+				"name"		: "total",
+				"class"		: "input-mini center",
+				"type"		: "text",
+				"default"	: 5
+			},
+			{
+				"label"		: "Content lengths to display in stream",
+				"tooltip"	: "Specify the content lengths when display the blog content in stream. Set 0 to ignore this setting.",
+				"name"		: "maxlength",
+				"class"		: "input-mini center",
+				"type"		: "text",
+				"default"	: 0
+			},
+			{
+				"label"		: "Content truncation type",
+				"tooltip"	: "Specify which method to count the content lenghts",
+				"name"		: "truncation",
+				"type"		: "select",
+				"default"	: "chars",
+				"options"	:
+				[
+					{
+						"title"	: "By Characters",
+						"value"	: "chars"
+					},
+					{
+						"title"	: "By Words",
+						"value"	: "words"
+					}
+				]
+			},
+			{
+				"label"		: "Image alignment",
+				"tooltip"	: "Specify if blog image should display on the left or right.",
+				"name"		: "imagealignment",
+				"type"		: "select",
+				"default"	: "right",
+				"options"	:
+				[
+					{
+						"title"	: "Align left",
+						"value"	: "left"
+					},
+					{
+						"title"	: "Align right",
+						"value"	: "right"
+					}
+				]
+			}
+		]
+	}
+]
