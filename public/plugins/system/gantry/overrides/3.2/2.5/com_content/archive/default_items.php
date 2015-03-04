@@ -10,15 +10,8 @@
 defined('_JEXEC') or die;
 
 $app = JFactory::getApplication();
-$templateparams = $app->getTemplate(true)->params;
-
-if (!$templateparams->get('html5', 0))
-{
-	require JPATH_BASE.'/components/com_content/views/archive/tmpl/default_items.php';
-	//evtl. ersetzen durch JPATH_COMPONENT.'/views/...'
-} else {
 JHtml::addIncludePath(JPATH_COMPONENT . '/helpers');
-$params = &$this->params;
+$params = $this->params;
 ?>
 <ul id="archive-items">
 <?php foreach ($this->items as $i => $item) : ?>
@@ -109,4 +102,3 @@ $params = &$this->params;
 	<span><?php echo $this->pagination->getPagesLinks(); ?></span>
 	<span><?php echo $this->pagination->getPagesCounter(); ?></span>
 </div>
-<?php } ?>

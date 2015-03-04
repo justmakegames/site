@@ -183,9 +183,9 @@ if (!empty($this->item->pagination) AND $this->item->pagination AND !$this->item
 	echo $this->item->pagination;
  endif;
 ?>
-<span itemprop="articleBody">
+<div itemprop="articleBody">
 	<?php echo $this->item->text; ?>
-</span>
+</div>
 
 <?php if ($params->get('show_tags', 1) && !empty($this->item->tags->itemTags)) : ?>
 	<?php $this->item->tagLayout = new JLayoutFile('joomla.content.tags'); ?>

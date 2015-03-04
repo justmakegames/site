@@ -19,7 +19,7 @@ $params = $this->params;
 
 		<h2 itemprop="name">
 		<?php if ($params->get('link_titles')): ?>
-			<a href="<?php echo JRoute::_(ContentHelperRoute::getArticleRoute($item->slug)); ?>" itemprop="url">
+			<a href="<?php echo JRoute::_(ContentHelperRoute::getArticleRoute($item->slug, $item->catslug)); ?>" itemprop="url">
 				<?php echo $this->escape($item->title); ?></a>
 		<?php else: ?>
 				<?php echo $this->escape($item->title); ?>
@@ -105,8 +105,7 @@ $params = $this->params;
 	</li>
 <?php endforeach; ?>
 </ul>
-<div id="pagination">
-	<span><?php echo $this->pagination->getPagesLinks(); ?></span>
-	<span><?php echo $this->pagination->getPagesCounter(); ?></span>
+<div class="pagination">
+	<p class="counter"> <?php echo $this->pagination->getPagesCounter(); ?> </p>
+	<?php echo $this->pagination->getPagesLinks(); ?>
 </div>
-<?php } ?>

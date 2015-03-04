@@ -21,15 +21,18 @@ $cparams = JComponentHelper::getParams('com_media');
 // It will be a separate class if the user starts it with a space
 ?>
 <section class="blog<?php echo $this->pageclass_sfx;?>">
-<?php if ($this->params->get('show_page_heading') != 0 or $this->params->get('show_category_title')): ?>
+<?php if ($this->params->get('show_page_heading', 1)) : ?>
 <h1>
 	<?php echo $this->escape($this->params->get('page_heading')); ?>
-	<?php if ($this->params->get('show_category_title'))
-	{
-		echo '<span class="subheading-category">'.JHtml::_('content.prepare', $this->category->title, '', 'com_content.category.title').'</span>';
-	}
-	?>
 </h1>
+<?php endif; ?>
+
+<?php if ($this->params->get('show_category_title', 1) or $this->params->get('page_subheading')) : ?>
+	<h2> <?php echo $this->escape($this->params->get('page_subheading')); ?>
+		<?php if ($this->params->get('show_category_title')) : ?>
+			<span class="subheading-category"><?php echo $this->category->title; ?></span>
+		<?php endif; ?>
+	</h2>
 <?php endif; ?>
 
 <?php if ($this->params->get('show_description', 1) || $this->params->def('show_description_image', 1)) : ?>
@@ -95,16 +98,16 @@ $cparams = JComponentHelper::getParams('com_media');
 	<?php echo $this->loadTemplate('links'); ?>
 <?php endif; ?>
 
-	<div class="cat-children">
+<div class="cat-children">
 	<?php if (is_array($this->children[$this->category->id]) && count($this->children[$this->category->id]) > 0 && $this->params->get('maxLevel') != 0) : ?>
 		<?php if ($this->params->get('show_category_heading_title_text', 1) == 1) : ?>
-		<h3>
-<?php echo JTEXT::_('JGLOBAL_SUBCATEGORIES'); ?>
-</h3>
+			<h3>
+				<?php echo JTEXT::_('JGLOBAL_SUBCATEGORIES'); ?>
+			</h3>
 		<?php endif; ?>
+		<?php echo $this->loadTemplate('children'); ?>
 	<?php endif; ?>
-			<?php echo $this->loadTemplate('children'); ?>
-		</div>
+</div>
 
 
 <?php if (($this->params->def('show_pagination', 1) == 1  || ($this->params->get('show_pagination') == 2)) && ($this->pagination->pagesTotal > 1)) : ?>
