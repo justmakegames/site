@@ -3,7 +3,7 @@
 * Kunena Component
 * @package Kunena.Template.Blue_Eagle
 *
-* @copyright (C) 2008 - 2014 Kunena Team. All rights reserved.
+* @copyright (C) 2008 - 2015 Kunena Team. All rights reserved.
 * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
 * @link http://www.kunena.org
 **/
@@ -33,6 +33,7 @@ class KunenaTemplateBlue_Eagle extends KunenaTemplate {
 
 		require_once JPATH_SITE. '/' . $this->getFile('initialize.php');
 		$this->addStyleSheet ( 'css/kunena.20.css' );
+		$this->addStyleSheet ( 'css/custom.css' );
 
 		// Toggler language strings
 		JFactory::getDocument()->addScriptDeclaration('// <![CDATA[

@@ -4,7 +4,7 @@
  * @package Kunena.Administrator.Template
  * @subpackage CPanel
  *
- * @copyright (C) 2008 - 2014 Kunena Team. All rights reserved.
+ * @copyright (C) 2008 - 2015 Kunena Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link http://www.kunena.org
  **/
@@ -57,6 +57,10 @@ defined ( '_JEXEC' ) or die ();
 								<a class="btn" href="index.php?option=com_kunena&view=tools&layout=cleanupip">
 									<img src="components/com_kunena/media/icons/large/cleanupip.png" alt="<?php echo JText::_('COM_KUNENA_CPANEL_LABEL_CLEANUP_IP') ?>" /><br />
 									<span><?php echo JText::_('COM_KUNENA_CPANEL_LABEL_CLEANUP_IP'); ?></span>
+								</a>
+								<a class="btn" href="index.php?option=com_kunena&view=tools&layout=uninstall">
+									<img src="components/com_kunena/media/icons/large/uninstall_kunena.png" alt="<?php echo JText::_('COM_KUNENA_TOOLS_LABEL_UNINSTALL_PROCESS'); ?>" /><br />
+									<span><?php echo JText::_('COM_KUNENA_TOOLS_LABEL_UNINSTALL_PROCESS'); ?></span>
 								</a>
 								<?php if (KunenaForum::isDev()) : ?>
 									<a class="btn" href="index.php?option=com_kunena&view=install">

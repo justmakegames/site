@@ -4,7 +4,7 @@
  * @package Kunena.Plugins
  * @subpackage Finder
  *
- * @Copyright (C) 2008 - 2014 Kunena Team. All rights reserved.
+ * @Copyright (C) 2008 - 2015 Kunena Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link http://www.kunena.org
  **/
@@ -282,12 +282,12 @@ class plgFinderKunena extends FinderIndexerAdapter {
 	protected function setup() {
 		// Initialize CLI
 		$api = JPATH_ADMINISTRATOR . '/components/com_kunena/api.php';
-		if (file_exists($api)) {
+		if (is_file($api)) {
 			require_once $api;
 		}
 
 		// Check if Kunena has been installed.
-		if (! class_exists ( 'KunenaForum' ) || ! KunenaForum::isCompatible('3.0') || ! KunenaForum::installed()) {
+		if (! class_exists ( 'KunenaForum' ) || ! KunenaForum::isCompatible('4.0') || ! KunenaForum::installed()) {
 			return false;
 		}
 		KunenaForum::setup();
