@@ -1,6 +1,6 @@
 <?php
 /**
- * @version   $Id: doc_body.php 2381 2012-08-15 04:14:26Z btowles $
+ * @version   $Id: doc_body.php 27460 2015-03-08 07:58:34Z matias $
  * @author    RocketTheme http://www.rockettheme.com
  * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
@@ -30,7 +30,7 @@ class GantryLayoutDoc_Body extends GantryLayout {
 
     ob_start();
 	//XHTML LAYOUT
-?><?php if(null != $fparams->id):?>id="<?php echo $fparams->id;?>"<?php endif;?> <?php if(strlen($fparams->classes) > 0):?>class="<?php echo $fparams->classes; ?>"<?php endif;?><?php
+?><?php if(null != $fparams->id):?>id="<?php echo $this->escape($fparams->id);?>"<?php endif;?> <?php if(strlen($fparams->classes) > 0):?>class="<?php echo $this->escape($fparams->classes); ?>"<?php endif;?><?php
 	return ob_get_clean();
     }
 }

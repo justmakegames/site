@@ -1,0 +1,2 @@
+
+FD31.component("EasyBlog", {"environment":"static","source":"local","mode":"compressed","baseUrl":"http:\/\/jmg.fly1.cagehost.com\/index.php?option=com_easyblog&lang=&Itemid=256","version":"3.9.19775","scriptVersioning":true,"responsive":true});
