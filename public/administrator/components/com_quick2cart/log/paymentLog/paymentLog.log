@@ -1,0 +1,7 @@
+#
+#<?php die('Forbidden.'); ?>
+#Date: 2015-10-03 04:02:09 UTC
+#Software: Joomla Platform 13.1.0 Stable [ Curiosity ] 24-Apr-2013 00:00 GMT
+
+#Fields: date	time	user	desc
+2015-10-03	04:02:09	Alex(3096)	{"post":{"submit":"Pay Now","order_id":"OID-O815Z-00000000006","total":"100.00","user_id":"3096","return":"http:\/\/jmg.fly1.cagehost.com\/component\/quick2cart\/?view=orders&layout=order&orderid=6&processor=easysocialpoints&Itemid=0","plugin_payment_method":"onsite"},"get":{"option":"com_quick2cart","task":"payment.processpayment","orderid":"6","processor":"easysocialpoints"},"JT_CLIENT":"com_quick2cart"}

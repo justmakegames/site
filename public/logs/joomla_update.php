@@ -21,3 +21,11 @@
 2015-03-04T07:48:12+00:00	INFO 98.103.209.187	update	Deleting removed files and folders.
 2015-03-04T07:48:19+00:00	INFO 98.103.209.187	update	Cleaning up after installation.
 2015-03-04T07:48:19+00:00	INFO 98.103.209.187	update	Update to version 3.4.0 is complete.
+2015-10-03T02:01:40+00:00	INFO 75.142.1.93	update	Update started by user Alex (3096). Old version is 3.4.0.
+2015-10-03T02:01:40+00:00	INFO 75.142.1.93	update	Downloading update file from https://github.com/joomla/joomla-cms/releases/download/3.4.4/Joomla_3.4.x_to_3.4.4-Stable-Patch_Package.zip.
+2015-10-03T02:01:43+00:00	INFO 75.142.1.93	update	File Joomla_3.4.x_to_3.4.4-Stable-Patch_Package.zip successfully downloaded.
+2015-10-03T02:01:43+00:00	INFO 75.142.1.93	update	Starting installation of new version.
+2015-10-03T02:01:45+00:00	INFO 75.142.1.93	update	Finalising installation.
+2015-10-03T02:01:45+00:00	INFO 75.142.1.93	update	Deleting removed files and folders.
+2015-10-03T02:01:45+00:00	INFO 75.142.1.93	update	Cleaning up after installation.
+2015-10-03T02:01:45+00:00	INFO 75.142.1.93	update	Update to version 3.4.0 is complete.

@@ -122,7 +122,9 @@ define( 'CATEGORY_ACL_ACTION_SELECT'	, '2');
 define ("EBLOG_EMOTICONS_DIR", rtrim( JURI::root() , '/' ) . '/components/com_easyblog/classes/markitup/sets/bbcode/images/');
 
 //powered by link
-define ('EBLOG_POWERED_BY_LINK', '<div style="text-align: center; padding: 20px 0;"><a href="http://stackideas.com">Powered by EasyBlog for Joomla!</a></div>');
+// JMG corehax
+//define ('EBLOG_POWERED_BY_LINK', '<div style="text-align: center; padding: 20px 0;"><a href="http://stackideas.com">Powered by EasyBlog for Joomla!</a></div>');
+define ('EBLOG_POWERED_BY_LINK', '');
 
 // Ratings
 define( 'EBLOG_RATINGS_TYPE_ENTRY' , 'entry' );

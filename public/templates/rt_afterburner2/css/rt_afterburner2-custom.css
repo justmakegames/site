@@ -125,3 +125,33 @@ body div#fd.es.mod-es-groups-categories ul li .es-category-meta{
 .klatest-items .knewchar{
 	display: none;
 }
+
+/* Product Prizes */
+
+
+.q2c_pin_wrapper .thumbnail{
+	padding: 0 10px;
+}
+
+.q2c_pin_wrapper .thumbnail .caption{
+	padding: 10px;
+	font-weight: bold;
+}
+
+.q2c_pin_wrapper .thumbnail .caption a{
+	font-size: 110%;
+}
+
+.q2c-wrapper .thumbnails > li.prodImg_wrapper{
+	float: left; margin-right: 10px;
+}
+
+.q2c-wrapper .caption .hr-condensed{
+	display: none;
+}
+
+.q2c-wrapper .caption .form-horizontal{
+	margin-top: 10px;
+	padding-bottom: 20px;
+	border-bottom: 2px solid #eee;
+}
