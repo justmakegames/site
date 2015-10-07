@@ -69,3 +69,7 @@
 2015-10-03T04:50:13+00:00	INFO 75.142.1.93	cookiefailure	Empty password not allowed.
 2015-10-03T04:50:24+00:00	INFO 75.142.1.93	cookiefailure	Empty password not allowed.
 2015-10-03T20:09:50+00:00	INFO 75.142.1.93	joomlafailure	Username and password do not match or you do not have an account yet.
+2015-10-05T03:55:54+00:00	INFO 75.142.1.93	joomlafailure	Username and password do not match or you do not have an account yet.
+2015-10-05T21:17:03+00:00	INFO 66.241.91.158	joomlafailure	Username and password do not match or you do not have an account yet.
+2015-10-05T21:17:07+00:00	INFO 66.241.91.158	joomlafailure	Username and password do not match or you do not have an account yet.
+2015-10-06T07:18:31+00:00	INFO 75.142.1.93	joomlafailure	Username and password do not match or you do not have an account yet.

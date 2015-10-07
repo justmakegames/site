@@ -1,8 +1,8 @@
 <?php
 return [
     'file' => 'gantry-theme://css-compiled/custom__body_only.css',
-    'timestamp' => 1443838038,
-    'md5' => '76409eda08dc6d5acbab915ed8c6e4a1',
+    'timestamp' => 1444114883,
+    'md5' => '8f5ab21beb638a8398f87cbb2f28ea87',
     'variables' => [
         'accent-color-1' => '#3180c2',
         'accent-color-2' => '#ef6c00',
@@ -164,6 +164,7 @@ return [
         'gantry-engine://scss/joomla/theme/breakpoints/_base.scss' => 1443837725,
         'gantry-engine://scss/joomla/theme/breakpoints/_bootstrap.scss' => 1443837725,
         'gantry-engine://scss/joomla/theme/breakpoints/_forms.scss' => 1443837725,
-        'gantry-engine://scss/joomla/theme/breakpoints/_utilities.scss' => 1443837725
+        'gantry-engine://scss/joomla/theme/breakpoints/_utilities.scss' => 1443837725,
+        'gantry-theme://scss/custom.scss' => 1444114711
     ]
 ];

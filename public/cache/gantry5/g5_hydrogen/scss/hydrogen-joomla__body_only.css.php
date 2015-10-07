@@ -1,7 +1,7 @@
 <?php
 return [
     'file' => 'gantry-theme://css-compiled/hydrogen-joomla__body_only.css',
-    'timestamp' => 1443838038,
+    'timestamp' => 1444114883,
     'md5' => 'f9521690b91efed6061500f23c8483d0',
     'variables' => [
         'accent-color-1' => '#3180c2',

@@ -39,8 +39,12 @@
 
     <positions>
         <position>breadcrumbs</position>
+        <position>debug</position>
         <position>footer</position>
         <position>header</position>
+        <position>home-main</position>
+        <position>home-sidebar</position>
+        <position>sidebar-a</position>
     </positions>
 
     <config>

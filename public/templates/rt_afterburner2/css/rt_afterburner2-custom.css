@@ -27,6 +27,7 @@ div.kheader{
 }
 
 /* Mobile Menu */
+
 @media only screen and (max-width: 767px){
 	#rt-top .rt-grid-4 .rt-block{
 		margin-top: 30px;
@@ -59,16 +60,16 @@ div.kheader{
 	line-height: 44px;
 }
 
-#rt-top .rt-block .custom img{
-	
-}
-
 #rt-top .gf-menu .item{
 	font-weight: bold;
 	letter-spacing: 1px;
 }
 
 /* Easy Social Easy Blog */
+
+.ezb-mod .avatar{
+	border: 0 !important;
+}
 
 #ezblog-head .component-links{
 	display: none;
@@ -101,6 +102,10 @@ body div#fd.es.popbox.popbox-toolbar .arrow{
 
 #rt-sidebar-a .module-content .mod-es-dropdown-menu{
 	float: right;
+}
+
+#rt-sidebar-a .rt-block{
+	overflow: hidden;
 }
 
 body div#fd.es .es-toolbar .fd-nav>li>a [class^="ies-"],
@@ -155,3 +160,4 @@ body div#fd.es.mod-es-groups-categories ul li .es-category-meta{
 	padding-bottom: 20px;
 	border-bottom: 2px solid #eee;
 }
+

@@ -341,7 +341,7 @@ class __TwigTemplate_9f63558dfecd15fe2865791059be7beae7cbed994a43fd49f2b161f5119
         foreach ($context['_seq'] as $context["childName"] => $context["child"]) {
             // line 57
             echo "                                                    ";
-            if ((is_string($__internal_2213a74917bbfb59cabdb4c4f6cb6cd512436daee1f3c3cdbd67eeb6f83fcd01 = $context["childName"]) && is_string($__internal_5a95303fb35c0e03d0e063b7eebeb3e3e4c0d5a83ac4d1c3e1ac135c95b1d371 = ".") && ('' === $__internal_5a95303fb35c0e03d0e063b7eebeb3e3e4c0d5a83ac4d1c3e1ac135c95b1d371 || 0 === strpos($__internal_2213a74917bbfb59cabdb4c4f6cb6cd512436daee1f3c3cdbd67eeb6f83fcd01, $__internal_5a95303fb35c0e03d0e063b7eebeb3e3e4c0d5a83ac4d1c3e1ac135c95b1d371)))) {
+            if ((is_string($__internal_fd69652f6d281b0ce9872a03924650e81077d8b315121be85a34bd9b6cd417d3 = $context["childName"]) && is_string($__internal_ea3f6f214ed69f5c81348c852681b69489fe3abef28988647e24de3fac13214a = ".") && ('' === $__internal_ea3f6f214ed69f5c81348c852681b69489fe3abef28988647e24de3fac13214a || 0 === strpos($__internal_fd69652f6d281b0ce9872a03924650e81077d8b315121be85a34bd9b6cd417d3, $__internal_ea3f6f214ed69f5c81348c852681b69489fe3abef28988647e24de3fac13214a)))) {
                 // line 58
                 echo "                                                        ";
                 $context["childKey"] = trim($context["childName"], ".");

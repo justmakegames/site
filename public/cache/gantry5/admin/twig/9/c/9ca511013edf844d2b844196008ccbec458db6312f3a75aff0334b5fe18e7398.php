@@ -60,7 +60,7 @@ class __TwigTemplate_5f753bcb26eb8ccbe8e77a26fd854e2e6af10c10b44ff08617b54e47f24
             foreach ($context['_seq'] as $context["name"] => $context["field"]) {
                 // line 12
                 echo "        ";
-                if ((is_string($__internal_d254a70f2b9efee9256b1f86802571533cdfc8d2b182597bdae2c29d00de2648 = $context["name"]) && is_string($__internal_f71ef66dd49934ae54440598c56ca388a40ece6febe79c800e9b9e5686dcce92 = ".") && ('' === $__internal_f71ef66dd49934ae54440598c56ca388a40ece6febe79c800e9b9e5686dcce92 || 0 === strpos($__internal_d254a70f2b9efee9256b1f86802571533cdfc8d2b182597bdae2c29d00de2648, $__internal_f71ef66dd49934ae54440598c56ca388a40ece6febe79c800e9b9e5686dcce92)))) {
+                if ((is_string($__internal_5ea747322ca6af3c5a72356f977cdc6aa931386c0062250ab65dcd0ca3592ff2 = $context["name"]) && is_string($__internal_d087f96fced7db4615d57a723a2659c158f3915369fd46d788c80e4a86ebea3e = ".") && ('' === $__internal_d087f96fced7db4615d57a723a2659c158f3915369fd46d788c80e4a86ebea3e || 0 === strpos($__internal_5ea747322ca6af3c5a72356f977cdc6aa931386c0062250ab65dcd0ca3592ff2, $__internal_d087f96fced7db4615d57a723a2659c158f3915369fd46d788c80e4a86ebea3e)))) {
                     // line 13
                     echo "            ";
                     $context["name"] = twig_slice($this->env, $context["name"], 1, null);

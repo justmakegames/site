@@ -1,8 +1,8 @@
 <?php
 return [
     '@class' => 'Gantry\\Component\\Config\\CompiledConfig',
-    'timestamp' => 1443838156,
-    'checksum' => 'e6439a7b40ed4d151f90e1baee9ad29e',
+    'timestamp' => 1444107183,
+    'checksum' => '1e770fe5596d4e95883bc6891d8f073d',
     'files' => [
         'templates/g5_hydrogen/custom/config/default' => [
             'index' => [
@@ -11,71 +11,71 @@ return [
             ],
             'particles/analytics' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/analytics.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/assets' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/assets.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/branding' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/branding.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/copyright' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/copyright.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/custom' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/custom.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/date' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/date.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/logo' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/logo.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/menu' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/menu.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/mobile-menu' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/mobile-menu.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/module' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/module.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/pagecontent' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/pagecontent.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/position' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/position.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/sample' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/sample.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/social' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/social.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/spacer' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/spacer.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/system-messages' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/system-messages.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'particles/totop' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/totop.yaml',
-                'modified' => 1443838156
+                'modified' => 1444034222
             ],
             'styles' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/styles.yaml',
@@ -175,7 +175,19 @@ return [
                 'enabled' => '1',
                 'in_footer' => false,
                 'css' => [
-                    
+                    0 => [
+                        'location' => '',
+                        'inline' => '.gantry-logo img{
+width:300px;
+}
+#g-header #fd{
+float: right;
+}',
+                        'extra' => [
+                            
+                        ],
+                        'name' => 'override.css'
+                    ]
                 ],
                 'javascript' => [
                     

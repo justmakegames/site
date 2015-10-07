@@ -1,0 +1,387 @@
+preset:
+  image: 'gantry-admin://images/layouts/default.png'
+  name: default
+  timestamp: 1443837785
+children:
+  -
+    id: 07d01b19-0887-cde4-6166-a89336a87be7
+    type: section
+    subtype: false
+    title: Header
+    attributes:
+      boxed: '0'
+      class: ''
+      extra: {  }
+    children:
+      -
+        id: 55fd0729-22b2-4e56-fd9a-277c822b025b
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: f941d1e8-48c8-5c0a-cda4-feba0607d26c
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 67
+            children:
+              -
+                id: b86a9e2e-f5b9-1bce-3111-9e4e56e87752
+                type: particle
+                subtype: logo
+                title: Logo
+                attributes:
+                  enabled: 1
+                children: {  }
+          -
+            id: e0765af1-d277-8b5f-7bc9-63ec811fe402
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 33
+            children:
+              -
+                id: af71b9c6-1be2-d629-1c70-e8833ae5c73c
+                type: position
+                subtype: false
+                title: Header
+                attributes:
+                  enabled: 1
+                  key: header
+                  title: Header
+                children: {  }
+  -
+    id: e88e3522-b5b3-6cda-3380-1994539390c4
+    type: section
+    subtype: false
+    title: Navigation
+    attributes:
+      boxed: 0
+    children:
+      -
+        id: 1937acc3-83b8-101b-87b2-bbfa50c4af79
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: 0c4482b4-78c3-421c-b0d4-cd05fa1db4e9
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 100
+            children:
+              -
+                id: 363db438-f75b-a125-79e4-32ec4fe327ba
+                type: particle
+                subtype: menu
+                title: Menu
+                attributes:
+                  enabled: 1
+                children: {  }
+  -
+    id: ae4678a2-a078-738e-1df6-ef7bb29c6111
+    type: section
+    subtype: false
+    title: Main
+    attributes:
+      boxed: 0
+    children:
+      -
+        id: 5719973f-4ec7-a46a-2993-b51df17f51b4
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: 6835134a-8095-a336-1b99-087152c2f3c8
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 100
+            children:
+              -
+                id: 22950900-0f55-c6fb-01e1-486a83110c67
+                type: position
+                subtype: false
+                title: Breadcrumbs
+                attributes:
+                  enabled: 1
+                  key: breadcrumbs
+                  title: Breadcrumbs
+                children: {  }
+      -
+        id: 430bbadc-76c3-fa9d-9064-1c88d20260ad
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: 5fd115c8-7252-3922-63f2-eb81d6d286bb
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 100
+            children:
+              -
+                id: 29b88355-d235-9632-0775-b994807f00fe
+                type: pagecontent
+                subtype: system-messages
+                title: 'System Messages'
+                attributes:
+                  enabled: 1
+                children: {  }
+      -
+        id: 717865bb-afab-47a0-a6d6-d54e487aecda
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: d41f8514-23a4-4c57-aa93-18d06cbee4c4
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 70
+              extra: {  }
+              fixed: '0'
+            children:
+              -
+                id: d5c402cd-f48c-4313-b953-7feadb363262
+                type: position
+                subtype: position
+                title: 'Home Main'
+                attributes:
+                  enabled: 1
+                  key: home-main
+                  title: 'Home Main'
+                children: {  }
+          -
+            id: 006d54fd-9d53-4a81-a003-a1d3acda22e7
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 30
+              extra: {  }
+              fixed: '0'
+            children:
+              -
+                id: 7e829d9a-29b5-4b56-89b2-3f3699a8e39e
+                type: position
+                subtype: position
+                title: 'Home Sidebar'
+                attributes:
+                  enabled: 1
+                  key: home-sidebar
+                  title: 'Home Sidebar'
+                children: {  }
+      -
+        id: 0c53fd37-3f36-3e92-a55d-83eedc49e08f
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: 8066e78d-81ca-5eb3-7a5b-6d5e7204556b
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 70
+            children:
+              -
+                id: ddab46fe-a017-80e7-c258-af1a20009689
+                type: pagecontent
+                subtype: false
+                title: Pagecontent
+                attributes:
+                  enabled: 1
+                children: {  }
+          -
+            id: b8b452d5-936c-49a7-9f1c-ab937d8787c2
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 30
+              extra: {  }
+              fixed: '0'
+            children:
+              -
+                id: dc9ac48b-5fdb-468c-a06a-83cfc7ed0096
+                type: position
+                subtype: position
+                title: 'Sidebar A'
+                attributes:
+                  enabled: 1
+                  key: sidebar-a
+                  title: 'Sidebar A'
+                children: {  }
+  -
+    id: 1a941a11-db56-449e-ca7d-8f2d911e4a33
+    type: section
+    subtype: false
+    title: Footer
+    attributes:
+      boxed: 0
+    children:
+      -
+        id: 17b71488-85fd-f5ed-72f9-1dcfcad25ab7
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: 419fde14-69bf-208f-9cf7-f3d1c3e38453
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 100
+            children:
+              -
+                id: 3ad4f7ed-bf6d-65d4-1e87-58412c138f66
+                type: position
+                subtype: false
+                title: Footer
+                attributes:
+                  enabled: 1
+                  key: footer
+                  title: Footer
+                children: {  }
+      -
+        id: 2519f02e-1684-63fe-80fb-099aaee64644
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: 7137933f-a054-8c5a-3d2e-c22863ad1065
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 40
+            children:
+              -
+                id: 3621fa7b-d14a-bbb9-493a-ac0e4d00c593
+                type: particle
+                subtype: copyright
+                title: Copyright
+                attributes:
+                  enabled: 1
+                children: {  }
+          -
+            id: 38656625-d1b3-5558-dacc-fa7f84483a31
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 30
+            children:
+              -
+                id: d554fe7d-e8dd-734a-8635-90e72b8f7aac
+                type: spacer
+                subtype: false
+                title: Spacer
+                attributes:
+                  enabled: 1
+                children: {  }
+          -
+            id: 95f820a8-ae0f-5a3b-09e1-e9953a394631
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 30
+            children:
+              -
+                id: d91b77da-05e0-169d-5f63-5e36b6b6031c
+                type: particle
+                subtype: branding
+                title: Branding
+                attributes:
+                  enabled: 1
+                children: {  }
+  -
+    id: caca437a-758e-f1d1-9a09-a941a09c25c8
+    type: offcanvas
+    subtype: false
+    title: Offcanvas
+    attributes:
+      name: 'Offcanvas Section'
+      boxed: 0
+    children:
+      -
+        id: edddb735-6cee-12c7-46f7-9c38aa680a47
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: 0cf124b6-3a56-b950-3f5a-0f972762020a
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 100
+            children:
+              -
+                id: b5c0b3e8-c6ea-bb18-8655-3f3f6a29ebdb
+                type: particle
+                subtype: mobile-menu
+                title: Mobile-menu
+                attributes:
+                  enabled: 1
+                children: {  }
+  -
+    id: 8025a922-e7d5-f35c-3a9b-970caeedd8af
+    type: atoms
+    subtype: false
+    title: Atoms
+    attributes:
+      name: 'Atoms Section'
+      boxed: 0
+    children:
+      -
+        id: e6fa1f03-5e51-4cfa-ae38-ef82dcc9f96a
+        type: grid
+        subtype: false
+        title: Untitled
+        attributes: {  }
+        children:
+          -
+            id: 9e4b081a-ca1d-4ede-b2eb-daabffc67890
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 100
+            children:
+              -
+                id: d2c16a15-8e9b-43cb-ac94-380e40a7dd82
+                type: atom
+                subtype: assets
+                title: 'Custom CSS / JS'
+                attributes:
+                  enabled: 1
+                  css: {  }
+                  javascript: {  }
+                children: {  }

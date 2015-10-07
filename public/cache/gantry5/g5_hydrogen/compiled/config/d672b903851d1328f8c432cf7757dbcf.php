@@ -1,8 +1,8 @@
 <?php
 return [
     '@class' => 'Gantry\\Component\\Config\\CompiledConfig',
-    'timestamp' => 1443838038,
-    'checksum' => '02eaae110fd3f6c8351822143f117875',
+    'timestamp' => 1444114882,
+    'checksum' => '8eec484c060e26c2bb271d75ca7969c7',
     'files' => [
         'templates/g5_hydrogen/custom/config/_body_only' => [
             'index' => [
@@ -20,6 +20,74 @@ return [
             'index' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/index.yaml',
                 'modified' => 1443837785
+            ],
+            'particles/analytics' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/analytics.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/assets' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/assets.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/branding' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/branding.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/copyright' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/copyright.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/custom' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/custom.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/date' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/date.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/logo' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/logo.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/menu' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/menu.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/mobile-menu' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/mobile-menu.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/module' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/module.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/pagecontent' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/pagecontent.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/position' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/position.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/sample' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/sample.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/social' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/social.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/spacer' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/spacer.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/system-messages' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/system-messages.yaml',
+                'modified' => 1444034222
+            ],
+            'particles/totop' => [
+                'file' => 'templates/g5_hydrogen/custom/config/default/particles/totop.yaml',
+                'modified' => 1444034222
             ],
             'styles' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/styles.yaml',
@@ -107,36 +175,58 @@ return [
         ],
         'particles' => [
             'analytics' => [
-                'enabled' => true,
+                'enabled' => '1',
                 'ua' => [
-                    'anonym' => false,
-                    'ssl' => false,
-                    'debug' => false
+                    'anonym' => '0',
+                    'ssl' => '0',
+                    'debug' => '0',
+                    'code' => ''
                 ]
             ],
             'assets' => [
-                'enabled' => true,
-                'in_footer' => false
+                'enabled' => '1',
+                'in_footer' => false,
+                'css' => [
+                    0 => [
+                        'location' => '',
+                        'inline' => '.gantry-logo img{
+width:300px;
+}
+#g-header #fd{
+float: right;
+}',
+                        'extra' => [
+                            
+                        ],
+                        'name' => 'override.css'
+                    ]
+                ],
+                'javascript' => [
+                    
+                ]
             ],
             'branding' => [
-                'enabled' => true,
+                'enabled' => '1',
                 'content' => 'Powered by <a href="http://www.gantry.org/" title="Gantry Framework" class="g-powered-by">Gantry Framework</a>',
                 'css' => [
                     'class' => 'branding'
                 ]
             ],
             'copyright' => [
-                'enabled' => true,
+                'enabled' => '1',
                 'date' => [
                     'start' => 'now',
                     'end' => 'now'
-                ]
+                ],
+                'owner' => ''
             ],
             'custom' => [
-                'enabled' => true
+                'enabled' => '1',
+                'html' => '',
+                'filter' => '0'
             ],
             'date' => [
-                'enabled' => true,
+                'enabled' => '1',
                 'css' => [
                     'class' => 'date'
                 ],
@@ -147,52 +237,68 @@ return [
             'logo' => [
                 'enabled' => '1',
                 'url' => '',
-                'image' => 'gantry-assets://images/gantry5-logo.png',
-                'text' => 'Gantry 5',
+                'image' => 'gantry-media://jmg_logo.png',
+                'text' => 'Just Make Games',
                 'class' => 'gantry-logo'
             ],
             'menu' => [
-                'enabled' => true,
-                'menu' => '',
+                'enabled' => '1',
+                'menu' => 'mainmenu',
                 'base' => '/',
-                'startLevel' => 1,
-                'maxLevels' => 0,
-                'renderTitles' => 0,
-                'mobileTarget' => 0
+                'startLevel' => '1',
+                'maxLevels' => '0',
+                'renderTitles' => '0',
+                'mobileTarget' => '0'
             ],
             'mobile-menu' => [
-                'enabled' => true
+                'enabled' => '1'
             ],
             'module' => [
-                'enabled' => true
+                'enabled' => '1',
+                'chrome' => ''
             ],
             'pagecontent' => [
-                'enabled' => true
+                'enabled' => '1'
             ],
             'position' => [
-                'enabled' => true
+                'enabled' => '1',
+                'chrome' => ''
             ],
             'social' => [
-                'enabled' => true,
+                'enabled' => '1',
                 'css' => [
                     'class' => 'social'
                 ],
-                'target' => '_blank'
-            ],
-            'spacer' => [
-                'enabled' => true
-            ],
-            'system-messages' => [
-                'enabled' => true
-            ],
-            'totop' => [
-                'enabled' => true,
-                'css' => [
-                    'class' => 'totop'
+                'target' => '_blank',
+                'title' => '',
+                'items' => [
+                    
                 ]
             ],
+            'spacer' => [
+                'enabled' => '1'
+            ],
+            'system-messages' => [
+                'enabled' => '1'
+            ],
+            'totop' => [
+                'enabled' => '1',
+                'css' => [
+                    'class' => 'totop'
+                ],
+                'icon' => '',
+                'content' => ''
+            ],
             'sample' => [
-                'enabled' => true
+                'enabled' => '1',
+                'image' => '',
+                'headline' => '',
+                'description' => '',
+                'link' => '',
+                'linktext' => '',
+                'samples' => [
+                    
+                ]
             ]
         ],
         'index' => [

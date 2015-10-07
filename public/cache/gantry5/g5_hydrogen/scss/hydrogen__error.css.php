@@ -1,7 +1,7 @@
 <?php
 return [
     'file' => 'gantry-theme://css-compiled/hydrogen__error.css',
-    'timestamp' => 1443838038,
+    'timestamp' => 1444098409,
     'md5' => '8eaf34a974b8de8beab6c4524a3f636e',
     'variables' => [
         'accent-color-1' => '#3180c2',
@@ -152,18 +152,6 @@ return [
         'gantry-theme://scss/hydrogen/_dropdownanimations.scss' => 1443837785,
         'gantry-engine://scss/nucleus/theme/breakpoints/_base.scss' => 1443837725,
         'gantry-engine://scss/nucleus/theme/breakpoints/_flex.scss' => 1443837725,
-        'gantry-engine://scss/nucleus/theme/breakpoints/_utilities.scss' => 1443837725,
-        'gantry-theme://scss/hydrogen-joomla.scss' => 1443837785,
-        'gantry-engine://scss/joomla/theme/_base.scss' => 1443837725,
-        'gantry-engine://scss/joomla/theme/_forms.scss' => 1443837725,
-        'gantry-theme://scss/hydrogen-joomla/_core.scss' => 1443837785,
-        'gantry-theme://scss/hydrogen-joomla/_typography.scss' => 1443837785,
-        'gantry-theme://scss/hydrogen-joomla/_forms.scss' => 1443837785,
-        'gantry-theme://scss/hydrogen-joomla/_tabs.scss' => 1443837785,
-        'gantry-theme://scss/hydrogen-joomla/_utilities.scss' => 1443837785,
-        'gantry-engine://scss/joomla/theme/breakpoints/_base.scss' => 1443837725,
-        'gantry-engine://scss/joomla/theme/breakpoints/_bootstrap.scss' => 1443837725,
-        'gantry-engine://scss/joomla/theme/breakpoints/_forms.scss' => 1443837725,
-        'gantry-engine://scss/joomla/theme/breakpoints/_utilities.scss' => 1443837725
+        'gantry-engine://scss/nucleus/theme/breakpoints/_utilities.scss' => 1443837725
     ]
 ];

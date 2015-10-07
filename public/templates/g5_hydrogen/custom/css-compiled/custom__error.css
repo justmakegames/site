@@ -8,4 +8,139 @@
    http://docs.gantry.org/gantry5/tutorials/adding-a-custom-style-sheet
  */
 
-/* @import "custom.scss" */
+/* line 1, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+body div#fd.es.mod-es-dropdown-menu .dropdown-toggle-user-name {
+  margin-left: 10px;
+  letter-spacing: 1px;
+}
+/* line 6, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+body div#fd .label {
+  line-height: 24px;
+  padding: 5px;
+}
+/* line 11, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+body div#fd.es.mod-es-dropdown-menu .es-avatar {
+  border-color: #3180c2;
+}
+/* line 15, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+#system-message .alert {
+  margin: 0 25px;
+}
+/* line 19, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.breadcrumb {
+  margin-bottom: 0;
+}
+/* line 23, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.g-offcanvas-toggle {
+  font-size: 2rem;
+}
+/* line 27, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.gantry-logo img {
+  width: 300px;
+}
+/* line 32, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+body div#fd.es.mod-es-dropdown-menu .mod-bd {
+  float: right;
+  min-height: 70px;
+}
+/* line 37, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+body div#fd.es.mod-es-dropdown-menu .dropdown-toggle-user-name strong {
+  color: inherit;
+}
+/* line 41, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.ezb-mod .avatar {
+  border: 0;
+}
+/* line 45, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+#mod_showcase .showcase-readmore a.showcase-button, #mod_showcase .showcase-readmore a.showcase-button:hover {
+  height: 32px;
+}
+/* line 50, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+#mod_showcase .showcase-navi a.item, #mod_showcase a.showcase-more, #mod_showcase a.showcase-more:hover {
+  height: 28px;
+}
+/* Prizes */
+/* line 59, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.q2c-wrapper .thumbnail {
+  padding: 10px;
+}
+/* line 63, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.q2c-wrapper .hr-condensed {
+  display: none;
+}
+/* line 67, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.q2c-wrapper .form-horizontal {
+  padding-top: 10px;
+}
+/* line 71, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.form-horizontal .control-group {
+  clear: both;
+  float: left;
+  margin-right: 40px;
+}
+/* line 77, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.q2c-wrapper .form-horizontal .control-label {
+  text-align: left;
+  width: 80px;
+}
+/* line 82, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.form-horizontal .controls {
+  margin-left: 100px;
+}
+/* line 86, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.q2c-wrapper .form-horizontal .qtc_controls_text {
+  font-weight: bold;
+  color: #3180c2;
+}
+/* line 91, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.blog .q2c-wrapper {
+  padding-bottom: 20px;
+  border-bottom: 2px solid #eee;
+}
+/* line 96, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.items-row.cols-2 .item {
+  padding: 10px;
+  border: 1px solid #eee;
+  margin-bottom: 10px;
+}
+/* line 102, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.article-info .article-info-term {
+  display: none;
+}
+/* Articles */
+/* line 108, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.pull-left.item-image {
+  max-width: 100%;
+}
+/* line 112, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+#eblog-wrapper #ezblog-menu {
+  min-height: 32px;
+}
+/* line 116, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+#ezblog-menu.narrow .btn-eb-navbar {
+  min-width: 40px;
+  min-height: 32px;
+}
+/* line 121, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+#ezblog-head .component-links {
+  display: none;
+}
+/* Comments */
+/* line 127, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+.comment-form .form-row .label {
+  padding: 5px;
+  font-size: 12px;
+}
+/* line 132, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+body #comment-form .inputbox {
+  line-height: 24px;
+  text-indent: 10px;
+}
+/* line 137, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+#comment-form .form-row label {
+  display: inline;
+}
+/* line 141, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+#ezblog-body #button-related a {
+  min-height: 37px;
+}

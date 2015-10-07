@@ -1,7 +1,7 @@
 <?php
 return [
     '@class' => 'Gantry\\Component\\Config\\CompiledBlueprints',
-    'timestamp' => 1443837785,
+    'timestamp' => 1444095487,
     'checksum' => 'c1f2e1debc24099420d94671996393b3',
     'files' => [
         'templates/g5_hydrogen/particles' => [
