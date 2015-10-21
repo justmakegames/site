@@ -37,14 +37,17 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php if ($options['showLoadMore']) { ?>
 		<?php if (isset($nextStart) && $nextStart >= 0) { ?>
 			<button data-album-more-button type="button" class="btn btn-block es-album-more-button">
-				<i class="ies-refresh"></i> <?php echo JText::_("COM_EASYSOCIAL_LOAD_MORE"); ?>
+				<i class="loading-indicator"></i>
+				<span class="loadmore-text">
+					<i class="fa fa-refresh "></i> <?php echo JText::_("COM_EASYSOCIAL_LOAD_MORE"); ?>
+				</span>
 			</button>
 		<?php } ?>
 	<?php } ?>
 
 	<?php if ($options['showViewButton']) { ?>
 	<a data-album-view-button class="btn btn-sm btn-es-primary es-album-view-button" href="<?php echo $album->getPermalink(); ?>">
-		<?php echo JText::_('COM_EASYSOCIAL_ALBUMS_VIEW_ALBUM'); ?> <i class="ies-arrow-right-2"></i>
+		<?php echo JText::_('COM_EASYSOCIAL_ALBUMS_VIEW_ALBUM'); ?> <i class="fa fa-chevron-right ml-5"></i>
 	</a>
 	<?php } ?>
 </div>

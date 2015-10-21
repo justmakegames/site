@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Import main controller
-FD::import( 'site:/controllers/controller' );
+FD::import('site:/controllers/controller');
 
 class EasySocialControllerProfile extends EasySocialController
 {
@@ -30,10 +30,10 @@ class EasySocialControllerProfile extends EasySocialController
 	public function save()
 	{
 		// Check for request forgeries.
-		FD::checkToken();
+		ES::checkToken();
 
 		// Ensure that the user is registered
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Clear previous session
 		$session = JFactory::getSession();
@@ -42,36 +42,25 @@ class EasySocialControllerProfile extends EasySocialController
 		// Get post data.
 		$post = JRequest::get('POST');
 
-		// Get the current view.
-		$view = $this->getCurrentView();
+		// Only fetch relevant fields for this user.
+		$options = array('profile_id' => $this->my->getProfile()->id, 'data' => true, 'dataId' => $this->my->id, 'dataType' => SOCIAL_TYPE_USER, 'visible' => SOCIAL_PROFILES_VIEW_EDIT, 'group' => SOCIAL_FIELDS_GROUP_USER);
 
 		// Get all published fields apps that are available in the current form to perform validations
-		$fieldsModel = FD::model('Fields');
-
-		// Get current user.
-		$my = FD::user();
-
-		// Only fetch relevant fields for this user.
-		$options = array( 'profile_id' => $my->getProfile()->id, 'data' => true, 'dataId' => $my->id, 'dataType' => SOCIAL_TYPE_USER, 'visible' => SOCIAL_PROFILES_VIEW_EDIT, 'group' => SOCIAL_FIELDS_GROUP_USER );
-
+		$fieldsModel = ES::model('Fields');
 		$fields = $fieldsModel->getCustomFields($options);
 
-		// Load json library.
-		$json = FD::json();
-
 		// Initialize default registry
-		$registry = FD::registry();
+		$registry = ES::registry();
 
 		// Get disallowed keys so we wont get wrong values.
-		$disallowed = array( FD::token() , 'option' , 'task' , 'controller' );
+		$disallowed = array(ES::token(), 'option' , 'task' , 'controller');
 
 		// Process $_POST vars
 		foreach ($post as $key => $value) {
 
 			if (!in_array($key, $disallowed)) {
-
 				if (is_array($value)) {
-					$value  = $json->encode( $value );
+					$value = json_encode($value);
 				}
 
 				$registry->set($key, $value);
@@ -83,69 +72,68 @@ class EasySocialControllerProfile extends EasySocialController
 
 		// Perform field validations here. Validation should only trigger apps that are loaded on the form
 		// @trigger onRegisterValidate
-		$fieldsLib	= FD::fields();
+		$fieldsLib = ES::fields();
 
 		// Get the general field trigger handler
 		$handler = $fieldsLib->getHandler();
 
 		// Build arguments to be passed to the field apps.
-		$args = array( &$data , &$my );
+		$args = array(&$data, &$this->my);
 
 		// Ensure that there is no errors.
 		// @trigger onEditValidate
-		$errors = $fieldsLib->trigger( 'onEditValidate' , SOCIAL_FIELDS_GROUP_USER , $fields , $args, array( $handler, 'validate' ) );
-
+		$errors = $fieldsLib->trigger('onEditValidate', SOCIAL_FIELDS_GROUP_USER, $fields, $args, array($handler, 'validate'));
 
 		// If there are errors, we should be exiting here.
-		if (is_array( $errors ) && count( $errors ) > 0) {
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_SAVE_ERRORS' ) , SOCIAL_MSG_ERROR );
+		if (is_array($errors) && count($errors) > 0) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_SAVE_ERRORS'), SOCIAL_MSG_ERROR);
 
 			// We need to set the proper vars here so that the es-wrapper contains appropriate class
-			JRequest::setVar( 'view' 	, 'profile' , 'POST' );
-			JRequest::setVar( 'layout'	, 'edit' , 'POST' );
+			JRequest::setVar('view', 'profile', 'POST');
+			JRequest::setVar('layout', 'edit', 'POST');
 
 			// We need to set the data into the post again because onEditValidate might have changed the data structure
-			JRequest::set( $data , 'post' );
+			JRequest::set($data, 'post');
 
-			return $view->call( 'edit', $errors , $data );
+			return $this->view->call('edit', $errors, $data);
 		}
 
 		// @trigger onEditBeforeSave
-		$errors 	= $fieldsLib->trigger( 'onEditBeforeSave' , SOCIAL_FIELDS_GROUP_USER , $fields , $args, array( $handler, 'beforeSave' ) );
+		$errors = $fieldsLib->trigger('onEditBeforeSave', SOCIAL_FIELDS_GROUP_USER, $fields, $args, array($handler, 'beforeSave'));
 
 		if (is_array($errors) && count($errors) > 0) {
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_ERRORS_IN_FORM' ) , SOCIAL_MSG_ERROR );
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_ERRORS_IN_FORM'), SOCIAL_MSG_ERROR);
 
 			// We need to set the proper vars here so that the es-wrapper contains appropriate class
-			JRequest::setVar( 'view' 	, 'profile' );
-			JRequest::setVar( 'layout'	, 'edit' );
+			JRequest::setVar('view', 'profile');
+			JRequest::setVar('layout', 'edit');
 
 			// We need to set the data into the post again because onEditValidate might have changed the data structure
-			JRequest::set( $data, 'post' );
+			JRequest::set($data, 'post');
 
-			return $view->call( 'edit' , $errors );
+			return $this->view->call('edit', $errors);
 		}
 
 		// Bind the my object with appropriate data.
-		$my->bind($data);
+		$this->my->bind($data);
 
 		// Save the user object.
-		$my->save();
+		$this->my->save();
 
 		// Reconstruct args
-		$args 		= array(&$data, &$my);
+		$args = array(&$data, &$this->my);
 
 		// @trigger onEditAfterSave
-		$fieldsLib->trigger( 'onEditAfterSave' , SOCIAL_FIELDS_GROUP_USER , $fields , $args );
+		$fieldsLib->trigger('onEditAfterSave', SOCIAL_FIELDS_GROUP_USER, $fields, $args);
 
 		// Bind custom fields for the user.
-		$my->bindCustomFields($data);
+		$this->my->bindCustomFields($data);
 
 		// Reconstruct args
-		$args = array(&$data, &$my);
+		$args = array(&$data, &$this->my);
 
 		// @trigger onEditAfterSaveFields
-		$fieldsLib->trigger( 'onEditAfterSaveFields' , SOCIAL_FIELDS_GROUP_USER , $fields , $args );
+		$fieldsLib->trigger('onEditAfterSaveFields', SOCIAL_FIELDS_GROUP_USER, $fields, $args);
 
 		// Now we update the Facebook details if it is available
 		$associatedFacebook = $this->input->get('associatedFacebook', 0, 'int');
@@ -153,9 +141,7 @@ class EasySocialControllerProfile extends EasySocialController
 		if (!empty($associatedFacebook)) {
 			$facebookPull = $this->input->get('oauth_facebook_pull', null, 'default');
 			$facebookPush = $this->input->get('oauth_facebook_push', null, 'default');
-
-			$my = FD::user();
-			$facebookTable = $my->getOAuth(SOCIAL_TYPE_FACEBOOK);
+			$facebookTable = $this->my->getOAuth(SOCIAL_TYPE_FACEBOOK);
 
 			if ($facebookTable) {
 				$facebookTable->pull = $facebookPull;
@@ -166,25 +152,24 @@ class EasySocialControllerProfile extends EasySocialController
 		}
 
 		// Add stream item to notify the world that this user updated their profile.
-		$my->addStream('updateProfile');
+		$this->my->addStream('updateProfile');
 
 		// Update indexer
-		$my->syncIndex();
+		$this->my->syncIndex();
 
 
 		// @points: profile.update
 		// Assign points to the user when their profile is updated
-		$points = FD::points();
-		$points->assign('profile.update', 'com_easysocial', $my->id);
+		ES::points()->assign('profile.update', 'com_easysocial', $this->my->id);
 
 		// Prepare the dispatcher
-		FD::apps()->load(SOCIAL_TYPE_USER);
+		ES::apps()->load(SOCIAL_TYPE_USER);
 
 		$dispatcher = FD::dispatcher();
-		$args = array(&$user, &$fields, &$data);
+		$args = array(&$my, &$fields, &$data);
 
 		// @trigger: onUserProfileUpdate
-		$dispatcher->trigger( SOCIAL_TYPE_USER , 'onUserProfileUpdate' , $args);
+		$dispatcher->trigger(SOCIAL_TYPE_USER, 'onUserProfileUpdate', $args);
 
 		// @trigger onProfileCompleteCheck
 		// This should return an array of booleans to state which field is filled in.
@@ -192,17 +177,20 @@ class EasySocialControllerProfile extends EasySocialController
 		// We do this after all the data has been saved, and we reget the fields from the model again.
 		// We also need to reset the cached field data
 		SocialTableField::$_fielddata = array();
-		$fields = $fieldsModel->getCustomFields(array('profile_id' => $my->getProfile()->id, 'data' => true, 'dataId' => $my->id, 'dataType' => SOCIAL_TYPE_USER, 'visible' => SOCIAL_PROFILES_VIEW_EDIT, 'group' => SOCIAL_FIELDS_GROUP_USER));
-		$args = array(&$my);
+		$options = array('profile_id' => $this->my->getProfile()->id, 'data' => true, 'dataId' => $this->my->id, 'dataType' => SOCIAL_TYPE_USER, 'visible' => SOCIAL_PROFILES_VIEW_EDIT, 'group' => SOCIAL_FIELDS_GROUP_USER);
+		$fields = $fieldsModel->getCustomFields($options);
+
+		$args = array(&$this->my);
 		$completedFields = $fieldsLib->trigger('onProfileCompleteCheck', SOCIAL_FIELDS_GROUP_USER, $fields, $args);
-		$table = FD::table('Users');
-		$table->load(array('user_id' => $my->id));
+
+		$table = ES::table('Users');
+		$table->load(array('user_id' => $this->my->id));
 		$table->completed_fields = count($completedFields);
 		$table->store();
 
-		$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_ACCOUNT_UPDATED_SUCCESSFULLY' ) , SOCIAL_MSG_SUCCESS );
+		$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_ACCOUNT_UPDATED_SUCCESSFULLY'), SOCIAL_MSG_SUCCESS);
 
-		return $view->call( __FUNCTION__ , $my );
+		return $this->view->call(__FUNCTION__, $this->my);
 	}
 
 	/**
@@ -225,10 +213,8 @@ class EasySocialControllerProfile extends EasySocialController
 		// current logged in user
 		$my = FD::user();
 
-		// $resetMap = array( 'story.view', 'photos.view', 'albums.view', 'core.view' );
 		$privacyLib = FD::privacy();
-		//$resetMap 	= call_user_func_array( array( $privacyLib , 'getResetMap' ) );
-		$resetMap 	= $privacyLib->getResetMap();
+		$resetMap = $privacyLib->getResetMap();
 
 
 
@@ -389,28 +375,53 @@ class EasySocialControllerProfile extends EasySocialController
 		FD::checkToken();
 
 		// Get the view.
-		$view	 = $this->getCurrentView();
+		$view = $this->getCurrentView();
 
 		// set jrequest view
 		JRequest::set( array('view'=>'profile') );
 
+		// Get the type of the stream to load.
+		$type = $this->input->get('type', '', 'word');
+
 		// Get the current user that is being viewed.
-		$id 	= JRequest::getInt( 'id' , null );
-		$user 	= FD::user( $id );
+		$id = JRequest::getInt('id', null);
+
+		$user = FD::user($id);
 
 		// @TODO: Check if the viewer can access the user's timeline or not.
 
 		// Retrieve user's stream
-		$stream 	= FD::get( 'Stream' );
-		$stream->get( array( 'userId' => $user->id ) );
+		$stream = FD::get('Stream');
+
+		$stickies = $stream->getStickies(array('userId' => $user->id, 'limit' => 0));
+		if ($stickies) {
+			$stream->stickies = $stickies;
+		}
+
+		$appType = '';
+
+		$options = array('userId' => $user->id, 'nosticky' => true);
+
+		if ($type == 'appFilter') {
+
+			$stream->filter	= 'custom';
+
+			// we need to use string and not 'word' due to some app name has number. e.g k2
+			$appType = $this->input->get('filterId', '', 'string');
+			$options['context'] = $appType;
+
+			$options['actorId'] = $user->id;
+		}
+
+		$stream->get($options);
 
 		// Retrieve user's status
-		$story 			= FD::get( 'Story' , SOCIAL_TYPE_USER );
-		$story->target 	= $user->id;
+		$story = FD::get('Story', SOCIAL_TYPE_USER);
+		$story->target = $user->id;
 
-		$stream->story  = $story;
+		$stream->story = $story;
 
-		return $view->call( __FUNCTION__ , $stream , $story );
+		return $view->call( __FUNCTION__, $stream, $story );
 	}
 
 	/**
@@ -632,82 +643,285 @@ class EasySocialControllerProfile extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		// Get current view
-		$view 	= $this->getCurrentView();
-
-		// Get the current logged in user.
-		$my 	= FD::user();
-
 		// Determine if the user is really allowed
-		if( !$my->deleteable() )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_DELETE' ) , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ );
+		if (!$this->my->deleteable()) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_DELETE'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
-
-		$config 	= FD::config();
 
 		// Determine if we should immediately delete the user
-		if( $config->get( 'users.deleteLogic' ) == 'delete' )
-		{
-			$mailTemplate 	= 'deleted.removed';
+		if ($this->config->get('users.deleteLogic') == 'delete') {
+			$mailTemplate = 'deleted.removed';
 
 			// Delete the user.
-			$my->delete();
+			$this->my->delete();
 		}
 
-		if( $config->get( 'users.deleteLogic' ) == 'unpublish' )
-		{
-			$mailTemplate 	= 'deleted.blocked';
+		if ($this->config->get( 'users.deleteLogic' ) == 'unpublish') {
+			$mailTemplate = 'deleted.blocked';
 
 			// Block the user
-			$my->block();
+			$this->my->block();
 		}
 
 		// Send notification to admin
-
 		// Push arguments to template variables so users can use these arguments
-		$params 	= array(
-								'name'				=> $my->getName(),
-								'avatar'			=> $my->getAvatar( SOCIAL_AVATAR_MEDIUM ),
-								'profileLink'		=> JURI::root() . 'administrator/index.php?option=com_easysocial&view=users&layout=form&id=' . $my->id,
-								'date'				=> FD::date()->format( JText::_('COM_EASYSOCIAL_DATE_DMY') ),
-								'totalFriends'		=> $my->getTotalFriends(),
-								'totalFollowers'	=> $my->getTotalFollowers()
+		$date = FD::date()->format(JText::_('COM_EASYSOCIAL_DATE_DMY'));
+
+		$params = array(
+						'name' => $this->my->getName(),
+						'avatar' => $this->my->getAvatar(SOCIAL_AVATAR_MEDIUM),
+						'profileLink' => JURI::root() . 'administrator/index.php?option=com_easysocial&view=users&layout=form&id=' . $this->my->id,
+						'date' => $date,
+						'totalFriends' => $this->my->getTotalFriends(),
+						'totalFollowers' => $this->my->getTotalFollowers()
 						);
 
 
-		$title 		= JText::sprintf( 'COM_EASYSOCIAL_EMAILS_USER_DELETED_ACCOUNT_TITLE' , $my->getName() );
+		$title = JText::sprintf('COM_EASYSOCIAL_EMAILS_USER_DELETED_ACCOUNT_TITLE', $this->my->getName());
 
 		// Get a list of super admins on the site.
-		$usersModel = FD::model( 'Users' );
+		$usersModel = FD::model('Users');
+		$admins = $usersModel->getSiteAdmins();
 
-		$admins 	= $usersModel->getSiteAdmins();
+		if ($admins) {
+			foreach ($admins as $admin) {
 
-		if( $admins )
-		{
-			foreach( $admins as $admin )
-			{
-				$params[ 'adminName' ]	= $admin->getName();
+				// Respect admin's email settings
+				if (!$admin->sendEmail) {
+					continue;
+				}
 
-				$mailer 	= FD::mailer();
-				$template	= $mailer->getTemplate();
+				$params['adminName'] = $admin->getName();
 
-				$template->setRecipient( $admin->getName() , $admin->email );
-				$template->setTitle( $title );
-				$template->setTemplate( 'site/profile/' . $mailTemplate , $params );
-				$template->setPriority( SOCIAL_MAILER_PRIORITY_IMMEDIATE );
+				$mailer = FD::mailer();
+				$template = $mailer->getTemplate();
+
+				$template->setRecipient($admin->getName(), $admin->email);
+				$template->setTitle($title);
+				$template->setTemplate('site/profile/' . $mailTemplate, $params);
+				$template->setPriority(SOCIAL_MAILER_PRIORITY_IMMEDIATE);
 
 				// Try to send out email to the admin now.
-				$state 		= $mailer->create( $template );
+				$state = $mailer->create($template);
 			}
 		}
 
 		// Log the user out from the system
-		$my->logout();
+		$this->my->logout();
 
-		return $view->call( __FUNCTION__ );
+		return $this->view->call(__FUNCTION__);
 	}
+
+
+	/**
+	 * Allows admin to delete user account
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function deleteUser()
+	{
+		// Check for request forgeries
+		FD::checkToken();
+
+		// Determine current logged in user is an admin or not.
+		if (!$this->my->isSiteAdmin()) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_DELETE_USER'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
+		}
+
+		$userId = $this->input->get('id', 0, 'int');
+
+		$user = FD::user($userId);
+
+		if (! $this->my->canDeleteUser($user)) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_DELETE_USER'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
+		}
+
+		// Log the user out from the system
+		$app = JFactory::getApplication();
+		$app->logout($user->id, array('clientid' => 0));
+
+		// Delete the user.
+		$user->delete();
+
+		// Send notification to admin
+		// Push arguments to template variables so users can use these arguments
+		$params = array(
+						'name'				=> $user->getName(),
+						'avatar'			=> $user->getAvatar( SOCIAL_AVATAR_MEDIUM ),
+						'profileLink'		=> JURI::root() . 'administrator/index.php?option=com_easysocial&view=users&layout=form&id=' . $user->id,
+						'date'				=> FD::date()->format( JText::_('COM_EASYSOCIAL_DATE_DMY') ),
+						'totalFriends'		=> $user->getTotalFriends(),
+						'totalFollowers'	=> $user->getTotalFollowers()
+						);
+
+
+		$title = JText::sprintf('COM_EASYSOCIAL_EMAILS_ADMIN_USER_DELETED_TITLE', $user->getName());
+
+		// Get a list of super admins on the site.
+		$usersModel = FD::model('Users');
+		$admins = $usersModel->getSiteAdmins();
+
+		if ($admins) {
+			foreach ($admins as $admin) {
+
+				// Respect admin's email settings
+				if (!$admin->sendEmail) {
+					continue;
+				}
+
+				$params['adminName'] = $admin->getName();
+
+				$mailer = FD::mailer();
+				$template = $mailer->getTemplate();
+
+				$template->setRecipient($admin->getName(), $admin->email);
+				$template->setTitle($title);
+				$template->setTemplate('site/profile/deleted.removed', $params);
+				$template->setPriority(SOCIAL_MAILER_PRIORITY_IMMEDIATE);
+
+				// Try to send out email to the admin now.
+				$state = $mailer->create($template);
+			}
+		}
+
+		$this->view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_ADMINTOOL_DELETE_SUCCESSFULLY' ) , SOCIAL_MSG_SUCCESS );
+		return $this->view->call(__FUNCTION__);
+	}
+
+	/**
+	 * Allows site admin to unban a user
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function unbanUser()
+	{
+		// Check for request forgeries
+		ES::checkToken();
+
+		// Determine current logged in user is an admin or not.
+		if (!$this->my->isSiteAdmin()) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_BAN_USER'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
+		}
+
+		$userId = $this->input->get('id', 0, 'int');
+		$user = ES::user($userId);
+
+		if (! $this->my->canBanUser($user)) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_BAN_USER'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
+		}
+
+		// Unblock the user
+		$user->unblock();
+
+		return $this->view->call(__FUNCTION__, $user);
+	}
+
+	/**
+	 * Allows admin to ban / block user account
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function banUser()
+	{
+		// Check for request forgeries
+		ES::checkToken();
+
+		// Determine current logged in user is an admin or not.
+		if (!$this->my->isSiteAdmin()) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_BAN_USER'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
+		}
+
+		$userId = $this->input->get('id', 0, 'int');
+		$period = $this->input->get('period', 0, 'int');
+
+		$user = ES::user($userId);
+
+		if (! $this->my->canBanUser($user)) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_BAN_USER'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
+		}
+
+
+		// Block the user
+		$state = $user->block();
+
+		// we need to update our own block_period column.
+		if ($state && $period) {
+			$userModel = ES::model('Users');
+			$userModel->updateBlockInterval(array($userId), $period);
+		}
+
+		// Send notification to admin
+		// Push arguments to template variables so users can use these arguments
+		$params 	= array(
+							'name'				=> $user->getName(),
+							'avatar'			=> $user->getAvatar( SOCIAL_AVATAR_MEDIUM ),
+							'profileLink'		=> JURI::root() . 'administrator/index.php?option=com_easysocial&view=users&layout=form&id=' . $user->id,
+							'date'				=> FD::date()->format( JText::_('COM_EASYSOCIAL_DATE_DMY') ),
+							'totalFriends'		=> $user->getTotalFriends(),
+							'totalFollowers'	=> $user->getTotalFollowers()
+						);
+
+
+		$title = JText::sprintf('COM_EASYSOCIAL_EMAILS_ADMIN_USER_BANNED_TITLE', $user->getName());
+
+		if ($period) {
+			$title  = JText::sprintf('COM_EASYSOCIAL_EMAILS_ADMIN_USER_BANNED_FOR_X_PERIOD_TITLE', $user->getName(), $period);
+		}
+
+		// Get a list of super admins on the site.
+		$usersModel = ES::model('Users');
+		$admins = $usersModel->getSiteAdmins();
+
+		if ($admins) {
+			foreach ($admins as $admin) {
+
+				// Respect admin's email settings
+				if (!$admin->sendEmail) {
+					continue;
+				}
+
+				$params['adminName'] = $admin->getName();
+
+				$mailer = FD::mailer();
+				$template = $mailer->getTemplate();
+
+				$template->setRecipient($admin->getName(), $admin->email);
+				$template->setTitle($title);
+				$template->setTemplate('site/profile/account.blocked', $params);
+				$template->setPriority(SOCIAL_MAILER_PRIORITY_IMMEDIATE);
+
+				// Try to send out email to the admin now.
+				$state = $mailer->create($template);
+			}
+		}
+
+		$message = JText::_('COM_EASYSOCIAL_PROFILE_ADMINTOOL_BAN_SUCCESSFULLY');
+
+		if ($period) {
+			$message = JText::sprintf('COM_EASYSOCIAL_PROFILE_ADMINTOOL_BAN_SUCCESSFULLY_X_TIME', $period);
+		}
+
+		$this->view->setMessage($message, SOCIAL_MSG_SUCCESS);
+
+		return $this->view->call(__FUNCTION__, $user);
+	}
+
 
 	/**
 	 * Determines if the view should be visible on lockdown mode
@@ -716,19 +930,26 @@ class EasySocialControllerProfile extends EasySocialController
 	 * @access	public
 	 * @return	bool
 	 */
-	public function isLockDown( $task )
+	public function isLockDown($task)
 	{
 		return true;
 	}
 
+	/**
+	 * Renders the info about a user
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function initInfo()
 	{
+		// Check for request forgeries
 		FD::checkToken();
 
-		$view = $this->getCurrentView();
-
-		$id = JRequest::getInt('id');
-
+		// Get the user being viewed
+		$id = $this->input->get('id', 0, 'int');
 		$user = FD::user($id);
 
 		if (empty($user) || empty($user->id) || $user->isBlock()) {
@@ -737,71 +958,21 @@ class EasySocialControllerProfile extends EasySocialController
 			return $view->call(__FUNCTION__);
 		}
 
-		$my = FD::user();
-
-		$privacy = $my->getPrivacy();
+		// Get the current logged in user's privacy
+		$privacy = $this->my->getPrivacy();
 
 		// @privacy: Let's test if the current viewer is allowed to view this profile.
-		if ($my->id != $user->id && !$privacy->validate('profiles.view', $user->id, SOCIAL_TYPE_USER)) {
+		if ($this->my->id != $user->id && !$privacy->validate('profiles.view', $user->id, SOCIAL_TYPE_USER)) {
 			$view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_PRIVACY_NOT_ALLOWED'), SOCIAL_MSG_ERROR);
 
 			return $view->call(__FUNCTION__);
 		}
 
-		FD::language()->loadAdmin();
+		// Get the users model
+		$model = FD::model('Users');
+		$steps = $model->getAbout($user);
 
-		$steps = FD::model('Steps')->getSteps($user->profile_id, SOCIAL_TYPE_PROFILES, SOCIAL_PROFILES_VIEW_DISPLAY);
-
-		$fieldsLib = FD::fields();
-
-		$fieldsModel = FD::model('Fields');
-
-		$index = 1;
-
-		foreach ($steps as $step) {
-			$step->fields = $fieldsModel->getCustomFields(array('step_id' => $step->id, 'data' => true, 'dataId' => $user->id, 'dataType' => SOCIAL_TYPE_USER, 'visible' => SOCIAL_PROFILES_VIEW_DISPLAY));
-
-			if (!empty($step->fields)) {
-				$args = array($user);
-
-				$fieldsLib->trigger('onDisplay', SOCIAL_FIELDS_GROUP_USER, $step->fields, $args);
-			}
-
-			$step->hide = true;
-
-			foreach ($step->fields as $field) {
-				// As long as one of the field in the step has an output, then this step shouldn't be hidden
-				// If step has been marked false, then no point marking it as false again
-				// We don't break from the loop here because there is other checking going on
-				if (!empty($field->output) && $step->hide === true ) {
-					$step->hide = false;
-				}
-			}
-
-			if ($index === 1) {
-				$step->url = FRoute::profile(array('id' => $user->getAlias(), 'layout' => 'about'), false);
-			} else {
-				$step->url = FRoute::profile(array('id' => $user->getAlias(), 'layout' => 'about', 'step' => $index), false);
-			}
-
-			$step->title = $step->get('title');
-
-			$step->active = !$step->hide && $index == 1;
-
-			if ($step->active) {
-				$theme = FD::themes();
-
-				$theme->set('fields', $step->fields);
-
-				$step->html = $theme->output('site/profile/default.info');
-			}
-
-			$step->index = $index;
-
-			$index++;
-		}
-
-		return $view->call(__FUNCTION__, $steps);
+		return $this->view->call(__FUNCTION__, $steps);
 	}
 
 	/**
@@ -817,43 +988,43 @@ class EasySocialControllerProfile extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		$view = $this->getCurrentView();
-
+		// Get the user object
 		$id = $this->input->get('id', 0, 'int');
 		$user = FD::user($id);
 
 		if (empty($user) || empty($user->id) || $user->isBlock()) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_USERS_NO_SUCH_USER'), SOCIAL_MSG_ERROR);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_USERS_NO_SUCH_USER'), SOCIAL_MSG_ERROR);
 
-			return $view->call(__FUNCTION__);
+			return $this->view->call(__FUNCTION__);
 		}
 
-		$my = FD::user();
-
-		$privacy = $my->getPrivacy();
+		// Get the current user's privacy object
+		$privacy = $this->my->getPrivacy();
 
 		// @privacy: Let's test if the current viewer is allowed to view this profile.
-		if ($my->id != $user->id && !$privacy->validate('profiles.view', $user->id, SOCIAL_TYPE_USER)) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_PRIVACY_NOT_ALLOWED'), SOCIAL_MSG_ERROR);
+		if ($this->my->id != $user->id && !$privacy->validate('profiles.view', $user->id, SOCIAL_TYPE_USER)) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_PRIVACY_NOT_ALLOWED'), SOCIAL_MSG_ERROR);
 
-			return $view->call(__FUNCTION__);
+			return $this->view->call(__FUNCTION__);
 		}
 
+		// Load admin's languge file
 		FD::language()->loadAdmin();
 
-		$index = JRequest::getInt('index');
+		// Get the step index
+		$index = $this->input->get('index', 0, 'int');
 
+		// Get the user's profile
 		$profile = $user->getProfile();
-
 		$sequence = $profile->getSequenceFromIndex($index, SOCIAL_PROFILES_VIEW_DISPLAY);
 
 		$step = FD::table('FieldStep');
 		$state = $step->load(array('uid' => $profile->id, 'type' => SOCIAL_TYPE_PROFILES, 'sequence' => $sequence, 'visible_display' => 1));
 
 		if (!$state) {
-			$view->setMessage(JText::sprintf('COM_EASYSOCIAL_PROFILE_USER_NOT_EXIST', $user->getName()), SOCIAL_MSG_ERROR);
+			$this->view->setMessage(JText::sprintf('COM_EASYSOCIAL_PROFILE_USER_NOT_EXIST', $user->getName()), SOCIAL_MSG_ERROR);
 
-			return $view->call(__FUNCTION__);
+			return $this->view->call(__FUNCTION__);
 		}
 
 		$fields = FD::model('Fields')->getCustomFields(array('step_id' => $step->id, 'data' => true, 'dataId' => $user->id, 'dataType' => SOCIAL_TYPE_USER, 'visible' => SOCIAL_PROFILES_VIEW_DISPLAY));
@@ -866,6 +1037,6 @@ class EasySocialControllerProfile extends EasySocialController
 			$fieldsLib->trigger('onDisplay', SOCIAL_FIELDS_GROUP_USER, $fields, $args);
 		}
 
-		return $view->call(__FUNCTION__, $fields);
+		return $this->view->call(__FUNCTION__, $fields);
 	}
 }

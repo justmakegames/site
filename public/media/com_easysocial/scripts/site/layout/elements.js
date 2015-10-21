@@ -30,22 +30,30 @@ EasySocial.module('site/layout/elements', function($){
 	});
 
 
+	function isMobile() {
+	  try{ document.createEvent("TouchEvent"); return true; }
+	  catch(e){ return false; }
+	}
+
+
 	// Tooltips
 	// TODO: Update to [data-es-provide=tooltip]
-	$(document).on('mouseover.tooltip.data-es-api', '[data-es-provide=tooltip]', function() {
+	if (! isMobile()) {
+		$(document).on('mouseover.tooltip.data-es-api', '[data-es-provide=tooltip]', function() {
 
-		$(this)
-			.tooltip({
-				delay: {
-					show: 200,
-					hide: 100
-				},
-				animation: false,
-				template: '<div id="fd" class="es tooltip tooltip-es"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
-				container: 'body'
-			})
-			.tooltip("show");
-	});
+			$(this)
+				.tooltip({
+					delay: {
+						show: 200,
+						hide: 100
+					},
+					animation: false,
+					template: '<div id="fd" class="es tooltip tooltip-es"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+					container: 'body'
+				})
+				.tooltip("show");
+		});
+	}
 
 	// Popovers
 	// TODO: Update to [data-es-provide=popover]

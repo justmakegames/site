@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,29 +9,10 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-// Include dependencies.
-require_once( dirname( __FILE__ ) . '/dependencies.php' );
+require_once(dirname(__FILE__) . '/dependencies.php');
 
-/**
- * Notification library.
- *
- * Example:
- * <code>
- * <?php
- * $notification 	= FD::getInstance( 'Notification' );
- * $notification->create();
- *
- * // Get's the notification list.
- * $notification->getHTML();
- *
- * ?>
- * </code>
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialNotification extends JObject
 {
 	/**
@@ -48,8 +29,11 @@ class SocialNotification extends JObject
 	 */
 	public static function getInstance()
 	{
-		if( is_null( self::$instance ) )
-		{
+		if (is_null(self::$instance)) {
+
+			// Just to be sure that the language files on the front end is loaded
+			FD::language()->loadSite();
+
 			self::$instance	= new self();
 		}
 
@@ -76,30 +60,28 @@ class SocialNotification extends JObject
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function create( SocialNotificationTemplate $template )
+	public function create(SocialNotificationTemplate $template)
 	{
 		// Load the Notification table
-		$table	= FD::table( 'Notification' );
+		$table = ES::table('Notification');
 
 		// Notification aggregation will only happen if there is the same `uid`,`type`
-		if( $template->aggregate )
-		{
+		if ($template->aggregate) {
+
 			// Load any existing records to see if it exists.
-			$type 		= $template->type;
-			$uid 		= $template->uid;
-			$targetId 	= $template->target_id;
+			$type = $template->type;
+			$uid = $template->uid;
+			$targetId = $template->target_id;
 			$targetType = $template->target_type;
 			$contextType = $template->context_type;
 
-			$exists		= $table->load( array( 'uid' => $uid , 'type' => $type , 'target_id' => $targetId , 'target_type' => $targetType, 'context_type' => $contextType ) );
+			$exists = $table->load( array( 'uid' => $uid , 'type' => $type , 'target_id' => $targetId , 'target_type' => $targetType, 'context_type' => $contextType ) );
 
 			// If it doesn't exist, go through the normal routine of binding the item.
-			if( !$exists )
-			{
-				$table->bind( $template );
-			}
-			else
-			{
+			if (!$exists) {
+				$table->bind($template);
+			} else {
+
 				if (!empty($template->title)) {
 					$table->title = $template->title;
 				}
@@ -109,23 +91,19 @@ class SocialNotification extends JObject
 				}
 
 				// Reset to unread state since this is new.
-				$table->state 	= SOCIAL_NOTIFICATION_STATE_UNREAD;
+				$table->state = SOCIAL_NOTIFICATION_STATE_UNREAD;
 			}
 
 			// Update this item to the latest since we want this to appear in the top of the list.
 			$table->created	= FD::date()->toMySQL();
-		}
-		else
-		{
-			// Bind the template.
-			$table->bind( $template );
+		} else {
+			$table->bind($template);
 		}
 
-		$state 	= $table->store();
+		$state = $table->store();
 
-		if( !$state )
-		{
-			$this->setError( $table->getError() );
+		if (!$state) {
+			$this->setError($table->getError());
 			return false;
 		}
 
@@ -224,38 +202,48 @@ class SocialNotification extends JObject
 	 */
 	public function toHTML( $userId )
 	{
-		$model	= FD::model( 'Notifications' );
+		$model = FD::model('Notifications');
 
-		$items	= $model->getItems( array( 'user_id' => $userId ) );
+		// Get the list of notification items
+		$options = array('user_id' => $userId);
+		$items = $model->getItems($options);
 
-		if( !$items )
-		{
+		if (!$items) {
 			return false;
 		}
 
 		// Retrieve applications and trigger onNotificationLoad
-		$dispatcher	= FD::getInstance( 'Dispatcher' );
+		$dispatcher = FD::getInstance('Dispatcher');
+
+		$result = array();
 
 		// Trigger apps
-		foreach( $items as $item )
-		{
-			$type 	= $item->type;
-			$args	= array( &$item );
+		foreach ($items as $item) {
+
+			$type = $item->type;
+			$args = array(&$item);
 
 			// @trigger onNotificationLoad from user apps
-			$dispatcher->trigger( SOCIAL_APPS_GROUP_USER , 'onNotificationLoad' , $args , $type );
+			$dispatcher->trigger(SOCIAL_APPS_GROUP_USER, 'onNotificationLoad', $args, $type);
 
 			// @trigger onNotificationLoad from group apps
-			$dispatcher->trigger( SOCIAL_APPS_GROUP_GROUP , 'onNotificationLoad' , $args , $type );
+			$dispatcher->trigger(SOCIAL_APPS_GROUP_GROUP, 'onNotificationLoad', $args, $type);
 
 			// @trigger onNotificationLoad from event apps
-			$dispatcher->trigger( SOCIAL_APPS_GROUP_EVENT , 'onNotificationLoad' , $args , $type );
+			$dispatcher->trigger(SOCIAL_APPS_GROUP_EVENT, 'onNotificationLoad', $args, $type);
+
+			// If an app lets us know that they want to exclude the stream, we should exclude it.
+			if (isset($item->exclude) && $item->exclude) {
+				continue;
+			}
+
+			$result[] = $item;
 		}
 
-		$theme	= FD::get( 'Themes' );
-		$theme->set( 'items' , $items );
+		$theme = FD::themes();
+		$theme->set('items', $result);
 
-		return $theme->output( 'site/notifications/default' );
+		return $theme->output('site/notifications/default');
 	}
 
 	/**
@@ -266,48 +254,54 @@ class SocialNotification extends JObject
 	 * @param	bool	To aggregate the notification items or not.
 	 * @return	Array	An array of @SocialTableNotification
 	 */
-	public function getItems( $options = array() )
+	public function getItems($options = array())
 	{
-		$model 	= FD::model( 'Notifications' );
+		$model = ES::model('Notifications');
+		$items = $model->getItems($options);
 
-		$items	= $model->getItems( $options );
-
-		if( !$items )
-		{
+		if (!$items) {
 			return false;
 		}
 
 		// Retrieve applications and trigger onNotificationLoad
-		$dispatcher 	= FD::dispatcher();
+		$dispatcher = ES::dispatcher();
+
+		$result = array();
 
 		// Trigger apps
-		foreach( $items as $item )
-		{
+		foreach ($items as $item) {
+
 			// Add a `since` column to the result so that user's could use the `since` time format.
-			$item->since	= FD::date( $item->created )->toLapsed();
+			$item->since= FD::date($item->created)->toLapsed();
 
-			$args			= array( &$item );
-
-			// @trigger onNotificationLoad
-			$dispatcher->trigger( SOCIAL_APPS_GROUP_USER , 'onNotificationLoad' , $args );
+			$args = array(&$item);
 
 			// @trigger onNotificationLoad
-			$dispatcher->trigger( SOCIAL_APPS_GROUP_GROUP , 'onNotificationLoad' , $args );
+			$dispatcher->trigger(SOCIAL_APPS_GROUP_USER, 'onNotificationLoad', $args);
 
 			// @trigger onNotificationLoad
-			$dispatcher->trigger( SOCIAL_APPS_GROUP_EVENT , 'onNotificationLoad' , $args );
+			$dispatcher->trigger(SOCIAL_APPS_GROUP_GROUP, 'onNotificationLoad', $args );
+
+			// @trigger onNotificationLoad
+			$dispatcher->trigger(SOCIAL_APPS_GROUP_EVENT, 'onNotificationLoad', $args);
+
+			// If an app lets us know that they want to exclude the stream, we should exclude it.
+			if (isset($item->exclude) && $item->exclude) {
+				continue;
+			}
 
 			// Let's format the item title.
-			$this->formatItem( $item );
+			$this->formatItem($item);
+
+			$result[] = $item;
 		}
 
 		// Group up items.
-		if( isset( $options[ 'group' ] ) && $options[ 'group' ] == SOCIAL_NOTIFICATION_GROUP_ITEMS )
-		{
-			$items	= $this->group( $items );
+		if (isset($options['group']) && $options['group'] == SOCIAL_NOTIFICATION_GROUP_ITEMS) {
+			$result = $this->group($result);
 		}
 
-		return $items;
+		return $result;
 	}
 
 	/**
@@ -321,27 +315,25 @@ class SocialNotification extends JObject
 	public function formatItem( &$item )
 	{
 		// Escape the original title first.
-		$item->title 	= FD::string()->escape( $item->title );
+		$item->title = FD::string()->escape( $item->title );
 
 		// We have our own custom tags
-		$item->title 	= $this->formatKnownTags( $item->title );
+		$item->title = $this->formatKnownTags( $item->title );
 
 		// Replace actor first.
-		$item->title 	= $this->formatActor( $item->title , $item->actor_id , $item->actor_type );
+		$item->title = $this->formatActor( $item->title , $item->actor_id , $item->actor_type );
 
 		// Replace target.
-		$item->title 	= $this->formatTarget( $item->title , $item->target_id , $item->target_type );
+		$item->title = $this->formatTarget( $item->title , $item->target_id , $item->target_type );
 
 		// Replace variables from parameters.
-		$item->title 	= $this->formatParams( $item->title , $item->params );
+		$item->title = $this->formatParams( $item->title , $item->params );
 
 		// Get the icon of this app if needed.
-		$item->icon 	= $this->getIcon( $item );
-
-
+		$item->icon = $this->getIcon($item);
 
 		// Set the actor
-		$item->user 	= FD::user( $item->actor_id );
+		$item->user = FD::user($item->actor_id);
 	}
 
 	public function formatKnownTags( $title )
@@ -477,26 +469,22 @@ class SocialNotification extends JObject
 	{
 		$result	= array();
 
-		foreach( $items as $item )
-		{
-			$today	= FD::date();
-			$date 	= FD::date( $item->created );
+		foreach ($items as $item) {
 
-			if( $today->format( 'j/n/Y' ) == $date->format( 'j/n/Y' ) )
-			{
-				$index 	= JText::_( 'COM_EASYSOCIAL_NOTIFICATION_TODAY' );
-			}
-			else
-			{
-				$index 	= $date->format( 'F j, Y' );
+			$today = FD::date();
+			$date = FD::date($item->created);
+
+			if ($today->format('j/n/Y') == $date->format('j/n/Y')) {
+				$index = JText::_('COM_EASYSOCIAL_NOTIFICATION_TODAY');
+			} else {
+				$index = $date->format(JText::_('COM_EASYSOCIAL_NOTIFICATION_DATE_FORMAT'));
 			}
 
-			if( !isset( $result[ $index ] ) )
-			{
-				$result[ $index ]	= array();
+			if (!isset($result[$index])) {
+				$result[$index] = array();
 			}
 
-			$result[ $index ][]	= $item;
+			$result[$index][] = $item;
 		}
 
 		return $result;

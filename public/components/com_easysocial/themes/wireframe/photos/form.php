@@ -30,7 +30,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<div data-photo-meta-field class="es-photo-meta-field sentence">
 			<div data-photo-location class="es-photo-location words">
-				<i class="ies-location"></i>
+				<i class="fa fa-map-marker"></i>
 				<span
 					data-photo-location-caption
 					data-bs-toggle="dropdown"
@@ -51,7 +51,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</div>
 
 			<div data-photo-date class="es-photo-date words has-data">
-				<i class="ies-clock"></i>
+				<i class="fa fa-clock-o"></i>
 				<span data-photo-date-caption
 				      data-bs-toggle="dropdown"
 				      class="with-data">

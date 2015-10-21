@@ -15,7 +15,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <?php if ($value == '3') { ?>
 <span><?php echo JText::_('PLG_FIELDS_USER_CUSTOM'); ?></span>
 <?php } else { ?>
-<i class="ies-small mr-5 ies-<?php echo $value == 1 ? 'male' : 'female';?>"></i>
+<i class="fa mr-5 fa-<?php echo $value == 1 ? 'male' : 'female';?>"></i>
 <?php if( $value == 1 ){ ?>
 <span><?php echo JText::_('PLG_FIELDS_USER_MALE'); ?></span>
 <?php } else { ?>

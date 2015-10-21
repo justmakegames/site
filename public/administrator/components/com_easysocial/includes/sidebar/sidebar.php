@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,25 +9,16 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-jimport( 'joomla.filesystem.file' );
-
-/**
- * Sidebar for admin.
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialSidebar
 {
-	static $instance		= null;
+	static $instance = null;
 
 	public static function getInstance()
 	{
-		if( is_null( self::$instance ) )
-		{
-			self::$instance		= new self();
+		if (is_null(self::$instance)) {
+			self::$instance = new self();
 		}
 
 		return self::$instance;
@@ -43,17 +34,17 @@ class SocialSidebar
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function render( $view )
+	public function render($view)
 	{
 		// Retrieve menu items from the model.
-		$model 	= FD::model( 'Sidebar' );
-		$menus	= $model->getItems();
-		$theme	= FD::get( 'Themes' );
+		$model = ES::model('Sidebar');
+		$menus = $model->getItems();
 
-		$theme->set( 'menus' 	, $menus );
-		$theme->set( 'view'		, $view );
+		$theme = ES::themes();
+		$theme->set('menus', $menus);
+		$theme->set('view', $view);
 
-		$output	= $theme->output( 'admin/structure/sidebar' );
+		$output	= $theme->output('admin/structure/sidebar');
 
 		return $output;
 	}

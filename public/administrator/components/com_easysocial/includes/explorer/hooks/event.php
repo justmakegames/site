@@ -68,6 +68,28 @@ class SocialExplorerHookEvent extends SocialExplorerHooks
 	}
 
 	/**
+	 * Determines if the user has access to delete the files on the event
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function hasDeleteAccess(SocialTableFile $file)
+	{
+		// If the user owns the file, allow them to delete it
+		if ($this->my->id == $file->user_id) {
+			return true;
+		}
+		
+		if ($this->event->isAdmin() || $this->my->isSiteAdmin()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns the maximum file size allowed
 	 *
 	 * @since	1.3
@@ -182,48 +204,53 @@ class SocialExplorerHookEvent extends SocialExplorerHooks
 			return $result;
 		}
 
-		// Create a stream item for the groups now
-		$stream = FD::stream();
-
-		// Load the stream template
-		$tpl = $stream->getTemplate();
-		$stream		= FD::stream();
-
-		// this is a cluster stream and it should be viewable in both cluster and user page.
-		$tpl->setCluster($this->event->id, SOCIAL_TYPE_EVENT, 1);
-
-		// Set the actor
-		$tpl->setActor($this->my->id, SOCIAL_TYPE_USER);
-
-		// Set the context
-		$tpl->setContext($result->id, SOCIAL_TYPE_FILES);
-
-		// Set the verb
-		$tpl->setVerb('uploaded');
+		$createStream = $this->input->get('createStream', false, 'bool');
 
 		$file = FD::table('File');
 		$file->load($result->id);
 
-		// Set the params to cache the group data
-		$registry	= FD::registry();
-		$registry->set('event', $this->event);
-		$registry->set('file', $file);
+		if ($createStream) {
+			// Create a stream item for the groups now
+			$stream = FD::stream();
 
-		// Set the params to cache the group data
-		$tpl->setParams($registry);
+			// Load the stream template
+			$tpl = $stream->getTemplate();
+			$stream		= FD::stream();
 
-		// since this is a cluster and user stream, we need to call setPublicStream
-		// so that this stream will display in unity page as well
-		// This stream should be visible to the public
-		$tpl->setPublicStream('core.view');
+			// this is a cluster stream and it should be viewable in both cluster and user page.
+			$tpl->setCluster($this->event->id, SOCIAL_TYPE_EVENT, 1);
 
-		$streamItem	 = $stream->add($tpl);
+			// Set the actor
+			$tpl->setActor($this->my->id, SOCIAL_TYPE_USER);
 
-		// Prepare the stream permalink
-		$permalink 	= FRoute::stream(array('layout' => 'item', 'id' => $streamItem->uid));
+			// Set the context
+			$tpl->setContext($result->id, SOCIAL_TYPE_FILES);
 
-		// Notify group members when a new file is uploaded
-		$this->event->notifyMembers('file.uploaded', array('fileId' => $file->id, 'fileName' => $file->name, 'fileSize' => $file->getSize(), 'permalink' => $permalink, 'userId' => $file->user_id));
+			// Set the verb
+			$tpl->setVerb('uploaded');
+
+
+			// Set the params to cache the group data
+			$registry	= FD::registry();
+			$registry->set('event', $this->event);
+			$registry->set('file', $file);
+
+			// Set the params to cache the group data
+			$tpl->setParams($registry);
+
+			// since this is a cluster and user stream, we need to call setPublicStream
+			// so that this stream will display in unity page as well
+			// This stream should be visible to the public
+			$tpl->setPublicStream('core.view');
+
+			$streamItem	 = $stream->add($tpl);
+
+			// Prepare the stream permalink
+			$permalink 	= FRoute::stream(array('layout' => 'item', 'id' => $streamItem->uid));
+
+			// Notify group members when a new file is uploaded
+			$this->event->notifyMembers('file.uploaded', array('fileId' => $file->id, 'fileName' => $file->name, 'fileSize' => $file->getSize(), 'permalink' => $permalink, 'userId' => $file->user_id));
+		}
 
 		return $result;
 	}

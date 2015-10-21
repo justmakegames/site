@@ -2,7 +2,7 @@ EasySocial.module('apps/fields/user/address/maps', function($) {
     var module = this;
 
     // Create search template first
-    $.template('easysocial/maps.suggestion', '<div class="es-story-location-suggestion" data-location-suggestion><span class="formatted_address">[%= location.formatted_address %]</span></div>');
+    $.template('easysocial/maps.suggestion', '<div class="es-location-suggestion" data-location-suggestion><span class="formatted_address">[%= location.formatted_address %]</span></div>');
 
     EasySocial
     .require()

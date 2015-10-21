@@ -40,6 +40,9 @@ class EasySocialControllerGroups extends EasySocialController
         $this->registerTask( 'apply' , 'store' );
         $this->registerTask( 'save' , 'store' );
         $this->registerTask( 'savenew' , 'store' );
+
+        $this->registerTask('makeFeatured', 'toggleDefault');
+        $this->registerTask('removeFeatured', 'toggleDefault');
     }
 
     /**
@@ -59,149 +62,145 @@ class EasySocialControllerGroups extends EasySocialController
         FD::language()->loadSite();
 
         // Get the current view
-        $view   = $this->getCurrentView();
+        $view = $this->getCurrentView();
 
         // Get the current task
-        $task   = $this->getTask();
+        $task = $this->getTask();
 
         // Determines if this group is being edited.
-        $id = JRequest::getVar( 'id' );
+        $id = $this->input->get('id', 0, 'int');
 
         // Flag to see if this is new or edit
         $isNew = empty($id);
 
         // Get the posted data
-        $post   = JRequest::get( 'post' );
-
+        $post = $this->input->getArray('post');
 		$options = array();
 
         if ($isNew) {
             // Include group library
-            FD::import( 'admin:/includes/group/group' );
+            FD::import('admin:/includes/group/group');
 
-            $group  = new SocialGroup();
-
-            $categoryId     = JRequest::getInt( 'category_id' );
+            $group = new SocialGroup();
+            $categoryId = $this->input->get('category_id', 0, 'int');
         } else {
-            $group  = FD::group( $id );
+            $group = FD::group($id);
 
-            $options['data']        = true;
-            $options['dataId']      = $group->id;
-            $options['dataType']    = SOCIAL_FIELDS_GROUP_GROUP;
-            $categoryId             = $group->category_id;
+            $options['data'] = true;
+            $options['dataId'] = $group->id;
+            $options['dataType'] = SOCIAL_FIELDS_GROUP_GROUP;
+            $categoryId = $group->category_id;
         }
 
         // Set the necessary data
-        $options[ 'uid' ]           = $categoryId;
-        $options[ 'group' ]         = SOCIAL_FIELDS_GROUP_GROUP;
-
-		// Comment out this because backend (adminedit) shouldn't filter by edit view.
-		// $options[ 'visible' ]		= SOCIAL_PROFILES_VIEW_EDIT;
+        $options['uid'] = $categoryId;
+        $options['group'] = SOCIAL_FIELDS_GROUP_GROUP;
 
         // Get fields model
-        $fieldsModel            = FD::model( 'Fields' );
+        $fieldsModel = FD::model('Fields');
 
         // Get the custom fields
-        $fields                 = $fieldsModel->getCustomFields( $options );
+        $fields = $fieldsModel->getCustomFields($options);
 
         // Initialize default registry
-        $registry               = FD::registry();
+        $registry = FD::registry();
 
         // Get disallowed keys so we wont get wrong values.
-        $disallowed             = array( FD::token() , 'option' , 'task' , 'controller', 'autoapproval' );
+        $disallowed = array(FD::token() , 'option' , 'task' , 'controller', 'autoapproval');
 
         // Process $_POST vars
-        foreach( $post as $key => $value )
-        {
-            if( !in_array( $key , $disallowed ) )
-            {
-                if( is_array( $value ) )
-                {
-                    $value  = FD::json()->encode( $value );
+        foreach ($post as $key => $value) {
+
+            if (!in_array($key, $disallowed)) {
+
+                if (is_array($value)) {
+                    $value = json_encode($value);
                 }
-                $registry->set( $key , $value );
+
+                $registry->set($key, $value);
             }
         }
 
         // Convert the values into an array.
-        $data       = $registry->toArray();
+        $data = $registry->toArray();
 
         // Get the fields lib
-        $fieldsLib  = FD::fields();
+        $fieldsLib = FD::fields();
 
         // Build arguments to be passed to the field apps.
-        $args       = array( &$data , &$group );
+        $args = array(&$data, &$group);
 
         // @trigger onAdminEditValidate
-        $errors     = $fieldsLib->trigger( 'onAdminEditValidate', $options[ 'group' ] , $fields, $args );
+        $errors = $fieldsLib->trigger('onAdminEditValidate', $options['group'], $fields, $args);
 
         // If there are errors, we should be exiting here.
-        if( is_array( $errors ) && count( $errors ) > 0 )
-        {
-            $view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_SAVE_ERRORS' ), SOCIAL_MSG_ERROR );
+        if (is_array($errors) && count($errors) > 0) {
+            $view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_FORM_SAVE_ERRORS'), SOCIAL_MSG_ERROR);
 
             // We need to set the data into the post again because onEditValidate might have changed the data structure
-            JRequest::set( $data, 'post' );
+            JRequest::set($data, 'post');
 
-            return $view->call( 'form', $errors );
+            return $view->call('form', $errors);
         }
 
         // @trigger onAdminEditBeforeSave
-        $errors     = $fieldsLib->trigger( 'onAdminEditBeforeSave', $options[ 'group' ] , $fields, $args );
+        $errors = $fieldsLib->trigger('onAdminEditBeforeSave', $options['group'], $fields, $args);
 
-        if( is_array( $errors ) && count( $errors ) > 0 )
-        {
-            $view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_SAVE_ERRORS' ), SOCIAL_MSG_ERROR );
+        // If there are errors, we should be exiting here.
+        if (is_array($errors) && count($errors) > 0) {
+            $view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_FORM_SAVE_ERRORS'), SOCIAL_MSG_ERROR);
 
             // We need to set the data into the post again because onEditValidate might have changed the data structure
-            JRequest::set( $data, 'post' );
+            JRequest::set($data, 'post');
 
-            return $view->call( 'form' , $errors );
+            return $view->call('form', $errors);
         }
 
         // Initialise group data for new group
         if ($isNew) {
-            // Get current logged in user
-            $my     = FD::user();
-
             // Set the category id for the group
-            $group->category_id     = $categoryId;
-            $group->creator_uid     = $my->id;
-            $group->creator_type    = SOCIAL_TYPE_USER;
-            $group->state           = SOCIAL_STATE_PUBLISHED;
-            $group->hits            = 0;
+            $group->category_id = $categoryId;
+            $group->creator_uid = $this->my->id;
+            $group->creator_type = SOCIAL_TYPE_USER;
+            $group->state = SOCIAL_STATE_PUBLISHED;
+            $group->hits = 0;
 
             // Generate a unique key for this group which serves as a password
-            $group->key             = md5( FD::date()->toSql() . $my->password . uniqid() );
+            $group->key = md5(FD::date()->toSql() . $this->my->password . uniqid());
         }
 
         // Bind the user object with the form data.
-        $group->bind( $data );
+        $group->bind($data);
 
         // Save the group
         $group->save();
 
         // After the group is created, assign the current user as the node item
         if ($isNew) {
-            $group->createOwner( $my->id );
+            FD::access()->log('groups.limit', $this->my->id, $group->id, SOCIAL_TYPE_GROUP);
+
+            $group->createOwner($this->my->id);
         }
 
         // Reconstruct args
-        $args       = array( &$data , &$group );
+        $args = array(&$data, &$group);
 
         // @trigger onEditAfterSave
-        $fieldsLib->trigger( 'onAdminEditAfterSave', $options[ 'group' ] , $fields, $args );
+        $fieldsLib->trigger('onAdminEditAfterSave', $options['group'], $fields, $args);
+
+
 
         // Bind the custom fields for the group.
-        $group->bindCustomFields( $data );
+        $group->bindCustomFields($data);
+
 
         // Reconstruct args
-        $args       = array( &$data , &$group );
+        $args = array(&$data, &$group);
 
         // @trigger onEditAfterSaveFields
-        $fieldsLib->trigger( 'onAdminEditAfterSaveFields' , $options[ 'group' ] , $fields , $args );
+        $fieldsLib->trigger('onAdminEditAfterSaveFields', $options['group'], $fields, $args);
 
-        $message    = $id ? JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_SAVE_UPDATE_SUCCESS' ) : JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_CREATE_SUCCESS' );
+        $message = $id ? JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_SAVE_UPDATE_SUCCESS' ) : JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_CREATE_SUCCESS' );
 
         $view->setMessage( $message , SOCIAL_MSG_SUCCESS );
 
@@ -219,24 +218,46 @@ class EasySocialControllerGroups extends EasySocialController
         // Check for request forgeries
         FD::checkToken();
 
-        // Get the current view
-        $view = $this->getCurrentView();
+        // Get the current task since there are a couple of tasks being proxied here.
+        $task = $this->getTask();
+
+        // Default message
+        $message = 'COM_EASYSOCIAL_GROUPS_SET_FEATURED_SUCCESSFULLY';
 
         // Get the group object
-        $id = $this->input->get('cid', array(), 'array');
-        $id = (int) $id[0];
+        $ids = $this->input->get('cid', array(), 'array');
 
-        $group = FD::group($id);
+        foreach ($ids as $id) {
 
-        if ($group->featured) {
-            $group->removeFeatured();
-            $view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_REMOVED_FEATURED_SUCCESSFULLY'), SOCIAL_MSG_SUCCESS);
-        } else {
-            $group->setFeatured();
-            $view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_SET_FEATURED_SUCCESSFULLY'), SOCIAL_MSG_SUCCESS);
+            // Load the group
+            $group = FD::group($id);
+
+            if ($task == 'toggleDefault') {
+
+                if ($group->featured) {
+                    $group->removeFeatured();
+                    $message = 'COM_EASYSOCIAL_GROUPS_REMOVED_FEATURED_SUCCESSFULLY';
+                }
+
+                if (!$group->featured) {
+                    $group->setFeatured();
+                }
+            }
+
+            if ($task == 'makeFeatured') {
+                $group->setFeatured();
+            }
+
+            if ($task == 'removeFeatured') {
+                $group->removeFeatured();
+
+                $message = 'COM_EASYSOCIAL_GROUPS_REMOVED_FEATURED_SUCCESSFULLY';
+            }
         }
 
-        return $view->call(__FUNCTION__);
+        $this->view->setMessage($message, SOCIAL_MSG_SUCCESS);
+
+        return $this->view->call(__FUNCTION__);
     }
 
     /**
@@ -495,6 +516,8 @@ class EasySocialControllerGroups extends EasySocialController
         foreach ($ids as $id) {
             $group  = FD::group( $id );
 
+            FD::access()->switchLogAuthor('groups.limit', $group->getCreator()->id, $group->id, SOCIAL_TYPE_GROUP, $userId );
+
             $group->switchOwner( $userId );
         }
 
@@ -561,57 +584,54 @@ class EasySocialControllerGroups extends EasySocialController
         FD::checkToken();
 
         // Get the posted data
-        $post       = JRequest::get( 'post' );
+        $post = $this->input->getArray('post');
 
-        // Get the current view.
-        $view       = $this->getCurrentView();
+        // Get the id if there is any
+        $id = $this->input->get('id', 0, 'int');
 
-        // Bind the category data
-        $category   = FD::table( 'GroupCategory' );
-
-        // This could be an edited category.
-        $id         = JRequest::getInt( 'id' );
-        $category->load( $id );
-
-        // Bind the posted data.
-        $category->bind( $post );
+        // Try to load up the category
+        $category = FD::table('GroupCategory');
+        $category->load($id);
+        $category->bind($post);
 
         // Try to store the category
-        $state  = $category->store();
+        $state = $category->store();
 
         // Bind the group creation access
         if ($state) {
-            $categoryAccess     = JRequest::getVar('create_access');
+            $categoryAccess = $this->input->get('create_access', '', 'default');
             $category->bindCategoryAccess('create', $categoryAccess);
         }
 
         // Store the avatar for this profile.
-        $file   = JRequest::getVar( 'avatar' , '' , 'FILES' );
+        $file = $this->input->files->get('avatar', '');
 
         // Try to upload the profile's avatar if required
-        if( !empty( $file[ 'tmp_name' ] ) )
-        {
-            $category->uploadAvatar( $file );
+        if (!empty($file['tmp_name'])) {
+            $category->uploadAvatar($file);
         }
 
         // Get fields data separately as we need allowraw here
-        $postfields = JRequest::getVar( 'fields', $default = null, $hash = 'POST', $type = 'none', $mask = JREQUEST_ALLOWRAW );
+        $fields = $this->input->get('fields', null, 'raw');
+        // $postfields = JRequest::getVar( 'fields', $default = null, $hash = 'POST', $type = 'none', $mask = JREQUEST_ALLOWRAW );
 
         // Set the fields for this group category.
-        if( !empty( $postfields ) )
-        {
-            $fieldsData = FD::json()->decode($postfields);
+        if (!empty($fields)) {
+            $data = FD::json()->decode($fields);
 
-            $fieldsLib = FD::fields();
-            $fieldsLib->saveFields( $category->id, SOCIAL_TYPE_CLUSTERS , $fieldsData );
+            $lib = FD::fields();
+            $lib->saveFields($category->id, SOCIAL_TYPE_CLUSTERS, $data);
         }
 
-        $category->bindAccess($post['access']);
+        // Bind the access
+        if (isset($post['access']) && !empty($post['access'])) {
+            $category->bindAccess($post['access']);
+        }
 
         // Set the message
-        $view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_CATEGORY_SAVED_SUCCESS' ) , SOCIAL_MSG_SUCCESS );
+        $this->view->setMessage('COM_EASYSOCIAL_GROUPS_CATEGORY_SAVED_SUCCESS', SOCIAL_MSG_SUCCESS);
 
-        return $view->call( __FUNCTION__ , $category );
+        return $this->view->call(__FUNCTION__, $category);
     }
 
     /**
@@ -872,7 +892,7 @@ class EasySocialControllerGroups extends EasySocialController
 
             $systemOptions  = array(
                 'context_type'  => 'groups.group.promoted',
-                'url'           => $group->getPermalink(false, false, false),
+                'url'           => $group->getPermalink(false, false, 'item', false),
                 'actor_id'      => $my->id,
                 'uid'           => $group->id
             );

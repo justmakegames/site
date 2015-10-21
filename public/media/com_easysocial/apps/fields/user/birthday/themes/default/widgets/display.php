@@ -12,6 +12,6 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <?php echo (isset($advancedsearchlink) && $advancedsearchlink) ? '<a href="' . $advancedsearchlink . '">' : ''; ?>
-<i class="ies-small ies-cake mr-5"></i>
+<i class="fa fa-birthday-cake mr-5"></i>
 <?php echo $this->html( 'string.escape', $value ); ?>
 <?php echo (isset($advancedsearchlink) && $advancedsearchlink) ? '</a>' : ''; ?>

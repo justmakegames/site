@@ -1,7 +1,7 @@
 [
     {
         "title": "APP_GROUP_MEMBERS_SETTINGS_WIDGETS",
-        "desc": "APP_GROUP_MEMBERS_SETTINGS_WIDGEST_DESC",
+        "desc": "APP_GROUP_MEMBERS_SETTINGS_WIDGETS_DESC",
         "fields":
         [
             {
@@ -10,6 +10,14 @@
                 "name": "show_members",
                 "type": "boolean",
                 "default": true
+            },
+            {
+                "label": "APP_GROUP_MEMBERS_SETTINGS_WIDGETS_LIMIT",
+                "tooltip": "APP_GROUP_MEMBERS_SETTINGS_WIDGETS_LIMIT_DESC",
+                "name": "limit",
+                "type": "text",
+                "class": "input-mini text-center",
+                "default"   : 10
             }
         ]
     }

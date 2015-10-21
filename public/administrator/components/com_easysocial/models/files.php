@@ -20,7 +20,7 @@ class EasySocialModelFiles extends EasySocialModel
 	private $data			= null;
 	protected $pagination		= null;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct( 'files' );
 	}
@@ -46,13 +46,47 @@ class EasySocialModelFiles extends EasySocialModel
 	}
 
 	/**
+	 * Delete files for specific uid and type
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function deleteFiles($uid, $type)
+	{
+		$db = ES::db();
+		$sql = $db->sql();
+
+		$sql->select('#__social_files');
+		$sql->where('uid', $uid);
+		$sql->where('type', $type);
+
+		$db->setQuery($sql);
+		$rows = $db->loadObjectList();
+
+		if (!$rows) {
+			return false;
+		}
+
+		foreach ($rows as $row) {
+			$file = ES::table('File');
+			$file->bind($row);
+
+			$file->delete();
+		}
+
+		return true;
+	}
+
+	/**
 	 * Retrieves the total number of files
 	 *
 	 * @since	1.2
 	 * @access	public
 	 * @return	int		Total number of files
 	 */
-	public function getTotalFiles( $uid , $type , $options = array() )
+	public function getTotalFiles($uid, $type, $options = array())
 	{
 		$db 		= FD::db();
 		$sql 		= $db->sql();
@@ -115,8 +149,14 @@ class EasySocialModelFiles extends EasySocialModel
 
 		if ($ordering) {
 
+			$sorting 	= isset($options['sort']) ? $options['sort'] : 'DESC';
+
 			if ($ordering == 'random') {
 				$sql->order('', '', 'RAND');
+			}
+
+			if ($ordering == 'created') {
+				$sql->order('created', $sorting);
 			}
 
 		}
@@ -134,6 +174,9 @@ class EasySocialModelFiles extends EasySocialModel
 			}
 
 		}
+
+		// echo $sql;exit;
+
 
 		$db->setQuery( $sql );
 

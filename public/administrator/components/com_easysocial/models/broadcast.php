@@ -120,4 +120,86 @@ class EasySocialModelBroadcast extends EasySocialModel
 
 		return $id;
 	}
+
+	/**
+	 * Notify a broadcast a message to a set of profiles on the site.
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param 	int 	The profile id to target. 0 for all
+	 * @param	string  The message to be broadcasted
+	 * @return
+	 */
+	public function notifyBroadcast($id, $title, $content, $link, $createdBy)
+	{
+		$db  = FD::db();
+		$sql = $db->sql();
+
+		$query  = array();
+
+		$query[] = 'SELECT';
+		$query[] = '`user_id`';
+		$query[] = 'FROM ' . $db->quoteName('#__social_profiles_maps');
+		$query[] = 'WHERE 1';
+
+		if (!empty($id)) {
+			$query[] = 'AND ' . $db->quoteName('profile_id') . '=' . $db->Quote($id);
+		}
+
+		// Exclude the broadcaster because it would be pretty insane if I am spamming myself
+		$my    = FD::user();
+		$query[] = 'AND `user_id` !=' . $db->Quote($my->id);
+
+
+		$query = implode(' ', $query);
+
+		$sql->raw($query);
+
+		$db->setQuery($sql);
+
+		$results = $db->loadObjectList();
+
+		$recipients = array();
+
+		foreach ($results as $result) {
+			$recipients[] = FD::user($result);
+		}
+
+		$options = array( 'uid' => $my->id , 'actor_id' => $my->id , 'title' => $title , 'content' => $content,'type' => 'broadcast');
+
+		$state = Foundry::notify( 'broadcast.notify' , $recipients , false , $options );
+
+		if ($state) {
+
+			// Create an empty broadcast record for stream item
+			$query  = array();
+
+			// Get the creation date
+			$date = FD::date();
+
+			$query[] = 'INSERT INTO ' . $db->quoteName('#__social_broadcasts');
+			$query[] = '(`target_id`,`target_type`,`title`,`content`,`link`,`state`,`created`,`created_by`) VALUES';
+			$query[] = '(' . $db->Quote('') . ','. $db->Quote('') .',' . $db->Quote($title) . ',' . $db->Quote($content) . ',' . $db->Quote($link) . ',1,' . $db->Quote($date->toSql()) . ',' . $db->Quote($createdBy) . ')';
+			
+			$query = implode(' ', $query);
+
+			$sql->raw($query);
+
+			$db->setQuery($sql);
+
+			$state = $db->Query();
+
+			if (!$state) {
+				return $state;
+			}
+			
+			// Get the id of the new broadcasted item
+			$id = $db->insertid();
+
+			return $id;
+		}
+
+		return $state;
+		
+	}
 }

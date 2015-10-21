@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form name="adminForm" id="adminForm" class="esForm" action="index.php" method="post" data-table-grid>
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -35,91 +35,92 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<div class="filter-bar">
 		<strong>
-			<i class="icon-es-help mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_MAILER_DESCRIPTION' ); ?> <a href="http://docs.stackideas.com/administrators/cronjobs/cronjobs" target="_blank"><?php echo JText::_( 'COM_EASYSOCIAL_LEARN_MORE' ); ?></a>
+			<i class="icon-es-help mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_MAILER_DESCRIPTION' ); ?> <a href="http://stackideas.com/docs/easysocial/administrators/cronjobs/cronjobs" target="_blank"><?php echo JText::_( 'COM_EASYSOCIAL_LEARN_MORE' ); ?></a>
 		</strong>
 	</div>
 
-	<table class="table table-striped table-es table-hover" data-mailer-list>
-		<thead>
-			<tr>
-			<th width="1%">
-				<input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />
-			</th>
-			<th>
-				<?php echo $this->html( 'grid.sort' , 'title' , JText::_( 'COM_EASYSOCIAL_MAILER_EMAIL_TITLE' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="20%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'recipient_email' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_RECIPIENT' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="5%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'priority' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_PRIORITY' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="5%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'state' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_STATE' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="10%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'created' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="5%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
-			</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php if( $emails ){ ?>
+	<div class="panel-table">
+        <table class="app-table table table-eb table-striped" data-mailer-list>
+			<thead>
+				<tr>
+					<th width="1%">
+						<input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />
+					</th>
+					<th>
+						<?php echo $this->html( 'grid.sort' , 'title' , JText::_( 'COM_EASYSOCIAL_MAILER_EMAIL_TITLE' ) , $ordering , $direction ); ?>
+					</th>
+					<th width="20%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'recipient_email' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_RECIPIENT' ) , $ordering , $direction ); ?>
+					</th>
+					<th width="5%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'priority' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_PRIORITY' ) , $ordering , $direction ); ?>
+					</th>
+					<th width="5%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'state' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_STATE' ) , $ordering , $direction ); ?>
+					</th>
+					<th width="10%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'created' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
+					</th>
+					<th width="5%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php if( $emails ){ ?>
 
-				<?php $i = 0; ?>
-				<?php foreach( $emails as $email ){ ?>
-				<tr data-mailer-item data-id="<?php echo $email->id;?>">
-					<td class="center">
-						<?php echo $this->html( 'grid.id' , $i , $email->id ); ?>
-					</td>
-					<td>
-						<a href="javascript:void(0);" data-mailer-item-preview><?php echo $email->title; ?></a>
-					</td>
-					<td class="center">
-						<a href="mailto:<?php echo $email->recipient_email;?>" target="_blank"><?php echo $email->recipient_email;?></a>
-					</td>
-					<td class="center">
-						<i class="ies-flag ies-small priority-<?php echo $email->priority;?>"
-							data-es-provide="tooltip"
-							data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_MAILER_PRIORITY_' . $email->priority , true ); ?>"
-							data-placement="bottom"
-						></i>
-					</td>
-					<td class="center">
-						<?php echo $this->html( 'grid.published' , $email , 'mailer' , 'state' ); ?>
-					</td>
-					<td class="center">
-						<?php echo $email->created; ?>
-					</td>
-					<td class="center">
-						<?php echo $email->id; ?>
+					<?php $i = 0; ?>
+					<?php foreach( $emails as $email ){ ?>
+					<tr data-mailer-item data-id="<?php echo $email->id;?>">
+						<td class="center">
+							<?php echo $this->html( 'grid.id' , $i , $email->id ); ?>
+						</td>
+						<td>
+							<a href="javascript:void(0);" data-mailer-item-preview><?php echo $email->title; ?></a>
+						</td>
+						<td class="center">
+							<a href="mailto:<?php echo $email->recipient_email;?>" target="_blank"><?php echo $email->recipient_email;?></a>
+						</td>
+						<td class="center">
+							<i class="fa fa-flag  priority-<?php echo $email->priority;?>"
+								data-es-provide="tooltip"
+								data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_MAILER_PRIORITY_' . $email->priority , true ); ?>"
+								data-placement="bottom"
+							></i>
+						</td>
+						<td class="center">
+							<?php echo $this->html( 'grid.published' , $email , 'mailer' , 'state' ); ?>
+						</td>
+						<td class="center">
+							<?php echo $email->created; ?>
+						</td>
+						<td class="center">
+							<?php echo $email->id; ?>
+						</td>
+					</tr>
+					<?php $i++; ?>
+					<?php } ?>
+
+				<?php } else { ?>
+				<tr class="is-empty">
+					<td colspan="8" class="empty">
+						<?php echo JText::_( 'COM_EASYSOCIAL_MAILER_NO_EMAILS_YET' ); ?>
 					</td>
 				</tr>
-				<?php $i++; ?>
 				<?php } ?>
+			</tbody>
 
-			<?php } else { ?>
-			<tr class="is-empty">
-				<td colspan="8" class="empty">
-					<?php echo JText::_( 'COM_EASYSOCIAL_MAILER_NO_EMAILS_YET' ); ?>
-				</td>
-			</tr>
-			<?php } ?>
-		</tbody>
-
-		<tfoot>
-			<tr>
-				<td colspan="8">
-					<div class="footer-pagination">
-					<?php echo $pagination->getListFooter(); ?>
-					</div>
-				</td>
-			</tr>
-		</tfoot>
-
-	</table>
+			<tfoot>
+				<tr>
+					<td colspan="8">
+						<div class="footer-pagination">
+						<?php echo $pagination->getListFooter(); ?>
+						</div>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
 
 
 <?php echo JHTML::_( 'form.token' ); ?>

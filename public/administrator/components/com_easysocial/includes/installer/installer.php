@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,23 +9,25 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-class SocialInstaller
+class SocialInstaller extends EasySocial
 {
-	protected $helper		= null;
+	protected $helper = null;
 
 	public function __construct()
 	{
-		$version 	= FD::getInstance( 'Version' );
-		$name 		= $version->getCodeName();
-		$name		= strtolower( $name );
+		parent::__construct();
 
-		require_once( dirname( __FILE__ ) . '/helpers/' . $name . '.php' );
+		$version = ES::version();
+		$name = $version->getCodeName();
+		$name = strtolower($name);
 
-		$className 	= 'SocialInstallerHelper' . ucfirst( $name );
+		require_once(__DIR__ . '/helpers/' . $name . '.php');
 
-		$this->helper	= new $className();
+		$className = 'SocialInstallerHelper' . ucfirst($name);
+
+		$this->helper = new $className();
 	}
 
 	public static function factory()
@@ -42,9 +44,9 @@ class SocialInstaller
 	 * @access	public
 	 * @param	string	$path	The path to the folder.
 	 */
-	public function load( $path )
+	public function load($path)
 	{
-		return $this->helper->load( $path );
+		return $this->helper->load($path);
 	}
 
 	/**
@@ -87,9 +89,9 @@ class SocialInstaller
 	 *
 	 * @access public
 	 */
-	public function upload( $source , $destination  )
+	public function upload($source, $destination)
 	{
-		return $this->helper->upload( $source , $destination );
+		return $this->helper->upload($source, $destination);
 	}
 
 	public function extract( $destination )

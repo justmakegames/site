@@ -47,6 +47,7 @@
 	"params"		:
 	{
 		"reconfirm_password" 	: true,
+		"mini_reconfirm_password": false,
 		"password_strength"		: true
 	},
 

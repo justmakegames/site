@@ -20,49 +20,49 @@ class SocialTableCover extends SocialTable
 	 * The unique id for this record.
 	 * @var int
 	 */
-	public $id			= null;
+	public $id = null;
 
 	/**
 	 * The unique type id for this record.
 	 * @var int
 	 */
-	public $uid 		= null;
+	public $uid = null;
 
 	/**
 	 * The unique type string for this record.
 	 * @var string
 	 */
-	public $type 		= null;
+	public $type = null;
 
 	/**
 	 * The unique type id for this record. (Optional: used only when tied to a pre-defined avatar list)
 	 * @var int
 	 */
-	public $photo_id	= null;
+	public $photo_id = null;
 
 	/**
 	 * The unique type id for this record. (Optional: used only when tied to a pre-defined avatar list)
 	 * @var int
 	 */
-	public $cover_id	= null;
+	public $cover_id = null;
 
 	/**
 	 * The x coordinate of the cover
 	 * @var int
 	 */
-	public $x 		= null;
+	public $x = null;
 
 	/**
 	 * The y coordinate of the cover
 	 * @var int
 	 */
-	public $y 		= null;
+	public $y = null;
 
 	/**
 	 * The modified date of an avatar.
 	 * @var string
 	 */
-	public $modified      = null;
+	public $modified = null;
 
 	/**
 	 * Class Constructor
@@ -70,7 +70,7 @@ class SocialTableCover extends SocialTable
 	 * @since	1.0
 	 * @param	JDatabase
 	 */
-	public function __construct( $db )
+	public function __construct($db)
 	{
 		parent::__construct('#__social_covers', 'id' , $db );
 	}
@@ -92,7 +92,7 @@ class SocialTableCover extends SocialTable
 		// Do not proceed if image doesn't exist.
 		if( empty( $file ) || !isset( $file[ 'tmp_name' ] ) )
 		{
-			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_AVATARS_FILE_UNAVAILABLE' ) );
+			$this->setError(JText::_('COM_EASYSOCIAL_PROFILES_DEFAULT_AVATARS_FILE_UNAVAILABLE'));
 			return false;
 		}
 
@@ -100,72 +100,59 @@ class SocialTableCover extends SocialTable
 		$avatarsPath 	= JPATH_ROOT . '/' . FD::cleanPath( $config->get( 'avatars.storage.container' ) );
 
 		// Test if the avatars path folder exists. If it doesn't we need to create it.
-		if( !FD::makeFolder( $avatarsPath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Unable to create the path ' . $avatarsPath );
-
-			$this->setError( JText::_( 'Errors when creating default container for avatar' ) );
+		if (!FD::makeFolder($avatarsPath)) {
+			$this->setError(JText::_('Errors when creating default container for avatar'));
 			return false;
 		}
 
 		// Get the default avatars storage location for this type.
-		$typePath 		= $config->get( 'avatars.storage.' . $this->type );
-		$storagePath 	= $avatarsPath . '/' . FD::cleanPath( $typePath );
+		$typePath = $config->get( 'avatars.storage.' . $this->type );
+		$storagePath = $avatarsPath . '/' . FD::cleanPath($typePath);
 
 		// Ensure storage path exists.
 		if( !FD::makeFolder( $storagePath ) )
 		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Unable to create the path ' . $storagePath );
-
 			$this->setError( JText::_( 'Errors when creating path for avatar' ) );
 			return false;
 		}
 
 		// Get the profile id and construct the final path.
-		$idPath 		= FD::cleanPath( $this->uid );
-		$storagePath 	= $storagePath . '/' . $idPath;
+		$idPath = FD::cleanPath( $this->uid );
+		$storagePath = $storagePath . '/' . $idPath;
 
 		// Ensure storage path exists.
-		if( !FD::makeFolder( $storagePath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Unable to create the path ' . $storagePath );
-
+		if (!FD::makeFolder($storagePath)) {
 			$this->setError( JText::_( 'Errors when creating default path for avatar' ) );
 			return false;
 		}
 
 		// Get the image library to perform some checks.
-		$image 	= FD::get( 'Image' );
-		$image->load( $file[ 'tmp_name' ] );
+		$image = FD::get('Image');
+		$image->load($file['tmp_name']);
 
 		// Test if the image is really a valid image.
-		if( !$image->isValid() )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Image uploaded ' . $file[ 'name' ] . ' is invalid' );
-			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_AVATARS_FILE_NOT_IMAGE' ) );
+		if (!$image->isValid()) {
+			$this->setError(JText::_('COM_EASYSOCIAL_PROFILES_DEFAULT_AVATARS_FILE_NOT_IMAGE'));
 			return false;
 		}
 
 		// Process avatar storage.
-		$avatar 	= FD::get( 'Avatar' , $image );
+		$avatar = FD::get('Avatar', $image);
 
 		// Let's create the avatar.
-		$sizes 		= $avatar->create( $storagePath );
+		$sizes = $avatar->create($storagePath);
 
-		if( $sizes === false )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Error creating avatars at ' . $storagePath );
-			$this->setError( JText::_( 'Sorry, there was some errors when creating the avatars.' ) );
+		if ($sizes === false) {
+			$this->setError(JText::_('Sorry, there was some errors when creating the avatars.'));
 			return false;
 		}
 
 		// Delete previous files.
-		$this->deleteFile( $storagePath );
+		$this->deleteFile($storagePath);
 
 		// Assign the values back.
-		foreach( $sizes as $size => $url )
-		{
-			$this->$size	= $url;
+		foreach ($sizes as $size => $url) {
+			$this->$size = $url;
 		}
 
 		return true;
@@ -280,6 +267,14 @@ class SocialTableCover extends SocialTable
 
 		// Set the default cover
 		$default = SOCIAL_JOOMLA_URI . $config->get('covers.default.' . $this->type . '.' . SOCIAL_COVER_DEFAULT);
+
+		// If there is a cover override in the template, use it instead.
+		$app = JFactory::getApplication();
+		$overridePath = JPATH_ROOT . '/templates/' . $app->getTemplate() . '/html/com_easysocial/covers/user/default.jpg';
+
+		if (JFile::exists($overridePath)) {
+			$default = rtrim(JURI::root(), '/') . '/templates/' . $app->getTemplate() . '/html/com_easysocial/covers/user/default.jpg';
+		}
 
 		// Test if the cover is a photo
 		if ($this->photo_id) {

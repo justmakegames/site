@@ -13,7 +13,7 @@
 		padding-bottom: 10px;
 		.btn
 		{
-			font-size: 10px;
+			font-size: @fontSizeSmall;
 			padding: 4px 8px;
 		}
 	}
@@ -27,7 +27,7 @@
 			&.app-info
 			{
 				margin: 15px 0;
-				font-size: 11px;
+				font-size: @baseFontSize;
 				padding: 0 0 8px;
 			}
 		}
@@ -73,7 +73,7 @@
 				}
 				.feed-time
 				{
-					font-size: 11px;
+					font-size: @baseFontSize;
 					color: #666;
 					float: right;
 				}
@@ -120,5 +120,23 @@
 		#es-wrap .app-user-feeds-wrapper.profile .feed-item .feed-item-meta{
 			margin-bottom: 10px;
 		}
+	}
+}
+.app-contents-title { // h5
+	margin: 0;
+}
+.app-contents-list-bordered {
+	
+	.alert { // override alert elements
+		margin: 0;
+	}
+
+	> li {
+		padding: 10px 0;
+		border-bottom: 1px solid @esBorder;
+	}
+
+	+ .app-contents-title {
+		margin-top: 25px;
 	}
 }

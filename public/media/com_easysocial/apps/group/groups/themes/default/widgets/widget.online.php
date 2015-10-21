@@ -13,7 +13,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="es-widget">
 	<div class="es-widget-head">
-		<div class="pull-left widget-title"><?php echo JText::_( 'APP_GROUP_GROUPS_ONLINE_MEMBERS_WIDGET_TITLE' );?></div>
+		<div class="pull-left widget-title">
+			<?php echo JText::_('APP_GROUP_GROUPS_ONLINE_MEMBERS_WIDGET_TITLE');?>
+		</div>
+		<span class="widget-label">(<?php echo $total;?>)</span>
 	</div>
 
 	<div class="es-widget-body">
@@ -22,11 +25,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php foreach( $users as $user ){ ?>
 			<li>
 				<div class="es-avatar-wrap">
-					<a href="<?php echo $user->getPermalink();?>"
-						class="es-avatar es-avatar-sm"
-						data-popbox="module://easysocial/profile/popbox"
-						data-user-id="<?php echo $user->id;?>"
-					>
+					<a href="<?php echo $user->getPermalink();?>" class="es-avatar es-avatar-sm" data-popbox="module://easysocial/profile/popbox" data-user-id="<?php echo $user->id;?>">
 						<img alt="<?php echo $this->html( 'string.escape' , $user->getName() );?>" src="<?php echo $user->getAvatar();?>" />
 					</a>
 				</div>

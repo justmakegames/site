@@ -37,7 +37,7 @@ class EasySocialControllerUsers extends EasySocialController
 	 * @since	1.3
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function resendActivate()
 	{
@@ -64,13 +64,13 @@ class EasySocialControllerUsers extends EasySocialController
 			$model->resendActivation($user);
 			$total++;
 		}
-		
+
 		if (!$total) {
 			$view->setMessage(JText::_('COM_EASYSOCIAL_USERS_ACTIVATION_EMAIL_NO_VALID_USERS'), SOCIAL_MSG_SUCCESS);
 		} else {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_USERS_ACTIVATION_EMAIL_RESENT'), SOCIAL_MSG_SUCCESS);	
+			$view->setMessage(JText::_('COM_EASYSOCIAL_USERS_ACTIVATION_EMAIL_RESENT'), SOCIAL_MSG_SUCCESS);
 		}
-		
+
 		return $view->call(__FUNCTION__);
 	}
 
@@ -88,36 +88,32 @@ class EasySocialControllerUsers extends EasySocialController
 		FD::checkToken();
 
 		// Get the current task
-		$task 	= $this->getTask();
+		$task = $this->getTask();
 
 		// Get the user's id.
-		$ids 	= JRequest::getVar( 'cid' );
-
-		// Get the current view
-		$view 	= $this->getCurrentView();
+		$ids = $this->input->get('cid', array(), 'array');
 
 		// Get the state
-		$method 	= $task == 'unpublish' ? 'block' : 'unblock';
+		$method = $task == 'unpublish' ? 'block' : 'unblock';
 
-		foreach( $ids as $id )
-		{
-			$user 	= FD::user( $id );
+		foreach ($ids as $id) {
 
-			if( $user == $my->id )
-			{
-				// Do not allow the person to block themselves.
-				$view->setMessage( JText::_( 'COM_EASYSOCIAL_USERS_NOT_ALLOWED_TO_BLOCK_SELF' ) , SOCIAL_MSG_ERROR );
-				return $view->call( __FUNCTION__ , $task );
+			$user = FD::user($id);
+			$my = JFactory::getUser();
+
+			// Do not allow the person to block themselves.
+			if ($user->id == $this->my->id) {
+				$this->view->setMessage(JText::_('COM_EASYSOCIAL_USERS_NOT_ALLOWED_TO_BLOCK_SELF'), SOCIAL_MSG_ERROR);
+				return $this->view->call(__FUNCTION__, $task);
 			}
 
-			$state 	= $user->$method();
+			$state = $user->$method();
 		}
 
-		$message 	= $task == 'unpublish' ? 'COM_EASYSOCIAL_USERS_UNPUBLISHED_SUCCESSFULLY' : 'COM_EASYSOCIAL_USERS_PUBLISHED_SUCCESSFULLY';
-		$message 	= JText::_( $message );
+		$message = $task == 'unpublish' ? 'COM_EASYSOCIAL_USERS_UNPUBLISHED_SUCCESSFULLY' : 'COM_EASYSOCIAL_USERS_PUBLISHED_SUCCESSFULLY';
 
-		$view->setMessage( $message , SOCIAL_MSG_SUCCESS );
-		return $view->call( __FUNCTION__ , $task );
+		$this->view->setMessage($message, SOCIAL_MSG_SUCCESS);
+		return $this->view->call(__FUNCTION__, $task);
 	}
 
 	/**
@@ -214,25 +210,41 @@ class EasySocialControllerUsers extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		// Get the current view
-		$view 	= $this->getCurrentView();
-
 		// Get affected users
-		$ids 	= JRequest::getVar( 'cid' );
+		$ids = $this->input->get('cid', array(), 'array');
 
 		// Get the profile to switch to
-		$profileId	= JRequest::getInt( 'profile' );
+		$profileId = $this->input->get('profile', 0, 'int');
 
-		$profileModel	= FD::model( 'Profiles' );
+		// Get the model
+		$model = ES::model('Profiles');
 
-		foreach( $ids as $id )
-		{
-			// Switch the user's profile
-			$profileModel->updateUserProfile( $id , $profileId );
+		// For invalid ids
+		if (!$ids) {
+			// @TODO: Add error checking here
 		}
 
-		$view->setMessage( JText::_( 'COM_EASYSOCIAL_USERS_USER_PROFILE_UPDATED' ) );
-		return $view->call( __FUNCTION__ );
+		// Should we be updating the user group in Joomla
+		$updateGroups = $this->input->get('switch_groups', false, 'bool');
+
+		foreach ($ids as $id) {
+
+			// Switch the user's profile
+			$model->updateUserProfile($id, $profileId);
+
+
+			// Determines if we should also update the user's usergroups
+			if ($updateGroups) {
+				$model->updateJoomlaGroup($id, $profileId);
+			}
+
+			//lets update the user records in com_finder.
+			$user = FD::user($id);
+			$user->syncIndex();
+		}
+
+		$this->view->setMessage('COM_EASYSOCIAL_USERS_USER_PROFILE_UPDATED');
+		return $this->view->call(__FUNCTION__);
 	}
 
 	/**
@@ -586,18 +598,18 @@ class EasySocialControllerUsers extends EasySocialController
 		// Load front end's language file
 		FD::language()->loadSite();
 
-		// Get the current view
-		$view 	= $this->getCurrentView();
-
 		// Get the current task
-		$task 	= $this->getTask();
+		$task = $this->getTask();
 
 		// Determine if this is an edited user.
-		$id 	= JRequest::getInt( 'id' );
-		$id 	= !$id ? null : $id;
+		$id = $this->input->get('id', 0, 'int');
+		$id = !$id ? null : $id;
 
 		// Get the posted data
-		$post	= JRequest::get( 'post' );
+		$post = $this->input->getArray('post');
+
+		// check if user is required to reset password or not.
+		// $requiredPasswordReset = isset( $post['require_reset'] ) ? $post['require_reset'] : 0;
 
 		// this should come from backend user management page only.
 		$autoApproval = isset( $post['autoapproval'] ) ? $post['autoapproval'] : 0;
@@ -605,66 +617,66 @@ class EasySocialControllerUsers extends EasySocialController
 		// Create an options array for custom fields
 		$options = array();
 
-		if( !$id )
-		{
-			$user 		= new SocialUser();
+		if (!$id) {
+			$user = new SocialUser();
 
 			// Get the profile id
-			$profileId	= JRequest::getInt( 'profileId' );
-		}
-		else
-		{
+			$profileId = $this->input->get('profileId');
+		} else {
 			// Here we assume that the user record already exists.
-			$user 				= FD::user( $id );
+			$user = FD::user( $id );
 
 			// Get the profile id from the user
-			$profileId 			= $user->getProfile()->id;
+			$profileId = $user->getProfile()->id;
 
-			$options['data'] 		= true;
-			$options['dataId']		= $id;
-			$options['dataType']	= SOCIAL_TYPE_USER;
+			$options['data'] = true;
+			$options['dataId'] = $id;
+			$options['dataType'] = SOCIAL_TYPE_USER;
 		}
 
 		// Set the profile id
-		$options['profile_id']	= $profileId;
+		$options['profile_id'] = $profileId;
 
 		// Set the group
 		$options['group'] = SOCIAL_FIELDS_GROUP_USER;
 
 		// Load the profile
-		$profile 	= FD::table( 'Profile' );
+		$profile = FD::table('Profile');
 		$profile->load( $profileId );
 
 		// Set the visibility
-		$options['visible']		= SOCIAL_PROFILES_VIEW_EDIT;
+		// since this is at backend so we assume admin is editing someone else.
+		if (! $id) {
+			$options['visible'] = SOCIAL_PROFILES_VIEW_REGISTRATION;
+		}
 
 		// Get fields model
-		$fieldsModel			= FD::model( 'Fields' );
+		$fieldsModel = ES::model('Fields');
 
 		// Get the custom fields
-		$fields					= $fieldsModel->getCustomFields( $options );
+		$fields = $fieldsModel->getCustomFields($options);
 
 		// Initialize default registry
-		$registry 				= FD::registry();
+		$registry = ES::registry();
 
 		// Get disallowed keys so we wont get wrong values.
-		$disallowed 			= array( FD::token() , 'option' , 'task' , 'controller', 'autoapproval' );
+		$disallowed = array(ES::token(), 'option' , 'task' , 'controller', 'autoapproval');
 
 		// Process $_POST vars
-		foreach( $post as $key => $value )
-		{
-			if( !in_array( $key , $disallowed ) )
-			{
-				if( is_array( $value ) )
-				{
-					$value  = FD::json()->encode( $value );
+		foreach ($post as $key => $value) {
+
+			if (!in_array($key, $disallowed)) {
+
+				if (is_array($value)) {
+					$value = json_encode($value);
 				}
-				$registry->set( $key , $value );
+
+				$registry->set($key, $value);
 			}
 		}
 
 		// Test to see if the points has changed.
-		$points 	= JRequest::getInt('points');
+		$points = $this->input->get('points', 0, 'int');
 
 		// Lets get the difference of the points
 		$userPoints = $user->getPoints();
@@ -683,134 +695,124 @@ class EasySocialControllerUsers extends EasySocialController
 				$totalPoints 	= -($userPoints - $points);
 			}
 
-			$pointsLib 	= FD::points();
-			$pointsLib->assignCustom( $user->id, $totalPoints, JText::_('COM_EASYSOCIAL_POINTS_ADJUSTMENTS'));
+			$pointsLib = FD::points();
+			$pointsLib->assignCustom($user->id, $totalPoints, JText::_('COM_EASYSOCIAL_POINTS_ADJUSTMENTS'));
 
-			$user->points 	= $points;
+			$user->points = $points;
 		}
 
 		// Convert the values into an array.
-		$data		= $registry->toArray();
+		$data = $registry->toArray();
 
 		// Get the fields lib
-		$fieldsLib	= FD::fields();
+		$fieldsLib = FD::fields();
 
 		// Build arguments to be passed to the field apps.
-		$args 		= array( &$data , &$user );
+		$args = array(&$data, &$user);
 
 		// @trigger onAdminEditValidate
-		$errors		= $fieldsLib->trigger( 'onAdminEditValidate', SOCIAL_FIELDS_GROUP_USER, $fields, $args );
+		$errors = $fieldsLib->trigger( 'onAdminEditValidate', SOCIAL_FIELDS_GROUP_USER, $fields, $args );
 
 		// If there are errors, we should be exiting here.
-		if( is_array( $errors ) && count( $errors ) > 0 )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_SAVE_ERRORS' ), SOCIAL_MSG_ERROR );
+		if (is_array($errors) && count($errors) > 0) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_SAVE_ERRORS'), SOCIAL_MSG_ERROR);
 
 			// We need to set the data into the post again because onEditValidate might have changed the data structure
-			JRequest::set( $data, 'post' );
+			JRequest::set($data, 'post');
 
-			return $view->call( 'form', $errors );
+			return $this->view->call('form', $errors);
 		}
 
 		// @trigger onAdminEditBeforeSave
-		$errors		= $fieldsLib->trigger( 'onAdminEditBeforeSave', SOCIAL_FIELDS_GROUP_USER, $fields, $args );
+		$errors = $fieldsLib->trigger('onAdminEditBeforeSave', SOCIAL_FIELDS_GROUP_USER, $fields, $args );
 
-		if( is_array( $errors ) && count( $errors ) > 0 )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_ERRORS_IN_FORM' ), SOCIAL_MSG_ERROR );
+		if (is_array($errors) && count($errors) > 0) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PROFILE_ERRORS_IN_FORM'), SOCIAL_MSG_ERROR);
 
 			// We need to set the data into the post again because onEditValidate might have changed the data structure
-			JRequest::set( $data, 'post' );
+			JRequest::set($data, 'post');
 
-			return $view->call( 'form' , $errors );
+			return $this->view->call('form', $errors);
 		}
 
 		// Update the user's gid
-		$gid 	= JRequest::getVar( 'gid' );
-		$data[ 'gid' ]	= $gid;
+		$gid = $this->input->get('gid', array(), 'array');
+		$data['gid'] = $gid;
 
 		// Bind the user object with the form data.
-		$user->bind( $data );
+		$user->bind($data);
 
 
 		// Create a new user record if the id don't exist yet.
-		if( !$id )
-		{
-			$model		= FD::model( 'Users' );
-			$user		= $model->create( $data , $user , $profile );
+		if (!$id) {
+			$model = ES::model('Users');
+			$user = $model->create($data, $user, $profile);
 
 			if (!$user) {
-				$view->setMessage($model->getError(), SOCIAL_MSG_ERROR);
+				$this->view->setMessage($model->getError(), SOCIAL_MSG_ERROR);
 
 				// We need to set the data into the post again because onEditValidate might have changed the data structure
-				JRequest::set( $data, 'post' );
+				JRequest::set($data, 'post');
 
-				return $view->call( 'form' );
+				return $this->view->call( 'form' );
 			}
 
-			if( $autoApproval )
-			{
-				// let approve this user. since this user created by admin, we dont need to notify the user.
-				$user->approve( false );
+			// If admin selected auto approval, automatically approve this user.
+			if ($autoApproval) {
+				$user->approve(false);
 			}
 
-			// @TODO: Send email notifications
-
-			$message 	= ( $autoApproval ) ? JText::_( 'COM_EASYSOCIAL_USERS_CREATED_SUCCESSFULLY_AND_APPROVED' ) : JText::_( 'COM_EASYSOCIAL_USERS_CREATED_SUCCESSFULLY' );
-		}
-		else
-		{
+			$message = ($autoApproval) ? JText::_('COM_EASYSOCIAL_USERS_CREATED_SUCCESSFULLY_AND_APPROVED') : JText::_('COM_EASYSOCIAL_USERS_CREATED_SUCCESSFULLY');
+		} else {
 			// If this was an edited user, save the user object.
 			$user->save();
 
-			$message 	= JText::_( 'COM_EASYSOCIAL_USERS_USER_UPDATED_SUCCESSFULLY' );
+			$message = JText::_('COM_EASYSOCIAL_USERS_USER_UPDATED_SUCCESSFULLY');
 		}
 
 		// Reconstruct args
-		$args 		= array( &$data , &$user );
+		$args = array(&$data, &$user);
 
 		// @trigger onEditAfterSave
 		$fieldsLib->trigger( 'onAdminEditAfterSave', SOCIAL_FIELDS_GROUP_USER, $fields, $args );
 
 		// Bind the custom fields for the user.
-		$user->bindCustomFields( $data );
+		$user->bindCustomFields($data);
 
 		// Reconstruct args
-		$args 		= array( &$data , &$user );
+		$args = array(&$data, &$user);
 
 		// @trigger onEditAfterSaveFields
-		$fieldsLib->trigger( 'onAdminEditAfterSaveFields' , SOCIAL_FIELDS_GROUP_USER , $fields , $args );
+		$fieldsLib->trigger('onAdminEditAfterSaveFields', SOCIAL_FIELDS_GROUP_USER, $fields, $args);
 
 		// Prepare the dispatcher
-		FD::apps()->load( SOCIAL_TYPE_USER );
-		$dispatcher		= FD::dispatcher();
-		$args 			= array(&$user, &$fields, &$data);
+		FD::apps()->load(SOCIAL_TYPE_USER);
+		$dispatcher = FD::dispatcher();
+		$args = array(&$user, &$fields, &$data);
 
 		// @trigger: onUserProfileUpdate
-		$dispatcher->trigger( SOCIAL_TYPE_USER , 'onUserProfileUpdate' , $args );
+		$dispatcher->trigger(SOCIAL_TYPE_USER, 'onUserProfileUpdate', $args);
 
 		// Process notifications
-		if( isset( $post[ 'notifications' ] ) && !empty( $post[ 'notifications' ] ) )
-		{
-			$systemNotifications	= $post[ 'notifications' ][ 'system' ];
-			$emailNotifications		= $post[ 'notifications' ][ 'email' ];
+		if (isset($post['notifications']) && !empty($post['notifications'])) {
+			$systemNotifications = $post['notifications']['system'];
+			$emailNotifications = $post['notifications']['email'];
 
 			// Store the notification settings for this user.
-			$model 	= FD::model( 'Notifications' );
+			$model = ES::model('Notifications');
 
-			$model->saveNotifications( $systemNotifications , $emailNotifications , $user );
+			$model->saveNotifications($systemNotifications, $emailNotifications, $user);
 		}
 
 		// Process privacy items
-		if( isset( $post[ 'privacy' ] ) && !empty( $post[ 'privacy' ] ) )
-		{
-			$resetPrivacy = isset( $post['privacyReset'] ) ? true : false;
+		if (isset($post['privacy']) && !empty($post['privacy'])) {
+			$resetPrivacy = isset($post['privacyReset']) ? true : false;
 
-			$user->bindPrivacy( $post[ 'privacy' ] , $post[ 'privacyID' ] , $post[ 'privacyCustom' ], $post[ 'privacyOld' ], $resetPrivacy );
+			$user->bindPrivacy($post['privacy'], $post['privacyID'], $post['privacyCustom'], $post['privacyOld'], $resetPrivacy);
 		}
 
-		$view->setMessage( $message , SOCIAL_MSG_SUCCESS );
+		$this->view->setMessage($message, SOCIAL_MSG_SUCCESS);
 
-		return $view->call( __FUNCTION__ , $task , $user );
+		return $this->view->call(__FUNCTION__, $task, $user);
 	}
 }

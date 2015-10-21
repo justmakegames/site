@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,19 +9,14 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * SQL string builder for EasySocial.
- *
- * @since	1.0
- * @author	Jason Rey <jasonrey@stackideas.com>
- */
 class SocialSql
 {
-	static $instance	= null;
-
-	public $db 			= null;
+	static $instance = null;
+	public $db = null;
+	public $jConfig = null;
+	public $debug = false;
 
 	/**
 	 * Stores the data internally in index format.
@@ -54,7 +49,8 @@ class SocialSql
 
 	public function __construct()
 	{
-		$this->db = FD::db();
+		$this->jConfig = ES::jConfig();
+		$this->db = ES::db();
 	}
 
 	/**
@@ -311,12 +307,20 @@ class SocialSql
 	 * START OF STRING RETURN FUNCTIONS
 	 */
 
+	/**
+	 * Throws the sql string back to the browser
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function debug()
 	{
-		$jConfig 	= FD::jconfig();
-		$prefix 	= $jConfig->getValue( 'dbprefix' );
+		$this->debug = true;
 
-		$query 		= $this->buildSql();
+		$prefix = $this->jConfig->getValue('dbprefix');
+		$query = $this->buildSql();
 
 		return str_ireplace( '#__' , $prefix , $query );
 	}
@@ -488,17 +492,16 @@ class SocialSql
 	private function buildSql()
 	{
 		// Check for raw string
-		if( !empty( $this->string ) )
-		{
-			$string = $this->parse( $this->string );
+		if (!empty($this->string)) {
+			$string = $this->parse($this->string);
 
 			return $string;
 		}
 
 		// Build base sql from the mode
-		$base = 'build' . ucfirst( $this->mode );
+		$method = 'build' . ucfirst($this->mode);
 
-		$query = $this->$base();
+		$query = $this->$method();
 
 		/* directives
 		join
@@ -517,17 +520,16 @@ class SocialSql
 			'insert'	=> array( 'values' )
 		);
 
-		$query .= $this->buildDirectives( $directives[$this->mode] );
+		$query .= $this->buildDirectives($directives[$this->mode]);
 
 		return $query;
 	}
 
-	private function buildDirectives( $directives )
+	private function buildDirectives($directives)
 	{
 		$query = '';
 
-		foreach( $directives as $directive )
-		{
+		foreach ($directives as $directive) {
 			$command = 'build' . ucfirst( $directive );
 
 			$query .= $this->$command();
@@ -545,45 +547,36 @@ class SocialSql
 		return $query;
 	}
 
-	private function buildSelect()
+	private function buildSelect($debug = false)
 	{
 		$columns = array();
 
 		// If no columns, then set the default column as *
-		if( !isset( $this->data['columns'] ) )
-		{
-			$this->data['columns'] = array( array( '*', '', '', false ) );
+		if (!isset($this->data['columns'])) {
+			$this->data['columns'] = array(array('*', '', '', false));
 		}
 
-		foreach( $this->data['columns'] as $column )
-		{
-			list( $columnName, $alias, $function, $psuedo ) = $column;
+		foreach ($this->data['columns'] as $column) {
 
-			$name = $this->parseColumnName( $column[0] );
+			list($columnName, $alias, $function, $psuedo) = $column;
 
-			// If it is a psuedo column, then quote the value instead
-			if( $psuedo )
-			{
-				$columnName = $this->quote( $columnName );
-			}
-			else
-			{
-				$columnName = $this->parseColumnName( $column[0] );
+			$name = $this->parseColumnName($column[0]);
+
+			if ($psuedo) {
+				$columnName = $this->quote($columnName);
+			} else {
+				$columnName = $this->parseColumnName($column[0]);
 			}
 
 			// Set line as the column name
 			$line = $columnName;
 
-			// If this column is a function, set the line to use function instead
-			if( !empty( $function ) )
-			{
-				$line = $this->parseFunction( $function, $line );
+			if (!empty($function)) {
+				$line = $this->parseFunction($function, $line);
 			}
 
-			// Set column alias
-			if( !empty( $alias ) )
-			{
-				$line .= ' AS ' . $this->nameQuote( $alias );
+			if (!empty($alias)) {
+				$line .= ' AS ' . $this->nameQuote($alias);
 			}
 
 			$columns[] = $line;
@@ -593,12 +586,11 @@ class SocialSql
 		$columns = implode( ',', $columns );
 
 		// Main select query string
-		$query = 'SELECT ' . $columns . ' FROM ' . $this->nameQuote( $this->data['table'][0] );
+		$query = 'SELECT ' . $columns . ' FROM ' . $this->nameQuote($this->data['table'][0]);
 
 		// Set table alias
-		if( !empty( $this->data['table'][1] ) )
-		{
-			$query	.= ' AS ' . $this->nameQuote( $this->data['table'][1] );
+		if (!empty($this->data['table'][1])) {
+			$query	.= ' AS ' . $this->nameQuote($this->data['table'][1]);
 		}
 
 		return $query;
@@ -834,27 +826,22 @@ class SocialSql
 
 	private function buildJoin()
 	{
-		// $this->data['join'][] = array( $table, $alias, $type );
-
-		if( !isset( $this->data['join'] ) )
-		{
+		if (!isset($this->data['join'])) {
 			return '';
 		}
 
 		$query = array();
 
 		$join = $this->data['join'];
+		$iLength = count($join);
 
-		$iLength = count( $join );
-		for( $i = 0; $i < $iLength; $i++ )
-		{
-			list( $table, $alias, $type ) = $join[$i];
+		for ($i = 0; $i < $iLength; $i++) {
+			
+			list($table, $alias, $type) = $join[$i];
 
-			$line = ' ' . strtoupper( $type ) . ' JOIN ' . $this->nameQuote( $table ) . ' AS ' . $this->nameQuote( $alias );
+			$line = ' ' . strtoupper( $type ) . ' JOIN ' . $this->nameQuote( $table ) . ' AS ' . $this->nameQuote($alias);
 
-			if( isset( $this->data['on'] ) && $this->data['on'][$i] )
-			{
-				// $this->data['on'][$joinindex][] = array( $columnA, $columnB, $type, $condition );
+			if (isset($this->data['on']) && $this->data['on'][$i]) {
 
 				$line .= ' ON ';
 
@@ -862,48 +849,46 @@ class SocialSql
 
 				$joiner = false;
 
-				$jLength = count( $on );
-				for( $j = 0; $j < $jLength; $j++ )
-				{
+				$jLength = count($on);
+				
+
+				for ($j = 0; $j < $jLength; $j++) {
+					
 					list( $columnA, $columnB, $onType, $onCondition ) = $on[$j];
 
 					// For second condition and above, we need the condition joiner
-					if( $joiner )
-					{
+					if ($joiner) {
 						$line .= ' ' . $onCondition . ' ';
-					}
-					else
-					{
+					} else {
 						$joiner = true;
 					}
 
-					if( $columnA === '(' || ( isset( $on[$j + 1 ] ) && $on[$j + 1][0] === ')' ) )
-					{
+					if ($columnA === '(' || ( isset( $on[$j + 1 ] ) && $on[$j + 1][0] === ')')) {
 						$joiner = false;
 					}
 
-					if( $columnA === '(' || $columnA === ')' )
-					{
+					if($columnA === '(' || $columnA === ')') {
 						$line .= $columnA;
-					}
-					else
-					{
-						if( empty( $onType ) )
-						{
+					} else {
+
+						if (empty($onType)) {
 							$onType = '=';
 						}
 
 						$line .= $this->parseColumnName( $columnA ) . ' ' . $onType . ' ';
 
 						// columnB could be a value rather than a column name
-						// test for '.' to see if it is a column name
-						if( strpos( $columnB, '.' ) !== false )
-						{
-							$line .= $this->parseColumnName( $columnB );
-						}
-						else
-						{
-							$line .= $this->quote( $columnB );
+						// 1. test for '.' to see if it is a column name
+						// 2. test for '"' to see if it is a column name since column names shouldn't contain "
+						if (strpos($columnB, '.') !== false && strpos($columnB, '"') === false) {
+							$line .= $this->parseColumnName($columnB);
+						} else {
+
+							if (strpos($columnB, '"') !== false) {
+								$columnB = str_ireplace('"', '', $columnB);
+							}
+							
+							$line .= $this->quote($columnB);
 						}
 					}
 				}

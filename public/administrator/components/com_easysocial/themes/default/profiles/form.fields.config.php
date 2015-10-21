@@ -20,18 +20,18 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<div class="tab-box tab-box-alt">
 			<div class="tabbable">
 				<ul class="nav nav-tabs fd-reset-list" data-fields-config-tab-nav>
-				<?php foreach( $tabs as $key => $tab ) {
-					if( isset( $params->$tab ) ) { ?>
-
-					<li><a href="#<?php echo $tab; ?>" data-tabname="<?php echo $tab; ?>" data-bs-toggle="tab"><?php echo $params->$tab->title; ?></a></li>
-
-					<?php }
-				} ?>
+					<?php foreach ($tabs as $key => $tab) { ?>
+						<?php if (isset($params->$tab)) { ?>
+							<li>
+								<a href="#<?php echo $tab; ?>" data-tabname="<?php echo $tab; ?>" data-bs-toggle="tab"><?php echo $params->$tab->title; ?></a>
+							</li>
+						<?php } ?>
+					<?php } ?>
 				</ul>
 
 				<div class="tab-content" data-fields-config-tab-content>
-				<?php foreach( $tabs as $key => $tab ) {
-					if( isset( $params->$tab ) ) { ?>
+				<?php foreach ($tabs as $key => $tab) { ?>
+					<?php if (isset($params->$tab)) { ?>
 
 					<div id="<?php echo $tab; ?>" class="tab-pane">
 					<?php foreach( $params->$tab->fields as $name => $field ) { ?>
@@ -72,8 +72,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<?php } ?>
 					</div>
 
-					<?php }
-				} ?>
+					<?php } ?>
+				<?php } ?>
 				</div>
 			</div>
 		</div>

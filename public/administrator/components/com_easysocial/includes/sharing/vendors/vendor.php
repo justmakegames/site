@@ -13,19 +13,16 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 abstract class SocialSharingVendor
 {
-	public $name		= '';
-
-	public $base		= '';
-
-	public $params		= array();
-
-	public $map			= array(
+	public $name = '';
+	public $base = '';
+	public $params = array();
+	public $map = array(
 		'url'		=> 'url',
 		'title'		=> 'title',
 		'summary'	=> 'summary'
 	);
 
-	public $popup		= array(
+	public $popup = array(
 		'menubar'		=> 0,
 		'resizble'		=> 0,
 		'scrollbars'	=> 0,
@@ -33,37 +30,71 @@ abstract class SocialSharingVendor
 		'height'		=> 320
 	);
 
-	public $link		= '';
+	public $link = '';
+	public $isFirst = null;
+	public $token = '&';
+	public $defaultTemplate = 'admin/sharing/vendor';
 
-	public $isFirst		= null;
-
-	public $token		= '&';
-
-	public function __construct( $name, $options = array() )
+	public function __construct($name, $options = array())
 	{
 		$this->name = $name;
 
-		$this->setParams( $options );
+		$this->setParams($options);
 	}
 
+	/**
+	 * Generates the html codes for each vendor links
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function getHTML()
 	{
 		$theme = FD::themes();
 
-		$theme->set( 'name'		, $this->name );
-		$theme->set( 'link'		, $this->getLink() );
-		$theme->set( 'icon'		, $this->getIcon() );
-		$theme->set( 'title'	, $this->getTitle() );
-		$theme->set( 'popup'	, $this->getPopup() );
+		$name = $this->name;
+		$link = $this->getLink();
+		$icon = $this->getIcon();
+		$title = $this->getTitle();
+		$popup = $this->getPopup();
 
-		return $theme->output( $this->getThemeFile() );
+
+		$theme->set('name', $name);
+		$theme->set('link', $link);
+		$theme->set('icon', $icon);
+		$theme->set('title', $title);
+		$theme->set('popup', $popup);
+
+		$namespace = $this->getThemeFile();
+
+		$output = $theme->output($namespace);
+		
+		return $output;
 	}
 
+	/**
+	 * Returns the default vendor theme file
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function getThemeFile()
 	{
-		return 'admin/sharing/vendor';
+		return $this->defaultTemplate;
 	}
 
+	/**
+	 * Retrieves the icon for the vendor
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function getIcon()
 	{
 		return '<i class="icon-es-24 icon-es-' . $this->name . '"></i>';
@@ -71,23 +102,32 @@ abstract class SocialSharingVendor
 
 	public function getTitle()
 	{
-		return JText::_( 'COM_EASYSOCIAL_SHARING_' . JString::strtoupper( $this->name ) );
+		return JText::_('COM_EASYSOCIAL_SHARING_' . JString::strtoupper( $this->name ) );
 	}
 
+	/**
+	 * Generates the link to the social site
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function getLink()
 	{
-		if( empty( $this->link ) )
-		{
-			$this->link = $this->base;
+		if ($this->link) {
+			return $this->link;
+		}
 
-			foreach( $this->map as $key => $paramkey )
-			{
-				$value = $this->getParam( $key );
+		$this->link = $this->base;
 
-				if( $value !== false )
-				{
-					$this->addParam( $paramkey, $value );
-				}
+		foreach ($this->map as $key => $paramkey) {
+
+			// Get the value of the mapping key
+			$value = $this->getParam($key);
+
+			if ($value !== false) {
+				$this->addParam($paramkey, $value);
 			}
 		}
 
@@ -106,12 +146,19 @@ abstract class SocialSharingVendor
 		return implode( ',', $optionString );
 	}
 
-	public function setParams( $params = array(), $force = false )
+	/**
+	 * Set the params
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function setParams($params = array(), $force = false)
 	{
-		foreach( $params as $key => $value )
-		{
-			if( array_key_exists( $key, $this->map ) || $force )
-			{
+		foreach ($params as $key => $value) {
+
+			if (array_key_exists($key, $this->map) || $force) {
 				$this->params[$this->map[$key]] = $value;
 			}
 		}
@@ -135,17 +182,23 @@ abstract class SocialSharingVendor
 		$this->link .= $token . $key . '=' . $value;
 	}
 
-	public function getParam( $key )
+	/**
+	 * Retrieves the param value
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getParam($key)
 	{
-		$method = 'getParam' . ucfirst( $key );
+		$method = 'getParam' . ucfirst($key);
 
-		if( method_exists( $this, $method ) )
-		{
+		if (method_exists($this, $method)) {
 			return $this->$method();
 		}
 
-		if( empty( $this->map[$key] ) || empty( $this->params[$this->map[$key]] ) )
-		{
+		if (!$this->map[$key] || !$this->params[$this->map[$key]]) {
 			return false;
 		}
 
@@ -154,8 +207,7 @@ abstract class SocialSharingVendor
 
 	public function getParamUrl()
 	{
-		if( empty( $this->map['url'] ) || empty( $this->params[$this->map['url']] ) )
-		{
+		if (!$this->map['url'] || !$this->params[$this->map['url']]) {
 			return false;
 		}
 

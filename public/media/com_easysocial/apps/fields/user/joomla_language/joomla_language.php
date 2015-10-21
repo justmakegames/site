@@ -41,8 +41,10 @@ class SocialFieldsUserJoomla_language extends SocialFieldItem
 		// Get value.
 		$value = !empty( $post[$this->inputName] ) ? $post[$this->inputName] : '';
 
+		$showSubname = $this->params->get('show_subname');
+
 		// Get available languages
-		$languages 	= SocialLanguageHelper::getLanguages();
+		$languages 	= SocialLanguageHelper::getLanguages('', $showSubname);
 
 		// Check for errors.
 		$error		= $registration->getErrors( $this->inputName );
@@ -102,8 +104,10 @@ class SocialFieldsUserJoomla_language extends SocialFieldItem
 		// Check for errors.
 		$error		= $this->getError( $errors );
 
+		$showSubname = $this->params->get('show_subname');
+
 		// Get available languages
-		$languages 	= SocialLanguageHelper::getLanguages();
+		$languages 	= SocialLanguageHelper::getLanguages('', $showSubname);
 
 		$this->set( 'value'		, $value );
 		$this->set( 'languages'	, $languages );

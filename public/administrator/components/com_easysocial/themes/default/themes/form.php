@@ -19,39 +19,41 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</div>
 
 	<div class="col-md-4">
-		<div class="widget-box">
-			<h3><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_ABOUT' );?></h3>
-
-			<table class="table table-striped">
-				<tbody>
-					<tr>
-						<td width="25%"><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_VERSION' );?>:</td>
-						<td>
-							<?php echo $theme->version; ?>
-						</td>
-					</tr>
-					<tr>
-						<td><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_AUTHOR' ); ?>:</td>
-						<td>
-							<a href="mailto:<?php echo $theme->email;?>"><?php echo $theme->author;?></a>
-						</td>
-					</tr>
-					<tr>
-						<td><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_WEBSITE' ); ?>:</td>
-						<td>
-							<a href="<?php echo $theme->website;?>" target="_blank"><?php echo $theme->website;?></a>
-						</td>
-					</tr>
-					<tr>
-						<td><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_CREATED' ); ?>:</td>
-						<td>
-							<?php echo $this->html( 'string.date' , $theme->created , 'd/m/Y' );?>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+		<div class="panel">
+			<div class="panel-head">
+				<b><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_ABOUT' );?></b>
+			</div>
+			<div class="panel-body">
+				<table class="table table-striped">
+					<tbody>
+						<tr>
+							<td width="25%"><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_VERSION' );?>:</td>
+							<td>
+								<?php echo $theme->version; ?>
+							</td>
+						</tr>
+						<tr>
+							<td><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_AUTHOR' ); ?>:</td>
+							<td>
+								<a href="mailto:<?php echo $theme->email;?>"><?php echo $theme->author;?></a>
+							</td>
+						</tr>
+						<tr>
+							<td><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_WEBSITE' ); ?>:</td>
+							<td>
+								<a href="<?php echo $theme->website;?>" target="_blank"><?php echo $theme->website;?></a>
+							</td>
+						</tr>
+						<tr>
+							<td><?php echo JText::_( 'COM_EASYSOCIAL_THEMES_CREATED' ); ?>:</td>
+							<td>
+								<?php echo $this->html( 'string.date' , $theme->created , 'd/m/Y' );?>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
-
 	</div>
 </div>
 <input type="hidden" name="activeTab" data-tab-active />

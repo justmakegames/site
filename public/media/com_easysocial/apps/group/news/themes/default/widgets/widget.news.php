@@ -14,6 +14,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="es-widget">
 	<div class="es-widget-head">
 		<div class="pull-left widget-title"><?php echo JText::_( 'APP_GROUP_NEWS_WIDGET_TITLE' );?></div>
+		<span class="widget-label">(<?php echo $total;?>)</span>
 	</div>
 
 	<div class="es-widget-body">
@@ -24,7 +25,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<div class="mb-5">
 						<strong><a href="<?php echo FRoute::apps( array( 'layout' => 'canvas' , 'customView' => 'item' , 'uid' => $group->getAlias() , 'type' => SOCIAL_TYPE_GROUP , 'id' => $app->getAlias() , 'newsId' => $item->id ) , false );?>"><?php echo $item->title; ?></a></strong>
 					</div>
-					<div class="fd-small"><i class="ies-calendar ies-small"></i>&nbsp; <?php echo FD::date( $item->created )->format( JText::_( 'DATE_FORMAT_LC4' ) ); ?></div>
+					<div class="fd-small"><i class="fa fa-calendar "></i>&nbsp; <?php echo FD::date( $item->created )->format( JText::_( 'DATE_FORMAT_LC4' ) ); ?></div>
 				</li>
 				<?php } ?>
 			<?php } else { ?>

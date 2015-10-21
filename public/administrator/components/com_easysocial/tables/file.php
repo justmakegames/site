@@ -111,7 +111,7 @@ class SocialTableFile extends SocialTable
 	 * @param	string 	$token	The token that is generated.
 	 * @return	boolean			True if exists, false otherwise.
 	 */
-	public function loadByType( $uid , $type )
+	public function loadByType($uid, $type)
 	{
 		$db 	= FD::db();
 
@@ -229,16 +229,48 @@ class SocialTableFile extends SocialTable
 	 * @param	int 	$userId 		The user's id to check against.
 	 * @return	boolean 				True if the user owns the item, false otherwise.
 	 */
-	public function isOwner( $userId )
+	public function isOwner($userId)
 	{
-		if( $this->user_id == $userId )
-		{
+		if ($this->user_id == $userId) {
 			return true;
 		}
 
 		return false;
 	}
 
+	/**
+	 * Resizes an image file
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function resize($width, $height)
+	{
+		$width = (int) $width;
+		$height = (int) $height;
+
+		// Get the storage path to this image
+		$path = $this->getStoragePath() . '/' . $this->hash;
+
+		$image = ES::image();
+		$image->load($path);
+
+		// We should check if the width / height exceeds
+		$image->fit($width, $height);
+
+		$tmp = $path . '_2';
+		$state = $image->save($tmp);
+
+		// Delete the main file first
+		JFile::delete($path);
+
+		// Rename the temporary stored file to the original file name
+		JFile::move($tmp, $path);
+
+		return $state;
+	}
 
 	/**
 	 * Gets the formatted date of the uploaded date.
@@ -281,17 +313,17 @@ class SocialTableFile extends SocialTable
 	public function delete( $pk = null )
 	{
 		// Delete the record from the database first.
-		$state 	= parent::delete();
+		$state = parent::delete();
 
 		// Get the storage path
-		$path	= $this->getStoragePath( true );
-		$path 	= $path . '/' . $this->hash;
+		$path = $this->getStoragePath( true );
+		$path = $path . '/' . $this->hash;
 
-		$storage 	= FD::storage( $this->storage );
-		$state 		= $storage->delete( $path );
+		$storage = FD::storage($this->storage);
+		$state = $storage->delete($path);
 
 		// Delete the stream item related to this file
-		FD::stream()->delete($this->id, SOCIAL_TYPE_FILES);
+		ES::stream()->delete($this->id, SOCIAL_TYPE_FILES);
 
 		if (!$state) {
 			$this->setError( JText::_( 'Unable to delete the file from ' . $storage ) );
@@ -331,13 +363,19 @@ class SocialTableFile extends SocialTable
 	 */
 	public function getURI()
 	{
-		$config = FD::config();
-		$uri 	= SOCIAL_MEDIA_URI;
+		$config = ES::config();
 
-		$path	= ltrim( $config->get( strtolower( $this->type ) . '_uploads_path' ) , '\\/' );
+		if ($this->type == 'comments') {
+			$storagePath = rtrim(ES::cleanPath($config->get('comments.storage')), '/');	
+			$uri = rtrim(JURI::root(), '/');
 
-		$uri 	= $uri . '/' . $path . '/' . $this->uid . '/' . $this->hash;
-
+		} else {
+			$storagePath = rtrim(ES::cleanPath($config->get('files.storage.' . $this->type . '.container')), '/');
+			$uri = rtrim(JURI::root(), '/') . '/' . FD::cleanPath($config->get('files.storage.container'));
+		}
+		
+		$uri =  $uri . '/' . $storagePath . '/' . $this->uid . '/' . $this->hash;
+		
 		return $uri;
 	}
 
@@ -369,55 +407,60 @@ class SocialTableFile extends SocialTable
 	 *
 	 * @return	boolean		True if success, false otherwise.
 	 */
-	public function copyFromTemporary( $id )
+	public function copyFromTemporary($id)
 	{
-		$uploader 			= FD::table( 'Uploader' );
-		$uploader->load( $id );
+		$uploader = FD::table('Uploader');
+		$uploader->load($id);
 
 		// Bind the properties from uploader over.
-		$this->name 	= $uploader->name;
-		$this->mime		= $uploader->mime;
-		$this->size 	= $uploader->size;
-		$this->user_id	= $uploader->user_id;
-		$this->created	= $uploader->created;
-		$this->hash		= md5( $uploader->name . $uploader->path );
+		$this->name = $uploader->name;
+		$this->mime = $uploader->mime;
+		$this->size = $uploader->size;
+		$this->user_id = $uploader->user_id;
+		$this->created = $uploader->created;
+
+		jimport('joomla.filesystem.file');
+
+		$this->hash = JFile::makeSafe($uploader->name);
 
 		// Lets figure out the storage path.
-		$config 	= FD::config();
+		$config = ES::config();
 
-		$path 	= FD::cleanPath( $config->get( 'files.storage.container' ) );
-		$path 	= JPATH_ROOT . '/' . $path . '/' . FD::cleanPath( $config->get( 'files.storage.' . $this->type . '.container' ) );
+		if ($this->type == 'comments') {
+			$path = JPATH_ROOT . '/' . ES::cleanPath($config->get('comments.storage'));
+		} else {
+			$path = ES::cleanPath($config->get('files.storage.container'));
+			$path = JPATH_ROOT . '/' . $path . '/' . ES::cleanPath($config->get('files.storage.' . $this->type . '.container'));
+		}
+
 
 		// Test if the folder exists for this upload type.
-		if( !FD::makeFolder( $path ) )
-		{
-			$this->setError( JText::sprintf( 'COM_EASYSOCIAL_UPLOADER_UNABLE_TO_CREATE_DESTINATION_FOLDER' , $path ) );
+		if (!FD::makeFolder($path)) {
+			$this->setError(JText::sprintf('COM_EASYSOCIAL_UPLOADER_UNABLE_TO_CREATE_DESTINATION_FOLDER', $path));
 			return false;
 		}
 
 		// Let's finalize the storage path.
-		$storage	= $path . '/' . $this->uid;
+		$storage = $path . '/' . $this->uid;
 
-		if( !FD::makeFolder( $storage ) )
-		{
-			$this->setError( JText::sprintf( 'COM_EASYSOCIAL_UPLOADER_UNABLE_TO_CREATE_DESTINATION_FOLDER' , $storage ) );
+		if (!FD::makeFolder($storage)) {
+			$this->setError(JText::sprintf( 'COM_EASYSOCIAL_UPLOADER_UNABLE_TO_CREATE_DESTINATION_FOLDER' , $storage ) );
 			return false;
 		}
 
 		// Once the script reaches here, we assume everything is good now.
 		// Copy the files over.
-		jimport( 'joomla.filesystem.file' );
+		jimport('joomla.filesystem.file');
 
 		// Copy the file over.
 		$source	= $uploader->path;
-		$dest	= $storage . '/' . $this->hash;
+		$dest = $storage . '/' . $this->hash;
 
 		// Try to copy the files.
-		$state 	= JFile::copy( $source , $dest );
+		$state = JFile::copy($source, $dest);
 
-		if( !$state )
-		{
-			$this->setError( JText::sprintf( 'COM_EASYSOCIAL_UPLOADER_UNABLE_TO_COPY_TO_DESTINATION_FOLDER' , $dest ) );
+		if (!$state) {
+			$this->setError(JText::sprintf('COM_EASYSOCIAL_UPLOADER_UNABLE_TO_COPY_TO_DESTINATION_FOLDER', $dest));
 			return false;
 		}
 
@@ -508,19 +551,23 @@ class SocialTableFile extends SocialTable
 	public function getStoragePath( $relative = false )
 	{
 		// Lets figure out the storage path.
-		$config 	= FD::config();
-		$path 		= '';
+		$config = FD::config();
+		$path = '';
 
-		if( !$relative )
-		{
-			$path 	= JPATH_ROOT;
+		if (!$relative) {
+			$path = JPATH_ROOT;
 		}
 
-		$path 		.= '/' . FD::cleanPath( $config->get( 'files.storage.container' ) );
-		$typePath 	= $path . '/' . FD::cleanPath( $config->get( 'files.storage.' . $this->type . '.container' ) );
+		if ($this->type == 'comments') {
+			$path .= '/' . rtrim(ES::cleanPath($config->get('comments.storage')), '/');	
+		} else {
+			// Get the storage path
+			$path .= '/' . ES::cleanPath($config->get('files.storage.container'));
+			$path = $path .'/' . ES::cleanPath($config->get('files.storage.' . $this->type . '.container'));
+		}
 
 		// Let's finalize the storage path.
-		$storage	= $typePath . '/' . $this->uid;
+		$storage = $path . '/' . $this->uid;
 
 		return $storage;
 	}

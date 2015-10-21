@@ -176,6 +176,14 @@ class SocialFieldsUserCheckbox extends SocialFieldItem
 		return $this->display();
 	}
 
+	public function onEditBeforeSave(&$post, &$user)
+	{
+		//If that is empty value, so it will pass to array
+		if (empty($post[$this->inputName])) {
+			$post[$this->inputName] = array();
+		}
+	}	
+
 	/**
 	 * Determines whether there's any errors in the submission in the edit form.
 	 *

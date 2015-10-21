@@ -11,9 +11,14 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="es-filterbar socialStream">
-	<div class="filterbar-title h5 pull-left"><?php echo JText::_( 'COM_EASYSOCIAL_STREAM_RECENT_UPDATES' );?></div>
+<div class="es-snackbar">
+	<?php echo JText::_( 'COM_EASYSOCIAL_STREAM_RECENT_UPDATES' );?>
 </div>
 
 <!-- Stream Items -->
-<?php echo $stream->html(); ?>
+<?php echo $stream->html(); 
+
+//display login message for the guest
+if ($this->my->guest) {
+	echo $this->includeTemplate('site/dashboard/default.stream.login');
+}?>

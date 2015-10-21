@@ -37,21 +37,17 @@ EasySocial.require()
 		"COM_EASYSOCIAL_STORY_SUBMIT_ERROR",
 		"COM_EASYSOCIAL_STORY_CONTENT_EMPTY",
 		"COM_EASYSOCIAL_STORY_NOT_ON_STREAM_FILTER"
-	)
-	.done(function(){
+	).done(function(){
 
-		EasySocial.Controller("Story",
-		{
-			defaultOptions:
-			{
-				view:
-				{
+		EasySocial.Controller("Story", {
+			
+			defaultOptions: {
+				view: {
 					suggestItem: "site/friends/suggest.item",
 					tagSuggestItem: "site/hashtags/suggest.item"
 				},
 
 				plugin: {
-
 					text: {
 						id: "text",
 						name: "text",
@@ -110,8 +106,7 @@ EasySocial.require()
 			},
 
 			hostname: "story"
-		},
-		function(self, opts, base) { return {
+		}, function(self, opts, base) { return {
 
 			init: function() {
 
@@ -166,6 +161,11 @@ EasySocial.require()
 					if (base.hasClass("is-collapsed") || base.hasClass("is-resizing")) {
 						return;
 					}
+
+					// Remove any previous message group first to avoid stacking error messages.
+					this.element
+						.find('[data-message-group]')
+						.remove();
 
 					self._setMessage.apply(this, arguments);
 				};
@@ -327,7 +327,9 @@ EasySocial.require()
 										EasySocial.ajax("site/controllers/friends/suggest", {search: keyword})
 											.done(function(items){
 
-												if (!$.isArray(items)) task.reject();
+												if (!$.isArray(items)) {
+													task.reject();
+												}
 
 												var items = $.map(items, function(item){
 													item.title = item.screenName;
@@ -627,123 +629,129 @@ EasySocial.require()
 
 				// Create save object
 				var save = $.Deferred();
-					save.data = {};
-					save.tasks = [];
-					save.addData = function(plugin, props) {
+				
+				save.data = {};
+				save.tasks = [];
 
-						var pluginName = plugin.options.name,
-							pluginType = plugin.options.type;
+				save.addData = function(plugin, props) {
 
-						if (pluginName !== self.currentPanel) {
-							return;
-						}
+					var pluginName = plugin.options.name,
+						pluginType = plugin.options.type;
+
+					if (pluginName !== self.currentPanel) {
+						return;
+					}
 
 
-						save.data.attachment = self.currentPanel;
+					save.data.attachment = self.currentPanel;
 
-						if ($.isPlainObject(props))
+					if ($.isPlainObject(props))
+					{
+						$.each(props, function(key, val)
 						{
-							$.each(props, function(key, val)
-							{
-								save.data[pluginName + "_" + key] = val;
-							});
-						}
-						else
-						{
-							save.data[pluginName] = props;
-						}
-					};
-
-					save.addTask = function(name) {
-						var task = $.Deferred();
-						task.name = name;
-						task.save = save;
-						save.tasks.push(task);
-						return task;
-					};
-
-					save.process = function() {
-						if (save.state()==="pending") {
-							$.when.apply($, save.tasks)
-								.done(function() {
-									// If content & attachment is empty, reject.
-									if (!$.trim(save.data.content) && !save.data.attachment) {
-										save.reject($.language("COM_EASYSOCIAL_STORY_CONTENT_EMPTY"), "warning");
-										return;
-									}
-
-									save.resolve();
-								})
-								.fail(save.reject);
-						}
-
-						return save;
-					};
-
-					// Set the current panel so that the plugins know whether they should intercept
-					save.currentPanel = self.currentPanel;
-
-					// Trigger the save event
-					self.trigger("save", [save]);
-
-					self.element.addClass("saving");
-
-					save.process()
-						.done(function(){
-							var mentions = self.textbox().mentions("controller").toArray(),
-								hashtags = self.element.data("storyHashtags"),
-								hashtags = (hashtags) ? hashtags.split(",") : [],
-								nohashtags = false;
-
-							if (hashtags.length > 0) {
-								var tags =
-									$.map(mentions, function(mention)
-									{
-										if (mention.type==="hashtag" && $.inArray(mention.value, hashtags) > -1)
-										{
-											return mention;
-										}
-									});
-
-								nohashtags = tags.length < 1;
-							}
-
-							self.trigger("beforeSubmit", [save]);
-
-
-							// then the ajax call to save story.
-							EasySocial.ajax("site/controllers/story/create", save.data)
-								.done(function(html, id) {
-
-									if (nohashtags) {
-										html = self.setMessage($.language("COM_EASYSOCIAL_STORY_NOT_ON_STREAM_FILTER"));
-									}
-
-									self.trigger("create", [html, id]);
-									self.clear();
-									self.reset();
-								})
-								.fail(function(message){
-									self.trigger("fail", arguments);
-									if (!message) return;
-									self.setMessage(message.message, message.type);
-								})
-								.always(function(){
-									self.element.removeClass("saving");
-									self.saving = false;
-								});
-						})
-						.fail(function(message, messageType){
-
-							if (!message) {
-								message = $.language("COM_EASYSOCIAL_STORY_SUBMIT_ERROR");
-								messageType = "error";
-							}
-
-							self.setMessage(message, messageType);
-							self.element.removeClass("saving");
-							self.saving = false;
+							save.data[pluginName + "_" + key] = val;
 						});
+					}
+					else
+					{
+						save.data[pluginName] = props;
+					}
+				};
+
+				save.addTask = function(name) {
+					var task = $.Deferred();
+					task.name = name;
+					task.save = save;
+					save.tasks.push(task);
+					return task;
+				};
+
+				save.process = function() {
+					if (save.state()==="pending") {
+						$.when.apply($, save.tasks)
+							.done(function() {
+
+								// If content & attachment is empty, reject.
+								if (!$.trim(save.data.content) && !save.data.attachment) {
+									save.reject($.language("COM_EASYSOCIAL_STORY_CONTENT_EMPTY"), "warning");
+									return;
+								}
+
+								save.resolve();
+							})
+							.fail(save.reject);
+					}
+
+					return save;
+				};
+
+				// Set the current panel so that the plugins know whether they should intercept
+				save.currentPanel = self.currentPanel;
+
+				// Trigger the save event
+				self.trigger("save", [save]);
+
+				self.element.addClass("saving");
+
+				save.process()
+					.done(function(){
+						var mentions = self.textbox().mentions("controller").toArray(),
+							hashtags = self.element.data("storyHashtags"),
+							hashtags = (hashtags) ? hashtags.split(",") : [],
+							nohashtags = false;
+
+						if (hashtags.length > 0) {
+							var tags =
+								$.map(mentions, function(mention)
+								{
+									if (mention.type==="hashtag" && $.inArray(mention.value, hashtags) > -1)
+									{
+										return mention;
+									}
+								});
+
+							nohashtags = tags.length < 1;
+						}
+
+						self.trigger("beforeSubmit", [save]);
+
+
+						// then the ajax call to save story.
+						EasySocial.ajax("site/controllers/story/create", save.data)
+							.done(function(html, id) {
+
+								if (nohashtags) {
+									html = self.setMessage($.language("COM_EASYSOCIAL_STORY_NOT_ON_STREAM_FILTER"));
+								}
+								
+								self.trigger("create", [html, id]);
+								self.clear();
+								self.reset();
+							})
+							.fail(function(message){
+								self.trigger("fail", arguments);
+								if (!message) return;
+								self.setMessage(message.message, message.type);
+							})
+							.always(function(){
+
+								self.trigger("afterSubmit", [save]);
+
+								self.element.removeClass("saving");
+								self.saving = false;
+							});
+					})
+					.fail(function(message, messageType){
+
+						if (!message) {
+							message = $.language("COM_EASYSOCIAL_STORY_SUBMIT_ERROR");
+							messageType = "error";
+						}
+
+						self.setMessage(message, messageType);
+						self.element.removeClass("saving");
+						self.saving = false;
+					});
 			},
 
 			clear: function() {
@@ -933,12 +941,16 @@ EasySocial.require()
 				}
 
 				// Create meta element if it does not exist;
+				var mentionsOverlay = self.mentionsOverlay();
 				if (meta.length < 1) {
-					meta = $('<u class="es-story-meta" data-story-meta data-ignore></u>').appendTo(self.mentionsOverlay());
+					meta = $('<u class="es-story-meta" data-story-meta data-ignore></u>').appendTo(mentionsOverlay);
 				}
 
+				// Add rtl mark if necessary
+				var rtlMark =  mentionsOverlay.css("direction")=="rtl" ? "&#8207;" : "";
+
 				// Update meta string
-				meta.html(" &mdash; " + metaText);
+				meta.html(rtlMark + " &mdash; " + metaText);
 
 				// Don't show placeholder text if we have meta text
 				textField.attr("placeholder", "");

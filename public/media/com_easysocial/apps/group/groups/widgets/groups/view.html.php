@@ -30,17 +30,19 @@ class GroupsWidgetsGroups extends SocialAppsWidgets
 	public function sidebarBottom( $groupId )
 	{
 		// Get the group
-		$group		= FD::group( $groupId );
-		$params 	= $this->app->getParams();
+		$group = FD::group($groupId);
 
-		if( $params->get( 'show_online' , true ) )
-		{
-			echo $this->getOnlineUsers( $group );
+		$params = $this->app->getParams();
+
+
+		// Determines if we should display the online group members
+		if ($params->get('show_online')) {
+			echo $this->getOnlineUsers($group);
 		}
 
-		if( $params->get( 'show_friends' , true ) )
-		{
-			echo $this->getFriends( $group );
+		// Determines if we should display friends in this group
+		if ($params->get('show_friends')) {
+			echo $this->getFriends($group);
 		}
 	}
 
@@ -52,26 +54,32 @@ class GroupsWidgetsGroups extends SocialAppsWidgets
 	 * @param	string
 	 * @return
 	 */
-	public function getFriends( $group )
+	public function getFriends($group)
 	{
-		$theme 		= FD::themes();
+		$theme = ES::themes();
 
 		// Get the current logged in user.
-		$my 		= FD::user();
+		$my = FD::user();
 
-		$options 				= array();
-		$options[ 'userId' ]	= $my->id;
-		$options[ 'randomize' ]	= true;
-		$options[ 'limit' ]		= 5;
-		$options['published']	= true;
+		$options = array();
+		$options['userId'] = $my->id;
+		$options['randomize'] = true;
+		$options['limit'] = 5;
+		$options['published'] = true;
 
 		// Get a list of friends in this group based on the current viewer.
-		$model 		= FD::model( 'Groups' );
-		$friends	= $model->getFriendsInGroup( $group->id , $options );
+		$model = ES::model('Groups');
+		$friends = $model->getFriendsInGroup($group->id, $options);
+		$total = $model->getTotalFriendsInGroup($group->id, $options);
 
-		$theme->set( 'friends' , $friends );
+		if (!$friends) {
+			return;
+		}
+		
+		$theme->set('total', $total);
+		$theme->set('friends', $friends);
 
-		return $theme->output( 'themes:/apps/group/groups/widgets/widget.friends' );
+		return $theme->output('themes:/apps/group/groups/widgets/widget.friends');
 	}
 
 	/**
@@ -82,13 +90,15 @@ class GroupsWidgetsGroups extends SocialAppsWidgets
 	 * @param	string
 	 * @return
 	 */
-	private function getOnlineUsers( $group )
+	private function getOnlineUsers($group)
 	{
-		$model 	= FD::model( 'Groups' );
-		$users 	= $model->getOnlineMembers( $group->id );
+		$model = ES::model('Groups');
+		$users = $model->getOnlineMembers($group->id);
+		$total = count($users);
 
-		$theme 	= FD::themes();
-		$theme->set( 'users' , $users );
+		$theme = FD::themes();
+		$theme->set('total', $total);
+		$theme->set('users', $users);
 
 		return $theme->output( 'themes:/apps/group/groups/widgets/widget.online' );
 	}

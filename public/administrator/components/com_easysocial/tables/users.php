@@ -80,6 +80,18 @@ class SocialTableUsers extends SocialTable
 	public $completed_fields = 0;
 
 	/**
+	 * Determines if user already sent the email for inactive account.
+	 * @var integer
+	 */
+	public $reminder_sent = 0;
+
+	/**
+	 * Determines if user required to force reset password.
+	 * @var integer
+	 */
+	public $require_reset = 0;
+
+	/**
 	 * Constructor method for this class.
 	 *
 	 * @access	public

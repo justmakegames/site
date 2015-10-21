@@ -16,7 +16,8 @@ echo $settings->renderPage(
 		$settings->renderSection(
 			$settings->renderHeader('General'),
 			$settings->renderSetting('Enable conversations', 'conversations.enabled', 'boolean', array('help' => true)),
-			$settings->renderSetting('Enable group conversations', 'conversations.multiple', 'boolean', array('help' => true))
+			$settings->renderSetting('Enable group conversations', 'conversations.multiple', 'boolean', array('help' => true)),
+			$settings->renderSetting('Allow compose to nonfriend users', 'conversations.nonfriend', 'boolean', array('help' => true))
 		),
 		$settings->renderSection(
 			$settings->renderHeader('Pagination'),

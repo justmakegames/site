@@ -13,19 +13,21 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="es-container es-events" data-events data-filter="<?php echo $activeCategory ? 'category' : $filter; ?>" data-categoryid="<?php echo $activeCategory ? $activeCategory->id : 0; ?>">
     <a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-        <i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE'); ?>
+        <i class="fa fa-grid-view mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE'); ?>
     </a>
 
     <div class="es-sidebar" data-sidebar>
 
-        <?php echo $this->render('module', 'es-events-sidebar-top'); ?>
+        <?php echo $this->render('module', 'es-events-sidebar-top' , 'site/dashboard/sidebar.module.wrapper'); ?>
 
         <div class="es-widget">
-            <div class="es-widget-head center">
-                <?php if ($this->my->isSiteAdmin() || $this->access->allowed('events.create') && !$this->access->exceeded('events.limit', $this->my->getTotalCreatedEvents(array('ongoing' => true, 'upcoming' => true)))){ ?>
-                <a href="<?php echo FRoute::events(array('layout' => 'create')); ?>" class="btn btn-es-primary btn-sm"><i class="ies-plus ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_CREATE_EVENT'); ?></a>
+            <div class="es-widget-create mr-10">
+                <?php if ($this->my->isSiteAdmin() || $this->access->allowed('events.create') && !$this->access->intervalExceeded('events.limit', $this->my->id)) { ?>
+                <a href="<?php echo FRoute::events(array('layout' => 'create')); ?>" class="btn btn-es-primary btn-create btn-block"><?php echo JText::_('COM_EASYSOCIAL_EVENTS_CREATE_EVENT'); ?></a>
                 <?php } ?>
             </div>
+
+            <hr class="es-hr mt-15 mb-10" />
 
             <div class="es-widget-body">
                 <ul class="widget-list widget-list-with-count fd-nav fd-nav-stacked" data-events-filters>
@@ -142,7 +144,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </ul>
                 <?php } else { ?>
                 <div class="empty empty-hero">
-                    <i class="ies-users"></i>
+                    <i class="fa fa-users"></i>
                     <div class="small"><?php echo JText::_('COM_EASYSOCIAL_EVENTS_NO_CATEGORY_CREATED_YET'); ?></div>
                 </div>
                 <?php } ?>
@@ -158,7 +160,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
         </div>
 
-        <?php echo $this->render('module', 'es-events-sidebar-bottom'); ?>
+        <?php echo $this->render('module', 'es-events-sidebar-bottom' , 'site/dashboard/sidebar.module.wrapper'); ?>
     </div>
 
 

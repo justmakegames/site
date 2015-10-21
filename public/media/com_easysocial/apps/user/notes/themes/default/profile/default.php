@@ -23,8 +23,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</ul>
 
 		<div class="empty">
-			<i class="ies-droplet"></i>
-			<?php echo JText::sprintf( 'APP_NOTES_EMPTY_NOTES_PROFILE' , $user->getName() ); ?>
+			<i class="fa fa-info-circle"></i>
+			<?php echo JText::sprintf('APP_NOTES_EMPTY_NOTES_PROFILE', $user->getName()); ?>
 		</div>
 	</div>
 

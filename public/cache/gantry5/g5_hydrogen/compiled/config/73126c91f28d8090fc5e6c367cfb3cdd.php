@@ -1,129 +1,137 @@
 <?php
 return [
     '@class' => 'Gantry\\Component\\Config\\CompiledConfig',
-    'timestamp' => 1444112110,
-    'checksum' => '18ecda0ad172cece2195c7620a8af304',
+    'timestamp' => 1445415992,
+    'checksum' => '47732d93031247ca7481a49529f45d8e',
     'files' => [
         'templates/g5_hydrogen/custom/config/20' => [
             'index' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/index.yaml',
-                'modified' => 1444107353
+                'modified' => 1445198577
             ],
             'layout' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/layout.yaml',
-                'modified' => 1444107353
+                'modified' => 1445198577
+            ],
+            'particles/analytics' => [
+                'file' => 'templates/g5_hydrogen/custom/config/20/particles/analytics.yaml',
+                'modified' => 1445200601
             ],
             'particles/assets' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/particles/assets.yaml',
-                'modified' => 1444034338
+                'modified' => 1445198577
             ],
             'particles/branding' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/particles/branding.yaml',
-                'modified' => 1444112110
+                'modified' => 1445200601
             ],
             'particles/copyright' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/particles/copyright.yaml',
-                'modified' => 1444112110
+                'modified' => 1445198577
             ],
             'particles/custom' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/particles/custom.yaml',
-                'modified' => 1444112110
+                'modified' => 1445198577
+            ],
+            'particles/sample' => [
+                'file' => 'templates/g5_hydrogen/custom/config/20/particles/sample.yaml',
+                'modified' => 1445200601
             ],
             'particles/totop' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/particles/totop.yaml',
-                'modified' => 1444034278
+                'modified' => 1445198577
             ],
             'styles' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/styles.yaml',
-                'modified' => 1444034912
+                'modified' => 1445198577
             ]
         ],
         'templates/g5_hydrogen/custom/config/default' => [
             'index' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/index.yaml',
-                'modified' => 1443837785
+                'modified' => 1445198577
             ],
             'particles/analytics' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/analytics.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/assets' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/assets.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/branding' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/branding.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/copyright' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/copyright.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/custom' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/custom.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/date' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/date.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/logo' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/logo.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/menu' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/menu.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/mobile-menu' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/mobile-menu.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/module' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/module.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/pagecontent' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/pagecontent.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/position' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/position.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/sample' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/sample.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/social' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/social.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/spacer' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/spacer.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/system-messages' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/system-messages.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'particles/totop' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/totop.yaml',
-                'modified' => 1444034222
+                'modified' => 1445198577
             ],
             'styles' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/styles.yaml',
-                'modified' => 1443838037
+                'modified' => 1445198577
             ]
         ],
         'templates/g5_hydrogen/config/default' => [
             'page' => [
                 'file' => 'templates/g5_hydrogen/config/default/page.yaml',
-                'modified' => 1443837785
+                'modified' => 1445198577
             ],
             'particles/logo' => [
                 'file' => 'templates/g5_hydrogen/config/default/particles/logo.yaml',
-                'modified' => 1443837785
+                'modified' => 1445198577
             ]
         ]
     ],
@@ -202,7 +210,7 @@ return [
                     'anonym' => '0',
                     'ssl' => '0',
                     'debug' => '0',
-                    'code' => ''
+                    'code' => 'UA-37621494-1'
                 ]
             ],
             'assets' => [
@@ -228,7 +236,7 @@ float: right;
                 ]
             ],
             'branding' => [
-                'enabled' => '1',
+                'enabled' => '0',
                 'content' => '<!--Powered by <a href="http://www.gantry.org/" title="Gantry Framework" class="g-powered-by">Gantry Framework</a>-->',
                 'css' => [
                     'class' => 'branding'
@@ -324,8 +332,8 @@ float: right;
             ]
         ],
         'index' => [
-            'name' => '20',
-            'timestamp' => 0,
+            'name' => 20,
+            'timestamp' => 1445195652,
             'preset' => [
                 'image' => 'gantry-admin://images/layouts/default.png',
                 'name' => 'default',
@@ -334,6 +342,7 @@ float: right;
             'positions' => [
                 'header' => 'Header',
                 'breadcrumbs' => 'Breadcrumbs',
+                'breadcrumb-right' => 'Breadcrumb Right',
                 'home-main' => 'Home Main',
                 'home-sidebar' => 'Home Sidebar',
                 'sidebar-a' => 'Sidebar A',
@@ -510,25 +519,27 @@ float: right;
                                     ]
                                 ],
                                 1 => [
-                                    'id' => '37aabccb-7936-4076-adc0-df2309c5a656',
+                                    'id' => '8efafa88-efbd-4d9e-b6fa-0f925718f3a2',
                                     'type' => 'block',
                                     'subtype' => false,
                                     'title' => 'Untitled',
                                     'attributes' => [
+                                        'size' => 33,
                                         'extra' => [
                                             
                                         ],
-                                        'fixed' => '0',
-                                        'size' => 33
+                                        'fixed' => '0'
                                     ],
                                     'children' => [
                                         0 => [
-                                            'id' => 'fd2d80a3-0b17-4698-a63d-904efa91b9bc',
-                                            'type' => 'particle',
-                                            'subtype' => 'mobile-menu',
+                                            'id' => '1982d7db-e66f-4742-8ae0-94621d9ef3cf',
+                                            'type' => 'position',
+                                            'subtype' => 'position',
                                             'title' => 'Breadcrumb Right',
                                             'attributes' => [
-                                                'enabled' => 1
+                                                'enabled' => 1,
+                                                'key' => 'breadcrumb-right',
+                                                'title' => 'Breadcrumb Right'
                                             ],
                                             'children' => [
                                                 
@@ -899,12 +910,35 @@ float: right;
                             ],
                             'children' => [
                                 0 => [
+                                    'id' => '45a0cc1b-66a0-461d-9852-45762beb2ae8',
+                                    'type' => 'block',
+                                    'subtype' => false,
+                                    'title' => 'Untitled',
+                                    'attributes' => [
+                                        'size' => 50
+                                    ],
+                                    'children' => [
+                                        0 => [
+                                            'id' => '14ef843a-8397-4d30-bd88-4672f5252412',
+                                            'type' => 'atom',
+                                            'subtype' => 'analytics',
+                                            'title' => 'Google Analytics',
+                                            'attributes' => [
+                                                
+                                            ],
+                                            'children' => [
+                                                
+                                            ]
+                                        ]
+                                    ]
+                                ],
+                                1 => [
                                     'id' => '9e4b081a-ca1d-4ede-b2eb-daabffc67890',
                                     'type' => 'block',
                                     'subtype' => false,
                                     'title' => 'Untitled',
                                     'attributes' => [
-                                        'size' => 100
+                                        'size' => 50
                                     ],
                                     'children' => [
                                         0 => [

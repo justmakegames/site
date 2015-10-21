@@ -1,35 +1,63 @@
 <?php
-/*
- * @package		mod_easyblogmostpopularpost
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyBlog is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+/**
+* @package      EasyBlog
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 
-$path	= JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'helper.php';
+jimport('joomla.filesystem.file');
 
-jimport( 'joomla.filesystem.file' );
+$engine = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
 
-if( !JFile::exists( $path ) )
-{
-	return;
+if (!JFile::exists($engine)) {
+    return;
 }
-require_once( $path );
-require_once (dirname(__FILE__) . DIRECTORY_SEPARATOR . 'helper.php');
-require_once (JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'date.php');
 
-EasyBlogHelper::loadModuleCss();
-EasyBlogHelper::loadHeaders();
+// Include the syndicate functions only once
+// require_once(__DIR__ . '/helper.php');
+require_once ($engine);
 
-$posts				= modEasyBlogMostPopularPostHelper::getMostPopularPost($params);
-$easyblogInstalled	= true;
-$config 			= EasyBlogHelper::getConfig();
-$textcount 			= $params->get( 'textcount' , 150 );
+$config = EB::config();
+
+if ($config->get('main_ratings')) {
+    EB::init('module');
+}
+
+// Attach modules stylesheet
+EB::stylesheet('module')->attach();
+
+$count = (INT)trim($params->get('count', 0));
+$model = EB::model('Blog');
+
+$cid = '';
+$type = '';
+$categories = trim($params->get('catid', ''));
+
+if (!empty($categories)) {
+    $type = 'category';
+    $cid = explode(',', $categories);
+}
+
+$disabled = $params->get('enableratings') ? false : true;
+$posts = $model->getBlogsBy($type, $cid, 'popular', $count, EBLOG_FILTER_PUBLISHED, null, false);
+
+$posts = EB::modules()->processItems($posts, $params);
+$config = EB::config();
+$textcount = $params->get('textcount', 150);
+$layout = $params->get('layout');
+$columnCount = $params->get('column');
+
+// Get the photo layout option
+$photoLayout = $params->get('photo_layout');
+$photoSize = $params->get('photo_size', 'medium');
+
+$photoAlignment = $params->get('alignment', 'center');
+$photoAlignment = ($photoAlignment == 'default') ? 'center' : $photoAlignment;
 
 require(JModuleHelper::getLayoutPath('mod_easyblogmostpopularpost'));

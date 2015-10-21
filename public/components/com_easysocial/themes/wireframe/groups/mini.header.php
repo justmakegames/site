@@ -32,14 +32,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						<a href="<?php echo $group->getPermalink();?>" title="<?php echo $this->html( 'string.escape' , $group->getName() );?>"><?php echo $group->getName();?></a>
 					</h2>
 					<?php if( $group->isOpen() ){ ?>
-					<span class="label label-success" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_OPEN_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="top">
-						<i class="ies-earth"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?>
+					<span class="label label-success" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_GROUPS_OPEN_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="top">
+						<i class="fa fa-globe"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?>
 					</span>
 					<?php } ?>
 
 					<?php if( $group->isClosed() ){ ?>
-					<span class="label label-danger" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_CLOSED_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="top">
-						<i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?>
+					<span class="label label-danger" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_GROUPS_CLOSED_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="top">
+						<i class="fa fa-lock"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?>
 					</span>
 					<?php } ?>
 				</li>
@@ -58,10 +58,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php if ( ( !isset($showApps) || (isset($showApps) && $showApps)) && $group->getApps() && ( $group->isMember() || $group->isOpen() ) ){ ?>
 		<div class="btn- btn-scroll" data-appscroll-buttons>
 			<a href="javascript:void(0);" class="btn btn-left" data-appscroll-prev-button>
-				<i class="ies-arrow-left"></i>
+				<i class="fa fa-caret-left"></i>
 			</a>
 			<a href="javascript:void(0);" class="btn btn-right" data-appscroll-next-button>
-				<i class="ies-arrow-right"></i>
+				<i class="fa fa-caret-right"></i>
 			</a>
 		</div>
 
@@ -83,29 +83,29 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<div class="es-header-mini-footer">
 		<div class="pull-left">
-			<ul class="list-inline mb-0 ml-0">
+			<div class="es-list-vertical-divider mb-0 ml-0">
 				<?php echo $this->render( 'widgets' , 'group' , 'groups' , 'groupStatsStart' , array( $group ) ); ?>
-				<li>
+				<span>
 					<a href="<?php echo FRoute::groups( array( 'layout' => 'category' , 'id' => $group->getCategory()->getAlias() ) );?>">
-						<i class="ies-database"></i> <?php echo $group->getCategory()->get( 'title' ); ?>
+						<i class="fa fa-database"></i> <?php echo $group->getCategory()->get( 'title' ); ?>
 					</a>
-				</li>
-				<li>
+				</span>
+				<span>
 					<a href="<?php echo FRoute::albums( array( 'uid' => $group->getAlias() , 'type' => SOCIAL_TYPE_GROUP ) );?>">
-						<i class="ies-picture"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_ALBUMS' , $group->getTotalAlbums() ) , $group->getTotalAlbums() ); ?>
+						<i class="fa fa-photo"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_ALBUMS' , $group->getTotalAlbums() ) , $group->getTotalAlbums() ); ?>
 					</a>
-				</li>
-				<li>
-					<i class="ies-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_MEMBERS' , $group->getTotalMembers() ) , $group->getTotalMembers() ); ?>
-				</li>
-				<li>
-					<i class="ies-eye"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_VIEWS' , $group->hits ) , $group->hits ); ?></a>
-				</li>
+				</span>
+				<span>
+					<i class="fa fa-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_MEMBERS' , $group->getTotalMembers() ) , $group->getTotalMembers() ); ?>
+				</span>
+				<span>
+					<i class="fa fa-eye"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_VIEWS' , $group->hits ) , $group->hits ); ?></a>
+				</span>
 				<?php echo $this->render( 'widgets' , 'group' , 'groups' , 'groupStatsEnd' , array( $group ) ); ?>
-				<li>
+				<span>
 					<?php echo FD::sharing( array('url' => $group->getPermalink(false, true), 'display' => 'dialog', 'text' => JText::_( 'COM_EASYSOCIAL_STREAM_SOCIAL' ) , 'css' => 'fd-small' ) )->getHTML( true ); ?>
-				</li>
-			</ul>
+				</span>
+			</div>
 		</div>
 
         <?php if( !$group->isMember() && !$group->isPendingMember() ){ ?>

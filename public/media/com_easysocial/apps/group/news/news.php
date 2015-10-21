@@ -44,10 +44,36 @@ class SocialGroupAppNews extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#F6C362';
-		$obj->icon 		= 'ies-broadcast-2';
+		$obj->icon 		= 'fa fa-bullhorn';
 		$obj->label 	= 'APP_GROUP_NEWS_STREAM_TOOLTIP';
 
 		return $obj;
+	}
+
+
+	/**
+	 * Determines if the app should appear on the sidebar
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function appListing($view, $id, $type)
+	{
+		if ($type != SOCIAL_TYPE_GROUP) {
+			return true;
+		}
+
+		// We should not display the discussions on the app if it's disabled
+		$group = FD::group($id);
+		$registry = $group->getParams();
+
+		if (!$registry->get('news', true)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -271,13 +297,12 @@ class SocialGroupAppNews extends SocialAppItem
 	 */
 	public function onPrepareStream( SocialStreamItem &$item, $includePrivacy = true )
 	{
-		if( $item->context != 'news' )
-		{
+		if ($item->context != 'news') {
 			return;
 		}
 
 		// group access checking
-		$group	= FD::group( $item->cluster_id );
+		$group = FD::group($item->cluster_id);
 
 		if (!$group) {
 			return;
@@ -287,11 +312,18 @@ class SocialGroupAppNews extends SocialAppItem
 			return;
 		}
 
+		// Ensure that announcements are enabled for this group
+		$registry = $group->getParams();
+
+		if (!$registry->get('news', true)) {
+			return;
+		}
+
 		// Define standard stream looks
 		$item->display 	= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 	= '#F6C362';
-		$item->fonticon	= 'ies-broadcast-2';
-		$item->label	= JText::_('APP_GROUP_NEWS_STREAM_TOOLTIP');
+		$item->fonticon	= 'fa-bullhorn';
+		$item->label	= FD::_('APP_GROUP_NEWS_STREAM_TOOLTIP', true);
 
 		// Do not allow user to repost an announcement
 		$item->repost 	= false;

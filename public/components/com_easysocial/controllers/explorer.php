@@ -31,11 +31,8 @@ class EasySocialControllerExplorer extends EasySocialController
         // Require the user to be logged in
         FD::requireLogin();
 
-        // Get the view
-        $view = $this->getCurrentView();
-
         // Get the event object
-        $uid  = $this->input->get('uid', 0, 'int');
+        $uid = $this->input->get('uid', 0, 'int');
         $type = $this->input->get('type', '', 'cmd');
 
         // Load up the explorer library
@@ -43,7 +40,7 @@ class EasySocialControllerExplorer extends EasySocialController
 
         // Determine if the viewer can really view items
         if (!$explorer->hook('canViewItem')) {
-            return $view->call(__FUNCTION__);
+            return $this->view->call(__FUNCTION__);
         }
 
         // Get the hook
@@ -54,6 +51,6 @@ class EasySocialControllerExplorer extends EasySocialController
 
         $exception = FD::exception('Folder retrieval successful', SOCIAL_MSG_SUCCESS);
 
-        return $view->call(__FUNCTION__, $exception, $result);
+        return $this->view->call(__FUNCTION__, $exception, $result);
     }
 }

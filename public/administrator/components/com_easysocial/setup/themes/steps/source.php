@@ -158,13 +158,19 @@ $( document ).ready( function(){
 					</p>
 				</label>
 
-				<div class="mt-20" data-source-network>
-					<div class="form-inline">
-						<label for="apikey"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_METHOD_API_KEY' );?></label>:
-						<input type="text" value="<?php echo $key;?>" name="apikey" class="input input-xlarge" data-api-key />
-					</div>
-					<div class="mt-5" style="margin-left: 75px;">
-						<a href="http://docs.stackideas.com/administrators/welcome/obtaining_api_key" target="_blank"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_METHOD_RETRIEVE_API_KEY' );?></a>
+				<div data-source-network>
+					<div class="form-inline row-table" style="margin-top: 20px;">
+						<div class="col-cell cell-label">
+							<b><?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_METHOD_API_KEY');?></b>
+						</div>
+
+						<div class="col-cell">
+							<input type="text" value="<?php echo $key;?>" name="apikey" class="input input-xlarge" data-api-key />
+						</div>
+
+						<div class="col-cell cell-label">
+							<a href="http://docs.easysocial.io/administrators/welcome/obtaining_api_key" target="_blank"><?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_METHOD_RETRIEVE_API_KEY');?></a>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -175,7 +181,7 @@ $( document ).ready( function(){
 	<div class="installation-method" data-source-method>
 		<div class="media">
 			<div class="media-object pull-left">
-				<input type="radio" name="method" value="directory" id="directory" data-source-type />
+				<input type="radio" name="method" value="directory" id="directory" data-source-type <?php echo ES_BETA ? ' checked="checked"' : '';?>/>
 			</div>
 
 			<div class="media-body">

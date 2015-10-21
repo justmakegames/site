@@ -38,6 +38,7 @@ echo $settings->renderPage(
 		),
 		$settings->renderSection(
 			$settings->renderHeader('Mini Registration'),
+			$settings->renderSetting('Display Mini Registration', 'registrations.mini.enabled', 'boolean', array('help' => true)),
 			$settings->renderSetting('Mini Registration Mode', 'registrations.mini.mode', 'list', $minimodeOptions),
 			$settings->renderSetting('Mini Registration Profile', 'registrations.mini.profile', 'list', $profileOptions)
 		)

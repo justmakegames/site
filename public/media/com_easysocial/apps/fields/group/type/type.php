@@ -43,6 +43,10 @@ class SocialFieldsGroupType extends SocialFieldItem
 	{
 		$config = FD::config();
 
+		$value = isset($post['group_type']) ? $post['group_type'] : $this->params->get('default');
+
+        $this->set('value', $value);
+
 		return $this->display();
 	}
 
@@ -58,9 +62,19 @@ class SocialFieldsGroupType extends SocialFieldItem
 	 */
 	public function onEdit( &$post , &$group )
 	{
-		$this->set('node', $group);
-		$this->set('group' , $group );
+		$value = 1;
 
+		if (isset($group) && $group->isOpen()) {
+			$value = 1;
+		}
+		if (isset($group) && $group->isClosed()) {
+			$value = 2;
+		}
+		if (isset($group) && $group->isInviteOnly()) {
+			$value = 3;
+		}
+
+		$this->set('value', $value);
 		return $this->display();
 	}
 
@@ -109,24 +123,27 @@ class SocialFieldsGroupType extends SocialFieldItem
 		$db->setQuery($sql);
 		$clusterids = $db->loadColumn();
 
-		$sql->clear();
-		$sql->update('#__social_clusters');
-		$sql->set('type', $group->type);
-		$sql->where('id', $clusterids, 'IN');
+		if (!empty($clusterids)) 
+		{
+			$sql->clear();
+			$sql->update('#__social_clusters');
+			$sql->set('type', $group->type);
+			$sql->where('id', $clusterids, 'IN');
 
-		$db->setQuery($sql);
-		$db->query();
+			$db->setQuery($sql);
+			$db->query();
 
-		// Merge in the group id
-		$clusterids[] = $group->id;
+			// Merge in the group id
+			$clusterids[] = $group->id;
 
-		$sql->clear();
-		$sql->update('#__social_stream');
-		$sql->set('cluster_access', $group->type);
-		$sql->where('cluster_id', $clusterids, 'IN');
+			$sql->clear();
+			$sql->update('#__social_stream');
+			$sql->set('cluster_access', $group->type);
+			$sql->where('cluster_id', $clusterids, 'IN');
 
-		$db->setQuery($sql);
-		$db->query();
+			$db->setQuery($sql);
+			$db->query();
+		}
 
 		unset($data['group_type_changed']);
 	}

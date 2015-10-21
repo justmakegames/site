@@ -11,64 +11,55 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-require_once( dirname( dirname( dirname( __FILE__ ) ) ) . '/helper.php' );
+require_once(dirname(dirname(__DIR__)) . '/helper.php');
 
-/**
- * Profile view for Kunena
- *
- * @since	1.0
- * @access	public
- */
 class KunenaViewProfile extends SocialAppsView
 {
-	/**
-	 * Displays the application output in the canvas.
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	int		The user id that is currently being viewed.
-	 */
-	public function display( $userId = null , $docType = null )
+	public function display($userId = null, $docType = null)
 	{
-		if( !KunenaHelper::exists() )
-		{
+		if (!KunenaHelper::exists()) {
 			return;
 		}
 
+		// Load language file from Kunena
 		KunenaFactory::loadLanguage('com_kunena.libraries', 'admin');
 
 		// Load Kunena's language file
-		JFactory::getLanguage()->load( 'com_kunena.libraries' , JPATH_ADMINISTRATOR );
+		JFactory::getLanguage()->load('com_kunena.libraries', JPATH_ADMINISTRATOR);
 
 		// Get the current user
-		$user 		= FD::user( $userId );
+		$user = FD::user($userId);
 
 		// Get the user params
-		$params		= $this->getUserParams( $user->id );
+		$params = $this->getUserParams($user->id);
 
 		// Get the app params
-		$appParams	= $this->app->getParams();
+		$appParams = $this->app->getParams();
 
 		// Get the total items to display
-		$total 		= (int) $params->get( 'total' , $appParams->get( 'total' , 5 ) );
+		$total = (int) $params->get( 'total' , $appParams->get( 'total' , 5 ) );
 
 		// Get the posts created by the user.
-		$model 		= $this->getModel( 'Posts' );
-		$posts 		= $model->getPosts( $user->id , $total );
+		$model = $this->getModel('Posts');
+		$posts = $model->getPosts($user->id, $total);
 
-		$replies 	= $model->getReplies( $user->id );
+		// Get the replies
+		$replies = $model->getReplies($user->id);
 
 		// Get stats
-		$stats 		= $model->getStats( $user->id );
+		$stats = $model->getStats($user->id);
+
+		// Get total replies
+		$totalReplies = $model->getTotalReplies($user->id);
 
 		// Get Kunena's template
-		$kTemplate 	= KunenaFactory::getTemplate();
+		$kTemplate = KunenaFactory::getTemplate();
 
-		$kUser 		= KunenaUserHelper::get( $userId );
+		$kUser = KunenaUserHelper::get($userId);
 
+		$this->set('totalReplies', $totalReplies);
 		$this->set( 'stats'		, $stats );
 		$this->set( 'thanks'	, $kUser->thankyou );
-		$this->set( 'karma'		, $kUser->karma );
 		$this->set( 'totalPosts', $kUser->posts );
 		$this->set( 'kTemplate'	, $kTemplate );
 		$this->set( 'user'		, $user );

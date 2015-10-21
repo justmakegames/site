@@ -19,7 +19,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<div class="k2-meta">
 		<?php echo JText::sprintf( 'APP_USER_K2_IN' , '<a href="' . $item->category->permalink . '">' . $item->category->name . '</a>' ); ?>
 		&nbsp;&middot;&nbsp;
-		<i class="ies-calendar-2"></i> <?php echo $this->html( 'string.date' , $item->created , JText::_( 'DATE_FORMAT_LC3' ) ); ?>
+		<i class="fa fa-calendar"></i> <?php echo $this->html( 'string.date' , $item->created , JText::_( 'DATE_FORMAT_LC3' ) ); ?>
 	</div>
 
 	<div class="k2-text">

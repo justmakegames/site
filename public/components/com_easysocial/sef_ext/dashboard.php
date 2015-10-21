@@ -45,11 +45,24 @@ if( isset( $appId ) )
 	shRemoveFromGETVarsList( 'appId' );
 }
 
+
+if (isset($layout)) {
+	addLayout($title, $view, $layout);
+}
+
+if (isset($tag)) {
+	$title[]	= $tag;
+	shRemoveFromGETVarsList('tag');
+}
+
+
 if (isset($filterid)) {
 	$title[]	= $filterid;
 
 	shRemoveFromGETVarsList('filterid');
 }
+
+
 
 if (isset($groupId)) {
 	$title[]	= getGroupAlias($groupId);

@@ -1,7 +1,9 @@
 //
 // UI
 // --------------------------------------------------
-
+.close {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
 
 /* Tooltip */ // reset for J2.5
 &.tooltip.tooltip-es {
@@ -70,10 +72,10 @@
 	text-align: center;
 	width: 26px;
 	height: 16px;
-	line-height: 16px;
+	line-height: 15px;
 	border-radius: 3px;
 	&:before {
-		font-family: easysocial;
+		font-family: FontAwesome;
 		font-weight: normal;
 		font-style: normal;
 		display: inline-block;
@@ -86,50 +88,50 @@
 .es-state-going {
 	background: #7CC110;
 	&:before {
-		content: "\e02b";
+		content: "\f00c";
 	}
 }
 .es-state-unpublish,
 .es-state-notgoing {
 	background: #B94A48;
 	&:before {
-		content: "\e02c";
+		content: "\f00d";
 	}
 }
 .es-state-trash {
 	background: #B94A48;
 	&:before {
-		content: "\e08a";
+		content: "\f1f8";
 	}
 }
 .es-state-locked {
 	background: #aaa;
 	&:before {
-		content: "\e017";
+		content: "\f023";
 	}
 }
 .es-state-unactivated {
 	background: #D88B1E;
 	&:before {
-		content: "\e0b3";
+		content: "\f084";
 	}
 }
 .es-state-pending {
 	background: #D88B1E;
 	&:before {
-		content: "\e06b";
+		content: "\f017";
 	}
 }
 .es-state-maybe {
 	background: #5BC0DE;
 	&:before {
-		content: "\e027";
+		content: "\f02e";
 	}
 }
 .es-state-invited {
 	background: #D88B1E;
 	&:before {
-		content: "\e0a4";
+		content: "\f058";
 	}
 }
 .es-state-default {
@@ -137,7 +139,7 @@
 	.square(16px) !important;
 	border-radius: 50%;
 	&:before {
-		content: "\e010";
+		content: "\f005";
 		font-size: 10px;
 	}
 }
@@ -146,7 +148,7 @@
 	.square(16px) !important;
 	border-radius: 50%;
 	&:before {
-		content: "\e010";
+		content: "\f005";
 		font-size: 10px;
 	}
 }
@@ -155,7 +157,7 @@
     .square(16px) !important;
     border-radius: 50%;
     &:before {
-        content: "\e02d";
+        content: "\f067";
         font-size: 8px;
         line-height: 16px;
 
@@ -166,7 +168,7 @@
     .square(16px) !important;
     border-radius: 50%;
     &:before {
-        content: "\e02e";
+        content: "\f068";
         font-size: 8px;
         line-height: 16px;
     }

@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -67,6 +67,14 @@ class EasySocialViewRegistration extends EasySocialSiteView
 		// Retrieve profile id from the query string
 		$profileId = $this->input->get('profile_id', 0, 'int');
 
+		// If there's a profile id, we need to redirect them to the appropriate step
+		if ($profileId) {
+			$redirectOptions = array('controller' => 'registration', 'task' => 'selectType', 'profile_id' => $profileId);
+			$redirection = FRoute::registration($redirectOptions, false);
+
+			return $this->redirect($redirection);
+		}
+
 		// Detect for an existing registration session.
 		$session = JFactory::getSession();
 
@@ -84,14 +92,14 @@ class EasySocialViewRegistration extends EasySocialSiteView
 		$registration	= FD::table('Registration');
 
 		// Purge expired session data for registrations.
-		$model 			= FD::model('Registration');
+		$model = FD::model('Registration');
 		$model->purgeExpired();
 
 		// If user doesn't have a record in registration yet, we need to create this.
 		if (!$registration->load($session->getId())) {
-			$registration->set('session_id', 	$session->getId());
-			$registration->set('created', 		FD::get('Date')->toMySQL());
-			$registration->set('profile_id', 	$profileId);
+			$registration->set('session_id', $session->getId());
+			$registration->set('created', FD::get('Date')->toMySQL());
+			$registration->set('profile_id', $profileId);
 
 			if (!$registration->store()) {
 				$this->setError($registration->getError());
@@ -100,23 +108,26 @@ class EasySocialViewRegistration extends EasySocialSiteView
 		}
 
 		// If there is only 1 profile type, we don't really need to show the profile type selection
-		$profileModel	= FD::model('Profiles');
-		$options		= array('state'		=> SOCIAL_STATE_PUBLISHED,
-								'ordering' 		=> 'ordering',
-								'limit'			=> SOCIAL_PAGINATION_NO_LIMIT,
-								'totalUsers'	=> $this->config->get('registrations.profiles.usersCount'),
-								'validUser'		=> true,
-								'registration'	=> true
-							);
-		$profiles 		= $profileModel->getProfiles($options);
+		$profileModel = FD::model('Profiles');
+		$options = array('state'	=> SOCIAL_STATE_PUBLISHED,
+							'ordering' => 'ordering',
+							'limit' => SOCIAL_PAGINATION_NO_LIMIT,
+							'totalUsers' => $this->config->get('registrations.profiles.usersCount'),
+							'validUser' => true,
+							'registration' => true
+					);
+
+		$profiles = $profileModel->getProfiles($options);
 
 		// Add the "users" to the profiles
 		foreach ($profiles as $profile) {
-			$profile->users 	= $profileModel->getMembers($profile->id, array('limit' => 10, 'randomize' => true));
+			$profile->users = $profileModel->getMembers($profile->id, array('limit' => 10, 'randomize' => true));
 		}
+
 		// If there's only 1 profile type, we should just ignore this step and load the steps page.
 		if (count($profiles) == 1) {
-			$profile    = $profiles[ 0 ];
+
+			$profile = $profiles[0];
 
 			// Store the profile type id into the session.
 			$session->set('profile_id', $profile->id, SOCIAL_SESSION_NAMESPACE);
@@ -160,13 +171,11 @@ class EasySocialViewRegistration extends EasySocialSiteView
 	 */
 	public function oauthDialog()
 	{
-		$config = FD::config();
-
 		// Get allowed clients
-		$allowedClients	= array_keys((array) $config->get('oauth'));
+		$allowedClients	= array_keys((array) $this->config->get('oauth'));
 
 		// Get the current client.
-		$oauthClient 	= JRequest::getWord('client');
+		$oauthClient = $this->input->get('client', '', 'word');
 
 		if (!in_array($oauthClient, $allowedClients)) {
 			FD::info()->set(false, JText::sprintf('COM_EASYSOCIAL_OAUTH_INVALID_OAUTH_CLIENT_PROVIDED', $oauthClient), SOCIAL_MSG_ERROR);
@@ -175,7 +184,7 @@ class EasySocialViewRegistration extends EasySocialSiteView
 		}
 
 		// Get the oauth client object.
-		$client 	= FD::oauth($oauthClient);
+		$client = FD::oauth($oauthClient);
 
 		// Detect if the user has already registered with the site.
 		if ($client->isRegistered()) {
@@ -184,23 +193,43 @@ class EasySocialViewRegistration extends EasySocialSiteView
 
 			$client->login();
 
-			// Determine which URL to redirect the user to based on the settings
-			$url 		= FD::get('toolbar')->getRedirectionUrl($config->get('general.site.login'));
+			// let get user data again.
+			$user = FD::user();
 
-			$redirect	= $url;
+			// @TODO:: here we will redirect user to our password reset page. awesome possum.
+			if ($user->require_reset) {
+				$url 	= FRoute::account( array( 'layout' => 'requirePasswordReset' ) , false );
+			} else {
+				// Determine which URL to redirect the user to based on the settings
+				$url = FRoute::getMenuLink($this->config->get('general.site.login'));
+
+				if ($url === false) {
+				// Default URL redirection
+					$url = FRoute::dashboard(array(), false);
+
+					// Determine if there a referer URL
+					$callback = FRoute::referer();
+
+					if ($callback) {
+						$url = $callback;
+					}
+				}
+			}
+
+			$redirect = $url;
 		} else {
 			// Get the access
-			$access	 	= $client->getAccess();
+			$access = $client->getAccess();
 
 			// Set the access token on the session
-			$key 		= $oauthClient . '.token';
-			$session 	= JFactory::getSession();
+			$key = $oauthClient . '.token';
+			$session = JFactory::getSession();
 			$session->set($key, $access->token, SOCIAL_SESSION_NAMESPACE);
 
-			$redirect 	= FRoute::registration(array('layout' => 'oauth', 'client' => $oauthClient), false);
+			$redirect = FRoute::registration(array('layout' => 'oauth', 'client' => $oauthClient), false);
 		}
 
-		$this->set('redirect' 	, $redirect);
+		$this->set('redirect', $redirect);
 
 		parent::display('site/registration/oauth.popup');
 	}
@@ -213,11 +242,8 @@ class EasySocialViewRegistration extends EasySocialSiteView
 	 */
 	public function oauth()
 	{
-		$config 	= FD::config();
-
-
 		// If user is already logged in here, they shouldn't be allowed on this page.
-		if (FD::user()->id) {
+		if (!$this->my->guest) {
 			$this->setMessage(JText::_('COM_EASYSOCIAL_OAUTH_YOU_ARE_ALREADY_LOGGED_IN'), SOCIAL_MSG_ERROR);
 
 			FD::info()->set($this->getMessage());
@@ -226,10 +252,10 @@ class EasySocialViewRegistration extends EasySocialSiteView
 		}
 
 		// Get allowed clients
-		$allowedClients	= array_keys((array) $config->get('oauth'));
+		$allowedClients	= array_keys((array) $this->config->get('oauth'));
 
 		// Get the current client.
-		$oauthClient 	= JRequest::getWord('client');
+		$oauthClient = $this->input->get('client', '', 'word');
 
 		if (!in_array($oauthClient, $allowedClients)) {
 			FD::info()->set(false, JText::sprintf('COM_EASYSOCIAL_OAUTH_INVALID_OAUTH_CLIENT_PROVIDED', $oauthClient), SOCIAL_MSG_ERROR);
@@ -238,31 +264,29 @@ class EasySocialViewRegistration extends EasySocialSiteView
 		}
 
 		// Get the oauth client object.
-		$client 	= FD::oauth($oauthClient);
+		$client = FD::oauth($oauthClient);
 
 		// Add page title
-		$title 		= JText::sprintf('COM_EASYSOCIAL_OAUTH_PAGE_TITLE', ucfirst($oauthClient));
-		FD::page()->title($title);
+		$title = JText::sprintf('COM_EASYSOCIAL_OAUTH_PAGE_TITLE', ucfirst($oauthClient));
+		$this->page->title($title);
 
 		// Add breadcrumbs
-		FD::page()->breadcrumb($title);
+		$this->page->breadcrumb($title);
 
 		// Check configuration if the registration mode is set to simplified or normal.
-		$registrationType 	= $config->get('oauth.' . $oauthClient . '.registration.type');
+		$registrationType = $this->config->get('oauth.' . $oauthClient . '.registration.type');
 
 		if ( $registrationType == 'simplified') {
 			$createUrl 	= FRoute::raw('index.php?option=com_easysocial&controller=registration&task=oauthSignup&client=' . $oauthClient);
-		}
-		else
-		{
+		} else {
 			$createUrl	= FRoute::registration(array('layout' => 'oauthSelectProfile', 'client' => $oauthClient));
 		}
 
 		// Check if import avatar option is enabled
-		$importAvatar = $config->get('oauth.' . $oauthClient . '.registration.avatar');
+		$importAvatar = $this->config->get('oauth.' . $oauthClient . '.registration.avatar');
 
 		// Check if import cover option is enabled
-		$importCover = $config->get('oauth.' . $oauthClient . '.registration.cover');
+		$importCover = $this->config->get('oauth.' . $oauthClient . '.registration.cover');
 
 		// Get user's meta
 		try {
@@ -278,7 +302,7 @@ class EasySocialViewRegistration extends EasySocialSiteView
 				'type' => SOCIAL_MSG_ERROR
 			);
 
-			FD::info()->set( $message );
+			FD::info()->set($message);
 
 			$app->redirect( $url );
 			$app->close();
@@ -692,6 +716,40 @@ class EasySocialViewRegistration extends EasySocialSiteView
 	 */
 	public function complete(&$user, &$profile)
 	{
+		// Check if there is a menu assigned for completed registration.
+		$params = $profile->getParams();
+
+		// If the profile is set to verify, we need to redirect users to the activation form instead of respecting the registration redirect.
+		if ($profile->getRegistrationType() == 'verify') {
+
+			$url = FRoute::registration(array('layout' => 'completed', 'id' => $profile->id, 'userid' => $user->id), false);
+
+			return $this->redirect($url);
+		}
+
+		// If the profile is set to require admin approval, we need to redirect users to the wait for admin approval page instead of respecting the registration redirect.
+		if ($profile->getRegistrationType() == 'approvals') {
+
+			$url = FRoute::registration(array('layout' => 'completed', 'id' => $profile->id, 'userid' => $user->id), false);
+
+			return $this->redirect($url);
+		}
+
+		// If the profile is set to manually login, we need to redirect users to the login page instead of respecting the registration redirect.
+		if ($profile->getRegistrationType() == 'login') {
+
+			$url = FRoute::registration(array('layout' => 'completed', 'id' => $profile->id, 'userid' => $user->id), false);
+
+			return $this->redirect($url);
+		}
+
+		// Here we respect the settings that is configured for the registration success settings.
+		$link = FRoute::getMenuLink($params->get('registration_success'));
+
+		if ($link) {
+			return $this->redirect($link);
+		}
+
 		// If profile is configured to be automatically logged in, redirect them to the dashboard page.
 		if ($profile->getRegistrationType() == 'auto') {
 
@@ -706,19 +764,19 @@ class EasySocialViewRegistration extends EasySocialSiteView
 				return $this->redirect(base64_decode($return));
 			}
 
-			$config 	= FD::config();
-			$loginMenu 	= $config->get('general.site.login');
+			$config = FD::config();
+			$loginMenu = $config->get('general.site.login');
 
 			if ($loginMenu == 'null') {
-				$url 	= FRoute::dashboard(array(), false);
+				$url = FRoute::dashboard(array(), false);
 			} else {
-				$url 	= FD::get('toolbar')->getRedirectionUrl($loginMenu);
+				$url = FRoute::getMenuLink($loginMenu);
 			}
 
 			return $this->redirect($url);
 		}
 
-		$url 	= FRoute::registration(array('layout' => 'completed', 'id' => $profile->id, 'userid' => $user->id), false);
+		$url = FRoute::registration(array('layout' => 'completed', 'id' => $profile->id, 'userid' => $user->id), false);
 
 
 		return $this->redirect($url);
@@ -735,36 +793,37 @@ class EasySocialViewRegistration extends EasySocialSiteView
 	public function completed()
 	{
 		// If user is already logged in, redirect them to their dashboard automatically.
-		$user 		= FD::user();
+		$user = FD::user();
 
 		if ($user->id) {
-			$config 	= FD::config();
-			$loginMenu 	= $config->get('general.site.login');
+			$config = FD::config();
+			$loginMenu = $config->get('general.site.login');
 
 			if ($loginMenu == 'null') {
-				$url 	= FRoute::dashboard(array(), false);
+				$url = FRoute::dashboard(array(), false);
 			} else {
-				$url 	= FD::get('toolbar')->getRedirectionUrl($loginMenu);
+				$url = FRoute::getMenuLink($loginMenu);
 			}
 
 			return $this->redirect($url);
 		}
 
-		$userId 	= JRequest::getInt('userid');
-		$user 		= FD::user($userId);
+		$userId = $this->input->get('userid', 0, 'int');
+		$user = FD::user($userId);
 
 		// Get the profile type.
-		$id 		= JRequest::getInt('id');
-		$profile	= FD::table('Profile');
+		$id = $this->input->get('id', 0, 'int');
+		$profile = FD::table('Profile');
 		$profile->load($id);
 
-		$oauth		= JRequest::getInt('oauth', 0);
+		$oauth = $this->input->get('oauth', 0, 'int');
 
-		$type 		= $profile->getRegistrationType(false, $oauth);
+		// Get the registration type
+		$type = $profile->getRegistrationType(false, $oauth);
 
-		$this->set('user'		, $user);
-		$this->set('type'		, $type);
-		$this->set('profile'	, $profile);
+		$this->set('user', $user);
+		$this->set('type', $type);
+		$this->set('profile', $profile);
 
 		echo parent::display('site/registration/default.complete');
 	}

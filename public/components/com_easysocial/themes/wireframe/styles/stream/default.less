@@ -16,17 +16,13 @@
 // .stream-icon{
 //  // For stream icon which uses font icons.
 //  >i{
-//      color: #666;
+//      color: @esColor;
 //      line-height: 20px;
 //  }
 // }
 
-
-
 // stream's wrapper
 .es-streams {
-    padding: 10px 0 0 20px;
-    // background: #fff;
     .getContrast(@esStreamBackground);
 
     .es-story {
@@ -47,6 +43,8 @@
     }
     .label {
         vertical-align: top;
+        display: inline-block;
+        padding: .25em .5em;
     }
 }
 //stream list ul
@@ -61,7 +59,7 @@
             background: none repeat scroll 0 0 @esStreamListEmptyBackground;
             border: 1px dashed @esStreamBorder;
             color: @esColor;
-            font-size: 11px;
+            font-size: @baseFontSize;
             margin-bottom: 10px;
             padding: 20px;
 
@@ -73,6 +71,35 @@
                 width: 32px;
             }
         }
+
+        &.is-translated {
+            .translate-loader,
+            .translate-link {
+                display: none;
+            }
+        }
+
+        &.is-translating {
+            .es-stream-translations {
+                .translate-loader {
+                    display: block;
+                }
+
+                .translate-link {
+                    display: none;
+                }
+            }
+        }
+
+        .es-stream-translations {
+            margin: 10px 0;
+            padding: 0 10px;
+
+            .translate-loader {
+                display: none;
+            }
+        }
+
 
         &.is-bookmarked {
             .bookmark {
@@ -89,16 +116,41 @@
             }
         }
 
+        &.is-published {
+            .es-stream {
+                display: none;
+            }
+
+            .es-stream-published {
+                display: block;
+            }
+        }
+
         .bookmark {
             display: none;
 
-            .ies-star {
+            .fa-star {
                 color: #FAC51C;
+            }
+        }
+
+        &.is-sticky {
+            .es-stream-control {
+                .add-sticky {
+                    display: none;
+                }
+                .remove-sticky {
+                    display: block;
+                }
             }
         }
 
         .es-stream-control {
             .remove-bookmark {
+                display: none;
+            }
+
+            .remove-sticky {
                 display: none;
             }
         }
@@ -127,6 +179,10 @@
         + li {
             margin-top: 20px;
         }
+
+        .es-stream-published {
+            display: none;
+        }
     }
 
     .pagination {
@@ -153,6 +209,16 @@
             display: none;
         }
     }
+    &.isHidden {
+        display: none;
+    }
+}
+
+.es-stream,
+.es-stream-content,
+.es-stream-preview {
+    display: inline-block;
+    width: 100%;
 }
 
 .es-stream-mini {
@@ -202,7 +268,7 @@
         // For font icons
         >i {
             color: #fff;
-            font-size: 11px;
+            font-size: @baseFontSize;
             line-height: 20px;
             vertical-align: top;
         }
@@ -232,16 +298,22 @@
     }
 }
 
+//header area
+.es-stream-header {
+    padding: 10px;
+    border-bottom: 1px solid @esStreamBorder;
+}
+
 //meta area
 .es-stream-meta {
     padding: 10px;
     border-bottom: 1px solid @esStreamBorder;
 
     .es-stream-title {
-        font-size: 11px;
+        font-size: @baseFontSize;
         padding-right: 60px; // reserve space for steam-control and stream-icon
         a {
-            font-size: 11px; // enforce <a> with diffrent font-size
+            font-size: @baseFontSize; // enforce <a> with diffrent font-size
         }
         i {
             position: relative;
@@ -250,7 +322,7 @@
     }
 
     .es-stream-meta-footer {
-        font-size: 10px;
+        font-size: @fontSizeSmall;
     }
 }
 .es-edit-text {
@@ -290,15 +362,69 @@
     }
 }
 
+.is-moderated {
+    .es-stream {
+        border: 1px dashed @esBorder;
+
+        .es-stream-meta {
+            border-bottom: 1px dashed @esBorder;
+        }
+    }
+    .es-moderated-note {
+        display: block;
+    }
+}
+
+.es-moderated-note { // hide by default
+    text-align: center;
+    display: none;
+    .alert {
+        padding: 4px 20px 4px 20px;
+        top: -8px;
+        &:before {
+            display: none;
+        }
+    }
+}
+.is-sticky {
+    .es-stream-sticky-label {
+        display: inline-block;
+    }
+}
+.es-stream-sticky-label {
+    color: #fff;
+    background: #DA513B;
+    display: none; // hide by default
+    height: 16px;
+    width: 16px;
+    position: absolute;
+    top: -1px;
+
+    font-size: 9px;
+    text-align: center;
+    &:before {
+        border-top: 6px solid #DA513B;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        content: "";
+        height: 0;
+        left: 0;
+        position: absolute;
+        top: 16px;
+        width: 0;
+    }
+}
+
+
 .es-stream-content {
-    font-size: 11px;
+    font-size: @baseFontSize;
     padding: 0 10px;
     margin: 10px 0;
 
     word-wrap: break-word;
     .getContrast(@esStreamBackground);
     a {
-        //font-size: 11px; //enforce <a> with diffrent font-size
+        //font-size: @baseFontSize; //enforce <a> with diffrent font-size
     }
 
     .media-object img {
@@ -325,9 +451,8 @@
 }
 
 .es-stream-content-avatar {
-    width: 100px;
-    height: 100px;
-    max-width: none;
+    width: 100%;
+    height: auto;
 }
 
 .es-stream-content-thumb {
@@ -395,9 +520,10 @@
 }
 
 .es-stream-counter {
-    font-size: 11px;
+    font-size: @baseFontSize;
     background: @esStreamCounterBackground;
     // margin-bottom: 3px;
+    clear: both;
     .clearfix();
     .es-stream-actions {
         display: inline-block;
@@ -486,21 +612,26 @@
     background: @esStreamHideNoticeBackground;
     border: 1px dashed @esStreamBorder;
     color: @esColor;
-    font-size: 11px;
+    font-size: @baseFontSize;
     margin-bottom: 10px;
     padding: 20px;
 }
 
+.es-stream-published-notice,
 .es-stream-hide-notice {
     background: @esStreamHideNoticeBackground;
     border: 1px dashed @esStreamBorder;
     padding: 20px;
     color: @esColor;
-    font-size: 11px;
+    font-size: @baseFontSize;
 
     a{
         float: right;
     }
+}
+
+.es-stream-published-notice {
+    background: #fff;
 }
 
 //stream top right author control
@@ -522,7 +653,7 @@
         background: @esBackground;
         li {
             > a {
-                font-size: 11px;
+                font-size: @baseFontSize;
             }
         }
     }
@@ -580,10 +711,11 @@
     clear: both;
     padding: 3px 10px 0;
     margin-bottom: 10px;
+    .clearfix();
 
-    ul {
+    > ul {
         > li {
-            display: inline;
+            float: left;
             position: relative;
         }
 
@@ -591,7 +723,7 @@
             &.es-stream-location {
                 color: @esColor;
                 display: inline-block;
-                font-size: 11px;
+                font-size: @baseFontSize;
 
                 i {
                     vertical-align: middle;
@@ -617,7 +749,7 @@
                 content: ".";
                 position: absolute;
                 display: inline-block;
-                font-size: 11px;
+                font-size: @baseFontSize;
                 // font-weight: bold;
                 line-height: 10px;
                 left: -9px;
@@ -705,17 +837,13 @@
 // Stream editor
 .es-stream-editor {
 
-    .es-story-text {
+    .es-story-text,
+    .es-polls {
         padding: 10px;
     }
 }
 
-.es-stream-editor-actions {
-    border-top: 1px solid @esBorder;
-    padding: 10px;
-    background: @esStreamEditorActionsBackground;
-    text-align: right;
-}
+
 
 
 // Responsive
@@ -741,7 +869,9 @@
 .video-container {
     position: relative;
     padding-bottom: 56.25%;
-    padding-top: 30px; height: 0; overflow: hidden;
+    // padding-top: 30px; 
+    height: 0;
+    overflow: hidden;
 }
 
 .video-container iframe,
@@ -837,7 +967,7 @@
         display: block;
 
         i {
-            color: #666;
+            color: @esColor;
             display: block;
             font-size: 32px;
         }
@@ -857,13 +987,13 @@
 
 .stream-apps-content {
     .stream-apps-meta {
-        background: #fff;
+        background: @esBackground;
         margin-top: 4px;
         padding: 8px 0 4px 0;
 
         li {
-            font-size: 11px;
-            color: #666;
+            font-size: @baseFontSize;
+            color: @esColor;
             display: inline-block;
             margin-right: 8px;
 
@@ -877,6 +1007,14 @@
         }
     }
 }
+
+// Kunena apps
+.stream-kunena .kmsgtext-quote {
+    background-color: #f2f1ee;
+    border: 1px dotted #bfc3c6;
+    padding: 5px;    
+}
+
 
 &.w320 {
     .es-action-wrap {

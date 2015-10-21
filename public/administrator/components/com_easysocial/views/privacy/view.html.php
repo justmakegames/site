@@ -26,14 +26,8 @@ class EasySocialViewPrivacy extends EasySocialAdminView
 	 */
 	public function display( $tpl = null )
 	{
-		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_PRIVACY' ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-locked' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_PRIVACY' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_PRIVACY');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_PRIVACY');
 
 		$state 	= JRequest::getInt( 'state' , 1 );
 
@@ -151,13 +145,8 @@ class EasySocialViewPrivacy extends EasySocialAdminView
 		$state 		= $privacy->load( $id );
 
 		// Add heading here.
-		$this->setHeading( JText::_( $privacy->description ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-locked' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_EDIT_PRIVACY' ) );
+		$this->setHeading($privacy->description);
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_EDIT_PRIVACY');
 
 		// Add Joomla buttons here
 		JToolbarHelper::cancel();
@@ -200,13 +189,8 @@ class EasySocialViewPrivacy extends EasySocialAdminView
 	public function install( $tpl = null )
 	{
 		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_INSTALL_PRIVACY' ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-upload' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_INSTALL_PRIVACY' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_INSTALL_PRIVACY');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_INSTALL_PRIVACY');
 
 
 		echo parent::display( 'admin/privacy/install' );
@@ -224,13 +208,8 @@ class EasySocialViewPrivacy extends EasySocialAdminView
 	public function discover( $tpl = null )
 	{
 		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_DISCOVER_PRIVACY' ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-upload-2' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_INSTALL_PRIVACY' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_DISCOVER_PRIVACY');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_INSTALL_PRIVACY');
 
 
 		echo parent::display( 'admin/privacy/discover' );

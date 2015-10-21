@@ -3,9 +3,9 @@
 	opacity: 1;
 }
 .es-albums-date {
-	font-size: 12px;
+	font-size: inherit;
 	line-height: 28px;
-	margin: 0 0 15px -15px;
+	margin: 0 0 15px;
 	padding-left: 15px;
 	border-bottom: 1px dotted #ccc;
 
@@ -19,14 +19,12 @@
 }
 
 .es-item-actions {
-
 	position: relative;
-	font-size: 12px;
 	.clearfix();
 
 	[class^="ies-"],
 	[class*=" ies-"] {
-		font-size: 10px;
+		font-size: @fontSizeSmall;
 		width: 10px;
 	}
 
@@ -160,7 +158,7 @@
 	&.no-cover {
 		.es-album-image {
 			background-color: #f3f3f3;
-			background-image: url("@{site_base_uri}../images/album-no-cover.png");
+			background-image: url("@{site_base_uri}/../images/album-no-cover.png");
 			background-repeat: no-repeat;
 			background-position: center center;
 			background-size: 64px;
@@ -176,9 +174,6 @@
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
 	background-color: @grayLighter;
-}
-
-.es-album-browser-content {
 }
 
 .es-albums-pagination { //@extend .pagination

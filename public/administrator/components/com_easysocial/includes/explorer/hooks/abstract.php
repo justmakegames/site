@@ -33,7 +33,7 @@ abstract class SocialExplorerHooks
 		$this->my   = FD::user();
 
 		$this->app = JFactory::getApplication();
-		$this->input = $this->app->input;
+		$this->input = FD::request();
 	}
 
 	/**
@@ -126,23 +126,21 @@ abstract class SocialExplorerHooks
 	 * @param	string
 	 * @return
 	 */
-	public function getFiles( $collectionId = null )
+	public function getFiles($collectionId = null)
 	{
-		$model 		= FD::model( 'Files' );
-		$options 	= array();
+		$model = FD::model('Files');
+		$options = array();
 
-		if( !is_null( $collectionId ) )
-		{
-			$options[ 'collection_id' ] = $collectionId;
-		} else {
+		$options['collection_id'] = JRequest::getInt('id', 0);
 
-			$options[ 'collection_id' ] = JRequest::getInt('id', 0);
+		if (!is_null($collectionId)) {
+			$options['collection_id'] = $collectionId;
 		}
 
-		$files		= $model->getFiles( $this->uid , $this->type , $options );
+		$files = $model->getFiles($this->uid, $this->type, $options);
 
 		// Format the result
-		$result 	= $this->format( $files );
+		$result = $this->format($files);
 
 		return $result;
 	}
@@ -215,25 +213,22 @@ abstract class SocialExplorerHooks
 	protected function format( $data )
 	{
 		// Ensure that it's an array
-		$data 	= FD::makeArray( $data );
+		$data = FD::makeArray($data);
 
-		if( !$data )
-		{
+		if (!$data) {
 			return array();
 		}
 
 		$result 	= array();
 
-		foreach( $data as $item )
-		{
-			if( $item instanceof SocialTableFileCollection )
-			{
-				$result[] 	= $this->formatFolder( $item );
+		foreach ($data as $item) {
+
+			if ($item instanceof SocialTableFileCollection) {
+				$result[] = $this->formatFolder($item);
 			}
 
-			if( $item instanceof SocialTableFile )
-			{
-				$result[]	= $this->formatFile( $item );
+			if ($item instanceof SocialTableFile) {
+				$result[] = $this->formatFile($item);
 			}
 		}
 
@@ -245,18 +240,26 @@ abstract class SocialExplorerHooks
 		$mime = $row->mime;
 
 		// TODO: Expand this?
-		if (strpos($mime, 'image')===0) return 'ies-pictures-2';
+		if (strpos($mime, 'image')===0) return 'fa-photo';
 
-		return 'ies-file';
+		return 'fa-file';
 	}
 
-
-	private function formatFile( SocialTableFile $row )
+	/**
+	 * Formats the file
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function formatFile(SocialTableFile $row)
 	{
 		$file 			= new stdClass();
 		$file->id 		= $row->id;
 		$file->name 	= $row->name;
 		$file->folder 	= $row->collection_id;
+		$file->canDelete = $this->hasDeleteAccess($row);
 		$file->data 	= (object) array(
 			'hits'    => $row->hits,
 			'hash'    => $row->hash,
@@ -274,7 +277,7 @@ abstract class SocialExplorerHooks
 		$file->settings	= array();
 
 		$theme = FD::themes();
-		$theme->set( 'file', $file );
+		$theme->set('file', $file);
 		$file->html = $theme->output( 'site/explorer/file' );
 
 		return $file;

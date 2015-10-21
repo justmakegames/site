@@ -18,19 +18,8 @@ class EasySocialViewMaintenance extends EasySocialAdminView
 {
     public function display($tpl = null)
     {
-        // Check access
-        if (!$this->authorise('easysocial.access.maintenance')) {
-            $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR'), 'error');
-        }
-
-        // Set page heading
-        $this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_MAINTENANCE'));
-
-        // Set page description
-        $this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_MAINTENANCE'));
-
-        // Set page icon
-        $this->setIcon('ies-file');
+        $this->setHeading('COM_EASYSOCIAL_HEADING_MAINTENANCE');
+        $this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MAINTENANCE');
 
         // Add button
         JToolbarHelper::custom('form', 'refresh', '', JText::_('COM_EASYSOCIAL_MAINTENANCE_EXECUTE_SCRIPTS'));
@@ -85,14 +74,8 @@ class EasySocialViewMaintenance extends EasySocialAdminView
             return $this->redirect('index.php?option=com_easysocial&view=maintenance');
         }
 
-        // Set page heading
-        $this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_MAINTENANCE_EXECUTING'));
-
-        // Set page description
-        $this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_MAINTENANCE_EXECUTING'));
-
-        // Set page icon
-        $this->setIcon('ies-aid');
+        $this->setHeading('COM_EASYSOCIAL_HEADING_MAINTENANCE_EXECUTING');
+        $this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MAINTENANCE_EXECUTING');
 
         $model = FD::model('maintenance');
 
@@ -110,14 +93,8 @@ class EasySocialViewMaintenance extends EasySocialAdminView
             $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR'), 'error');
         }
 
-        // Set page heading
-        $this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_MAINTENANCE_DATABASE'));
-
-        // Set page description
-        $this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_MAINTENANCE_DATABASE'));
-
-        // Set page icon
-        $this->setIcon('ies-database');
+        $this->setHeading('COM_EASYSOCIAL_HEADING_MAINTENANCE_DATABASE');
+        $this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MAINTENANCE_DATABASE');
 
         $model = FD::model('maintenance');
 

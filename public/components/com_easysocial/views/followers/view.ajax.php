@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		Social
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @package		EasySocial
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -21,7 +21,7 @@ class EasySocialViewFollowers extends EasySocialSiteView
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function filter( $filter , $users = array() , $currentUserId = '' )
+	public function filter( $filter , $users = array() , $currentUserId = '', $pagination = null )
 	{
 		$ajax 	= FD::ajax();
 
@@ -41,7 +41,13 @@ class EasySocialViewFollowers extends EasySocialSiteView
 
 		$output 	= $theme->output( 'site/followers/default.items' );
 
-		return $ajax->resolve( $output );
+		$paginationOutput = '';
+
+		if ($pagination) {
+			$paginationOutput = $pagination->getListFooter( 'site' );
+		}
+
+		return $ajax->resolve( $output, $paginationOutput );
 	}
 
 	/**
@@ -77,8 +83,31 @@ class EasySocialViewFollowers extends EasySocialSiteView
 	public function unfollow()
 	{
 		$ajax 	= FD::ajax();
+		return $ajax->resolve();
+	}
 
 
-		$ajax->resolve();
+	/**
+	 * Post processing after an item is unfollowed
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function follow()
+	{
+		$ajax 	= FD::ajax();
+
+		if( $this->hasErrors() )
+		{
+			return $ajax->reject( $this->getMessage() );
+		}
+
+		// We should display a nicer message
+		$theme = FD::themes();
+		$contents = $theme->output('site/followers/suggest.removed');
+
+		return $ajax->resolve( $contents );
 	}
 }

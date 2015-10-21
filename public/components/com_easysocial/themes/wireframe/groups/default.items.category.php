@@ -12,6 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <?php if( isset( $activeCategory ) && $activeCategory && $this->template->get( 'groups_category_header' , true ) ){ ?>
+<?php if ($showCategoryHeader) { ?>
 <div class="category-listed-header">
 	<div class="media">
 		<div class="media-object pull-left">
@@ -33,4 +34,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 </div>
 
 <hr />
+<?php } ?>
 <?php } ?>

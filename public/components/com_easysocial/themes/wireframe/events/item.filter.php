@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         data-filter-edit
         data-id="<?php echo $filter->id; ?>"
     >
-        <i class="ies-pencil"></i>
+        <i class="fa fa-pencil"></i>
     </a>
 
     <a
@@ -36,6 +36,6 @@ defined('_JEXEC') or die('Unauthorized Access');
         data-type="hashtag"
         data-filter-stream
     >
-        <i class="ies-list mr-5"></i> <?php echo $filter->title; ?>
+        <i class="fa fa-list mr-5"></i> <?php echo $filter->title; ?>
     </a>
 </li>

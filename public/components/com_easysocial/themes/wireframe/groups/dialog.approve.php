@@ -33,9 +33,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		}
 	}
 	</bindings>
-	<title><?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_DIALOG_APPROVE_REQUEST_TITLE' ); ?></title>
+	<title><?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_DIALOG_APPROVE_INVITATION_REQUEST_TITLE' ); ?></title>
 	<content>
-		<p><?php echo JText::sprintf( "COM_EASYSOCIAL_GROUPS_DIALOG_APPROVE_REQUEST_CONTENT" , $user->getName() , $group->getName() );?></p>
+		<p><?php echo JText::sprintf( "COM_EASYSOCIAL_GROUPS_DIALOG_APPROVE_INVITATION_CONTENT" , $user->getName() , $group->getName() );?></p>
 
 		<form data-approve-group-form method="post" action="<?php echo JRoute::_( 'index.php' );?>">
 			<input type="hidden" name="id" value="<?php echo $group->id;?>" />

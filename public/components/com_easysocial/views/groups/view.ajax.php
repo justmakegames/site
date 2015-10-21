@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -23,40 +23,44 @@ class EasySocialViewGroups extends EasySocialSiteView
 	 * @access	public
 	 * @param	Array 	An array of groups
 	 */
-	public function getGroups( $groups = array() , $pagination = null , $featuredGroups = array() )
+	public function getGroups($groups = array() , $pagination = null , $featuredGroups = array(), $sorting = null)
 	{
-		$ajax 	= FD::ajax();
-
-		if( $this->hasErrors() )
-		{
-			return $ajax->reject( $this->getMessage() );
+		if ($this->hasErrors()) {
+			return $this->ajax->reject($this->getMessage());
 		}
 
 		// Determines if we should add the category header
-		$categoryId		= JRequest::getInt( 'categoryId' );
-		$category 		= false;
+		$categoryId = $this->input->get('categoryId', '', 'int');
+		$category = false;
 
-		$theme 	= FD::themes();
+		$theme = FD::themes();
 
-		if( $categoryId )
-		{
-			$category 	= FD::table( 'GroupCategory' );
-			$category->load( $categoryId );
+		if ($categoryId) {
+			$category = FD::table('GroupCategory');
+			$category->load($categoryId);
 		}
 
 		// Filter
-		$filter 		= JRequest::getVar( 'filter' );
+		$filter = $this->input->get('filter', 'all');
 
-		$theme->set( 'activeCategory' , $category );
-		$theme->set( 'filter'			, $filter );
-		$theme->set( 'pagination' 		, $pagination );
-		$theme->set( 'featuredGroups'	, $featuredGroups );
-		$theme->set( 'groups' 			, $groups );
+		$sort = JRequest::getVar('ordering');
+
+		if ($sort) {
+			$theme->set('showSorting', false);
+			$theme->set('showCategoryHeader', false);
+		}
+		
+		$theme->set('activeCategory', $category);
+		$theme->set('filter', $filter);
+		$theme->set('ordering', $sort);
+		$theme->set('pagination', $pagination);
+		$theme->set('featuredGroups', $featuredGroups);
+		$theme->set('groups', $groups);
 
 		// Retrieve items from the template
-		$content	= $theme->output( 'site/groups/default.items' );
+		$content = $theme->output('site/groups/default.items');
 
-		return $ajax->resolve( $content );
+		return $this->ajax->resolve($content);
 	}
 
 	/**
@@ -190,6 +194,18 @@ class EasySocialViewGroups extends EasySocialSiteView
 	}
 
 	/**
+	 * Post process after a user response to the invitation.
+	 *
+	 * @since	1.2
+	 * @access	public
+	 * @param	string
+	 */
+	public function respondInvitation($group, $action)
+	{
+		return $this->ajax->resolve();
+	}
+
+	/**
 	 * Displays the respond to invitation dialog
 	 *
 	 * @since	1.0
@@ -197,36 +213,31 @@ class EasySocialViewGroups extends EasySocialSiteView
 	 * @param	string
 	 * @return
 	 */
-	public function respondInvitation()
+	public function confirmRespondInvitation()
 	{
 		// Only logged in users are allowed here.
 		FD::requireLogin();
 
-		$ajax 	= FD::ajax();
-
 		// Get the group id from request
-		$id 	= JRequest::getInt( 'id' );
+		$id = $this->input->get('id', 0, 'int');
 
 		// Load up the group
-		$group 	= FD::group( $id );
-
-		// Get the current user.
-		$my 	= FD::user();
+		$group = FD::group($id);
 
 		// Load the member
-		$member = FD::table( 'GroupMember' );
-		$member->load( array( 'cluster_id' => $group->id , 'uid' => $my->id ) );
+		$member = FD::table('GroupMember');
+		$member->load(array('cluster_id' => $group->id, 'uid' => $this->my->id));
 
-		// Get the invitor
-		$invitor	= FD::user( $member->invited_by );
+		// Get the inviter
+		$inviter = FD::user($member->invited_by);
 
-		$theme 		= FD::themes();
-		$theme->set( 'group' 	, $group );
-		$theme->set( 'invitor'	, $invitor );
+		$theme = FD::themes();
+		$theme->set('group', $group);
+		$theme->set('inviter', $inviter);
 
-		$contents 	= $theme->output( 'site/groups/dialog.respond' );
+		$contents = $theme->output('site/groups/dialog.respond');
 
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
 	/**
@@ -419,6 +430,40 @@ class EasySocialViewGroups extends EasySocialSiteView
 	}
 
 	/**
+	 * Displays the confirmation to reject invitation for user
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function confirmCancelInvitation()
+	{
+		// Only logged in users are allowed here.
+		FD::requireLogin();
+
+		$ajax = FD::ajax();
+
+		// Get the group id from request
+		$id = JRequest::getInt('id');
+
+		// Load up the group
+		$group = FD::group($id);
+
+		// Get the user id
+		$userId = JRequest::getInt('userId');
+		$user = FD::user($userId);
+
+		$theme = FD::themes();
+		$theme->set('group', $group);
+		$theme->set('user', $user);
+
+		$contents = $theme->output('site/groups/dialog.cancel.invitation');
+
+		return $ajax->resolve($contents);
+	}	
+
+	/**
 	 * Displays the join group exceeded notice
 	 *
 	 * @since	1.2
@@ -453,39 +498,41 @@ class EasySocialViewGroups extends EasySocialSiteView
 		// Only logged in users are allowed here.
 		FD::requireLogin();
 
-		$ajax 	= FD::ajax();
-
 		// Get the group id from request
-		$id 	= JRequest::getInt( 'id' );
+		$id = $this->input->get('id', 0, 'int');
+
+		// Determines if this is an api request
+		$api = $this->input->get('api', false, 'bool');
 
 		// Load up the group
-		$group 	= FD::group( $id );
+		$group = ES::group($id);
 
-		if( !$id || !$group )
-		{
-			return $ajax->reject();
+		if (!$id || !$group) {
+			return $this->ajax->reject();
 		}
 
-		$theme 	= FD::themes();
-		$theme->set( 'group' , $group );
-
-		$member = FD::table('GroupMember');
+		// Try to load the member object
+		$member = ES::table('GroupMember');
 		$member->load(array('uid' => $this->my->id , 'type' => SOCIAL_TYPE_USER , 'cluster_id' => $group->id));
+
+		// Determines which namespace we should be using
+		$namespace = 'site/groups/dialog.join.open';
 
 		// Check if the group is open or closed
 		if ($group->isClosed()) {
 			if ($member->state == SOCIAL_GROUPS_MEMBER_PUBLISHED) {
-				$contents = $theme->output('site/groups/dialog.join.invited');
+				$namespace = 'site/groups/dialog.join.invited';
 			} else {
-				$contents = $theme->output('site/groups/dialog.join.closed');
+				$namespace = 'site/groups/dialog.join.closed';
 			}
 		}
 
-		if ($group->isOpen()) {
-			$contents 	= $theme->output( 'site/groups/dialog.join.open' );
-		}
+		$theme = ES::themes();
+		$theme->set('group', $group);
 
-		return $ajax->resolve( $contents );
+		$contents = $theme->output($namespace);
+
+		return $this->ajax->resolve($contents);
 	}
 
 	/**
@@ -580,35 +627,53 @@ class EasySocialViewGroups extends EasySocialSiteView
 		// Only logged in users are allowed here.
 		FD::requireLogin();
 
-		$ajax 	= FD::ajax();
-
 		// Get the group id from request
-		$id 	= JRequest::getInt( 'id' );
+		$id = $this->input->get('id', 0, 'int');
 
 		// Load up the group
-		$group 	= FD::group( $id );
+		$group = FD::group($id);
 
-		$theme 	= FD::themes();
-		$theme->set( 'group' , $group );
+		$theme = FD::themes();
+		$theme->set('group', $group);
 
-		// Check if the group is open or closed
-		$contents 	= $theme->output( 'site/groups/dialog.leave' );
+		$contents = $theme->output('site/groups/dialog.leave');
 
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
-	public function getStream( $stream = null )
+	/**
+	 * Responsible to return the default output when a user really leaves a group
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function leaveGroup()
 	{
-		$ajax 	= FD::ajax();
+		return $this->ajax->resolve();
+	}
 
-		if( $this->hasErrors() )
-		{
-			return $ajax->reject( $this->getMessage() );
+	/**
+	 * Allows caller to re-render the stream items on the site.
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getStream($stream)
+	{
+		if ($this->hasErrors()) {
+			return $this->ajax->reject($this->getMessage());
 		}
 
-		$contents 	= $stream->html();
+		// Get the contents of the stream
+		$theme = ES::themes();
+		$theme->set('stream', $stream);
+		$contents = $theme->output('site/groups/item.feeds');
 
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
 
@@ -711,5 +776,36 @@ class EasySocialViewGroups extends EasySocialSiteView
 		$contents = $theme->output('site/groups/item.info');
 
 		return $ajax->resolve($contents);
+	}
+
+	/**
+	 * Displays the suggest result
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function suggest($groups = array())
+	{
+		if (!$groups) {
+			return $this->ajax->resolve($groups);
+		}
+
+		$data = array();
+
+		// Load through the result list.
+		foreach ($groups as $group) {
+
+			$obj = new stdClass();
+			$obj->avatar = $group->getAvatar(SOCIAL_AVATAR_SMALL);
+			$obj->title = $group->title;
+			$obj->permalink = $group->getPermalink();
+			$obj->id = $group->id;
+
+			$data[] = $obj;
+		}
+
+		return $this->ajax->resolve($data);
 	}
 }

@@ -53,8 +53,11 @@ if (isset($id) && $id) {
 <?php } ?>
 
 <?php if( !$isSort ){ ?>
-<div class="row mb-10">
-	<div class="col-md-12">
+<div class="row-table mb-15">
+	<div class="col-cell cell-mid">
+		&nbsp;
+	</div>
+	<div class="col-cell cell-mid">
 		<div data-apps-sorting="" class="btn-group btn-group-sm btn-group-view-apps pull-right">
 			<a href="<?php echo FRoute::users( array_merge( array( 'filter' => $filter , 'sort' => 'latest' ), $idArray) );?>"
 				data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_USERS_SORT_LATEST' );?>"
@@ -63,7 +66,18 @@ if (isset($id) && $id) {
 				data-users-sort
 				data-type="latest"
 				class="btn btn-es<?php echo $sort == 'latest' ? ' active' : '';?>">
-				<i class="ies-fire ies-small"></i>
+				<i class="fa fa-fire "></i>
+				Recently Registered
+			</a>
+			<a href="<?php echo FRoute::users( array_merge( array( 'filter' => $filter , 'sort' => 'lastlogin' ), $idArray) );?>"
+				data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_USERS_SORT_LASTLOGIN' );?>"
+				data-placement="bottom"
+				data-es-provide="tooltip"
+				data-users-sort
+				data-type="lastlogin"
+				class="btn btn-es<?php echo $sort == 'lastlogin' ? ' active' : '';?>">
+				<i class="fa fa-sign-in "></i>
+				Recently Logged In
 			</a>
 			<a href="<?php echo FRoute::users( array_merge( array( 'filter' => $filter , 'sort' => 'alphabetical' ), $idArray) );?>"
 				data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_USERS_SORT_ALPHABETICAL' );?>"
@@ -73,7 +87,8 @@ if (isset($id) && $id) {
 				data-type="alphabetical"
 				data-apps-sort=""
 				class="btn btn-es trending<?php echo $sort == 'alphabetical' ? ' active' : '';?>">
-				<i class="ies-bars ies-small"></i>
+				<i class="fa fa-sort-alpha-asc"></i>
+				Name
 			</a>
 		</div>
 	</div>
@@ -122,12 +137,12 @@ if (isset($id) && $id) {
 							<ul class="fd-reset-list list-inline user-meta">
 								<li>
 									<a href="<?php echo FRoute::friends( array( 'userid' => $user->getAlias() ) );?>" class="fd-small muted">
-										<i class="ies-users-2 ies-small"></i>
+										<i class="fa fa-users"></i>
 
 										<?php if( $user->getTotalFriends() ){ ?>
 											<?php echo $user->getTotalFriends();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_FRIENDS' , $user->getTotalFriends() ) ); ?>
 										<?php } else { ?>
-											<?php echo JText::_( 'COM_EASYSOCIAL_NO_FRIENDS_YET' ); ?>
+											<?php echo JText::_('COM_EASYSOCIAL_NO_FRIENDS_YET'); ?>
 										<?php } ?>
 									</a>
 								</li>
@@ -135,7 +150,7 @@ if (isset($id) && $id) {
 								<?php if( $this->config->get( 'followers.enabled' ) ) { ?>
 								<li>
 									<a href="<?php echo FRoute::followers( array( 'userid' => $user->getAlias() ) );?>" class="fd-small muted">
-										<i class="ies-tree-view ies-small"></i>
+										<i class="fa fa-share-alt "></i>
 										<?php if( $user->getTotalFollowers() ){ ?>
 											<?php echo $user->getTotalFollowers();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_FOLLOWERS' , $user->getTotalFollowers() ) ); ?>
 										<?php } else { ?>
@@ -148,7 +163,7 @@ if (isset($id) && $id) {
 								<?php if( $this->config->get('badges.enabled' ) ){ ?>
 								<li>
 									<a href="<?php echo FRoute::badges( array( 'userid' => $user->getAlias() , 'layout' => 'achievements') );?>" class="fd-small muted">
-										<i class="ies-crown ies-small"></i>
+										<i class="fa fa-trophy "></i>
 										<?php if( $user->getTotalbadges() ){ ?>
 											<?php echo $user->getTotalbadges();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_BADGES' , $user->getTotalbadges() ) ); ?>
 										<?php } else { ?>
@@ -164,40 +179,78 @@ if (isset($id) && $id) {
 								?>
 								<li><?php echo $gender->toDisplay('listing', true); ?></li>
 								<?php } ?>
+
+								<?php if ($this->template->get('users_joindate', true)) { ?>
+								<li>
+									<span class="fd-small muted" title="<?php echo JText::sprintf('COM_EASYSOCIAL_USER_LISTING_MEMBER_SINCE_TOOLSTIPS', FD::date($user->registerDate)->toFormat('d M Y')); ?>">
+										<i class="fa fa-file-text-o mr-5"></i>
+										<?php echo FD::date($user->registerDate)->toFormat('d M Y'); ?>
+									</span>
+								</li>
+								<?php } ?>
+
+								<?php if ($this->template->get('users_lastlogin', true)) { ?>
+								<li>
+									<?php
+										$tooltips = JText::sprintf('COM_EASYSOCIAL_USER_LISTING_LAST_LOGGED_IN_TOOLSTIPS', FD::date($user->lastvisitDate)->toLapsed());
+										$showText = FD::date($user->lastvisitDate)->toLapsed();
+
+										if ($user->lastvisitDate == '' || $user->lastvisitDate == '0000-00-00 00:00:00') {
+											$tooltips = JText::_('COM_EASYSOCIAL_USER_LISTING_NEVER_LOGGED_IN');
+											$showText = JText::_('COM_EASYSOCIAL_USER_LISTING_NEVER_LOGGED_IN');
+										}
+									?>
+									<span class="fd-small muted" title="<?php echo $tooltips; ?>">
+										<i class="fa fa-sign-in mr-5"></i>
+										<?php echo $showText; ?>
+									</span>
+								</li>
+								<?php } ?>
+
+								<?php if (isset($displayOptions['showDistance']) && $displayOptions['showDistance']) { ?>
+								<?php $address = $user->getFieldValue($displayOptions['AddressCode']); ?>
+									<?php if ($address) { ?>
+									<?php $displays = array('display' => 'distance', 'lat' => $displayOptions['AddressLat'], 'lon' => $displayOptions['AddressLon']); ?>
+									<li><?php echo $address->toDisplay($displays, true); ?></li>
+									<?php } ?>
+								<?php } ?>
+
 							</ul>
 
-							<div class="users-actions">
-								<?php if( $this->config->get( 'followers.enabled' ) ) { ?>
-								<span class="mr-5">
-									<?php if( $user->isFollowed( $this->my->id ) ){ ?>
-										<?php echo $this->loadTemplate( 'site/users/button.following' ); ?>
-									<?php } else { ?>
-										<?php echo $this->loadTemplate( 'site/users/button.follow' , array( 'user' => $user ) ); ?>
+							<?php if ($user->hasCommunityAccess()) { ?>
+								<div class="users-actions">
+									<?php if( $this->config->get( 'followers.enabled' ) ) { ?>
+									<span class="mr-5">
+										<?php if( $user->isFollowed( $this->my->id ) ){ ?>
+											<?php echo $this->loadTemplate( 'site/users/button.following' ); ?>
+										<?php } else { ?>
+											<?php echo $this->loadTemplate( 'site/users/button.follow' , array( 'user' => $user ) ); ?>
+										<?php } ?>
+									</span>
 									<?php } ?>
-								</span>
-								<?php } ?>
 
-								<span>
-								<?php if( $user->isFriends( $this->my->id ) ){ ?>
-									<?php echo $this->loadTemplate( 'site/users/button.friends' ); ?>
-								<?php } else { ?>
-									<?php if( $user->getFriend( $this->my->id )->state == SOCIAL_FRIENDS_STATE_PENDING ){ ?>
-										<?php echo $this->loadTemplate( 'site/users/button.pending' ); ?>
+									<span>
+									<?php if( $user->isFriends( $this->my->id ) ){ ?>
+										<?php echo $this->loadTemplate( 'site/users/button.friends' ); ?>
 									<?php } else { ?>
-										<?php echo $this->loadTemplate( 'site/users/button.add' , array( 'user' => $user ) ); ?>
+										<?php if( $user->getFriend( $this->my->id )->state == SOCIAL_FRIENDS_STATE_PENDING ){ ?>
+											<?php echo $this->loadTemplate( 'site/users/button.pending' ); ?>
+										<?php } else { ?>
+											<?php echo $this->loadTemplate( 'site/users/button.add' , array( 'user' => $user ) ); ?>
+										<?php } ?>
 									<?php } ?>
-								<?php } ?>
-								</span>
+									</span>
 
-								<?php if( $this->config->get('conversations.enabled') && ((!$this->my->guest && FD::privacy( $this->my->id )->validate( 'profiles.post.message' , $user->id ) && $this->access->allowed( 'conversations.create' )) || $this->my->guest) ){ ?>
-								<span>
-									<a href="javascript:void(0);"
-										class="btn btn-es btn-sm"
-										data-es-conversations-compose
-										data-es-conversations-id="<?php echo $user->id;?>"><i class="ies-mail-5 ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_PROFILE_SEND_MESSAGE'); ?></a>
-								</span>
-								<?php } ?>
-							</div>
+									<?php if( $this->config->get('conversations.enabled') && ((!$this->my->guest && FD::privacy( $this->my->id )->validate( 'profiles.post.message' , $user->id ) && $this->access->allowed( 'conversations.create' )) || $this->my->guest) ){ ?>
+									<span>
+										<a href="javascript:void(0);"
+											class="btn btn-es btn-sm"
+											data-es-conversations-compose
+											data-es-conversations-id="<?php echo $user->id;?>"><i class="fa fa-envelope  mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_PROFILE_SEND_MESSAGE'); ?></a>
+									</span>
+									<?php } ?>
+								</div>
+							<?php } ?>
 						</div>
 					</div>
 				</div>
@@ -206,7 +259,7 @@ if (isset($id) && $id) {
 	</ul>
 
 	<div class="empty empty-hero">
-		<i class="ies-users"></i>
+		<i class="fa fa-users"></i>
 		<?php echo JText::_('COM_EASYSOCIAL_USERS_NO_USERS_HERE'); ?>
 	</div>
 </div>

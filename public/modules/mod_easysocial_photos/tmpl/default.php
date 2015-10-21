@@ -12,7 +12,6 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div id="fd" class="es mod-es-recent-photos module-social<?php echo $suffix;?>">
-
     <?php if ($photos) { ?>
     <ul class="es-item-grid">
         <?php foreach ($photos as $photo) { ?>
@@ -25,7 +24,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                 <?php if ($params->get('display_popup', true)) { ?>
                 data-es-photo="<?php echo $photo->id;?>"
                 <?php } ?>
-                style="background-image:url('<?php echo $photo->getSource('large'); ?>');">
+                style="background-image:url('<?php echo $photo->getSource('thumbnail'); ?>');">
             </a>
         </li>
         <?php } ?>

@@ -19,11 +19,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="es-container es-events-edit" data-events-edit>
 
     <a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-        <i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE');?>
+        <i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE');?>
     </a>
 
     <div class="es-sidebar" data-sidebar>
-        <?php echo $this->render('module', 'es-events-edit-sidebar-top'); ?>
+        <?php echo $this->render('module', 'es-events-edit-sidebar-top' , 'site/dashboard/sidebar.module.wrapper'); ?>
 
         <div class="es-widget es-widget-borderless">
             <div class="es-widget-head"><?php echo JText::_('COM_EASYSOCIAL_PROFILE_SIDEBAR_ABOUT');?></div>
@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
         </div>
 
-        <?php echo $this->render('module', 'es-events-edit-sidebar-bottom'); ?>
+        <?php echo $this->render('module', 'es-events-edit-sidebar-bottom' , 'site/dashboard/sidebar.module.wrapper'); ?>
     </div>
 
     <div class="es-content">
@@ -86,7 +86,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php if ($event->hasRecurringEvents()) { ?>
                     <div class="media es-recur-action-text">
                         <div class="media-object pull-left">
-                            <i class="text-warning ies-info"></i>
+                            <i class="text-warning fa fa-exclamation-circle"></i>
                         </div>
                         <div class="media-body">
                             <div class="text-warning mb-10">
@@ -100,7 +100,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php if ($event->isRecurringEvent()) { ?>
                     <div class="media es-recur-action-text">
                         <div class="media-object pull-left">
-                            <i class="text-warning ies-info"></i>
+                            <i class="text-warning fa fa-exclamation-circle"></i>
                         </div>
                         <div class="media-body">
                             <div class="text-warning mb-10">
@@ -113,7 +113,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php } ?>
 
                     <div class="pull-left">
-                        <a href="<?php echo $event->getPermalink();?>" class="btn btn-sm btn-es-danger"><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON'); ?></a>
+                        <a href="<?php echo $event->getPermalink();?>" class="btn btn-sm btn-es"><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON'); ?></a>
                     </div>
 
                     <div class="pull-right">

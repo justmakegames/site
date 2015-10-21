@@ -2,97 +2,90 @@ EasySocial.module( 'site/groups/item' , function($)
 {
 	var module	= this;
 
-	EasySocial.template('info/item', '<li data-es-group-filter><a class="ml-20" href="[%= url %]" title="[%= title %]" data-info-item data-info-index="[%= index %]"><i class="ies-info ies-small mr-5"></i> [%= title %]</a></li>');
+	EasySocial.template('info/item', '<li data-es-group-filter><a class="ml-20" href="[%= url %]" title="[%= title %]" data-info-item data-info-index="[%= index %]"><i class="fa fa-info-circle mr-5"></i> [%= title %]</a></li>');
 
 	EasySocial.require()
-	.script( 'site/friends/suggest')
+	.script('site/friends/suggest')
 	.library('history')
-	.done(function($)
-	{
-		EasySocial.Controller(
-			'Groups.Item',
-			{
-				defaultOptions:
-				{
-					"{content}"		: "[data-es-group-item-content]",
-					"{apps}"		: "[data-es-group-item-app]",
-					"{filters}"		: "[data-es-group-filter]",
-					"{filterStream}" : "[data-es-group-stream]",
-					"{appFilter}"	: "[data-es-group-app-filter]",
-					"{appFilterShowAll}" : "[data-app-filters-showall]",
-					"{filterBtn}"	 : "[data-stream-filter-button]",
-					"{filterEditBtn}": "[data-dashboardFeeds-Filter-edit]",
+	.done(function($) {
+		EasySocial.Controller('Groups.Item', {
+			defaultOptions: {
 
-					// hashtag filter save
-					"{saveHashTag}"		: "[data-hashtag-filter-save]",
+				"{content}": "[data-es-group-item-content]",
+				"{apps}": "[data-es-group-item-app]",
+				"{filters}": "[data-es-group-filter]",
+				"{filterStream}" : "[data-es-group-stream]",
+				"{appFilter}"	: "[data-es-group-app-filter]",
+				"{appFilterShowAll}" : "[data-app-filters-showall]",
+				"{filterBtn}"	 : "[data-stream-filter-button]",
+				"{filterEditBtn}": "[data-dashboardFeeds-Filter-edit]",
 
-					"{filterUL}"	: "[data-es-group-ul]",
+				"{filterModeration}": "[data-filter-moderation]",
 
-					"{joinGroup}"	: "[data-es-group-join]",
-					"{leaveGroup}"	: "[data-es-group-leave]",
-					"{invite}"		: "[data-es-group-invite]",
-					"{respond}"		: "[data-es-group-respond]",
-					"{withdraw}"	: "[data-es-group-withdraw]",
+				// hashtag filter save
+				"{saveHashTag}"		: "[data-hashtag-filter-save]",
 
-					'{info}': '[data-info]',
-					'{infoItem}': '[data-info-item]',
+				"{filterUL}": "[data-es-group-ul]",
 
-					view: {
-						infoItem: 'info/item'
-					}
+				"{joinGroup}": "[data-es-group-join]",
+				"{leaveGroup}": "[data-es-group-leave]",
+				"{invite}": "[data-es-group-invite]",
+				"{respond}": "[data-es-group-respond]",
+				"{withdraw}": "[data-es-group-withdraw]",
+
+				'{info}': '[data-info]',
+				'{infoItem}': '[data-info-item]',
+
+				view: {
+					infoItem: 'info/item'
 				}
-			},
-			function( self )
-			{
+			}
+		}, function(self, options, base) {
 				return {
-					init : function()
-					{
-						self.options.id		= self.element.data( 'id' );
+					init : function(){
+
+						options.type = base.data('type');
+						options.id = base.data('id');
+
 
 						// Implement app controller
-						self.apps().implement( EasySocial.Controller.Groups.Item.App ,
-						{
-							"{parent}"	: self,
-							"groupId"	: self.options.id
+						self.apps().implement(EasySocial.Controller.Groups.Item.App, {
+							"{parent}": self,
+							"groupId": options.id
 						});
 					},
 
-					setActive: function( el )
-					{
+					setActive: function(el) {
 						// Remove all active filters
-						self.filters().removeClass( 'active' );
+						self.filters().removeClass('active');
 
 						// Add active filter of the element
-						el.parent().addClass( 'active' );
+						el.parent().addClass('active');
 					},
 
-					setLoading: function( el )
-					{
+					setLoading: function(el) {
 						// Empty the contents
 						self.content().html('');
 
 						// Add loading class
-						self.element.addClass( 'loading' );
+						self.element.addClass('loading');
 					},
 
-					updateContents: function( html )
-					{
+					updateContents: function(html) {
 						// Once the content is updated, remove the loading class
-						self.element.removeClass( 'loading' );
+						self.element.removeClass('loading');
 
-						self.content().html( html );
+						self.content().html(html);
 					},
 
-					"{appFilterShowAll} click" : function(el,event)
-					{
+					"{appFilterShowAll} click" : function(el,event) {
 						// Hide itself
 						el.hide();
 
 						self.filters().removeClass('hide');
 					},
 
-					"{filterEditBtn} click" : function( el , event )
-					{
+					"{filterEditBtn} click" : function(el, event) {
 						event.preventDefault();
 
 						// Update the url
@@ -124,8 +117,9 @@ EasySocial.module( 'site/groups/item' , function($)
 
 					},
 
-					"{filterBtn} click" : function( el , event )
-					{
+					"{filterBtn} click" : function(el, event) {
+
+						// Prevent bubbling up
 						event.preventDefault();
 
 						// Update the url
@@ -136,29 +130,19 @@ EasySocial.module( 'site/groups/item' , function($)
 						// Notify the dashboard that it's starting to fetch the contents.
 						self.setLoading();
 
-						EasySocial.ajax( 'site/controllers/groups/getFilter' ,
-						{
-							"id"			: 0,
-							"clusterId" 	: self.options.id
-						})
-						.done(function( contents )
-						{
-							// self.dashboard.updateHeading( title , desc );
-
-							self.updateContents( contents );
-						})
-						.fail( function( messageObj ){
-
+						EasySocial.ajax( 'site/controllers/groups/getFilter' , {
+							"id": 0,
+							"clusterId": self.options.id
+						}).done(function(contents) {
+							self.updateContents(contents);
+						}).fail(function(messageObj) {
 							return messageObj;
-						})
-						.always(function(){
-
+						}).always(function(){
 						});
 
 					},
 
-					"{appFilter} click" : function( el , event )
-					{
+					"{appFilter} click" : function(el, event) {
 						event.preventDefault();
 
 						// Get the url and the title
@@ -193,8 +177,26 @@ EasySocial.module( 'site/groups/item' , function($)
 						});
 					},
 
-					"{filterStream} click" : function( el , event )
-					{
+					"{filterModeration} click": function(filterModeration, event) {
+						event.preventDefault();
+
+						// Update the browser's url
+						filterModeration.route();
+
+						// Set the active class to the current filter
+						self.setActive(filterModeration);
+
+						// Perform an ajax to get the group's stream data
+						EasySocial.ajax('site/controllers/groups/getStream', {
+							"id": options.id,
+							"view": 'groups',
+							"moderation": 1
+						}).done(function(contents) {
+							self.updateContents(contents);
+						});
+					},
+
+					"{filterStream} click" : function(el, event) {
 						event.preventDefault();
 
 						// Set active class
@@ -203,19 +205,20 @@ EasySocial.module( 'site/groups/item' , function($)
 						// Set the browser's url
 						el.route();
 
-						var currentSidebarMenu 	= $("[data-dashboardSidebar-menu].active"),
-							fid 				= currentSidebarMenu.data( 'fid' );
+						// Notify the dashboard that it's starting to fetch the contents.
+						self.setLoading();
+
+						var currentSidebarMenu = $("[data-dashboardSidebar-menu].active");
+						var fid = currentSidebarMenu.data( 'fid' );
 
 						// Perform an ajax to get the group's stream data
-						EasySocial.ajax( 'site/controllers/groups/getStream',
-						{
-							"id" 		: self.options.id,
-							"filterId" 	: fid,
-							"view" 		: 'groups'
-						})
-						.done(function( contents )
-						{
-							self.updateContents( contents );
+						EasySocial.ajax( 'site/controllers/groups/getStream', {
+							"id": self.options.id,
+							"filterId": fid,
+							"view": 'groups',
+							"layout": 'item'
+						}).done(function(contents) {
+							self.updateContents(contents);
 						});
 					},
 
@@ -288,23 +291,60 @@ EasySocial.module( 'site/groups/item' , function($)
 					{
 						EasySocial.dialog(
 						{
-							content 	: EasySocial.ajax( 'site/views/groups/respondInvitation' , { "id" : self.options.id } )
+							content 	: EasySocial.ajax( 'site/views/groups/confirmRespondInvitation' , { "id" : self.options.id } ),
+							bindings: {
+								"{rejectButton} click" : function() {
+									this.responseValue().val('reject');
+
+									this.form().submit();
+								},
+
+								"{acceptButton} click" : function() {
+									this.responseValue().val('accept');
+
+									this.form().submit();
+								}
+							}
 						})
 					},
 
-					"{joinGroup} click" : function( el , event )
-					{
-						EasySocial.dialog(
-						{
-							content 	: EasySocial.ajax( 'site/controllers/groups/joinGroup' , { "id" : self.options.id })
+					"{joinGroup} click" : function(el, event) {
+
+						// // If this is an open group, hide the join button since the user is already a member of the group
+						// if (options.type == 'open') {
+
+						// 	// Add loading
+						// 	base.switchClass('is-loading');
+
+						// 	// Join the group and hide the footer
+						// 	EasySocial.ajax('site/controllers/groups/joingroup', {
+						// 		"id": options.id
+						// 	}).done(function() {
+						// 		base.switchClass('is-member');
+						// 	});
+
+						// 	return;
+						// }
+
+						// // If this is a private group, display the standard popup.
+						// EasySocial.dialog({
+						// 	content: EasySocial.ajax('site/controllers/groups/joinGroup', { "id" : options.id})
+						// });
+
+						EasySocial.dialog({
+							content: EasySocial.ajax('site/controllers/groups/joinGroup' , { "id" : self.options.id})
 						});
 					},
 
 					"{leaveGroup} click" : function( el , event )
 					{
-						EasySocial.dialog(
-						{
-							content 	: EasySocial.ajax( 'site/views/groups/confirmLeaveGroup' , { "id" : self.options.id } )
+						EasySocial.dialog({
+							content: EasySocial.ajax( 'site/views/groups/confirmLeaveGroup' , { "id" : self.options.id } ),
+							bindings: {
+								"{leaveButton} click" : function() {
+									this.leaveForm().submit();
+								}
+							}
 						})
 					},
 
@@ -440,11 +480,8 @@ EasySocial.module( 'site/groups/item' , function($)
 			}
 		);
 
-		EasySocial.Controller(
-			'Groups.Item.Members',
-			{
-				defaultOptions:
-				{
+		EasySocial.Controller('Groups.Item.Members', {
+				defaultOptions: {
 					"{items}" 	: "[data-group-members-item]",
 					"{filters}"	: "[data-group-members-filter]",
 					"{content}"	: "[data-group-members-content]"
@@ -500,11 +537,12 @@ EasySocial.module( 'site/groups/item' , function($)
 			{
 				defaultOptions:
 				{
-					"{makeAdmin}"	: "[data-members-make-admin]",
-					"{revokeAdmin}"	: "[data-members-revoke-admin]",
-					"{approve}"		: "[data-members-approve]",
-					"{reject}"		: "[data-members-reject]",
-					"{removeMember}": "[data-members-remove]"
+					"{makeAdmin}"		: "[data-members-make-admin]",
+					"{revokeAdmin}"		: "[data-members-revoke-admin]",
+					"{approve}"			: "[data-members-approve]",
+					"{reject}"			: "[data-members-reject]",
+					"{removeMember}"	: "[data-members-remove]",
+					"{cancelInvitation}": "[data-members-cancel-invitation]"
 				}
 			},
 			function( self )
@@ -529,6 +567,14 @@ EasySocial.module( 'site/groups/item' , function($)
 						EasySocial.dialog(
 						{
 							content 	: EasySocial.ajax( 'site/views/groups/confirmReject' , { "id" : self.options.groupId , "userId" : self.options.id } )
+						});
+					},
+
+					"{cancelInvitation} click" : function()
+					{
+						EasySocial.dialog(
+						{
+							content 	: EasySocial.ajax( 'site/views/groups/confirmCancelInvitation' , { "id" : self.options.groupId , "userId" : self.options.id } )
 						});
 					},
 
@@ -944,19 +990,14 @@ EasySocial.module( 'site/groups/item' , function($)
 			}
 		);
 
-		EasySocial.Controller(
-			'Groups.Item.News',
-			{
-				defaultOptions:
-				{
+		EasySocial.Controller('Groups.Item.News', {
+				defaultOptions: {
 					"{delete}" 			: "[data-news-delete]",
 					"{likes}"			: "[data-likes-action]",
 					"{counter}"			: "[data-news-counter]",
 					"{likeContent}" 	: "[data-likes-content]",
 				}
-			},
-			function( self )
-			{
+			}, function(self) {
 				return {
 
 					init : function()
@@ -965,14 +1006,12 @@ EasySocial.module( 'site/groups/item' , function($)
 						self.options.groupId = self.element.data( 'group-id' );
 					},
 
-					"{likes} onLiked": function(el, event, data)
-					{
-						//need to make the data-stream-counter visible
-						self.counter().removeClass( 'hide' );
+					//need to make the data-stream-counter visible
+					"{likes} onLiked": function(el, event, data) {
+						self.counter().removeClass('hide');
 					},
 
-					"{likes} onUnliked": function(el, event, data)
-					{
+					"{likes} onUnliked": function(el, event, data) {
 						var hideCounter 	= self.likeContent().hasClass( 'hide' );
 
 						if( hideCounter )

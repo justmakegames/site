@@ -26,7 +26,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         echo $this->includeTemplate( 'site/fields/title' );
     } ?>
 
-    <div class="col-sm-8 data" data-content>
+    <div class="col-xs-12 col-sm-8 data" data-content>
         <?php echo $this->includeTemplate( $subNamespace ); ?>
     </div>
 

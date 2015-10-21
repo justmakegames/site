@@ -87,14 +87,25 @@ class EasySocialViewStream extends EasySocialSiteView
 		return $ajax->resolve( $contents );
 	}
 
+	/**
+	 * Post process after a stream item is published on the site
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function publish($stream)
+	{
+		return $this->ajax->resolve();
+	}
+
 	public function confirmFilterDelete()
 	{
-		$ajax 	= FD::ajax();
+		$theme = FD::themes();
+		$contents = $theme->output('site/stream/dialog.filter.delete');
 
-		$theme 		= FD::themes();
-		$contents	= $theme->output( 'site/stream/dialog.filter.delete' );
-
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
 	public function addFilter( $filter )
@@ -127,6 +138,46 @@ class EasySocialViewStream extends EasySocialSiteView
 		return $ajax->redirect( $url );
 	}
 
+
+	/**
+	 * Post processing after an item is already pinned
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function addSticky($sticky)
+	{
+		$ajax = FD::ajax();
+
+		if( $this->hasErrors() )
+		{
+			return $ajax->reject( $this->getMessage() );
+		}
+
+		return $ajax->resolve($sticky);
+	}
+
+	/**
+	 * Post processing after an item is already unpinned
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function removeSticky($sticky)
+	{
+		$ajax = FD::ajax();
+
+		// We should display a nicer message
+		$theme = FD::themes();
+		$contents = $theme->output('site/stream/sticky.removed');
+
+		return $ajax->resolve($contents);
+	}
+
 	/**
 	 * Post processing after an item is already bookmarked
 	 *
@@ -139,7 +190,10 @@ class EasySocialViewStream extends EasySocialSiteView
 	{
 		$ajax = FD::ajax();
 
-
+		if( $this->hasErrors() )
+		{
+			return $ajax->reject( $this->getMessage() );
+		}
 
 		return $ajax->resolve($bookmark);
 	}
@@ -333,28 +387,25 @@ class EasySocialViewStream extends EasySocialSiteView
 	 * @access	public
 	 * @return	SocialAjax
 	 */
-	public function loadmore( $stream )
+	public function loadmore($stream)
 	{
-		// Load ajax library.
-		$ajax 	= FD::ajax();
+		// Get any errors from controller
+		$error = $this->getError();
 
-		$error 	= $this->getError();
-
-		if( $error )
-		{
-			return $ajax->reject( $error );
+		if ($error) {
+			return $this->ajax->reject($error);
 		}
 
-		$content 	= $stream->html( true );
+		// Get the content from the stream
+		$content = $stream->html(true);
 
 		$startlimit = $stream->getNextStartLimit();
 
-		if( empty( $startlimit ) )
-		{
+		if (empty($startlimit)) {
 			$startlimit = '';
 		}
 
-		return $ajax->resolve( $content, $startlimit );
+		return $this->ajax->resolve($content, $startlimit);
 	}
 
 	/**
@@ -487,4 +538,16 @@ class EasySocialViewStream extends EasySocialSiteView
 		return $ajax->resolve();
 	}
 
+	/**
+	 * Post process after translating stream contents
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function translate($output)
+	{
+		return $this->ajax->resolve($output);
+	}
 }

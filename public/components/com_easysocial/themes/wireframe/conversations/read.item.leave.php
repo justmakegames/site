@@ -12,26 +12,24 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <li class="message-item" data-readConversation-item data-id="<?php echo $message->id;?>">
-	<div class="row">
-		<div class="col-md-12 small">
+	<div class="fd-cf small">
 
-			<div class="pull-left">
-				<i class="ies-exit ies-small"></i>
+		<div class="pull-left">
+			<i class="fa fa-sign-out"></i>
 
-				<a href="<?php echo $message->getCreator()->getPermalink();?>"><?php echo $message->getCreator()->getStreamName(); ?></a>
-				<?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_LEFT_CONVERSATION' );?>
-
-			</div>
-
-			<div class="pull-right">
-				<span class="message-time">
-					<time title="51 minutes ago">
-						<i class="ies-clock-2 ies-small"></i> <?php echo FD::date( $message->created )->toLapsed();?>
-					</time>
-				</span>
-			</div>
+			<a href="<?php echo $message->getCreator()->getPermalink();?>"><?php echo $message->getCreator()->getStreamName(); ?></a>
+			<?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_LEFT_CONVERSATION' );?>
 
 		</div>
 
+		<div class="pull-right">
+			<span class="message-time">
+				<time title="51 minutes ago">
+					<i class="fa fa-clock-o-2 "></i> <?php echo FD::date( $message->created )->toLapsed();?>
+				</time>
+			</span>
+		</div>
+
 	</div>
+
 </li>

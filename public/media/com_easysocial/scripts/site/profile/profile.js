@@ -2,27 +2,28 @@ EasySocial.module( 'site/profile/profile' , function($){
 
 	var module 	= this;
 
-	EasySocial.template('info/item', '<li data-profile-apps-item data-layout="custom"><a class="ml-20" href="[%= url %]" title="[%= title %]" data-info-item data-info-index="[%= index %]"><i class="ies-info ies-small mr-5"></i> [%= title %]</a></li>');
+	EasySocial.template('info/item', '<li data-profile-apps-item data-layout="custom"><a class="ml-20" href="[%= url %]" title="[%= title %]" data-info-item data-info-index="[%= index %]"><i class="fa fa-info-circle mr-5"></i> [%= title %]</a></li>');
 
 	EasySocial.require()
-	.script( 'site/profile/header' )
-	.library( 'history' )
-	.done(function($){
+	.script('site/profile/header', 'site/profile/feeds')
+	.library('history')
+	.done(function($) {
 
-		EasySocial.Controller(
-			'Profile',
-			{
-				defaultOptions:
-				{
+		EasySocial.Controller('Profile', {
+				defaultOptions: {
+
 					// The current user being viewed
-					id 	: null,
+					id : null,
 
 					// Elements
-					"{header}"	: "[data-profile-header]",
+					"{header}": "[data-profile-header]",
 
 					// App item
+					"{feeds}"	: "[data-profile-feeds]",
 					"{app}"		: "[data-profile-apps-item]",
 					"{action}"	: "[data-profile-apps-menu]",
+					"{showAllFilters}"	: "[data-app-filters-showall]",
+					"{appFilters}"		: "[data-sidebar-app-filter]",
 
 					// Contents
 					"{contents}"	: "[data-profile-real-content]",
@@ -48,6 +49,11 @@ EasySocial.module( 'site/profile/profile' , function($){
 
 						// Implement profile header.
 						self.header().implement(EasySocial.Controller.Profile.Header, {
+							"{parent}"	: self
+						});
+
+						// Implement app controller on all app items.
+						self.feedsController = self.feeds().addController(EasySocial.Controller.Profile.Feeds, {
 							"{parent}"	: self
 						});
 
@@ -84,8 +90,7 @@ EasySocial.module( 'site/profile/profile' , function($){
 						self.setLayout();
 					},
 
-					"{app} click" : function( el , event )
-					{
+					"{app} click" : function(el, event) {
 						// Remove active class.
 						self.app().removeClass( 'active' );
 
@@ -109,7 +114,22 @@ EasySocial.module( 'site/profile/profile' , function($){
 							return;
 						}
 
-						History.pushState({state: 1}, data.title, data[data.layout + 'Url'] );
+				        var title = data.title;
+
+				        if (data.namespace == 'site/controllers/profile/getStream') {
+
+					        var appendTitle = $.joomla.appendTitle;
+
+					        if (appendTitle==="before") {
+					            title = $.joomla.sitename + ((title) ? " - " + title : "");
+					        }
+
+					        if (appendTitle==="after") {
+					            title = ((title) ? title + " - " : "") + $.joomla.sitename;
+					        }
+				        }
+
+						History.pushState({state: 1}, title, data[data.layout + 'Url'] );
 
 						if(self.sidebarToggle().is(':visible'))
 						{
@@ -131,16 +151,29 @@ EasySocial.module( 'site/profile/profile' , function($){
 						});
 					},
 
-					updateContent : function( content )
-					{
+
+					"{showAllFilters} click" : function( el , event ) {
+						$(el).hide();
+
+						self.appFilters().removeClass( 'hide' );
+					},
+
+					updateContent : function(content) {
 						self.element.removeClass("loading");
 
 						self.contents().html( content );
 					},
 
-					loading: function()
+					/**
+					 * Add a loading icon on the content layer.
+					 */
+					updatingContents: function()
 					{
-						// self.contents().html( self.view.loading({}) );
+						self.element.addClass("loading");
+					},
+
+					loading: function() {
+
 						self.contents().html("");
 						self.element.addClass("loading");
 					},
@@ -190,7 +223,7 @@ EasySocial.module( 'site/profile/profile' , function($){
 							item.addClass('active');
 
 							// Have to set the title
-							$(document).prop('title', self.infoItem().eq(0).attr('title'));
+							// $(document).prop('title', self.infoItem().eq(0).attr('title'));
 						});
 					},
 
@@ -214,6 +247,7 @@ EasySocial.module( 'site/profile/profile' , function($){
 							self.app().removeClass('active');
 
 							el.parent('[data-profile-apps-item]').addClass('active');
+
 						}).fail(function(error) {
 							self.updateContent(error.message);
 						});

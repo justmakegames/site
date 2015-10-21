@@ -24,43 +24,25 @@ class EasySocialViewThemes extends EasySocialAdminView
 	 */
 	public function display( $tpl = null )
 	{
-		// Disallow access
-		if( !$this->authorise( 'easysocial.access.themes' ) )
-		{
-			$this->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-		}
-
 		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_THEMES' ) );
-
-		// Set page icon.
-		$this->setIcon( 'ies-lab' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_THEMES' ) );
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_THEMES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_THEMES');
 
 		JToolbarHelper::custom( 'makeDefault' , 'default' , '' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_MAKE_DEFAULT' ) , false );
 
 		// Load themes model
-		$model 	= FD::model( 'Themes' );
+		$model = FD::model('Themes');
+		$themes = $model->getThemes();
 
-		$themes	= $model->getThemes();
+		$this->set('themes', $themes);
 
-		$this->set( 'themes'	, $themes );
-
-		parent::display( 'admin/themes/default' );
+		parent::display('admin/themes/default');
 	}
 
 	public function compiler()
 	{
-		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_THEMES_COMPILER' ) );
-
-		// Set page icon.
-		$this->setIcon( 'ies-power' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_THEMES_CUSTOMIZE' ) );
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_THEMES_COMPILER');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_THEMES_CUSTOMIZE');
 
 		// Master set of stylesheets
 		$stylesheets = array();
@@ -197,27 +179,27 @@ class EasySocialViewThemes extends EasySocialAdminView
 	 */
 	public function form()
 	{
-		$element 	= JRequest::getVar('element');
+		$element = $this->input->get('element', '', 'default');
 
 		if(!$element) {
 			$this->redirect( 'index.php?option=com_easysocial&view=themes' );
 			$this->close();
 		}
 
-		JToolbarHelper::apply( 'apply' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE' ) , false , false );
-		JToolbarHelper::save( 'save' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_CLOSE' ) );
-
-		$model 		= FD::model( 'Themes' );
-		$theme		= $model->getTheme( $element );
+		JToolbarHelper::apply('apply', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE'), false, false);
+		JToolbarHelper::save('save', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_CLOSE'));
+		JToolbarHelper::cancel();
+		
+		$model = FD::model( 'Themes' );
+		$theme = $model->getTheme($element);
 
 		// Set the page heading
-		$this->setHeading( $theme->name );
-		$this->setIcon( 'ies-upload' );
+		$this->setHeading($theme->name);
 		$this->setDescription($theme->desc);
 
-		$this->set( 'theme' , $theme );
+		$this->set('theme', $theme);
 
-		parent::display( 'admin/themes/form' );
+		parent::display('admin/themes/form');
 	}
 
 	/**
@@ -230,20 +212,13 @@ class EasySocialViewThemes extends EasySocialAdminView
 	 */
 	public function install()
 	{
-		// Disallow access
-		if( !$this->authorise( 'easysocial.access.themes' ) )
-		{
-			$this->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-		}
-
 		JToolbarHelper::cancel( 'cancel' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_CANCEL' ) );
 
 		// Set the page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_THEMES_INSTALL' ) );
-		$this->setIcon( 'ies-upload' );
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_THEMES_INSTALL' ) );
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_THEMES_INSTALL');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_THEMES_INSTALL');
 
-		parent::display( 'admin/themes/install' );
+		parent::display('admin/themes/install');
 	}
 
 	/**

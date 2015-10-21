@@ -2,9 +2,9 @@ EasySocial.module("site/reports/reports", function($) {
 
 	$(document).on("click.es.reports.link", "[data-reports-link]", function(){
 
-		var button = $(this),
-			props  = "url,extension,uid,type,object,title,description".split(","),
-			data   = {};
+		var button = $(this);
+		var props = "url,extension,uid,type,object,title,description".split(",");
+		var data = {};
 
 		$.each(props, function(i, prop){
 			data[prop] = button.data(prop);
@@ -12,19 +12,15 @@ EasySocial.module("site/reports/reports", function($) {
 		
 		EasySocial.dialog({
 
-			content: EasySocial.ajax(
-				"site/views/reports/confirmReport",
-				{
+			content: EasySocial.ajax("site/views/reports/confirmReport", {
 					title: data.title,
 					description: data.description
-				}),
-
+			}),
 			selectors: {
-				"{message}"     : "[data-reports-message]",
+				"{message}": "[data-reports-message]",
 				"{reportButton}": "[data-report-button]",
 				"{cancelButton}": "[data-cancel-button]"
 			},
-
 			bindings: {
 
 				"{reportButton} click": function() {
@@ -32,9 +28,7 @@ EasySocial.module("site/reports/reports", function($) {
 					var message	= this.message().val();
 
 					EasySocial.dialog({
-						content: EasySocial.ajax(
-							"site/controllers/reports/store",
-							{
+						content: EasySocial.ajax("site/controllers/reports/store", {
 								url      : data.url,
 								extension: data.extension,
 								uid      : data.uid,

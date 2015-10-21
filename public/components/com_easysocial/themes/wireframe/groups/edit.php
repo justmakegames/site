@@ -14,7 +14,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="es-container es-groups-edit" data-groups-edit>
 
 	<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-		<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+		<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 	</a>
 
 	<div class="es-sidebar" data-sidebar>
@@ -69,13 +69,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				</div>
 				<div class="form-actions">
 					<div class="pull-left">
-						<a href="<?php echo $group->getPermalink();?>" class="btn btn-sm btn-es-danger"><?php echo JText::_( 'COM_EASYSOCIAL_CANCEL_BUTTON'); ?></a>
+						<a href="<?php echo $group->getPermalink();?>" class="btn btn-sm btn-es"><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON'); ?></a>
 					</div>
 
 					<div class="pull-right">
-						<button type="button" class="btn btn-sm btn-es-primary" data-group-fields-save>
-							<?php echo JText::_( 'COM_EASYSOCIAL_UPDATE_GROUP_BUTTON' );?> &rarr;
-						</button>
+						<button type="button" class="btn btn-sm btn-es-primary" data-group-fields-save><?php echo JText::_('COM_EASYSOCIAL_UPDATE_GROUP_BUTTON');?> &rarr;</button>
 					</div>
 				</div>
 

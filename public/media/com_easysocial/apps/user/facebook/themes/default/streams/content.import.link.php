@@ -18,7 +18,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="es-stream-preview">
 	<div class="mt-10">
 		<div class="stream-preview-title">
-			<a target="_blank" href="<?php echo $params->get( 'link' );?>"><i class="ies-link"></i> <?php echo $params->get( 'title' ) ? $params->get( 'title' ) : $params->get( 'link' ); ?></a>
+			<a target="_blank" href="<?php echo $params->get( 'link' );?>"><i class="fa fa-link"></i> <?php echo $params->get( 'title' ) ? $params->get( 'title' ) : $params->get( 'link' ); ?></a>
 		</div>
 
 		<p class="mt-5 small">

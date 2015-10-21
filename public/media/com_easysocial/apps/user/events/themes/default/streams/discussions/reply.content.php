@@ -28,7 +28,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div class="media-body">
                 <div class="discussion-title"><a href="<?php echo $permalink;?>"><?php echo $discussion->title; ?></a></div>
                 <div class="discussion-meta fd-small">
-                    <i class="ies-calendar"></i>&nbsp; <?php echo JText::sprintf('APP_USER_EVENTS_DISCUSSIONS_CONTENT_REPLIED_ON_META' , FD::date($reply->created)->format(JText::_('DATE_FORMAT_LC1'))); ?>
+                    <i class="fa fa-calendar"></i>&nbsp; <?php echo JText::sprintf('APP_USER_EVENTS_DISCUSSIONS_CONTENT_REPLIED_ON_META' , FD::date($reply->created)->format(JText::_('DATE_FORMAT_LC1'))); ?>
                 </div>
             </div>
         </div>

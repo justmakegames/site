@@ -22,9 +22,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 		<div class="col-sm-3 stat-item">
 			<div class="total-replies">
-				<div class="center"><?php echo JText::_( 'APP_KUNENA_KARMA' ); ?></div>
+				<div class="center"><?php echo JText::_('APP_KUNENA_TOTAL_REPLIES'); ?></div>
 
-				<div class="stat-points"><?php echo $karma;?></div>
+				<div class="stat-points"><?php echo $totalReplies;?></div>
 			</div>
 		</div>
 

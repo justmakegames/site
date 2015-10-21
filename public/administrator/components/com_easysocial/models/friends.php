@@ -67,6 +67,11 @@ class EasySocialModelFriends extends EasySocialModel
 		$query .= ") as x";
 		$query .= " INNER JOIN `#__users` AS uu ON uu.`id` = x.`tfid` AND uu.`block` = '0'";
 
+		// exclude esad users
+		$query .= " INNER JOIN `#__social_profiles_maps` as upm on uu.`id` = upm.`user_id`";
+		$query .= " INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1";
+
+
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 			// user block
 			$query .= ' LEFT JOIN ' . $db->nameQuote( '#__social_block_users' ) . ' as bus';
@@ -79,9 +84,6 @@ class EasySocialModelFriends extends EasySocialModel
 		$query .= " order by score desc";
 
 		$sql->raw($query);
-
-		// echo $sql;exit;
-
 
 		if( !empty( $limit ) && $limit > 0 )
 		{
@@ -189,7 +191,9 @@ class EasySocialModelFriends extends EasySocialModel
 			{
 				$tmp[] = $item->ffriend_id;
 			}
+
 			FD::user( $tmp );
+			FD::cache()->cacheUsersPrivacy($tmp);
 
 			// getting the result.
 			foreach( $result as $item )
@@ -328,7 +332,11 @@ class EasySocialModelFriends extends EasySocialModel
 		$query .= "		union ";
 		$query .= "	select af2.`target_id` as `fid`  from `#__social_friends` as af2 where af2.`actor_id` = $source and af2.`state` = 1";
 		$query .= " ) as x";
-		$query .= " inner join `#__users` u on x.`fid` = u.`id` and u.`block` = 0";
+		$query .= " inner join `#__users` as u on x.`fid` = u.`id` and u.`block` = 0";
+
+		// exclude esad users
+		$query .= " INNER JOIN `#__social_profiles_maps` as upm on u.`id` = upm.`user_id`";
+		$query .= " INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1";
 
 		if (FD::config()->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    // user block
@@ -514,6 +522,10 @@ class EasySocialModelFriends extends EasySocialModel
 		$query[] 	= 'ON uu.' . $db->nameQuote( 'id' ) . ' = if( a.' . $db->nameQuote( 'target_id' ) . ' = ' . $db->Quote( $id ) . ', a.' . $db->nameQuote( 'actor_id' ) . ', a.' . $db->nameQuote( 'target_id' ) . ')';
 		$query[] 	= 'AND uu.' . $db->nameQuote( 'block' ) . ' = ' . $db->Quote( '0' );
 
+		// exclude esad users
+		$query[] = 'INNER JOIN `#__social_profiles_maps` as upm on uu.`id` = upm.`user_id`';
+		$query[] = 'INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
+
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    // user block
 		    $query[] = ' LEFT JOIN ' . $db->nameQuote( '#__social_block_users' ) . ' as bus';
@@ -588,6 +600,10 @@ class EasySocialModelFriends extends EasySocialModel
 		$query[] = 'INNER JOIN ' . $db->nameQuote( '#__users' ) . ' AS uu';
 		$query[] = 'ON uu.' . $db->nameQuote( 'id' ) . ' = if( a.' . $db->nameQuote( 'target_id' ) . ' = ' . $db->Quote( $id ) . ', a.' . $db->nameQuote( 'actor_id' ) . ', a.' . $db->nameQuote( 'target_id' ) . ')';
 
+		// exclude esad users
+		$query[] = 'INNER JOIN `#__social_profiles_maps` as upm on uu.`id` = upm.`user_id`';
+		$query[] = 'INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
+
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    // user block
 		    $query[] = ' LEFT JOIN ' . $db->nameQuote( '#__social_block_users' ) . ' as bus';
@@ -614,7 +630,7 @@ class EasySocialModelFriends extends EasySocialModel
 
 		// user block continue here
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
-		    
+
 		    $query[] = 'AND bus.' . $db->nameQuote( 'id' ) . ' IS NULL';
 		}
 
@@ -638,10 +654,10 @@ class EasySocialModelFriends extends EasySocialModel
 		{
 			$query[]	= 'AND';
 			$query[]	= '(a.' . $db->nameQuote( 'target_id' ) . '=' . $db->Quote( $id );
-			$query[]	= 'AND ' . $db->nameQuote( 'state' ) . '=' . $db->Quote( SOCIAL_FRIENDS_STATE_FRIENDS ) . ')';
+			$query[]	= 'AND a.' . $db->nameQuote( 'state' ) . '=' . $db->Quote( SOCIAL_FRIENDS_STATE_FRIENDS ) . ')';
 			$query[]	= 'OR';
 			$query[]	= '(a.' . $db->nameQuote( 'actor_id' ) . '=' . $db->Quote( $id );
-			$query[]	= 'AND ' . $db->nameQuote( 'state' ) . '=' . $db->Quote( SOCIAL_FRIENDS_STATE_FRIENDS ) . ')';
+			$query[]	= 'AND a.' . $db->nameQuote( 'state' ) . '=' . $db->Quote( SOCIAL_FRIENDS_STATE_FRIENDS ) . ')';
 		}
 
 		// Glue back query.
@@ -885,6 +901,10 @@ class EasySocialModelFriends extends EasySocialModel
 		$query	.= ' INNER JOIN ' . $db->nameQuote( '#__users' ) . ' AS uu';
 		$query 	.= ' ON uu.' . $db->nameQuote( 'id' ) . ' = a.' . $db->nameQuote( 'actor_id' );
 
+		// exclude esad users
+		$query .= ' INNER JOIN `#__social_profiles_maps` as upm on uu.`id` = upm.`user_id`';
+		$query .= ' INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
+
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    // user block
 		    $query .= ' LEFT JOIN ' . $db->nameQuote( '#__social_block_users' ) . ' as bus';
@@ -929,6 +949,10 @@ class EasySocialModelFriends extends EasySocialModel
 
 		$query[] 	= 'INNER JOIN ' . $db->nameQuote( '#__users' ) . ' AS uu';
 		$query[] 	= 'ON uu.' . $db->nameQuote( 'id' ) . ' = if( a.' . $db->nameQuote( 'target_id' ) . ' = ' . $db->Quote( $id ) . ', a.' . $db->nameQuote( 'actor_id' ) . ', a.' . $db->nameQuote( 'target_id' ) . ')';
+
+		// exclude esad users
+		$query[] = 'INNER JOIN `#__social_profiles_maps` as upm on uu.`id` = upm.`user_id`';
+		$query[] = 'INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
 
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    // user block
@@ -1074,6 +1098,10 @@ class EasySocialModelFriends extends EasySocialModel
 
 		$query   = array();
 		$query[] = 'SELECT b.' . $db->nameQuote( 'id' ) . ' FROM ' . $db->nameQuote( '#__users' ) . ' AS b';
+
+		// exclude esad users
+		$query[] = 'INNER JOIN `#__social_profiles_maps` as upm on b.`id` = upm.`user_id`';
+		$query[] = 'INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
 
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    // user block

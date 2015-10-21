@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -138,7 +138,7 @@ class EasySocialViewAlbums extends EasySocialSiteView
 	 * @param	string
 	 * @return
 	 */
-	public function all( $tpl = null )
+	public function all($tpl = null)
 	{
 		// Check for user profile completeness
 		FD::checkCompleteProfile();
@@ -147,20 +147,20 @@ class EasySocialViewAlbums extends EasySocialSiteView
 		$this->checkFeature();
 
 		// Set the page title
-		FD::page()->title( JText::_( 'COM_EASYSOCIAL_ALBUMS_ALL_ALBUMS' ) );
+		$this->page->title(JText::_('COM_EASYSOCIAL_ALBUMS_ALL_ALBUMS'));
 
 		// Set the breadcrumbs
-		FD::page()->breadcrumb( JText::_( 'COM_EASYSOCIAL_ALBUMS_ALL_ALBUMS' ) );
+		$this->page->breadcrumb(JText::_('COM_EASYSOCIAL_ALBUMS_ALL_ALBUMS'));
 
 		// Get albums model
-		$model 	= FD::model( 'Albums' );
+		$model = ES::model('Albums');
 		$model->initStates();
 
 		// Get the start limit from the request
 		$startlimit = $this->input->get('limitstart', 0, 'int');
 
 		// By default albums should be sorted by creation date.
-		$ordering = $this->input->get('ordering', 'created');
+		$sorting = $this->input->get('sort', 'created');
 
 		if (!$startlimit) {
 			$model->setState('limitstart', 0);
@@ -174,12 +174,12 @@ class EasySocialViewAlbums extends EasySocialSiteView
 				'core' => false
 			);
 
-		if ($ordering == 'alphabetical') {
+		if ($sorting == 'alphabetical') {
 			$options['order'] = 'a.title';
 			$options['direction'] = 'ASC';
 		}
 
-		if ($ordering == 'popular') {
+		if ($sorting == 'popular') {
 			$options['order'] = 'a.hits';
 			$options['direction'] = 'DESC';
 		}
@@ -192,13 +192,13 @@ class EasySocialViewAlbums extends EasySocialSiteView
 
 		$lib = FD::albums( FD::user()->id , SOCIAL_TYPE_USER );
 
-		$this->set('ordering', $ordering);
+		$this->set('sorting', $sorting);
 		$this->set('lib', $lib);
 		$this->set('albums', $albums );
 		$this->set('pagination', $pagination);
 
 		// Wrap it with the albums wrapper.
-		echo parent::display( 'site/albums/all' );
+		echo parent::display('site/albums/all');
 	}
 
 	/**
@@ -269,15 +269,15 @@ class EasySocialViewAlbums extends EasySocialSiteView
 
 		// If id is provided but UID is not provided, probably they created a menu that links to a single album
 		if ($id && !$uid) {
-			$album 	= FD::table('Album');
+			$album = FD::table('Album');
 			$album->load($id);
 
 			if (!$album->id) {
 				return $this->deleted();
 			}
 
-			$uid 	= $album->uid;
-			$type 	= $album->type;
+			$uid = $album->uid;
+			$type = $album->type;
 		}
 
 		if($type == SOCIAL_TYPE_USER && $uid) {
@@ -315,29 +315,26 @@ class EasySocialViewAlbums extends EasySocialSiteView
 		// Increment the hit of the album
 		$lib->data->addHit();
 
-		// Get a list of photos within this album
-		$photos 	= $lib->getPhotos($lib->data->id);
-		$photos 	= $photos['photos'];
+		// // Get a list of photos within this album
+		// $photos = $lib->getPhotos($lib->data->id, array('privacy'=>false));
+		// $photos = $photos['photos'];
 
-		// Set the opengraph data for photos within this album
-		if ($photos) {
-			foreach ($photos as $photo) {
-				FD::opengraph()->addImage($photo->getSource());
-			}
-		}
+		// NOTE: Add opengraph data for each photos now moved to album libs
 
 		// Set page title
-		$title 	= $lib->getPageTitle($this->getLayout());
+		$title = $lib->getPageTitle($this->getLayout());
 		FD::page()->title($title);
 
 		// Set the breadcrumbs
 		$lib->setBreadcrumbs($this->getLayout());
 
 		// Render options
-		$options = array('viewer' => $this->my->id);
+		$requiredPrivacy = ($this->my->id == $lib->data->user_id) ? true : false;
+		$options = array('viewer' => $this->my->id, 'privacy'=> $requiredPrivacy);
 
 		// Render item
 		$output = $lib->renderItem($options);
+
 
 		return $this->output($uid, $type, $output, $lib->data);
 	}
@@ -465,7 +462,7 @@ class EasySocialViewAlbums extends EasySocialSiteView
 		$this->set( 'uuid'   	, uniqid() );
 		$this->set( 'layout' 	, $layout );
 
-		echo parent::display( 'site/albums/default' );
+		echo parent::display('site/albums/default');
 	}
 
 	/**

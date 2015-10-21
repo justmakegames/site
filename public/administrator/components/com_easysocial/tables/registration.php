@@ -268,13 +268,17 @@ class SocialTableRegistration extends SocialTable
 
 	public function getValues()
 	{
-	    if( !$this->values || is_null( $this->values ) )
-	    {
-	        return false;
+		if (!$this->values || is_null($this->values)) {
+			return false;
 		}
 
-		$obj 	= FD::json()->decode( $this->values );
-		$values	= get_object_vars( $obj );
+		$obj = json_decode($this->values);
+
+		if (!$obj) {
+			return false;
+		}
+
+		$values	= get_object_vars($obj);
 
 		return $values;
 	}

@@ -42,112 +42,84 @@ class EasySocialViewLogin extends EasySocialSiteView
 	 */
 	public function display( $tpl = null )
 	{
-		$my 	= FD::user();
-
 		// If user is already logged in, they should not see this page.
-		if( $my->id > 0 )
-		{
-			return $this->redirect( FRoute::dashboard( array() , false ) );
+		if (!$this->my->guest) {
+			$url = FRoute::dashboard(array(), false);
+
+			return $this->redirect($url);
 		}
 
 		// Add page title
-		FD::page()->title( JText::_( 'COM_EASYSOCIAL_LOGIN_PAGE_TITLE' ) );
+		$this->page->title(JText::_('COM_EASYSOCIAL_LOGIN_PAGE_TITLE'));
 
 		// Add breadcrumb
-		FD::page()->breadcrumb( JText::_( 'COM_EASYSOCIAL_LOGIN_PAGE_BREADCRUMB' ) );
+		$this->page->breadcrumb(JText::_('COM_EASYSOCIAL_LOGIN_PAGE_BREADCRUMB'));
 
 		// Facebook codes.
-		$facebook 	= FD::oauth( 'Facebook' );
+		$facebook = ES::oauth('Facebook');
 
-		// // Get any callback urls.
-		// $return 	= FD::getCallback();
-
-		// // If return value is empty, always redirect back to the dashboard
-		// if( !$return )
-		// {
-		// 	$return	= FRoute::dashboard( array() , false );
-		// }
-
-		// // Determine if there's a login redirection
-		// $config 		= FD::config();
-		// $loginMenu 		= $config->get( 'general.site.login' );
-
-		// if( $loginMenu != 'null' )
-		// {
-		// 	$return 	= FD::get( 'toolbar' )->getRedirectionUrl( $loginMenu );
-		// }
-
-		// $return 	= base64_encode( $return );
-
-		$config 		= FD::config();
-		$loginMenu 		= $config->get( 'general.site.login' );
+		$loginMenu = $this->config->get('general.site.login');
 
 		// Get any callback urls.
-		$return 	= FD::getCallback();
+		$return = ES::getCallback();
 
 		// If return value is empty, always redirect back to the dashboard
-		if( !$return )
-		{
+		if (!$return) {
 			// Determine if there's a login redirection
-			$urlFromCaller = FD::input()->getVar('return', '');
-
-			if ($urlFromCaller) {
-				$return = $urlFromCaller;
-			} else {
-				if( $loginMenu != 'null' )
-				{
-					$return 	= FD::get( 'toolbar' )->getRedirectionUrl( $loginMenu );
+			$urlFromCaller = $this->input->getVar('return', '');
+			$return = $urlFromCaller;
+	
+			if (!$urlFromCaller) {
+				if ($loginMenu != 'null') {
+					$return = FRoute::getMenuLink($loginMenu);
 				} else {
-					$return	= FRoute::dashboard( array() , false );
+					$return	= FRoute::dashboard(array(), false);
 				}
 
-				$return = base64_encode( $return );
+				$return = base64_encode($return);
 			}
 		} else {
-			$return = base64_encode( $return );
+			$return = base64_encode($return);
 		}
 
-		if( $config->get( 'registrations.enabled' ) )
-		{
-			$profileId = $config->get('registrations.mini.profile', 'default');
+		if ($this->config->get('registrations.enabled')) {
+			
+			$profileId = $this->config->get('registrations.mini.profile', 'default');
 
 			if ($profileId === 'default') {
-				$profileId = Foundry::model( 'profiles' )->getDefaultProfile()->id;
+				$model = ES::model('Profiles');
+				$profileId = $model->getDefaultProfile()->id;
 			}
 
 
-			$options = array(
-				'visible' => SOCIAL_PROFILES_VIEW_MINI_REGISTRATION,
-				'profile_id' => $profileId
-			);
+			$options = array('visible' => SOCIAL_PROFILES_VIEW_MINI_REGISTRATION, 'profile_id' => $profileId);
 
-			$fieldsModel = Foundry::model( 'fields' );
-			$fields = $fieldsModel->getCustomFields( $options );
+			$fieldsModel = ES::model('fields');
+			$fields = $fieldsModel->getCustomFields($options);
 
-			if( !empty( $fields ) )
-			{
+			if (!empty($fields)) {
 				FD::language()->loadAdmin();
 
 				$fieldsLib = FD::fields();
 
-				$session    	= JFactory::getSession();
-				$registration	= FD::table( 'Registration' );
-				$registration->load( $session->getId() );
+				$session = JFactory::getSession();
+				$registration = ES::table('Registration');
+				$registration->load($session->getId());
 
-				$data           = $registration->getValues();
+				$data = $registration->getValues();
 
-				$args = array( &$data, &$registration );
+				$args = array(&$data, &$registration);
 
-				$fieldsLib->trigger( 'onRegisterMini', SOCIAL_FIELDS_GROUP_USER, $fields, $args );
+				$fieldsLib->trigger('onRegisterMini', SOCIAL_FIELDS_GROUP_USER, $fields, $args);
 
-				$this->set( 'fields', $fields );
+				$this->set('fields', $fields);
 			}
 		}
 
-		$this->set( 'return'	, $return );
-		$this->set( 'facebook' 	, $facebook );
+		$this->set('return', $return);
+		$this->set('facebook', $facebook);
 
-		return parent::display( 'site/login/default' );
+		return parent::display('site/login/default');
 	}
 
 	/**
@@ -160,28 +132,22 @@ class EasySocialViewLogin extends EasySocialSiteView
 	 */
 	public function logout()
 	{
-		$my 		= FD::user();
-
-		// Determine if there's a login redirection
-		$config 		= FD::config();
-		$logoutMenu 	= $config->get('general.site.logout');
+		$logoutMenu = $this->config->get('general.site.logout');
 
 		// Default redirection url
-		$redirect		= FRoute::login(array(), false);
+		$redirect = FRoute::login(array(), false);
 
 		if ($loginMenu != 'null') {
-			$redirect 	= FD::get('toolbar')->getRedirectionUrl($logoutMenu);
+			$redirect = FRoute::getMenuLink($logoutMenu);
 		}
 
-		if (!$my->id) {
-			return $this->redirect( $redirect );
+		// If the user is not logged in on the first place
+		if ($this->my->guest) {
+			return $this->redirect($redirect);
 		}
-
-		// Try to log the user out.
-		$app 	= JFactory::getApplication();
 
 		// Perform the log out.
-		$error = $app->logout();
+		$error = $this->app->logout();
 
 		// Get the return URL
 		return $this->redirect($redirect);

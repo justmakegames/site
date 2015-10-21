@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div data-field-joomla_fullname data-name-format="<?php echo $params->get('format', 1); ?>" data-max="<?php echo $params->get('max'); ?>">
 
@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 name="first_name"
                 value="<?php echo $firstName; ?>"
                 data-field-jname-first
-                placeholder="<?php echo JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_FIRST_NAME', true);?>"
+                placeholder="<?php echo $params->get('firstname_placeholder', JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_FIRST_NAME', true));?>"
                 <?php if ($field->isRequired()) { ?>data-check-required<?php } ?>
                 <?php if ($params->get('regex_validate')) { ?>
                 data-check-validate
@@ -43,7 +43,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 name="last_name"
                 value="<?php echo $lastName; ?>"
                 data-field-jname-last
-                placeholder="<?php echo JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_LAST_NAME', true);?>"
+                placeholder="<?php echo $params->get('lastname_placeholder', JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_LAST_NAME', true));?>"
                 <?php if ($params->get('regex_validate')) { ?>
                 data-check-validate
                 data-check-format="<?php echo $params->get('regex_format'); ?>"
@@ -62,7 +62,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 name="first_name"
                 value="<?php echo $name; ?>"
                 data-field-jname-name
-                placeholder="<?php echo JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_YOUR_NAME', true);?>"
+                placeholder="<?php echo $params->get('singlename_placeholder', JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_YOUR_NAME', true));?>"
                 <?php if ($params->get('regex_validate')) { ?>
                 data-check-validate
                 data-check-format="<?php echo $params->get('regex_format'); ?>"
@@ -81,7 +81,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 name="middle_name"
                 value="<?php echo $middleName; ?>"
                 data-field-jname-middle
-                placeholder="<?php echo JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_MIDDLE_NAME', true);?>"
+                placeholder="<?php echo $params->get('middlename_placeholder', JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_MIDDLE_NAME', true));?>"
                 <?php if ($params->get('regex_validate')) { ?>
                 data-check-validate
                 data-check-format="<?php echo $params->get('regex_format'); ?>"
@@ -99,7 +99,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 id="last_name"
                 name="last_name"
                 value="<?php echo $lastName; ?>"
-                placeholder="<?php echo JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_LAST_NAME', true);?>"
+                placeholder="<?php echo $params->get('lastname_placeholder', JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_LAST_NAME', true));?>"
                 <?php if ($params->get('regex_validate')) { ?>
                 data-check-validate
                 data-check-format="<?php echo $params->get('regex_format'); ?>"
@@ -118,7 +118,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 name="first_name"
                 value="<?php echo $firstName; ?>"
                 data-field-jname-first
-                placeholder="<?php echo JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_FIRST_NAME', true);?>"<?php echo $field->isRequired() ? ' data-check-required' : '';?>
+                placeholder="<?php echo $params->get('firstname_placeholder', JText::_('PLG_FIELDS_JOOMLA_FULLNAME_PLACEHOLDER_FIRST_NAME', true));?>"<?php echo $field->isRequired() ? ' data-check-required' : '';?>
                 <?php if ($params->get('regex_validate')) { ?>
                 data-check-validate
                 data-check-format="<?php echo $params->get('regex_format'); ?>"

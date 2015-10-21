@@ -3,8 +3,8 @@
 	"dashboard_feeds_friendlists"	: true,
 	"dashboard_feeds_groups"	: true,
 	"dashboard_feeds_apps"		: true,
+	"dashboard_apps_browse"	: true,
 	"dashboard_groups_total"	: 5,
-	"dashboard_mini_registration": true,
 	"dashboard_login_guests"	: true,
 	"apps_sorting"		: true,
 	"profile_cover"		: true,
@@ -16,6 +16,8 @@
 	"toolbar_account" 	: true,
 	"badgeslimit"		: 10,
 	"userslimit"		: 20,
+	"users_lastlogin"	: true,
+	"users_joindate"	: true,
 	"pointslimit"		: 10,
 	"friendslimit"		: 20,
 	"followersLimit"	: 20,
@@ -41,7 +43,11 @@
 	"profile_website"	: true,
 	"profile_report"	: true,
 	"profile_type"		: true,
-	"stream_icon"		: true,
+	"profile_lastlogin"	: true,
+	"profile_joindate"	: true,
+	"profile_feeds_apps": true,
+	"profile_apps_browse": true,
 	"groups_feeds_apps"	: true,
-	"groups_feeds_apps_total"	: 5
+	"groups_feeds_apps_total"	: 5,
+	"videos_limit"	:10
 }

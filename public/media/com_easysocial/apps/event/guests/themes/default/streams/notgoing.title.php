@@ -11,4 +11,4 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<?php echo JText::sprintf('APP_EVENT_GUESTS_STREAM_USER_NOT_GOING_TO_EVENT', $this->html('html.user', $actor->id));
+<?php echo JText::sprintf('APP_EVENT_GUESTS_STREAM_USER_NOT_ATTENDING', $this->html('html.user', $actor->id), $this->html('html.event', $event));

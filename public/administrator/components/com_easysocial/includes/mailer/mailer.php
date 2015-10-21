@@ -88,16 +88,17 @@ class SocialMailer
 	 *
 	 * @return  boolean True on success, false otherwise
 	 */
-	public function create( SocialMailerData $mailData )
+	public function create(SocialMailerData $mailData)
 	{
 		// Convert the mail data to an array.
 		$data = $mailData->toArray();
 
 		$mailer	= FD::table('Mailer');
-		$mailer->bind( $data );
+		$mailer->bind($data);
 
 		// If mail object is configured to send immediately, we shouldn't store it.
 		if ($mailer->priority == SOCIAL_MAILER_PRIORITY_IMMEDIATE) {
+
 			// If environment is development, then we store this for checking purposes
 			if (FD::config()->get('general.environment') === 'development') {
 				$mailer->store();
@@ -120,63 +121,37 @@ class SocialMailer
 	 * @param	string
 	 * @return
 	 */
-	public function translate( $content , $arguments )
+	public function translate($content, $arguments)
 	{
 		// Need to JText first as we start to pass in raw key for multilinguage purposes
 		$output = JText::_($content);
 
 		// Ensure that the params are always in object form
-		$arguments = FD::makeObject( $arguments );
+		$arguments = FD::makeObject($arguments);
 
 		// Get the list of arguments
-		if( is_object( $arguments ) )
-		{
-			$arguments = get_object_vars( $arguments );
+		if (is_object($arguments)) {
+			$arguments = get_object_vars($arguments);
 		}
 
+		//most likely this key get added using jtable object.
+		// we need to exclude this key
 		if( isset($arguments['_tbl_keys'])) {
-			//most likely this key get added using jtable object.
-			// we need to exclude this key
 			unset($arguments['_tbl_keys']);
 		}
 
 		// Get a list of keys so we can prepend it with { and prepend it with }
-		$keys = array_keys( $arguments );
+		$keys = array_keys($arguments);
 
-		foreach( $keys as &$key )
-		{
+		foreach ($keys as &$key) {
 			$key = '{' . $key . '}';
 		}
 
 		// Get the list of values
-		$values = array_values( $arguments );
+		$values = array_values($arguments);
 
 		// Perform a search / replace of strings based on the arguments.
 		$output = JString::str_ireplace($keys, $values , $output);
-
-		// // Process translations
-		// preg_match_all( '/%TRANSLATE\{(.*)\}%/i' , $content , $matches );
-
-		// // Let's perform the translations first.
-		// if( isset( $matches[ 1 ] ) && !empty( $matches[ 1 ] ) )
-		// {
-		// 	$translations   = $matches[ 0 ];
-
-		// 	for( $i = 0; $i < count( $translations ); $i++ )
-		// 	{
-		// 		$str        = explode( ',' , $matches[ 1 ][ $i ] );
-
-		// 		if( count( $str ) > 1 )
-		// 		{
-		// 			$content    = str_ireplace( $translations[ $i ] , call_user_func_array( array( 'JText' , 'sprintf' ) , $str )  , $content );
-		// 		}
-		// 		else
-		// 		{
-		// 			$content    = str_ireplace( $translations[ $i ] , JText::_( $matches[ 1 ][ $i ] ) , $content );
-		// 		}
-		// 	}
-		// }
-
 
 		return $output;
 	}
@@ -228,42 +203,40 @@ class SocialMailer
 	 * @param	Array	An array of SocialTableMailer object.
 	 * @return	bool	The state of sending the mails out.
 	 */
-	public function send( $mails = array() )
+	public function send($mails = array())
 	{
 		// Retrieve configs
-		$config 	= FD::config();
-		$jConfig 	= FD::jconfig();
+		$config = FD::config();
+		$jConfig = FD::jconfig();
 
 		// If there's no email to send out, we should just return ehre.
-		if( !$mails )
-		{
+		if (!$mails) {
 			return false;
 		}
 
-		$defaultSenderName 	= $config->get( 'email.sender.name' , $jConfig->getValue( 'fromname' ) );
-		$defaultSenderEmail	= $config->get( 'email.sender.email', $jConfig->getValue( 'mailfrom' ) );
+		$defaultSenderName 	= $config->get('email.sender.name', $jConfig->getValue('fromname'));
+		$defaultSenderEmail	= $config->get('email.sender.email', $jConfig->getValue('mailfrom'));
 
-		foreach( $mails as $mail )
-		{
+		foreach ($mails as $mail) {
 			// Set the sender's information
-			$senderEmail 	= empty( $mail->sender_email ) ? $defaultSenderEmail : $mail->sender_email;
-			$senderName		= empty( $mail->sender_name ) ? $defaultSenderName : $mail->sender_name;
-			$sender 		= array( $senderEmail , $senderName );
+			$senderEmail = empty($mail->sender_email) ? $defaultSenderEmail : $mail->sender_email;
+			$senderName = empty($mail->sender_name) ? $defaultSenderName : $mail->sender_name;
+			$sender = array($senderEmail, $senderName);
 
 			// Get the mailer
-			$mailer 	= JFactory::getMailer();
+			$mailer = JFactory::getMailer();
 
 			// Set the sender's info.
-			$mailer->setSender( $sender );
+			$mailer->setSender($sender);
 
 			// We need to load the language accordingly.
-			$lang	= FD::language();
+			$lang = FD::language();
 
 			// If language is empty, we use the site's language instead
 			$mailLanguage = !empty($mail->language) ? $mail->language : null;
 
 			// Load site and admin languages
-			$lang->load('joomla', JPATH_ROOT, $mail->language, true, true);
+			$lang->load('joomla', JPATH_ROOT, $mailLanguage, true, true);
 			$lang->loadSite($mail->language, true, true);
 			$lang->loadAdmin($mail->language, true, true);
 
@@ -274,17 +247,17 @@ class SocialMailer
 			$templateLocation = array_shift($templateParts);
 
 			// Set the reply to info.
-			$replyToEmail 	= empty( $mail->replyto_email ) ? $jConfig->getValue( 'mailfrom' ) : $mail->replyto_email;
-			$mailer->addReplyTo( $replyToEmail );
+			$replyToEmail = empty($mail->replyto_email ) ? $jConfig->getValue( 'mailfrom' ) : $mail->replyto_email;
+			$mailer->addReplyTo($replyToEmail );
 
 			// Set the recipient properties.
-			$mailer->addRecipient( $mail->recipient_email );
+			$mailer->addRecipient($mail->recipient_email);
 
 			// Set mail's subject.
-			$title 		= $this->translate( $mail->title , $mail->params );
-			$mailer->setSubject( $title );
+			$title = $this->translate($mail->title, $mail->params);
+			$mailer->setSubject($title);
 
-			$output 	= $this->getEmailContents( $mail );
+			$output = $this->getEmailContents($mail);
 
 			if ($mail->html) {
 				$mailer->isHtml(true);
@@ -294,25 +267,24 @@ class SocialMailer
 			// echo $output;exit;
 
 			// Set the body output.
-			$mailer->setBody( $output );
+			$mailer->setBody($output);
 
 			// @TODO: support attachments in the future.
 			//$this->mailer->addAttachment();
 
 			// Try to send the mail.
-			$state 	= $mailer->send();
+			$state = $mailer->send();
 
 			// The mail might not be from the queue.
-			if( !is_null( $mail->id ) )
-			{
+			if (!is_null($mail->id)) {
+
 				// Set the state for this mail.
-				$mail->state 		= $state;
-				$mail->response		= JText::_( 'COM_EASYSOCIAL_MAILER_MAIL_SENT_SUCCESSFULLY' );
+				$mail->state = $state;
+				$mail->response = JText::_( 'COM_EASYSOCIAL_MAILER_MAIL_SENT_SUCCESSFULLY' );
 
 				// If there's an error, we want to know what went wrong
-				if( !$state )
-				{
-					$mail->response	= JText::_( 'COM_EASYSOCIAL_MAILER_UNABLE_TO_SEND_EMAIL' );
+				if (!$state) {
+					$mail->response	= JText::_('COM_EASYSOCIAL_MAILER_UNABLE_TO_SEND_EMAIL');
 				}
 				$mail->store();
 			}

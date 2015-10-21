@@ -23,17 +23,17 @@ class SocialFieldsEventStartend extends SocialFieldItem
         // Get the start datetime
         $startDatetime = !empty($post['startDatetime']) ? $post['startDatetime'] : '';
 
+        // Get the date object for the start date time
         $startDatetimeObj = $this->getDatetimeObject($startDatetime);
 
         if ($startDatetimeObj->isValid()) {
             $startString = $startDatetimeObj->toSql();
         } else {
+
             if ($this->params->get('default_start') == 'nexthour') {
 
                 $now = FD::date();
-
                 $now->setTime($now->format('G', true) + 1, 0, 0);
-
                 $startString = $now->toSql(true);
             }
 
@@ -44,8 +44,7 @@ class SocialFieldsEventStartend extends SocialFieldItem
             }
         }
 
-        $this->set('startDatetime', $startString);
-
+        
         // Get the end datetime
         $endDatetime = !empty($post['endDatetime']) ? $post['endDatetime'] : '';
         $endDatetimeObj = $this->getDatetimeObject($endDatetime);
@@ -56,14 +55,10 @@ class SocialFieldsEventStartend extends SocialFieldItem
 
             if ($this->params->get('require_end') && $this->params->get('default_start') == 'nexthour') {
                 $now = FD::date();
-
                 $now->setTime($now->format('G', true) + 2, 0, 0);
-
                 $endString = $now->toSql(true);
             }
         }
-
-        $this->set('endDatetime', $endString);
 
         // Get the timezone
         if ($this->params->get('allow_timezone')) {
@@ -74,11 +69,6 @@ class SocialFieldsEventStartend extends SocialFieldItem
 
         // Get the date format
         $dateFormat = $this->params->get('date_format') . ' ' . $this->params->get('time_format');
-        $this->set('dateFormat', $dateFormat);
-
-        $error = $session->getErrors($this->inputName);
-
-        $this->set('error', $error);
 
         $allday = false;
 
@@ -87,6 +77,13 @@ class SocialFieldsEventStartend extends SocialFieldItem
             $allday = $post['event_allday'];
         }
 
+        // Get any errors on this field.
+        $error = $session->getErrors($this->inputName);
+
+        $this->set('error', $error);
+        $this->set('dateFormat', $dateFormat);
+        $this->set('startDatetime', $startString);
+        $this->set('endDatetime', $endString);
         $this->set('allday', $allday);
 
         return $this->display();

@@ -21,7 +21,7 @@ jimport('joomla.filesystem.folder');
  * @since	1.2.11
  * @author	Mark Lee <mark@stackideas.com>
  */
-class SocialLinks
+class SocialLinks extends EasySocial
 {
 	public function __construct()
 	{
@@ -31,6 +31,81 @@ class SocialLinks
 	public static function factory()
 	{
 		return new self();
+	}
+
+	/**
+	 * Fixes oembed links
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function fixOembedLinks($oembed)
+	{
+		// Fix video issues with youtube when site is on https
+		if (isset($oembed->provider_url) && $oembed->provider_url == 'http://www.youtube.com/') {
+			$oembed->html = JString::str_ireplace('http://', 'https://', $oembed->html);
+			$oembed->thumbnail = str_ireplace('http://', 'https://', $oembed->thumbnail);
+		}
+
+		return $oembed;
+	}
+
+	/**
+	 * Retrieves the correct image path
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getImageLink($assets, $params)
+	{
+		$uri = JURI::getInstance();
+
+		// Get the image file
+		$image = $assets->get('image');
+		$cachePath = ltrim($this->config->get('links.cache.location'), '/');
+
+		// @since 1.3.8
+		// This block of code should be removed later.
+		// FIX Older images where 'cached' state is not stored.
+		// Check if the image string contains the cached storage path
+		if (!$assets->get('cached') && (stristr($image, '/media/com_easysocial/cache') !== false)) {
+			$assets->set('cached', true);
+		}
+
+		// Dirty way of checking 
+		// If the image is cached, we need to get the correct path
+		if ($assets->get('cached')) {
+
+			// First we try to load the image from the image link table
+			$linkImage = FD::table('LinkImage');
+			$exists = $linkImage->load(array('internal_url' => $image));
+
+			if ($exists) {
+				$image = $linkImage->getUrl();
+			} else {
+				$fileName = basename($image);
+				$image = rtrim(JURI::root(), '/') . '/' . $cachePath . '/' . $fileName;
+			}
+		}
+
+		// If necessary, feed in our own proxy to avoid http over https issues.
+		if ($params->get('stream_link_proxy', false) && ($oembed || $assets->get('image')) && $uri->getScheme() == 'https') {
+
+			// Check if there are any http links
+			if (isset($oembed->thumbnail) && $oembed->thumbnail && stristr($oembed->thumbnail, 'http://') !== false) {
+				$oembed->thumbnail = FD::proxy($oembed->thumbnail);
+			}
+
+			if ($image && stristr($image, 'http://') !== false) {
+				$image = FD::proxy($image);
+			}
+		}
+
+		return $image;
 	}
 
 	/**
@@ -48,18 +123,28 @@ class SocialLinks
 			return false;
 		}
 
+		// Try to load any existing cached image from the db
+		$linkImage = FD::table('LinkImage');
+		$exists = $linkImage->load(array('source_url' => $imageLink));
+
+		// If this already exists, skip this altogether
+		if ($exists) {
+			return $linkImage->internal_url;
+		}
+
 		// Generate a unique name for this file
-		$name = md5($imageLink) . '.png';
+		$fileName = md5($imageLink) . '.png';
 
 		// Get the storage path
-		$storageFolder = FD::cleanPath($this->config->get('links.cache.location'));
-		$storage = JPATH_ROOT . '/' . $storageFolder . '/' . $name;
-		$storageURI = rtrim(JURI::root(), '/') . '/' . $storageFolder . '/' . $name;
+		$container = FD::cleanPath($this->config->get('links.cache.location'));
+		$storage = JPATH_ROOT . '/' . $container . '/' . $fileName;
+
+		// Check if the file already exists
 		$exists = JFile::exists($storage);
 
-		// If the file is already cached, skip this
+		// If the file is already cached, delete it
 		if ($exists) {
-			return $storageURI;
+			JFile::delete($storage);
 		}
 
 		// Crawl the image now.
@@ -71,7 +156,7 @@ class SocialLinks
 		$contents = $connector->getResult($imageLink);
 
 		// Store the file to a temporary directory first
-		$tmpFile = SOCIAL_TMP . '/' . $name;
+		$tmpFile = SOCIAL_TMP . '/' . $fileName;
 		JFile::write($tmpFile, $contents);
 
 		// Load the image now
@@ -93,6 +178,10 @@ class SocialLinks
 		// Store the file now into our cache storage.
 		JFile::write($storage, $contents);
 
-		return $storageURI;
+		$linkImage->source_url = $imageLink;
+		$linkImage->internal_url = $fileName;
+		$linkImage->store();
+		
+		return $fileName;
 	}
 }

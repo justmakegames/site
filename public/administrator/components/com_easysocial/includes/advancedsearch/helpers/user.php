@@ -125,7 +125,7 @@ class SocialAdvancedSearchHelperUser
 
 		$fileName = 'default.condition';
 
-		if (! in_array($condition->input, array('date','dates','age', 'ages', 'text', 'distance'))) {
+		if (! in_array($condition->input, array('date','dates', 'joomla_lastlogin', 'joomla_joindate','age', 'ages', 'text', 'distance'))) {
 			// lets get the options.
 			$list = $this->getOptionList($fieldCode, $fieldType);
 
@@ -500,6 +500,8 @@ class SocialAdvancedSearchHelperUser
 				break;
 
 			case 'datetime':
+			case 'joomla_lastlogin':
+			case 'joomla_joindate':
 				$operators = $date;
 				break;
 
@@ -553,6 +555,8 @@ class SocialAdvancedSearchHelperUser
 		{
 			case 'datetime':
 			case 'birthday':
+			case 'joomla_lastlogin':
+			case 'joomla_joindate':
 			case 'birthday.date':
 				$condition->input = 'date';
 
@@ -608,6 +612,21 @@ class SocialAdvancedSearchHelperUser
 
 
 		// setup the display options.
+		$this->setDisplayOptions($options);
+
+		$model 			= FD::model( 'Search' );
+
+		$results 			= $model->getAdvSearchItems( $options, $nextlimit, $limit );
+		$this->_total 		= $model->getCount();
+		$this->_nextlimit 	= $model->getNextLimit();
+
+		return $results;
+	}
+
+	public function setDisplayOptions($options)
+	{
+
+		// setup the display options.
 
 		if (isset($options['criterias'])) {
 
@@ -636,6 +655,18 @@ class SocialAdvancedSearchHelperUser
 					$this->displayOptions['GenderCode'] = $fieldCode;
 				}
 
+				// show last login date
+				if ($fieldType == 'joomla_lastlogin') {
+					$this->displayOptions['showLastLogin'] = true;
+					$this->displayOptions['lastLoginCode'] = $fieldCode;
+				}
+
+				// show last login date
+				if ($fieldType == 'joomla_joindate') {
+					$this->displayOptions['showJoinDate'] = true;
+					$this->displayOptions['joinDateCode'] = $fieldCode;
+				}
+
 				// show distance
 				if ($fieldType == 'address' && $datakey == 'distance') {
 
@@ -643,21 +674,23 @@ class SocialAdvancedSearchHelperUser
 
 					$this->displayOptions['showDistance'] = true;
 					$this->displayOptions['AddressCode'] = $fieldCode;
-					$this->displayOptions['AddressLat'] = isset($inputdata[1]) ? $inputdata[1] : 0;
-					$this->displayOptions['AddressLon'] = isset($inputdata[2]) ? $inputdata[2] : 0;
+
+					$lat = isset($inputdata[1]) ? $inputdata[1] : 0;
+					$lon = isset($inputdata[2]) ? $inputdata[2] : 0;
+
+					if (!$lat && !$lon) {
+						$my = FD::user();
+						$address = $my->getFieldValue('ADDRESS');
+						$lat = $address->value->latitude;
+						$lon = $address->value->longitude;
+					}
+
+					$this->displayOptions['AddressLat'] = $lat;
+					$this->displayOptions['AddressLon'] = $lon;
 				}
 
 			}
 		}
-
-
-		$model 			= FD::model( 'Search' );
-
-		$results 			= $model->getAdvSearchItems( $options, $nextlimit, $limit );
-		$this->_total 		= $model->getCount();
-		$this->_nextlimit 	= $model->getNextLimit();
-
-		return $results;
 	}
 
 	public function getDisplayOptions()

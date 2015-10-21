@@ -33,7 +33,7 @@ class SocialUserAppCalendar extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#FF8265';
-		$obj->icon 		= 'ies-calendar-2';
+		$obj->icon 		= 'fa fa-calendar';
 		$obj->label 	= 'APP_USER_CALENDAR_STREAM_TOOLTIP';
 
 		return $obj;
@@ -214,8 +214,8 @@ class SocialUserAppCalendar extends SocialAppItem
 
 		// Set a color for the calendar
 		$item->color	= '#FF8265';
-		$item->fonticon	= 'ies-calendar-2';
-		$item->label 	= JText::_( 'APP_USER_CALENDAR_STREAM_TOOLTIP' );
+		$item->fonticon	= 'fa-calendar';
+		$item->label 	= FD::_( 'APP_USER_CALENDAR_STREAM_TOOLTIP', true );
 
 		$app 		= $this->getApp();
 

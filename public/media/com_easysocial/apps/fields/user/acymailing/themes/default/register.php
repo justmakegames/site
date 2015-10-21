@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="form-group<?php echo $error ? ' has-error' : '';?>" data-field-mailchimp>
 	<div class="col-sm-3">&nbsp;</div>
-	<div class="col-sm-8 data" data-content>
+	<div class="col-xs-12 col-sm-8 data" data-content>
 		<label class="checkbox" for="<?php echo $inputName;?>">
 			<input type="checkbox" name="<?php echo $inputName;?>" id="<?php echo $inputName;?>" value="1" /> <?php echo JText::_($params->get( 'title', JText::_('PLG_FIELDS_MAILCHIMP_SUBSCRIBE_TO_NEWSLETTER')) ); ?>
 		</label>

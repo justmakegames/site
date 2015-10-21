@@ -14,7 +14,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <li class="toolbarItem<?php echo $newConversations > 0 ? ' has-notice' : '';?>"
 	data-popbox="module://easysocial/conversations/popbox"
 	data-popbox-toggle="click"
-	data-popbox-position="bottom-left"
+	data-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-right' : 'bottom-left';?>"
 	data-popbox-collision="none"
 	data-notifications-conversations>
 	<a href="javascript:void(0);"
@@ -23,7 +23,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-es-provide="tooltip"
 		data-notifications-conversations
 	>
-		<i class="ies-mail-2"></i>
+		<i class="fa fa-envelope"></i>
 
 		<span class="visible-phone"><?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_CONVERSATIONS' );?></span>
 		<span class="label label-notification" data-notificationConversation-counter><?php if( $newConversations > 0 ){ ?><?php echo $newConversations;?><?php } ?></span>

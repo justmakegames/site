@@ -42,7 +42,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<div data-album-menu class="es-media-item-menu btn-group show-on-hover">
 			<div class="es-media-item-menu-item btn btn-media dropdown_" data-item-actions-menu>
-				<a href="javascript:void(0);" data-bs-toggle="dropdown" class="dropdown-toggle_"><i class="ies-arrow-down-2"></i></a>
+				<a href="javascript:void(0);" data-bs-toggle="dropdown" class="dropdown-toggle_"><i class="fa fa-angle-down"></i></a>
 				<ul class="dropdown-menu">
 					<li>
 						<?php echo FD::get( 'Sharing' , array( 'url' => FRoute::albums( array( 'id' => $album->getAlias() , 'layout' => 'item' ) ) , 'text' => JText::_( 'COM_EASYSOCIAL_SHARE_ALBUM' ) ) )->getHTML(); ?>
@@ -83,11 +83,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<span data-album-comment-button class="btn-comment" data-bs-toggle="dropdown"><?php echo JText::_("COM_EASYSOCIAL_COMMENT"); ?></span>
 			<span data-album-counts-button class="btn-counts" data-bs-toggle="dropdown">
 				<span>
-					<i class="ies-heart"></i>
+					<i class="fa fa-heart"></i>
 					<span data-album-like-count><?php echo $album->getLikesCount();?></span>
 				</span>
 				<span>
-					<i class="ies-comments"></i>
+					<i class="fa fa-comments"></i>
 					<span data-album-comment-count><?php echo $album->getCommentsCount();?></span>
 				</span>
 			</span>

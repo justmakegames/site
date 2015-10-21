@@ -27,13 +27,8 @@ class EasySocialViewMigrators extends EasySocialAdminView
 	public function display( $tpl = null )
 	{
 		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS' ) );
-
-				// Set page icon
-		$this->setIcon( 'ies-briefcase' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_MIGRATORS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MIGRATORS');
 
 
 		// // ---------------------------------------
@@ -65,13 +60,8 @@ class EasySocialViewMigrators extends EasySocialAdminView
 	public function jomsocial()
 	{
 		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS_JOMSOCIAL' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-imac' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOMSOCIAL' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS_JOMSOCIAL');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOMSOCIAL');
 
 		// Get the migrator library
 		$migrator 	= FD::migrators( __FUNCTION__ );
@@ -79,8 +69,7 @@ class EasySocialViewMigrators extends EasySocialAdminView
 
 		$version 	= $migrator->getVersion();
 
-		if( $installed )
-		{
+		if ($installed) {
 			// Get custom fields from JomSocial
 			$jsFields 	= $migrator->getCustomFields();
 
@@ -105,6 +94,8 @@ class EasySocialViewMigrators extends EasySocialAdminView
 			$this->set( 'fields'		, $fields );
 			$this->set( 'jsFields'		, $jsFields );
 			$this->set( 'fieldsMap'		, $fieldsMap );
+
+			$this->displayPurgeButton('Jomsocial');
 		}
 
 		$this->set( 'installed'		, $installed );
@@ -121,14 +112,8 @@ class EasySocialViewMigrators extends EasySocialAdminView
 	 */
 	public function cb()
 	{
-		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS_CB' ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-database' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS_CB_DESC' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS_CB');
+		$this->setDescription('COM_EASYSOCIAL_HEADING_MIGRATORS_CB_DESC');
 
 		// Get the migrator library
 		$migrator 	= FD::migrators( __FUNCTION__ );
@@ -136,8 +121,7 @@ class EasySocialViewMigrators extends EasySocialAdminView
 		$version 	= $migrator->getVersion();
 
 		// Fetch available custom fields from CB
-		if( $installed )
-		{
+		if ($installed) {
 			// Get custom fields from JomSocial
 			$cbFields 	= $migrator->getCustomFields();
 
@@ -215,10 +199,14 @@ class EasySocialViewMigrators extends EasySocialAdminView
 						$cbField->map_id 	= $fields[ $mapped ]->id;
 					}
 				}
+
 			}
 
 			$this->set( 'fields'		, $fields );
 			$this->set( 'cbFields'		, $cbFields );
+
+
+			$this->displayPurgeButton('Cb');
 		}
 
 		$this->set( 'installed'		, $installed );
@@ -235,19 +223,18 @@ class EasySocialViewMigrators extends EasySocialAdminView
 	 */
 	public function jomsocialgroup()
 	{
-		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS_JOMSOCIAL_GROUP' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-imac' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOMSOCIAL_GROUP' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS_JOMSOCIAL_GROUP');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOMSOCIAL_GROUP');
 
 		// Get the migrator library
 		$migrator 	= FD::migrators( __FUNCTION__ );
 		$installed	= $migrator->isInstalled();
 		$version 	= $migrator->getVersion();
+
+		if ($installed) {
+			$this->displayPurgeButton('JomsocialGroup');
+		}
+
 
 		$this->set( 'installed'		, $installed );
 		$this->set( 'version'		, $version );
@@ -263,19 +250,17 @@ class EasySocialViewMigrators extends EasySocialAdminView
 	 */
 	public function jomsocialevent()
 	{
-		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS_JOMSOCIAL_EVENT' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-imac' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOMSOCIAL_EVENT' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS_JOMSOCIAL_EVENT');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOMSOCIAL_EVENT');
 
 		// Get the migrator library
 		$migrator 	= FD::migrators( __FUNCTION__ );
 		$installed	= $migrator->isInstalled();
 		$version 	= $migrator->getVersion();
+
+		if ($installed) {
+			$this->displayPurgeButton('JomsocialEvent');
+		}
 
 		$this->set( 'installed'		, $installed );
 		$this->set( 'version'		, $version );
@@ -292,18 +277,17 @@ class EasySocialViewMigrators extends EasySocialAdminView
 	public function easyblog()
 	{
 		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS_EASYBLOG' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-imac' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_EASYBLOG' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS_EASYBLOG');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_EASYBLOG');
 
 		// Get the migrator library
 		$migrator 	= FD::migrators( __FUNCTION__ );
 		$installed	= $migrator->isInstalled();
 		// $version 	= $migrator->getVersion();
+		//
+		if ($installed) {
+			$this->displayPurgeButton('Easyblog');
+		}
 
 		$this->set( 'installed'		, $installed );
 		// $this->set( 'version'		, $version );
@@ -320,16 +304,14 @@ class EasySocialViewMigrators extends EasySocialAdminView
 	public function joomla()
 	{
 		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS_JOOMLA' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-imac' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOOMLA' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS_JOOMLA');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOOMLA');
 
 		// Get the migrator library
 		$migrator 	= FD::migrators( __FUNCTION__ );
+
+		$this->displayPurgeButton('Joomla');
+
 
 		parent::display( 'admin/migrators/joomla' );
 	}
@@ -343,13 +325,8 @@ class EasySocialViewMigrators extends EasySocialAdminView
 	public function kunena()
 	{
 		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_MIGRATORS_KUNENA' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-imac' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_KUNENA' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS_KUNENA');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_KUNENA');
 
 		// Get the migrator library
 		$migrator 	= FD::migrators( __FUNCTION__ );
@@ -358,8 +335,63 @@ class EasySocialViewMigrators extends EasySocialAdminView
 
 		$this->set( 'installed'		, $installed );
 		// $this->set( 'version'		, $version );
+		//
+		if ($installed) {
+			$this->displayPurgeButton('Kunena');
+		}
 
 		parent::display( 'admin/migrators/kunena' );
+	}
+
+	/**
+	 * Displays the JomSocial's event migration form
+	 *
+	 * @since	1.3
+	 * @access	public
+	 */
+	public function jomsocialvideo()
+	{
+		$this->setHeading('COM_EASYSOCIAL_HEADING_MIGRATORS_JOMSOCIAL_VIDEO');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_MIGRATORS_JOMSOCIAL_VIDEO');
+
+		// Get the migrator library
+		$migrator 	= FD::migrators( __FUNCTION__ );
+		$installed	= $migrator->isInstalled();
+		$version 	= $migrator->getVersion();
+		$isLocalFiles = true;
+
+		if ($installed) {
+			$this->displayPurgeButton('JomsocialVideo');
+
+			// get JomSocial config.
+			require_once(JPATH_ROOT . '/components/com_community/libraries/core.php');
+			$jsConfig = CFactory::getConfig();
+
+			if ($jsConfig->get('enable_zencoder')) {
+				$isLocalFiles = false;
+			}
+		}
+
+		$this->set( 'installed', $installed );
+		$this->set( 'version', $version );
+		$this->set( 'isLocalFiles', $isLocalFiles );
+
+		parent::display( 'admin/migrators/jomsocialvideo' );
+	}
+
+
+	public function purgeHistory($type)
+	{
+		FD::info()->set( $this->getMessage() );
+		$this->redirect( 'index.php?option=com_easysocial&view=migrators&layout=' . $type );
+	}
+
+	private function displayPurgeButton($type)
+	{
+		// Add clear cache button here.
+		$functionName = 'purge' . $type . 'History';
+		$label = 'COM_EASYSOCIAL_TOOLBAR_BUTTON_PURGE_' . strtoupper($type) . '_HISTORY';
+		JToolbarHelper::custom($functionName, 'trash', '', JText::_($label), false);
 	}
 
 }

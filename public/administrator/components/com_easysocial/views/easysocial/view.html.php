@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,9 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'admin:/views/views' );
+ES::import('admin:/views/views');
 
 class EasySocialViewEasySocial extends EasySocialAdminView
 {
@@ -27,33 +27,47 @@ class EasySocialViewEasySocial extends EasySocialAdminView
 	public function display( $tpl = null )
 	{
 		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_DASHBOARD' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_DASHBOARD');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_DASHBOARD');
 
-		// Set page icon.
-		$this->setIconUrl( rtrim( JURI::root() , '/' ) . '/media/com_easysocial/images/icons/logo/large.png' , false );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_DASHBOARD' ) );
-
-		// Get users model
-		$usersModel	= FD::model( 'Users' );
 
 		// Get total albums
-		$photosModel = FD::model( 'Albums' );
+		$photosModel = ES::model('Albums');
 		$totalAlbums = $photosModel->getTotalAlbums();
 
 		// Get mailer model
-		$mailerModel = FD::model( 'Mailer' );
+		$mailerModel = ES::model('Mailer');
 		$mailStats = $mailerModel->getDeliveryStats();
 
 		// profiles signup data
-		$profilesModel = FD::model( 'Profiles' );
+		$profilesModel = ES::model('Profiles');
 		$signupData = $profilesModel->getRegistrationStats();
+
+		// Get reports model
+		$reportsModel = ES::model('Reports');
+		$totalReports = $reportsModel->getReportCount();
+
+		// Get total videos
+		$videosModel = ES::model('Videos');
+		$totalVideos = $videosModel->getTotalVideos(array('state' => 'all'));
+
+		// Get total pending users
+		$usersModel = ES::model('Users');
+		$pendingUsers = $usersModel->getPendingUsers();
+		$totalPending = count($pendingUsers);
+
+		// Get total events
+		$eventsModel = ES::model('Events');
+		$totalEvents = $eventsModel->getTotalEvents();
+
+		// Get total number of groups
+		$groupsModel = ES::model('Groups');
+		$totalGroups = $groupsModel->getTotalGroups();
 
 		$xAxes = array();
 
 		foreach ($signupData->dates as $date) {
-			$xAxes[] 	= FD::date($date)->format(JText::_('COM_EASYSOCIAL_DATE_DM'));
+			$xAxes[] = FD::date($date)->format(JText::_('COM_EASYSOCIAL_DATE_DM'));
 		}
 
 		// Add translation on the profile title
@@ -61,33 +75,28 @@ class EasySocialViewEasySocial extends EasySocialAdminView
 			$profile->title = JText::_($profile->title);
 		}
 
-		$pendingUsers 	= $usersModel->getPendingUsers();
-		$totalPending 	= count( $pendingUsers );
-
-		// Get total number of groups
-		$groupsModel 	= FD::model( 'Groups' );
-		$totalGroups 	= $groupsModel->getTotalGroups();
-
-		$this->set( 'mailStats'			, $mailStats );
-		$this->set( 'axes' 				, $xAxes );
-		$this->set( 'signupData'		, $signupData );
-		$this->set( 'totalPending'		, $totalPending );
-		$this->set( 'pendingUsers'		, $pendingUsers );
-		$this->set( 'totalUsers' 		, $usersModel->getTotalUsers() );
-		$this->set( 'totalOnline'		, $usersModel->getTotalOnlineUsers() );
-		$this->set( 'totalGroups'		, $totalGroups );
-		$this->set( 'totalAlbums'		, $totalAlbums );
+		$this->set('totalEvents', $totalEvents);
+		$this->set('totalVideos', $totalVideos);
+		$this->set('totalReports', $totalReports);
+		$this->set('mailStats', $mailStats);
+		$this->set('axes', $xAxes);
+		$this->set('signupData', $signupData);
+		$this->set('totalPending', $totalPending);
+		$this->set('pendingUsers', $pendingUsers);
+		$this->set('totalUsers', $usersModel->getTotalUsers());
+		$this->set('totalOnline', $usersModel->getTotalOnlineUsers());
+		$this->set('totalGroups', $totalGroups);
+		$this->set('totalAlbums', $totalAlbums);
 
 		// Add Joomla button
-		if( FD::user()->authorise( 'core.admin' , 'com_easysocial' ) )
-		{
+		if ($this->my->authorise('core.admin', 'com_easysocial')) {
 			JToolbarHelper::preferences( 'com_easysocial' );
 		}
 
 		// Add clear cache button here.
-		JToolbarHelper::custom( 'clearCache' , 'trash' , '' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_BUTTON_PURGE_CACHE' ) , false );
+		JToolbarHelper::custom('clearCache', 'trash', '', JText::_('COM_EASYSOCIAL_TOOLBAR_BUTTON_PURGE_CACHE'), false);
 
-		echo parent::display( 'admin/easysocial/default' );
+		echo parent::display('admin/easysocial/default');
 	}
 
 	/**
@@ -100,9 +109,9 @@ class EasySocialViewEasySocial extends EasySocialAdminView
 	 */
 	public function clearUrls()
 	{
-		FD::info()->set( $this->getMessage() );
+		$this->info->set($this->getMessage());
 
-		$this->redirect( 'index.php?option=com_easysocial' );
+		$this->redirect('index.php?option=com_easysocial');
 	}
 
 	/**
@@ -115,7 +124,7 @@ class EasySocialViewEasySocial extends EasySocialAdminView
 	 */
 	public function clearCache()
 	{
-		FD::info()->set( $this->getMessage() );
+		$this->info->set($this->getMessage());
 
 		$this->redirect( 'index.php?option=com_easysocial' );
 	}
@@ -129,7 +138,7 @@ class EasySocialViewEasySocial extends EasySocialAdminView
 	 */
 	public function sync()
 	{
-		FD::info()->set( $this->getMessage() );
+		$this->info->set($this->getMessage());
 
 		$this->redirect( 'index.php?option=com_easysocial' );
 	}

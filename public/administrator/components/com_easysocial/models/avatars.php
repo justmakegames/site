@@ -122,13 +122,9 @@ class EasySocialModelAvatars extends EasySocialModel
 
 		$uploaded	= isset( $options[ 'uploaded' ] ) ? $options[ 'uploaded' ] : '';
 
-		if( $uploaded )
-		{
+		if ($uploaded) {
 			$sql->where( 'avatar_id' , 0 );
 			$sql->where( 'small' , '' , '!=' );
-			$sql->where( 'medium' , '' , '!=' );
-			$sql->where( 'square' , '' , '!=' );
-			$sql->where( 'large' , '' , '!=' );
 		}
 
 		$limit 	= isset( $options[ 'limit' ] ) ? $options[ 'limit' ] : 10;
@@ -140,8 +136,14 @@ class EasySocialModelAvatars extends EasySocialModel
 
 		if ($ordering) {
 
+			$sorting 	= isset($options['sort']) ? $options['sort'] : 'DESC';
+
 			if ($ordering == 'random') {
 				$sql->order('', '', 'RAND');
+			}
+
+			if ($ordering == 'id') {
+				$sql->order('id', $sorting);
 			}
 
 		}
@@ -164,15 +166,13 @@ class EasySocialModelAvatars extends EasySocialModel
 
 		$rows 	= $db->loadObjectList();
 
-		if( !$rows )
-		{
+		if (!$rows) {
 			return $rows;
 		}
 
 		$avatars 	= array();
 
-		foreach( $rows as $row )
-		{
+		foreach ($rows as $row) {
 			$avatar 	= FD::table( 'Avatar' );
 			$avatar->bind( $row );
 
@@ -196,6 +196,12 @@ class EasySocialModelAvatars extends EasySocialModel
 	{
 		$db 		= FD::db();
 		$query		= array();
+
+		$key = $type . '.avatar.' . $uid;
+
+		if (FD::cache()->exists($key)) {
+			return FD::cache()->get($key);
+		}
 
 		$query[]	= 'SELECT * FROM ' . $db->nameQuote( '#__social_default_avatars' );
 		$query[]	= 'WHERE ' . $db->nameQuote( 'uid' ) . '=' . $db->Quote( $uid );
@@ -223,6 +229,51 @@ class EasySocialModelAvatars extends EasySocialModel
 			$avatar->bind( $row );
 
 			$avatars[]  = $avatar;
+		}
+
+		return $avatars;
+	}
+
+	public function preloadDefaultAvatar($uids, $type = SOCIAL_TYPE_PROFILES)
+	{
+		$db 		= FD::db();
+		$query		= array();
+
+		$uids = array_unique($uids);
+
+		$userIds = implode(',', $uids);
+		$userIds = trim($userIds);
+
+		if (! $userIds) {
+			return array();
+		}
+
+		$query[]	= 'SELECT * FROM ' . $db->nameQuote( '#__social_default_avatars' );
+		$query[]	= 'WHERE ' . $db->nameQuote( 'uid' ) . ' IN (' . $userIds . ')';
+		$query[]	= 'AND ' . $db->nameQuote( 'type' ) . '=' . $db->Quote( $type );
+
+		$query 		= implode( ' ' , $query );
+		$db->setQuery( $query );
+
+		$result		= $db->loadObjectList();
+
+		if( !$result )
+		{
+			return $result;
+		}
+
+		$avatars    = array();
+
+		foreach( $result as $row )
+		{
+			$avatar = FD::table( 'DefaultAvatar' );
+			$avatar->bind( $row );
+
+			//cache JTABLE
+			$key = 'DefaultAvatar.' . $avatar->id;
+			FD::cache()->set($key, $avatar);
+
+			$avatars[$row->uid][]  = $avatar;
 		}
 
 		return $avatars;

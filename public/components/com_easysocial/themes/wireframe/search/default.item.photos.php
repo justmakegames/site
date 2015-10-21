@@ -28,12 +28,10 @@ $img 	= ( $item->image ) ? $item->image : '';
 				<ul class="fd-reset-list">
 					<li>
 						<div class="es-item-title" style="word-break:break-all;">
-							<i class="<?php echo $item->icon; ?> ies-small mr-5"></i>
-							<a href="<?php echo JRoute::_( $item->link ); ?>">
-								<?php echo $item->title; ?>
-							</a>
+							<i class="fa <?php echo $item->icon;?> mr-5"></i> <a href="<?php echo JRoute::_($item->link); ?>"><?php echo $item->title; ?></a>
 						</div>
 					</li>
+					
 					<li class="item-meta">
 						<?php echo JText::sprintf( 'COM_EASYSOCIAL_SEARCH_RESULT_PHOTOS_UPLOADED_ON' , $this->html( 'string.date' , $item->finder->publish_start_date , 'COM_EASYSOCIAL_PHOTOS_DATE_FORMAT') ); ?>
 					</li>

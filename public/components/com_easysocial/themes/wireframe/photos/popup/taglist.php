@@ -11,13 +11,13 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="btn-group btn-group-xs es-photo-tag-list" data-photo-tag-list>
+<div class="btn-group btn-group-sm es-photo-tag-list" data-photo-tag-list>
 
 	<?php if (!$lib->taggable()) { ?>
 
-	<div class="es-media-item-menu-item btn btn-media btn-es dropdown_" data-item-actions-menu>
+	<div class="es-media-item-menu-item btn btn-default btn-es dropdown_" data-item-actions-menu>
 		<a href="javascript: void(0);" data-bs-toggle="dropdown">
-			<i class="ies-tag"></i> <?php echo JText::_('COM_EASYSOCIAL_PHOTOS_TAGS'); ?>
+			<?php echo JText::_('COM_EASYSOCIAL_PHOTOS_TAGS'); ?>
 		</a>
 		<div class="dropdown-menu dropdown-static">
 			<div class="es-photo-tag-list-item-group<?php echo (empty($tags)) ? ' empty-tags' : ''; ?>" data-photo-tag-list-item-group>
@@ -33,13 +33,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<?php } else { ?>
 
-	<div class="es-media-item-menu-item btn btn-media btn-es" data-photo-tag-button="enable" data-item-actions-menu>
+	<div class="es-media-item-menu-item btn btn-default btn-es" data-photo-tag-button="enable" data-item-actions-menu>
 		<a href="javascript: void(0);" data-bs-toggle="">
-			<i class="ies-tag"></i> <?php echo JText::_('COM_EASYSOCIAL_TAG_PHOTO'); ?>
+			<?php echo JText::_('COM_EASYSOCIAL_TAG_PHOTO'); ?>
 		</a>
 	</div>
-	<div class="es-media-item-menu-item btn btn-media btn-es dropdown_" data-item-actions-menu>
-		<a href="javascript: void(0);" data-bs-toggle="dropdown"><i class="caret"></i> </a>
+	<div class="es-media-item-menu-item btn btn-default btn-es dropdown_" data-item-actions-menu>
+		<a href="javascript: void(0);" data-bs-toggle="dropdown"><i class="fa fa-caret-down"></i> </a>
 		<div class="dropdown-menu dropdown-static">
 			<div class="es-photo-tag-list-item-group<?php echo (empty($tags)) ? ' empty-tags' : ''; ?>" data-photo-tag-list-item-group>
 				<?php if( $tags ){ ?>

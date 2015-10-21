@@ -13,13 +13,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="app-feeds app-groups" data-group-feeds data-groupid="<?php echo $group->id;?>" data-appid="<?php echo $appId;?>">
 
-	<div class="es-filterbar">
-		<div class="h5 pull-left filterbar-title"><?php echo JText::_('APP_GROUP_FEEDS_TITLE'); ?></div>
+	<div class="es-filterbar row-table">
+		<div class="col-cell filterbar-title"><?php echo JText::_('APP_GROUP_FEEDS_TITLE'); ?></div>
 
 		<?php if ($group->isMember()) { ?>
-		<a href="javascript:void(0);" class="btn btn-es-primary btn-sm pull-right" data-feeds-create>
-			<?php echo JText::_('APP_GROUP_FEEDS_NEW_FEED'); ?>
-		</a>
+		<div class="col-cell cell-tight">
+			<a href="javascript:void(0);" class="btn btn-es-primary btn-sm pull-right" data-feeds-create>
+				<?php echo JText::_('APP_GROUP_FEEDS_NEW_FEED'); ?>
+			</a>
+		</div>
 		<?php } ?>
 	</div>
 
@@ -32,7 +34,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</ul>
 
 			<div class="empty empty-hero">
-				<i class="ies-feed-2"></i>
+				<i class="fa fa-rss-square"></i>
 				<div>
 					<?php echo JText::_('APP_GROUP_FEEDS_EMPTY_FEEDS'); ?>
 				</div>

@@ -26,14 +26,8 @@ class EasySocialViewLanguages extends EasySocialAdminView
 	 */
 	public function display( $tpl = null )
 	{
-		// Set page heading
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_LANGUAGES'));
-
-		// Set page icon.
-		$this->setIcon('ies-puzzle-2');
-
-		// Set page description
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_LANGUAGES'));
+		$this->setHeading('COM_EASYSOCIAL_HEADING_LANGUAGES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_LANGUAGES');
 
 		// Get the server keys
 		$key = $this->config->get('general.key');
@@ -60,10 +54,11 @@ class EasySocialViewLanguages extends EasySocialAdminView
 
 		// Add Joomla buttons
 		JToolbarHelper::custom( 'discover' , 'refresh' , '' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_BUTTON_FIND_UPDATES' ) , false );
+		JToolbarHelper::custom( 'purge' , 'purge' , '' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_BUTTON_PURGE_CACHE') , false );
 		JToolbarHelper::divider();
-		JToolbarHelper::custom( 'install' , 'upload' , '' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_BUTTON_INSTALL_OR_UPDATE' ) );
-		JToolbarHelper::divider();
-		JToolbarHelper::custom( 'purge' , 'purge' , '' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_BUTTON_PURGE_CACHE' ) , false );
+		JToolbarHelper::custom('install', 'upload' , '' , JText::_('COM_EASYSOCIAL_TOOLBAR_BUTTON_INSTALL_OR_UPDATE'));
+		JToolbarHelper::custom('uninstall', 'remove', '', JText::_('COM_EASYBLOG_TOOLBAR_BUTTON_UNINSTALL'));
+		
 
 		// Get filter states.
 		$ordering  = $this->input->get('ordering', $model->getState('ordering'), 'cmd');
@@ -100,14 +95,8 @@ class EasySocialViewLanguages extends EasySocialAdminView
 	 */
 	public function discover()
 	{
-		// Set page heading
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_LANGUAGES'));
-
-		// Set page icon.
-		$this->setIcon('icon-jar jar-directions');
-
-		// Set page description
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_LANGUAGES'));
+		$this->setHeading('COM_EASYSOCIAL_HEADING_LANGUAGES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_LANGUAGES');
 
 		// Get the stored settings
 		$key = $this->config->get('general.key');
@@ -115,6 +104,18 @@ class EasySocialViewLanguages extends EasySocialAdminView
 		$this->set('key', $key);
 
 		return parent::display('admin/languages/initialize');
+	}
+
+	/**
+	 * Post processing after uninstall happens
+	 *
+	 * @since	1.4
+	 * @access	public
+	 */
+	public function uninstall()
+	{
+		$this->info->set($this->getMessage());
+		$this->redirect('index.php?option=com_easysocial&view=languages');
 	}
 
 	/**

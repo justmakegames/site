@@ -27,7 +27,7 @@ class SocialUserAppBroadcast extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#CF3510';
-		$obj->icon 		= 'ies-broadcast-2';
+		$obj->icon 		= 'fa fa-bullhorn';
 		$obj->label 	= 'APP_USER_FRIENDS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -59,13 +59,22 @@ class SocialUserAppBroadcast extends SocialAppItem
 		// Determine which target profile id
 		$profileId = $this->input->get('broadcast_profileId', 0, 'int');
 
+		// Determine which type this broadcast is
+		$type = $this->input->get('broadcast_type', 'notification', 'string');
+
 		// Get the content
 		$content = $streamTemplate->content;
 
 		// For broadcasted items, we want to insert a new notification for everyone on the site
 		$model = FD::model('Broadcast');
-		$id = $model->broadcast($profileId, $content, $this->my->id, $title, $link);
-
+		
+		// To check if user select via notification, save to notification table instead.				
+		if ($type == 'popup') {
+			$id = $model->broadcast($profileId, $content, $this->my->id, $title, $link);
+		} else {
+			$id = $model->notifyBroadcast($profileId, $title, $content, $link, $this->my->id);
+		}
+		
 		$streamItem->context_id = $id;
 
 		// Save the stream object
@@ -106,7 +115,7 @@ class SocialUserAppBroadcast extends SocialAppItem
 
 		$stream->display = SOCIAL_STREAM_DISPLAY_FULL;
 		$stream->color = '#CF3510';
-		$stream->fonticon = 'ies-broadcast-2';
+		$stream->fonticon = 'fa fa-bullhorn';
 		$stream->label = JText::_('COM_EASYSOCIAL_STREAM_APP_FILTER_BROADCAST');
 
 		// There will not be any likes for this

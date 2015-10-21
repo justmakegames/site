@@ -38,11 +38,7 @@ class EasySocialControllerRepost extends EasySocialController
 		$element 	= JRequest::getString( 'element' );
 
 		// If id is invalid, throw an error.
-		if( !$id || !$element)
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'Likes: Unable to process because id or element provided is invalid.' );
-
+		if (!$id || !$element) {
 			$view->setMessage( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_ID' ) , SOCIAL_MSG_ERROR );
 			return $view->call( __FUNCTION__ );
 		}

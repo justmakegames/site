@@ -13,28 +13,29 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div data-field-address class="data-field-address">
 <?php if ($params->get('use_maps')) { ?>
-    <div class="es-story-locations" data-location-base>
-        <div class="es-story-location-map" data-location-map>
+    <?php $hideLocationRemoveButton = (JFactory::getApplication()->isAdmin() && ($this->input->get('view', '', 'cmd') == 'profiles')) ? true : false; ?>
+    <div class="es-locations" data-location-base>
+        <div class="es-location-map" data-location-map>
             <div>
-                <div class="es-story-location-map-image" data-location-map-image></div>
-                <div class="es-story-location-map-actions">
-                    <button class="btn btn-es btn-sm es-story-location-detect-button" type="button" data-location-detect><i class="ies-power"></i> <?php echo JText::_('COM_EASYSOCIAL_DETECT_MY_LOCATION', true); ?></button>
+                <div class="es-location-map-image" data-location-map-image></div>
+                <div class="es-location-map-actions">
+                    <button class="btn btn-es btn-sm es-location-detect-button" type="button" data-location-detect><i class="fa fa-flash"></i> <?php echo JText::_('COM_EASYSOCIAL_DETECT_MY_LOCATION', true); ?></button>
                 </div>
             </div>
         </div>
 
-        <div class="es-story-location-form es-field-location-form" data-location-form>
-            <div class="es-story-location-textbox" data-location-textbox data-language="<?php echo FD::config()->get('general.location.language'); ?>">
+        <div class="es-location-form es-field-location-form has-border" data-location-form>
+            <div class="es-location-textbox" data-location-textbox data-language="<?php echo FD::config()->get('general.location.language'); ?>">
                 <input type="text" class="input-sm form-control" placeholder="<?php echo JText::_('PLG_FIELDS_ADDRESS_SET_A_LOCATION'); ?>" autocomplete="off" data-location-textfield disabled <?php $fulladdress = !empty($value->address) ? $value->address : $value->toString(); if (!empty($fulladdress)) { ?>value="<?php echo $fulladdress; ?>"<?php } ?> />
-                <div class="es-story-location-autocomplete has-shadow is-sticky" data-location-autocomplete>
+                <div class="es-location-autocomplete has-shadow is-sticky" data-location-autocomplete>
                     <b><b></b></b>
-                    <div class="es-story-location-suggestions" data-location-suggestions>
+                    <div class="es-location-suggestions" data-location-suggestions>
                     </div>
                 </div>
             </div>
-            <div class="es-story-location-buttons">
+            <div class="es-location-buttons<?php echo ($hideLocationRemoveButton) ? ' hide' : '';?>">
                 <i class="fd-loading"></i>
-                <a class="es-story-location-remove-button" href="javascript: void(0);" data-location-remove><i class="ies-cancel-2"></i></a>
+                <a class="es-location-remove-button" href="javascript: void(0);" data-location-remove><i class="fa fa-remove"></i></a>
             </div>
         </div>
 

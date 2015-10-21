@@ -356,4 +356,20 @@ class EasySocialModelClusters extends EasySocialModel
 
 		return $items;
 	}
+
+
+	public function preloadClusters($clusters)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = "select * from `#__social_clusters` where id in (" . implode(",", $clusters) . ")";
+
+		$sql->raw($query);
+
+		$db->setQuery($sql);
+
+		$results = $db->loadObjectList();
+		return $results;
+	}
 }

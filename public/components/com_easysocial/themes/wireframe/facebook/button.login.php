@@ -13,5 +13,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <span data-oauth-facebook>
 	<div id="fb-root"></div>
-	<a href="javascript:void(0);" class="btn btn-es-social btn-es-facebook" data-oauth-facebook-login data-oauth-facebook-appid="<?php echo $appId;?>" data-oauth-facebook-url="<?php echo $authorizeURL;?>"><i class="ies-facebook"></i> <?php echo $text; ?></a>
+	<a href="javascript:void(0);" class="btn btn-es-social btn-es-facebook" data-oauth-facebook-login data-oauth-facebook-appid="<?php echo $appId;?>" data-oauth-facebook-url="<?php echo $authorizeURL;?>"><i class="fa fa-facebook"></i> <?php echo $text; ?></a>
 </span>

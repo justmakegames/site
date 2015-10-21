@@ -42,16 +42,44 @@ class SocialGroupAppStoryHookNotificationUpdates
 
         if ($item->context_type == 'links.group.create') {
 
-            $model      = FD::model( 'Stream' );
-            $links      = $model->getAssets($item->uid, SOCIAL_TYPE_LINKS);
+            $model = FD::model('Stream');
+            $links = $model->getAssets($item->uid, SOCIAL_TYPE_LINKS);
 
             if (!$links) {
                 return;
             }
 
-            $link       = FD::makeObject($links[0]->data);
+            $link = FD::makeObject($links[0]->data);
 
-            $item->image    = $link->image;
+            // Retrieve the image cache path
+            $stream = FD::stream();
+            $streamItem = $stream->getItem($item->uid);
+
+            if (!$streamItem) {
+                $item->exclude = true;
+                return;
+            }
+
+            $streamItem = $streamItem[0];
+
+            if (!$streamItem) {
+                return;
+            }
+            
+            $assets = $streamItem->getAssets();
+            
+            if ($assets) {
+                $assets = $assets[0];
+            }
+    
+            $app = FD::table('App');
+            $app->load(array('element' => 'links', 'group' => SOCIAL_TYPE_GROUP));
+
+            $params = $app->getParams();
+
+            $image = FD::links()->getImageLink($assets, $params);
+
+            $item->image    = $image;
             $item->content  = $link->link;
             $item->title    = JText::sprintf('APP_GROUP_STORY_USER_SHARED_LINK_IN_GROUP', $actor->getName(), $group->getName());
         }
@@ -89,7 +117,7 @@ class SocialGroupAppStoryHookNotificationUpdates
             // Since we got all the child of stream, we can get the correct count
             $count          = count($streamItems);
 
-            if ($count <= 1) {
+            if ($count && $count == 1) {
 
                 $photo      = FD::table('Photo');
                 $photo->load($streamItems[0]->id);

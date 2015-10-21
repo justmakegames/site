@@ -30,14 +30,18 @@ $showRSS = in_array($streamType, $allowedRss) || !$streamType;
 <?php } ?>
 
 
-<div class="es-filterbar fd-cf">
-	<div class="filterbar-title h5 pull-left"><?php echo JText::_('COM_EASYSOCIAL_RECENT_UPDATES');?></div>
+<div class="es-snackbar">
+	<div class="row-table">
+		<div class="col-cell"><?php echo JText::_('COM_EASYSOCIAL_RECENT_UPDATES');?></div>
 
-	<?php if ($this->config->get('stream.rss.enabled', true) && $showRSS) { ?>
-	<a href="<?php echo $rssLink;?>" class="fd-small pull-right subscribe-rss btn-rss" target="_blank">
-		<i class="ies-feed-2"></i>&nbsp; <?php echo JText::_('COM_EASYSOCIAL_SUBSCRIBE_VIA_RSS');?>
-	</a>
-	<?php } ?>
+		<?php if ($this->config->get('stream.rss.enabled', true) && $showRSS) { ?>
+		<div class="col-cell">
+			<a href="<?php echo $rssLink;?>" class="fd-small pull-right subscribe-rss btn-rss" target="_blank">
+				<i class="fa fa-rss-square"></i>&nbsp; <?php echo JText::_('COM_EASYSOCIAL_SUBSCRIBE_VIA_RSS');?>
+			</a>
+		</div>
+		<?php } ?>
+	</div>
 </div>
 
 

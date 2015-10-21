@@ -26,7 +26,7 @@ class FD40_FoundryFramework {
 		define($NS.'MEDIA_URI'   , constant($NS.'JOOMLA_URI') . '/media');
 		define($NS.'BOOTCODE'    , 'FD40');
 		define($NS.'VERSION'     , '4.0');
-		define($NS.'LONG_VERSION', '4.0.34');
+		define($NS.'LONG_VERSION', '4.0.39');
 		define($NS.'PATH'        , constant($NS.'JOOMLA_PATH') . '/media/foundry/' . constant($NS.'VERSION'));
 		define($NS.'URI'         , rtrim(JURI::root(), '/') . '/media/foundry/' . constant($NS.'VERSION'));
 		define($NS.'HOSTED'      , 'http://foundry.stackideas.com/' .  constant($NS.'VERSION'));
@@ -52,7 +52,7 @@ class FD40_FoundryFramework {
 
 		// Foundry
 		define($NS.'FOUNDRY_VERSION'      , '4.0' );
-		define($NS.'FOUNDRY_LONG_VERSION' , '4.0.34');
+		define($NS.'FOUNDRY_LONG_VERSION' , '4.0.39');
 		define($NS.'FOUNDRY_BOOTCODE'     , 'FD40' );
 		define($NS.'FOUNDRY'		      , constant($NS.'JOOMLA') . '/media/foundry/' . constant($NS.'FOUNDRY_VERSION'));
 		define($NS.'FOUNDRY_URI'	      , constant($NS.'JOOMLA_URI') . '/media/foundry/' . constant($NS.'FOUNDRY_VERSION'));

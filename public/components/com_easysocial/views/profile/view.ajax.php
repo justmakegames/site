@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,13 +9,72 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 // Include main view file.
-FD::import( 'site:/views/views' );
+FD::import('site:/views/views');
 
 class EasySocialViewProfile extends EasySocialSiteView
 {
+	/**
+	 * Allows caller to take a picture
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function saveCamPicture()
+	{
+		// Ensure that the user is a valid user
+		ES::requireLogin();
+
+		$image = JRequest::getVar('image', '', 'default');
+		$image = imagecreatefrompng($image);
+
+		ob_start();
+		imagepng($image, null, 9);
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		// Store this in a temporary location
+		$file = md5(FD::date()->toSql()) . '.png';
+		$tmp = JPATH_ROOT . '/tmp/' . $file;
+		$uri = JURI::root() . 'tmp/' . $file;
+
+		JFile::write($tmp, $contents);
+
+		$result = new stdClass();
+		$result->file = $file;
+		$result->url = $uri;
+
+		return $this->ajax->resolve($result);
+	}
+
+	/**
+	 * Allows caller to take a picture
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function takePicture()
+	{
+		// Ensure that the user is logged in
+		ES::requireLogin();
+
+		$theme = ES::themes();
+
+		$user = FD::user();
+
+		$theme->set('uid', $user->id);
+
+		$output = $theme->output('site/profile/dialog.capture.picture');
+
+		return $this->ajax->resolve($output);
+	}
+
 	/**
 	 * Displays the popbox of a user when hovering over the name or avatar.
 	 *
@@ -36,7 +95,7 @@ class EasySocialViewProfile extends EasySocialSiteView
 		if( !$id )
 		{
 			// Throw some errors.
-			return $ajax->reject( $this->getMessage() );
+			return $ajax->reject( $this->getMessage());
 		}
 
 		$user 	= FD::user( $id );
@@ -397,15 +456,21 @@ class EasySocialViewProfile extends EasySocialSiteView
 		return $ajax->resolve( $contents );
 	}
 
+	/**
+	 * Retrieves the about tabs
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function initInfo($steps = null)
 	{
-		$ajax = FD::ajax();
-
 		if ($this->hasErrors()) {
-			return $ajax->reject($this->getMessage());
+			return $this->ajax->reject($this->getMessage());
 		}
 
-		return $ajax->resolve($steps);
+		return $this->ajax->resolve($steps);
 	}
 
 	public function getInfo($fields = null)
@@ -423,5 +488,201 @@ class EasySocialViewProfile extends EasySocialSiteView
 		$contents = $theme->output('site/profile/default.info');
 
 		return $ajax->resolve($contents);
+	}
+
+	/**
+	 * Displays confirmation dialog to delete a user
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function confirmDeleteUser()
+	{
+		// Only registered users can see this
+		FD::requireLogin();
+
+		// Only site admins can access
+		if (!$this->my->isSiteAdmin()) {
+			return;
+		}
+
+		$theme = FD::themes();
+
+		$uid = $this->input->get('id', 0, 'int');
+
+		// check if user exists or not.
+		$user = JFactory::getUser($uid);
+
+		if (! $user->id) {
+			return $this->ajax->reject(JText::_('COM_EASYSOCIAL_INVALID_USER'));
+		}
+
+		if (! $this->my->canDeleteUser($user)) {
+			return $this->ajax->reject(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_DELETE_USER'));
+		}
+
+		$theme = FD::themes();
+
+		$content = $theme->output('site/profile/dialog.user.delete');
+
+		return $this->ajax->resolve($content);
+	}
+
+	/**
+	 * Confirmation to delete user
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function deleteUser()
+	{
+		if ($this->hasErrors()) {
+			return $this->ajax->reject($this->getMessage());
+		}
+
+		$message = $this->getMessage();
+
+		$theme = FD::themes();
+
+		$theme->set('msgObj', $message);
+		$theme->set('userListingLink', FRoute::users());
+		$theme->set('dashboardLink', FRoute::dashboard());
+
+		$contents = $theme->output('site/profile/dialog.user.delete.success');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Post operation once an account is unblocked from the site
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function unbanUser($user)
+	{
+		if ($this->hasErrors()) {
+			return $this->ajax->reject($this->getMessage());
+		}
+		$message = JText::_('COM_EASYSOCIAL_USER_UNBANNED_SUCCESS_MESSAGE');
+
+		$theme = ES::themes();
+		$theme->set('message', $message);
+		$theme->set('user', $user);
+		$contents = $theme->output('site/profile/dialog.user.unban.success');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Post operation after a user is banned on the site
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function banUser($user)
+	{
+		if ($this->hasErrors()) {
+			return $this->ajax->reject($this->getMessage());
+		}
+
+		$message = $this->getMessage();
+
+		$theme = FD::themes();
+		$theme->set('user', $user);
+		$theme->set('msgObj', $message);
+		$theme->set('userListingLink', FRoute::users());
+		$theme->set('dashboardLink', FRoute::dashboard());
+
+		$contents = $theme->output('site/profile/dialog.user.ban.success');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Displays confirmation dialog to ban a user
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function confirmUnban()
+	{
+		// Only registered users can see this
+		ES::requireLogin();
+
+		$theme = FD::themes();
+
+		$uid = $this->input->get('id', 0, 'int');
+
+		$user = ES::user($uid);
+
+		if (! $this->my->canBanUser($user)) {
+			return $this->ajax->reject(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_BAN_USER'));
+		}
+
+		$contents = $theme->output('site/profile/dialog.user.unban');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Displays confirmation dialog to ban a user
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function confirmBanUser()
+	{
+		// Only registered users can see this
+		FD::requireLogin();
+
+		$theme = FD::themes();
+
+		$uid = $this->input->get('id', 0, 'int');
+
+		$user = ES::user($uid);
+
+		if (!$user->id) {
+			return $this->ajax->reject(JText::_('COM_EASYSOCIAL_INVALID_USER'));
+		}
+
+		if (! $this->my->canBanUser($user)) {
+			return $this->ajax->reject(JText::_('COM_EASYSOCIAL_PROFILE_NOT_ALLOWED_TO_BAN_USER'));
+		}
+
+		$contents = $theme->output('site/profile/dialog.user.ban');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Confirmation to remove an avatar
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function confirmRemoveAvatar()
+	{
+		// Only registered users can do this
+		ES::requireLogin();
+
+		$theme = ES::themes();
+		$contents = $theme->output('site/profile/dialogs/remove.avatar');
+
+		return $this->ajax->resolve($contents);
 	}
 }

@@ -13,8 +13,6 @@
 	.es-content {
 		.es-item-list,
 		.es-item-grid {
-			padding: 10px;
-
 			.empty{
 				margin-top: 40px;
 				width: 100%;
@@ -41,11 +39,6 @@
 	}
 
 	.listActions{
-
-		a{
-			font-size: 11px;
-		}
-
 		.dropdown-menu-lists {
 			hr {
 				margin: 5px 0;
@@ -62,13 +55,13 @@
 			{
 				li > a {
 					color: @esColor;
-					font-size: 11px;
+					font-size: @baseFontSize;
 					padding: 3px 10px;
 				}
 			}
 		}
 		.es-friends-links {
-			font-size: 11px;
+			font-size: @baseFontSize;
 			> li {
 				margin-bottom: 4px;
                 + li {
@@ -114,7 +107,7 @@
 	h5 {
 		font-size: 12px;
 		a {
-			font-size: 11px;
+			font-size: @baseFontSize;
 			font-weight: normal;
 			margin-right: 5px;
 		}

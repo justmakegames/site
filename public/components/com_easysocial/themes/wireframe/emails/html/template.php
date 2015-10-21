@@ -19,12 +19,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
     <title></title>
 </head>
 <body style="margin:0;padding:0;background:#f4f4f4;">
-    <center>
-        <table style="width:100%;background:#f4f4f4;margin:0;padding:50px 0 80px;color:#798796;font-family:'Lucida Grande',Tahoma,Arial;font-size:11px;">
+
+        <table style="border-collapse:collapse;min-height:100% !important;width:100% !important;table-layout:fixed;margin:0 auto;background:#f4f4f4;margin:0;padding:50px 0 80px;color:#798796;font-family:'Lucida Grande',Tahoma,Arial;font-size:11px;">
             <tr>
-                <td>
-                    <center>
-                        <table cellpadding="0" cellspacing="0" border="0" style="width:600px;background:#fff;border:1px solid #ededed;border-top-color:#f4f4f4;border-bottom-color:#f4f4f4;border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;">
+                <td align="center" style="min-height:100% !important;width:100% !important;">
+
+                        <table cellpadding="0" cellspacing="0" border="0" style="width:600px;table-layout:fixed;margin:0 auto;background:#fff;border:1px solid #ededed;border-top-color:#f4f4f4;border-bottom-color:#f4f4f4;border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;">
                             <tbody>
                                 <tr>
                                     <td style="padding-top:20px;padding-left:20px;">
@@ -57,10 +57,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
                             </tbody>
                         </table>
-                    </center>
+
                 </td>
             </tr>
         </table>
-    </center>
+
 </body>
 </html>

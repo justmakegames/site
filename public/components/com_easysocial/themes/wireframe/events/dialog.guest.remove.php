@@ -17,7 +17,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
     <selectors type="json">
     {
         "{closeButton}": "[data-close-button]",
-        "{removeButton}": "[data-remove-button]"
+        "{removeButton}": "[data-remove-button]",
+        "{form}": "[data-remove-event-form]"
     }
     </selectors>
     <bindings type="javascript">
@@ -25,12 +26,22 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         "{closeButton} click": function()
         {
             this.parent.close();
+        },
+        "{removeButton} click": function()
+        {
+            this.form().submit();
         }
     }
     </bindings>
     <title><?php echo JText::_('COM_EASYSOCIAL_EVENTS_DIALOG_CONFIRM_REMOVE_GUEST_TITLE'); ?></title>
     <content>
         <p><?php echo JText::sprintf('COM_EASYSOCIAL_EVENTS_DIALOG_CONFIRM_REMOVE_GUEST_CONTENT', $user->getName());?></p>
+            <form data-remove-event-form method="post" action="<?php echo JRoute::_( 'index.php' );?>">
+                <input type="hidden" name="id" value="<?php echo $guest->id;?>" />
+                <input type="hidden" name="controller" value="events" />
+                <input type="hidden" name="task" value="removeGuest" />
+                <?php echo $this->html( 'form.token' ); ?>
+            </form>    
     </content>
     <buttons>
         <button data-close-button type="button" class="btn btn-es btn-sm"><?php echo JText::_('COM_EASYSOCIAL_CLOSE_BUTTON'); ?></button>

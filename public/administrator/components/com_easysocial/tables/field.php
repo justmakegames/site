@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,12 +14,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 // Import main table.
 FD::import('admin:/tables/table');
 
-/**
- * Object mapping for Field table.
- *
- * @author	Mark Lee <mark@stackideas.com>
- * @since	1.0
- */
 class SocialTableField extends SocialTable
 {
 	/**
@@ -624,8 +618,6 @@ class SocialTableField extends SocialTable
 
 		// If this field doesn't have a valid app_id, then return false
 		if (!$this->app_id) {
-			FD::logError(__FILE__, __LINE__, 'FIELDS: Application id is invalid to generate a unique key.');
-
 			return false;
 		}
 
@@ -633,8 +625,6 @@ class SocialTableField extends SocialTable
 		$appTable->load($this->app_id);
 
 		if (!$appTable->element) {
-			FD::logError(__FILE__, __LINE__, 'FIELDS: This application does not have a proper element name to generate a unique key.');
-
 			return false;
 		}
 
@@ -1059,26 +1049,12 @@ class SocialTableField extends SocialTable
 	 */
 	public function saveData($value, $uid, $type = SOCIAL_TYPE_USER)
 	{
-		// Backwards check for now to see if data and raw key is set. If it is set then assign accordingly for now.
-		// Remove this block in 1.3
-		if (is_array($value) && isset($value['data']) && isset($value['raw'])) {
-			$table = FD::table('FieldData');
-			$table->load(array('field_id' => $this->id, 'uid' => $uid, 'type' => $type, 'datakey' => ''));
-
-			$table->data = $value['data'];
-			$table->raw = $value['raw'];
-
-			if (is_array($value['data']) || is_object($value['data'])) {
-				$table->data = FD::json()->encode($value['data']);
-			}
-
-			// Raw should already be in string
-
-			return $table->store();
-		}
+		$json = ES::json();
 
 		// Before proceeding, due to multirow feature, we first have to clear out all old data first
-		FD::model('Fields')->clearData(array('field_id' => $this->id, 'uid' => $uid, 'type' => $type));
+		$options = array('field_id' => $this->id, 'uid' => $uid, 'type' => $type);
+		$model = ES::model('Fields');
+		$model->clearData($options);
 
 		// Since 1.2.6
 		// Multi row data feature
@@ -1089,6 +1065,7 @@ class SocialTableField extends SocialTable
 		// If it is an object, then extract the class variable and the key is the property name
 
 		if (is_array($value) || is_object($value)) {
+
 			foreach ($value as $key => $v) {
 				$table = FD::table('FieldData');
 				$table->load(array('field_id' => $this->id, 'uid' => $uid, 'type' => $type, 'datakey' => $key));
@@ -1096,12 +1073,14 @@ class SocialTableField extends SocialTable
 				$table->data = $v;
 				$table->raw = $v;
 
-				$json = FD::json();
 				if ($json->isJsonString($v)) {
 					$obj = $json->decode($v);
 
 					$table->data = $v;
-					$table->raw = implode(' ', (array) $obj);
+					
+					if (is_object($obj)) {
+						$table->raw = implode(' ', (array) $obj);
+					}
 				}
 
 				if (is_array($v) || is_object($v)) {
@@ -1115,8 +1094,7 @@ class SocialTableField extends SocialTable
 			return true;
 		}
 
-		$table = FD::table('FieldData');
-
+		$table = ES::table('FieldData');
 		$table->load(array('field_id' => $this->id, 'uid' => $uid, 'type' => $type, 'datakey' => ''));
 
 		$table->data = $value;
@@ -1124,9 +1102,8 @@ class SocialTableField extends SocialTable
 
 		// Temporary fallback until all fields get their act together and assign proper values
 		// Remove this part after fixing all the fields properly
-		$json = FD::json();
 		if ($json->isJsonString($value)) {
-			$obj = $json->decode($value);
+			$obj = json_decode($value);
 
 			$table->data = $value;
 			$table->raw = implode(' ', (array) $obj);

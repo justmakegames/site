@@ -37,6 +37,8 @@ class EasySocialControllerFollowers extends EasySocialController
 		// Load friends model.
 		$model 		= FD::model( 'Followers' );
 
+		$limit = FD::themes()->getConfig()->get( 'followersLimit' , 20 );
+
 		// Load the view.
 		$view 		= $this->getCurrentView();
 
@@ -57,15 +59,31 @@ class EasySocialControllerFollowers extends EasySocialController
 
 		if( $type == 'followers' )
 		{
-			$users 	= $model->getFollowers( $userId );
+			$users 	= $model->getFollowers( $userId, array('limit' => $limit) );
 		}
 
 		if( $type == 'following' )
 		{
-			$users 	= $model->getFollowing( $userId );
+			$users 	= $model->getFollowing( $userId, array('limit' => $limit) );
 		}
 
-		return $view->call( __FUNCTION__ , $type , $users , $userId );
+		if( $type == 'suggest' )
+		{
+			$users		= $model->getSuggestions($user->id);
+		}
+
+		$pagination 	= $model->getPagination();
+
+		// Define those query strings here
+		$pagination->setVar( 'Itemid'	, FRoute::getItemId( 'followers' ) );
+		$pagination->setVar( 'view'		, 'followers' );
+		$pagination->setVar( 'filter' , $type );
+
+		if (FD::user()->id != $userId) {
+			$pagination->setVar( 'userid' , $user->getAlias() );
+		}
+
+		return $view->call( __FUNCTION__ , $type , $users , $userId, $pagination );
 	}
 
 	/**
@@ -109,4 +127,61 @@ class EasySocialControllerFollowers extends EasySocialController
 
 		$view->call( __FUNCTION__ );
 	}
+
+
+	/**
+	 * follows a user
+	 *
+	 * @since	1.0
+	 * @access	public
+	 */
+	public function follow()
+	{
+		// Check for valid tokens.
+		FD::checkToken();
+
+		// Check for valid user.
+		FD::requireLogin();
+
+		// Load friends model.
+		$model 		= FD::model( 'Followers' );
+
+		// Load the view.
+		$view 		= $this->getCurrentView();
+
+		// Get the user id that we should load for.
+		$userId 	= JRequest::getInt( 'id', 0 );
+
+		if (!$userId) {
+			$view->setMessage( JText::_( 'COM_EASYSOCIAL_FOLLOWERS_INVALID_ID' ) , SOCIAL_MSG_ERROR );
+			return $view->call( __FUNCTION__ );
+		}
+
+		// Get the current logged in user
+		$my 		= FD::user();
+
+		// Loads the followers record
+		$follower 	= FD::table( 'Subscription' );
+		$follower->load( array( 'uid' => $userId , 'type' => 'user.user' , 'user_id' => $my->id ) );
+
+		if ($follower->id){
+			$view->setMessage( JText::_( 'COM_EASYSOCIAL_FOLLOWERS_ALREADY_FOLLOWED' ) , SOCIAL_MSG_ERROR );
+			return $view->call( __FUNCTION__ );
+		}
+
+		$follower->uid = $userId;
+		$follower->type = 'user.user';
+		$follower->user_id = $my->id;
+
+		// Delete the record
+		$state 	= $follower->store();
+
+		if (!$state){
+			$view->setMessage( JText::_( 'COM_EASYSOCIAL_FOLLOWERS_ERROR_FOLLOWING' ) , SOCIAL_MSG_ERROR );
+			return $view->call( __FUNCTION__ );
+		}
+
+		$view->call( __FUNCTION__ );
+	}
+
 }

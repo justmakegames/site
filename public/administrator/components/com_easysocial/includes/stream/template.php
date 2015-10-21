@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,17 +9,8 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Stream data template.
- * Example:
- *
- * <code>
- * </code>
- *
- * @since
- */
 class SocialStreamTemplate extends JObject
 {
 	/**
@@ -186,6 +177,11 @@ class SocialStreamTemplate extends JObject
 	public $cluster_access 	= null;
 
 	/**
+	 * Stores the state of the stream
+	 */
+	public $state = SOCIAL_STREAM_STATE_PUBLISHED;
+
+	/**
 	 * Class Constructor.
 	 *
 	 * @since	1.0
@@ -196,13 +192,13 @@ class SocialStreamTemplate extends JObject
 	public function __construct()
 	{
 		// Set the creation date to the current time.
-		$date 				= FD::date();
-		$this->created 		= $date->toMySQL();
-		$this->sitewide		= '0';
-		$this->isAggregate			= false;
+		$date = FD::date();
+		$this->created = $date->toMySQL();
+		$this->sitewide = '0';
+		$this->isAggregate = false;
 		$this->aggregateWithTarget	= false;
-		$this->isPublic 	= 0;
-		$this->childs 		= array();
+		$this->isPublic = 0;
+		$this->childs = array();
 		$this->cluster_access = 0;
 
 		//reset the _public_rule holder;
@@ -382,6 +378,19 @@ class SocialStreamTemplate extends JObject
 	public function setMentions( $mentions )
 	{
 		$this->mentions 	= $mentions;
+	}
+
+	/**
+	 * Sets the state of the stream
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function setState($state)
+	{
+		$this->state = $state;
 	}
 
 	/**

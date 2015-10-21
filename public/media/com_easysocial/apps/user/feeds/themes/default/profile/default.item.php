@@ -17,7 +17,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<i class="icon-jar jar-social_rss mr-5"></i>
 			<a href="<?php echo $feed->getParser()->get_link();?>" target="_blank">
 				<?php echo $feed->title; ?>
-				<i class="ies-new-tab ies-small"></i>
+				<i class="fa fa-new-tab "></i>
 			</a>
 		</h5>
 		<p class="fd-small">

@@ -17,15 +17,17 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <?php echo JText::_( 'COM_EASYSOCIAL_APPS_SIDEBAR_TITLE' );?>
         </div>
 
-		<a class="pull-right fd-small" href="<?php echo FRoute::apps();?>">
-			+ <?php echo JText::_( 'COM_EASYSOCIAL_BROWSE' ); ?>
-		</a>
+		<?php if ($this->config->get('apps.browser') && $this->template->get('dashboard_apps_browse')) { ?>
+			<a class="pull-right fd-small" href="<?php echo FRoute::apps();?>">
+				+ <?php echo JText::_('COM_EASYSOCIAL_BROWSE'); ?>
+			</a>
+		<?php } ?>
 	</div>
 
 	<div class="es-widget-body">
-		<?php if( $apps ){ ?>
+		<?php if ($apps) { ?>
 			<ul class="fd-nav fd-nav-stacked" data-dashboard-apps>
-				<?php foreach( $apps as $app ){ ?>
+				<?php foreach ($apps as $app) { ?>
 					<li class="app-item<?php echo $appId == $app->id ? ' active' : '';?>"
 						data-id="<?php echo $app->id;?>"
 						data-layout="<?php echo $app->getViews( 'dashboard' )->type; ?>"
@@ -44,7 +46,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<?php } else { ?>
 		<div class="fd-small">
-			<?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_NO_APPS_INSTALLED_YET' ); ?>
+			<?php echo JText::_('COM_EASYSOCIAL_DASHBOARD_NO_APPS_INSTALLED_YET'); ?>
 		</div>
 		<?php } ?>
 	</div>

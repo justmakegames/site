@@ -16,23 +16,23 @@ FD::import( 'admin:/includes/model' );
 
 class EasySocialModelStream extends EasySocialModel
 {
-	private $data			= null;
-	private $nextdate		= null;
-	private $enddate 		= null;
+	private $data = null;
+	private $nextdate = null;
+	private $enddate = null;
 	private $paginationdate = null;
-	private $uids 			= null; // stream ids
-	protected $pagination 	= null;
-	protected $total 		= null;
+	private $uids = null; // stream ids
+	protected $pagination = null;
+	protected $total = null;
 
 	//used in queries optmisation.
-	static $_relateditems 	= array();
-	static $_activitylogs 	= array();
-	static $_tagging 		= array();
+	static $_relateditems = array();
+	static $_activitylogs = array();
+	static $_tagging = array();
 
 
-	function __construct()
+	public function __construct()
 	{
-		parent::__construct( 'stream' );
+		parent::__construct('stream');
 	}
 
     public function initStates()
@@ -693,8 +693,18 @@ class EasySocialModelStream extends EasySocialModel
 	}
 
 
-	private function getStreamTableAlias( $userId, $type, $useDate = false, $direction = '', $startdate = null, $enddate = null )
+	private function getStreamTableAlias( $userId, $type, $userStickyOnly = false, $useDate = false, $direction = '', $startdate = null, $enddate = null )
 	{
+
+		// apps that other user can post on my profile timeline
+		$profileApps = array('friends' => 'add',
+							'story' => 'create',
+							'photos' => 'share',
+							'links' => 'create',
+							'files' => 'create',
+							'videos' => 'create');
+
+
 		$db 	= FD::db();
 		$view 	= JRequest::getVar( 'view', '');
 
@@ -703,37 +713,38 @@ class EasySocialModelStream extends EasySocialModel
 
 		$streamTableAlias = '(';
 		$streamTableAlias .= 'select a1.* from ' . $db->nameQuote( '#__social_stream' ) . ' as a1 where ' . $db->nameQuote( 'actor_type' ) . ' = ' . $db->Quote( $type ) . ' and ' . $db->nameQuote( 'actor_id' ) . ' = ' . $db->Quote( $userId );
-		// if( $useDate )
-		// {
-		// 	// data fetch limit
-		// 	// startdate holding the larger date
-		// 	// enddte holding the smaller date.
 
-		// 	if( $direction == 'later' )
-		// 	{
-		// 		$streamTableAlias .=	' AND a1.' . $db->nameQuote( $sortDate ) . ' >= ' . $db->Quote( $startdate );
-		// 	}
-		// 	else
-		// 	{
-		// 		$streamTableAlias .=	' AND ( a1.' . $db->nameQuote( $sortDate ) . ' <= ' . $db->Quote( $startdate ) . ' AND a1.' . $db->nameQuote( $sortDate ) . ' >= ' . $db->Quote( $enddate ) . ')';
-		// 	}
-		// }
+		if (! $userStickyOnly) {
+			$streamTableAlias .= ' UNION ';
 
-		$streamTableAlias .= ' UNION ';
+			// tagged item
+			$streamTableAlias .= 'select a2.* from ' . $db->nameQuote( '#__social_stream' ) . ' as a2 ';
+			$streamTableAlias .= ' inner join ' . $db->nameQuote( '#__social_stream_item' ) . ' as ai2 on a2.' . $db->nameQuote( 'id' ) . ' = ai2.' . $db->nameQuote( 'uid' );
+			$streamTableAlias .= ' where a2.' . $db->nameQuote( 'actor_type' ) . ' = ' . $db->Quote( $type );
+			// $streamTableAlias .= ' and a2.' . $db->nameQuote( 'target_id' ) . ' = ' . $db->Quote( $userId ) . ' and a2.' . $db->nameQuote( 'context_type' ) . ' IN (' . $db->Quote( 'friends' ) . ',' . $db->Quote( 'story' ) . ', ' . $db->Quote( 'photos' ) . ',' . $db->Quote( 'links' ) . ')';
+			// $streamTableAlias .= ' and (';
+			// $streamTableAlias .= '	  ( ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote( 'friends' ) . ' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote( 'add' ) . ' ) or ';
+			// $streamTableAlias .= ' 	  ( ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote( 'story' ) .' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote( 'create' ) . ' ) or ';
+			// $streamTableAlias .= '	  ( ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote( 'photos' ) .' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote( 'share' ) . ' ) or ';
+			// $streamTableAlias .= '	  ( ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote( 'links' ) .' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote( 'create' ) . ' ) ';
+			// $streamTableAlias .= '	)';
 
-		// tagged item
-		$streamTableAlias .= 'select a2.* from ' . $db->nameQuote( '#__social_stream' ) . ' as a2 ';
-		$streamTableAlias .= ' inner join ' . $db->nameQuote( '#__social_stream_item' ) . ' as ai2 on a2.' . $db->nameQuote( 'id' ) . ' = ai2.' . $db->nameQuote( 'uid' );
-		$streamTableAlias .= ' where a2.' . $db->nameQuote( 'actor_type' ) . ' = ' . $db->Quote( $type );
-		$streamTableAlias .= ' and a2.' . $db->nameQuote( 'target_id' ) . ' = ' . $db->Quote( $userId ) . ' and a2.' . $db->nameQuote( 'context_type' ) . ' IN (' . $db->Quote( 'friends' ) . ',' . $db->Quote( 'story' ) . ', ' . $db->Quote( 'photos' ) . ',' . $db->Quote( 'links' ) . ')';
-		// $streamTableAlias .= ' and ai2.' . $db->nameQuote( 'verb' ) . ' IN (' . $db->Quote( 'add' ) . ',' . $db->Quote( 'create' ) . ',' . $db->Quote( 'share' ) .')';
+			$inQuery = '';
+			$orQuery = '';
+			foreach($profileApps as $context => $verb) {
+				$join = ($inQuery) ? ',' : '';
+				$inQuery .= $join . $db->Quote($context);
 
-		$streamTableAlias .= ' and (';
-		$streamTableAlias .= '	  ( ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote( 'friends' ) . ' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote( 'add' ) . ' ) or ';
-		$streamTableAlias .= ' 	  ( ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote( 'story' ) .' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote( 'create' ) . ' ) or ';
-		$streamTableAlias .= '	  ( ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote( 'photos' ) .' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote( 'share' ) . ' ) or ';
-		$streamTableAlias .= '	  ( ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote( 'links' ) .' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote( 'create' ) . ' ) ';
-		$streamTableAlias .= '	)';
+				$orJoin = ($orQuery) ? ' or ' : '';
+				$orQuery .= $orJoin . '(ai2.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote($context) . ' and ai2.' . $db->nameQuote( 'verb' ) . ' = ' . $db->Quote($verb) . ' )';
+			}
+
+			$streamTableAlias .= ' and a2.' . $db->nameQuote( 'target_id' ) . ' = ' . $db->Quote( $userId ) . ' and a2.' . $db->nameQuote( 'context_type' ) . ' IN (' . $inQuery . ')';
+			$streamTableAlias .= ' and (';
+			$streamTableAlias .= $orQuery;
+			$streamTableAlias .= '	)';
+
+		}
 
 		if( $useDate )
 		{
@@ -747,52 +758,18 @@ class EasySocialModelStream extends EasySocialModel
 			}
 		}
 
-		if( $view == 'dashboard' )
-		{
+		if($view == 'dashboard' && !$userStickyOnly) {
 
 			$streamTableAlias .= ' UNION ';
 			// friends item
 			$streamTableAlias .= 'select a4.* from ' . $db->nameQuote( '#__social_stream' ) . ' as a4 INNER JOIN ' . $db->nameQuote( '#__social_friends' ) . ' AS f1 ON a4.' . $db->nameQuote( 'actor_id' ) . ' = f1.' . $db->nameQuote( 'target_id' ) . ' and f1.' . $db->nameQuote( 'actor_id' ) . ' =  ' . $db->Quote( $userId ) . ' and f1.' . $db->nameQuote( 'state') . ' = ' . $db->Quote('1');
-			// if( $useDate )
-			// {
-			// 	if( $direction == 'later' )
-			// 	{
-			// 		$streamTableAlias .=	' AND a4.' . $db->nameQuote( $sortDate ) . ' >= ' . $db->Quote( $startdate );
-			// 	}
-			// 	else
-			// 	{
-			// 		$streamTableAlias .=	' AND ( a4.' . $db->nameQuote( $sortDate ) . ' <= ' . $db->Quote( $startdate ) . ' AND a4.' . $db->nameQuote( $sortDate ) . ' >= ' . $db->Quote( $enddate ) . ')';
-			// 	}
-			// }
 
 			$streamTableAlias .= ' UNION ';
 			$streamTableAlias .= 'select a5.* from ' . $db->nameQuote( '#__social_stream' ) . ' as a5 INNER JOIN ' . $db->nameQuote( '#__social_friends' ) . ' AS f2 ON a5.' . $db->nameQuote( 'actor_id' ) . ' = f2.' . $db->nameQuote( 'actor_id' ) . ' and f2.' . $db->nameQuote( 'target_id' ) . ' =  ' . $db->Quote( $userId ) . ' and f2.' . $db->nameQuote( 'state') . ' = ' . $db->Quote('1');
-			// if( $useDate )
-			// {
-			// 	if( $direction == 'later' )
-			// 	{
-			// 		$streamTableAlias .=	' AND a5.' . $db->nameQuote( $sortDate ) . ' >= ' . $db->Quote( $startdate );
-			// 	}
-			// 	else
-			// 	{
-			// 		$streamTableAlias .=	' AND ( a5.' . $db->nameQuote( $sortDate ) . ' <= ' . $db->Quote( $startdate ) . ' AND a5.' . $db->nameQuote( $sortDate ) . ' >= ' . $db->Quote( $enddate ) . ')';
-			// 	}
-			// }
 		}
 
 		$streamTableAlias .= ' UNION ';
 		$streamTableAlias .= 'select a6.* from ' . $db->nameQuote( '#__social_stream' ) . ' as a6 inner join ' . $db->nameQuote( '#__social_stream_tags' ) . ' as st on a6.' . $db->nameQuote( 'id' ) . ' = st.' . $db->nameQuote( 'stream_id' ) . ' where st.' . $db->nameQuote( 'uid' ) . ' = ' . $db->Quote( $userId ) . ' and st.' . $db->nameQuote( 'utype' ) . ' = ' . $db->Quote( SOCIAL_STREAM_TAGGING_TYPE_USER );
-		// if( $useDate )
-		// {
-		// 	if( $direction == 'later' )
-		// 	{
-		// 		$streamTableAlias .=	' AND a6.' . $db->nameQuote( $sortDate ) . ' >= ' . $db->Quote( $startdate );
-		// 	}
-		// 	else
-		// 	{
-		// 		$streamTableAlias .=	' AND ( a6.' . $db->nameQuote( $sortDate ) . ' <= ' . $db->Quote( $startdate ) . ' AND a6.' . $db->nameQuote( $sortDate ) . ' >= ' . $db->Quote( $enddate ) . ')';
-		// 	}
-		// }
 
 		$streamTableAlias .= ') as a';
 
@@ -801,92 +778,94 @@ class EasySocialModelStream extends EasySocialModel
 		return $streamTableAlias;
 	}
 
-
-	public function getClusterStreamData( $config = array() )
+	/**
+	 * Retrieves a list of stream items from cluster types
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getClusterStreamData($options = array())
 	{
-		$db 		= FD::db();
-		$sql 		= $db->sql();
-		$sysconfig 	= FD::config();
+		$db = FD::db();
+		$sql = $db->sql();
 
-		$view 		= JRequest::getVar( 'view', '');
-		$hardLimit	= SOCIAL_STREAM_HARD_LIMIT;
-		// $hardLimit	= 5;
+		$config = FD::config();
 
-		$sortDate   = $sysconfig->get( 'stream.pagination.sort', 'modified' );
+		// Get the view
+		$view = JRequest::getVar('view', '');
 
-		$clusterId  		= isset( $config[ 'clusterId' ] ) ? $config[ 'clusterId' ] : false;
-		$clusterType  		= isset( $config[ 'clusterType' ] ) ? $config[ 'clusterType' ] : false;
-		$clusterCategory  	= isset( $config[ 'clusterCategory' ] ) ? $config[ 'clusterCategory' ] : false;
+		// Enforce a hard limit
+		$hardLimit = SOCIAL_STREAM_HARD_LIMIT;
 
-		$context 	= isset( $config[ 'context' ] ) ? $config[ 'context' ] : false;
-		$userid 	= isset( $config[ 'userid' ] ) ? $config[ 'userid' ] : false;
+		// Get the sorting behavior
+		$sortDate = $config->get('stream.pagination.sort', 'modified');
 
-		$uid 		= isset( $config[ 'uid' ] ) ? $config[ 'uid' ] : false;
-		$type 		= isset( $config[ 'type' ] ) ? $config[ 'type' ] : SOCIAL_TYPE_USER;
-		$viewer 	= isset( $config[ 'viewer' ] ) ? $config[ 'viewer' ] : false;
+		// Determines if the user wants to filter items by cluster
+		$clusterId = isset( $options[ 'clusterId' ] ) ? $options[ 'clusterId' ] : false;
+		$clusterType = isset( $options[ 'clusterType' ] ) ? $options[ 'clusterType' ] : false;
+		$clusterCategory = isset( $options[ 'clusterCategory' ] ) ? $options[ 'clusterCategory' ] : false;
+
+		$context 	= isset( $options[ 'context' ] ) ? $options[ 'context' ] : false;
+		$userid 	= isset( $options[ 'userid' ] ) ? $options[ 'userid' ] : false;
+
+		$uid 		= isset( $options[ 'uid' ] ) ? $options[ 'uid' ] : false;
+		$type 		= isset( $options[ 'type' ] ) ? $options[ 'type' ] : SOCIAL_TYPE_USER;
+		$viewer 	= isset( $options[ 'viewer' ] ) ? $options[ 'viewer' ] : false;
+
 		if ($viewer !== false) {
 			$viwer = (int) $viewer;
 		}
 
-		$limitstart = isset( $config[ 'limitstart' ] ) ? $config[ 'limitstart' ] : false;
-		$limitend 	= isset( $config[ 'limitend' ] ) ? $config[ 'limitend' ] : false;
+		$limitstart = isset( $options[ 'limitstart' ] ) ? $options[ 'limitstart' ] : false;
+		$limitend 	= isset( $options[ 'limitend' ] ) ? $options[ 'limitend' ] : false;
 
-		$streamId	= isset( $config[ 'streamId' ] ) ? $config[ 'streamId' ] : false;
-		$direction	= isset( $config[ 'direction' ] ) ? $config[ 'direction' ] : 'older';
+		$streamId	= isset( $options[ 'streamId' ] ) ? $options[ 'streamId' ] : false;
+		$direction	= isset( $options[ 'direction' ] ) ? $options[ 'direction' ] : 'older';
 
-		$ignoreUser = isset( $config[ 'ignoreUser' ] ) ? $config[ 'ignoreUser' ] : false ;
-		$tag 		= isset( $config[ 'tag' ] ) ? $config[ 'tag' ] : false;
+		$isSticky 	= isset( $options[ 'issticky' ] ) ? $options[ 'issticky' ] : false;
+		$noSticky = isset( $options[ 'nosticky' ] ) ? $options[ 'nosticky' ] : false;
 
-		$guest 		= isset( $config[ 'guest' ] ) ? $config[ 'guest' ] : false ;
-		$limit 		= isset( $config[ 'limit' ] ) ? $config[ 'limit' ] : false ;
-		$startlimit = isset( $config[ 'startlimit' ] ) ? $config[ 'startlimit' ] : '0' ;
+		$ignoreUser = isset( $options[ 'ignoreUser' ] ) ? $options[ 'ignoreUser' ] : false ;
+		$tag 		= isset( $options[ 'tag' ] ) ? $options[ 'tag' ] : false;
 
-		if( $tag && !is_array( $tag ) )
-		{
-			$tag = array( $tag );
-		}
+		$guest 		= isset( $options[ 'guest' ] ) ? $options[ 'guest' ] : false ;
+		$limit 		= isset( $options[ 'limit' ] ) ? $options[ 'limit' ] : false ;
+		$startlimit = isset( $options[ 'startlimit' ] ) ? $options[ 'startlimit' ] : '0' ;
 
-		if ($clusterType) {
-			if (!is_array($clusterType)) {
-				$clusterType = array($clusterType);
-			}
-		}
+		// If tag is provided, we need to ensure that it's an array
+		$tag = FD::makeArray($tag);
 
-		if( $clusterId )
-		{
-			if(! is_array( $clusterId ) )
-			{
-				$clusterId = array( $clusterId );
-			}
-		}
+		// Ensure that the cluster type is an array
+		$clusterType = FD::makeArray($clusterType);
 
-		if( $clusterCategory )
-		{
-			if( ! is_array( $clusterCategory ) )
-			{
-				$clusterCategory = array( $clusterCategory );
-			}
-		}
+		// Ensure that the cluster id is an array
+		$clusterId = FD::makeArray($clusterId);
+
+		// Ensure that the cluster category is an array
+		$clusterCategory = FD::makeArray($clusterCategory);
 
 
-		$query 		= array();
-		$table 		= array();
-		$cond 		= array();
-		$order 		= array();
+		$query = array();
+		$table = array();
+		$cond = array();
+		$order = array();
 
-		$distinctRow = ( $tag ) ? ' distinct' : '';
+		$distinctRow = $tag ? ' DISTINCT' : '';
 
-		$query[]	= 'SELECT ' . $distinctRow. ' a.*';
-		$query[]    = ', l.id as loc_id, l.uid as loc_uid, l.type as loc_type, l.user_id as loc_user_id, l.created as loc_created, l.short_address as loc_short_address';
-		$query[]	= ',l.address as loc_address, l.longitude as loc_longitude, l.latitude as loc_latitude, l.params as loc_params';
-		$query[]	= ',md.id as md_id, md.namespace as md_namespace,md.namespace_uid as md_namespace_uid, md.icon as md_icon, md.verb as md_verb, md.subject as md_subject, md.custom as md_custom';
-		$query[]	= ',md.text as md_text, md.user_id as md_user_id, md.created as md_created';
+		$query[] = 'SELECT ' . $distinctRow. ' a.*';
+		$query[] = ', l.id as loc_id, l.uid as loc_uid, l.type as loc_type, l.user_id as loc_user_id, l.created as loc_created, l.short_address as loc_short_address';
+		$query[] = ',l.address as loc_address, l.longitude as loc_longitude, l.latitude as loc_latitude, l.params as loc_params';
+		$query[] = ',md.id as md_id, md.namespace as md_namespace,md.namespace_uid as md_namespace_uid, md.icon as md_icon, md.verb as md_verb, md.subject as md_subject, md.custom as md_custom';
+		$query[] = ',md.text as md_text, md.user_id as md_user_id, md.created as md_created, ssk.id as sticky';
 
 		if ($viewer) {
-			$query[] = ', sbm.id as bookmarked';
+			$query[]	= ',sbm.id as bookmarked';
 		} else {
-			$query[] = ', 0 as bookmarked';
+			$query[]	= ',0 as bookmarked';
 		}
+
 
 		$query[]	= ',FLOOR( ( UNIX_TIMESTAMP( now() ) - UNIX_TIMESTAMP( a.`modified` ) ) / 60 ) AS `min`';
 		$query[]	= ',FLOOR( ( UNIX_TIMESTAMP( now() ) - UNIX_TIMESTAMP( a.`modified` ) ) / 60 / 60 ) AS `hour`';
@@ -907,28 +886,41 @@ class EasySocialModelStream extends EasySocialModel
 			$table[] = 'and sbm.' . $db->nameQuote('user_id') . ' = ' . $db->Quote($viewer);
 		}
 
-		if( !$ignoreUser )
-		{
+		if ($isSticky) {
+			$table[] = 'INNER JOIN ' . $db->nameQuote( '#__social_stream_sticky' ) . ' AS ssk';
+			$table[] = 'ON a.' . $db->nameQuote( 'id' ) . ' = ssk.' . $db->nameQuote( 'stream_id' );
+		} else {
+			$table[] = 'LEFT JOIN ' . $db->nameQuote( '#__social_stream_sticky' ) . ' AS ssk';
+			$table[] = 'ON a.' . $db->nameQuote( 'id' ) . ' = ssk.' . $db->nameQuote( 'stream_id' );
+		}
+
+		if (!$ignoreUser) {
 			$table[] = 'INNER JOIN `#__users` AS uu ON a.`actor_id` = uu.`id` AND uu.`block` = 0' ;
 		}
 
-		if( $tag )
-		{
-			$table[]	= 'INNER JOIN `#__social_stream_tags` AS tags';
-			$table[]	= 'ON a.`id` = tags.`stream_id`';
+		if ($tag) {
+			$table[] = 'INNER JOIN `#__social_stream_tags` AS tags';
+			$table[] = 'ON a.`id` = tags.`stream_id`';
 		}
 
 		$isSingleItem = false;
 
-		$cond[] = 'WHERE a.`state` = 1';
+		if (isset($options['moderated']) && $options['moderated']) {
+			$cond[] = 'WHERE (a.`state` = 1 OR a.`state` = 5)';
+		} else {
 
-		if( $streamId )
-		{
-			$cond[]		= 'AND a.`id` = ' . $db->Quote( $streamId );
-			$isSingleItem 	= true;
+			if (isset($options['onlyModerated']) && $options['onlyModerated']) {
+				$cond[] = 'WHERE a.`state` = ' . $db->Quote(SOCIAL_STREAM_STATE_MODERATE);
+			} else {
+				$cond[] = 'WHERE a.`state` = ' . $db->Quote(SOCIAL_STREAM_STATE_PUBLISHED);
+			}
 		}
-		else
-		{
+
+		if ($streamId) {
+			$cond[] = 'AND a.`id` = ' . $db->Quote($streamId);
+			$isSingleItem = true;
+		} else {
+
 			// Support for multiple cluster type
 			// Also support for clusterType = false
 			if ($clusterType) {
@@ -1006,34 +998,47 @@ class EasySocialModelStream extends EasySocialModel
 
 		if ($clusterType) {
 			foreach ($clusterType as $c) {
-				$excludeApps = array_merge($excludeApps, $this->getUnAccessilbleUserApps($viewer, $c));
+				$excludeApps[$c] = $this->getUnAccessilbleUserApps($viewer, $c);
 			}
 		}
 
-		// var_dump( $excludeApps);
-		// exit;
-
+		// maybe for clsuter type, we do not need to filter out the streams.
 		if( $excludeApps )
 		{
 			$appOnly = array();
 			$appWithVerb = array();
 
-			foreach ($excludeApps as $app => $verbs ) {
-				if ($verbs === true) {
-					$appOnly[] = $app;
-				} else {
-					$appWithVerb[$app] = $verbs;
+
+			foreach ($excludeApps as $ctype => $capps ) {
+				foreach ($capps as $app => $verbs ) {
+					if ($verbs === true) {
+						$appOnly[$ctype][] = $app;
+					} else {
+						$appWithVerb[$app] = $verbs;
+					}
 				}
 			}
 
+			// var_dump($appWithVerb);
+
 			if (!empty($appOnly)) {
-				$tmpString = '';
-				foreach( $appOnly as $eApp )
-				{
-					$tmpString .= ( $tmpString ) ? ',' . $db->Quote( $eApp ) : $db->Quote( $eApp );
+				$tmpCond = array();
+				foreach($appOnly as $ctype => $capps) {
+					$tmpString = '';
+					foreach( $capps as $eApp )
+					{
+						$tmpString .= ( $tmpString ) ? ',' . $db->Quote( $eApp ) : $db->Quote( $eApp );
+					}
+					$tmpCond[]	= '( a.' . $db->nameQuote( 'context_type' ) . ' NOT IN (' . $tmpString . ') and a.`cluster_type` = ' . $db->Quote($ctype) . ')';
 				}
-				$cond[]	= 'AND a.' . $db->nameQuote( 'context_type' ) . ' NOT IN (' . $tmpString . ')';
+
+				if ($tmpCond > 1) {
+					$cond[] = ' AND (' . implode(' OR ', $tmpCond) . ')';
+				} else {
+					$cond[] = ' AND ' . $tmpCond;
+				}
 			}
+
 
 			if(!empty($appWithVerb)) {
 				foreach ($appWithVerb as $app => $verbs) {
@@ -1052,6 +1057,36 @@ class EasySocialModelStream extends EasySocialModel
 					}
 				}
 			}
+
+			// if (!empty($appOnly)) {
+			// 	$tmpString = '';
+			// 	foreach( $appOnly as $eApp )
+			// 	{
+			// 		$tmpString .= ( $tmpString ) ? ',' . $db->Quote( $eApp ) : $db->Quote( $eApp );
+			// 	}
+			// 	$cond[]	= 'AND a.' . $db->nameQuote( 'context_type' ) . ' NOT IN (' . $tmpString . ')';
+			// }
+
+			// if(!empty($appWithVerb)) {
+			// 	foreach ($appWithVerb as $app => $verbs) {
+			// 		if (count($verbs) == 1) {
+			// 			$cond[] = 'AND ( (a.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote($app) . ' and a.'
+			// 					. $db->nameQuote( 'verb' ) . ' != ' . $db->Quote($verbs[0]) .') OR ( a.' . $db->nameQuote('context_type') .' != ' . $db->Quote( $app ) . ') )';
+			// 		} else {
+			// 			$tmpString = '';
+			// 			foreach( $verbs as $verb )
+			// 			{
+			// 				$tmpString .= ( $tmpString ) ? ',' . $db->Quote( $verb ) : $db->Quote( $verb );
+			// 			}
+
+			// 			$cond[] = 'AND ( (a.' . $db->nameQuote( 'context_type' ) . ' = ' . $db->Quote($app) . ' and a.'
+			// 					. $db->nameQuote( 'verb' ) . ' NOT IN (' . $tmpString .') ) OR ( a.' . $db->nameQuote('context_type') .' != ' . $db->Quote( $app ) . ') )';
+			// 		}
+			// 	}
+			// }
+
+
+
 		}
 
 		if ($viewer) {
@@ -1083,7 +1118,7 @@ class EasySocialModelStream extends EasySocialModel
 			$cond[] = ')';
 
 			//based on user who blocked the viewer
-			if ($sysconfig->get('users.blocking.enabled')) {
+			if ($config->get('users.blocking.enabled')) {
 				$cond[]	= 'AND NOT EXISTS (';
 				$cond[]	= 'select bs.' . $db->nameQuote('user_id') . ' from ' . $db->nameQuote( '#__social_block_users' ) . ' as bs';
 				$cond[] = 'where a.' . $db->nameQuote('actor_id') . ' = bs.' . $db->nameQuote('user_id');
@@ -1116,6 +1151,11 @@ class EasySocialModelStream extends EasySocialModel
 			}
 		}
 
+		if ($noSticky) {
+			// exclude sticky posts.
+			$cond[] = ' AND ssk.`id` is null';
+		}
+
 		// lets get the limit dates here instead
 		$limitDates = array();
 
@@ -1144,7 +1184,13 @@ class EasySocialModelStream extends EasySocialModel
 
 		$query 		= $query . ' ' . $table . ' ' . $cond . ' ' . $order;
 
-	 	$query 		.= ' LIMIT ' . $startlimit . ',' . ( $limit + 1 );
+		if ($limit) {
+			$query 		.= ' LIMIT ' . $startlimit . ',' . ( $limit + 1 );
+		}
+
+		// echo $query;
+		// echo '<br/><br/>';
+		// exit;
 
 	 	$sql->raw( $query );
 
@@ -1152,6 +1198,7 @@ class EasySocialModelStream extends EasySocialModel
 
 		$result = $db->loadObjectList();
 		$counts = count($result);
+
 
 		// now we need to remove the last index from the result.
 		if(! $isSingleItem && $limit && $counts > $limit)
@@ -1168,7 +1215,7 @@ class EasySocialModelStream extends EasySocialModel
 		$this->total = $total;
 
 		// query to get the pagination total;
-		if ($sysconfig->get('stream.pagination.style') == 'page') {
+		if ($config->get('stream.pagination.style') == 'page') {
 
 			$page = array();
 
@@ -1188,60 +1235,56 @@ class EasySocialModelStream extends EasySocialModel
 		}
 
 		$lastItemDate 	= '';
-		$itemcnt 			= count( $result );
+		$total = count($result);
 
-		if( $itemcnt )
-		{
-			$streamIds = array();
-			$streamContexts = array();
+		if (!$total) {
+			return $result;
+		}
 
-			foreach( $result as $row )
-			{
-				$streamIds[] 	= $row->id;
-				$streamContexts[] = $row->context_type;
+		$streamIds = array();
+		$streamContexts = array();
 
-				$lastItemDate 	= $row->modified;
-			}
+		foreach ($result as $row) {
+			$streamIds[] = $row->id;
+			$streamContexts[] = $row->context_type;
 
-			// -------------------------------------------------------------
-			// This is the starting points of optimizing queries for stream.
-			// -------------------------------------------------------------
+			$lastItemDate = $row->modified;
+		}
 
-			$this->setBatchRelatedItems( $streamIds, $streamContexts, $viewer );
+		// -------------------------------------------------------------
+		// This is the starting points of optimizing queries for stream.
+		// -------------------------------------------------------------
 
-			// set stream actors.
-			$this->setActorsBatch( $result );
+		$this->setBatchRelatedItems( $streamIds, $streamContexts, $viewer );
 
-			// set stream photos.
-			$this->setMediaBatch( $result );
+		// set stream actors.
+		$this->setActorsBatch( $result );
 
-			// set stream tagging
-			$this->setTaggingBatch( $streamIds );
+		// set stream photos.
+		$this->setMediaBatch( $result );
 
-			if( $sysconfig->get( 'stream.likes.enabled' ) )
-			{
-				//set stream likes
-				$like = FD::model( 'Likes' );
-				$like->setStreamLikesBatch( $result );
-			}
+		// set stream tagging
+		$this->setTaggingBatch( $streamIds );
 
-			if( $sysconfig->get( 'stream.repost.enabled' ) )
-			{
-				//set stream repost
-				$repost = FD::model( 'Repost' );
-				$repost->setStreamRepostBatch( $result );
+		//set stream likes
+		if ($config->get('stream.likes.enabled')) {
+			$like = FD::model('Likes');
+			$like->setStreamLikesBatch($result);
+		}
 
-				$share = FD::table( 'Share' );
-				$share->setSharesBatch( $result );
-			}
+		//set stream repost
+		if ($config->get('stream.repost.enabled')) {
+			$repost = FD::model('Repost');
+			$repost->setStreamRepostBatch($result);
 
-			if( $sysconfig->get( 'stream.comments.enabled' ) )
-			{
-				// comment count
-				$commentModel = FD::model( 'Comments' );
-				$commentModel->setStreamCommentCountBatch( $result );
-			}
+			$share = FD::table('Share');
+			$share->setSharesBatch($result);
+		}
 
+		// comment count
+		if ($config->get('stream.comments.enabled')) {
+			$commentModel = FD::model('Comments');
+			$commentModel->setStreamCommentCountBatch($result);
 		}
 
 		return $result;
@@ -1291,6 +1334,7 @@ class EasySocialModelStream extends EasySocialModel
 
 
 		// If a context is given.
+		$actorid 		= isset( $config[ 'actorid' ] ) ? $config[ 'actorid' ] : false;
 		$context 		= isset( $config[ 'context' ] ) ? $config[ 'context' ] : false;
 		$userid 	= isset( $config[ 'userid' ] ) ? $config[ 'userid' ] : false;
 		$listid 	= isset( $config[ 'list' ] ) ? $config[ 'list' ] : false;
@@ -1309,6 +1353,13 @@ class EasySocialModelStream extends EasySocialModel
 		$isFollow 	= isset( $config[ 'isfollow' ] ) ? $config[ 'isfollow' ] : false;
 
 		$isBookmark 	= isset( $config[ 'isbookmark' ] ) ? $config[ 'isbookmark' ] : false;
+
+		$isSticky 	= isset( $config[ 'issticky' ] ) ? $config[ 'issticky' ] : false;
+
+		$userStickyOnly 	= isset( $config[ 'userstickyonly' ] ) ? $config[ 'userstickyonly' ] : false;
+
+
+		$noSticky = isset( $config[ 'nosticky' ] ) ? $config[ 'nosticky' ] : false;
 
 		$streamId	= isset( $config[ 'streamId' ] ) ? $config[ 'streamId' ] : false;
 
@@ -1363,9 +1414,10 @@ class EasySocialModelStream extends EasySocialModel
 
 		$streamTableAlias = $db->nameQuote( '#__social_stream' ) . ' AS a';
 
+		// if( empty( $listid ) && empty( $isBookmark ) && empty( $isSticky ) && empty( $isFollow ) && empty( $profileId ) && !$streamId && !$guest && !$tag && !$isAdmin)
 		if( empty( $listid ) && empty( $isBookmark ) && empty( $isFollow ) && empty( $profileId ) && !$streamId && !$guest && !$tag && !$isAdmin)
 		{
-			$streamTableAlias = $this->getStreamTableAlias( $userid[ 0 ], $type );
+			$streamTableAlias = $this->getStreamTableAlias( $userid[ 0 ], $type, $userStickyOnly );
 		}
 
 		// since we are joining social_items table, we will need to distinct the results.
@@ -1375,7 +1427,7 @@ class EasySocialModelStream extends EasySocialModel
 		$query[]    = ', l.id as loc_id, l.uid as loc_uid, l.type as loc_type, l.user_id as loc_user_id, l.created as loc_created, l.short_address as loc_short_address';
 		$query[]	= ',l.address as loc_address, l.longitude as loc_longitude, l.latitude as loc_latitude, l.params as loc_params';
 		$query[]	= ',md.id as md_id, md.namespace as md_namespace,md.namespace_uid as md_namespace_uid, md.icon as md_icon, md.verb as md_verb, md.subject as md_subject, md.custom as md_custom';
-		$query[]	= ',md.text as md_text, md.user_id as md_user_id, md.created as md_created';
+		$query[]	= ',md.text as md_text, md.user_id as md_user_id, md.created as md_created, ssk.id as sticky';
 
 		if ($viewer) {
 			$query[]	= ',sbm.id as bookmarked';
@@ -1421,6 +1473,14 @@ class EasySocialModelStream extends EasySocialModel
 			}
 		}
 
+		if ($isSticky) {
+			$table[] = 'INNER JOIN ' . $db->nameQuote( '#__social_stream_sticky' ) . ' AS ssk';
+			$table[] = 'ON a.' . $db->nameQuote( 'id' ) . ' = ssk.' . $db->nameQuote( 'stream_id' );
+		} else {
+			$table[] = 'LEFT JOIN ' . $db->nameQuote( '#__social_stream_sticky' ) . ' AS ssk';
+			$table[] = 'ON a.' . $db->nameQuote( 'id' ) . ' = ssk.' . $db->nameQuote( 'stream_id' );
+		}
+
 		if (!empty($listid)) {
 			$table[] = 'INNER JOIN ' . $db->nameQuote( '#__social_lists_maps' ) . ' AS lm';
 			$table[] = 'ON a.' . $db->nameQuote( 'actor_id' ) . ' = lm.' . $db->nameQuote( 'target_id' ) . ' AND lm.' . $db->nameQuote( 'list_id' ) . ' = ' . $db->Quote( $listid ) . ' and lm.' . $db->nameQuote( 'target_type' ) . ' = ' .$db->Quote( 'user' );
@@ -1438,6 +1498,11 @@ class EasySocialModelStream extends EasySocialModel
 
 		// * cntCond should not inlcude this cluster criteria.
 		$cond[] = 'WHERE a.`state` = 1';
+
+		if ($actorid) {
+			$cond[] = 'AND a.`actor_id` = ' . $actorid;
+		}
+
 		$cond[] = 'AND (';
 		$cond[]	= '(a.`cluster_id`= 0) OR';
 		$cond[]	= '(a.`cluster_id` > 0 and a.`cluster_access` = 1)';
@@ -1650,6 +1715,11 @@ class EasySocialModelStream extends EasySocialModel
 					$cond[]	= 'AND ( ' . $tagQuery . ' )';
 				}
 			}
+
+			if ($noSticky) {
+				// exclude sticky posts.
+				$cond[] = ' AND ssk.`id` is null';
+			}
 		}
 
 		// lets get the limit dates here instead
@@ -1685,7 +1755,9 @@ class EasySocialModelStream extends EasySocialModel
 	 		$query 		.= ' LIMIT ' . $startlimit . ',' . ( $limit + 1 );
 	 	}
 
-	 	// echo $query;exit;
+	 	// echo $query;
+	 	// echo '<br /><br />';
+	 	// exit;
 
 		$db->setQuery( $query );
 		$result 	= $db->loadObjectList();
@@ -1733,12 +1805,17 @@ class EasySocialModelStream extends EasySocialModel
 		{
 			$streamIds		= array();
 			$streamContexts	= array();
+			$clusterIds = array();
 
 			foreach( $result as $row )
 			{
 				$streamIds[] 	= $row->id;
 				$streamContexts[] = $row->context_type;
 				$lastItemDate 	= $row->modified;
+
+				if ($row->cluster_type == SOCIAL_TYPE_GROUP || $row->cluster_type == SOCIAL_TYPE_EVENT) {
+					$clusterIds[] = $row->cluster_id;
+				}
 			}
 
 			$this->uids = $streamIds;
@@ -1755,6 +1832,11 @@ class EasySocialModelStream extends EasySocialModel
 			// $streamItemTbl->loadByUIDBatch( $streamIds );
 
 			$this->setBatchRelatedItems( $streamIds, $streamContexts, $viewer );
+
+			if ($clusterIds) {
+				$clusterIds = array_unique($clusterIds);
+				FD::cache()->cacheClusters($clusterIds);
+			}
 
 			// set stream actors.
 			$this->setActorsBatch( $result );
@@ -1932,13 +2014,10 @@ class EasySocialModelStream extends EasySocialModel
 		$actorIds[] = FD::user()->id;
 		$actors		= array_unique($actorIds);
 
-		if( $actors )
-		{
-			$userModel = FD::model( 'Users' );
-			$userModel->setUserGroupsBatch( $actors );
-
+		if ($actors) {
 			// Preload users
 			FD::user( $actors );
+			FD::cache()->cacheUsersPrivacy($actors);
 		}
 	}
 
@@ -2138,12 +2217,12 @@ class EasySocialModelStream extends EasySocialModel
 	/**
 	 * used in stream api
 	 */
-	public function updateStream( $data )
+	public function updateStream($data)
 	{
-		$db 		= FD::db();
-		$sql 		= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 
-		$date 		= FD::date( $data->created );
+		$date = FD::date( $data->created );
 		$duration   = 30;
 		$isClusterType = ( $data->cluster_id && $data->cluster_type ) ? true : false;
 
@@ -2243,34 +2322,30 @@ class EasySocialModelStream extends EasySocialModel
 
 		}
 
-		// new stream
-		$tbl    = FD::table( 'Stream' );
-		$tbl->bind( $data );
+		// Create a new stream record
+		$table = FD::table('Stream');
+		$table->bind($data);
 
-		// var_dump($tbl);
+		$table->actor_type = isset($data->actor_type) && !empty($data->actor_type) ? $data->actor_type : 'user';
+		$table->alias = '';
+		$table->created = $date->toSql();
+		$table->params = $data->params;
+		$table->modified = $date->toSql();
+		$table->cluster_id = $data->cluster_id;
+		$table->cluster_type = $data->cluster_type;
+		$table->verb = $data->verb;
 
-		$tbl->actor_type	= ( isset( $data->actor_type ) && !empty( $data->actor_type ) ) ? $data->actor_type : 'user' ;
-		$tbl->alias			= '';
-		$tbl->created		= $date->toMySQL();
-		// $tbl->ispublic 		= ( isset( $data->isPublic ) && $data->isPublic ) ? 1 : 0;
-		$tbl->params 		= $data->params;
-		$tbl->modified		= $date->toMySQL();
-		$tbl->cluster_id  	= $data->cluster_id;
-		$tbl->cluster_type  = $data->cluster_type;
-		$tbl->verb			= $data->verb;
+		// Set the state of the stream
+		$table->state = $data->state;
 
-		//privacy access
-		$tbl->privacy_id = $data->privacy_id;
-		$tbl->access = $data->access;
-		$tbl->custom_access = $data->custom_access;
+		// Privacy access
+		$table->privacy_id = $data->privacy_id;
+		$table->access = $data->access;
+		$table->custom_access = $data->custom_access;
 
-		$tbl->state = 1;
+		$table->store();
 
-		// var_dump( $tbl->store() );
-
-		$tbl->store();
-
-		return $tbl->id;
+		return $table->id;
 	}
 
 	/**
@@ -2966,33 +3041,31 @@ class EasySocialModelStream extends EasySocialModel
 	 * @param	string
 	 * @return
 	 */
-	public function getAppFilters( $group = SOCIAL_TYPE_USER )
+	public function getAppFilters($group = SOCIAL_TYPE_USER)
 	{
-		$db 	= FD::db();
-		$sql 	= $db->sql();
+		$db = ES::db();
+		$sql = $db->sql();
 
-		$sql->select( '#__social_stream' , 'a' );
-		$sql->column( 'DISTINCT( a.context_type )' );
+		$sql->select('#__social_stream', 'a');
+		$sql->column('DISTINCT(a.context_type)');
 
-		$db->setQuery( $sql );
+		$db->setQuery($sql);
 
-		$rows 	= $db->loadColumn();
+		$rows = $db->loadColumn();
 
-		if( !$rows )
-		{
+		if (!$rows) {
 			return;
 		}
 
-		$filters 	= array();
+		$filters = array();
 
-		foreach( $rows as $row )
-		{
-			// Try to see if this item has an app
-			$app 		= FD::table( 'App' );
-			$exists 	= $app->load( array( 'type' => SOCIAL_APPS_TYPE_APPS, 'element' => $row , 'group' => $group ) );
+		foreach ($rows as $row) {
 
-			if( $app->group != $group )
-			{
+			$app = ES::table('App');
+			$options = array('type' => SOCIAL_APPS_TYPE_APPS, 'element' => $row, 'group' => $group);
+			$exists = $app->load($options);
+
+			if ($app->group != $group) {
 				continue;
 			}
 
@@ -3002,45 +3075,45 @@ class EasySocialModelStream extends EasySocialModel
 
 
 			// Get the app object
-			$obj 	= $app->getAppClass();
+			$obj = $app->getAppClass();
 
-			if( ! $obj )
-			{
+			if (!$obj) {
 				continue;
 			}
 
-			if( !$obj->hasStreamFilter() )
-			{
+			if (!$obj->hasStreamFilter()) {
 				continue;
 			}
 
-			$filter 	= new stdClass();
+			$filter = new stdClass();
 
-			$filter->id 		= $app->id;
+			$filter->id = $app->id;
+
 			// We should use pre-defined or user-defined app title instead of a default language string since we allow user to change the title in the backend
 			// JText it as well for users who want to use language strings for multilang sites
-			$filter->title 		= JText::_( 'COM_EASYSOCIAL_STREAM_APP_FILTER_' . strtoupper( $row ) );
-			$filter->image 		= '';
-			$filter->icon 		= '';
-			$filter->favicon	= '';
-			$filter->alias 		= strtolower( $row );
+			$filter->title = JText::_( 'COM_EASYSOCIAL_STREAM_APP_FILTER_' . strtoupper( $row ) );
+			$filter->image = '';
+			$filter->icon = '';
+			$filter->favicon = '';
+			$filter->alias = strtolower($row);
 
-			if( $exists )
-			{
-				// Try to get a favicon
-				$filter->favicon 	= $app->getFavIcon();
+			// Since 1.4, we do not want to display the icons any longer.
+			$filter->icon = 'icon-es-app';
 
-				if( !$filter->favicon )
-				{
-					$filter->image 	= $app->getIcon();
-				}
-			}
-			else
-			{
-				$filter->icon 	= 'icon-es-app';
-			}
+			// if ($exists) {
+			// 	// Try to get a favicon
+			// 	$filter->favicon = $app->getFavIcon();
 
-			$filters[]	= $filter;
+			// 	if (!$filter->favicon) {
+			// 		$filter->image = $app->getIcon();
+			// 	}
+			// }
+			// else
+			// {
+
+			// }
+
+			$filters[] = $filter;
 		}
 
 		return $filters;
@@ -3100,7 +3173,7 @@ class EasySocialModelStream extends EasySocialModel
 	 * we need to work accordingly based on the context passed in.
 	 */
 
-	public function updateModified( $streamId )
+	public function updateModified( $streamId, $user_id = '', $user_action = '' )
 	{
 		$db 	= FD::db();
 		$sql 	= $db->sql();
@@ -3110,12 +3183,70 @@ class EasySocialModelStream extends EasySocialModel
 		$updateQuery = '';
 
 		$updateQuery = 'update `#__social_stream` set `modified` = ' . $db->Quote( $now );
+
+		if ($user_id && $user_action) {
+			$updateQuery .= ', last_userid = ' . $db->Quote($user_id);
+			$updateQuery .= ', last_action = ' . $db->Quote($user_action);
+		}
+
 		$updateQuery .= ' where `id` = ' . $db->Quote( $streamId );
 
 		$sql->raw( $updateQuery );
 		$db->setQuery( $sql );
 
 		$db->query();
+
+		return true;
+	}
+
+	public function revertLastAction($streamId, $user_id = '', $user_action = '')
+	{
+		$db 	= FD::db();
+		$sql 	= $db->sql();
+
+		if ($user_id && $user_action) {
+			// let check first if the last action of this stream is belong to the same person and same action or not.
+			$query = 'select last_userid, last_action from `#__social_stream` where id = ' . $db->Quote($streamId);
+			$sql->raw($query);
+
+			$db->setQuery($sql);
+			$item = $db->loadObject();
+
+			if ($item->last_userid == $user_id && $item->last_action == $user_action) {
+				// okay, we are reverting the same user action. now we need to get the 2nd last action and user id.
+				$prev_last_action = '';
+				$prev_last_userid = '';
+
+				$query = "select * from (";
+				$query .= "	(select 'like' as `action`, `created_by`, `created` from `#__social_likes` where `stream_id` = " . $db->Quote('172321') . " order by `id` desc limit 1)";
+				$query .= "	union all";
+				$query .= "	(select 'comment' as `action`, `created_by`, `created` from `#__social_comments` where `stream_id` = " . $db->Quote('172321') . " order by `id` desc limit 1)";
+				$query .= ") as x order by x.`created` desc limit 1";
+
+				$sql->clear();
+				$sql->raw($query);
+
+				$db->setQuery($sql);
+				$result = $db->loadObject();
+
+				if ($result) {
+					$prev_last_action = $result->action;
+					$prev_last_userid = $result->created_by;
+				}
+
+				// now we have the data and we are ready to update the stream last action.
+				$updateQuery = 'update `#__social_stream` set';
+				$updateQuery .= ' last_userid = ' . $db->Quote($prev_last_userid);
+				$updateQuery .= ', last_action = ' . $db->Quote($prev_last_action);
+				$updateQuery .= ' where `id` = ' . $db->Quote( $streamId );
+
+				$sql->clear();
+				$sql->raw($updateQuery);
+				$db->setQuery($sql);
+
+				$db->query();
+			}
+		}
 
 		return true;
 	}
@@ -3243,12 +3374,15 @@ class EasySocialModelStream extends EasySocialModel
 		$db = FD::db();
 		$sql = $db->sql();
 
+		$query = array();
+		$query[] = 'DELETE a, b FROM ' . $db->qn('#__social_stream') . ' AS a';
+		$query[] = 'INNER JOIN ' . $db->qn('#__social_stream_item') . ' AS b';
+		$query[] = 'ON a.' . $db->qn('id') . '=b.' . $db->qn('uid');
+		$query[] = 'WHERE a.' . $db->qn('id') . '=' . $db->Quote($streamId);
 
-		$query = "delete a, b from `#__social_stream` as a";
-		$query .= " inner join `#__social_stream_item` as b on a.`id` = b.`uid`";
-		$query .= "where a.`id` = $streamId";
-
+		$query = implode(' ', $query);
 		$sql->raw($query);
+
 		$db->setQuery($sql);
 
 		$state = $db->query();

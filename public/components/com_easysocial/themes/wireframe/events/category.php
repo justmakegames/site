@@ -41,14 +41,14 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="es-category-meta">
             <ul class="fd-reset-list category-stats pull-left">
                 <li>
-                    <i class="ies-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_EVENTS', $totalEvents), $totalEvents); ?>
+                    <i class="fa fa-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_EVENTS', $totalEvents), $totalEvents); ?>
                 </li>
                 <li>
-                    <i class="ies-pictures"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_ALBUMS', $totalAlbums), $totalAlbums); ?>
+                    <i class="fa fa-photo"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_ALBUMS', $totalAlbums), $totalAlbums); ?>
                 </li>
             </ul>
 
-            <?php if($this->access->allowed('events.create', true) && !$this->access->exceeded('events.limit', $this->my->getTotalCreatedEvents(array('ongoing' => true, 'upcoming' => true)))){ ?>
+            <?php if($this->access->allowed('events.create', true) && !$this->access->intervalExceeded('events.limit', $this->my->id)){ ?>
             <a href="<?php echo FRoute::events(array('controller' => 'events', 'task' => 'selectCategory', 'category_id' => $category->id));?>" class="btn btn-es-primary pull-right">
                 <?php echo JText::_('COM_EASYSOCIAL_EVENTS_CREATE_EVENT'); ?> &rarr;
             </a>
@@ -79,7 +79,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <img src="<?php echo $event->getAvatar();?>" class="pull-left mr-10 es-avatar" title="<?php echo $this->html('string.escape', $event->getName());?>" />
                             <a href="<?php echo FRoute::events(array('layout' => 'item', 'id' => $event->getAlias()));?>"><?php echo $event->getName(); ?></a>
                             <div class="fd-small event-meta">
-                                <i class="ies-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_GUESTS', $event->getTotalGuests()), $event->getTotalGuests());?>
+                                <i class="fa fa-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_GUESTS', $event->getTotalGuests()), $event->getTotalGuests());?>
                             </div>
                         </li>
                         <?php } ?>

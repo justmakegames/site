@@ -88,13 +88,16 @@ class EasySocialViewPhotos extends EasySocialSiteView
 		parent::display();
 	}
 
+
 	/**
-	 * Displays the photo form
+	 * Post process after a photo is uploaded via the story form
 	 *
-	 * @since	1.0
+	 * @since	1.4
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	public function uploadStory( $photo=null , $paths=array(), $width='', $height='')
+	public function uploadStory($photo = null, $paths = array(), $width = '', $height = '')
 	{
 		$json = FD::json();
 
@@ -105,18 +108,18 @@ class EasySocialViewPhotos extends EasySocialSiteView
 		}
 
 		// Photo html
-		$theme = FD::themes();
-		$theme->set( 'photo' , $photo );
-		$theme->set( 'width' , $width );
-		$theme->set( 'height' , $height );
+		$theme = ES::themes();
+		$theme->set('photo', $photo);
+		$theme->set('width', $width);
+		$theme->set('height', $height);
 
-		$html 	= $theme->output( 'apps/user/photos/story/attachment.item' );
+		$html = $theme->output('site/photos/story/attachment.item');
 
 		$response = new stdClass();
 		$response->data = $photo->export();
 		$response->html = $html;
 
-		$json->send($response);
+		return $json->send($response);
 	}
 
 	/**

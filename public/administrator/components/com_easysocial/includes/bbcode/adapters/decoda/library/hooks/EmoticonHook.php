@@ -62,15 +62,15 @@ class EmoticonHook extends DecodaHook {
 		$path = DECODA_CONFIG . 'emoticons.json';
 
 		// Check if there's an emoticon directory in template's folder
-		$this->_config[ 'path' ]	= '/templates/' . JFactory::getApplication()->getTemplate() . '/html/com_easysocial/emoticons/';
+		$this->_config['path']	= '/templates/' . JFactory::getApplication()->getTemplate() . '/html/com_easysocial/emoticons/';
 
-		if( !JFolder::exists( JPATH_ROOT . $this->_config[ 'path' ] ) )
-		{
-			// Set the path to our own directory
-			// Force root URI in as '/' does not work properly on subfolder sites
-			$this->_config[ 'path' ]	= SOCIAL_JOOMLA_URI .'/media/com_easysocial/images/emoticons/';
+		$overrideExists = JFolder::exists(JPATH_ROOT . $this->_config['path']);
+
+		// Set the path to our own directory
+		// Force root URI in as '/' does not work properly on subfolder sites
+		if (!$overrideExists) {
+			$this->_config['path'] = SOCIAL_JOOMLA_URI .'/media/com_easysocial/images/icons/emoji/';
 		}
-
 
 		if (file_exists($path)) {
 			$this->_emoticons = json_decode(file_get_contents($path), true);
@@ -87,7 +87,7 @@ class EmoticonHook extends DecodaHook {
 		}
 
 		// Always append the absolute url here
-		$this->_config[ 'path' ]	= $this->_config[ 'path' ];
+		$this->_config['path'] = $this->_config['path'];
 	}
 
 	/**
@@ -145,7 +145,7 @@ class EmoticonHook extends DecodaHook {
 
 		$image = $this->getParser()->getFilter('Image')->parse(array(
 			'tag' => 'img',
-			'attributes' => array()
+			'attributes' => array('class' => 'emoji', 'width' => '20', 'height' => '20')
 		), $this->_config['path'] . $this->_map[$smiley] . '.png');
 
 		return $l . $image . $r;

@@ -22,7 +22,7 @@ $active = ( isset( $active ) ) ? $active : '';
 		<div class="es-stream-type"></div>
 		<div class="es-stream-control btn-group pull-right">
 			<a class="btn-control" href="javascript:void(0);" data-bs-toggle="dropdown">
-				<i class="ies-arrow-down"></i>
+				<i class="fa fa-caret-down"></i>
 			</a>
 			<ul class="dropdown-menu fd-reset-list">
 				<li>
@@ -57,7 +57,7 @@ $active = ( isset( $active ) ) ? $active : '';
 			<?php } ?>
 
 			<div class="activity-meta">
-				<i class="ies-clock-2 ies-small"></i> <span><?php echo $activity->friendlyDate;?></span>
+				<i class="fa fa-clock-o-2 "></i> <span><?php echo $activity->friendlyDate;?></span>
 			</div>
 		</div>
 

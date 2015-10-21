@@ -19,19 +19,34 @@ FD::import('fields:/user/country/helper');
 
 class SocialFieldsUserCountry extends SocialFieldItem
 {
+
+    /**
+     * Displays the form during registration
+     *
+     * @since   5.0
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function onRegister(&$post, &$registration)
     {
         $countries = SocialFieldsUserCountryHelper::getHTMLContentCountries();
-
-        $this->set('countries', $countries);
-
         $selected = $this->processSelectedData(!empty($post[$this->inputName]) ? $post[$this->inputName] : '', '');
 
+        $this->set('countries', $countries);
         $this->set('selected', $selected);
 
         return $this->display();
     }
 
+    /**
+     * Processes the post data and validates the country data.
+     *
+     * @since   5.0
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function onRegisterValidate(&$post)
     {
         $value = !empty($post[$this->inputName]) ? $post[$this->inputName] : '';
@@ -39,21 +54,36 @@ class SocialFieldsUserCountry extends SocialFieldItem
         return $this->validateInput($value);
     }
 
+    /**
+     * Displays the edit form when a user edits their profile.
+     *
+     * @since   5.0
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function onEdit(&$post, &$user, $errors)
     {
-        $countries = SocialFieldsUserCountryHelper::getHTMLContentCountries($this->params->get('data_souce', 'regions'));
-
-        $this->set('countries', $countries);
-
+        $source = $this->params->get('data_souce', 'regions');
+        $countries = SocialFieldsUserCountryHelper::getHTMLContentCountries($source);
         $selected = $this->processSelectedData(!empty($post[$this->inputName]) ? $post[$this->inputName] : '', $this->value);
 
-        $this->set('selected', $selected);
 
+        $this->set('countries', $countries);
+        $this->set('selected', $selected);
         $this->set('error', $this->getError($errors));
 
         return $this->display();
     }
 
+    /**
+     * Processes the post data and validates the edit
+     *
+     * @since   5.0
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function onEditValidate(&$post)
     {
         $value = !empty($post[$this->inputName]) ? $post[$this->inputName] : '';
@@ -61,6 +91,14 @@ class SocialFieldsUserCountry extends SocialFieldItem
         return $this->validateInput($value);
     }
 
+    /**
+     * Displays the sample html output for the admin
+     *
+     * @since   5.0
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function onSample()
     {
         $countries = SocialFieldsUserCountryHelper::getHTMLContentCountries();
@@ -206,14 +244,29 @@ class SocialFieldsUserCountry extends SocialFieldItem
         $post[$this->inputName] = $values;
     }
 
+    /**
+     * Processes the posted data
+     *
+     * @since   5.0
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function onEditBeforeSave(&$post, &$user)
     {
-        $selected = $this->processSelectedData(!empty($post[$this->inputName]) ? $post[$this->inputName] : '', $this->value);
-
+        $selectedCountries = $this->processSelectedData(!empty($post[$this->inputName]) ? $post[$this->inputName] : '', $this->value);
         $values = array();
 
-        foreach ($selected as $s) {
-            $values[] = $s->title;
+        if ($selectedCountries) {
+
+            foreach ($selectedCountries as $country) {
+
+                if (is_string($country)) {
+                    $values[] = $country;
+                } else {
+                    $values[] = $country->title;
+                }
+            }
         }
 
         $post[$this->inputName] = $values;

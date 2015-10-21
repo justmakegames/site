@@ -14,23 +14,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 FD::import( 'admin:/includes/cluster/cluster' );
 FD::import( 'admin:/includes/indexer/indexer' );
 
-/**
- * This class allows caller to fetch a group object easily.
- * Brief example of use:
- *
- * <code>
- * // Loading a group
- * $group	= FD::group( $id );
- *
- * // Loading of multiple users based on an array of id's.
- * $users	= FD::get( 'User' , array( 42 , 43 , 44 ) );
- *
- * </code>
- *
- * @since	1.0
- * @access	public
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialGroup extends SocialCluster
 {
 	public $cluster_type 	= SOCIAL_TYPE_GROUP;
@@ -151,6 +134,9 @@ class SocialGroup extends SocialCluster
 			return false;
 		}
 
+		// preload members
+		$model->getMembers( $ids , array( 'users' => false ));
+
 		// Format the return data
 		$result 	= array();
 
@@ -227,7 +213,7 @@ class SocialGroup extends SocialCluster
 	public function getTotalMembers()
 	{
 		// Since the $this->members property is cached, we just calculate this.
-		$total	= count( $this->members );
+		$total = count($this->members);
 
 		return $total;
 	}
@@ -242,14 +228,11 @@ class SocialGroup extends SocialCluster
 	 */
 	public function getApps()
 	{
-		static $apps 	= null;
+		static $apps = null;
 
-		if( !$apps )
-		{
-			$model 	= FD::model( 'Apps' );
-			$data 	= $model->getGroupApps( $this->id );
-
-			$apps	= $data;
+		if (!$apps) {
+			$model = ES::model('Apps');
+			$apps = $model->getGroupApps($this->id);
 		}
 
 		return $apps;
@@ -264,18 +247,41 @@ class SocialGroup extends SocialCluster
 	 *
 	 * @return	string	The url for the person
 	 */
-	public function getPermalink( $xhtml = true , $external = false , $layout = 'item', $sef = true )
+	public function getPermalink($xhtml = true, $external = false, $layout = 'item', $sef = true)
 	{
-		$options	= array( 'id' => $this->getAlias() , 'layout' => $layout );
+		$options = array('id' => $this->getAlias(), 'layout' => $layout);
 
-		if( $external )
-		{
-			$options[ 'external' ]	= true;
+		if ($external) {
+			$options['external'] = true;
 		}
 
 		$options['sef'] = $sef;
 
-		$url 	= FRoute::groups( $options , $xhtml );
+		$url = FRoute::groups($options, $xhtml);
+
+		return $url;
+	}
+
+	/**
+	 * Centralized method to retrieve a person's profile link.
+	 * This is where all the magic happens.
+	 *
+	 * @access	public
+	 * @param	null
+	 *
+	 * @return	string	The url for the person
+	 */
+	public function getAppsPermalink($appId, $xhtml = true, $external = false, $layout = 'item', $sef = true)
+	{
+		$options = array('id' => $this->getAlias(), 'layout' => $layout, 'appId' => $appId);
+
+		if ($external) {
+			$options['external'] = true;
+		}
+
+		$options['sef'] = $sef;
+
+		$url = FRoute::groups($options, $xhtml);
 
 		return $url;
 	}
@@ -398,31 +404,34 @@ class SocialGroup extends SocialCluster
 	 * @param	int		The user's id.
 	 * @return
 	 */
-	public function leave( $id = null )
+	public function leave($id = null)
 	{
-		$my 	= FD::user( $id );
+		$my = FD::user($id);
 
-		$state 	= $this->deleteNode( $my->id );
-		if( $state )
-		{
-			// delete stream from this user.
-			$this->deleteMemberStream($my->id);
+		// Delete the user from the cluster members relation
+		$state = $this->deleteNode( $my->id);
 
-			// Additional triggers to be processed when the page starts.
-			FD::apps()->load(SOCIAL_TYPE_GROUP);
-			$dispatcher = FD::dispatcher();
-
-			// Trigger: onComponentStart
-			$dispatcher->trigger('user', 'onLeaveGroup', array($userId, $this));
-
-			// @points: groups.leave
-			// Deduct points when user leaves the group
-			$points = FD::points();
-			$points->assign( 'groups.leave' , 'com_easysocial' , $my->id );
-
-			// Add activity stream
-			$this->createStream( $my->id , 'leave' );
+		if (!$state) {
+			return $state;
 		}
+
+		// Delete stream from this user.
+		$this->deleteMemberStream($my->id);
+
+		// Additional triggers to be processed when the page starts.
+		FD::apps()->load(SOCIAL_TYPE_GROUP);
+		$dispatcher = FD::dispatcher();
+
+		// Trigger: onComponentStart
+		$dispatcher->trigger('user', 'onLeaveGroup', array($my->id, $this));
+
+		// @points: groups.leave
+		// Deduct points when user leaves the group
+		$points = FD::points();
+		$points->assign( 'groups.leave' , 'com_easysocial' , $my->id );
+
+		// Add activity stream
+		$this->createStream($my->id, 'leave');
 
 		return $state;
 	}
@@ -438,21 +447,24 @@ class SocialGroup extends SocialCluster
 	public function delete()
 	{
 		// Load group apps.
-		FD::apps()->load( SOCIAL_TYPE_GROUP );
+		ES::apps()->load(SOCIAL_TYPE_GROUP);
 
 		// @trigger onBeforeDelete
-		$dispatcher		= FD::dispatcher();
+		$dispatcher = ES::dispatcher();
 
 		// @points: groups.remove
 		// Deduct points when a group is deleted
-		$points = FD::points();
+		$points = ES::points();
 		$points->assign( 'groups.remove' , 'com_easysocial' , $this->getCreator()->id );
 
+		// remove the access log for this action
+		ES::access()->removeLog('groups.limit', $this->getCreator()->id, $this->id, SOCIAL_TYPE_GROUP);
+
 		// Set the arguments
-		$args 	= array( &$this );
+		$args = array(&$this);
 
 		// @trigger onBeforeStorySave
-		$dispatcher->trigger( SOCIAL_TYPE_GROUP , 'onBeforeDelete' , $args );
+		$dispatcher->trigger(SOCIAL_TYPE_GROUP, 'onBeforeDelete', $args);
 
 		// Delete all members from the cluster nodes.
 		$this->deleteNodes();
@@ -462,6 +474,9 @@ class SocialGroup extends SocialCluster
 
         // Delete photos albums for this cluster.
         $this->deletePhotoAlbums();
+
+        // Delete videos for this cluster
+        $this->deleteVideos();
 
 		// Delete stream items for this group
 		$this->deleteStream();
@@ -507,12 +522,12 @@ class SocialGroup extends SocialCluster
 	 * @param	string
 	 * @return
 	 */
-	public function createMember( $userId )
+	public function createMember($userId, $onRegister = false)
 	{
 		$member = FD::table('GroupMember');
 
 		// Try to load the user record if it exists
-		$member->load( array( 'uid' => $userId , 'type' => SOCIAL_TYPE_USER , 'cluster_id' => $this->id) );
+		$member->load(array('uid' => $userId, 'type' => SOCIAL_TYPE_USER, 'cluster_id' => $this->id));
 
 		$member->cluster_id = $this->id;
 		$member->uid = $userId;
@@ -535,7 +550,12 @@ class SocialGroup extends SocialCluster
 			}
 		}
 
-		$state 	= $member->store();
+		// If the user is set to join the group after user registration the user state should be publish immediately.
+		if ($onRegister) {
+			$member->state = SOCIAL_GROUPS_MEMBER_PUBLISHED;
+		}
+
+		$state = $member->store();
 
 		if ($state) {
 			if ($member->state == SOCIAL_GROUPS_MEMBER_PUBLISHED) {
@@ -599,7 +619,7 @@ class SocialGroup extends SocialCluster
 		$params->groupName		= $this->getName();
 		$params->groupAvatar 	= $this->getAvatar();
 		$params->groupLink 		= $this->getPermalink( false , true );
-		$params->acceptLink		= FRoute::controller( 'groups' , array( 'external' => true , 'task' => 'respondInvitation' , 'id' => $this->id, 'email' => 1) );
+		$params->acceptLink		= FRoute::controller( 'groups' , array( 'external' => true , 'task' => 'respondInvitation' , 'id' => $this->id, 'email' => 1, 'action' => 'accept') );
 		$params->group 			= $this->getName();
 
 		// Send notification e-mail to the target
@@ -722,27 +742,26 @@ class SocialGroup extends SocialCluster
 	 * @param	null
 	 * @return	boolean	True on success false otherwise.
 	 */
-	public function isInvited( $uid = null )
+	public function isInvited($uid = null)
 	{
-		static $invited 	= array();
+		static $invited = array();
 
-		if( !isset( $invited[ $uid ] ) )
-		{
-			$user 	= FD::user( $uid );
+		$key = $uid . $this->id;
 
-			$node 	= FD::table( 'ClusterNode' );
-			$node->load( array( 'uid' => $user->id , 'type' => SOCIAL_TYPE_USER , 'cluster_id' => $this->id ) );
+		if (!isset($invited[$key])) {
+			$user = FD::user($uid);
 
-			$invited[ $uid ]	= false;
+			$node = FD::table('ClusterNode');
+			$node->load(array('uid' => $user->id , 'type' => SOCIAL_TYPE_USER , 'cluster_id' => $this->id));
 
-			if( $this->isInviteOnly() && $node->invited_by )
-			// if( $node->invited_by )
-			{
-				$invited[ $uid ]	= true;
+			$invited[$key] = false;
+
+			if ($this->isInviteOnly() && $node->invited_by) {
+				$invited[$key] = true;
 			}
 		}
 
-		return $invited[ $uid ];
+		return $invited[$key];
 	}
 
 	/**
@@ -897,22 +916,23 @@ class SocialGroup extends SocialCluster
 		{
 			$actor 	= FD::user( $data[ 'userId' ] );
 
-			$params 				= new stdClass();
-			$params->userName		= $actor->getName();
-			$params->userLink		= $actor->getPermalink( false , true );
-			$params->userAvatar		= $actor->getAvatar( SOCIAL_AVATAR_LARGE );
-			$params->groupName		= $this->getName();
-			$params->groupAvatar 	= $this->getAvatar();
-			$params->groupLink 		= $this->getPermalink( false , true );
-			$params->approve 		= FRoute::controller( 'groups' , array( 'external' => true , 'task' => 'approve' , 'userId' => $actor->id , 'id' => $this->id , 'key' => $this->key ) );
-			$params->reject 		= FRoute::controller( 'groups' , array( 'external' => true , 'task' => 'reject' , 'userId' => $actor->id , 'id' => $this->id , 'key' => $this->key ) );
-			$params->group 			= $this->getName();
+			$params = new stdClass();
+			$params->actor = $actor->getName();
+			$params->userName = $actor->getName();
+			$params->userLink = $actor->getPermalink(false, true);
+			$params->userAvatar = $actor->getAvatar(SOCIAL_AVATAR_LARGE);
+			$params->groupName = $this->getName();
+			$params->groupAvatar = $this->getAvatar();
+			$params->groupLink = $this->getPermalink( false , true );
+			$params->approve = FRoute::controller( 'groups' , array( 'external' => true , 'task' => 'approve' , 'userId' => $actor->id , 'id' => $this->id , 'key' => $this->key ) );
+			$params->reject = FRoute::controller( 'groups' , array( 'external' => true , 'task' => 'reject' , 'userId' => $actor->id , 'id' => $this->id , 'key' => $this->key ) );
+			$params->group = $this->getName();
 
 			// Send notification e-mail to the target
-			$options 			= new stdClass();
-			$options->title 	= 'COM_EASYSOCIAL_EMAILS_USER_REQUESTED_TO_JOIN_GROUP_SUBJECT';
-			$options->template 	= 'site/group/moderate.member';
-			$options->params 	= $params;
+			$options = new stdClass();
+			$options->title = 'COM_EASYSOCIAL_EMAILS_USER_REQUESTED_TO_JOIN_GROUP_SUBJECT';
+			$options->template = 'site/group/moderate.member';
+			$options->params = $params;
 
 			// Set the system alerts
 			$system 				= new stdClass();
@@ -935,26 +955,58 @@ class SocialGroup extends SocialCluster
 	 * @param	string
 	 * @return
 	 */
-	public function notifyMembers( $action , $data = array() )
+	public function notifyMembers($action, $data = array())
 	{
-		$model 		= FD::model( 'Groups' );
-		$targets 	= isset( $data[ 'targets' ] ) ? $data[ 'targets' ] : false;
+		$model = ES::model('Groups');
+		$targets = isset($data['targets']) ? $data['targets'] : false;
 
-		if( $targets === false )
-		{
-			$exclude 	= isset( $data[ 'userId' ] ) ? $data[ 'userId' ] : '';
-			$options 	= array( 'exclude' => $exclude, 'state' => SOCIAL_GROUPS_MEMBER_PUBLISHED);
-			$targets 	= $model->getMembers( $this->id , $options );
+		if ($targets === false) {
+			$exclude = isset( $data[ 'userId' ] ) ? $data[ 'userId' ] : '';
+			$options = array( 'exclude' => $exclude, 'state' => SOCIAL_GROUPS_MEMBER_PUBLISHED);
+			$targets = $model->getMembers( $this->id , $options );
 		}
 
+
 		// If there is nothing to send, just skip this altogether
-		if( empty( $targets ) )
-		{
+		if (!$targets) {
 			return;
 		}
 
-		if( $action == 'task.completed' )
-		{
+		if ($action == 'video.create') {
+			$actor = ES::user($data['userId']);
+
+			$params = new stdClass();
+			$params->actor = $actor->getName();
+			$params->userName = $actor->getName();
+			$params->userLink = $actor->getPermalink(false, true);
+			$params->groupName = $this->getName();
+			$params->groupAvatar = $this->getAvatar();
+			$params->groupLink = $this->getPermalink(false, true);
+			$params->videoTitle = $data['title'];
+			$params->videoDescription = $data['description'];
+			$params->videoLink = $data['permalink'];
+
+			$options = new stdClass();
+			$options->title = 'COM_EASYSOCIAL_EMAILS_GROUP_VIDEO_CREATED_SUBJECT';
+			$options->template = 'site/group/video.create';
+			$options->params = $params;
+
+			// Set the system alerts
+			$system = new stdClass();
+			$system->uid = $this->id;
+			$system->title = '';
+			$system->actor_id = $actor->id;
+			$system->context_ids = $data['id'];
+			$system->context_type = 'groups';
+			$system->type = SOCIAL_TYPE_GROUP;
+			$system->url = $params->videoLink;
+			$system->image = $this->getAvatar();
+
+			ES::notify('groups.video.create', $targets, $options, $system);
+		}
+
+		if ($action == 'task.completed') {
+
 			$actor 					= FD::user( $data[ 'userId' ] );
 			$params 				= new stdClass();
 			$params->actor			= $actor->getName();
@@ -989,8 +1041,7 @@ class SocialGroup extends SocialCluster
 			FD::notify( 'groups.task.completed' , $targets , $options , $system );
 		}
 
-		if( $action == 'task.create' )
-		{
+		if ( $action == 'task.create' ) {
 			$actor 					= FD::user( $data[ 'userId' ] );
 			$params 				= new stdClass();
 			$params->actor			= $actor->getName();
@@ -1427,6 +1478,9 @@ class SocialGroup extends SocialCluster
 		if( $delete )
 		{
 			$this->delete();
+
+			// remove the access log for this action
+			FD::access()->removeLog('groups.limit', $this->getCreator()->id, $this->id, SOCIAL_TYPE_GROUP);
 		}
 
 		return true;
@@ -1466,6 +1520,24 @@ class SocialGroup extends SocialCluster
 	}
 
 	/**
+	 * Cancel user invitation from the group
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	int		The user id
+	 * @return
+	 */
+	public function cancelInvitation($userId)
+	{
+		$member = FD::table('GroupMember');
+		$member->load( array('cluster_id' => $this->id, 'uid' => $userId));
+
+		$state = $member->delete();
+
+		return $state;
+	}
+
+	/**
 	 * Determines if the provided user id is a pending member of this group
 	 *
 	 * @since	1.0
@@ -1493,12 +1565,11 @@ class SocialGroup extends SocialCluster
 	 * @param	int		The user's id to check against.
 	 * @return	bool	True if he / she is a member already.
 	 */
-	public function isMember( $userId = null )
+	public function isMember($userId = null)
 	{
-		$userId	= FD::user( $userId )->id;
+		$userId = ES::user($userId)->id;
 
-		if( isset( $this->members[ $userId ] ) )
-		{
+		if (isset($this->members[$userId])) {
 			return true;
 		}
 
@@ -1529,7 +1600,7 @@ class SocialGroup extends SocialCluster
 			$userId = FD::user()->id;
 		}
 
-		if ($this->isOwner($userId) || FD::user($userId)->isSiteAdmin()) {
+		if ($this->isOwner($userId) || FD::user()->getAccess()->get('events.create') || FD::user($userId)->isSiteAdmin()) {
 			return true;
 		}
 

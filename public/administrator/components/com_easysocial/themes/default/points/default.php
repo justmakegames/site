@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form name="adminForm" id="adminForm" method="post" data-table-grid>
 
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -33,8 +33,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php } ?>
 	</div>
 
-	<div id="pointsTable">
-		<table class="table table-striped table-es table-hover">
+	<div id="pointsTable" class="panel-table">
+		<table class="app-table table table-eb table-striped">
 			<thead>
 				<th width="1%" class="center">
 					<input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />

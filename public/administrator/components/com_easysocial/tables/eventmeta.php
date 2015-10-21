@@ -22,6 +22,7 @@ class SocialTableEventMeta extends SocialTable
     public $timezone = null;
     public $all_day = null;
     public $group_id = null;
+    public $reminder = null;
 
     public function __construct(& $db)
     {
@@ -112,5 +113,27 @@ class SocialTableEventMeta extends SocialTable
     public function isGroupEvent()
     {
         return !empty($this->group_id);
+    }
+
+    /**
+     * Returns the SocialDate object of the event timezone.
+     *
+     * @author  Nik Faris <jasonrey@stackideas.com>
+     * @since   1.4
+     * @access  public
+     * @return  SocialDate The SocialDate object of the event timezone.
+     */
+    public function getTimezone()
+    {
+        if (!empty($this->timezone)) {
+            return $this->timezone;
+        }
+
+        return false;
+    }
+
+    public function getReminder()
+    {
+        return $this->reminder;
     }
 }

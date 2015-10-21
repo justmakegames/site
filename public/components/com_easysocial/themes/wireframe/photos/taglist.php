@@ -26,6 +26,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</div>
 
 	<?php if ($lib->taggable()) { ?>
-	<div data-photo-tag-button="enable" class="btn btn-es btn-media es-photo-tag-button"><a href="javascript: void(0);"><i class="ies-plus"></i> <?php echo JText::_("COM_EASYSOCIAL_TAG_PHOTO"); ?></a></div>
+	<div data-photo-tag-button="enable" class="btn btn-es btn-media es-photo-tag-button"><a href="javascript: void(0);"><i class="fa fa-plus"></i> <?php echo JText::_("COM_EASYSOCIAL_TAG_PHOTO"); ?></a></div>
 	<?php } ?>
 </div>

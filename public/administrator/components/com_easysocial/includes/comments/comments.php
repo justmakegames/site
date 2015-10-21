@@ -1,38 +1,36 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* @author		Jason Rey <jasonrey@stackideas.com>
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 class SocialComments
 {
-	static $instance	= null;
-	static $blocks		= array();
+	static $instance = null;
+	static $blocks = array();
 
-	var $config 		= null;
-	var $commentor 		= null;
-	var $commentCount   = null;
+	public $config = null;
+	public $commentor = null;
+	public $commentCount = null;
+
 
 	public function __construct()
 	{
-		// Object construct happens here
-		$this->config	 	= 1;
-		$this->commentor 	= array();
+		$this->config = 1;
+		$this->commentor = array();
 	}
 
 	public static function getInstance()
 	{
-		if( !self::$instance )
-		{
-			self::$instance	= new self();
+		if (!self::$instance) {
+			self::$instance = new self();
 		}
 
 		return self::$instance;
@@ -90,9 +88,11 @@ class SocialCommentBlock
 		$this->verb = $verb;
 		$this->stream_id = ( $useStreamId ) ? $useStreamId : '';
 
-		// var_dump($this);
+		$this->config = ES::config();
+		$this->my = ES::user();
+		$this->input = JFactory::getApplication()->input;
 
-		$this->loadOptions( $options );
+		$this->loadOptions($options);
 	}
 
 	public function loadOptions( $options = array() )
@@ -135,6 +135,7 @@ class SocialCommentBlock
 
 		return $count;
 	}
+
 	/**
 	 * Function to return HTML of 1 comments block
 	 *
@@ -144,26 +145,23 @@ class SocialCommentBlock
 	 *
 	 * @return	string	Html block of the comments
 	 */
-	public function getHtml( $options = array() )
+	public function getHtml($options = array())
 	{
 		// Ensure that language file is loaded
 		FD::language()->loadSite();
 
 		// Construct mandatory options
-		$options['uid']			= $this->uid;
-		$options['element']		= $this->getElement();
-		$options['hideEmpty']	= isset( $options['hideEmpty'] ) ? $options['hideEmpty'] : false;
-		$options['hideForm']	= isset( $options['hideForm'] ) ? $options['hideForm'] : false;
-		$options['deleteable']	= isset($options['deleteable']) ? $options['deleteable'] : false;
+		$options['uid'] = $this->uid;
+		$options['element'] = $this->getElement();
+		$options['hideEmpty'] = isset( $options['hideEmpty'] ) ? $options['hideEmpty'] : false;
+		$options['hideForm'] = isset( $options['hideForm'] ) ? $options['hideForm'] : false;
+		$options['deleteable'] = isset($options['deleteable']) ? $options['deleteable'] : false;
 
 		if ($this->stream_id) {
 			$options['stream_id'] = $this->stream_id;
 		}
 
-		// Super admins should always be able to delete comments
-		$my 	= FD::user();
-
-		if ($my->isSiteAdmin()) {
+		if ($this->my->isSiteAdmin()) {
 			$options['deleteable']	= true;
 		}
 
@@ -172,24 +170,25 @@ class SocialCommentBlock
 			$options['parentid'] = 0;
 		}
 
-		$model	= FD::model('comments');
+		// Get the model
+		$model = ES::model('Comments');
 
 		// Get the total comments first
-		$total	= $model->getCommentCount($options);
+		$total = $model->getCommentCount($options);
 
 		// Construct bounderies
 		if (!isset($options['limit'])) {
-			$options['limit']	= FD::config()->get('comments.limit', 5);
+			$options['limit'] = $this->config->get('comments.limit', 5);
 		}
 
 		$options['start'] = max($total - $options['limit'], 0);
 
 		// Construct ordering
-		$options['order']		= 'created';
-		$options['direction']	= 'asc';
+		$options['order'] = 'created';
+		$options['direction'] = 'asc';
 
 		// Check if it is coming from a permalink
-		$commentid	= JRequest::getInt('commentid', 0);
+		$commentid = $this->input->get('commentid', 0, 'int');
 
 		if ($commentid !== 0) {
 			$options['commentid'] = $commentid;
@@ -198,19 +197,19 @@ class SocialCommentBlock
 			$options['limit'] = 0;
 		}
 
-		$comments	= array();
-		$count		= 0;
+		$comments = array();
+		$count = 0;
 
 		if ($total) {
-			$comments	= $model->getComments($options);
-			$count		= count($comments);
+			$comments = $model->getComments($options);
+			$count = count($comments);
 		}
 
 		// @trigger: onPrepareComments
 		$dispatcher = FD::dispatcher();
-		$args 		= array(&$comments);
+		$args = array(&$comments);
 
-		$dispatcher->trigger( $this->group , 'onPrepareComments' , $args );
+		$dispatcher->trigger($this->group , 'onPrepareComments', $args);
 
 		// Check for permalink
 		if (!empty($options['url'])) {
@@ -224,20 +223,18 @@ class SocialCommentBlock
 			$this->options['streamid'] = $this->stream_id;
 		}
 
-
 		$themes = FD::themes();
 
-		$themes->set('deleteable'	, $options['deleteable']);
-		$themes->set( 'hideEmpty'	, $options['hideEmpty'] );
-		$themes->set( 'hideForm'	, $options['hideForm'] );
-		$themes->set( 'my'			, FD::user() );
-		$themes->set( 'element'		, $this->element );
-		$themes->set( 'group'		, $this->group );
-		$themes->set( 'verb'		, $this->verb );
-		$themes->set( 'uid'			, $this->uid );
-		$themes->set( 'total'		, $total );
-		$themes->set( 'count'		, $count );
-		$themes->set( 'comments'	, $comments );
+		$themes->set('deleteable', $options['deleteable']);
+		$themes->set('hideEmpty', $options['hideEmpty'] );
+		$themes->set('hideForm', $options['hideForm'] );
+		$themes->set('element', $this->element);
+		$themes->set('group', $this->group);
+		$themes->set('verb', $this->verb);
+		$themes->set('uid', $this->uid);
+		$themes->set('total', $total);
+		$themes->set('count', $count);
+		$themes->set('comments', $comments);
 
 		if (!empty($this->options['url'])) {
 			$themes->set( 'url', $this->options['url'] );
@@ -266,8 +263,7 @@ class SocialCommentBlock
 			'limit' => 0
 		) );
 
-		foreach( $comments as $comment )
-		{
+		foreach ($comments as $comment) {
 			$comment->delete();
 		}
 

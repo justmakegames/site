@@ -5,7 +5,7 @@
 	display: table-cell;
 	min-height: 100%;
 	position: relative;
-	// float: left;
+	padding: 0 0 40px;
 	z-index: 3;
 	border-right: 1px solid @esBorder;
 	// background: @sideBackground;
@@ -15,19 +15,22 @@
 }
 
 .side-widget-rounded{
-
 	margin-top: 20px;
-	padding: 8px;
 
 	hr {
-		margin: 8px 0;
+		display: none;
+	}
+
+	h4 {
+		i {
+			display: none;
+		}
 	}
 
 	.side-wbody {
-		border-radius: 5px;
-		padding: 10px 20px;
+		padding: 20px 0;
 		background: #fff;
-		border: 1px solid #C5CFD6;
+		border-top: 2px solid #e9e9e9;
 		.form-search {
 			margin: 0;
 			line-height: 0;
@@ -128,7 +131,7 @@
 		i.ies-share:before {
 			content: "\e0d5" !important;
 		}
-		
+
 		i {
 			// display: inline-block;
 			// vertical-align: text-top;
@@ -150,7 +153,7 @@
 			> a {
 				i{
 					color: #fff;
-				}				
+				}
 			}
 
 			> a:first-child {
@@ -197,7 +200,8 @@
 			top: 8px;
 			background: #cc4456;
 			padding: 3px 6px;
-			border-radius: 2px ;
+			border-radius: 10px;
+			font-size: 10px;
 		}
 
 		> ul {

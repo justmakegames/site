@@ -80,18 +80,29 @@ class EasySocialControllerDashboard extends EasySocialController
 			$stream->get(array('guest' => true, 'type' => 'bookmarks'));
 		}
 
+		// Filter by sticky
+		if ($type == 'sticky') {
+			$stream->get(array('userId' => $this->my->id, 'type' => 'sticky'));
+		}
+
 		// Filter stream items by event
 		if ($type == 'event') {
 			$id    = $this->input->get('id', 0, 'int');
 			$event = FD::event($id);
 
 			// Check if the user is a member of the group
-			if (!$event->getGuest()->isGuest()) {
+			if (!$event->getGuest()->isGuest() && !$this->my->isSiteAdmin()) {
 				$this->view->setMessage(JText::_('COM_EASYSOCIAL_STREAM_EVENTS_NO_PERMISSIONS'), SOCIAL_MSG_ERROR);
 				return $this->view->call(__FUNCTION__, $stream, $type);
 			}
 
-			$stream->get(array('clusterId' => $id , 'clusterType' => SOCIAL_TYPE_EVENT));
+			//lets get the sticky posts 1st
+			$stickies = $stream->getStickies(array('clusterId' => $id, 'clusterType' 	=> SOCIAL_TYPE_EVENT, 'limit' => 0));
+			if ($stickies) {
+				$stream->stickies = $stickies;
+			}
+
+			$stream->get(array('clusterId' => $id , 'clusterType' => SOCIAL_TYPE_EVENT, 'nosticky' => true));
 		}
 
 		if ($type == 'group') {
@@ -100,12 +111,18 @@ class EasySocialControllerDashboard extends EasySocialController
 			$group = FD::group($id);
 
 			// Check if the user is a member of the group
-			if (!$group->isMember()) {
+			if (!$group->isMember() && !$this->my->isSiteAdmin()) {
 				$this->view->setMessage(JText::_('COM_EASYSOCIAL_STREAM_GROUPS_NO_PERMISSIONS'), SOCIAL_MSG_ERROR);
 				return $this->view->call(__FUNCTION__, $stream, $type);
 			}
 
-			$stream->get(array('clusterId' => $id , 'clusterType' => SOCIAL_TYPE_GROUP));
+			//lets get the sticky posts 1st
+			$stickies = $stream->getStickies(array('clusterId' => $id, 'clusterType' 	=> SOCIAL_TYPE_GROUP, 'limit' => 0));
+			if ($stickies) {
+				$stream->stickies = $stickies;
+			}
+
+			$stream->get(array('clusterId' => $id , 'clusterType' => SOCIAL_TYPE_GROUP, 'nosticky' => true));
 		}
 
 		// Get feeds from everyone

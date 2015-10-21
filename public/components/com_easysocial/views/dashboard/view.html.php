@@ -197,6 +197,15 @@ class EasySocialViewDashboard extends EasySocialSiteView
 			$stream->get(array('guest' => true, 'type' => 'bookmarks', 'startlimit' => $startlimit));
 		}
 
+		// Filter by sticky
+		if ($filter == 'sticky') {
+
+			// Set the page title
+			$title 	= $this->my->getName() . ' - ' . JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEED_DASHBOARD_STICKY' );
+
+			$stream->get(array('userId' => $this->my->id, 'type' => 'sticky', 'startlimit' => $startlimit));
+		}
+
 		// Filter by apps
 		if ($filter == 'appFilter') {
 
@@ -269,7 +278,13 @@ class EasySocialViewDashboard extends EasySocialSiteView
 			$story->showPrivacy( false );
 			$stream->story 	= $story;
 
-			$stream->get( array( 'clusterId' => $group->id , 'clusterType' => SOCIAL_TYPE_GROUP, 'startlimit' => $startlimit ) );
+			//lets get the sticky posts 1st
+			$stickies = $stream->getStickies(array('clusterId' => $group->id, 'clusterType' 	=> SOCIAL_TYPE_GROUP, 'limit' => 0));
+			if ($stickies) {
+				$stream->stickies = $stickies;
+			}
+
+			$stream->get( array( 'clusterId' => $group->id , 'clusterType' => SOCIAL_TYPE_GROUP, 'nosticky' => true, 'startlimit' => $startlimit ) );
 		}
 
 		if ($filter == 'event') {
@@ -290,7 +305,13 @@ class EasySocialViewDashboard extends EasySocialSiteView
 			$story->showPrivacy(false);
 			$stream->story 	= $story;
 
-			$stream->get(array('clusterId' => $event->id , 'clusterType' => SOCIAL_TYPE_EVENT, 'startlimit' => $startlimit));
+			//lets get the sticky posts 1st
+			$stickies = $stream->getStickies(array('clusterId' => $event->id, 'clusterType' 	=> SOCIAL_TYPE_EVENT, 'limit' => 0));
+			if ($stickies) {
+				$stream->stickies = $stickies;
+			}
+
+			$stream->get(array('clusterId' => $event->id , 'clusterType' => SOCIAL_TYPE_EVENT, 'nosticky' => true, 'startlimit' => $startlimit));
 		}
 
 		if ($filter == 'me') {
@@ -399,16 +420,21 @@ class EasySocialViewDashboard extends EasySocialSiteView
 		// Get any callback urls.
 		$return = FD::getCallback();
 
-		// In guests view, there shouldn't be an app id
-		$appId = $this->input->get('appId', '', 'default');
-
-		if ($appId) {
-			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_PAGE_IS_NOT_AVAILABLE'));
+		// Try to get the login return url
+		if (!$return) {
+			$return = FRoute::getMenuLink($this->config->get('general.site.login'));
 		}
 
 		// If return value is empty, always redirect back to the dashboard
 		if (!$return) {
 			$return = FRoute::dashboard(array(), false);
+		}
+
+		// In guests view, there shouldn't be an app id
+		$appId = $this->input->get('appId', '', 'default');
+
+		if ($appId) {
+			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_PAGE_IS_NOT_AVAILABLE'));
 		}
 
 		// Ensure that the return url is always encoded correctly.

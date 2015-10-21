@@ -11,4 +11,4 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<span class="words"><i class="ies-user"></i><span class="without-data">0</span><span class="with-data">0</span></span>
+<span class="words"><i class="fa fa-user"></i><span class="without-data">0</span><span class="with-data">0</span></span>

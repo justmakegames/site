@@ -11,12 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Component's router.
- *
- * @since   1.0
- * @author  Mark Lee <mark@stackideas.com>
- */
 class SocialRouter
 {
     /**
@@ -38,8 +32,7 @@ class SocialRouter
      */
     public static function getInstance($view)
     {
-        if( !isset( self::$instances[$view] ) )
-        {
+        if (!isset(self::$instances[$view])) {
             self::$instances[$view]   = new self( $view );
         }
 
@@ -96,19 +89,13 @@ class SocialRouter
      * @param   string
      * @return
      */
-    public function build( &$menu , &$query )
+    public function build(&$menu, &$query)
     {
-        if( is_null( $this->adapter) )
-        {
+        if (is_null($this->adapter) || !method_exists($this->adapter, 'build')) {
             return array();
         }
 
-        if( !method_exists( $this->adapter , 'build' ) )
-        {
-            return array();
-        }
-
-        $segments   = $this->adapter->build( $menu , $query );
+        $segments = $this->adapter->build($menu, $query);
 
         return $segments;
     }
@@ -153,13 +140,12 @@ class SocialRouter
 
 abstract class SocialRouterAdapter
 {
-    static $base    = 'index.php?option=com_easysocial';
-
+    static $base = 'index.php?option=com_easysocial';
     public $name;
 
     public function __construct($view)
     {
-        FD::language()->loadSite();
+        ES::language()->loadSite();
 
         $this->doc = JFactory::getDocument();
         $this->name = $view;
@@ -173,13 +159,27 @@ abstract class SocialRouterAdapter
      */
     public static function translate( $str )
     {
-        FD::language()->loadSite();
+        $str = JString::strtoupper($str);
+        $text = 'COM_EASYSOCIAL_ROUTER_' . $str;
 
-        $str    = JString::strtoupper( $str );
+        return JText::_($text);
+    }
 
-        $text   = 'COM_EASYSOCIAL_ROUTER_' . $str;
+    /**
+     * Normalizes an array
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return  
+     */
+    public function normalize($arr, $index, $default = null)
+    {
+        if (isset($arr[$index])) {
+            return $arr[$index];
+        }
 
-        return JText::_( $text );
+        return $default;
     }
 
     /**
@@ -202,6 +202,7 @@ abstract class SocialRouterAdapter
         $tmpl       = $options['tmpl'];
         $sef        = $options['sef'];
         $layout     = isset( $options['layout'] ) ? $options['layout'] : '';
+        $type     = isset( $options['type'] ) ? $options['type'] : '';
 
         // check if the current request is from feed page or not.
         // if yes, let set the external to always true.
@@ -251,7 +252,7 @@ abstract class SocialRouterAdapter
             $id     = '';
         }
 
-        $menuId     = FRoute::getItemId($view, $layout, $id);
+        $menuId     = FRoute::getItemId($view, $layout, $id, $type);
 
         if ($menuId) {
 
@@ -477,4 +478,5 @@ abstract class SocialRouterAdapter
         return $layouts;
 
     }
+
 }

@@ -24,55 +24,63 @@ for($i = 0; $i <= 100; $i += 10)
 	$photoQuality[]	= array('text' => $message, 'value' => $i);
 }
 
-echo $settings->renderPage(
-	$settings->renderColumn(
-
-		$settings->renderSection(
-			$settings->renderHeader('General'),
-			$settings->renderSetting('Enable Photos', 'photos.enabled', 'boolean', array('help' => true)),
-			$settings->renderSetting('Photo Pagination', 'photos.pagination.photo', 'input', array('help' => true, 'class' => 'form-control input-sm input-short text-center', 'unit' => true)),
-			$settings->renderSetting('Default Photo Popup', 'photos.popup.default', 'boolean', array('help' => true)),
-			$settings->renderSetting('Import EXIF Data', 'photos.import.exif', 'boolean', array('help' => true)),
-			$settings->renderSetting('Allow Downloads', 'photos.downloads', 'boolean', array('help' => true))
+echo $settings->renderTabs(array(
+		'general' => $settings->renderPage(
+						$settings->renderColumn(
+							$settings->renderSection(
+								$settings->renderHeader('General'),
+								$settings->renderSetting('Enable Photos', 'photos.enabled', 'boolean', array('help' => true)),
+								$settings->renderSetting('Photo Pagination', 'photos.pagination.photo', 'input', array('help' => true, 'class' => 'form-control input-sm input-short text-center', 'unit' => true)),
+								$settings->renderSetting('Default Photo Popup', 'photos.popup.default', 'boolean', array('help' => true)),
+								$settings->renderSetting('Import EXIF Data', 'photos.import.exif', 'boolean', array('help' => true)),
+								$settings->renderSetting('Allow Downloads', 'photos.downloads', 'boolean', array('help' => true)),
+								$settings->renderSetting('Allow View Original', 'photos.original', 'boolean', array('help' => true))
+							)
+						)
 		),
+		'layout' => $settings->renderPage(
+						$settings->renderColumn(
+							$settings->renderSection(
+								$settings->renderHeader('Layout'),
 
-		$settings->renderSection(
-			$settings->renderHeader('Layout'),
+								$settings->renderSetting('Size', 'photos.layout.size', 'list', array('options' =>
+									array(
+										array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_SIZE_LARGE'), 'value' => 'large'),
+										array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_SIZE_MEDIUM'), 'value' => 'featured'),
+										array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_SIZE_SMALL'), 'value' => 'thumbnail')
+									), 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
 
-			$settings->renderSetting('Size', 'photos.layout.size', 'list', array('options' =>
-				array(
-					array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_SIZE_LARGE'), 'value' => 'large'),
-					array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_SIZE_MEDIUM'), 'value' => 'featured'),
-					array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_SIZE_SMALL'), 'value' => 'thumbnail')
-				), 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
+								$settings->renderSetting('Pattern', 'photos.layout.pattern', 'list', array('options' =>
+									array(
+										array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_PATTERN_TILE'), 'value' => 'tile'),
+										array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_PATTERN_FLOW'), 'value' => 'flow')
+									), 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
 
-			$settings->renderSetting('Pattern', 'photos.layout.pattern', 'list', array('options' =>
-				array(
-					array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_PATTERN_TILE'), 'value' => 'tile'),
-					array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_PATTERN_FLOW'), 'value' => 'flow')
-				), 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
+								$settings->renderSetting('Aspect Ratio', 'photos.layout.ratio', 'list', array('options' =>
+									array(
+										array('text' => '4:3', 'value' => '4x3'),
+										array('text' => '16:9', 'value' => '16x9'),
+										array('text' => '1:1', 'value' => '1x1')
+									), 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
 
-			$settings->renderSetting('Aspect Ratio', 'photos.layout.ratio', 'list', array('options' =>
-				array(
-					array('text' => '4:3', 'value' => '4x3'),
-					array('text' => '16:9', 'value' => '16x9'),
-					array('text' => '1:1', 'value' => '1x1')
-				), 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
+								$settings->renderSetting('Resize Mode', 'photos.layout.mode', 'list', array('options' =>
+									array(
+										array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_RESIZE_MODE_STRETCH_TO_FILL'), 'value' => 'cover'),
+										array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_RESIZE_MODE_STRETCH_TO_FIT'), 'value' => 'contain')
+									), 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
 
-			$settings->renderSetting('Resize Mode', 'photos.layout.mode', 'list', array('options' =>
-				array(
-					array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_RESIZE_MODE_STRETCH_TO_FILL'), 'value' => 'cover'),
-					array('text' => JText::_('COM_EASYSOCIAL_PHOTOS_SETTINGS_RESIZE_MODE_STRETCH_TO_FIT'), 'value' => 'contain')
-				), 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
-
-			$settings->renderSetting('Resize Threshold', 'photos.layout.threshold', 'input', array('help' => true, 'class' => 'form-control input-sm input-short text-center', 'unit' => true, 'info' => true))
-		)
-	),
-	$settings->renderColumn(
-		$settings->renderSection(
-			$settings->renderHeader('Uploader'),
-			$settings->renderSetting('Photo Quality', 'photos.quality', 'list', array('options' => $photoQuality, 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
-			$settings->renderSetting('Upload Limit', 'photos.uploader.maxsize', 'input', array('help' => true, 'class' => 'form-control input-sm input-short', 'unit' => true))
+								$settings->renderSetting('Resize Threshold', 'photos.layout.threshold', 'input', array('help' => true, 'class' => 'form-control input-sm input-short text-center', 'unit' => true, 'info' => true))
+							)
+						)
+		),
+		'uploader' => $settings->renderPage(
+						$settings->renderColumn(
+							$settings->renderSection(
+								$settings->renderHeader('Uploader'),
+								$settings->renderSetting('Photo Quality', 'photos.quality', 'list', array('options' => $photoQuality, 'help' => true, 'info' => true, 'class' => 'form-control input-sm input-medium')),
+								$settings->renderSetting('Upload Limit', 'photos.uploader.maxsize', 'input', array('help' => true, 'class' => 'form-control input-sm input-short', 'unit' => true))
+							)
+						)
 		)
 	)
 );

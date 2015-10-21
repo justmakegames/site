@@ -11,5 +11,5 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<i class="ies-location-2 ies-small mr-5"></i>
+<i class="fa fa-map-marker  mr-5"></i>
 <?php echo $value->state; ?><?php if( !empty( $value->state ) && !empty( $value->country_code ) ) { ?>, <?php echo $value->country_code;?><?php } ?>

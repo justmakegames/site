@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div data-sharing-popover data-sharing-popover-<?php echo $uniqueid; ?> style="position:relative;">
-	<a href="javascript:void(0);" data-sharing-popover-link data-url="<?php echo $url; ?>"><?php if ($icon) { ?><i class="ies-share"></i> <?php } ?><?php echo $text; ?></a>
+	<a href="javascript:void(0);" data-sharing-popover-link data-url="<?php echo $url; ?>"><?php if ($icon) { ?><i class="fa fa-share"></i> <?php } ?><?php echo $text; ?></a>
 
 	<div data-sharing-contents class="dropdown-menu">
 		<div class="arrow"></div>

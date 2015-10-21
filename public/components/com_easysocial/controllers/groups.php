@@ -45,7 +45,7 @@ class EasySocialControllerGroups extends EasySocialController
 		}
 
 		// Ensure that the user did not exceed their group creation limit
-		if ($my->getAccess()->exceeded('groups.limit', $my->getTotalCreatedGroups()) && !$my->isSiteAdmin()) {
+		if ($my->getAccess()->intervalExceeded('groups.limit', $my->id) && !$my->isSiteAdmin()) {
 
 			$view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_EXCEEDED_LIMIT'), SOCIAL_MSG_ERROR);
 
@@ -137,10 +137,10 @@ class EasySocialControllerGroups extends EasySocialController
 	public function store()
 	{
 		// Check for request forgeries
-		FD::checkToken();
+		ES::checkToken();
 
 		// Only logged in user is allowed to create groups
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Check if the user really has access to create groups
 		$my 	= FD::user();
@@ -157,7 +157,7 @@ class EasySocialControllerGroups extends EasySocialController
 		}
 
 		// Ensure that the user did not exceed their group creation limit
-		if ($my->getAccess()->exceeded('groups.limit', $my->getTotalCreatedGroups()) && !$my->isSiteAdmin()) {
+		if ($my->getAccess()->intervalExceeded('groups.limit', $my->id) && !$my->isSiteAdmin()) {
 
 			$view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_EXCEEDED_LIMIT'), SOCIAL_MSG_ERROR);
 
@@ -300,6 +300,10 @@ class EasySocialControllerGroups extends EasySocialController
 			$points = FD::points();
 			$points->assign( 'groups.create' , 'com_easysocial' , $my->id );
 
+			// add this action into access logs.
+
+			FD::access()->log('groups.limit', $my->id, $group->id, SOCIAL_TYPE_GROUP);
+
 			// Get the registration data
 			$sessionData 	= FD::registry( $stepSession->values );
 
@@ -368,35 +372,28 @@ class EasySocialControllerGroups extends EasySocialController
 		// Only registered members allowed
 		FD::requireLogin();
 
-		// Get the current view
-		$view 	= $this->getCurrentView();
-
 		// Get the group
-		$id 	= JRequest::getInt( 'id' );
-		$group	= FD::group( $id );
+		$id = $this->input->get('id', 0, 'int');
+		$group = FD::group($id);
 
-		if( !$group->id || !$id )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
+		if (!$group->id || !$id) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED'), SOCIAL_MSG_ERROR);
 
-			return $view->call( __FUNCTION__ );
+			return $this->view->call(__FUNCTION__);
 		}
 
-		// Only allow super admins to delete groups
-		$my 	= FD::user();
+		// Only group owner and site admins are allowed to delete the group
+		if (!$this->my->isSiteAdmin() && !$group->isOwner()) {
 
-		if( !$my->isSiteAdmin() )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_NO_ACCESS' ) , SOCIAL_MSG_ERROR );
-
-			return $view->call( __FUNCTION__ );
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_NO_ACCESS'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Try to delete the group
 		$group->delete();
 
-		$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_GROUP_DELETED_SUCCESS' ) , SOCIAL_MSG_SUCCESS );
-		return $view->call( __FUNCTION__ );
+		$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_GROUP_DELETED_SUCCESS'), SOCIAL_MSG_SUCCESS);
+		return $this->view->call(__FUNCTION__);
 	}
 
 	/**
@@ -710,6 +707,47 @@ class EasySocialControllerGroups extends EasySocialController
 	}
 
 	/**
+	 * Cancel user invitation from group
+	 *
+	 * @since	1.3
+	 * @access	public
+	 */
+	public function cancelInvitation()
+	{
+		// Get the current view
+		$view = $this->getCurrentView();
+
+		// Get the group id
+		$id = JRequest::getInt('id');
+		$group = FD::group($id);
+
+		if (!$group->id || !$id) {
+
+			$view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED'), SOCIAL_MSG_ERROR);
+
+			return $view->call(__FUNCTION__);
+		}
+
+		// Ensure that the current user is the admin of the group
+		if (!$group->isAdmin() && !$this->my->isSiteAdmin()) {
+			
+			$view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_NO_ACCESS'), SOCIAL_MSG_ERROR);
+
+			return $view->call(__FUNCTION__, $group);
+		}
+
+		// Get the user id
+		$userId = $this->input->get('userId', 0, 'int');
+		$user = FD::user($userId);
+
+		// Cancel member invitation
+		$group->cancelInvitation($user->id);
+		$view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_REJECTED_USER_SUCCESS'), SOCIAL_MSG_SUCCESS);
+
+		return $view->call(__FUNCTION__, $group);
+	}	
+
+	/**
 	 * Allows user to join a group
 	 *
 	 * @since	1.2
@@ -718,19 +756,19 @@ class EasySocialControllerGroups extends EasySocialController
 	public function joinGroup()
 	{
 		// Check for request forgeries
-		FD::checkToken();
+		ES::checkToken();
 
 		// Only registered members allowed
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Get the group id
-		$id 	= JRequest::getInt( 'id' );
-		$group	= FD::group( $id );
+		$id = $this->input->get('id', 0, 'int');
+		$group = ES::group($id);
 
 		if (!$group->id || !$id) {
-			$this->view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED'), SOCIAL_MSG_ERROR);
 
-			return $this->view->call( __FUNCTION__ );
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Get the user's access as we want to limit the number of groups they can join
@@ -738,7 +776,7 @@ class EasySocialControllerGroups extends EasySocialController
 		$total = $this->my->getTotalGroups();
 
 		if ($access->exceeded('groups.join', $total)) {
-			return $view->call('exceededJoin');
+			return $this->view->call('exceededJoin');
 		}
 
 		// Create a member record for the group
@@ -854,37 +892,31 @@ class EasySocialControllerGroups extends EasySocialController
 		// Only registered members allowed
 		FD::requireLogin();
 
-		// Get current user
-		$my 	= FD::user();
-
-		// Get the current view
-		$view	= $this->getCurrentView();
-
 		// Get the group id
-		$id 	= JRequest::getInt( 'id' );
-		$group	= FD::group( $id );
+		$id = $this->input->get('id', 0, 'int');
+		$group = FD::group($id);
 
-		if( !$group->id || !$id )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
-
-			return $view->call( __FUNCTION__ );
+		if (!$group->id || !$id) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
+		// Ensure that this is not the group owner.
 		if ($group->isOwner()) {
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_GROUP_OWNER_NOT_ALLOWED_TO_LEAVE' ) , SOCIAL_MSG_ERROR );
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_GROUP_OWNER_NOT_ALLOWED_TO_LEAVE'), SOCIAL_MSG_ERROR);
 
-			return $view->call( __FUNCTION__ );
+			return $this->view->call(__FUNCTION__);
 		}
+
 		// Remove the user from the group.
-		$group->leave( $my->id );
+		$group->leave($this->my->id);
 
 		// Notify group members
-		$group->notifyMembers( 'leave' , array( 'userId' => $my->id ) );
+		$group->notifyMembers('leave', array('userId' => $this->my->id));
 
-		$view->setMessage( JText::sprintf( 'COM_EASYSOCIAL_GROUPS_LEAVE_GROUP_SUCCESS' , $group->getName() ) , SOCIAL_MSG_SUCCESS );
+		$this->view->setMessage(JText::sprintf('COM_EASYSOCIAL_GROUPS_LEAVE_GROUP_SUCCESS', $group->getName()), SOCIAL_MSG_SUCCESS);
 
-		return $view->call( __FUNCTION__ , $group );
+		return $this->view->call(__FUNCTION__, $group);
 	}
 
 	/**
@@ -1176,66 +1208,90 @@ class EasySocialControllerGroups extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		// Get the current view
-		$view 	= $this->getCurrentView();
-
 		// Load up the group
-		$id 	= JRequest::getInt('id');
-		$group 	= FD::group($id);
-		$my 	= FD::user();
+		$id = $this->input->get('id', 0, 'int');
+		$group = FD::group($id);
 
 		// Check if the group can be seen by this user
 		if ($group->isClosed() && !$group->isMember() && !$my->isSiteAdmin()) {
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_NO_ACCESS' ) , SOCIAL_MSG_ERROR );
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_NO_ACCESS'), SOCIAL_MSG_ERROR);
 
-			return $view->call( __FUNCTION__ );
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Retrieve the stream
-		$stream 	= FD::stream();
+		$stream = FD::stream();
 
-		if( $group->isMember() || $this->my->isSiteAdmin() )
-		{
-			$story  = FD::get( 'Story' , SOCIAL_TYPE_GROUP );
-			$story->setCluster( $group->id, SOCIAL_TYPE_GROUP );
-			$story->showPrivacy( false );
+		$stickies = $stream->getStickies(array('clusterId' => $group->id, 'clusterType' => SOCIAL_TYPE_GROUP, 'limit' => 0));
+		if ($stickies) {
+			$stream->stickies = $stickies;
+		}
 
-			$stream->story  = $story;
+		// Determines if the user should see the story form
+		if ($group->isMember() || $this->my->isSiteAdmin()) {
+
+			$story = FD::story(SOCIAL_TYPE_GROUP);
+			$story->setCluster($group->id, SOCIAL_TYPE_GROUP);
+			$story->showPrivacy(false);
+
+			$stream->story = $story;
+
+			// Get the group params
+			$params = $group->getParams();
+
+			// Ensure that the user has permissions to see the story form
+			$permissions = $params->get('stream_permissions', null);
+
+			// If permissions has been configured before.
+			if (!is_null($permissions)) {
+
+				// If the user is not an admin, ensure that permissions has member
+				if (!$group->isAdmin() && !in_array('member', $permissions)) {
+					unset($stream->story);
+				}
+
+				// If the user is an admin, ensure that permissions has admin
+				if ($group->isAdmin() && !in_array('admin', $permissions) && !$group->isOwner()) {
+					unset($stream->story);
+				}
+			}
 		}
 
 		// lets get stream items for this group
-		$options = array(
-							'clusterId' 	=> $group->id,
-							'clusterType' 	=> SOCIAL_TYPE_GROUP
-						 );
+		$options = array('clusterId' => $group->id, 'clusterType' => SOCIAL_TYPE_GROUP, 'nosticky' => true);
 
-		$filterId   = JRequest::getInt( 'filterId' );
 
-		if( $filterId )
-		{
-			$sfilter = FD::table( 'StreamFilter' );
-			$sfilter->load( $filterId );
 
-			$hashtags = $sfilter->getHashTag();
-			$tags = explode( ',', $hashtags );
+		// Determines if we should only display moderated stream items
+		$options['onlyModerated'] = $this->input->get('moderation', false, 'bool');
 
-			if( $tags )
-			{
-				$options[ 'tag' ] = $tags;
+		// Determines if we should filter stream items by specific filters
+		$filterId = $this->input->get('filterId', 0, 'int');
+
+		if ($filterId) {
+
+			$streamFilter = FD::table('StreamFilter');
+			$streamFilter->load($filterId);
+
+			// Get a list of hashtags
+			$hashtags = $streamFilter->getHashTag();
+			$tags = explode(',', $hashtags);
+
+			if ($tags) {
+				$options['tag'] = $tags;
 			}
 		}
 
 		// Retrieving stream items by app element
-		$appElement 	= JRequest::getWord( 'app' );
+		$appElement = $this->input->get('app', '', 'word');
 
-		if( $appElement )
-		{
-			$options[ 'context' ]	= $appElement;
+		if ($appElement) {
+			$options['context'] = $appElement;
 		}
 
-		$stream->get( $options );
+		$stream->get($options);
 
-		return $view->call( __FUNCTION__ , $stream );
+		return $this->view->call(__FUNCTION__ , $stream);
 	}
 
 	/**
@@ -1249,7 +1305,7 @@ class EasySocialControllerGroups extends EasySocialController
 	public function getGroups()
 	{
 		// Check for request forgeries
-		FD::checkToken();
+		$this->checkToken();
 
 		// Get the current view
 		$view = $this->getCurrentView();
@@ -1262,6 +1318,9 @@ class EasySocialControllerGroups extends EasySocialController
 
 		// Filter
 		$filter = $this->input->get('filter', '', 'cmd');
+
+		// Sort
+		$sort = $this->input->get('ordering', 'latest', 'cmd');
 
 		// Options
 		$options = array('state' => SOCIAL_CLUSTER_PUBLISHED, 'types' => $this->my->isSiteAdmin() ? 'all' : 'user');
@@ -1277,11 +1336,12 @@ class EasySocialControllerGroups extends EasySocialController
 		} else {
 
 			// Determine the pagination limit
-			$limit 				= FD::themes()->getConfig()->get( 'groups_limit' , 20 );
-			$options[ 'limit' ]	= $limit;
+			$limit = FD::themes()->getConfig()->get( 'groups_limit' , 20 );
+			$options['limit'] = $limit;
+			$options['featured'] = false;
 
 			if ($filter == 'mine') {
-				$options['uid'] = FD::user()->id;
+				$options['uid'] = $this->my->id;
 				$options['types'] = 'all';
 			}
 
@@ -1294,6 +1354,10 @@ class EasySocialControllerGroups extends EasySocialController
 				$options['category'] = $categoryId;
 			}
 
+			if ($sort) {
+				$options['ordering'] = $sort;
+			}
+
 			// Get the groups
 			$groups = $model->getGroups($options);
 		}
@@ -1301,18 +1365,23 @@ class EasySocialControllerGroups extends EasySocialController
 		// Get the pagination
 		$pagination	= $model->getPagination();
 
-		// Define those query strings here
-		$pagination->setVar( 'Itemid'	, FRoute::getItemId( 'groups' ) );
-		$pagination->setVar( 'view'		, 'groups' );
-		$pagination->setVar( 'filter' , $filter );
+		// Now we need to retrieve featured groups
+		$options['featured'] = true;
+		$featuredGroups = $model->getGroups($options);
 
-		if (isset($options[ 'category' ])) {
+		// Define those query strings here
+		$pagination->setVar('Itemid', FRoute::getItemId('groups'));
+		$pagination->setVar('view', 'groups');
+		$pagination->setVar('filter', $filter);
+		$pagination->setVar('ordering', $sort);
+
+		if (isset($options['category'])) {
 			$groupCat = FD::table('GroupCategory');
-			$groupCat->load($options[ 'category' ]);
-			$pagination->setVar( 'categoryid' , $groupCat->getAlias() );
+			$groupCat->load($options['category']);
+			$pagination->setVar('categoryid', $groupCat->getAlias());
 		}
 
-		return $view->call( __FUNCTION__ , $groups , $pagination , $featuredGroups );
+		return $view->call(__FUNCTION__, $groups, $pagination, $featuredGroups, $sort);
 	}
 
 	/**
@@ -1323,7 +1392,8 @@ class EasySocialControllerGroups extends EasySocialController
 	 */
 	public function respondInvitation()
 	{
-		$email 	= JRequest::getVar('email', '');
+		// If the user clicks on respond invitation via email, we do not want to check for tokens.
+		$email = $this->input->get('email', '', 'default');
 
 		if (!$email) {
 			// Check for request forgeries
@@ -1333,62 +1403,53 @@ class EasySocialControllerGroups extends EasySocialController
 		// Only registered users are allowed to do this
 		FD::requireLogin();
 
-		// Get the current view
-		$view 	= $this->getCurrentView();
-
-		// Get the current user
-		$my 	= FD::user();
-
 		// Get the group
-		$id 	= JRequest::getInt( 'id' );
-		$group	= FD::group( $id );
+		$id = $this->input->get('id', 0, 'int');
+		$group = FD::group($id);
 
-		if( !$id || !$group )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ );
+		if (!$id || !$group) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_INVALID_ID_PROVIDED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
-		$member	= FD::table( 'GroupMember' );
-		$member->load( array( 'cluster_id' => $group->id , 'uid' => $my->id ) );
+		// Load the member
+		$member	= FD::table('GroupMember');
+		$member->load(array('cluster_id' => $group->id , 'uid' => $this->my->id));
 
-		if( !$member->id )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_NOT_INVITED' ) , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ );
+		if (!$member->id) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_NOT_INVITED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Get the response action
-		$action	= JRequest::getWord( 'action' );
+		$action = $this->input->get('action', '', 'word');
 
 		// If user rejected, just delete the invitation record.
-		if( $action == 'reject' )
-		{
+		if ($action == 'reject') {
 			$member->delete();
-
-			$message 	= JText::sprintf( 'COM_EASYSOCIAL_GROUPS_REJECT_RESPONSE_SUCCESS' , $group->getName() );
+			$message = JText::sprintf( 'COM_EASYSOCIAL_GROUPS_REJECT_RESPONSE_SUCCESS' , $group->getName() );
 		}
 
-		if( $action == 'accept' )
-		{
-			$member->state 	= SOCIAL_GROUPS_MEMBER_PUBLISHED;
+		if ($action == 'accept') {
+			$member->state = SOCIAL_GROUPS_MEMBER_PUBLISHED;
 			$member->store();
 
 			// Create stream when user accepts the invitation
-			$group->createStream($my->id, 'join' );
+			$group->createStream($this->my->id, 'join');
 
 			// @points: groups.join
 			// Add points when user joins a group
 			$points = FD::points();
-			$points->assign( 'groups.join' , 'com_easysocial' , $my->id );
+			$points->assign('groups.join', 'com_easysocial', $this->my->id);
 
 			// Notify members when a new member is added
-			$group->notifyMembers( 'join' , array( 'userId' => $my->id ) );
-			$message 	= JText::sprintf( 'COM_EASYSOCIAL_GROUPS_ACCEPT_RESPONSE_SUCCESS' , $group->getName() );
+			$group->notifyMembers('join', array('userId' => $this->my->id));
+			$message = JText::sprintf('COM_EASYSOCIAL_GROUPS_ACCEPT_RESPONSE_SUCCESS', $group->getName());
 		}
 
-		$view->setMessage( $message , SOCIAL_MSG_SUCCESS );
-		return $view->call( __FUNCTION__ , $group , $action );
+		$this->view->setMessage($message, SOCIAL_MSG_SUCCESS);
+
+		return $this->view->call(__FUNCTION__, $group, $action);
 	}
 
 	/**
@@ -1646,58 +1707,54 @@ class EasySocialControllerGroups extends EasySocialController
 		FD::requireLogin();
 
 		// Get the current view
-		$view	= $this->getCurrentView();
-
-		// Get the current user
-		$my		= FD::user();
+		$view = $this->getCurrentView();
 
 		// Get the group
-		$id 	= JRequest::getInt( 'id' );
-		$group	= FD::group( $id );
+		$id = $this->input->get('id', 0, 'int');
+		$group = FD::group($id);
 
-		if( !$group->isOwner() && !$group->isAdmin() && !$my->isSiteAdmin())
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_GROUPS_NO_ACCESS' ) );
+		if (!$group->isOwner() && !$group->isAdmin() && !$this->my->isSiteAdmin()) {
+			$view->setMessage(JText::_('COM_EASYSOCIAL_GROUPS_NO_ACCESS'));
 			return $view->call( __FUNCTION__ );
 		}
 
 		// Get the target user
-		$userId	= JRequest::getInt( 'userId' );
+		$userId = $this->input->get('userId', 0, 'int');
 
-		$member	= FD::table( 'GroupMember' );
-		$member->load( array( 'uid' => $userId , 'cluster_id' => $group->id ) );
+		$member = FD::table('GroupMember');
+		$member->load(array('uid' => $userId, 'cluster_id' => $group->id));
 
 		// Make the user as the admin
 		$member->makeAdmin();
 
 		// Create a stream for this
-		$group->createStream( $userId , 'makeadmin' );
+		$group->createStream($userId, 'makeadmin');
 
-		$permalink 	= $group->getPermalink(false, true);
+		$permalink = $group->getPermalink(false, true);
 
 		// Notify the person that they are now a group admin
 		$emailOptions   = array(
 			'title'     	=> 'COM_EASYSOCIAL_GROUPS_EMAILS_PROMOTED_AS_GROUP_ADMIN_SUBJECT',
 			'template'  	=> 'site/group/promoted',
 			'permalink' 	=> $group->getPermalink(true, true),
-			'actor'     	=> $my->getName(),
-			'actorAvatar'   => $my->getAvatar(SOCIAL_AVATAR_SQUARE),
-			'actorLink'     => $my->getPermalink(true, true),
+			'actor'     	=> $this->my->getName(),
+			'actorAvatar'   => $this->my->getAvatar(SOCIAL_AVATAR_SQUARE),
+			'actorLink'     => $this->my->getPermalink(true, true),
 			'group'			=> $group->getName(),
 			'groupLink'		=> $group->getPermalink(true, true)
 		);
 
 		$systemOptions  = array(
-			'context_type'  => 'groups.group.promoted',
-			'url'           => $group->getPermalink(false, false, false),
-			'actor_id'      => $my->id,
-			'uid'			=> $group->id
+			'context_type' => 'groups.group.promoted',
+			'url' => $group->getPermalink(false, false),
+			'actor_id' => $this->my->id,
+			'uid' => $group->id
 		);
 
 		// Notify the owner first
-		$state 	= FD::notify('groups.promoted', array($userId), $emailOptions, $systemOptions);
+		$state = FD::notify('groups.promoted', array($userId), $emailOptions, $systemOptions);
 
-		return $view->call( __FUNCTION__ );
+		return $view->call(__FUNCTION__);
 	}
 
 	public function initInfo()
@@ -1877,4 +1934,40 @@ class EasySocialControllerGroups extends EasySocialController
 
 		return $view->call( __FUNCTION__ , $exception , $result );
 	}
+
+	/**
+	 * Suggests a list of groups for a user.
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function suggest()
+	{
+		// Check for request forgeries
+		ES::checkToken();
+		ES::requireLogin();
+
+		// Get the search query
+		$search = $this->input->get('search', '', 'word');
+
+		// Get exclusion list
+		$exclusion = $this->input->get('exclusion', array(), 'array');
+
+		// Determines if the user is an admin
+		$options = array('unpublished' => false, 'exclusion' => $exclusion);
+
+		if ($this->my->isSiteAdmin()) {
+			$options['unpublished'] = true;
+		}
+
+		// Load up the groups model
+		$model = ES::model('Groups');
+		$groups = $model->search($search, $options);
+
+		return $this->view->call(__FUNCTION__, $groups);
+	}
+
+
 }

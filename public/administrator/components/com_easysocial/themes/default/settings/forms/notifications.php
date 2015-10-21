@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 echo $settings->renderPage(
 	$settings->renderColumn(
@@ -23,14 +23,15 @@ echo $settings->renderPage(
 			$settings->renderSetting('Polling interval', 'notifications.broadcast.interval', 'input', array('unit' => true, 'class' => 'form-control input-sm input-short text-center', 'help' => true)),
 			$settings->renderSetting('Sticky Popup', 'notifications.broadcast.sticky', 'boolean', array('help' => true)),
 			$settings->renderSetting('Broadcast Period', 'notifications.broadcast.period', 'input', array('unit' => true, 'class' => 'form-control input-sm input-short text-center', 'help' => true))
-		),
-		$settings->renderSection(
-			$settings->renderHeader('System Notification'),
-			$settings->renderSetting('Enable system notification', 'notifications.system.enabled', 'boolean', array('help' => true)),
-			$settings->renderSetting('Polling interval', 'notifications.system.polling', 'input', array('unit' => true, 'class' => 'form-control input-sm input-short text-center', 'help' => true))
 		)
 	),
 	$settings->renderColumn(
+		$settings->renderSection(
+			$settings->renderHeader('System Notification'),
+			$settings->renderSetting('Automatically Mark As Read', 'notifications.system.autoread', 'boolean', array('help' => true)),
+			$settings->renderSetting('Enable system notification', 'notifications.system.enabled', 'boolean', array('help' => true)),
+			$settings->renderSetting('Polling interval', 'notifications.system.polling', 'input', array('unit' => true, 'class' => 'form-control input-sm input-short text-center', 'help' => true))
+		),
 		$settings->renderSection(
 			$settings->renderHeader('Friend Notification'),
 			$settings->renderSetting('Enable friend notification', 'notifications.friends.enabled', 'boolean', array('help' => true)),
@@ -38,6 +39,7 @@ echo $settings->renderPage(
 		),
 		$settings->renderSection(
 			$settings->renderHeader('Conversation Notification'),
+			$settings->renderSetting('Automatically Mark As Read', 'notifications.conversation.autoread', 'boolean', array('help' => true)),
 			$settings->renderSetting('Enable conversation notification', 'notifications.conversation.enabled', 'boolean', array('help' => true)),
 			$settings->renderSetting('Polling interval', 'notifications.conversation.polling', 'input', array('unit' => true, 'class' => 'form-control input-sm input-short text-center', 'help' => true))
 		)

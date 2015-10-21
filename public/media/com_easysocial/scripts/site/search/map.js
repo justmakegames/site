@@ -2,11 +2,26 @@ EasySocial.module( 'site/search/map' , function($){
 	var module	= this;
 
     // Create search template first
-    $.template('easysocial/maps.suggestion', '<div class="es-story-location-suggestion" data-location-suggestion><span class="formatted_address">[%= location.formatted_address %]</span></div>');
+    $.template('easysocial/maps.suggestion', '<div class="es-location-suggestion" data-location-suggestion><span class="formatted_address">[%= location.formatted_address %]</span></div>');
 
 	EasySocial.require()
 	.library('gmaps')
 	.done( function(){
+
+        // Constants
+        var KEYCODE = {
+            BACKSPACE: 8,
+            COMMA: 188,
+            DELETE: 46,
+            DOWN: 40,
+            ENTER: 13,
+            ESCAPE: 27,
+            LEFT: 37,
+            RIGHT: 39,
+            SPACE: 32,
+            TAB: 9,
+            UP: 38
+        };
 
 		EasySocial.Controller(
 		'Search.Map',
@@ -15,6 +30,7 @@ EasySocial.module( 'site/search/map' , function($){
 			{
                 "{icon}" : "[data-loaction-icon]",
                 "{locationLabel}" : "[data-location-label]",
+                '{textField}'       : '[data-location-textfield]',
 
                 "{detectButton}" : "[data-location-detect]",
                 "{suggestions}"  : "[data-location-suggestions]",
@@ -41,17 +57,25 @@ EasySocial.module( 'site/search/map' , function($){
 
 				},
 
+                locations: {},
+
+                lastQueryAddress: null,
+
+                results: [],
+
+                result: null,
+
                 "{detectButton} click": function() {
 
                     self.icon()
-                            .removeClass('ies-power')
+                            .removeClass('fa fa-flash')
                             .addClass('btn-loading');
 
                     clearTimeout(self.detectTimer);
 
-                    self.detectTimer = setTimeout(function() {
-                        self.base().removeClass("is-busy");
-                    }, 8000);
+                    // self.detectTimer = setTimeout(function() {
+                    //     self.base().removeClass("is-busy");
+                    // }, 8000);
 
                     $.GMaps.geolocate({
                         success: function(position) {
@@ -93,14 +117,151 @@ EasySocial.module( 'site/search/map' , function($){
 
                             self.icon()
                                     .removeClass('btn-loading')
-                                    .addClass('ies-power');
+                                    .addClass('fa fa-flash');
                         }
                     });
                 },
 
-                "{suggestion} click": function(suggestion, event) {
+                lookup: $.debounce(function(address) {
 
-                    var location = suggestion.data("location");
+                    // self.base().addClass("is-busy");
+
+                    $.GMaps.geocode({
+                        address: address,
+                        callback: function(locations, status) {
+
+                            // self.base().removeClass("is-busy");
+
+                            if (status=="OK") {
+
+                                // Store a copy of the results
+                                self.locations[address] = locations;
+
+                                // Suggestion locations
+                                self.suggest(locations);
+
+                                self.lastQueryAddress = address;
+                            }
+                        }
+                    });
+
+                }, 250),
+
+
+                "{textField} keypress": function(textField, event) {
+
+                    switch (event.keyCode)
+                    {
+                        case KEYCODE.UP:
+
+                            var prevSuggestion = $(
+                                self.suggestion(".active").prev(self.suggestion.selector)[0] ||
+                                self.suggestion(":last")[0]
+                            );
+
+                            // Remove all active class
+                            self.suggestion().removeClass("active");
+
+                            prevSuggestion
+                                .addClass("active")
+                                .trigger("activate");
+
+                            self.suggestions()
+                                .scrollTo(prevSuggestion, {
+                                    offset: prevSuggestion.height() * -1
+                                });
+
+                            event.preventDefault();
+
+                            break;
+
+                        case KEYCODE.DOWN:
+
+                            var nextSuggestion = $(
+                                self.suggestion(".active").next(self.suggestion.selector)[0] ||
+                                self.suggestion(":first")[0]
+                            );
+
+                            // Remove all active class
+                            self.suggestion().removeClass("active");
+
+                            nextSuggestion
+                                .addClass("active")
+                                .trigger("activate");
+
+                            self.suggestions()
+                                .scrollTo(nextSuggestion, {
+                                    offset: nextSuggestion.height() * -1
+                                });
+
+                            event.preventDefault();
+
+                            break;
+
+                        case KEYCODE.ENTER:
+
+                            var activeSuggestion = self.suggestion(".active"),
+                                location = activeSuggestion.data("location");
+                                self.set(location);
+
+                            self.hideSuggestions();
+
+                            event.preventDefault();
+                            break;
+
+                        case KEYCODE.ESCAPE:
+                            self.hideSuggestions();
+                            event.preventDefault();
+                            break;
+                    }
+
+                },
+
+                "{textField} keyup": function(textField, event) {
+
+                    switch (event.keyCode) {
+
+                        case KEYCODE.UP:
+                        case KEYCODE.DOWN:
+                        case KEYCODE.LEFT:
+                        case KEYCODE.RIGHT:
+                        case KEYCODE.ENTER:
+                        case KEYCODE.ESCAPE:
+                            // Don't repopulate if these keys were pressed.
+                            break;
+
+                        default:
+                            var address = $.trim(textField.val());
+
+                            if (address==="") {
+                                // self.base().removeClass("has-location");
+                                self.hideSuggestions();
+                            }
+
+                            // if (address==self.lastQueryAddress) return;
+
+                            var locations = self.locations[address];
+
+                            // If this location has been searched before
+                            if (locations) {
+
+                                // And set our last queried address to this address
+                                // so that it won't repopulate the suggestion again.
+                                self.lastQueryAddress = address;
+
+                                // Just use cached results
+                                self.suggest(locations);
+
+                            // Else ask google to find it out for us
+                            } else {
+
+                                self.lookup(address);
+                            }
+                            break;
+                    }
+                },
+
+                set: function(location) {
 
                     var lat = location.geometry.location.lat(),
                         lng = location.geometry.location.lng(),
@@ -114,15 +275,21 @@ EasySocial.module( 'site/search/map' , function($){
                     var computedVal = distance + '|' + lat + '|' + lng + '|' + address;
                     self.dataCondition().val(computedVal);
 
-                    self.locationLabel().html(address);
-                    self.locationLabel().removeClass('hide');
+                    self.textField().val(address);
+                    // self.locationLabel().removeClass('hide');
 
-                    self.clearSuggestions();
+                    self.hideSuggestions();
+
+                },
+
+                "{suggestion} click": function(suggestion, event) {
+                    var location = suggestion.data("location");
+                    self.set(location);
                 },
 
                 suggest: function(locations) {
 
-                    self.clearSuggestions();
+                    self.hideSuggestions();
 
                     var suggestions = self.suggestions();
 
@@ -139,13 +306,52 @@ EasySocial.module( 'site/search/map' , function($){
                             .appendTo(suggestions);
                     });
 
-                    self.autocomplete().addClass('active');
+                    // self.autocomplete().addClass('active');
+                    self.showSuggestions();
                 },
 
-                clearSuggestions: function() {
-                    self.autocomplete().removeClass('active');
+                showSuggestions: function() {
+
+                    self.focusSuggestion = true;
+
+                    // self.element.find(".es-story-footer")
+                    //     .addClass("swap-zindex");
+
+                    setTimeout(function(){
+
+                        self.autocomplete().addClass("active");
+
+                        var doc = $(document),
+                            hideOnClick = "click.es.advancedsearch.location";
+
+                        doc
+                            .off(hideOnClick)
+                            .on(hideOnClick, function(event){
+
+                                // Collect list of bubbled elements
+                                var targets = $(event.target).parents().andSelf();
+
+                                if (targets.filter(self.element).length > 0) return;
+
+                                doc.off(hideOnClick);
+
+                                self.hideSuggestions();
+                            });
+
+                    }, 500);
+                },
+
+                hideSuggestions: function() {
+
                     // Clear location suggestions
                     self.suggestions().empty();
+
+                    self.focusSuggestion = false;
+
+                    self.autocomplete().removeClass("active");
+
+                    $(document).off("click.es.advancedsearch.location");
+
                 }
 
 

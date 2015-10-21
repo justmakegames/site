@@ -132,6 +132,16 @@ class SocialFieldsUserDatetime extends SocialFieldItem
 
         $this->set('calendarDateFormat', $calendarDateFormat);
 
+        $theme = FD::themes();
+        
+        $year = $theme->loadTemplate('fields/user/datetime/form.year', array('year' => $date->year, 'yearRange' => $yearRange));
+        $month = $theme->loadTemplate('fields/user/datetime/form.month', array('month' => $date->month));
+        $day = $theme->loadTemplate('fields/user/datetime/form.day', array('day' => $date->day, 'maxDay' => $date->isValid() ? $date->format('t') : 31)); 
+        
+        $dateHTML = $this->getDateDropdown($year, $month, $day);
+
+        $this->set('dateHTML', $dateHTML);
+
         // Display the output.
         return $this->display();
     }
@@ -222,6 +232,16 @@ class SocialFieldsUserDatetime extends SocialFieldItem
         $calendarDateFormat = $this->getCalendarDateFormat();
 
         $this->set('calendarDateFormat', $calendarDateFormat);
+
+        $theme = FD::themes();
+        
+        $year = $theme->loadTemplate('fields/user/datetime/form.year', array('year' => $date->year, 'yearRange' => $yearRange));
+        $month = $theme->loadTemplate('fields/user/datetime/form.month', array('month' => $date->month));
+        $day = $theme->loadTemplate('fields/user/datetime/form.day', array('day' => $date->day, 'maxDay' => $date->isValid() ? $date->format('t') : 31)); 
+        
+        $dateHTML = $this->getDateDropdown($year, $month, $day);
+
+        $this->set('dateHTML', $dateHTML);
 
         // Display the output.
         return $this->display();
@@ -479,7 +499,10 @@ class SocialFieldsUserDatetime extends SocialFieldItem
                 'timezone' => $timezone
             );
         } else {
-            unset($post[$this->inputName]);
+            //unset($post[$this->inputName]);
+            $post[$this->inputName] = array(
+                'date' => ''
+            );
         }
 
         return true;
@@ -553,6 +576,32 @@ class SocialFieldsUserDatetime extends SocialFieldItem
 
         return $tz;
     }
+
+    protected function getDateDropdown($year, $month, $day)
+    {
+        $dateDropdownHTML = '';
+
+        switch ((int) $this->params->get('date_format')) {
+            default:
+            case 1:
+                return $day . $month . $year;
+                break;
+
+            case 2:
+                return $month . $day . $year;
+                break;
+
+            case 3:
+                return $year . $day . $month;
+                break;
+
+            case 4:
+                return $year . $month . $day;
+                break;
+        }
+
+    }
+
 
     protected function getCalendarDateFormat()
     {
@@ -694,13 +743,13 @@ class SocialFieldsUserDateTimeObject
 
     public function init()
     {
+        $json = FD::json();
+
         $args = func_get_args();
 
         $count = func_num_args();
 
         if ($count === 1 && is_string($args[0]) && !empty($args[0])) {
-            $json = FD::json();
-
             if ($json->isJsonString($args[0])) {
                 $args[0] = $json->decode($args[0]);
             } else {
@@ -716,17 +765,29 @@ class SocialFieldsUserDateTimeObject
             $data = (object) $args[0];
 
             // Exception if date or timezone key exist
-            if (isset($data->date) && isset($data->timezone)) {
-                $date = FD::date($data->date, false);
+            if (isset($data->date)) {
+                $date = null;
+                if ($json->isJsonString($data->date)) {
+                    $tmp = $json->decode($data->date);
+                    $tmpDateString = $tmp->year . '-' . $tmp->month . '-' . $tmp->day;
 
-                $date->setTimezone(new DateTimeZone($data->timezone));
+                    $date = FD::date($tmpDateString, false);
 
-                $this->year = $date->toFormat('Y');
-                $this->month = $date->toFormat('m');
-                $this->day = $date->toFormat('d');
-                $this->hour = $date->toFormat('H');
-                $this->minute = $date->toFormat('i');
-                $this->second = $date->toFormat('s');
+                } else {
+                    $date = FD::date($data->date, false);
+
+                }
+
+                if (isset($data->timezone)) {
+                    $date->setTimezone(new DateTimeZone($data->timezone));
+                }
+
+                $this->year = $date->format('Y');
+                $this->month = $date->format('m');
+                $this->day = $date->format('d');
+                $this->hour = $date->format('H');
+                $this->minute = $date->format('i');
+                $this->second = $date->format('s');
 
                 unset($data->date);
                 unset($data->timezone);

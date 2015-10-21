@@ -22,7 +22,7 @@ $useSSL = $params->get('use_secure_url', false) ? 1 : 0;
 					<div class="input-area">
                         <div class="input-area-cell">
                             <div class="form-inline">
-                                <i class="ies-user"></i>
+                                <i class="fa fa-user"></i>
                                 <input type="text" placeholder="<?php echo $config->get( 'registrations.emailasusername' ) ? JText::_( 'MOD_EASYSOCIAL_LOGIN_EMAIL_PLACEHOLDER' ) : JText::_( 'MOD_EASYSOCIAL_LOGIN_USERNAME_PLACEHOLDER' );?>" name="username" class="form-control" />
 
                                 <?php if( $params->get( 'show_forget_username' , true ) ){ ?>
@@ -32,7 +32,7 @@ $useSSL = $params->get('use_secure_url', false) ? 1 : 0;
                         </div>
                         <div class="input-area-cell">
                             <div class="form-inline">
-                                <i class="ies-locked"></i>
+                                <i class="fa fa-lock"></i>
                                 <input type="password" placeholder="<?php echo JText::_( 'MOD_EASYSOCIAL_LOGIN_PASSWORD_PLACEHOLDER' );?>" name="password" class="form-control" />
 
                                 <?php if( $params->get( 'show_forget_password' , true ) ){ ?>
@@ -43,17 +43,17 @@ $useSSL = $params->get('use_secure_url', false) ? 1 : 0;
                         <?php if ($config->get('general.site.twofactor')) { ?>
                             <div class="input-area-cell">
                                 <div class="form-inline es-secret-key">
-                                    <i class="ies-key"></i>
+                                    <i class="fa fa-key"></i>
                                     <input type="input" placeholder="<?php echo JText::_( 'MOD_EASYSOCIAL_LOGIN_TWOFACTOR_SECRET_PLACEHOLDER' );?>" name="secretkey" class="form-control" />
                                 </div>
                             </div>
-                        <?php } ?>    
+                        <?php } ?>
                         <div class="input-area-cell">
                             <button type="submit" class="btn btn-es-primary btn-login"><?php echo JText::_( 'MOD_EASYSOCIAL_LOGIN_SUBMIT' );?> &rarr;</button>
                         </div>
                         <?php if( $params->get( 'show_register_link' ) ){ ?>
                             <div class="input-area-cell">
-                                <a href="<?php echo FRoute::registration();?>" class="btn btn-es"><i class="ies-vcard"></i>&nbsp; <?php echo JText::_( 'MOD_EASYSOCIAL_HORIZONTAL_LOGIN_REGISTER' );?></a>
+                                <a href="<?php echo FRoute::registration();?>" class="btn btn-es btn-register"><i class="fa fa-list-alt"></i>&nbsp; <?php echo JText::_( 'MOD_EASYSOCIAL_HORIZONTAL_LOGIN_REGISTER' );?></a>
                             </div>
 
                         <?php } ?>
@@ -106,7 +106,7 @@ $useSSL = $params->get('use_secure_url', false) ? 1 : 0;
 		<input type="hidden" name="option" value="com_easysocial" />
 		<input type="hidden" name="controller" value="account" />
 		<input type="hidden" name="task" value="logout" />
-		<input type="hidden" name="return" value="<?php echo base64_encode(FD::toolbar()->getRedirectionUrl(FD::config()->get('general.site.logout'))); ?>" />
+		<input type="hidden" name="return" value="<?php echo base64_encode(FRoute::getMenuLink(FD::config()->get('general.site.logout'))); ?>" />
 		<?php echo $modules->html( 'form.token' ); ?>
 	</form>
 </div>

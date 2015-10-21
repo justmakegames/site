@@ -11,4 +11,8 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<?php echo $stream->content; ?>
+<?php if ($this->config->get('stream.content.truncate')) { ?>
+    <?php echo $this->html('string.truncate', $stream->content, $this->config->get('stream.content.truncatelength')); ?>
+<?php } else { ?>
+    <?php echo $stream->content;?>
+<?php } ?>

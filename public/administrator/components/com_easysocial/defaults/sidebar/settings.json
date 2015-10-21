@@ -1,7 +1,7 @@
 {
 	"title"	: "COM_EASYSOCIAL_MENU_GROUP_SETTINGS",
 	"link"	: "index.php?option=com_easysocial&view=settings",
-	"class"	: "ies-cog-2",
+	"class"	: "fa-cog",
 	"access": "easysocial.access.settings",
 	"view"	: "settings",
 	"active": "page",
@@ -9,7 +9,7 @@
 	[
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_ALERTS",
-			"class" : "ies-podcast",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -19,30 +19,8 @@
 			"childs": []
 		},
 		{
-			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_BADGES",
-			"class"	: "ies-crown",
-			"url"	:
-			{
-				"view"	: "settings",
-				"layout": "form",
-				"page"	: "badges"
-			},
-			"childs": []
-		},
-		{
-			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_APPS",
-			"class"	: "ies-cube",
-			"url"	:
-			{
-				"view"	: "settings",
-				"layout": "form",
-				"page"	: "apps"
-			},
-			"childs": []
-		},
-		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_CONVERSATION",
-			"class" : "ies-comments-4",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -53,7 +31,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_GENERAL",
-			"class"	: "ies-cog-3",
+			"class"	: "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -63,19 +41,8 @@
 			"childs": []
 		},
 		{
-			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_FOLLOWERS",
-			"class" : "ies-tree-view",
-			"url"	:
-			{
-				"view"	: "settings",
-				"layout": "form",
-				"page"	: "followers"
-			},
-			"childs": []
-		},
-		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_LINKS",
-			"class" : "ies-link",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -85,19 +52,8 @@
 			"childs": []
 		},
 		{
-			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_FRIENDS",
-			"class" : "ies-users-2",
-			"url"	:
-			{
-				"view"	: "settings",
-				"layout": "form",
-				"page"	: "friends"
-			},
-			"childs": []
-		},
-		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_PHOTOS",
-			"class" : "ies-picture-2",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -108,7 +64,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_REPORTS",
-			"class" : "ies-flag",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -119,7 +75,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_FACEBOOK",
-			"class" : "ies-share",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -130,7 +86,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_STORAGE",
-			"class" : "ies-cloud",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -141,7 +97,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_STREAM",
-			"class" : "ies-newspaper",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -151,19 +107,8 @@
 			"childs": []
 		},
 		{
-			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_ACTIVITY",
-			"class" : "ies-list-2",
-			"url"	:
-			{
-				"view"	: "settings",
-				"layout": "form",
-				"page"	: "activity"
-			},
-			"childs": []
-		},
-		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_USERS",
-			"class" : "ies-user",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -174,7 +119,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_REGISTRATION",
-			"class" : "ies-signup",
+			"class" : "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -185,7 +130,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_SHARING",
-			"class"	: "ies-share-2",
+			"class"	: "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -194,28 +139,8 @@
 			}
 		},
 		{
-			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_ADVANCE",
-			"class"	: "ies-wrench-2",
-			"url"	:
-			{
-				"view"	: "settings",
-				"layout": "form",
-				"page"	: "system"
-			}
-		},
-		{
-			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_POINTS",
-			"class"	: "ies-health",
-			"url"	:
-			{
-				"view"	: "settings",
-				"layout": "form",
-				"page"	: "points"
-			}
-		},
-		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_STORAGE_PATH",
-			"class"	: "ies-folder-2",
+			"class"	: "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -225,7 +150,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_EVENTS",
-			"class"	: "ies-calendar",
+			"class"	: "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -235,7 +160,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_GROUPS",
-			"class"	: "ies-briefcase",
+			"class"	: "",
 			"url"	:
 			{
 				"view"	: "settings",
@@ -245,12 +170,30 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_COMMENTS",
-			"class"	: "ies-comments",
+			"class"	: "",
 			"url"	:
 			{
 				"view"	: "settings",
 				"layout": "form",
 				"page"	: "comments"
+			}
+		},
+		{
+			"title": "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_LOCATION_SERVICE",
+			"class": "",
+			"url": {
+				"view": "settings",
+				"layout": "form",
+				"page": "location"
+			}
+		},
+		{
+			"title": "COM_EASYSOCIAL_MENU_ITEM_SETTINGS_VIDEOS",
+			"class": "",
+			"url": {
+				"view": "settings",
+				"layout": "form",
+				"page": "videos"
 			}
 		}
 	]

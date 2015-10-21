@@ -47,7 +47,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 					<div class="pull-right es-notice-action">
 						<a href="javascript:void(0);" class="btn btn-mini btn-es" data-bs-toggle="dropdown">
-							<i class="ies-arrow-down ies-small"></i>
+							<i class="fa fa-caret-down "></i>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-lists dropdown-arrow-topright small">
 							<li>

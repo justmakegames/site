@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form action="index.php" method="post" name="adminForm" class="esForm" id="adminForm" data-table-grid>
 
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -34,9 +34,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 	</div>
 
-	<div id="appsTable">
-
-		<table class="table table-striped table-es">
+	<div id="appsTable" class="panel-table">
+		<table class="app-table table table-eb table-striped">
 			<thead>
 				<tr>
 					<th width="1%" class="center">
@@ -107,7 +106,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					</td>
 				</tr>
 			</tfoot>
-
 		</table>
 	</div>
 

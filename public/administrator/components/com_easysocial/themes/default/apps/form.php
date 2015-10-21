@@ -15,111 +15,121 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="row">
 	<div class="col-md-7">
 
-		<div class="widget-box">
-			<h3><?php echo JText::_( 'COM_EASYSOCIAL_APP_CONFIGURATION' );?></h3>
+		<div class="panel">
+			<div class="panel-head">
+				<b><?php echo JText::_( 'COM_EASYSOCIAL_APP_CONFIGURATION' );?></b>
+			</div>
 
-			<div class="accordion-body in" id="stat">
-				<div class="wbody wbody-padding">
-					<div class="form-group">
-						<label for="page_title" class="col-md-3">
-							<?php echo JText::_( 'COM_EASYSOCIAL_APP_TITLE' );?>:
-							<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_APP_TITLE' );?>"
-								data-content="<?php echo JText::_( 'COM_EASYSOCIAL_APP_TITLE_DESC' );?>"
-								data-es-provide="popover" class="icon-es-help pull-right"></i>
-						</label>
-						<div class="col-md-9">
-							<input type="text" name="title" value="<?php echo $app->get( 'title' );?>"
-								class="form-control input-sm" />
+			<div class="panel-body">
+				<div class="accordion-body in" id="stat">
+					<div class="wbody wbody-padding">
+						<div class="form-group">
+							<label for="page_title" class="col-md-3">
+								<?php echo JText::_( 'COM_EASYSOCIAL_APP_TITLE' );?>:
+								<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_APP_TITLE' );?>"
+									data-content="<?php echo JText::_( 'COM_EASYSOCIAL_APP_TITLE_DESC' );?>"
+									data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
+							</label>
+							<div class="col-md-9">
+								<input type="text" name="title" value="<?php echo $app->get( 'title' );?>"
+									class="form-control input-sm" />
+							</div>
 						</div>
-					</div>
 
-					<div class="form-group">
-						<label for="alias" class="col-md-3">
-							<?php echo JText::_( 'COM_EASYSOCIAL_APP_PERMALINK' );?>:
-							<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_APP_PERMALINK' );?>"
-								data-content="<?php echo JText::_( 'COM_EASYSOCIAL_APP_PERMALINK_DESC' , true );?>"
-								data-es-provide="popover" class="icon-es-help pull-right"></i>
-						</label>
-						<div class="col-md-9">
-							<input type="text" id="alias" name="alias" value="<?php echo $app->get( 'alias' );?>"
-								class="form-control input-sm" />
+						<div class="form-group">
+							<label for="alias" class="col-md-3">
+								<?php echo JText::_( 'COM_EASYSOCIAL_APP_PERMALINK' );?>:
+								<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_APP_PERMALINK' );?>"
+									data-content="<?php echo JText::_( 'COM_EASYSOCIAL_APP_PERMALINK_DESC' , true );?>"
+									data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
+							</label>
+							<div class="col-md-9">
+								<input type="text" id="alias" name="alias" value="<?php echo $app->get( 'alias' );?>"
+									class="form-control input-sm" />
+							</div>
 						</div>
-					</div>
 
-					<div class="form-group">
-						<label for="alias" class="col-md-3">
-							<?php echo JText::_( 'COM_EASYSOCIAL_APP_STATE' );?>:
-							<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_APP_STATE' );?>"
-								data-content="<?php echo JText::_( 'COM_EASYSOCIAL_APP_STATE_DESC' );?>"
-								data-es-provide="popover" class="icon-es-help pull-right"></i>
-						</label>
-						<div class="col-md-9">
-							<?php echo $this->html( 'grid.boolean' , 'state' , $app->state ); ?>
+						<div class="form-group">
+							<label for="alias" class="col-md-3">
+								<?php echo JText::_( 'COM_EASYSOCIAL_APP_STATE' );?>:
+								<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_APP_STATE' );?>"
+									data-content="<?php echo JText::_( 'COM_EASYSOCIAL_APP_STATE_DESC' );?>"
+									data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
+							</label>
+							<div class="col-md-9">
+								<?php echo $this->html( 'grid.boolean' , 'state' , $app->state ); ?>
+							</div>
 						</div>
-					</div>
 
-					<?php if( $app->type == SOCIAL_TYPE_APPS && !$app->system && $app->group != SOCIAL_TYPE_GROUP ){ ?>
-					<div class="form-group">
-						<label class="col-md-3">
-							<?php echo JText::_( 'COM_EASYSOCIAL_APP_DEFAULT' );?>:
-							<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_APP_DEFAULT' );?>"
-								data-content="<?php echo JText::_( 'COM_EASYSOCIAL_APP_DEFAULT_DESC' );?>"
-								data-es-provide="popover" class="icon-es-help pull-right"></i>
-						</label>
-						<div class="col-md-9">
-							<?php echo $this->html( 'grid.boolean' , 'default' , $app->default ); ?>
+						<?php if( $app->type == SOCIAL_TYPE_APPS && !$app->system && $app->group != SOCIAL_TYPE_GROUP ){ ?>
+						<div class="form-group">
+							<label class="col-md-3">
+								<?php echo JText::_( 'COM_EASYSOCIAL_APP_DEFAULT' );?>:
+								<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_APP_DEFAULT' );?>"
+									data-content="<?php echo JText::_( 'COM_EASYSOCIAL_APP_DEFAULT_DESC' );?>"
+									data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
+							</label>
+							<div class="col-md-9">
+								<?php echo $this->html( 'grid.boolean' , 'default' , $app->default ); ?>
+							</div>
 						</div>
+						<?php } ?>
 					</div>
-					<?php } ?>
 				</div>
 			</div>
 		</div>
 
-		<?php echo $app->renderForm( 'admin' , $app->getParams() , 'params' , true );?>
+		<div class="panel">
+			<?php echo $app->renderForm( 'admin' , $app->getParams() , 'params' , true );?>
+		</div>
 
 	</div>
 
 	<div class="col-md-5">
 
-		<div class="widget-box">
-			<h3><?php echo JText::_( 'COM_EASYSOCIAL_APP_ABOUT' );?></h3>
+		<div class="panel">
+			<div class="panel-head">
+				<b><?php echo JText::_( 'COM_EASYSOCIAL_APP_ABOUT' );?></b>
+			</div>
 
-			<table class="table table-striped table-noborder">
-				<tbody>
-					<tr>
-						<td width="20%">
-							<?php echo JText::_( 'COM_EASYSOCIAL_APP_AUTHOR' );?>:
-						</td>
-						<td>
-							<?php echo $app->getMeta()->author;?>
-						</td>
-					</tr>
-					<tr>
-						<td width="20%">
-							<?php echo JText::_( 'COM_EASYSOCIAL_APP_VERSION' ); ?>:
-						</td>
-						<td>
-							<?php echo $app->getMeta()->version; ?>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<?php echo JText::_( 'COM_EASYSOCIAL_APP_WEBSITE' ); ?>:
-						</td>
-						<td>
-							<a href="<?php echo $app->getMeta()->url;?>" target="_blank"><?php echo $app->getMeta()->url;?></a>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<?php echo JText::_( 'COM_EASYSOCIAL_APP_DESC' ); ?>:
-						</td>
-						<td>
-							<?php echo $app->getMeta()->desc; ?>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<div class="panel-body">
+				<table class="table table-striped table-noborder">
+					<tbody>
+						<tr>
+							<td width="20%">
+								<?php echo JText::_( 'COM_EASYSOCIAL_APP_AUTHOR' );?>:
+							</td>
+							<td>
+								<?php echo $app->getMeta()->author;?>
+							</td>
+						</tr>
+						<tr>
+							<td width="20%">
+								<?php echo JText::_( 'COM_EASYSOCIAL_APP_VERSION' ); ?>:
+							</td>
+							<td>
+								<?php echo $app->getMeta()->version; ?>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<?php echo JText::_( 'COM_EASYSOCIAL_APP_WEBSITE' ); ?>:
+							</td>
+							<td>
+								<a href="<?php echo $app->getMeta()->url;?>" target="_blank"><?php echo $app->getMeta()->url;?></a>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<?php echo JText::_( 'COM_EASYSOCIAL_APP_DESC' ); ?>:
+							</td>
+							<td>
+								<?php echo $app->getMeta()->desc; ?>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
 
 	</div>

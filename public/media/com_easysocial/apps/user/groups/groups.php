@@ -99,7 +99,7 @@ class SocialUserAppGroups extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#303229';
-		$obj->icon 		= 'ies-users';
+		$obj->icon 		= 'fa fa-users';
 		$obj->label 	= 'APP_USER_GROUPS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -308,8 +308,8 @@ class SocialUserAppGroups extends SocialAppItem
 
 		$item->display = SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color = '#303229';
-		$item->fonticon	= 'ies-users';
-		$item->label = JText::_('APP_USER_GROUPS_STREAM_TOOLTIP');
+		$item->fonticon	= 'fa-users';
+		$item->label = FD::_('APP_USER_GROUPS_STREAM_TOOLTIP', true);
 
 		if ($item->context == 'news') {
 			$this->prepareGroupNewsStream($item, $group, $includePrivacy);
@@ -356,6 +356,11 @@ class SocialUserAppGroups extends SocialAppItem
 			$item->commentLink	= false;
 			$item->repost 		= false;
 			$item->commentForm 	= false;
+		}
+
+		// Only show Social sharing in public group
+		if ($group->type != SOCIAL_GROUPS_PUBLIC_TYPE) {
+			$item->sharing = false;
 		}
 	}
 
@@ -587,8 +592,8 @@ class SocialUserAppGroups extends SocialAppItem
 		$content = $discussion->removeFiles( $content );
 
 		$maxlength = $params->get('stream_discussion_maxlength', 250);
-		
-		if ($maxlength) {	
+
+		if ($maxlength) {
 			$content = strip_tags($content);
 			$content = JString::strlen($content) > $maxlength ? JString::substr($content, 0, $maxlength ) . JText::_('COM_EASYSOCIAL_ELLIPSES') : $content;
 		}
@@ -601,8 +606,8 @@ class SocialUserAppGroups extends SocialAppItem
 
 		$item->display	= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 	= '#658ea6';
-		$item->fonticon = 'ies-checkbox-checked';
-		$item->label 	= JText::_( 'APP_GROUPS_TASKS_STREAM_TOOLTIP' );
+		$item->fonticon = 'fa fa-check-square';
+		$item->label 	= FD::_( 'APP_GROUPS_TASKS_STREAM_TOOLTIP', true );
 
 		// Get the verb
 		$verb 	= $item->verb;
@@ -691,7 +696,11 @@ class SocialUserAppGroups extends SocialAppItem
 
 		// Get the actor
 		$actor 		= $item->actor;
-		$app 		= $this->getApp();
+		
+		// We need to get the task app for the group
+		$app = Foundry::table('App');
+		$app->load(array('element' => 'tasks', 'group' => 'group'));
+		
 		$permalink	= FRoute::apps( array( 'layout' => 'canvas' , 'customView' => 'item' , 'uid' => $group->getAlias() , 'type' => SOCIAL_TYPE_GROUP , 'id' => $app->getAlias() , 'milestoneId' => $milestone->id ) );
 
 		$this->set( 'permalink'	, $permalink );

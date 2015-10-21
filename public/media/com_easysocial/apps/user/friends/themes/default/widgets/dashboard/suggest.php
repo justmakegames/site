@@ -19,7 +19,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</div>
 	<div class="es-widget-body<?php echo !$friends ? ' is-empty' : '';?>">
 		<?php if( $friends ){ ?>
-		<ul class="widget-list es-nav es-nav-stacked friends-suggestion-list">
+		<ul class="widget-list es-nav es-nav-stacked es-friends-suggestion-list">
 			<?php foreach( $friends as $item ){
 
 				$cntText = '';
@@ -29,7 +29,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					$cntText 		= JText::sprintf( 'APP_FRIENDS_SUGGEST_FRIENDS_MUTUAL' . $cntPluralize, $item->count );
 				}
 			?>
-			<li class="friends-suggestion-item" data-friend-suggest-list
+			<li class="es-friends-suggestion-item" data-friend-suggest-list
 				data-uid="<?php echo $item->friend->id; ?>"
 			>
 				<div class="widget-main-link">
@@ -42,7 +42,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						</a>
 					</div>
 
-					<div class="media-body pl-10 fd-small">
+					<div class="media-body pl-10">
 						<a href="<?php echo $item->friend->getPermalink();?>">
 							<span class="widget-main-link"><?php echo $item->friend->getName(); ?></span>
 						</a>
@@ -50,7 +50,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<?php echo $cntText; ?>
 						</div>
 						<?php if( $this->my->getPrivacy()->validate( 'friends.request' , $item->friend->id ) ) { ?>
-						<div class="fd-small total-no" data-friend-suggest-button>
+						<div class="mb-10" data-friend-suggest-button>
 							<a href="javascript:void(0);" data-friend-suggest-add class="btn btn-mini btn-es-primary">
 								<?php echo JText::_( 'APP_FRIENDS_SUGGEST_FRIENDS_ADD_FRIEND' ); ?>
 							</a>
@@ -62,8 +62,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</li>
 			<?php } ?>
 		</ul>
-		<div class="pull-right pr-10">
-			<a href="<?php echo FRoute::friends( array( 'filter' => 'suggest' ) ); ?>" class="fd-small"><?php echo JText::_( 'APP_FRIENDS_SUGGEST_FRIENDS_VIEW_ALL' ); ?></a>
+		<div class="fd-small pull-right pr-10">
+			<a href="<?php echo FRoute::friends( array( 'filter' => 'suggest' ) ); ?>" class=""><?php echo JText::_( 'APP_FRIENDS_SUGGEST_FRIENDS_VIEW_ALL' ); ?></a>
 		</div>
 		<?php } else { ?>
 		<div class="fd-small empty">

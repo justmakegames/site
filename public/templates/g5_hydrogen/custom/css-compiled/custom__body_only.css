@@ -82,65 +82,68 @@ body div#fd.es.mod-es-dropdown-menu .dropdown-toggle-user-name strong {
 .q2c-wrapper .form-horizontal .control-label {
   text-align: left;
   width: 80px;
+  float: left;
 }
-/* line 82, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 83, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 .form-horizontal .controls {
   margin-left: 100px;
 }
-/* line 86, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 87, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 .q2c-wrapper .form-horizontal .qtc_controls_text {
   font-weight: bold;
   color: #3180c2;
+  margin-left: 10px;
+  float: left;
 }
-/* line 91, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 94, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 .blog .q2c-wrapper {
   padding-bottom: 20px;
   border-bottom: 2px solid #eee;
 }
-/* line 96, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 99, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 .items-row.cols-2 .item {
   padding: 10px;
   border: 1px solid #eee;
   margin-bottom: 10px;
 }
-/* line 102, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 105, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 .article-info .article-info-term {
   display: none;
 }
 /* Articles */
-/* line 108, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 111, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 .pull-left.item-image {
   max-width: 100%;
 }
-/* line 112, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 115, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 #eblog-wrapper #ezblog-menu {
   min-height: 32px;
 }
-/* line 116, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 119, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 #ezblog-menu.narrow .btn-eb-navbar {
   min-width: 40px;
   min-height: 32px;
 }
-/* line 121, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 124, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 #ezblog-head .component-links {
   display: none;
 }
 /* Comments */
-/* line 127, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 130, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 .comment-form .form-row .label {
   padding: 5px;
   font-size: 12px;
 }
-/* line 132, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 135, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 body #comment-form .inputbox {
   line-height: 24px;
   text-indent: 10px;
 }
-/* line 137, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 140, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 #comment-form .form-row label {
   display: inline;
 }
-/* line 141, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 144, /var/www/jmg/public/templates/g5_hydrogen/scss/custom.scss */
 #ezblog-body #button-related a {
   min-height: 37px;
 }

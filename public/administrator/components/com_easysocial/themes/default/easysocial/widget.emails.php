@@ -12,8 +12,8 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="">
-	<h5><?php echo JText::_( 'COM_EASYSOCIAL_WIDGET_TITLE_EMAIL_DELIVERY' );?></h5>
-	<hr />
+	<!-- <h5><?php echo JText::_( 'COM_EASYSOCIAL_WIDGET_TITLE_EMAIL_DELIVERY' );?></h5> -->
+	<!-- <hr /> -->
 	<div class="emails-chart-container">
 		<div data-chart-emails class="emails-chart-placeholder" style="width: 100%; height: 200px;"></div>
 	</div>

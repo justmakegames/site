@@ -20,9 +20,6 @@ EasySocial.module( 'admin/badges/discover' , function($) {
 					// Progress bar controller
 					progressController : null,
 
-					// Start button
-					"{startButton}"	: "[data-badgesDiscover-start]",
-
 					// Progress Bar
 					"{progressBar}" : "[data-badgesDiscover-progress]",
 
@@ -37,13 +34,18 @@ EasySocial.module( 'admin/badges/discover' , function($) {
 
 				return {
 
-					init: function()
-					{
+					init: function() {
 						// Initialize progress bar.
 						self.initProgressBar();
 
 						// Initialize the logging area.
 						self.initLogging();
+
+						$.Joomla('submitbutton', function(task) {
+							if (task == 'discover') {
+								self.startDiscovering();
+							}
+						});
 					},
 
 					// Resets the scan.
@@ -116,24 +118,17 @@ EasySocial.module( 'admin/badges/discover' , function($) {
 
 								// Show view log button.
 								self.viewLog().show();
-
-								// Make the scan button work again.
-								self.startButton().removeAttr( 'disabled' );
 							}
 						});
 					},
 
-					"{startButton} click" : function( element )
-					{
+					startDiscovering: function() {
 						self.reset();
 
-						// Disable start button.
-						self.startButton().attr( 'disabled' , 'disabled' );
-
 						// Discover the list of files.
-						EasySocial.ajax( 'admin/controllers/badges/discoverFiles' , {})
-						.done(function( files , message )
-						{
+						EasySocial.ajax( 'admin/controllers/badges/discoverFiles' , {
+
+						}).done(function(files, message) {
 							// Set the files to the properties.
 							self.options.files 	= files;
 
@@ -156,9 +151,6 @@ EasySocial.module( 'admin/badges/discover' , function($) {
 
 								// Append message to the result list.
 								self.addLog( $.language( 'COM_EASYSOCIAL_SCAN_COMPLETED' ) );
-
-								// Make the scan button work again.
-								self.startButton().removeAttr( 'disabled' );
 							}
 
 						});

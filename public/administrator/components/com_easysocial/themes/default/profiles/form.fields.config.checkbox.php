@@ -16,7 +16,11 @@ foreach( $field->option as $option )
 
 	if( !empty( $value ) )
 	{
-		$checked = in_array( $option->value, $value );
+		if (is_array($value)) {
+			$checked = in_array( $option->value, $value );
+		} else  {
+			$checked = $option->value == $value;
+		}
 	}
 
 	$ext = array(

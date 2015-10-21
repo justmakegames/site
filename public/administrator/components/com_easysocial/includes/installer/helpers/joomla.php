@@ -78,9 +78,11 @@ class SocialInstallerJoomla extends JObject
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function upload( $source , $destination )
+	public function upload($source, $destination)
 	{
-		return JFile::upload( $source , $destination );
+		$state = JFile::copy($source, $destination);
+
+		return $state;
 	}
 
 	public function extract( $archive )
@@ -121,13 +123,13 @@ class SocialInstallerJoomla extends JObject
 	public function install()
 	{
 		// Ensure that the type is valid.
-		$type	= strtolower( $this->type );
+		$type = strtolower($this->type);
 
 		// Include the adapters for this.
-		require_once( dirname( __FILE__ ) . '/adapters/' . $type . '.php' );
+		require_once(__DIR__ . '/adapters/' . $type . '.php');
 
-		$className	= 'SocialInstaller' . ucfirst( $type );
-		$obj		= new $className( $this );
+		$className	= 'SocialInstaller' . ucfirst($type);
+		$obj = new $className($this);
 
 		return $obj->install();
 	}
@@ -190,42 +192,37 @@ class SocialInstallerJoomla extends JObject
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function copyContents( $destination , $name )
+	public function copyContents($destination, $name)
 	{
 		// Get the folders and files based on the source path of the manifest file.
-		$sourceFolders	= JFolder::folders( $this->source );
-		$sourceFiles	= JFolder::files( $this->source );
+		$sourceFolders = JFolder::folders($this->source);
+		$sourceFiles = JFolder::files($this->source);
 
-		// Test if the archive contains the structure of,
-		//
-		// /path/to/tmp/ELEMENT/files
-		//
-		if( empty( $sourceFiles ) && count( $sourceFolders ) == 1 && $sourceFolders[0] == $name )
-		{
-			$this->source	.= '/' . $name;
+		// If the extracted archive contains the same name as the app, most likely the zip was incorrect.
+		if (empty($sourceFiles) && count($sourceFolders) == 1 && $sourceFolders[0] == $name) {
+			$this->source .= '/' . $name;
 		}
 
-		$source 	= rtrim( $this->source , '/' );
-		$dest		= rtrim( $destination , '/' );
+		$source = rtrim($this->source, '/');
+		$dest = rtrim($destination, '/');
 
 		// We allow language copying since it should reside in the language folder.
 		// Copy language file
-		$this->copyLanguages( $destination );
+		$this->copyLanguages($destination);
 
 		// We skip this because the folder is already in the appropriate path
-		if( $source == $dest )
-		{
+		if ($source == $dest) {
 			return false;
 		}
 
 		// Copy files
-		$this->copyFiles( $destination );
+		$this->copyFiles($destination);
 
 		// Copy folders
-		$this->copyFolders( $destination );
+		$this->copyFolders($destination);
 
 		// Copy SQL files
-		$this->copySQL( $destination );
+		$this->copySQL($destination);
 
 		return true;
 	}
@@ -705,15 +702,18 @@ class SocialInstallerJoomla extends JObject
 	 * @param	string	The folder's path.
 	 * @return	bool	True if success false otherwise.
 	 */
-	public function createFolder( $destination )
+	public function createFolder($destination)
 	{
-		if( JFolder::exists( $destination ) )
-		{
-			$this->setError( JText::sprintf( 'COM_EASYSOCIAL_INSTALLER_FOLDER_ALREADY_EXISTS_NOT_CREATING_FOLDER' , $destination ) );
+		$exists = JFolder::exists($destination);
+
+		if ($exists) {
+			$this->setError(JText::sprintf('COM_EASYSOCIAL_INSTALLER_FOLDER_ALREADY_EXISTS_NOT_CREATING_FOLDER', $destination));
 			return false;
 		}
 
-		return JFolder::create( $destination );
+		$state = JFolder::create($destination);
+
+		return $state;
 	}
 
 	/**

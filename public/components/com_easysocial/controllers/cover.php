@@ -34,12 +34,6 @@ class EasySocialControllerCover extends EasySocialController
 		// Only registered member can use this
 		FD::requireLogin();
 
-		// Get the current view
-		$view = $this->getCurrentView();
-
-		// Get the current logged in user
-		$my = FD::user();
-
 		// Get the coordinates
 		$x = $this->input->get('x', 0, 'default');
 		$y = $this->input->get('y', 0, 'default');
@@ -57,8 +51,8 @@ class EasySocialControllerCover extends EasySocialController
 
 		// Check for required variables
 		if (!$id || !$photo->id || !$uid || !$type) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_PHOTOS_INVALID_PHOTO_ID_PROVIDED'), SOCIAL_MSG_ERROR);
-			return $view->call(__FUNCTION__);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PHOTOS_INVALID_PHOTO_ID_PROVIDED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Load up the photo library
@@ -66,9 +60,9 @@ class EasySocialControllerCover extends EasySocialController
 
 		// Check if the user is allowed to use this photo as a cover.
 		if (!$lib->allowUseCover()) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_PHOTOS_NO_PERMISSION_TO_USE_PHOTO_AS_COVER'), SOCIAL_MSG_ERROR);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_PHOTOS_NO_PERMISSION_TO_USE_PHOTO_AS_COVER'), SOCIAL_MSG_ERROR);
 
-			return $view->call(__FUNCTION__);
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Load the cover
@@ -99,7 +93,7 @@ class EasySocialControllerCover extends EasySocialController
 		$photo->state = SOCIAL_STATE_PUBLISHED;
 		$photo->store();
 
-		return $view->call(__FUNCTION__, $cover);
+		return $this->view->call(__FUNCTION__, $cover);
 	}
 
 	/**

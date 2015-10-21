@@ -30,7 +30,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						data-id="<?php echo $event->id;?>">
 						<a href="<?php echo FRoute::dashboard(array('type' => 'event' , 'eventId' => $event->getAlias()));?>"
 							title="<?php echo $this->html('string.escape' , $this->my->getName()) . ' - ' . $this->html('string.escape', $event->getName()); ?>">
-							<i class="ies-calendar mr-5"></i> <?php echo $event->getName(); ?>
+							<?php echo $event->getName(); ?>
 							<div class="label label-notification pull-right mr-20" data-stream-counter-list-<?php echo $event->id; ?>>0</div>
 						</a>
 					</li>

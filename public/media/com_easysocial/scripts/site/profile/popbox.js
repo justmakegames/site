@@ -6,22 +6,27 @@ EasySocial.module("site/profile/popbox", function($) {
 		.library("popbox")
 		.done(function(){
 
-			EasySocial.module("profile/popbox", function($) {
+			// We should check if popbox should be initialized or not.
+			var initPopbox = (EasySocial.options.lockdown && !EasySocial.options.guest) || !EasySocial.options.lockdown
 
-				this.resolve(function(popbox){
+			if (initPopbox) {
+				EasySocial.module("profile/popbox", function($) {
 
-					var id = popbox.button.data("userId"),
-						position = popbox.button.attr("data-popbox-position") || "top-left";
+					this.resolve(function(popbox){
 
-					return {
-						content: EasySocial.ajax("site/views/profile/popbox", {id: id}),
-						id: "fd",
-						component: "es",
-						type: "profile",
-						position: position
-					}
-				})
-			});
+						var id = popbox.button.data("userId");
+						var position = popbox.button.attr('data-popbox-position') || 'top-left';
+
+						return {
+							content: EasySocial.ajax("site/views/profile/popbox", {id: id}),
+							id: "fd",
+							component: "es",
+							type: "profile",
+							position: position
+						}
+					})
+				});
+			}
 
 		});
 
@@ -30,8 +35,7 @@ EasySocial.module("site/profile/popbox", function($) {
 		.script("site/conversations/composer")
 		.done();
 
-	EasySocial.Controller("Profile.Popbox",
-	{
+	EasySocial.Controller("Profile.Popbox", {
 		defaultOptions: {
 			// The current user being viewed
 			id: null,
@@ -84,13 +88,13 @@ EasySocial.module("site/profile/popbox", function($) {
 				{
 					// We know that the existing button is a request button
 					self.addButton().replaceWith( button );
-				})
-				.fail(function()
+				});
+				
+			}).fail(function()
+			{
+				EasySocial.dialog(
 				{
-					EasySocial.dialog(
-					{
-						content 	: EasySocial.ajax( 'site/views/friends/exceeded' )
-					});
+					content 	: EasySocial.ajax( 'site/views/friends/exceeded' )
 				});
 			});
 		},

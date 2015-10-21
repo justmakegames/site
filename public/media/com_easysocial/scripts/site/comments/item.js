@@ -173,41 +173,24 @@ EasySocial.module('site/comments/item', function($) {
 								self.editFrame().html(html).show();
 
 								self.setMentionsLayout();
+
+								// Focus on the editor
+								self.editInput().focus();
 							})
 							.fail(function(msg) {
 
 								// Trigger commentEditLoadError event
 								self.trigger('commentEditLoadError', [self.options.id, msg]);
-							});;
-
-						// self.getRawComment()
-						// 	.done(function(comment) {
-
-						// 		// Trigger commentEditLoaded event
-						// 		self.trigger('commentEditLoaded', [self.options.id], comment);
-
-						// 		// Set the edit input to the raw comment value
-						// 		self.editInput().val(comment);
-
-						// 		// Focus on the edit input
-						// 		self.editInput().focus();
-						// 	})
-						// 	.fail(function(msg) {
-
-						// 		// Trigger commentEditLoadError event
-						// 		self.trigger('commentEditLoadError', [self.options.id, msg]);
-						// 	});
+							});
 					}
 				},
 
-				setMentionsLayout: function()
-				{
-					var editor		= self.editFrame(),
-						mentions	= editor.controller("mentions");
+				setMentionsLayout: function() {
+					var editor = self.editFrame();
+					var mentions = editor.controller("mentions");
 
 
-					if (mentions)
-					{
+					if (mentions) {
 						mentions.cloneLayout();
 						return;
 					}

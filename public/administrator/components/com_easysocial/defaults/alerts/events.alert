@@ -98,5 +98,10 @@
         "element"   : "events",
         "rule"      : "updates",
         "core"      : true
+    },
+    {
+        "element": "events",
+        "rule": "video.create",
+        "core": true
     }
 ]

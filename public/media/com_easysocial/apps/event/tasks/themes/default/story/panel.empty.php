@@ -15,6 +15,6 @@ defined('_JEXEC') or die('Unauthorized Access');
     <div class="es-story-tasks-textbox">
         <?php echo JText::_('APP_EVENT_TASKS_CREATE_MILESTONE_FIRST'); ?> <br /><br />
 
-        <a href="<?php echo $permalink; ?>" class="btn btn-sm btn-es"><i class="ies-share-2"></i> <?php echo JText::_('APP_EVENT_TASKS_CREATE_FIRST_MILESTONE'); ?></a>
+        <a href="<?php echo $permalink; ?>" class="btn btn-sm btn-es"><i class="fa fa-share-2"></i> <?php echo JText::_('APP_EVENT_TASKS_CREATE_FIRST_MILESTONE'); ?></a>
     </div>
 </div>

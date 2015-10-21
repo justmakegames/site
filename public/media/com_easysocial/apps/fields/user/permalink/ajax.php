@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,72 +9,70 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-// Include the fields library
-FD::import( 'admin:/includes/fields/dependencies' );
+// Include dependencies
+ES::import('admin:/includes/fields/dependencies');
+ES::import('fields:/user/permalink/helper');
 
-// Include helper file.
-FD::import( 'fields:/user/permalink/helper' );
-
-/**
- * Processes ajax calls for the permalink field.
- *
- * @since	1.0
- * @author	Jason Rey <jasonrey@stackideas.com>
- */
 class SocialFieldsUserPermalink extends SocialFieldItem
 {
 	/**
-	 * Validates the username.
+	 * Ensures that the permalink is valid
 	 *
-	 * @since	1.0
+	 * @since	1.4
 	 * @access	public
-	 * @param	null
-	 * @return	JSON	A jsong encoded string.
-	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
+	 * @param	string
+	 * @return	
 	 */
 	public function isValid()
 	{
-		// Render the ajax lib.
-		$ajax 	= FD::ajax();
+		// Get the user's id
+		$id = $this->input->get('userid', 0, 'int');
 
-		// Get the userid
-		$userid	= JRequest::getInt( 'userid', 0 );
+		// Default
+		$currentPermalink = '';
 
-		// Set the current username
-		$current	= '';
-
-		if( !empty( $userid ) )
-		{
-			$user		= FD::user( $userid );
-			$current	= $user->permalink;
+		// If user's id is provided, get the permalink for this user
+		if ($id) {
+			$user = ES::user($id);
+			$currentPermalink = $user->permalink;
 		}
 
 		// Get the provided permalink
-		$permalink = JRequest::getVar( 'permalink' , '' );
+		$permalink = $this->input->get('permalink', '', 'default');
 
 		// Check if the field is required
-		if( !$this->field->isRequired() && empty( $permalink ))
-		{
+		if (!$this->field->isRequired() && !$permalink) {
 			return true;
 		}
 
+		// Check if the permalink provided is allowed to be used.
+		if ($this->config->get('users.simpleUrls')) {
+		
+			$allowed = SocialFieldsUserPermalinkHelper::allowed($permalink);
+
+			if (!$allowed) {
+				return $this->ajax->reject(JText::_('PLG_FIELDS_PERMALINK_NOT_ALLOWED'));
+			}
+		}
+
 		// Check if the permalink provided is valid
-		if( !SocialFieldsUserPermalinkHelper::valid( $permalink, $this->params ) )
-		{
-			return $ajax->reject( JText::_( 'PLG_FIELDS_PERMALINK_INVALID_PERMALINK' ) );
+		$valid = SocialFieldsUserPermalinkHelper::valid($permalink, $this->params);
+
+		if (!$valid) {
+			return $this->ajax->reject(JText::_('PLG_FIELDS_PERMALINK_INVALID_PERMALINK'));
 		}
 
 		// Test if permalink exists
-		if( SocialFieldsUserPermalinkHelper::exists( $permalink, $current ) )
-		{
-			return $ajax->reject( JText::_( 'PLG_FIELDS_PERMALINK_NOT_AVAILABLE' ) );
+		$exists = SocialFieldsUserPermalinkHelper::exists($permalink, $currentPermalink);
+
+		if ($exists) {
+			return $this->ajax->reject(JText::_('PLG_FIELDS_PERMALINK_NOT_AVAILABLE'));
 		}
 
-		$text		= JText::_( 'PLG_FIELDS_PERMALINK_AVAILABLE' );
+		$message = JText::_('PLG_FIELDS_PERMALINK_AVAILABLE');
 
-		return $ajax->resolve( $text );
+		return $this->ajax->resolve($message);
 	}
 }

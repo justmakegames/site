@@ -24,10 +24,12 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <div class="mb-5">
                     <strong><a href="<?php echo FRoute::apps(array('layout' => 'canvas', 'customView' => 'item', 'uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT, 'id' => $app->getAlias(), 'newsId' => $item->id), false); ?>"><?php echo $item->title; ?></a></strong>
                 </div>
-                <div class="fd-small"><i class="ies-calendar ies-small"></i>&nbsp; <?php echo FD::date($item->created)->format(JText::_('DATE_FORMAT_LC4')); ?></div>
+                <div class="fd-small"><i class="fa fa-calendar "></i>&nbsp; <?php echo FD::date($item->created)->format(JText::_('DATE_FORMAT_LC4')); ?></div>
             </li>
             <?php } ?>
         </ul>
+        <?php } else { ?>
+            <?php echo JText::_('APP_EVENT_NEWS_WIDGET_NO_ANNOUNCEMENTS_YET'); ?>
         <?php } ?>
     </div>
 </div>

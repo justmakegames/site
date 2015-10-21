@@ -11,14 +11,24 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<h3><?php echo JText::_( 'COM_EASYSOCIAL_USERS_USER_GROUPS' ); ?></h3>
-<hr />
-<p>
-	<?php echo JText::_( 'COM_EASYSOCIAL_USERS_USER_GROUPS_DESC' ); ?>
-</p>
-<div class="form-group">
-	<label for="theme" class="col-md-4"><?php echo JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_GROUPS_DEFAULT_USER_GROUP' );?></label>
-	<div class="col-md-8">
-		<?php echo $this->html( 'tree.groups' , 'gid' , $userGroups , $guestGroup ); ?>
-	</div>
+<div class="row">
+    <div class="col-lg-7">
+        <div class="panel">
+            <div class="panel-head">
+                <b><?php echo JText::_( 'COM_EASYSOCIAL_USERS_USER_GROUPS' ); ?></b>
+                <p>
+                	<?php echo JText::_( 'COM_EASYSOCIAL_USERS_USER_GROUPS_DESC' ); ?>
+                </p>
+            </div>
+
+            <div class="panel-body">
+                <div class="form-group">
+                	<label for="theme" class="col-md-4"><?php echo JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_GROUPS_DEFAULT_USER_GROUP' );?></label>
+                	<div class="col-md-8">
+                		<?php echo $this->html( 'tree.groups' , 'gid' , $userGroups , $guestGroup ); ?>
+                	</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

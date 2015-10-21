@@ -30,6 +30,9 @@ class EasySocialControllerEvents extends EasySocialController
         $this->registerTask('applyCategory', 'saveCategory');
         $this->registerTask('saveCategoryNew', 'saveCategory');
 
+        $this->registerTask('makeFeatured', 'toggleDefault');
+        $this->registerTask('removeFeatured', 'toggleDefault');
+
         $this->registerTask('save', 'store');
         $this->registerTask('apply', 'store');
         $this->registerTask('savenew', 'store');
@@ -119,6 +122,8 @@ class EasySocialControllerEvents extends EasySocialController
         $event->save();
 
         if ($isNew) {
+            FD::access()->log('events.limit', $my->id, $event->id, SOCIAL_TYPE_EVENT);
+
             $event->createOwner();
         }
 
@@ -426,13 +431,20 @@ class EasySocialControllerEvents extends EasySocialController
         return $view->call(__FUNCTION__);
     }
 
+    /**
+     * Allows caller to remove a guest from an event
+     *
+     * @since   1.3
+     * @access  public
+     * @param   string
+     * @return
+     */
     public function removeGuests()
     {
         FD::checkToken();
 
         $view = $this->getCurrentView();
-
-        $cids = JRequest::getVar('cid');
+        $cids = $this->input->get('cid', array(), 'array');
 
         if (empty($cids)) {
             $view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_REMOVE_GUESTS_FAILED'), SOCIAL_MSG_ERROR);
@@ -449,7 +461,8 @@ class EasySocialControllerEvents extends EasySocialController
                 continue;
             }
 
-            $state = $node->reject();
+
+            $state = $node->delete();
 
             if ($state) {
                 $count++;
@@ -518,6 +531,8 @@ class EasySocialControllerEvents extends EasySocialController
         foreach ($ids as $id) {
             $event = FD::event($id);
 
+            FD::access()->switchLogAuthor('events.limit', $event->getCreator()->id, $event->id, SOCIAL_TYPE_EVENT, $userId );
+
             $event->switchOwner($userId);
         }
 
@@ -581,24 +596,43 @@ class EasySocialControllerEvents extends EasySocialController
         // Check for request forgeries
         FD::checkToken();
 
-        // Get the current view
-        $view = $this->getCurrentView();
-
         // Get the event object
-        $id = $this->input->get('cid', array(), 'array');
-        $id = (int) $id[0];
+        $ids = $this->input->get('cid', array(), 'array');
 
-        $event = FD::event($id);
+        // Get the current task
+        $task = $this->getTask();
 
-        if ($event->featured) {
-            $event->removeFeatured();
-            $view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_REMOVED_FEATURED_SUCCESSFULLY'), SOCIAL_MSG_SUCCESS);
-        } else {
-            $event->setFeatured();
-            $view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_SET_FEATURED_SUCCESSFULLY'), SOCIAL_MSG_SUCCESS);
+        // Default message
+        $message = 'COM_EASYSOCIAL_EVENTS_SET_FEATURED_SUCCESSFULLY';
+
+        foreach ($ids as $id) {
+            $id = (int) $id;
+
+            $event = FD::event($id);
+
+            if ($task == 'toggleDefault') {
+
+                if ($event->featured) {
+                    $event->removeFeatured();
+                    $message = 'COM_EASYSOCIAL_EVENTS_REMOVED_FEATURED_SUCCESSFULLY';
+                } else {
+                    $event->setFeatured();
+                }
+            }
+
+            if ($task == 'makeFeatured') {
+                $event->setFeatured();
+            }
+
+            if ($task == 'removeFeatured') {
+                $event->removeFeatured();
+                $message = 'COM_EASYSOCIAL_EVENTS_REMOVED_FEATURED_SUCCESSFULLY';
+            }
         }
 
-        return $view->call(__FUNCTION__);
+        $this->view->setMessage($message, SOCIAL_MSG_SUCCESS);
+
+        return $this->view->call(__FUNCTION__);
     }
 
     public function demoteGuests()

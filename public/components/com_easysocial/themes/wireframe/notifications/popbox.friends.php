@@ -52,7 +52,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 									<i class="loading-indicator fd-small"></i>
 
 									<a class="btn btn-es-primary btn-small view-profile" href="<?php echo FRoute::profile( array( 'id' => $connection->user->getAlias() ) );?>" data-friend-item-action>
-										<?php echo JText::_( 'COM_EASYSOCIAL_VIEW_PROFILE_BUTTON' ); ?> <i class="ies-arrow-right ies-small ies-white"></i>
+										<?php echo JText::_( 'COM_EASYSOCIAL_VIEW_PROFILE_BUTTON' ); ?> <i class="fa fa-arrow-right"></i>
 									</a>
 									<a class="btn btn-es btn-small reject-friend" href="javascript:void(0);" data-friend-item-reject data-friend-item-action data-id="<?php echo $connection->id;?>">
 										<?php echo JText::_( 'COM_EASYSOCIAL_REJECT_BUTTON' );?>
@@ -69,7 +69,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php } else { ?>
 				<li class="requestItem empty center">
 					<div class="mt-20 pl-10 pr-10 fd-small">
-						<i class="ies-users ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_FRIENDS_NO_FRIENDS_YET' ); ?>
+						<i class="fa fa-users  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_FRIENDS_NO_FRIENDS_YET' ); ?>
 					</div>
 				</li>
 			<?php } ?>

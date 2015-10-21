@@ -133,6 +133,80 @@ class EasySocialControllerAlbums extends EasySocialController
 	}
 
 	/**
+	 * Custom implementation of favourite for albums
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function favourite()
+	{
+		// Check for request forgeries
+		FD::checkToken();
+
+		// Only registered users are allowed to like an album
+		FD::requireLogin();
+
+		// Get the album id.
+		$id = JRequest::getInt( 'id' );
+
+		// Load up album
+		$album = FD::table('Album');
+		$album->load($id);
+
+		if (!$id || !$album->id) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_ALBUMS_INVALID_ALBUM_ID_PROVIDED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
+		}
+
+		$model = FD::model('Albums');
+		$exists = $model->isFavourite($album->id, $this->my->id);
+
+		// If already favourited, unfavourite it
+		if ($exists) {
+			$state = $model->removeFavourite($album->id, $this->my->id);
+		} else {
+			$state = $model->addFavourite($album->id, $this->my->id);
+
+			if ($this->my->id != $album->user_id) {
+				// Email template
+				$emailOptions = array(
+										'actor'		=> $this->my->getName(),
+										'title'		=> 'COM_EASYSOCIAL_EMAILS_ALBUM_FAVOURITE_SUBJECT',
+										'template'	=> 'site/albums/new.favourite',
+										'permalink' 	=> $album->getPermalink(true, true),
+										'albumTitle'	=> $album->get('title'),
+										'albumPermalink' => $album->getPermalink(false, true),
+										'albumCover'	=> $album->getCover(),
+										'actorAvatar'   => $this->my->getAvatar(SOCIAL_AVATAR_SQUARE),
+										'actorLink'     => $this->my->getPermalink(true, true)
+								);
+
+				$systemOptions = array(
+									    'context_type'  => 'albums.user.favourite',
+									    'context_ids'	=> $album->id,
+									    'url'           => $album->getPermalink(false, false, 'item', false),
+									    'actor_id'      => $this->my->id,
+									    'uid'           => $album->id,
+									    'aggregate'     => true
+									);
+
+				FD::notify('albums.favourite', array($album->user_id), $emailOptions, $systemOptions);
+
+			}
+
+		}
+
+		if ($state === false) {
+			$this->view->setMessage(JText::_( 'COM_EASYSOCIAL_ALBUMS_ERROR_SAVING_FAVOURITE'), SOCIAL_MSG_ERROR);
+			return $this->view->call( __FUNCTION__ );
+		}
+
+		return $this->view->call( __FUNCTION__, $state );
+	}
+
+	/**
 	 * Retrieves a list of albums a user owns
 	 *
 	 * @since	1.0
@@ -170,11 +244,21 @@ class EasySocialControllerAlbums extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
+		// To get the referer url for sorting purpose
+		$callback = FRoute::referer();
+
 		// Get the current view.
 		$view = $this->getCurrentView();
 
-		// Sort items
+		// Default sorting value
 		$ordering = $this->input->get('sort', 'created', 'cmd');
+
+		// Sort items
+		if ($callback) {
+			$callback = parse_url($callback);
+			parse_str($callback['query'], $query);
+			$ordering = $query['sort'];
+		}
 
 		// Get a list of normal albums
 		$options = array(
@@ -329,9 +413,17 @@ class EasySocialControllerAlbums extends EasySocialController
 
 		if( !empty( $address ) && !empty( $latitude) && !empty( $longitude ) )
 		{
-			$location 	= FD::location();
+			$location = FD::table('Location');
+			$location->load(array('uid' => $album->id, 'type' => SOCIAL_TYPE_ALBUM));
 
-			$location->create( $album->id , SOCIAL_TYPE_ALBUM , $my->id );
+			$location->uid = $album->id;
+			$location->type = SOCIAL_TYPE_ALBUM;
+			$location->user_id = $my->id;
+			$location->address = $address;
+			$location->longitude = $longitude;
+			$location->latitude = $latitude;
+
+			$location->store();
 		}
 
 		// Set the privacy for the album
@@ -381,17 +473,26 @@ class EasySocialControllerAlbums extends EasySocialController
 				// Add stream item for the photos.
 				$createStream 	= JRequest::getBool( 'createStream' );
 
-				if( $createStream )
-				{
-					$photoTable->addPhotosStream( 'create' );
+				$streamExist = FD::stream()->exists($photoTable->id, 'photos', 'create', $my->id);
+
+				if ($createStream && !$streamExist) {
+					$photoTable->addPhotosStream('create');
 				}
 
 				// Store / update photo location when necessary
 				if( !empty( $photo->address ) && !empty( $photo->latitude ) && !empty( $photo->longitude ) )
 				{
-					$location 	= FD::location();
-					$data 		= array( 'address' => $photo->address , 'longitude' => $photo->longitude , 'latitude' => $photo->latitude );
-					$location->create( $photo->id , SOCIAL_TYPE_PHOTO , $my->id , $data );
+					$location = FD::table('Location');
+					$location->load(array('uid' => $photo->id, 'type' => SOCIAL_TYPE_PHOTO));
+
+					$location->uid = $photo->id;
+					$location->type = SOCIAL_TYPE_PHOTO;
+					$location->user_id = $my->id;
+					$location->address = $photo->address;
+					$location->latitude = $photo->latitude;
+					$location->longitude = $photo->longitude;
+
+					$location->store();
 				}
 
 				$albumPhotos[] = $photoTable;
@@ -581,7 +682,7 @@ class EasySocialControllerAlbums extends EasySocialController
 
 		$lib 	= FD::albums($album->uid, $album->type, $album);
 
-		$result = $lib->getPhotos($album->id, array('start' => $start));
+		$result = $lib->getPhotos($album->id, array('start' => $start, 'privacy' => true));
 
 		// This will generate $photos, $nextStart
 		extract($result);

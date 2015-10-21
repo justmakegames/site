@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="es-story es-responsive is-collapsed" data-story="<?php echo $story->id;?>" data-story-form data-story-hashtags="<?php echo implode(',', $story->hashtags); ?>">
+<div class="es-story es-responsive is-expanded" data-story="<?php echo $story->id;?>" data-story-form data-story-hashtags="<?php echo implode(',', $story->hashtags); ?>">
 
     <div class="es-story-avatar es-avatar es-avatar-sm">
         <img alt="<?php echo $this->html( 'string.escape' , $this->my->getName() );?>" src="<?php echo $this->my->getAvatar();?>" />
@@ -20,14 +20,28 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
     <div class="es-story-header" data-story-header>
         <div class="es-story-panel-buttons" data-story-panel-buttons>
             <div class="es-story-panel-button active" data-story-panel-button data-story-plugin-name="text">
-                <i class="ies-pencil-2" data-story-attachment-icon data-es-provide="tooltip" data-placement="top" data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_STORY_POST_UPDATES' , true );?>"></i>
+                <i class="fa fa-pencil" data-story-attachment-icon data-es-provide="tooltip" data-placement="top" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_STORY_POST_UPDATES', true);?>"></i>
+                <span><?php echo JText::_('COM_EASYSOCIAL_STORY_STATUS', true);?></span>
             </div>
             <?php if ($story->panels) { ?>
-                <?php foreach( $story->panels as $panel ){ ?>
+                <?php foreach ($story->panels as $panel) { ?>
                     <div class="es-story-panel-button" data-story-panel-button data-story-plugin-name="<?php echo $panel->name;?>"><?php echo $panel->button->html;?></div>
                 <?php } ?>
             <?php } ?>
-            <div class="es-story-panel-button es-story-reset-button" data-story-reset><i class="ies-cancel-2"></i></div>
+            <!-- <div class="es-story-panel-button es-story-reset-button" data-story-reset><i class="fa fa-remove"></i></div> -->
+
+            <div class="dropdown es-story-panel-dropdown">
+                <a data-bs-toggle="dropdown" class="es-story-panel-dropdown-toggle dropdown-toggle_" href="#">
+                    <i class="fa fa-chevron-down"></i>
+                </a>
+                <div class="dropdown-menu es-story-panel-dropdown-menu">
+                    <?php if ($story->panels) { ?>
+                        <?php foreach( $story->panels as $panel ){ ?>
+                            <div class="es-story-panel-button" data-story-panel-button data-story-plugin-name="<?php echo $panel->name;?>"><?php echo $panel->button->html;?></div>
+                        <?php } ?>
+                    <?php } ?>                    
+                </div>
+            </div>
         </div>
 
     </div>
@@ -73,27 +87,29 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <?php } ?>
 
             <?php if ($this->config->get('stream.story.location')) { ?>
-            <div class="es-story-meta-content es-story-locations" data-story-location data-story-meta-content="location">
-                <div class="es-story-location-map" data-story-location-map>
+            <div class="es-story-meta-content es-locations" data-story-location data-story-meta-content="location">
+                <div class="es-location-map" data-story-location-map>
                     <div>
-                        <img class="es-story-location-map-image" data-story-location-map-image />
-                        <div class="es-story-location-map-actions">
-                            <button class="btn btn-es es-story-location-detect-button" type="button" data-story-location-detect-button><i class="ies-power"></i> <?php echo JText::_('COM_EASYSOCIAL_DETECT_MY_LOCATION', true); ?></button>
+                        <img class="es-location-map-image" data-story-location-map-image />
+                        <div class="es-location-map-actions">
+                            <button class="btn btn-es es-location-detect-button btn-sm" type="button" data-story-location-detect-button>
+                                <i class="fa fa-map-marker mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_DETECT_MY_LOCATION', true); ?>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="es-story-location-form" data-story-location-form>
-                    <div class="es-story-location-textbox" data-story-location-textbox data-language="<?php echo FD::config()->get('general.location.language'); ?>">
+                <div class="es-location-form" data-story-location-form>
+                    <div class="es-location-textbox" data-story-location-textbox data-language="<?php echo FD::config()->get('general.location.language'); ?>">
                         <input type="text" class="input-sm form-control" placeholder="<?php echo JText::_('COM_EASYSOCIAL_WHERE_ARE_YOU_NOW'); ?>" autocomplete="off" data-story-location-textField disabled/>
-                        <div class="es-story-location-autocomplete has-shadow is-sticky" data-story-location-autocomplete>
+                        <div class="es-location-autocomplete has-shadow is-sticky" data-story-location-autocomplete>
                             <b><b></b></b>
-                            <div class="es-story-location-suggestions" data-story-location-suggestions>
+                            <div class="es-location-suggestions" data-story-location-suggestions>
                             </div>
                         </div>
                     </div>
-                    <div class="es-story-location-buttons">
+                    <div class="es-location-buttons">
                         <i class="fd-loading"></i>
-                        <a class="es-story-location-remove-button" href="javascript: void(0);" data-story-location-remove-button><i class="ies-cancel-2"></i></a>
+                        <a class="es-location-remove-button" href="javascript: void(0);" data-story-location-remove-button><i class="fa fa-remove"></i></a>
                     </div>
                 </div>
             </div>
@@ -116,7 +132,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                         </tr>
                     </table>
                     <div class="es-story-mood-buttons">
-                        <a class="es-story-mood-remove-button" href="javascript: void(0);" data-story-mood-remove-button><i class="ies-cancel-2"></i></a>
+                        <a class="es-story-mood-remove-button" href="javascript: void(0);" data-story-mood-remove-button><i class="fa fa-remove"></i></a>
                     </div>
                 </div>
                 <div class="es-story-mood-presets" data-story-mood-presets>
@@ -140,20 +156,20 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
         <div class="es-story-meta-buttons">
             <?php if ($this->config->get('stream.story.mentions')) { ?>
-            <div class="es-story-meta-button" data-story-meta-button="friends" data-es-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_STORY_FRIENDS_TOOLTIP');?>" data-placement="bottom">
-                <i class="ies-user-add"></i>
+            <div class="es-story-meta-button" data-story-meta-button="friends" data-es-provide="tooltip" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_STORY_FRIENDS_TOOLTIP', true);?>" data-placement="bottom">
+                <i class="fa fa-user-plus"></i>
             </div>
             <?php } ?>
 
             <?php if ($this->config->get('stream.story.location')) { ?>
-            <div class="es-story-meta-button" data-story-meta-button="location" data-es-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_STORY_LOCATION_TOOLTIP');?>" data-placement="bottom">
-                <i class="ies-location-2"></i>
+            <div class="es-story-meta-button" data-story-meta-button="location" data-es-provide="tooltip" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_STORY_LOCATION_TOOLTIP', true);?>" data-placement="bottom">
+                <i class="fa fa-map-marker"></i>
             </div>
             <?php } ?>
 
             <?php if ($this->config->get('stream.story.moods')) { ?>
-            <div class="es-story-meta-button" data-story-meta-button="mood" data-es-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_STORY_MOOD_TOOLTIP');?>" data-placement="bottom">
-                <i class="ies-flower"></i>
+            <div class="es-story-meta-button" data-story-meta-button="mood" data-es-provide="tooltip" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_STORY_MOOD_TOOLTIP', true);?>" data-placement="bottom">
+                <i class="fa fa-smile-o"></i>
             </div>
             <?php } ?>
         </div>

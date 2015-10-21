@@ -129,13 +129,13 @@ class EasySocialModelAlbums extends EasySocialModel
 	 * @param	string
 	 * @return
 	 */
-	public function getAlbums( $uid = '' , $type = '' , $options = array() )
+	public function getAlbums($uid = '', $type = '', $options = array())
 	{
 		$config = FD::config();
-		$db 	= FD::db();
+		$db = FD::db();
 
 		// Get the query object
-		$sql 	= $db->sql();
+		$sql = $db->sql();
 
 		$sql->select( '#__social_albums', 'a' );
 		$sql->column( 'a.*' );
@@ -169,6 +169,19 @@ class EasySocialModelAlbums extends EasySocialModel
 			}
 		}
 
+		// if present, we want to filter albums for this particular user only
+		$userId	= isset( $options[ 'userId' ] ) ? $options[ 'userId' ] : false;
+		if ($userId) {
+			$sql->where('a.user_id', $userId);
+		}
+
+		// if present, we want to filter this particular album only
+		$albumId	= isset( $options[ 'albumId' ] ) ? $options[ 'albumId' ] : false;
+		if ($albumId) {
+			$sql->where('a.id', $albumId);
+		}
+
+
 		// Determine if we should include the core albums
 		$coreAlbums 	= isset( $options[ 'core' ] ) ? $options[ 'core' ] : true;
 
@@ -182,6 +195,13 @@ class EasySocialModelAlbums extends EasySocialModel
 		if( $coreAlbumsOnly )
 		{
 			$sql->where( 'core' , 0 , '>' );
+		}
+
+		$favourite = isset( $options[ 'favourite' ] ) ? $options[ 'favourite' ] : '';
+		if ($favourite) {
+			$sql->join( '#__social_albums_favourite' , 'fa' , 'INNER' );
+			$sql->on( 'fa.album_id' , 'a.id' );
+			$sql->on( 'fa.user_id' ,  $options['userFavourite']);
 		}
 
 		$withCoversOnly	= isset( $options[ 'withCovers' ] ) ? $options[ 'withCovers' ] : '';
@@ -204,6 +224,8 @@ class EasySocialModelAlbums extends EasySocialModel
 		$pagination 	= isset( $options[ 'pagination' ] ) ? $options[ 'pagination' ] : false;
 
 		$result = array();
+
+		// echo $sql;
 
 		if( $pagination )
 		{
@@ -353,6 +375,73 @@ class EasySocialModelAlbums extends EasySocialModel
 		$exists 	= $db->loadResult() >= 1;
 
 		return $exists;
+	}
+
+	/**
+	 * Determines if this album is already favourite
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function isFavourite($albumId, $userId)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$sql->select('#__social_albums_favourite');
+		$sql->column('COUNT(1)', 'total');
+		$sql->where('album_id', $albumId);
+		$sql->where('user_id', $userId);
+
+		$db->setQuery( $sql );
+
+		$exists = $db->loadResult() >= 1;
+
+		return $exists;
+	}
+
+	/**
+	 * Remove album from favourite
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function removeFavourite($albumId, $userId)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$sql->delete('#__social_albums_favourite');
+		$sql->where('album_id', $albumId);
+		$sql->where('user_id', $userId);
+
+		$db->setQuery($sql);
+        return $db->Query();
+	}
+
+	/**
+	 * Add album as favourite
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function addFavourite($albumId, $userId)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$sql->insert( '#__social_albums_favourite' );
+		$sql->values( 'album_id' , $albumId );
+		$sql->values( 'user_id' , $userId );
+
+		$db->setQuery($sql);
+		return $db->Query();
 	}
 
 	/**
@@ -521,6 +610,24 @@ class EasySocialModelAlbums extends EasySocialModel
 			return false;
 		else
 			return $item;
+	}
+
+	public function getFavouriteParticipants($albumId)
+	{
+		$db		= FD::db();
+
+		// Get a list of items from the item table first.
+		$sql	= $db->sql();
+
+		$sql->select( '#__social_albums_favourite' );
+		$sql->column( 'user_id' );
+		$sql->where( 'album_id' , $albumId );
+
+		$db->setQuery( $sql );
+
+		$item = $db->loadColumn();
+
+		return $item;
 	}
 
 }

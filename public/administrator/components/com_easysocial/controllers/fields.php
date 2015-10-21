@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Include main controller.
-FD::import( 'admin:/controllers/controller' );
+require_once(__DIR__ . '/controller.php');
 
 class EasySocialControllerFields extends EasySocialController
 {
@@ -74,8 +74,6 @@ class EasySocialControllerFields extends EasySocialController
 		// If id is not passed in, we need to throw an error.
 		if( !$id )
 		{
-			FD::logError( __FILE__ , __LINE__ , 'FIELDS: Application id $appid is invalid.' );
-
 			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_FIELDS_INVALID_APPLICATION' ), SOCIAL_MSG_ERROR );
 			return $view->call( __FUNCTION__, false );
 		}
@@ -86,8 +84,6 @@ class EasySocialControllerFields extends EasySocialController
 
 		if( !$app )
 		{
-			FD::logError( __FILE__ , __LINE__ , 'FIELDS: Application id $appid is invalid.' );
-
 			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_FIELDS_INVALID_APPLICATION' ), SOCIAL_MSG_ERROR );
 			return $view->call( __FUNCTION__, false );
 		}
@@ -115,6 +111,67 @@ class EasySocialControllerFields extends EasySocialController
 		return $view->call( __FUNCTION__ , $field );
 	}
 
+
+	/**
+	 * Retrieves the profile page configuration
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function renderPageConfig()
+	{
+		// Check for request forgeries.
+		FD::checkToken();
+
+		$path = SOCIAL_CONFIG_DEFAULTS . '/fields.header.json';
+		$raw = JFile::read($path);
+
+		$params = json_decode($raw);
+
+		foreach ($params as $name => &$field) {
+
+			// Only try to JText the label field if it exists.
+			if (isset($field->label)) {
+				$field->label = JText::_($field->label);
+			}
+
+			// Only try to JText the tooltip field if it exists.
+			if (isset($field->tooltip)) {
+				$field->tooltip	= JText::_($field->tooltip);
+			}
+
+			// If there are options set, we need to jtext them as well.
+			if (isset($field->option)) {
+				$field->option = FD::makeArray($field->option);
+
+				foreach ($field->option as &$option) {
+					$option->label = JText::_($option->label);
+				}
+			}
+		}
+
+		// Get any page id
+		$pageId = $this->input->get('pageid', 0, 'int');
+
+		// Load the field step
+		$table = FD::table('FieldStep');
+
+		if (!empty($pageId)) {
+			$table->load($pageId);
+		} else {
+			foreach ($params as $name => &$field) {
+				$table->$name = $field->default;
+			}
+		}
+
+		// Convert table into registry format
+		$values = FD::registry($table);
+
+		return $this->view->call(__FUNCTION__, $params, $table);
+	}
+
 	/**
 	 * Render's field configuration.
 	 *
@@ -124,39 +181,35 @@ class EasySocialControllerFields extends EasySocialController
 	public function renderConfiguration()
 	{
 		// Check for request forgeries
-		FD::checkToken();
-
-		// Load the view
-		$view 	= $this->getCurrentView();
+		ES::checkToken();
 
 		// Get the application id.
-		$appId 	= JRequest::getInt( 'appid' );
+		$appId = $this->input->get('appid', 0, 'int');
 
 		// Get the field id. If this is empty, it is a new field item that's being added to the form.
-		$fieldId	= JRequest::getInt( 'fieldid' , 0 );
+		$fieldId = $this->input->get('fieldid', 0, 'int');
 
 		// Application id should never be empty.
-		if( !$appId )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'FIELDS: Invalid $appid provided' );
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_FIELDS_INVALID_APP_ID_PROVIDED'  ) , SOCIAL_MSG_ERROR );
+		if (!$appId) {
+			$this->view->setMessage('COM_EASYSOCIAL_PROFILES_FORM_FIELDS_INVALID_APP_ID_PROVIDED', SOCIAL_MSG_ERROR);
 
-			return $view->call( __FUNCTION__ );
+			return $this->view->call(__FUNCTION__);
 		}
 
-		FD::language()->loadSite();
+		// Load frontend's language file
+		ES::language()->loadSite();
 
-		$fields = FD::fields();
+		$fields = ES::fields();
 
 		// getFieldConfigParameters is returning a stdClass object due to deep level data
-		$config = $fields->getFieldConfigParameters( $appId, true );
+		$config = $fields->getFieldConfigParameters($appId, true);
 
 		// getFieldConfigValues is returning a JRegistry object
-		$params = $fields->getFieldConfigValues( $appId, $fieldId );
+		$params = $fields->getFieldConfigValues($appId, $fieldId);
 
 		// Get the html content
-		$html = $fields->getConfigHtml( $appId, $fieldId );
+		$html = $fields->getConfigHtml($appId, $fieldId);
 
-		return $view->call( __FUNCTION__, $config, $params, $html );
+		return $this->view->call(__FUNCTION__, $config, $params, $html);
 	}
 }

@@ -11,13 +11,13 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div data-albums class="es-albums es-media-group <?php echo (empty($albums)) ? '' : 'has-albums'; ?> is-<?php echo $lib->type;?>">
+<div data-albums class="es-albums<?php echo (empty($albums)) ? '' : ' has-albums'; ?> is-<?php echo $lib->type;?>">
 
 	<?php echo $this->render( 'module' , 'es-albums-between-months' ); ?>
 
 	<?php if( !empty( $data ) ){ ?>
 		<?php foreach( $data as $groupDate => $albums ) { ?>
-			<h3 class="es-albums-date"><i class="ies-calendar-2 mr-5"></i> <?php echo $groupDate;?></h3>
+			<div class="es-snackbar"><i class="fa fa-calendar mr-5"></i> <?php echo $groupDate;?></div>
 			<?php foreach( $albums as $album ){ ?>
 
 				<?php echo $lib->renderItem( array(

@@ -19,6 +19,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php if ($params->get('showcount', $appParams->get('showcount', true))){ ?>
 		<span class="widget-label">(<?php echo $total;?>)</span>
 		<?php } ?>
+
+		<?php if (!empty($albums)){ ?>
+			<a class="fd-small pull-right" href="<?php echo FRoute::albums(array('uid' => $user->getAlias(), 'type' => SOCIAL_TYPE_USER));?>"><?php echo JText::_('APP_ALBUMS_PROFILE_WIDGET_VIEW_ALL');?></a>
+		<?php } ?>
 	</div>
 	<div class="es-widget-body">
 		<ul class="widget-list-grid">
@@ -40,12 +44,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 			<?php } ?>
 		</ul>
-
-		<?php if (!empty($albums)){ ?>
-		<div>
-			<a class="fd-small" href="<?php echo FRoute::albums(array('uid' => $user->getAlias(), 'type' => SOCIAL_TYPE_USER));?>"><?php echo JText::_('APP_ALBUMS_PROFILE_WIDGET_VIEW_ALL');?></a>
-		</div>
-		<?php } ?>
-
 	</div>
 </div>

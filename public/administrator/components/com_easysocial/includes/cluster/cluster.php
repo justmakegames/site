@@ -13,12 +13,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 FD::import('admin:/includes/indexer/indexer');
 
-/**
- * Abstract Cluster class
- *
- * @author  Mark Lee <mark@stackideas.com>
- * @since   1.2
- */
 abstract class SocialCluster
 {
     /**
@@ -244,6 +238,34 @@ abstract class SocialCluster
         }
 
         return $apps[$this->cluster_type];
+    }
+
+    /**
+     * Retrieve a single app for the cluster
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getApp($element)
+    {
+        static $apps = array();
+
+        $index = $this->cluster_type . $element;
+
+        if (!isset($apps[$index])) {
+            $model = ES::model('Apps');
+            $options = array('group' => $this->cluster_type, 'type' => SOCIAL_APPS_TYPE_APPS, 'state' => SOCIAL_STATE_PUBLISHED, 'element' => $element);
+
+            $app = ES::table('App');
+            $app->load($options);
+
+            dump($app);
+            $apps[$index] = $app;
+        }
+
+        return $apps[$index];
     }
 
     /**
@@ -1017,6 +1039,41 @@ abstract class SocialCluster
     }
 
     /**
+     * Allows caller to remove videos
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function deleteVideos($pk = null)
+    {
+        $db = ES::db();
+        $sql = $db->sql();
+
+        // Delete cluster albums
+        $sql->clear();
+
+        $sql->select('#__social_videos');
+        $sql->where('uid', $this->id);
+        $sql->where('type', $this->cluster_type);
+        $db->setQuery($sql);
+
+        $videos = $db->loadObjectList();
+
+        if (!$videos) {
+            return true;
+        }
+
+        foreach ($videos as $row) {
+            $video = ES::video($row);
+            $video->delete();
+        }
+
+        return true;
+    }
+
+    /**
      * Allows caller to remove all photos albums.
      *
      * @author  Sam <sam@stackideas.com>
@@ -1132,6 +1189,41 @@ abstract class SocialCluster
         }
 
         return $data[$this->category_id];
+    }
+
+    /**
+     * Returns the cluster type
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getType()
+    {
+        return $this->cluster_type;
+    }
+
+    /**
+     * Returns the total number of videos in this cluster
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getTotalVideos()
+    {
+        static $total = array();
+
+        if (!isset($total[$this->id])) {
+            $model = ES::model('Videos');
+            $options = array('uid' => $this->id, 'type' => $this->cluster_type);
+
+            $total[$this->id] = $model->getTotalVideos($options);
+        }
+
+        return $total[$this->id];
     }
 
     /**

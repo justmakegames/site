@@ -18,19 +18,17 @@ $defaultDisplay = array(
 	'class' => 'form-control input-sm'
 );
 
-echo $settings->renderPage(
-	$settings->renderColumn(
-		$settings->renderSection(
-			$settings->renderHeader('General'),
-			$settings->renderSetting('Enable Groups', 'groups.enabled', 'boolean', array('help' => true)),
-			$settings->renderSetting('Allow Invite Non Friends', 'groups.invite.nonfriends', 'boolean', array('help' => true)),
-			$settings->renderSetting('Default Display', 'groups.item.display', 'list', $defaultDisplay)
-		)
-	),
-	$settings->renderColumn(
-		$settings->renderSection(
-			$settings->renderHeader('Photo Features'),
-			$settings->renderSetting('Enable Photos', 'groups.photos.enabled', 'boolean', array('help' => true))
-		)
+echo $settings->renderTabs(array(
+	'general'	=> $settings->renderPage(
+						$settings->renderColumn(
+							$settings->renderSection(
+								$settings->renderHeader('General'),
+								$settings->renderSetting('Enable Groups', 'groups.enabled', 'boolean', array('help' => true)),
+								$settings->renderSetting('Allow Invite Non Friends', 'groups.invite.nonfriends', 'boolean', array('help' => true)),
+								$settings->renderSetting('Default Display', 'groups.item.display', 'list', $defaultDisplay),
+								$settings->renderSetting('Enable Hit Counter', 'groups.hits.display', 'boolean', array('help' => true))
+							)
+						)
+					)
 	)
 );

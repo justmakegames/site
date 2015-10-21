@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,10 +9,10 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'admin:/includes/controller' );
-FD::import( 'admin:/includes/themes/themes' );
+ES::import('admin:/includes/controller');
+ES::import('admin:/includes/themes/themes');
 
 class EasySocialController extends EasySocialControllerMain
 {
@@ -21,16 +21,23 @@ class EasySocialController extends EasySocialControllerMain
 	protected $my = null;
 
 	// This will notify the parent class that this is for the back end.
-	protected $location 	= 'frontend';
+	protected $location = 'frontend';
 
 	public function __construct()
 	{
-		$this->app	 = JFactory::getApplication();
-		$this->input = $this->app->input;
+		$this->app = JFactory::getApplication();
+
 		$this->my = FD::user();
 		$this->config = FD::config();
+		$this->doc = JFactory::getDocument();
+
+		if ($this->doc->getType() == 'ajax') {
+			$this->ajax = FD::ajax();
+		}
 
 		parent::__construct();
+
+		$this->input = FD::request();
 	}
 
 	/**
@@ -41,22 +48,22 @@ class EasySocialController extends EasySocialControllerMain
 	 * @param	string
 	 * @return
 	 */
-	public function execute( $task )
+	public function execute($task)
 	{
-		$config 	= FD::config();
-		$current	= JRequest::getWord( 'controller' );
+		$current = $this->input->get('controller', '', 'word');
 
 		// Check and see if this view should be displayed
 		// If private mode is enabled and user isn't logged in.
-		if( $config->get( 'general.site.lockdown.enabled' ) && !JFactory::getUser()->id )
-		{
-			if( $this->lockdown( $task ) && !empty( $current ) )
-			{
-				JFactory::getApplication()->redirect( FRoute::login( array() , false ) );
+		if ($this->config->get('general.site.lockdown.enabled') && $this->my->guest) {
+
+			if ($this->lockdown($task) && !empty($current)) {
+
+				$url = FRoute::login(array(), false);
+				return $this->app->redirect($url);
 			}
 		}
 
-		parent::execute( $task );
+		parent::execute($task);
 	}
 
 	/**
@@ -66,14 +73,13 @@ class EasySocialController extends EasySocialControllerMain
 	 * @access	public
 	 * @return	bool
 	 */
-	public function lockdown( $task = '' )
+	public function lockdown($task = '')
 	{
 		// Default, all views are locked down.
-		$state 	= true;
+		$state = true;
 
-		if( method_exists( $this , 'isLockDown' ) )
-		{
-			$state 	= $this->isLockDown( $task );
+		if (method_exists($this, 'isLockDown')) {
+			$state 	= $this->isLockDown($task);
 		}
 
 		return $state;
@@ -89,45 +95,35 @@ class EasySocialController extends EasySocialControllerMain
 	 */
 	public function display( $params = array() , $urlparams = false)
 	{
-		$doc 	= JFactory::getDocument();
-
-		// @task: Get the view from Joomla.
-		$type	= $doc->getType();
-		$name 	= JRequest::getCmd( 'view' , 'dashboard' );
-		$view	= $this->getView( $name , $type , '' );
+		$type = $this->doc->getType();
+		$name = $this->input->get('view', 'dashboard', 'cmd');
+		$view = $this->getView($name, $type, '');
 
 		// @task: Once we have the view, set the appropriate layout.
-		$layout	= JRequest::getCmd( 'layout' , 'default' );
-		$view->setLayout( $layout );
-
-		$config	= FD::config();
+		$layout = $this->input->get('layout', 'default', 'cmd');
+		$view->setLayout($layout);
 
 		// Check and see if this view should be displayed
 		// If private mode is enabled and user isn't logged in.
-		if( $config->get( 'general.site.lockdown.enabled' ) && !JFactory::getUser()->id )
-		{
-			if( $view->lockdown() )
-			{
-				JFactory::getApplication()->redirect( FRoute::login( array() , false ) );
-			}
-		}
+		if ($this->config->get('general.site.lockdown.enabled') && $this->my->guest && $view->lockdown()) {
+			$url = FRoute::login(array(), false);
 
+			return $this->app->redirect($url);
+		}
 
 		// For ajax methods, we just load the view methods.
-		if( $type == 'ajax' )
-		{
-			if( !method_exists( $view , $layout ) )
-			{
+		if ($type == 'ajax') {
+
+			if (!method_exists($view, $layout)) {
 				$view->display();
+			} else {
+				$params = $this->input->get('params', '', 'default');
+				$params = json_decode($params);
+
+				call_user_func_array(array($view, $layout), $params);
 			}
-			else
-			{
-				$json 	= FD::json();
-				call_user_func_array( array( $view , $viewLayout ) , $json->decode( JRequest::getVar( 'params' ) ) );
-			}
-		}
-		else
-		{
+		} else {
+
 			// Disable inline scripts in templates.
 			SocialThemes::$_inlineScript = false;
 

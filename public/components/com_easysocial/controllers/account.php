@@ -190,6 +190,50 @@ class EasySocialControllerAccount extends EasySocialController
 	}
 
 	/**
+	 * Completes require password reset
+	 *
+	 * @since	1.4
+	 * @access	public
+	 */
+	public function completeRequireResetPassword()
+	{
+		// Check for request forgeries
+		FD::checkToken();
+
+		// Get the current view
+		$view 	= $this->getCurrentView();
+
+		// Get the current logged in user.
+		$my 	= FD::user();
+
+		$password 		= JRequest::getVar( 'es-password' );
+		$password2 		= JRequest::getVar( 'es-password2' );
+
+		// Check if the password matches
+		if( !$password || !$password2 || $password != $password2 )
+		{
+			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_PASSWORDS_NOT_MATCHING' ) , SOCIAL_MSG_ERROR );
+			return $view->call( __FUNCTION__ );
+		}
+
+		$model 	= FD::model( 'Users' );
+		$state	= $model->resetRequirePassword( $password , $password2 );
+
+		if( !$state )
+		{
+			$view->setMessage( $model->getError() , SOCIAL_MSG_ERROR );
+
+			return $view->call( __FUNCTION__ );
+		}
+
+		$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILE_REQUIRE_PASSWORD_UPDATE_SUCCESSFUL' ) , SOCIAL_MSG_SUCCESS );
+
+		return $view->call( __FUNCTION__ );
+	}
+
+
+
+	/**
 	 * Replicate's Joomla login behavior
 	 *
 	 * @since	1.0
@@ -244,6 +288,38 @@ class EasySocialControllerAccount extends EasySocialController
 		// Perform the log in.
 		if (true === $app->login($credentials, $options))
 		{
+			$userModel = FD::model('Users');
+
+			// we need to check if user required to reset password or not.
+			$jUser = JFactory::getUser();
+
+			// this is for Joomla's JUser->requireReset enabled
+			if (isset($jUser->requireReset) && $jUser->requireReset) {
+
+				//@TODO:: if juser->requireReset, we need to reset this flag and enable the require_reset flag from our social_user
+				// to avoid infnity loop caused by redirections
+				$userModel->updateJoomlaUserPasswordResetFlag($jUser->id, '0', '1');
+
+				$jUser->setProperties(array('requireReset' => '0'));
+
+				// Redirect to the profile edit page
+				// $app->enqueueMessage(JText::_('JGLOBAL_PASSWORD_RESET_REQUIRED'), 'notice');
+				// $app->redirect(JRoute::_('index.php?option=com_users&view=profile&layout=edit'));
+			}
+
+			// let get user data again.
+			$user = FD::user();
+
+			// @TODO:: here we will redirect user to our password reset page. awesome possum.
+			if ($user->require_reset) {
+
+				$url 	= FRoute::account( array( 'layout' => 'requirePasswordReset' ) , false );
+				return $app->redirect( $url );
+			}
+
+			// let update the reminder_sent flag to 0.
+			$userModel->updateReminderSentFlag($user->id, '0');
+
 			// Set the remember state
 			if ($options['remember'] == true)
 			{
@@ -277,36 +353,35 @@ class EasySocialControllerAccount extends EasySocialController
 	}
 
 	/**
-	 * Replicate Joomla's logout behavior
+	 * Allows caller to log the user out from the site
 	 *
-	 * @since   1.6
+	 * @since	1.3
+	 * @access	public
 	 */
 	public function logout()
 	{
 		JSession::checkToken('request') or jexit(JText::_('JInvalid_Token'));
 
-		$app = JFactory::getApplication();
-
-		// Perform the log in.
-		$error = $app->logout();
+		// Perform the logout
+		$error = $this->app->logout();
 
 		// Check if the log out succeeded.
-		if (!($error instanceof Exception))
-		{
+		if (!($error instanceof Exception)) {
+
 			// Get the return url from the request and validate that it is internal.
 			$return = JRequest::getVar('return', '', 'method', 'base64');
 			$return = base64_decode($return);
-			if (!JUri::isInternal($return))
-			{
+
+			if (!JUri::isInternal($return)) {
 				$return = '';
 			}
 
 			// Redirect the user.
-			$app->redirect(JRoute::_($return, false));
-			$app->close();
+			$this->app->redirect(JRoute::_($return, false));
+			$this->app->close();
 		}
 
-		$app->redirect(FRoute::login(array(), false));
+		$this->app->redirect(FRoute::login(array(), false));
 	}
 
 
@@ -317,15 +392,13 @@ class EasySocialControllerAccount extends EasySocialController
 	 * @access	public
 	 * @return	bool
 	 */
-	public function isLockDown( $task )
+	public function isLockDown($task)
 	{
-		$allowed 	= array( 'login' , 'confirmResetPassword' , 'completeResetPassword' , 'remindPassword' , 'remindUsername' );
+		$allowed = array('login', 'confirmResetPassword', 'completeResetPassword', 'remindPassword', 'remindUsername');
 
-		if( in_array( $task , $allowed ) )
-		{
+		if (in_array($task, $allowed)) {
 			return false;
 		}
-
 		return true;
 	}
 }

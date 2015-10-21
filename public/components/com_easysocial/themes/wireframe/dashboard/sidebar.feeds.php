@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,15 +9,15 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="es-widget es-widget-borderless">
 	<div class="es-widget-head">
         <div class="widget-title pull-left">
-            <?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_NEWSFEEDS' );?>
+            <?php echo JText::_('COM_EASYSOCIAL_DASHBOARD_SIDEBAR_NEWSFEEDS');?>
         </div>
 
-		<a class="pull-right fd-small" href="<?php echo FRoute::dashboard( array( 'type' => 'filterForm' ) ); ?>"
+		<a class="pull-right fd-small" href="<?php echo FRoute::dashboard(array('type' => 'filterForm')); ?>"
 			data-stream-filter-button
 		>
 			+ <?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEED_ADD_FILTER' ); ?>
@@ -36,7 +36,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				data-title="<?php echo $this->html( 'string.escape' , $this->my->getName() ) . ' - ' . JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEED_ME_AND_FRIENDS' , true ); ?>"
 			>
 				<a href="javascript:void(0);">
-					<i class="ies-users mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_ME_AND_FRIENDS' );?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_ME_AND_FRIENDS' );?>
 					<div class="label label-notification pull-right mr-20" data-stream-counter-me>0</div>
 				</a>
 			</li>
@@ -51,7 +51,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				data-title="<?php echo $this->html( 'string.escape' , $this->my->getName() ) . ' - ' . JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEED_DASHBOARD_EVERYONE' , true ); ?>"
 			>
 				<a href="javascript:void(0);">
-					<i class="ies-earth mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_NEWSFEEDS_EVERYONE' );?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_NEWSFEEDS_EVERYONE' );?>
 					<div class="label label-notification pull-right mr-20" data-stream-counter-everyone>0</div>
 				</a>
 			</li>
@@ -68,7 +68,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				data-title="<?php echo $this->html( 'string.escape' , $this->my->getName() ) . ' - ' . JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEED_FOLLLOW' ); ?>"
 			>
 				<a href="javascript:void(0);">
-					<i class="ies-tree-view mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEEDS_FOLLOWING' );?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEEDS_FOLLOWING' );?>
 					<div class="label label-notification pull-right mr-20" data-stream-counter-following>0</div>
 				</a>
 			</li>
@@ -86,7 +86,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						data-title="<?php echo $this->html( 'string.escape' , $this->my->getName() ) . ' - ' . $this->html( 'string.escape' , $list->get( 'title' ) ); ?>"
 					>
 						<a href="javascript:void(0);">
-							<i class="ies-bookmarks mr-5"></i> <?php echo $list->title; ?>
+							<?php echo $list->title; ?>
 							<div class="label label-notification pull-right mr-20" data-stream-counter-list-<?php echo $list->id; ?>>0</div>
 						</a>
 					</li>
@@ -104,7 +104,22 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					data-title="<?php echo $this->html( 'string.escape' , $this->my->getName() ) . ' - ' . JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEED_DASHBOARD_BOOKMARKS' ); ?>"
 				>
 					<a href="javascript:void(0);">
-						<i class="ies-star mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_DASHBOARD_FEEDS_BOOKMARKS'); ?>
+						<?php echo JText::_('COM_EASYSOCIAL_DASHBOARD_FEEDS_BOOKMARKS'); ?>
+					</a>
+				</li>
+			<?php } ?>
+
+			<?php if ($this->config->get('stream.pin.enabled')) { ?>
+				<li class="dashboard-filter<?php echo $filter == 'sticky' ? ' active' : '';?>"
+					data-dashboardSidebar-menu
+					data-dashboardFeeds-item
+					data-type="sticky"
+					data-id=""
+					data-url="<?php echo FRoute::dashboard( array( 'type' => 'sticky' ) );?>"
+					data-title="<?php echo $this->html( 'string.escape' , $this->my->getName() ) . ' - ' . JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEED_DASHBOARD_STICKY' ); ?>"
+				>
+					<a href="javascript:void(0);">
+						<?php echo JText::_('COM_EASYSOCIAL_DASHBOARD_FEEDS_STICKY'); ?>
 					</a>
 				</li>
 			<?php } ?>
@@ -112,19 +127,19 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<?php if( $filterList && count( $filterList) > 0 ) { ?>
 				<?php foreach( $filterList as $filter ) { ?>
-					<?php echo $this->includeTemplate( 'site/dashboard/sidebar.feeds.filter.item', array( 'filter' => $filter ) ); ?>
+					<?php echo $this->includeTemplate('site/dashboard/sidebar.feeds.filter.item', array( 'filter' => $filter ) ); ?>
 				<?php } ?>
 			<?php } ?>
 
 
-			<?php if( $appFilters && $this->template->get( 'dashboard_feeds_apps' ) ) { ?>
+			<?php if ($appFilters && $this->template->get('dashboard_feeds_apps')) { ?>
 				<li class="widget-filter-group">
-					<span><?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_NEWSFEEDS_APPS' ); ?></span>
+					<span><?php echo JText::_('COM_EASYSOCIAL_DASHBOARD_SIDEBAR_NEWSFEEDS_APPS'); ?></span>
 				</li>
 
 				<?php $i = 1; ?>
-				<?php foreach( $appFilters as $appFilter ) { ?>
-					<?php echo $this->includeTemplate( 'site/dashboard/sidebar.feeds.appfilter.item', array( 'filter' => $appFilter , 'hide' => $i > 3 ) ); ?>
+				<?php foreach ($appFilters as $appFilter) { ?>
+					<?php echo $this->includeTemplate('site/dashboard/sidebar.feeds.appfilter.item', array( 'filter' => $appFilter , 'hide' => $i > 3 ) ); ?>
 					<?php $i++; ?>
 				<?php } ?>
 
@@ -147,7 +162,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					data-title="<?php echo $this->html( 'string.escape' , '#' . $hashtag ); ?>"
 				>
 					<a href="javascript:void(0);">
-						<i class="ies-tag mr-5"></i> <?php echo '#' . $hashtag; ?>
+						<i class="fa fa-tag mr-5"></i> <?php echo '#' . $hashtag; ?>
 					</a>
 				</li>
 			<?php } ?>

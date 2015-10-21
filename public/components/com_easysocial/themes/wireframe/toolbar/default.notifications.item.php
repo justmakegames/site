@@ -45,7 +45,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<?php if( $notification->icon ){ ?>
 							<i class="icon-es-games icon-tb-notice pull-left"></i>
 							<?php } else { ?>
-							<i class="ies-earth ies-small"></i>
+							<i class="fa fa-globe"></i>
 							<?php } ?>
 							<small><?php echo $notification->since; ?></small>
 						</div>
@@ -60,7 +60,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <?php } else { ?>
 	<li class="requestItem empty center">
 		<div class="mt-20 pt-20 small">
-			<i class="ies-info ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_NOTIFICATIONS_NO_NOTIFICATIONS_CURRENTLY' ); ?>
+			<i class="fa fa-info-circle mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_NOTIFICATIONS_NO_NOTIFICATIONS_CURRENTLY' ); ?>
 		</div>
 	</li>
 <?php } ?>

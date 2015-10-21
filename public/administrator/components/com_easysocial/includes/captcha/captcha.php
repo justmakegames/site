@@ -28,30 +28,26 @@ class SocialCaptcha
 {
 	private $adapter	= null;
 
-	public function __construct( $adapter , $options = array() )
+	public function __construct($adapter, $options = array())
 	{
-		$adapter	= strtolower( $adapter );
-		$file 		= dirname( __FILE__ ) . '/adapters/' . $adapter . '.php';
+		$adapter = strtolower($adapter);
+		$file = dirname(__FILE__) . '/adapters/' . $adapter . '.php';
 
-		if( !JFile::exists( $file ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'CAPTCHA: Library file ' . $file . ' not found.' );
+		if (!JFile::exists($file)) {
 			return false;
 		}
 
 		// Include adapter's file.
-		require_once( $file );
+		require_once($file);
 
-		$class 	= 'SocialCaptcha' . ucfirst( $adapter );
+		$class = 'SocialCaptcha' . ucfirst($adapter);
 
-		if( !class_exists( $class ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'CAPTCHA: Library class ' . $class . ' not found.' );
+		if (!class_exists($class)) {
 			return false;
 		}
 
 		// Now we will have to create an instance of the class.
-		$this->adapter 	= new $class( $options );
+		$this->adapter = new $class($options);
 
 		return $this;
 	}

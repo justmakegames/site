@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <h5>
 	<a href="<?php echo FRoute::profile( array( 'id' => $actor->getAlias() , 'appId' => $app->getAlias() ) ); ?>">
-		<i class="ies-feed-2 mr-5"></i> <?php echo $feed->get( 'title' );?>
+		<i class="fa fa-rss-square mr-5"></i> <?php echo $feed->get( 'title' );?>
 	</a>
 </h5>
 <hr />

@@ -15,7 +15,6 @@
 }
 
 .es-story-panel-button {
-
 	position: relative;
 	padding: 10px 14px;
 	cursor: pointer;
@@ -24,6 +23,10 @@
 
 	i {
 		line-height: 17px; // for non html5 doctype
+	}
+
+	span {
+		display: none;
 	}
 	&.active {
 		color: @esStoryPanelButtonActiveColor;
@@ -66,8 +69,7 @@
 }
 
 
-.es-story-panel-contents
-{
+.es-story-panel-contents {
 	.clearfix();
 	.transition(all .3s ease);
 	padding: 0;
@@ -78,15 +80,13 @@
 	position: relative;
 	z-index: 1;
 
-	&.active
-	{
+	&.active {
 		max-height: 500px;
 		// opacity: 1;
 		overflow: visible;
 	}
 
-	.es-story-panel-content
-	{
+	.es-story-panel-content {
 		.transition(all .3s ease);
 		position: relative;
 		overflow: hidden;
@@ -95,14 +95,12 @@
 		z-index: 1;
 		color: @esStoryPanelContentColor;
 
-		input[type="text"]
-		{
+		input[type="text"] {
 			background: @esStoryPanelContentBackground;
 			color: @esStoryPanelContentColor;
 		}
 
-		&.active
-		{
+		&.active {
 			padding: 10px;
 			padding-top: 0px; // Using 10px from textfield
 			background: @esStoryPanelContentBackground;
@@ -115,4 +113,123 @@
 		}
 	}
 }
+
+.es-story-panel-dropdown {
+	display: inline-block;
+}
+.es-story-panel-dropdown-toggle {
+	display: inline-block;
+	width: 34px;
+	text-align: center;
+	padding: 10px 0;
+	color: @esStoryPanelButtonColor;
+}
+
+
+
+.es-story-panel-dropdown-menu {
+	left: auto;
+	right: 0;
+	min-width: 130px;
+	width: 130px;
+}
+
+
+.es-story-panel-dropdown {
+	position: absolute;
+	right: 0;
+	display: none;
+}
+
+.open {
+	.es-story-panel-dropdown-toggle {
+		color: @esStoryPanelButtonActiveColor;
+	}
+}
+
+
+&.w320 {
+	.es-story-panel-buttons {
+		padding-right: 36px;
+	}
+
+	.es-story-panel-button {
+		float: left;
+		padding-left: 15px;
+		padding-right: 0;
+
+		i, span {
+			display: table-cell;
+		}
+
+		span {
+			padding: 0 0 0 5px;
+			font-size: 12px;
+			font-weight: bold;
+		}
+	}
+
+	.es-story-panel-dropdown {
+		display: block;
+	}
+
+	.es-story-panel-dropdown-menu {
+		* {
+			font-size: 12px !important;
+		}
+		.es-story-panel-button {
+			width: 100%;
+		}
+	}
+
+	// Main panel buttons.
+	// Show first 4 buttons.
+
+	.es-story-panel-buttons {
+		.es-story-panel-button {
+			display: none;
+
+			&:nth-child(-n+3) {
+				display: inline-block;
+			}
+		}
+	}
+
+	// Additional panel buttons in dropdown.
+	// Hide first 3 buttons.
+	.es-story-panel-dropdown {
+		.es-story-panel-button {
+			display: inline-block;
+
+			&:before {
+				display: none;
+			}
+		}
+		.es-story-panel-button:nth-child(-n+2) {
+			display: none;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

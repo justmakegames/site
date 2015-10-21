@@ -30,14 +30,14 @@ if( $fid )
 						<?php if( $fid ) { ?>
 						<span class=""><?php echo JText::sprintf( 'COM_EASYSOCIAL_ADVANCED_SEARCH_LOADED_FROM_FILTER', $this->html( 'string.escape' , $filter->title ) );?></span>
 						<a class="fd-small pull-right" href="javascript:void(0);" data-advsearch-deletefilter data-id="<?php echo $fid; ?>">
-							<i class="ies-minus-2"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_DELETE_FILTER' );?>
+							<i class="fa fa-minus-2"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_DELETE_FILTER' );?>
 						</a>
 
 						<?php } else { ?>
 
 						<span class=""><?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_SEARCH_CRITERIA' );?></span>
 						<a class="fd-small pull-right" href="javascript:void(0);" data-advsearch-savefilter>
-							<i class="ies-download-3"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_SAVE_AS_FILTER' );?>
+							<i class="fa fa-download"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_SAVE_AS_FILTER' );?>
 						</a>
 
 						<?php } ?>
@@ -64,7 +64,7 @@ if( $fid )
 				</div>
 
 				<div class="es-search-add-criteria mb-20">
-					<a href="javascript:void(0);" class="btn btn-es-inverse btn-sm" data-adv-search-add-criteria><i class="ies-plus-2 ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_NEW_CRITERIA' ); ?></a>
+					<a href="javascript:void(0);" class="btn btn-es-inverse btn-sm" data-adv-search-add-criteria></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_NEW_CRITERIA' ); ?></a>
 				</div>
 
 				<legend>
@@ -83,6 +83,20 @@ if( $fid )
 				<div class="checkbox es-search-options">
 					<label class="fd-small" for="avatarOnly">
 						<input id="avatarOnly" autocomplete="off" type="checkbox" name="avatarOnly" value="1" <?php echo ( $avatarOnly ) ? ' checked="checked"' : '' ?> /> <?php echo JText::_( "COM_EASYSOCIAL_ADVANCED_SEARCH_WITH_AVATAR" ); ?>
+					</label>
+				</div>
+
+
+				<span><label class="control-label"><?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_SORTING' );?></label></span>
+				<div class="es-search-options">
+					<label class="radio-inline fd-small">
+						<input class="mr-5" autocomplete="off" type="radio" name="sort" value="default" <?php echo ( $sort == 'default' ) ? ' checked="checked"' : '' ?> /> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_SORT_DEFAULT' ); ?>
+					</label>
+					<label class="radio-inline  fd-small">
+						<input class="mr-5" autocomplete="off" type="radio" name="sort" value="registerDate" <?php echo ( $sort == 'registerDate' ) ? ' checked="checked"' : '' ?> /> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_SORT_LATEST' );?>
+					</label>
+					<label class="radio-inline  fd-small">
+						<input class="mr-5" autocomplete="off" type="radio" name="sort" value="lastvisitDate" <?php echo ( $sort == 'lastvisitDate' ) ? ' checked="checked"' : '' ?> /> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_SORT_LOGIN' );?>
 					</label>
 				</div>
 

@@ -2,19 +2,11 @@ EasySocial.module("locations", function($){
 
 	var module = this;
 
-	EasySocial.require().library("gmaps").done();
-
 	EasySocial
 		.require()
-		.library(
-			"scrollTo"
-		)
-		.view(
-			"site/location/story.suggestion"
-		)
-		.language(
-			"COM_EASYSOCIAL_AT_LOCATION"
-		)
+		.library("scrollTo", "image", "gmaps")
+		.view("site/location/story.suggestion")
+		.language("COM_EASYSOCIAL_AT_LOCATION")
 		.done(function(){
 
 			// Constants
@@ -32,322 +24,363 @@ EasySocial.module("locations", function($){
 				UP: 38
 			};
 
-			EasySocial.Controller("Locations",
-				{
-					defaultOptions: {
+			EasySocial.Controller("Locations", {
+				defaultOptions: {
 
-						view: {
-							suggestion: "site/location/story.suggestion"
-						},
+					view: {
+						suggestion: "site/location/story.suggestion"
+					},
 
-						map: {
-							lat: 0,
-							lng: 0
-						},
+					map: {
+						lat: 0,
+						lng: 0
+					},
 
-						"{textField}": "[data-location-textField]",
-						"{detectLocationButton}": "[data-detect-location-button]",
+					latitude: null,
+					longitude: null,
 
-						"{suggestions}": "[data-location-suggestions]",
-						"{suggestion}": "[data-story-location-suggestion]",
+					"{textField}": "[data-location-textField]",
+					"{detectLocationButton}": "[data-detect-location-button]",
 
-						"{mapPreview}": "[data-location-map]",
+					'{autocomplete}'    : '[data-location-autocomplete]',
+					"{suggestions}": "[data-location-suggestions]",
+					"{suggestion}": "[data-story-location-suggestion]",
 
-						"{latitude}" : "[data-location-lat]",
-						"{longitude}": "[data-location-lng]"
+					"{mapImage}": "[data-location-map-image]",
+
+					"{latitude}" : "[data-location-lat]",
+					"{longitude}": "[data-location-lng]",
+
+					"{removeButton}": "[data-location-remove-button]"
+				}
+			}, function(self, opts, base) { return {
+
+				init: function() {
+
+					// I have access to:
+					// self.panelButton()
+					// self.panelContent()
+
+					// Only show auto-detect button if the browser supports geolocation
+					if (navigator.geolocation) {
+						self.detectLocationButton().show();
 					}
+
+					// Allow textfield input only when controller is implemented
+					EasySocial.require().library("gmaps")
+						.done(function(){
+							self.textField().removeAttr("disabled");
+						});
+
+
+					// If caller specified a latitude or longitude, navigate the map
+				    setTimeout(function() {
+				        if (opts.latitude && opts.longitude) {
+				            self.navigate(opts.latitude, opts.longitude);
+
+				            self.detectLocationButton().hide();
+				        }
+				    }, 1);
 				},
-				function(self) { return {
 
-					init: function() {
+				navigate: function(lat, lng) {
 
-						// I have access to:
-						// self.panelButton()
-						// self.panelContent()
+					var mapImage = self.mapImage();
+					var width = mapImage.width();
+					var height = mapImage.height();
 
-						// Only show auto-detect button if the browser supports geolocation
-						if (navigator.geolocation) {
-							self.detectLocationButton().show();
-						}
-
-						// Allow textfield input only when controller is implemented
-						EasySocial.require().library("gmaps")
-							.done(function(){
-								self.textField().removeAttr("disabled");
+					var	url =
+							$.GMaps.staticMapURL({
+								size: [width, height],
+								lat: lat,
+								lng: lng,
+								sensor: true,
+								scale: 2,
+								markers: [
+									{lat: lat, lng: lng}
+								]
 							});
 
-					},
+					$.Image.get(url)
+						.done(function() {
+							mapImage.css({
+								"backgroundImage": $.cssUrl(url),
+								"backgroundSize": "cover",
+								"backgroundPosition": "center center"
+							});
 
-					navigate: function(lat, lng) {
-
-						var mapPreview = self.mapPreview(),
-							map = self.map;
-
-						// Initialize gmaps if not initialized
-						if (map===undefined) {
-
-							map = self.map =
-								mapPreview
-									.show()
-									.gmaps(self.options.map);
-						}
-
-						map.setCenter(lat, lng);
-						map.removeMarkers();
-						map.addMarker({lat: lat, lng: lng});
-					},
-
-					// Memoized locations
-					locations: {},
-
-					lastQueryAddress: null,
-
-					"{textField} keypress": function(textField, event) {
-
-						switch (event.keyCode) {
-
-							case KEYCODE.UP:
-
-								var prevSuggestion = $(
-									self.suggestion(".active").prev(self.suggestion.selector)[0] ||
-									self.suggestion(":last")[0]
-								);
-
-								// Remove all active class
-								self.suggestion().removeClass("active");
-
-								prevSuggestion
-									.addClass("active")
-									.trigger("activate");
-
-								self.suggestions()
-									.scrollTo(prevSuggestion, {
-										offset: prevSuggestion.height() * -1
-									});
-
-								event.preventDefault();
-
-								break;
-
-							case KEYCODE.DOWN:
-
-								var nextSuggestion = $(
-									self.suggestion(".active").next(self.suggestion.selector)[0] ||
-									self.suggestion(":first")[0]
-								);
-
-								// Remove all active class
-								self.suggestion().removeClass("active");
-
-								nextSuggestion
-									.addClass("active")
-									.trigger("activate");
-
-								self.suggestions()
-									.scrollTo(nextSuggestion, {
-										offset: nextSuggestion.height() * -1
-									});
-
-								event.preventDefault();
-
-								break;
-
-							case KEYCODE.ENTER:
-
-								var activeSuggestion = self.suggestion(".active"),
-									location = activeSuggestion.data("location");
-									self.set(location);
-
-								self.suggestions().hide();
-								break;
-
-							case KEYCODE.ESCAPE:
-								break;
-						}
-
-					},
-
-					"{textField} keyup": function(textField, event) {
-
-						switch (event.keyCode) {
-
-							case KEYCODE.UP:
-							case KEYCODE.DOWN:
-							case KEYCODE.ENTER:
-							case KEYCODE.ESCAPE:
-								// Don't repopulate if these keys were pressed.
-								break;
-
-							default:
-								var address = $.trim(textField.val());
-
-								if (address==="") {
-									self.suggestions().hide();
-								}
-
-								if (address==self.lastQueryAddress) return;
-
-								var locations = self.locations[address];
-
-								// If this location has been searched before
-								if (locations) {
-
-									// Just use cached results
-									self.suggest(locations);
-
-									// And set our last queried address to this address
-									// so that it won't repopulate the suggestion again.
-									self.lastQueryAddress = address;
-
-								// Else ask google to find it out for us
-								} else {
-
-									self.lookup(address);
-								}
-								break;
-						}
-					},
-
-					lookup: $._.debounce(function(address){
-
-						$.GMaps.geocode({
-							address: address,
-							callback: function(locations, status) {
-
-								if (status=="OK") {
-
-									// Store a copy of the results
-									self.locations[address] = locations;
-
-									// Suggestion locations
-									self.suggest(locations);
-
-									self.lastQueryAddress = address;
-								}
-							}
+							base.addClass("has-location");
 						});
+				},
 
-					}, 250),
+				// Memoized locations
+				locations: {},
 
-					suggest: function(locations) {
+				lastQueryAddress: null,
 
-						var suggestions = self.suggestions();
+				"{textField} keypress": function(textField, event) {
 
-						// Clear location suggestions
-						suggestions
-							.hide()
-							.empty();
+					switch (event.keyCode) {
 
-						$.each(locations, function(i, location){
+						case KEYCODE.UP:
 
-							// Create suggestion and append to list
-							self.view.suggestion({
-									location: location
-								})
-								.data("location", location)
-								.appendTo(suggestions);
-						});
+							var prevSuggestion = $(
+								self.suggestion(".active").prev(self.suggestion.selector)[0] ||
+								self.suggestion(":last")[0]
+							);
 
-						suggestions.show();
-					},
+							// Remove all active class
+							self.suggestion().removeClass("active");
 
-					"{suggestion} activate": function(suggestion, event) {
+							prevSuggestion
+								.addClass("active")
+								.trigger("activate");
 
-						var location = suggestion.data("location");
-
-						self.navigate(
-							location.geometry.location.lat(),
-							location.geometry.location.lng()
-						);
-					},
-
-					"{suggestion} mouseover": function(suggestion) {
-
-						// Remove all active class
-						self.suggestion().removeClass("active");
-
-						suggestion
-							.addClass("active")
-							.trigger("activate");
-					},
-
-					"{suggestion} click": function(suggestion, event) {
-
-						var location = suggestion.data("location");
-
-						self.set(location);
-
-						self.suggestions().hide();
-					},
-
-					set: function(location) {
-
-						self.currentLocation = location;
-
-						var address = location.formatted_address;
-
-						self.textField().val(address);
-
-						// var caption = $.language("COM_EASYSOCIAL_AT_LOCATION", location.address_components[0].long_name);
-						// self.story.addPanelCaption("locations", caption);
-
-						self.latitude()
-							.val(location.geometry.location.lat());
-
-						self.longitude()
-							.val(location.geometry.location.lng());
-
-						self.trigger("locationChange", [location]);
-					},
-
-					"{detectLocationButton} click": function() {
-
-						var map = self.map;
-
-						$.GMaps.geolocate({
-							success: function(position) {
-
-								$.GMaps.geocode({
-									lat: position.coords.latitude,
-									lng: position.coords.longitude,
-									callback: function(locations, status){
-										if (status=="OK") {
-											self.suggest(locations);
-											self.textField().focus();
-										}
-									}
+							self.suggestions()
+								.scrollTo(prevSuggestion, {
+									offset: prevSuggestion.height() * -1
 								});
-							},
-							error: function(error) {
-								// error.message
-							},
-							always: function() {
 
-							}
-						});
-					},
+							event.preventDefault();
 
-					"{story} save": function(el, element, save) {
+							break;
 
-						var currentLocation = self.currentLocation;
+						case KEYCODE.DOWN:
 
-						if (!currentLocation) return;
+							var nextSuggestion = $(
+								self.suggestion(".active").next(self.suggestion.selector)[0] ||
+								self.suggestion(":first")[0]
+							);
 
-						save.addData(self, {
-							short_address    : currentLocation.address_components[0].long_name,
-							formatted_address: currentLocation.formatted_address,
-							lat              : currentLocation.geometry.location.lat(),
-							lng              : currentLocation.geometry.location.lng()
-						});
-					},
+							// Remove all active class
+							self.suggestion().removeClass("active");
 
-					"{story} clear": function() {
+							nextSuggestion
+								.addClass("active")
+								.trigger("activate");
 
-						self.unset();
+							self.suggestions()
+								.scrollTo(nextSuggestion, {
+									offset: nextSuggestion.height() * -1
+								});
+
+							event.preventDefault();
+
+							break;
+
+						case KEYCODE.ENTER:
+
+							var activeSuggestion = self.suggestion(".active"),
+								location = activeSuggestion.data("location");
+								self.set(location);
+
+							// self.suggestions().hide();
+							break;
+
+						case KEYCODE.ESCAPE:
+							break;
 					}
 
-				}}
-			);
+				},
+
+				"{textField} keyup": function(textField, event) {
+
+					switch (event.keyCode) {
+
+						case KEYCODE.UP:
+						case KEYCODE.DOWN:
+						case KEYCODE.ENTER:
+						case KEYCODE.ESCAPE:
+							// Don't repopulate if these keys were pressed.
+							break;
+
+						default:
+							var address = $.trim(textField.val());
+
+							if (address==="") {
+								// self.suggestions().hide();
+
+							}
+
+							if (address==self.lastQueryAddress) {
+								return;
+							}
+
+							var locations = self.locations[address];
+
+							// If this location has been searched before
+							if (locations) {
+
+								// Just use cached results
+								self.suggest(locations);
+
+								// And set our last queried address to this address
+								// so that it won't repopulate the suggestion again.
+								self.lastQueryAddress = address;
+
+							// Else ask google to find it out for us
+							} else {
+
+								self.lookup(address);
+							}
+							break;
+					}
+				},
+
+				lookup: $._.debounce(function(address){
+
+					// TODO: difine is-busy
+
+					EasySocial.ajax('site/controllers/location/suggestLocations', {
+						"address": address,
+					}).done(function(locations) {
+
+						// Store a copy of the results
+						self.locations[address] = locations;
+
+						self.suggest(locations);
+						self.textField().focus();
+						self.element.addClass("has-suggested");
+					});
+
+				}, 250),
+
+				suggest: function(locations) {
+
+					var suggestions = self.suggestions();
+					
+					// Clear location suggestions
+					suggestions.empty();
+
+					$.each(locations, function(i, location) {
+
+						// Create suggestion and append to list
+						self.view.suggestion({
+								"location": location
+							})
+							.data("location", location)
+							.appendTo(suggestions);
+					});
+
+					self.autocomplete().addClass("active");
+				},
+
+				"{suggestion} activate": function(suggestion, event) {
+
+					var location = suggestion.data("location");
+
+					self.navigate(location.latitude, location.longitude);
+				},
+
+				"{suggestion} mouseover": function(suggestion) {
+
+					// Remove all active class
+					self.suggestion().removeClass("active");
+
+					suggestion
+						.addClass("active")
+						.trigger("activate");
+				},
+
+				"{suggestion} click": function(suggestion, event) {
+
+					var location = suggestion.data("location");
+
+					self.set(location);
+
+					// Remove active class on the auto complete
+					self.autocomplete().removeClass('active');
+					
+					// self.suggestions().hide();
+				},
+
+				set: function(location) {
+
+					self.currentLocation = location;
+
+					var address = location.name;
+
+					self.textField().val(address);
+
+					self.latitude()
+						.val(location.latitude);
+
+					self.longitude()
+						.val(location.longitude);
+
+					self.detectLocationButton().hide();
+					
+					self.trigger("locationChange", [location]);
+
+				},
+
+				unset: function() {
+                    self.currentLocation = null;
+
+                    self.textField().val('');
+
+                    self.mapImage().attr("src", "");
+
+                    self.element.removeClass("has-location");
+
+                    self.detectLocationButton().show();
+				},
+
+				"{detectLocationButton} click": function() {
+
+					var map = self.map;
+
+					self.element.addClass("is-busy");
+
+					$.GMaps.geolocate({
+						success: function(position) {
+							EasySocial.ajax('site/controllers/location/getLocations', {
+								latitude: position.coords.latitude,
+								longitude: position.coords.longitude
+							}).done(function(locations) {
+
+								self.element.removeClass("is-busy");
+
+								self.element.addClass("has-suggested");
+
+								self.suggest(locations);
+								self.textField().focus();
+							});
+						},
+						error: function(error) {
+							// error.message
+						},
+						always: function() {
+
+						}
+					});
+				},
+
+				"{removeButton} click": function(removeButton, event) {
+					self.unset();
+				},
+
+				"{story} save": function(el, element, save) {
+
+					var currentLocation = self.currentLocation;
+
+					if (!currentLocation) {
+						return;
+					}
+
+					save.addData(self, {
+						short_address    : currentLocation.name,
+						formatted_address: currentLocation.address,
+						lat              : currentLocation.latitude,
+						lng              : currentLocation.longitude
+					});
+				},
+
+				"{story} clear": function() {
+					self.unset();
+				}
+
+			}});
 
 			// Resolve module
 			module.resolve();

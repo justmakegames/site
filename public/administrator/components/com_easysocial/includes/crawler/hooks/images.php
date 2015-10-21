@@ -14,52 +14,45 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 class SocialCrawlerImages
 {
 	/**
-	 * Ruleset to process document title
+	 * Tries to process the DOM to locate for images
 	 *
-	 * @params	string $contents	The html contents that needs to be parsed.
-	 * @return	boolean				True on success false otherwise.
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	public function process( $parser , &$contents , $uri )
+	public function process($parser, &$contents, $url)
 	{
-		$result 	= array();
+		$result = array();
 
-		if( !$parser )
-		{
+		if (!$parser) {
 			return $result;
 		}
 
 		// Find all image tags on the page.
 		$images = $parser->find('img');
 
-		// Test if url open is allowed
-		// $urlOpen = ini_get('allow_url_fopen');
-		$urlOpen = false; // somehow if we open the get external image size, it will become super slow.
-
 		foreach ($images as $image) {
 
+			// If the image src contains base64 encoded data, we should skip this for now.
 			if (stristr($image->src, 'data:image/') !== false) {
 				continue;
 			}
 
-			// If there's a ../ , we need to replace it.
+			// If there's a /../ , we need to replace it.
 			if (stristr($image->src , '/../') !== false) {
-				$image->src = str_ireplace( '/../' , '/' , $image->src );
+				$image->src = str_ireplace('/../', '/', $image->src);
+			}
+
+			if (stristr($image->src, '../') !== false) {
+				$image->src = str_ireplace('../', '/', $image->src);
 			}
 
 			if (stristr($image->src, 'http://') === false && stristr($image->src, 'https://') === false) {
-				$image->src = rtrim($uri, '/') . '/' . ltrim($image->src, '/');
+				$image->src = rtrim($url, '/') . '/' . ltrim($image->src, '/');
 			}
 
-			// Try to get external image size
-			if ($urlOpen) {
-				$size = @getimagesize($image->src);
-
-				if ($size && $size[0] < 50 && $size[1] < 50) {
-					continue;
-				}
-			}
-
-			$result[]	= $image->src;
+			$result[] = $image->src;
 		}
 
 		// Ensure that there are no duplicate images.

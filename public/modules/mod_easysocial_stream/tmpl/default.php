@@ -12,6 +12,9 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div id="fd" class="es es-responsive mod-es-stream module-social<?php echo $suffix;?>">
+    <!-- to simulate side menu so that the stream can update the content correctly -->
+    <div class="active" data-dashboardSidebar-menu data-type="module" data-id=""></div>
+
 	<?php echo $stream->html();?>
 
 	<div class="pull-right mb-20">

@@ -13,8 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form name="adminForm" id="adminForm" method="post" data-table-grid>
 
-    <div class="filter-bar form-inline">
-
+    <div class="app-filter filter-bar form-inline">
         <div class="form-group">
             <strong><?php echo JText::_( 'COM_EASYSOCIAL_FILTER_BY' ); ?> :</strong>
             <div>
@@ -31,94 +30,95 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
     </div>
 
-    <table class="table table-striped table-es table-hover" data-stream-list>
-        <thead>
-            <tr>
-            <th width="1%">
-                <input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />
-            </th>
-            <th width="10%" class="center">
-                <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_TITLE_ACTOR' ); ?>
-            </th>
-            <th width="30%">
-                <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_TITLE_ACTION' ); ?>
-            </th>
-            <th>
-                <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_TITLE_CONTENT' ); ?>
-            </th>
-            <th width="10%" class="center">
-                <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_TITLE_TYPE' ); ?>
-            </th>
-            <th width="10%" class="center">
-                <?php echo $this->html( 'grid.sort' , 'created' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
-            </th>
-            <th width="10%" class="center">
-                <?php echo $this->html( 'grid.sort' , 'modified' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_MODIFIED' ) , $ordering , $direction ); ?>
-            </th>
-            <th width="5%" class="center">
-                <?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
-            </th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if( $items ){ ?>
+    <div class="panel-table">
+        <table class="app-table table table-eb table-striped" data-stream-list>
+            <thead>
+                <tr>
+                <th width="1%">
+                    <input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />
+                </th>
+                <th width="10%" class="center">
+                    <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_TITLE_ACTOR' ); ?>
+                </th>
+                <th width="30%">
+                    <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_TITLE_ACTION' ); ?>
+                </th>
+                <th>
+                    <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_TITLE_CONTENT' ); ?>
+                </th>
+                <th width="10%" class="center">
+                    <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_TITLE_TYPE' ); ?>
+                </th>
+                <th width="10%" class="center">
+                    <?php echo $this->html( 'grid.sort' , 'created' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
+                </th>
+                <th width="10%" class="center">
+                    <?php echo $this->html( 'grid.sort' , 'modified' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_MODIFIED' ) , $ordering , $direction ); ?>
+                </th>
+                <th width="5%" class="center">
+                    <?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
+                </th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if( $items ){ ?>
 
-                <?php $i = 0; ?>
-                <?php foreach( $items as $item ){ ?>
-                <tr data-stream-item data-id="<?php echo $item->id;?>">
-                    <td class="center">
-                        <?php echo $this->html( 'grid.id' , $i , $item->id ); ?>
-                    </td>
-                    <td class="center">
-                        <?php echo $item->actorName; ?>
-                    </td>
-                    <td>
-                        <?php
-                            $itemVerb = str_replace('.', '_', $item->verb);
-                            $jtext = strtoupper('COM_EASYSOCIAL_STREAM_' . $item->context_type . '_' . $itemVerb);
-                        ?>
-                        <?php echo JText::_($jtext); ?>
-                    </td>
-                    <td>
-                        <?php echo ($item->content) ? $this->html('string.truncater', $item->content, 60 ) : 'N/A'; ?>
-                    </td>
-                    <td class="center">
-                        <?php $cluster = ($item->cluster_id) ? $item->clusterName . ' ('. $item->cluster_type .')' : 'N/A'; ?>
-                        <?php echo $cluster; ?>
-                    </td>
-                    <td class="center">
-                        <?php echo $item->created; ?>
-                    </td>
-                    <td class="center">
-                        <?php echo $item->modified; ?>
-                    </td>
-                    <td class="center">
-                        <?php echo $item->id; ?>
+                    <?php $i = 0; ?>
+                    <?php foreach( $items as $item ){ ?>
+                    <tr data-stream-item data-id="<?php echo $item->id;?>">
+                        <td class="center">
+                            <?php echo $this->html( 'grid.id' , $i , $item->id ); ?>
+                        </td>
+                        <td class="center">
+                            <?php echo $item->actorName; ?>
+                        </td>
+                        <td>
+                            <?php
+                                $itemVerb = str_replace('.', '_', $item->verb);
+                                $jtext = strtoupper('COM_EASYSOCIAL_STREAM_' . $item->context_type . '_' . $itemVerb);
+                            ?>
+                            <?php echo JText::_($jtext); ?>
+                        </td>
+                        <td>
+                            <?php echo ($item->content) ? $this->html('string.truncater', $item->content, 60 ) : 'N/A'; ?>
+                        </td>
+                        <td class="center">
+                            <?php $cluster = ($item->cluster_id) ? $item->clusterName . ' ('. $item->cluster_type .')' : 'N/A'; ?>
+                            <?php echo $cluster; ?>
+                        </td>
+                        <td class="center">
+                            <?php echo JHTML::date($item->created, 'Y-m-d H:i:s'); ?>
+                        </td>
+                        <td class="center">
+                            <?php echo JHTML::date($item->modified, 'Y-m-d H:i:s'); ?>
+                        </td>
+                        <td class="center">
+                            <?php echo $item->id; ?>
+                        </td>
+                    </tr>
+                    <?php $i++; ?>
+                    <?php } ?>
+
+                <?php } else { ?>
+                <tr class="is-empty">
+                    <td colspan="8" class="empty">
+                        <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_NO_ITEM_FOUND' ); ?>
                     </td>
                 </tr>
-                <?php $i++; ?>
                 <?php } ?>
+            </tbody>
 
-            <?php } else { ?>
-            <tr class="is-empty">
-                <td colspan="8" class="empty">
-                    <?php echo JText::_( 'COM_EASYSOCIAL_STREAM_NO_ITEM_FOUND' ); ?>
-                </td>
-            </tr>
-            <?php } ?>
-        </tbody>
-
-        <tfoot>
-            <tr>
-                <td colspan="8">
-                    <div class="footer-pagination">
-                    <?php echo $pagination->getListFooter(); ?>
-                    </div>
-                </td>
-            </tr>
-        </tfoot>
-
-    </table>
+            <tfoot>
+                <tr>
+                    <td colspan="8">
+                        <div class="footer-pagination">
+                        <?php echo $pagination->getListFooter(); ?>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
     <?php echo JHTML::_('form.token'); ?>
     <input type="hidden" name="ordering" value="<?php echo $ordering;?>" data-table-grid-ordering />

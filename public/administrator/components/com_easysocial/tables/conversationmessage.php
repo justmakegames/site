@@ -70,6 +70,10 @@ class SocialTableConversationMessage extends SocialTable
 			return JText::sprintf('COM_EASYSOCIAL_CONVERSATIONS_INVITED_INTO_CONVERSATION_MESSAGE', $this->getCreator()->getName(), $this->getTarget()->getName());
 		}
 
+		if ($this->type == 'leave') {
+			return JText::sprintf('COM_EASYSOCIAL_CONVERSATIONS_LEFT_CONVERSATION_MESSAGE', $this->getCreator()->getName());
+		}
+
 		if ($this->type == 'message') {
 			$message = $this->message;
 			$tags = $this->getTags();

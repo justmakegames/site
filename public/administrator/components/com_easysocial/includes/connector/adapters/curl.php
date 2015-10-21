@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 class SocialConnectorCurl
 {
@@ -22,22 +22,23 @@ class SocialConnectorCurl
 										CURLOPT_CAINFO			=> ''
 									);
 
-	var $options	= array();
-	var $handles	= array();
-	var $urls		= array();
+	public $options = array();
+	public $handles = array();
+	public $headers = array();
+	public $urls = array();
 
 	/**
 	 * If there's a redirection, we know where's the final destination.
 	 * @var	string
 	 */
-	var $finalUrls	= array();
+	public $finalUrls = array();
 
-	var $handle		= null;
-	var $result		= array();
+	public $handle = null;
+	public $result = array();
 
-	var $redirects	= array( 300 , 301 , 302 , 303 , 304 , 305 , 306 , 307 );
-	var $args		= array();
-	var $current	= '';
+	public $redirects = array( 300 , 301 , 302 , 303 , 304 , 305 , 306 , 307 );
+	public $args = array();
+	public $current	= '';
 
 	public function __construct()
 	{
@@ -46,67 +47,60 @@ class SocialConnectorCurl
 
 	public function addUrl( $url )
 	{
-		$this->urls[ $url ]		= $url;
-		$this->current			= $url;
-		$this->options[ $url ]	= $this->defaultOptions;
+		$this->urls[$url] = $url;
+		$this->current = $url;
+		$this->options[$url] = $this->defaultOptions;
 
 		// We need to set the local ssl verifier
-		$this->options[ $url ][ CURLOPT_CAINFO ]	= dirname( __FILE__ ) . '/cacert.pem';
+		$this->options[$url][CURLOPT_CAINFO] = dirname(__FILE__) . '/cacert.pem';
+		$this->options[$url][CURLOPT_SSL_VERIFYPEER] = false;
 
 		return true;
 	}
 
-	public function addQuery( $key , $value )
+	public function addQuery($key, $value)
 	{
-		$this->args[ $this->current ][ $key ]	= $value;
+		$this->args[$this->current][$key] = $value;
 	}
 
 	public function addLength( $length )
 	{
-		$this->options[$this->current][ CURLOPT_RANGE ]		= $length;
-		$this->options[$this->current][ CURLOPT_HEADER ]	= false;
+		$this->options[$this->current][CURLOPT_RANGE] = $length;
+		$this->options[$this->current][CURLOPT_HEADER] = false;
 	}
 
 	public function useHeadersOnly()
 	{
-		$this->options[$this->current][ CURLOPT_HEADER ]	= true;
-		$this->options[$this->current][ CURLOPT_NOBODY ]	= true;
+		$this->options[$this->current][CURLOPT_HEADER]	= true;
+		$this->options[$this->current][CURLOPT_NOBODY]	= true;
 
 		return true;
 	}
 
 	public function execute()
 	{
-		$running	= null;
+		$running = null;
 
-		/**
-		 * Get all handles and set the options for all respective handles
-		 */
-		foreach( $this->urls as $url )
-		{
-			$this->handles[ $url ]	= curl_init( $url );
+		foreach ($this->urls as $url) {
+			$this->handles[$url] = curl_init($url);
 
 			// If this is a post request, then we should add the necessary post data
-			if( isset( $this->options[ $url ][ CURLOPT_POST ] ) && $this->options[ $url ][ CURLOPT_POST ] === true )
-			{
-				$this->options[ $url ][ CURLOPT_POSTFIELDS ] = http_build_query( $this->args[ $url ] );
+			if (isset($this->options[$url][CURLOPT_POST]) && $this->options[$url][CURLOPT_POST] === true) {
+				$this->options[$url][CURLOPT_POSTFIELDS] = http_build_query($this->args[$url]);
 			}
 
 			// Set options for specific urls.
-			curl_setopt_array( $this->handles[ $url ] , $this->options[ $url ] );
+			curl_setopt_array($this->handles[$url], $this->options[$url]);
 
 			// Add the handle into the multi handle
-			curl_multi_add_handle( $this->handle , $this->handles[ $url ] );
+			curl_multi_add_handle($this->handle, $this->handles[$url]);
 		}
 
-		do
-		{
-			curl_multi_exec( $this->handle , $running );
-		}
-		while( $running > 0 );
+		do {
+			curl_multi_exec($this->handle, $running);
+		} while($running > 0);
 
-		foreach( $this->handles as $key => $handle )
-		{
+		foreach ($this->handles as $key => $handle) {
 			$code	= curl_getinfo( $handle , CURLINFO_HTTP_CODE );
 
 			if( in_array(  $code , $this->redirects ) )
@@ -266,8 +260,12 @@ class SocialConnectorCurl
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function getResult( $url , $withHeaders = false )
+	public function getResult( $url = null , $withHeaders = false )
 	{
+		if (empty($url)) {
+			$url = $this->current;
+		}
+
 		if( !isset( $this->result[ $url ] ) )
 		{
 			return false;
@@ -286,15 +284,20 @@ class SocialConnectorCurl
 		return $this->result;
 	}
 
-	public function addOption( $key , $value )
+	public function addHeader($value)
 	{
-		$this->options[$this->current][ $key ]	= $value;
+		$this->options[$this->current][CURLOPT_HTTPHEADER] = $value;
 	}
 
-	public function addFile( $resource , $size )
+	public function addOption($key, $value)
 	{
-		$this->addOption( CURLOPT_INFILE , $resource );
-		$this->addOption( CURLOPT_INFILESIZE , $size );
+		$this->options[$this->current][$key] = $value;
+	}
+
+	public function addFile($resource, $size)
+	{
+		$this->addOption(CURLOPT_INFILE, $resource);
+		$this->addOption(CURLOPT_INFILESIZE, $size);
 
 		return true;
 	}

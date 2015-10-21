@@ -1,169 +1,169 @@
-body div#fd.es .friendsAction {
+div#fd.es .friendsAction {
   position: relative;
 }
-body div#fd.es .es-header-content .fd-nav.user-actions a {
+div#fd.es .es-header-content .fd-nav.user-actions a {
   color: #595959;
 }
-body div#fd.es .es-header-content .fd-nav.user-actions a span {
-  font-size: 11px;
+div#fd.es .es-header-content .fd-nav.user-actions a span {
+  font-size: 12px;
 }
-body div#fd.es .es-header-content .fd-nav.user-actions [class^="icon-es-"],
-body div#fd.es .es-header-content .fd-nav.user-actions [class*=" icon-es-"] {
+div#fd.es .es-header-content .fd-nav.user-actions [class^="icon-es-"],
+div#fd.es .es-header-content .fd-nav.user-actions [class*=" icon-es-"] {
   margin-right: 8px;
 }
-body div#fd.es .userProfile h2 {
+div#fd.es .userProfile h2 {
   margin-bottom: 0;
   word-break: break-all;
   position: static;
 }
-body div#fd.es .userProfile .user-meta {
+div#fd.es .userProfile .user-meta {
   margin-bottom: 8px;
-  font-size: 11px;
+  font-size: 12px;
 }
-body div#fd.es.view-profile.layout-about .es-cover-wrap .es-cover-avatar {
+div#fd.es.view-profile.layout-about .es-cover-wrap .es-cover-avatar {
   margin: 10px;
 }
-body div#fd.es.view-profile.layout-about .es-cover-wrap .es-cover-avatar .es-avatar {
+div#fd.es.view-profile.layout-about .es-cover-wrap .es-cover-avatar .es-avatar {
   width: 110px;
   height: 110px;
 }
-body div#fd.es.view-profile.layout-about .es-cover-wrap .es-cover-avatar .es-avatar img {
+div#fd.es.view-profile.layout-about .es-cover-wrap .es-cover-avatar .es-avatar img {
   width: 110px;
   height: 110px;
 }
-body div#fd.es.view-profile.layout-about .es-cover-wrap .es-avatar-flyout {
+div#fd.es.view-profile.layout-about .es-cover-wrap .es-avatar-flyout {
   width: 100%;
   left: 0;
   bottom: 0;
 }
-body div#fd.es.view-profile.layout-about .es-cover-wrap .es-avatar-flyout .btn {
+div#fd.es.view-profile.layout-about .es-cover-wrap .es-avatar-flyout .btn {
   width: auto;
 }
-body div#fd.es.view-profile.layout-about .es-header .es-header-content {
+div#fd.es.view-profile.layout-about .es-header .es-header-content {
   margin-left: 105px;
 }
-body div#fd.es.view-profile.layout-editPrivacy .privacy-contents {
+div#fd.es.view-profile.layout-editPrivacy .privacy-contents {
   display: none;
   position: relative;
 }
-body div#fd.es.view-profile.layout-editPrivacy .privacy-contents:first-child {
+div#fd.es.view-profile.layout-editPrivacy .privacy-contents:first-child {
   display: block;
 }
-body div#fd.es.view-profile.layout-editPrivacy .privacy-custom-menu {
+div#fd.es.view-profile.layout-editPrivacy .privacy-custom-menu {
   position: absolute;
   padding: 10px;
   min-width: 350px;
 }
-body div#fd.es.view-profile.layout-editPrivacy .control-label {
-  font-size: 11px;
+div#fd.es.view-profile.layout-editPrivacy .control-label {
+  font-size: 12px;
 }
-body div#fd.es.view-profile .form-notifications,
-body div#fd.es.view-profile .form-privacy {
+div#fd.es.view-profile .form-notifications,
+div#fd.es.view-profile .form-privacy {
   min-height: 300px;
 }
-body div#fd.es.view-profile .es-header-info {
-  font-size: 11px;
+div#fd.es.view-profile .es-header-info {
+  font-size: 12px;
   padding-bottom: 10px;
 }
-body div#fd.es.view-profile .es-widget .fd-nav > li > a {
-  font-size: 11px;
+div#fd.es.view-profile .es-widget .fd-nav > li > a {
+  font-size: 12px;
 }
-body div#fd.es.view-profile .es-widget .fd-nav > li > a > i {
+div#fd.es.view-profile .es-widget .fd-nav > li > a > i {
   margin-right: 5px;
 }
-body div#fd.es.view-profile .dropdown-friends {
+div#fd.es.view-profile .dropdown-friends {
   width: 200px;
-  font-size: 11px;
+  font-size: 12px;
 }
-body div#fd.es.view-profile .dropdown-friends li i {
+div#fd.es.view-profile .dropdown-friends li i {
   color: #666;
 }
-body div#fd.es.view-profile .dropdown-friends li >hr {
+div#fd.es.view-profile .dropdown-friends li >hr {
   margin: 0 0 10px 0;
   padding: 0;
 }
-body div#fd.es.view-profile .es-app-wrapper {
+div#fd.es.view-profile .es-app-wrapper {
   padding: 10px;
 }
-body div#fd.es.view-profile .tab-box .tab-content {
+div#fd.es.view-profile .tab-box .tab-content {
   padding: 0px 18px 0 0;
 }
-body div#fd.es.view-profile .tab-box .tab-content .es-content {
+div#fd.es.view-profile .tab-box .tab-content .es-content {
   padding-top: 10px;
 }
-body div#fd.es.view-profile .controls.data .help-block {
+div#fd.es.view-profile .controls.data .help-block {
   margin-top: 5px;
 }
-body div#fd.es.view-profile .form-horizontal {
+div#fd.es.view-profile .form-horizontal {
   margin: 0;
   padding-bottom: 10px;
 }
-body div#fd.es.view-profile .form-horizontal .control-label {
+div#fd.es.view-profile .form-horizontal .control-label {
   text-align: left;
 }
-body div#fd.es .profile-data-box {
+div#fd.es .profile-data-box {
   margin-bottom: 10px;
   padding: 0 15px;
 }
-body div#fd.es .profile-data-box .profile-data-title {
+div#fd.es .profile-data-box .profile-data-title {
   background: #f5f5f5;
   padding: 10px;
   font-size: 12px;
   margin-bottom: 16px;
 }
-body div#fd.es .profile-data-box .profile-data-table {
+div#fd.es .profile-data-box .profile-data-table {
   width: 100%;
   margin-bottom: 30px;
 }
-body div#fd.es .profile-data-box .profile-data-table th,
-body div#fd.es .profile-data-box .profile-data-table td {
+div#fd.es .profile-data-box .profile-data-table th,
+div#fd.es .profile-data-box .profile-data-table td {
   vertical-align: top;
   padding: 0;
   border: none;
 }
-body div#fd.es .profile-data-box .profile-data-table td {
+div#fd.es .profile-data-box .profile-data-table td {
   padding-top: 10px;
   padding-bottom: 10px;
   position: relative;
 }
-body div#fd.es .profile-data-box .profile-data-table td .es-privacy {
+div#fd.es .profile-data-box .profile-data-table td .es-privacy {
   top: -1px;
   right: 2px;
 }
-body div#fd.es .profile-data-box .profile-data-table .profile-data-label {
+div#fd.es .profile-data-box .profile-data-table .profile-data-label {
   width: 120px;
   padding-left: 30px;
   text-align: left;
   color: #999;
 }
-body div#fd.es .profile-data-box .profile-data-table .profile-data-info {
+div#fd.es .profile-data-box .profile-data-table .profile-data-info {
   position: relative;
   padding-left: 20px;
 }
-body div#fd.es .profile-data-box .profile-data-table .profile-data-info .data-relationship-display[data-relationship-display-confirm] .data-relationship-display-info {
+div#fd.es .profile-data-box .profile-data-table .profile-data-info .data-relationship-display[data-relationship-display-confirm] .data-relationship-display-info {
   padding: 0;
 }
-body div#fd.es .profile-data-box .profile-data-table .profile-data-info .data-relationship-display[data-relationship-display-confirm] [data-relationship-display-target-name] {
+div#fd.es .profile-data-box .profile-data-table .profile-data-info .data-relationship-display[data-relationship-display-confirm] [data-relationship-display-target-name] {
   margin-top: 6px;
 }
-body div#fd.es .profile-data-box .profile-data-table .profile-data-list {
+div#fd.es .profile-data-box .profile-data-table .profile-data-list {
   list-style: none;
   line-height: 26px;
 }
-body div#fd.es .profile-data-box .profile-data-table .profile-data-list > li {
+div#fd.es .profile-data-box .profile-data-table .profile-data-list > li {
   margin-bottom: 8px;
 }
-body div#fd.es .profile-data-box .profile-data-table .profile-data-list > li .data-desp {
+div#fd.es .profile-data-box .profile-data-table .profile-data-list > li .data-desp {
   display: block;
   color: #888;
   margin: 4px 0;
 }
-body div#fd.es .profile-data-timezone {
+div#fd.es .profile-data-timezone {
   position: relative;
   top: -2px;
   right: 2px;
 }
-body div#fd.es .profile-data-timezone .profile-data-timezone-toggle {
+div#fd.es .profile-data-timezone .profile-data-timezone-toggle {
   height: 24px;
   position: relative;
   color: #858585 !important;
@@ -175,23 +175,23 @@ body div#fd.es .profile-data-timezone .profile-data-timezone-toggle {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
-body div#fd.es .profile-data-timezone .profile-data-timezone-toggle .caret {
+div#fd.es .profile-data-timezone .profile-data-timezone-toggle .caret {
   position: relative;
   top: -3px;
   opacity: 0;
   filter: alpha(opacity=0);
   border-top: 4px solid #666;
 }
-body div#fd.es .profile-data-timezone:hover .profile-data-timezone-toggle {
+div#fd.es .profile-data-timezone:hover .profile-data-timezone-toggle {
   color: #858585 !important;
   background-color: #fff !important;
   border-color: #d7d7d7 !important;
 }
-body div#fd.es .profile-data-timezone:hover .profile-data-timezone-toggle .caret {
+div#fd.es .profile-data-timezone:hover .profile-data-timezone-toggle .caret {
   opacity: 1;
   filteR: alpha(opacity=100);
 }
-body div#fd.es .es-block-reason {
+div#fd.es .es-block-reason {
   background-color: #f5f5f5;
   border: 1px dashed #ddd;
   color: #888;
@@ -199,25 +199,33 @@ body div#fd.es .es-block-reason {
   padding: 5px 10px;
   border-radius: 3px;
 }
-body div#fd.es.w480.view-profile .form-horizontal .input-xlarge {
+div#fd.es .es-user-banned {
+  border-radius: 3px;
+}
+div#fd.es .es-user-banned b {
+  display: block;
+  font-size: 110%;
+  margin: 0 0 3px;
+}
+div#fd.es.w480.view-profile .form-horizontal .input-xlarge {
   width: 100%;
 }
-body div#fd.es.w480.view-profile .form-horizontal .control-label {
+div#fd.es.w480.view-profile .form-horizontal .control-label {
   float: none;
   width: 100%;
 }
-body div#fd.es.w480.view-profile .form-horizontal .controls {
+div#fd.es.w480.view-profile .form-horizontal .controls {
   margin-left: 0;
   margin-right: 10px;
 }
-body div#fd.es.w480.view-profile.layout-edit .es-sidebar {
+div#fd.es.w480.view-profile.layout-edit .es-sidebar {
   width: 100%;
 }
-body div#fd.es.w480.view-profile.layout-edit .form-profile,
-body div#fd.es.w480.view-profile.layout-edit .form-social {
+div#fd.es.w480.view-profile.layout-edit .form-profile,
+div#fd.es.w480.view-profile.layout-edit .form-social {
   margin: 0;
 }
-body div#fd.es.popbox.popbox-profile {
+div#fd.es.popbox.popbox-profile {
   width: 420px !important;
   height: 215px !important;
   background-color: #fff !important;
@@ -227,10 +235,10 @@ body div#fd.es.popbox.popbox-profile {
   -webkit-box-shadow: 0 5px 10px rgba(0,0,0,0.2);
   box-shadow: 0 5px 10px rgba(0,0,0,0.2);
 }
-body div#fd.es.popbox.popbox-profile.top-left .arrow {
+div#fd.es.popbox.popbox-profile.top-left .arrow {
   border-top-color: #f2f2f2;
 }
-body div#fd.es.popbox.popbox-profile .profile-details {
+div#fd.es.popbox.popbox-profile .profile-details {
   position: absolute;
   z-index: 2;
   bottom: 73px;
@@ -244,43 +252,43 @@ body div#fd.es.popbox.popbox-profile .profile-details {
   background-repeat: no-repeat;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffffff', endColorstr='#7f000000', GradientType=0);
 }
-body div#fd.es.popbox.popbox-profile .profile-details .profile-title {
+div#fd.es.popbox.popbox-profile .profile-details .profile-title {
   font-weight: bold;
   font-size: 13px;
 }
-body div#fd.es.popbox.popbox-profile .profile-details .profile-title > a {
+div#fd.es.popbox.popbox-profile .profile-details .profile-title > a {
   color: white !important;
 }
-body div#fd.es.popbox.popbox-profile .profile-details .profile-title > a:hover {
+div#fd.es.popbox.popbox-profile .profile-details .profile-title > a:hover {
   text-decoration: underline !important;
   background: none !important;
 }
-body div#fd.es.popbox.popbox-profile .profile-details .profile-title,
-body div#fd.es.popbox.popbox-profile .profile-details .profile-desp {
+div#fd.es.popbox.popbox-profile .profile-details .profile-title,
+div#fd.es.popbox.popbox-profile .profile-details .profile-desp {
   text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-body div#fd.es.popbox.popbox-profile .popbox-cover {
+div#fd.es.popbox.popbox-profile .popbox-cover {
   display: block;
   width: 100%;
   height: 140px;
   background: #333;
   position: absolute;
 }
-body div#fd.es.popbox.popbox-profile .popbox-cover > div {
+div#fd.es.popbox.popbox-profile .popbox-cover > div {
   width: 100%;
   height: 100%;
 }
-body div#fd.es.popbox.popbox-profile .es-online-status {
+div#fd.es.popbox.popbox-profile .es-online-status {
   position: absolute;
   bottom: 117px;
   left: 77px;
   right: auto;
   top: auto;
 }
-body div#fd.es.popbox.popbox-profile .popbox-avatar {
+div#fd.es.popbox.popbox-profile .popbox-avatar {
   position: absolute;
   z-index: 2;
   left: 10px;
@@ -291,35 +299,35 @@ body div#fd.es.popbox.popbox-profile .popbox-avatar {
   height: 64px;
   border: 2px solid #fff;
 }
-body div#fd.es.popbox.popbox-profile .popbox-avatar img {
+div#fd.es.popbox.popbox-profile .popbox-avatar img {
   width: 60px;
   height: 60px;
   background: #fff;
   display: block;
   max-width: none;
 }
-body div#fd.es.popbox.popbox-profile .popbox-info {
+div#fd.es.popbox.popbox-profile .popbox-info {
   position: absolute;
   width: 100%;
   padding-left: 85px;
   bottom: 32px;
 }
-body div#fd.es.popbox.popbox-profile .btn-group {
+div#fd.es.popbox.popbox-profile .btn-group {
   display: inline-block;
   font-size: 0;
   position: relative;
   vertical-align: middle;
   white-space: nowrap;
 }
-body div#fd.es.popbox.popbox-profile .pull-right {
+div#fd.es.popbox.popbox-profile .pull-right {
   float: right;
 }
-body div#fd.es.popbox.popbox-profile .btn-es {
+div#fd.es.popbox.popbox-profile .btn-es {
   display: inline-block;
   outline: 0;
   padding: 4px 12px;
   margin-bottom: 0;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 16px;
   text-align: center;
   vertical-align: middle;
@@ -331,7 +339,7 @@ body div#fd.es.popbox.popbox-profile .btn-es {
   -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
 }
-body div#fd.es.popbox.popbox-profile .btn-es:hover {
+div#fd.es.popbox.popbox-profile .btn-es:hover {
   color: #333333;
   text-decoration: none;
   background-position: 0 -15px;
@@ -339,20 +347,20 @@ body div#fd.es.popbox.popbox-profile .btn-es:hover {
   -webkit-transition: background-position .1s linear;
   transition: background-position .1s linear;
 }
-body div#fd.es.popbox.popbox-profile .btn-es:focus {
+div#fd.es.popbox.popbox-profile .btn-es:focus {
   outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
-body div#fd.es.popbox.popbox-profile .btn-es.active,
-body div#fd.es.popbox.popbox-profile .btn-es:active {
+div#fd.es.popbox.popbox-profile .btn-es.active,
+div#fd.es.popbox.popbox-profile .btn-es:active {
   background-image: none;
   outline: 0;
   -webkit-box-shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.05);
   box-shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.05);
 }
-body div#fd.es.popbox.popbox-profile .btn-es.disabled,
-body div#fd.es.popbox.popbox-profile .btn-es[disabled] {
+div#fd.es.popbox.popbox-profile .btn-es.disabled,
+div#fd.es.popbox.popbox-profile .btn-es[disabled] {
   cursor: default;
   background-image: none;
   opacity: .65;
@@ -360,19 +368,19 @@ body div#fd.es.popbox.popbox-profile .btn-es[disabled] {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
-body div#fd.es.popbox.popbox-profile .btn-group + .btn-group {
+div#fd.es.popbox.popbox-profile .btn-group + .btn-group {
   margin: 0;
   left: -5px;
 }
-body div#fd.es.popbox.popbox-profile .btn-friends {
+div#fd.es.popbox.popbox-profile .btn-friends {
   border-radius: 3px;
 }
-body div#fd.es.popbox.popbox-profile .btn-message {
+div#fd.es.popbox.popbox-profile .btn-message {
   border-radius: 0 3px 3px 0;
   position: relative;
   left: -2px;
 }
-body div#fd.es.popbox.popbox-profile .popbox-footer {
+div#fd.es.popbox.popbox-profile .popbox-footer {
   background: #f2f2f2;
   position: absolute;
   width: 100%;
@@ -380,19 +388,19 @@ body div#fd.es.popbox.popbox-profile .popbox-footer {
   bottom: 0px;
   padding: 7px 10px;
 }
-body div#fd.es.popbox.popbox-profile .popbox-footer a:focus {
+div#fd.es.popbox.popbox-profile .popbox-footer a:focus {
   outline: none;
 }
-body div#fd.es.popbox.popbox-profile .popbox-items {
+div#fd.es.popbox.popbox-profile .popbox-items {
   margin: 0 !important;
 }
-body div#fd.es.popbox.popbox-profile .popbox-items > li {
+div#fd.es.popbox.popbox-profile .popbox-items > li {
   width: 31%;
   display: inline-block !important;
   text-align: center !important;
   margin: 0 -3px 0 0 !important;
 }
-body div#fd.es.popbox.popbox-profile .popbox-item-info {
+div#fd.es.popbox.popbox-profile .popbox-item-info {
   border-left: 1px solid #f2f2f2 !important;
   padding: 2px 2px 4px !important;
   font-size: 11px !important;
@@ -401,13 +409,13 @@ body div#fd.es.popbox.popbox-profile .popbox-item-info {
   height: 36px !important;
   overflow: hidden !important;
 }
-body div#fd.es.popbox.popbox-profile .popbox-item-info > a {
+div#fd.es.popbox.popbox-profile .popbox-item-info > a {
   color: rgba(0,0,0,0.8);
 }
-body div#fd.es.popbox.popbox-profile .popbox-item-info > a:hover .popbox-item-total {
+div#fd.es.popbox.popbox-profile .popbox-item-info > a:hover .popbox-item-total {
   text-decoration: underline !important;
 }
-body div#fd.es.popbox.popbox-profile .popbox-item-info .popbox-item-total {
+div#fd.es.popbox.popbox-profile .popbox-item-info .popbox-item-total {
   line-height: 14px !important;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -415,34 +423,34 @@ body div#fd.es.popbox.popbox-profile .popbox-item-info .popbox-item-total {
   display: block;
   font-weight: bold;
 }
-body div#fd.es.popbox.popbox-profile .popbox-item-info .popbox-item-text {
+div#fd.es.popbox.popbox-profile .popbox-item-info .popbox-item-text {
   line-height: 14px !important;
 }
-body div#fd.es.popbox.popbox-profile .fd-nav {
+div#fd.es.popbox.popbox-profile .fd-nav {
   position: relative;
 }
-body div#fd.es.popbox.popbox-timezone .es-timezone-block {
+div#fd.es.popbox.popbox-timezone .es-timezone-block {
   display: block;
   padding: 10px;
   border-top: 1px solid #d7d7d7;
 }
-body div#fd.es.popbox.popbox-timezone .es-timezone-block:hover {
+div#fd.es.popbox.popbox-timezone .es-timezone-block:hover {
   background: #fafafa;
 }
-body div#fd.es.popbox.popbox-timezone .es-timezone-block:first-child {
+div#fd.es.popbox.popbox-timezone .es-timezone-block:first-child {
   border-top: 0;
 }
-body div#fd.es.popbox.popbox-timezone .es-timezone-block.es-timezone-by a {
-  font-size: 10px;
+div#fd.es.popbox.popbox-timezone .es-timezone-block.es-timezone-by a {
+  font-size: 11px;
   color: #aaa;
 }
 @media (max-width: 680px) {
-  body div#fd.es.popbox.popbox-profile {
+  div#fd.es.popbox.popbox-profile {
     width: 98% !important;
     left: 5px !important;
     right: 5px !important;
   }
-  body div#fd.es.popbox.popbox-profile .arrow {
+  div#fd.es.popbox.popbox-profile .arrow {
     display: none !important;
   }
 }

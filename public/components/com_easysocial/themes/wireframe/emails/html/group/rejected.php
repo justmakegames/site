@@ -35,7 +35,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</p>
 
 		<p>
-			<?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_REJECTED' , $title ); ?>
+			<?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_GROUP_REJECTED' , $title ); ?>
 		</p>
 
 		<?php if( isset( $reason ) && !empty( $reason ) ){ ?>

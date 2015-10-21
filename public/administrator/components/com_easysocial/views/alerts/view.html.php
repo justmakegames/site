@@ -23,21 +23,15 @@ class EasySocialViewAlerts extends EasySocialAdminView
 	 * @access	public
 	 * @return	null
 	 *
-	 * @author	Mark Lee <mark@stackideas.com>
 	 */
 	public function display( $tpl = null )
 	{
 		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_ALERTS' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-tv_widescreen_down' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_ALERTS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_ALERTS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_ALERTS');
 
 		// Default filters
-		$options 		= array();
+		$options = array();
 
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
@@ -84,17 +78,12 @@ class EasySocialViewAlerts extends EasySocialAdminView
 	 */
 	public function discover( $tpl = null )
 	{
-		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_DISCOVER_ALERTS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_DISCOVER_ALERTS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_DISCOVER_ALERTS');
 
-		// Set page icon
-		$this->setIcon( 'ies-upload-2' );
+		JToolbarHelper::custom('discover', 'download', '', JText::_('COM_EASYSOCIAL_DISCOVER_BUTTON'), false);
 
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_DISCOVER_ALERTS' ) );
-
-
-		echo parent::display( 'admin/alerts/discover' );
+		echo parent::display('admin/alerts/discover');
 	}
 
 	/**
@@ -113,16 +102,10 @@ class EasySocialViewAlerts extends EasySocialAdminView
 
 	public function install( $tpl = null )
 	{
-		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_INSTALL_ALERTS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_INSTALL_ALERTS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_INSTALL_ALERTS');
 
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-imac_up' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_INSTALL_ALERTS' ) );
-
-		echo parent::display( 'admin/alerts/install' );
+		echo parent::display('admin/alerts/install');
 	}
 
 	public function upload()

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,19 +9,26 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Hooks for Storage
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- *
- */
-class SocialCronHooksStorage
+class SocialCronHooksStorage extends EasySocial
 {
-	public function execute( &$states )
+	/**
+	 * Executes all remote storage
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function execute(&$states)
 	{
+		// Offload videos to remote location
+		$states[] = $this->syncVideos();
+
+		// Sync cached images from links to remote location
+		$states[] = $this->syncLinkImages();
+
 		// Offload photos to remote location
 		$states[] = $this->syncPhotos();
 
@@ -30,6 +37,88 @@ class SocialCronHooksStorage
 
 		// Process file storages here
 		$states[] = $this->syncFiles();
+	}
+
+	/**
+	 * Retrieves the storage type
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function getStorageType($type)
+	{
+		$type = $this->config->get('storage.' . $type, 'joomla');
+
+		return $type;
+	}
+
+	/**
+	 * Retrieves the storage library
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function getStorageLibrary($type)
+	{
+		return FD::storage($this->getStorageType($type));
+	}
+
+	/**
+	 * Retrieves the limit on the number of files to sync
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function getUploadLimit($type)
+	{
+		$type = $this->getStorageType($type);
+		$limit = (int) $this->config->get('storage.' . $type . '.limit');
+
+		return $limit;
+	}
+
+	/**
+	 * Determines if we should delete the local file
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function deleteable($type)
+	{
+		$delete = $this->config->get('storage.' . $type . '.delete');
+
+		return $delete;
+	}
+
+	/**
+	 * Creates a new log entry when a file is uploaded
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function log($id, $type, $success)
+	{
+		$storageType = $this->getStorageType($type);
+
+		// Add this to the storage logs
+		$log = FD::table('StorageLog');
+		$log->object_id = $id;
+		$log->object_type = $type;
+		$log->target = $storageType;
+		$log->state = $success;
+		$log->created = FD::date()->toSql();
+
+		return $log->store();
 	}
 
 	/**
@@ -42,8 +131,8 @@ class SocialCronHooksStorage
 	 */
 	public function getFailedObjects($objectType, $state = SOCIAL_STATE_UNPUBLISHED)
 	{
-		$db			= FD::db();
-		$sql 		= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 		$sql->select('#__social_storage_log');
 		$sql->column('object_id');
 		$sql->where('object_type', $objectType);
@@ -51,9 +140,75 @@ class SocialCronHooksStorage
 
 		$db->setQuery($sql);
 
-		$ids 		= $db->loadColumn();
+		$ids = $db->loadColumn();
 
 		return $ids;
+	}
+
+	/**
+	 * Synchronizes cached images from local storage to remote storage
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function syncLinkImages()
+	{
+		$storageType = $this->getStorageType('links');
+
+		// If site is configured to storage in joomla, we don't need to do anything
+		if ($storageType == 'joomla') {
+			return JText::_('Current photos storage is set to local.');
+		}
+
+		// Get the storage library
+		$storage = $this->getStorageLibrary('links');
+		$limit = $this->getUploadLimit('links');
+
+		// Get a list of items that should be excluded
+		$exclusion = $this->getFailedObjects('linkimages');
+
+		// Get a list of cached images to be synchronized over.
+		$model = FD::model('Links');
+		$options = array('storage' => SOCIAL_STORAGE_JOOMLA, 'limit' => $limit, 'exclusion' => $exclusion);
+		$images = $model->getCachedImages($options);
+
+		if (!$images) {
+			return JText::_('No cached link images to sync with Amazon S3 right now.');
+		}
+
+		$states = array();
+		$total = 0;
+
+		foreach ($images as $image) {
+
+			$state = $storage->push($image->internal_url, $image->getAbsolutePath(), $image->getRelativePath());
+
+			if ($state) {
+
+				if ($this->deleteable($storageType)) {
+					JFile::delete($image->getAbsolutePath());
+				}
+
+				// Store the new storage type
+				$image->storage = $storageType;
+				$image->store();
+
+				$total += 1;
+			}
+
+			$states[] = $state;
+
+			// Create a log for this item
+			$this->log($image->id, 'linkimage', $state);
+		}
+
+		if ($total > 0) {
+			return JText::sprintf('%1s cached images uploaded to remote storage', $total);
+		}
+
+		return JText::sprintf('No cached images to upload to remote storage');
 	}
 
 	/**
@@ -66,45 +221,48 @@ class SocialCronHooksStorage
 	 */
 	public function syncPhotos()
 	{
-		$config 	= FD::config();
-		$type 		= $config->get( 'storage.photos' , 'joomla' );
+		$storageType = $this->getStorageType('photos');
 
-		if ($type == 'joomla') {
-
+		// If site is configured to storage in joomla, we don't need to do anything
+		if ($storageType == 'joomla') {
 			return JText::_('Current photos storage is set to local.');
 		}
 
-		$storage	= FD::storage( $type );
+		// Load up the storage library
+		$storage = FD::storage($storageType);
 
 		// Get the number of files to process at a time
-		$limit 		= $config->get('storage.' . $type . '.limit');
+		$limit = $this->getUploadLimit('photos');
 
 		// Get a list of photos that failed during the transfer
-		$exclusion 	= $this->getFailedObjects('photos');
+		$exclusion = $this->getFailedObjects('photos');
 
 		// Get a list of files to be synchronized over.
-		$model		= FD::model( 'Photos' );
-		$options 	= array(
-							'pagination'	=> $limit,
-							'storage'		=> SOCIAL_STORAGE_JOOMLA,
-							'ordering'		=> 'random',
-							'exclusion'		=> 	$exclusion
-					  );
+		$model = FD::model('Photos');
+		$options = array(
+						'pagination'	=> $limit,
+						'storage'		=> SOCIAL_STORAGE_JOOMLA,
+						'ordering'		=> 'created',
+						'sort' 			=> 'asc',
+						'exclusion'		=> 	$exclusion
+					);
 
-		$photos 	= $model->getPhotos($options);
-		$total 		= 0;
+		// Get a list of photos to sync to amazon
+		$photos = $model->getPhotos($options);
+		$total = 0;
 
-		if( !$photos ) {
+		if (!$photos) {
 			return JText::_('No photos to upload to Amazon S3 right now.');
 		}
 
 		// Get list of allowed photos
-		$allowed 	= array( 'thumbnail' , 'large' , 'square' , 'featured' , 'medium' , 'original' );
+		$allowed = array('thumbnail', 'large', 'square', 'featured', 'medium', 'original', 'stock');
 
 		foreach ($photos as $photo) {
+
 			// Load the album
-			$album	= FD::table( 'Album' );
-			$album->load( $photo->album_id );
+			$album = FD::table('Album');
+			$album->load($photo->album_id);
 
 			// If the album no longer exists, skip this
 			if (!$album->id) {
@@ -112,57 +270,57 @@ class SocialCronHooksStorage
 			}
 
 			// Get the base path for the album
-			$basePath	= $photo->getStoragePath($album);
-			$states		= array();
+			$basePath = $photo->getStoragePath($album);
+			$states = array();
 
 			// Now we need to get all the available files for this photo
-			$metas 		= $model->getMeta( $photo->id , SOCIAL_PHOTOS_META_PATH );
+			$metas = $model->getMeta($photo->id, SOCIAL_PHOTOS_META_PATH);
 
 			// Go through each meta
 			foreach ($metas as $meta) {
-				// To prevent some faulty data, we need to manually reconstruct the path here.
-				$absolutePath 	= $meta->value;
-				$file 			= basename( $absolutePath );
-				$container 		= FD::cleanPath( $config->get( 'photos.storage.container' ) );
 
-				// Reconstruct the source
-				$source 		= JPATH_ROOT . '/' . $container . '/' . $album->id . '/' . $photo->id . '/' . $file;
+				// To prevent some faulty data, we need to manually reconstruct the path here.
+				$absolutePath = $meta->value;
+				$file = basename($absolutePath);
+				$container = FD::cleanPath($this->config->get('photos.storage.container'));
+
+				// Reconstruct the path to the source file
+				$source = JPATH_ROOT . '/' . $container . '/' . $album->id . '/' . $photo->id . '/' . $file;
 
 				// To prevent faulty data, manually reconstruct the path here.
-				$dest 		= $container . '/' . $album->id . '/' . $photo->id . '/' . $file;
-				$dest 		= ltrim( $dest , '/' );
+				$dest = $container . '/' . $album->id . '/' . $photo->id . '/' . $file;
+				$dest = ltrim( $dest , '/' );
 
 				// We only want to upload certain files
-				if( in_array( $meta->property , $allowed ) )
-				{
+				if (in_array($meta->property, $allowed)) {
 					// Upload the file to the remote storage now
-					$state 			= $storage->push( $photo->title . $photo->getExtension() , $source , $dest );
+					$state = $storage->push($photo->title . $photo->getExtension(), $source, $dest);
 
-					if( $state )
-					{
-						// Delete the path.
-						JFile::delete( $meta->value );
+					// Delete the source file if successfull and configured to do so.
+					if ($state && $this->deleteable($storageType)) {
+						JFile::delete($source);
 					}
 
-					$states[]	= $state;
+					$states[] = $state;
 				}
 			}
 
-			$success 	= !in_array(false, $states);
+			$success = !in_array(false, $states);
 
 			// If there are no errors, we want to update the storage for the photo
 			if ($success) {
-				$photo->storage 	= $type;
+
+				$photo->storage = $storageType;
 				$state = $photo->store();
 
 				// if photo storage successfully updated to amazon, we need to update the cached object in stream_item.
 				// Find and update the object from stream_item.
-				$stream		= FD::table( 'StreamItem' );
-				$exists 	= $stream->load( array( 'context_type' => SOCIAL_TYPE_PHOTO, 'context_id' => $photo->id ) );
+				$stream = FD::table('StreamItem');
+				$options = array('context_type' => SOCIAL_TYPE_PHOTO, 'context_id' => $photo->id);
+				$exists = $stream->load($options);
 
-				if( $exists )
-				{
-					$stream->params		= FD::json()->encode( $photo );
+				if ($exists) {
+					$stream->params = FD::json()->encode($photo);
 					$stream->store();
 				}
 
@@ -170,20 +328,110 @@ class SocialCronHooksStorage
 			}
 
 			// Add this to the storage logs
-			$log 				= FD::table('StorageLog');
-			$log->object_id		= $photo->id;
-			$log->object_type	= 'photos';
-			$log->target 		= $type;
-			$log->state 		= $success;
-			$log->created 		= FD::date()->toSql();
-			$log->store();
+			$this->log($photo->id, 'photos', $success);
 		}
 
 		if ($total > 0) {
-			return JText::sprintf( '%1s photos uploaded to remote storage' , $total );
+			return JText::sprintf('%1s photos uploaded to remote storage', $total);
 		}
 
 		return JText::sprintf('No photos to upload to remote storage');
+	}
+
+	/**
+	 * Synchronizes videos from local storage to remote storage.
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function syncVideos()
+	{
+		$storageType = $this->getStorageType('videos');
+
+		// If site is configured to storage in joomla, we don't need to do anything
+		if ($storageType == 'joomla') {
+			return JText::_('Current videos storage is set to local.');
+		}
+
+		// Load up the storage library
+		$storage = FD::storage($storageType);
+
+		// Get the number of files to process at a time
+		$limit = $this->getUploadLimit('videos');
+
+		// Get a list of photos that failed during the transfer
+		$exclusion = $this->getFailedObjects('videos');
+
+		// Get a list of files to be synchronized over.
+		$model = ES::model('Videos');
+		$options = array(
+						'pagination' > $limit,
+						'storage' => SOCIAL_STORAGE_JOOMLA,
+						'ordering' => 'random',
+						'privacy' => false,
+						'exclusion' => 	$exclusion
+					);
+
+		// Get a list of photos to sync to amazon
+		$result = $model->getVideos($options);
+		$total = 0;
+
+		if (!$result) {
+			return JText::_('No videos to sync to Amazon S3 right now.');
+		}
+
+		foreach ($result as $video) {
+			
+			// Upload the thumbnail of the video
+			$source = JPATH_ROOT . '/' . $video->getRelativeThumbnailPath();
+			$destination = '/' . $video->getRelativeThumbnailPath();
+			$thumbnailState = $storage->push($video->getThumbnailFileName(), $source, $destination);
+
+			// Upload the video file
+			if ($video->isUpload()) {
+				$source = JPATH_ROOT . '/' . $video->getRelativeFilePath();
+				$destination = '/' . $video->getRelativeFilePath();
+				$videoTable = $video->getItem();
+				$videoFileState = $storage->push($videoTable->file_title, $source, $destination);
+			} else {
+				$videoFileState = true;
+			}
+
+			// Default to fail
+			$success = false;
+
+			if ($videoFileState && $thumbnailState) {
+				$success = true;
+
+				// Set the storage for the video to the respective storage type
+				$table = $video->getItem();
+				$table->storage = $storageType;
+				$table->store();
+			}
+
+			// If file is pushed to the server successfully, we need to delete the entire video container.
+			if ($this->deleteable($storageType) && $success) {
+				$container = JPATH_ROOT . '/' . $video->getContainer();
+
+				// Try to delete the container now
+				JFolder::delete($container);
+			}
+
+			if ($success) {
+				$total += 1;
+			}
+
+			// Add this to the storage logs
+			$this->log($video->id, 'videos', $success);
+		}
+
+		if ($total > 0) {
+			return JText::sprintf('%1s videos uploaded to remote storage', $total);
+		}
+
+		return JText::_('No videos to upload to remote storage');
 	}
 
 	/**
@@ -196,64 +444,61 @@ class SocialCronHooksStorage
 	 */
 	public function syncFiles()
 	{
-		$config 	= FD::config();
-		$type		= $config->get( 'storage.files' , 'joomla' );
+		$storageType = $this->getStorageType('files');
 
-		if ($type == 'joomla') {
-
+		if ($storageType == 'joomla') {
 			return JText::_('No files to upload to Amazon S3 right now.');
 		}
 
-		$storage	= FD::storage( $type );
+		// Get the storage library
+		$storage = $this->getStorageLibrary('files');
 
 		// Get the number of files to process at a time
-		$limit 		= $config->get( 'storage.' . $type . '.limit' );
+		$limit = $this->getUploadLimit('files');
 
 		// Get a list of files to be synchronized over.
-		$model		= FD::model( 'Files' );
+		$model = FD::model('Files');
 
 		// Get a list of excluded avatars that previously failed.
-		$exclusion 	= $this->getFailedObjects('files');
-		$options 	= array('storage' => SOCIAL_STORAGE_JOOMLA, 'limit' => 10, 'exclusion' => $exclusion, 'ordering' => 'random');
+		$exclusion = $this->getFailedObjects('files');
+		$options = array('storage' => SOCIAL_STORAGE_JOOMLA, 'limit' => 10, 'exclusion' => $exclusion, 'ordering' => 'created', 'sort' => 'asc');
 
-		$files 		= $model->getItems($options);
-		$total 		= 0;
+		$files = $model->getItems($options);
+		$total = 0;
 
-		foreach ($files as $file)
-		{
-			$source		= $file->getStoragePath() . '/' . $file->hash;
-			$dest 		= $file->getStoragePath( true ) . '/' . $file->hash;
+		foreach ($files as $file) {
 
-			$success 	= $storage->push( $file->name , $source , $dest );
+			// Get the source file
+			$source = $file->getStoragePath() . '/' . $file->hash;
+
+			// Get the destination file
+			$dest = $file->getStoragePath(true) . '/' . $file->hash;
+
+			$success = $storage->push($file->name, $source, $dest);
 
 			if ($success) {
 
 				// Once the file is uploaded successfully delete the file physically.
-				JFile::delete( $source );
+				if ($this->deleteable($storageType)) {
+					JFile::delete($source);
+				}
 
 				// Do something here.
-				$file->storage 	= $type;
+				$file->storage = $storageType;
 				$file->store();
 
 				$total	+= 1;
 			}
 
-			// Add this to the storage logs
-			$log 				= FD::table('StorageLog');
-			$log->object_id		= $file->id;
-			$log->object_type	= 'files';
-			$log->target 		= $type;
-			$log->state 		= $success;
-			$log->created 		= FD::date()->toSql();
-			$log->store();
+			// Create a new storage log for this transfer
+			$this->log($file->id, 'files', $success);
 		}
 
-		if( $total > 0 )
-		{
-			return JText::sprintf( '%1s files uploaded to remote storage' , $total );
+		if ($total > 0) {
+			return JText::sprintf('%1s files uploaded to remote storage', $total);
 		}
 
-		return JText::_( 'Nothing to process for files' );
+		return JText::_('Nothing to process for files');
 	}
 
 	/**
@@ -266,27 +511,26 @@ class SocialCronHooksStorage
 	 */
 	public function syncAvatars()
 	{
-		$config 	= FD::config();
-		$type 		= $config->get( 'storage.photos' , 'joomla' );
+		$storageType = $this->getStorageType('avatars');
 
-		if ($type == 'joomla') {
-
+		if ($storageType == 'joomla') {
 			return JText::_('Current avatar storage is set to local.');
 		}
 
-		$storage	= FD::storage( $type );
+		// Get the storage library
+		$storage = $this->getStorageLibrary('avatars');
 
 		// Get the number of files to process at a time
-		$limit 		= $config->get( 'storage.' . $type . '.limit' , 20 );
+		$limit = $this->getUploadLimit('avatars');
 
 		// Get a list of excluded avatars that previously failed.
 		$exclusion 	= $this->getFailedObjects('avatars');
 
 		// Get a list of avatars to be synchronized over.
-		$model 		= FD::model( 'Avatars' );
-		$options	= array('limit' => $limit , 'storage' => SOCIAL_STORAGE_JOOMLA , 'uploaded' => true, 'ordering' => 'random', 'exclusion' => $exclusion);
-		$avatars 	= $model->getAvatars( $options );
-		$total 		= 0;
+		$model = FD::model('Avatars');
+		$options = array('limit' => $limit , 'storage' => SOCIAL_STORAGE_JOOMLA , 'uploaded' => true, 'exclusion' => $exclusion);
+		$avatars = $model->getAvatars($options);
+		$total = 0;
 
 		if (!$avatars) {
 			return JText::_('No avatars to upload to Amazon S3 right now.');
@@ -294,54 +538,48 @@ class SocialCronHooksStorage
 
 		foreach($avatars as $avatar) {
 
-			$small 		= $avatar->getPath( SOCIAL_AVATAR_SMALL , false );
-			$medium		= $avatar->getPath( SOCIAL_AVATAR_MEDIUM , false );
-			$large 		= $avatar->getPath( SOCIAL_AVATAR_LARGE , false );
-			$square 	= $avatar->getPath( SOCIAL_AVATAR_SQUARE , false );
+			$small = $avatar->getPath( SOCIAL_AVATAR_SMALL , false );
+			$medium = $avatar->getPath( SOCIAL_AVATAR_MEDIUM , false );
+			$large = $avatar->getPath( SOCIAL_AVATAR_LARGE , false );
+			$square = $avatar->getPath( SOCIAL_AVATAR_SQUARE , false );
 
 			$smallPath 	= JPATH_ROOT . '/' . $small;
 			$mediumPath	= JPATH_ROOT . '/' . $medium;
 			$largePath	= JPATH_ROOT . '/' . $large;
 			$squarePath	= JPATH_ROOT . '/' . $square;
 
-			$success 	= false;
+			$success = false;
 
 			if (
-				$storage->push( $avatar->id , $smallPath , $small ) &&
-				$storage->push( $avatar->id , $mediumPath , $medium ) &&
-				$storage->push( $avatar->id , $largePath , $large ) &&
-				$storage->push( $avatar->id , $squarePath , $square )
+				$storage->push($avatar->id, $smallPath, $small) &&
+				$storage->push($avatar->id, $mediumPath, $medium) &&
+				$storage->push($avatar->id, $largePath, $large) &&
+				$storage->push($avatar->id, $squarePath, $square)
 				) {
 
-				$avatar->storage 	= $type;
+				$avatar->storage = $storageType;
 
 				// Delete all the files now
-				JFile::delete( $smallPath );
-				JFile::delete( $mediumPath );
-				JFile::delete( $largePath );
-				JFile::delete( $squarePath );
+				if ($this->deleteable($storageType)) {
+					JFile::delete($smallPath);
+					JFile::delete($mediumPath);
+					JFile::delete($largePath);
+					JFile::delete($squarePath);
+				}
 
 				$avatar->store();
 
-				$success 	= true;
+				$success = true;
 			}
 
 			// Add this to the storage logs
-			$log 				= FD::table('StorageLog');
-			$log->object_id		= $avatar->id;
-			$log->object_type	= 'avatars';
-			$log->target 		= $type;
-			$log->state 		= $success;
-			$log->created 		= FD::date()->toSql();
-			$log->store();
+			$this->log($avatar->id, 'avatars', $success);
 
-			$total	+= 1;
+			$total += 1;
 		}
 
-
-		if( $total > 0 )
-		{
-			return JText::sprintf( '%1s avatars uploaded to remote storage' , $total );
+		if ($total > 0) {
+			return JText::sprintf('%1s avatars uploaded to remote storage', $total);
 		}
 	}
 }

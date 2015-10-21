@@ -26,7 +26,7 @@ class SocialEventAppLinks extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#5580BE';
-        $obj->icon = 'ies-link';
+        $obj->icon = 'fa-link';
         $obj->label = 'APP_EVENT_LINKS_STREAM_TOOLTIP';
 
         return $obj;
@@ -102,8 +102,8 @@ class SocialEventAppLinks extends SocialAppItem
         $uid = $stream->uid;
 
         $stream->color = '#5580BE';
-        $stream->fonticon = 'ies-link';
-        $stream->label = JText::_('APP_EVENT_LINKS_STREAM_TOOLTIP');
+        $stream->fonticon = 'fa fa-link';
+        $stream->label = FD::_('APP_EVENT_LINKS_STREAM_TOOLTIP', true);
 
         // Apply likes on the stream
         $likes = FD::likes();
@@ -152,6 +152,10 @@ class SocialEventAppLinks extends SocialAppItem
         // Get app params
         $params = $this->getParams();
 
+        // Need to use this function when use image cache link feature
+        $image = FD::links()->getImageLink($assets, $params);
+
+        $this->set('image', $image);
         $this->set('event', $event);
         $this->set('params', $params);
         $this->set('oembed', $oembed);
@@ -219,25 +223,35 @@ class SocialEventAppLinks extends SocialAppItem
     /**
      * Prepares what should appear in the story form.
      *
-     * @since    1.0
-     * @access    public
-     * @param    string
+     * @since   1.0
+     * @access  public
+     * @param   string
      * @return
      */
     public function onPrepareStoryPanel($story)
     {
+        $params = $this->getParams();
+
+        // Determine if we should attach ourselves here.
+        if (!$params->get('story_links', true)) {
+            return;
+        }
+
         // Create plugin object
         $plugin = $story->createPlugin('links', 'panel');
 
         // We need to attach the button to the story panel
-        $theme = FD::themes();
+        $theme = ES::themes();
 
-        $plugin->button->html = $theme->output('themes:/apps/event/links/story/panel.button');
-        $plugin->content->html = $theme->output('themes:/apps/event/links/story/panel.content');
+        $button = $theme->output('site/links/story/button');
+        $form = $theme->output('site/links/story/form');
 
-        // Attachment script
-        $script = FD::get('Script');
-        $plugin->script = $script->output('apps:/event/links/story');
+        // Attach the scripts
+        $script = ES::script();
+        $scriptFile = $script->output('site/links/story/plugin');
+
+        $plugin->setHtml($button, $form);
+        $plugin->setScript($scriptFile);
 
         return $plugin;
     }

@@ -17,6 +17,11 @@ EasySocial
 			reconfirmPassword: <?php echo $params->get( 'reconfirm_password' ) ? 'true' : 'false'; ?>,
 			min: <?php echo $params->get( 'min', 4 ); ?>,
 			max: <?php echo $params->get( 'max', 0 ); ?>,
+
+			minInteger: <?php echo $params->get( 'min_integer', 0 ); ?>,
+			minSymbol: <?php echo $params->get( 'min_symbols', 0 ); ?>,
+			minUpperCase: <?php echo $params->get( 'min_uppercase', 0 ); ?>,
+
 			requireOriginal: <?php echo $params->get( 'require_original_password' ) ? 'true' : 'false'; ?>,
 			event: '<?php echo $event; ?>'
 		});

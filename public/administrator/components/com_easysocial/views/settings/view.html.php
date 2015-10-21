@@ -24,23 +24,21 @@ class EasySocialViewSettings extends EasySocialAdminView
 	 * @param	null
 	 * @return	null
 	 */
-	public function display( $tpl = null )
+	public function display($tpl = null)
 	{
 		// Disallow access
-		if( !$this->authorise( 'easysocial.access.setting' ) )
-		{
-			JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-			JFactory::getApplication()->close();
+		if (!$this->authorise('easysocial.access.settings')) {
+			return $this->app->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR'), 'error');
 		}
 
 		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_TITLE_HEADING_SETTINGS' ) );
+		$this->setHeading(JText::_('COM_EASYSOCIAL_TITLE_HEADING_SETTINGS'));
 
 		// Set page icon.
-		$this->setIcon( 'ies-cog-2' );
+		$this->setIcon('fa-cog');
 
 		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_ACCESS' ) );
+		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_ACCESS'));
 
 
 		$this->redirect( FRoute::_( 'index.php?option=com_easysocial&view=settings&layout=form&page=general' ) );
@@ -63,46 +61,36 @@ class EasySocialViewSettings extends EasySocialAdminView
 	public function form()
 	{
 		// Get the current page.
-		$page 	= JRequest::getVar( 'page' , '' );
+		$page = $this->input->get('page', '', 'word');
 
-		// Get info object.
-		$info 	= FD::info();
-
-		if( empty( $page ) )
-		{
-			// @TODO: Log errors here.
-			$info->set( JText::_( 'No page provided' ) , SOCIAL_MSG_ERROR );
-			$this->redirect( 'index.php?option=com_easysocial' );
+		// Ensure that the page is valid
+		if (!$page) {
+			return $this->redirect('index.php?option=com_easysocial');
 		}
 
 		// Add Joomla toolbar buttons
 		JToolbarHelper::apply();
-		JToolbarHelper::custom( 'export' , 'export' , '' , JText::_( 'COM_EASYSOCIAL_SETTINGS_EXPORT_SETTINGS' ) , false );
-		JToolbarHelper::custom( 'import' , 'import' , '' , JText::_( 'COM_EASYSOCIAL_SETTINGS_IMPORT_SETTINGS' ) , false );
-		JToolbarHelper::custom( 'reset' , 'default' , '' , JText::_( 'COM_EASYSOCIAL_RESET_TO_FACTORY' ) , false );
+		JToolbarHelper::custom('export', 'export' , '' , JText::_( 'COM_EASYSOCIAL_SETTINGS_EXPORT_SETTINGS' ) , false );
+		JToolbarHelper::custom('import', 'import' , '' , JText::_( 'COM_EASYSOCIAL_SETTINGS_IMPORT_SETTINGS' ) , false );
+		JToolbarHelper::custom('reset', 'default' , '' , JText::_( 'COM_EASYSOCIAL_RESET_TO_FACTORY' ) , false );
 
-		// We need to include the theme file's header info.
-		$theme 	= FD::get( 'Themes' );
-		$paths	= $theme->getTemplate( 'admin/settings/headers/' . $page );
+		// Set the heading
+		$languageString = strtoupper($page);
 
-		if( JFile::exists( $paths->file ) )
-		{
-			include( $paths->file );
-		}
+		$this->setHeading(JText::_('COM_EASYSOCIAL_' . $languageString . '_SETTINGS_HEADER'));
+		$this->setDescription(JText::_('COM_EASYSOCIAL_' . $languageString . '_SETTINGS_HEADER_DESC'));
 
 		// Ensure that page is in proper string format.
-		$page 	= strtolower( $page );
+		$page = strtolower($page);
 
 		// Set the page to the class for other method to access
 		$this->section = $page;
 
 		// Set the page variable.
-		$this->set( 'page'		, $page );
+		$this->set('page', $page);
+		$this->set('settings', $this);
 
-		// Set settings view variable
-		$this->set( 'settings'	, $this );
-
-		echo parent::display( 'admin/settings/form.container' );
+		echo parent::display('admin/settings/form.container');
 	}
 
 	/**
@@ -263,8 +251,8 @@ class EasySocialViewSettings extends EasySocialAdminView
 
 		$theme = $this->getRenderTheme();
 
-		$theme->set( 'column', $args );
-		return $theme->output( 'admin/settings/form.column' );
+		$theme->set('column', $args);
+		return $theme->output('admin/settings/form.column');
 	}
 
 	public function renderSection()
@@ -273,12 +261,15 @@ class EasySocialViewSettings extends EasySocialAdminView
 		$nums = func_num_args();
 
 		$theme = $this->getRenderTheme();
-
 		$section = $args;
 
-		$theme->set( 'section', $section );
+		// We need to define the header
+		$header = array_shift($section);
 
-		return $theme->output( 'admin/settings/form.section' );
+		$theme->set('header', $header);
+		$theme->set('section', $section);
+
+		return $theme->output('admin/settings/form.section');
 	}
 
 	public function renderSettingText( $text, $suffix = '' , $translate = true )
@@ -298,27 +289,46 @@ class EasySocialViewSettings extends EasySocialAdminView
 		return JText::_( $text );
 	}
 
-	public function renderHeader( $text = '' )
+	/**
+	 * Renders a panel heading
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function renderHeader($text = '', $description = '')
 	{
-		if( empty( $text ) )
-		{
-			return '';
-		}
-
 		// If it is already parsed, then return as it is
-		if( JString::substr( $text, 0, 4 ) === '<h3>' )
-		{
+		if (JString::substr($text, 0, 4) === '<h3>') {
+			dump('this should not be allowed any longer');
 			return $text;
 		}
 
-		return '<h3>' . $this->renderSettingText( $text ) . '</h3>';
+		$output = '<div class="panel-head">';
+		$output .= '<b>' . $this->renderSettingText($text) . '</b>';
+
+		if ($description) {
+			$output .= '<p>' . $this->renderSettingText($description) . '</p>';
+		}
+
+		$output .= '</div>';
+
+		return $output;
 	}
 
-	public function renderSetting( $text, $name, $type = 'boolean', $options = array() )
+	/**
+	 * Renders a settings
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function renderSetting($text, $name, $type = 'boolean', $options = array())
 	{
-		$theme		= $this->getRenderTheme();
-
-		$label		= $this->renderSettingText( $text );
+		$theme = $this->getRenderTheme();
+		$label = $this->renderSettingText($text);
 
 		$help 			= '';
 		$unit 			= '';
@@ -330,17 +340,14 @@ class EasySocialViewSettings extends EasySocialAdminView
 		if( is_array( $options ) )
 		{
 			// Check for row attributes
-			if( isset( $options[ 'rowAttributes' ] ) )
-			{
+			if (isset($options['rowAttributes'])) {
 				// Ensure that it's an array.
-				$options[ 'rowAttributes' ]	= FD::makeArray( $options[ 'rowAttributes' ] );
-
-				$rowAttributes 				= implode( ' ' , $options[ 'rowAttributes' ] );
+				$options['rowAttributes'] = ES::makeArray($options['rowAttributes']);
+				$rowAttributes = implode(' ', $options['rowAttributes']);
 			}
 
-			if( isset( $options[ 'custom' ] ) )
-			{
-				$custom 	= $options[ 'custom' ];
+			if (isset($options['custom'])) {
+				$custom = $options['custom'];
 			}
 
 			// Check for attributes
@@ -368,7 +375,7 @@ class EasySocialViewSettings extends EasySocialAdminView
 
 				$options['attributes'][] = $class;
 
-				unset( $options['class'] );
+				unset($options['class']);
 			}
 
 			// Check for help in options
@@ -454,18 +461,25 @@ class EasySocialViewSettings extends EasySocialAdminView
 		else
 		{
 			$renderType	= 'render' . ucfirst( $type );
-			$field	= $this->$renderType( $name, $options );
+			$field	= $this->$renderType($name, $options);
 		}
 
-		$theme->set( 'custom'	, $custom );
-		$theme->set( 'rowAttributes'	, $rowAttributes );
-		$theme->set( 'label'	, $label );
-		$theme->set( 'help'		, $help );
-		$theme->set( 'unit'		, $unit );
-		$theme->set( 'info'		, $info );
-		$theme->set( 'field'	, $field );
+		$theme->set('custom', $custom);
+		$theme->set('rowAttributes', $rowAttributes);
+		$theme->set('label', $label);
+		$theme->set('help', $help);
+		$theme->set('unit', $unit);
+		$theme->set('info', $info);
+		$theme->set('field', $field);
 
-		return $theme->output( 'admin/settings/form.setting' );
+		return $theme->output('admin/settings/form.setting');
+	}
+
+	public function renderText($name, $options)
+	{
+		$text = $this->renderSettingText($name);
+		
+		return $options['text'];
 	}
 
 	public function renderBoolean( $name, $options = array() )
@@ -523,32 +537,37 @@ class EasySocialViewSettings extends EasySocialAdminView
 		return $theme->html( 'grid.selectlist', $name, $selected, $values, $name, $options['attributes'] );
 	}
 
-	public function renderInput( $name, $options = array() )
+	/**
+	 * Renders a text input
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function renderInput($name, $options = array())
 	{
-		$config 	= FD::config();
-		$default	= isset( $options[ 'default' ] ) ? $options[ 'default' ] : '';
-		$value 		= $config->get( $name , $default );
-		$theme		= $this->getSettingTheme();
-
+		$default = isset($options['default']) ? $options['default'] : '';
 		$attributes = isset( $options['attributes'] ) ? $options['attributes'] : '';
 
+		$value = $this->config->get($name, $default);
+		$theme = $this->getSettingTheme();
+
 		// Set the placeholder in the attributes
-		if( isset( $options['placeholder'] ) )
-		{
-			if( is_array( $attributes ) )
-			{
+		if (isset($options['placeholder'])) {
+
+			if (is_array($attributes)) {
 				$attributes[] = 'placeholder="' . $options['placeholder'] . '"';
 			}
 
-			if( is_string( $attributes ) )
-			{
+			if (is_string($attributes)) {
 				$attributes .= ' placeholder="' . $options['placeholder'] . '"';
 			}
 
-			unset( $options['placeholder'] );
+			unset($options['placeholder']);
 		}
 
-		return $theme->html('grid.inputbox', $name, $value , $name, $attributes );
+		return $theme->html('grid.inputbox', $name, $value , $name, $attributes);
 	}
 
 	public function renderTextarea( $name, $options = array() )

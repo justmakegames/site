@@ -11,4 +11,4 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<i class="ies-checkbox-checked" data-story-attachment-icon data-es-provide="tooltip" data-original-title="<?php echo JText::_('APP_EVENT_TASKS_STORY_TOOLTIP', true); ?>" data-placement="top"></i>
+<i class="fa fa-checkbox-checked" data-story-attachment-icon data-es-provide="tooltip" data-original-title="<?php echo FD::_('APP_EVENT_TASKS_STORY_TOOLTIP', true); ?>" data-placement="top"></i>

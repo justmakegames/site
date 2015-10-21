@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyBlog
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,297 +9,362 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-ini_set("display_errors", 1);
-
-/**
- * This file and method will automatically get called by Joomla
- * during the installation process
- **/
-
-if(!defined('DS')) {
-	define('DS',DIRECTORY_SEPARATOR);
-}
+jimport('joomla.filesystem.file');
 
 class com_EasyBlogInstallerScript
 {
-	var $version;
-	var $message;
-	var $status;
-	var	$sourcePath;
-
-	function execute()
+	/**
+	 * Triggered after the installation is completed
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function postflight()
 	{
-		$message	= $this->message;
-		$status		= $this->status;
-		$sourcePath	= $this->sourcePath;
+		ob_start();
+		?>
+<style type="text/css">
+#j-main-container > .adminform > tbody > tr:first-child {
+	display: none !important;
+}
+</style>
 
-		//create default easy blog config
-		if( !configExist() )
-		{
-			if(!createConfig())
-			{
-				$message[] = 'Warning : The system encounter an error when it tries to create default config. Please kindly configure your Easy Blog manually.';
-			}
+<table border="0" cellpadding="0" cellspacing="0" style="
+	background: #fff;
+	background: #25384b;
+	font: 12px/1.5 Arial, sans-serif;
+	color: rgba(255,255,255,.5);
+	width: 100%;
+	max-width: 100%;
+	border-radius: 4px;
+	overflow: hidden;
+	box-shadow: 0 1px 1px rgba(0,0,0,.08);
+	text-align: left;
+	margin: 0 auto 20px;
+	">
+	<tbody>
+		<tr>
+			<td style="padding: 40px; font-size: 12px;">
+				<div style="margin-bottom: 20px;">
+					<div style="display: table-cell; vertical-align: middle; padding-right: 15px">
+						<img src="<?php echo JURI::root();?>/administrator/components/com_easyblog/setup/assets/images/logo.png" height="48" style="height:48px !important;">
+					</div>
+					<div style="display: table-cell; vertical-align: middle;">
+						<b style="font-size: 26px; color: #fff; font-weight: normal; line-height: 1; margin: 5px 0;">EasyBlog</b>
+					</div>
+				</div>
+
+				<p style="font-size: 14px; color: rgba(255,255,255,.8);">
+					Thank you for your recent purchase of EasyBlog, the best blogging component for Joomla! This is a confirmation message that the necessary setup files are already loaded on the site.</p>
+				<p style="font-size: 14px; color: rgba(255,255,255,.8);">You will need to proceed with the installation process by clicking on the button below.</p>
+
+				<br />
+
+				<a href="<?php echo JURI::root();?>administrator/index.php?option=com_easyblog&amp;install=true" style="
+						background-color: #6c5;
+						border-radius: 4px;
+						color: #fff;
+						display: inline-block;
+						font-weight: bold;
+						font-size: 16px;
+						padding: 10px 15px;
+						text-decoration: none !important;
+				">
+					Proceed With Installation &rarr;
+				</a>
+			</td>
+		</tr>
+	</tbody>
+</table>
+		<?php
+		$contents 	= ob_get_contents();
+		ob_end_clean();
+
+		echo $contents;
+	}
+
+	/**
+	 * Triggered before the installation is complete
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function preflight()
+	{
+		// During the preflight, we need to create a new installer file in the temporary folder
+		$file = JPATH_ROOT . '/tmp/easyblog.installation';
+
+		// Determines if the installation is a new installation or old installation.
+		$obj = new stdClass();
+		$obj->new = false;
+		$obj->step = 1;
+		$obj->status = 'installing';
+
+		$contents = json_encode($obj);
+
+		if (!JFile::exists($file)) {
+			JFile::write($file, $contents);
 		}
 
-		//update Db columns first before proceed.
-		updateEasyBlogDBColumns();
+		// remove old constant.php if exits.
+		$this->removeConstantFile();
 
-		//check if need to create default category
-		if( !blogCategoryExist() )
-		{
-			if(!createBlogCategory())
-			{
-				$message[] = 'Warning : The system encounter an error when it tries to create default blog categories. Please kindly create the categories manually.';
-			}
+		if ($this->isUpgradeFrom3x()) {
+
+			// @TODO: Disable modules
+			$this->unPublishdModules(true);
+
+			// @TODO: Disable plugins
+			$this->unPublishPlugins();
+
+			// remove older helper files
+			$this->removeOldHelpers();
 		}
 
-		//check if need to create sample post
-		if( !postExist() )
-		{
-			if(!createSamplePost())
-			{
-				$message[] = 'Warning : The system encounter an error when it tries to create some sample post.';
-			}
-		}
+		// now let check the eb config
+		$this->checkEBVersionConfig();
+	}
 
-		//check if twitter table exist.
-		if( twitterTableExist() )
-		{
-			//migrate twitter data if the table exist
-			if(!twitterTableMigrate())
-			{
-				$message[] = 'Warning : The system encounter an error when it tries to migrate your social share data to a new table. Please kindly migrate the data manually.';
+	/**
+	 * Responsible to remove old constant.php file to avoid redefine of same constant error
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param
+	 * @return
+	 */
+	public function removeConstantFile()
+	{
+		$file = JPATH_ROOT. '/components/com_easyblog/constants.php';
+		if (JFile::exists($file)) {
+			JFile::delete($file);
+		}
+	}
+
+	/**
+	 * Responsible to remove old helper files
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param
+	 * @return
+	 */
+	public function removeOldHelpers()
+	{
+		// helpers
+		$path = JPATH_ROOT . '/components/com_easyblog/helpers';
+		if (JFolder::exists($path)) {
+			JFolder::delete($path);
+		}
+	}
+
+
+	/**
+	 * Responsible to check eb configs db version
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param
+	 * @return
+	 */
+	public function checkEBVersionConfig()
+	{
+		// if there is the config table but no dbversion, we know this upgrade is coming from pior 5.0. lets add on dbversion into config table.
+		if ($this->isUpgradeFrom3x()) {
+
+			// get current installed eb version.
+			$xmlfile = JPATH_ROOT. '/administrator/components/com_easyblog/easyblog.xml';
+
+			// set this to version prior 3.8.0 so that it will execute the db script from 3.9.0 as well incase
+			// this upgrade is from very old version.
+			$version = '3.8.0';
+
+			if (JFile::exists($xmlfile)) {
+				$contents = JFile::read($xmlfile);
+				$parser = simplexml_load_string($contents);
+				$version = $parser->xpath('version');
+				$version = (string) $version[0];
 			}
-			else
-			{
-				if(!twitterTableRemove())
-				{
-					$message[] = 'Warning : The system encounter an error when it tries to remove the unused twitter table. Please kindly remove the table manually.';
+
+			$db = JFactory::getDBO();
+
+			// ok, now we got the version. lets add this version into dbversion.
+			$query = 'INSERT INTO ' . $db->quoteName('#__easyblog_configs') . ' (`name`, `params`) VALUES';
+			$query .= ' (' . $db->Quote('dbversion') . ',' . $db->Quote($version) . '),';
+			$query .= ' (' . $db->Quote('scriptversion') . ',' . $db->Quote($version) . ')';
+
+			$db->setQuery($query);
+			$db->query();
+		}
+	}
+
+	private function isUpgradeFrom3x()
+	{
+		static $isUpgrade = null;
+
+		if (is_null($isUpgrade)) {
+
+			$isUpgrade = false;
+
+			$db = JFactory::getDBO();
+
+			$jConfig = JFactory::getConfig();
+			$prefix = $jConfig->get('dbprefix');
+
+			$query = "SHOW TABLES LIKE '%" . $prefix . "easyblog_configs%'";
+			$db->setQuery($query);
+
+			$result = $db->loadResult();
+
+			if ($result) {
+				// this is an upgrade. lets check if the upgrade from 3.x or not.
+				$query = 'SELECT ' . $db->quoteName('params') . ' FROM ' . $db->quoteName('#__easyblog_configs') . ' WHERE ' . $db->quoteName('name') . '=' . $db->Quote('dbversion');
+				$db->setQuery($query);
+
+				$exists = $db->loadResult();
+				if (!$exists) {
+					$isUpgrade = true;
 				}
 			}
 		}
 
-		//truncate the table before recreating the default acl rules.
-		if(!truncateACLTable())
-		{
-			$message[] = 'Fatal Error : The system encounter an error when it tries to truncate the acl rules table. Please kindly check your database permission and try again.';
-			$status = false;
-		}
+		return $isUpgrade;
+	}
 
-		//update acl rules
-		if(!updateACLRules())
-		{
-			$message[] = 'Fatal Error : The system encounter an error when it tries to create the ACL rules. Please kindly check your database permission and try again.';
-			$status = false;
-		}
-		else
-		{
-			//update user group acl rules
-			if(!updateGroupACLRules())
-			{
-				$message[] = 'Fatal Error : The system encounter an error when it tries to create the user groups ACL rules. Please kindly check your database permission and try again.';
-				$status = false;
+	/**
+	 * Responsible to perform the uninstallation
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function uninstall()
+	{
+		// @TODO: Disable modules
+		$this->unPublishdModules();
+
+		// @TODO: Disable plugins
+		$this->unPublishPlugins();
+	}
+
+	/**
+	 * Responsible to perform component updates
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function update()
+	{
+
+	}
+
+
+
+	public function unPublishPlugins()
+	{
+		$db = JFactory::getDBO();
+
+		// $pluginNames = array(
+		// 				'pagebreak' => 'easyblog',
+		// 				'autoarticle' => 'easyblog',
+		// 				'easyblog' => 'community',
+		// 				'easyblogtoolbar' => 'community',
+		// 				'easyblog' => 'finder',
+		// 				'easyblog' => 'phocapdf',
+		// 				'easyblogcomment' => 'search',
+		// 				'easyblog' => 'search',
+		// 				'easyblogredirect' => 'system',
+		// 				'blogurl' => 'system',
+		// 				'eventeasyblog' => 'system',
+		// 				'groupeasyblog' => 'system',
+		// 				'easyblogusers' => 'user'
+		// 			  );
+
+		$pluginNames = array(
+				'easyblog' => array('pagebreak', 'autoarticle'),
+				'community' => array('easyblog', 'easyblogtoolbar'),
+				'finder' => 'easyblog',
+				'phocapdf' => 'easyblog',
+				'search' => array('easyblogcomment', 'easyblog'),
+				'system' => array('easyblogredirect', 'blogurl', 'eventeasyblog', 'groupeasyblog'),
+				'user' => 'easyblogusers'
+			);
+
+		foreach($pluginNames as $folder => $elements) {
+
+
+			$tempElements = '';
+
+			if (is_array($elements)) {
+				foreach($elements as $element){
+					$tempElements .= ($tempElements) ? ',' . $db->Quote($element) : $db->Quote($element);
+				}
+			} else {
+				$tempElements = $db->Quote($elements);
 			}
-		}
 
-		//install default plugin.
-		if(! installDefaultPlugin($sourcePath))
-		{
-			$message[] = 'Warning : The system encounter an error when it tries to install the user plugin. Please kindly install the plugin manually.';
-		}
+		    // jos_modules
+		    $query = array();
+		    $query[] = 'UPDATE ' . $db->quoteName('#__extensions') . ' SET ' . $db->quoteName('enabled') . '=' . $db->Quote('0');
+		    $query[] = 'WHERE ' . $db->quoteName('folder') . '=' . $db->Quote($folder);
+		    $query[] = 'AND ' . $db->quoteName('element') . ' IN (' . $tempElements . ')';
 
+		    $query = implode(' ', $query);
 
-		if( ! copyMediaFiles( $sourcePath ) )
-		{
-			$message[] = 'Warning: The system could not copy files to Media folder. Please kindly check the media folder permission.';
-			$status		= false;
-		}
-
-		// migrating stream records from old JS to JS 2.8
-		migrateJomSocialStreamNameSpace();
-
-		if($status)
-		{
-			$message[] = 'Success : Installation Completed. Thank you for choosing Easy Blog.';
-		}
-
-		$this->message	= $message;
-		$this->status	= $status;
-
-		return $status;
-	}
-
-	function install($parent)
-	{
-		return $this->execute();
-	}
-
-	function uninstall($parent)
-	{
-
-	}
-
-	function update($parent)
-	{
-		return $this->execute();
-	}
-
-	public static function getJoomlaVersion()
-	{
-		$jVerArr	= explode('.', JVERSION);
-		$jVersion	= $jVerArr[0] . '.' . $jVerArr[1];
-
-
-		return $jVersion;
-	}
-
-	function preflight($type, $parent)
-    {
-		//check if php version is supported before proceed with installation.
-    	$phpVersion = floatval(phpversion());
-    	if($phpVersion < 5 )
-    	{
-			$mainframe = JFactory::getApplication();
-			$mainframe->enqueueMessage('Installation was unsuccessful because you are using an unsupported version of PHP. EasyBlog supports only PHP5 and above. Please kindly upgrade your PHP version and try again.', 'error');
-
-			return false;
-		}
-
-    	//get source path and version number from manifest file.
-		$installer	= JInstaller::getInstance();
-		$manifest	= $installer->getManifest();
-
-		$sourcePath	= $installer->getPath('source');
-
-		if( self::getJoomlaVersion() >= '3.0' )
-		{
-			$this->version = (string) $manifest->attributes()->version;
-		}
-		else
-		{
-			$this->version		= $manifest->getAttribute('version');
-		}
-
-		$this->message		= array();
-		$this->status		= true;
-		$this->sourcePath	= $sourcePath;
-
-
-		// if this is a uninstallation process, do not execute anything, just return true.
-		if( $type == 'install' || $type == 'update' || $type == 'discover_install')
-		{
-			require_once( $this->sourcePath . DS . 'admin' . DS . 'install.defaultvalue.php' );
-
-			//this is needed as joomla failed to remove it themselve during uninstallation or failed attempt of installation
-			removeAdminMenu();
+		    $db->setQuery($query);
+		    $state = $db->query();
 		}
 
 		return true;
-    }
 
-    function postflight($type, $parent)
-    {
-    	$version	= $this->version;
-		$message	= $this->message;
-		$status		= $this->status;
+	}
 
-		// fix invalid admin menu id with Joomla 1.7
-		fixMenuIds();
+	public function unPublishdModules($upgrade = false)
+	{
+		$db = JFactory::getDBO();
 
-    	//update or create menu item.
-		if( menuExist() )
-		{
-			if(!updateMenuItems())
-			{
-				$message[] = 'Warning : The system encounter an error when it tries to update the menu item. Please kindly update the menu item manually.';
-			}
-		}
-		else
-		{
-			if(!createMenuItems())
-			{
-				$message[] = 'Warning : The system encounter an error when it tries to create a menu item. Please kindly create the menu item manually.';
-			}
+		$moduleNames = array('mod_easyblogimagewall', 'mod_easybloglatestblogs', 'mod_easyblogticker', 'mod_easyblogtopblogs', 'mod_easyblogsearch',
+							'mod_easyblogteamblogs', 'mod_easyblogshowcase', 'mod_easyblogsubscribers', 'mod_easyblogpostmeta', 'mod_easyblogquickpost', 'mod_easyblogarchive',
+							'mod_easyblogbio', 'mod_easyblogcalendar', 'mod_easyblogcategories', 'mod_easybloglatestblogger', 'mod_easybloglatestcomment', 'mod_easybloglist',
+							'mod_easyblogmostcommentedpost', 'mod_easyblogmostpopularpost', 'mod_easyblogpostmap', 'mod_easyblograndompost', 'mod_easyblogrelatedpost',
+							'mod_easyblogsubscribe', 'mod_easyblogtagcloud', 'mod_easyblogwelcome', 'mod_easyblognewpost', 'mod_easyblogmostactiveblogger');
+
+		if ($upgrade) {
+			// unpublish olds modules
+			$moduleNames = array('mod_easyblogarchive','mod_easyblogbio','mod_easyblogcalendar','mod_easyblogcategories','mod_easybloglatestblogger','mod_easybloglatestcomment','mod_easybloglist',
+								'mod_easyblogmostactiveblogger','mod_easyblogmostcommentedpost','mod_easyblogmostpopularpost','mod_easyblognewpost','mod_easyblogpostmap','mod_easyblograndompost',
+								'mod_easyblogrelatedpost','mod_easyblogsubscribe','mod_easyblogtagcloud','mod_easyblogwelcome','mod_imagewall','mod_latestblogs','mod_searchblogs','mod_showcase',
+								'mod_subscribers','mod_teamblogs','mod_topblogs');
 		}
 
-		ob_start();
-		?>
-
-		<style type="text/css">
-		/**
-		 * Messages
-		 */
-
-		#eblog-message {
-			color: red;
-			font-size:13px;
-			margin-bottom: 15px;
-			padding: 5px 10px 5px 35px;
+		$modules = '';
+		foreach($moduleNames as $module){
+			$modules .= ($modules) ? ',' . $db->Quote($module) : $db->Quote($module);
 		}
 
-		#eblog-message.error {
-			border-top: solid 2px #900;
-			border-bottom: solid 2px #900;
-			color: #900;
-		}
+	    // jos_modules
+	    $query = array();
+	    $query[] = 'UPDATE ' . $db->quoteName('#__modules') . ' SET ' . $db->quoteName('published') . '=' . $db->Quote('0');
+	    $query[] = 'WHERE ' . $db->quoteName('module') . ' IN (' . $modules . ')';
+	    $query[] = 'AND ' . $db->quoteName('published') . '=' . $db->Quote('1');
 
-		#eblog-message.info {
-			border-top: solid 2px #06c;
-			border-bottom: solid 2px #06c;
-			color: #06c;
-		}
+	    $query = implode(' ', $query);
 
-		#eblog-message.warning {
-			border-top: solid 2px #f90;
-			border-bottom: solid 2px #f90;
-			color: #c30;
-		}
-		</style>
+	    $db->setQuery($query);
+	    $state = $db->query();
 
-		<table width="100%" border="0">
-			<tr>
-				<td>
-					<div><img src="http://stackideas.com/images/eblog/install_success35.png" /></div>
-				</td>
-			</tr>
-			<?php
-				foreach($message as $msgString)
-				{
-					$msg = explode(":", $msgString);
-					switch(trim($msg[0]))
-					{
-						case 'Fatal Error':
-							$classname = 'error';
-							break;
-						case 'Warning':
-							$classname = 'warning';
-							break;
-						case 'Success':
-						default:
-							$classname = 'info';
-							break;
-					}
-					?>
-					<tr>
-						<td><div id="eblog-message" class="<?php echo $classname; ?>"><?php echo $msg[0] . ' : ' . $msg[1]; ?></div></td>
-					</tr>
-					<?php
-				}
-			?>
-			<tr>
-				<td><h3>Need help in starting up? Check out our <a href="http://stackideas.com/docs/easyblog/how-tos.html" target="_blank">How To</a> documentation.</h3></td>
-			</tr>
+		return true;
+	}
 
-		</table>
-		<?php
-		$html = ob_get_contents();
-		@ob_end_clean();
 
-		echo $html;
 
-		return $status;
-    }
 }

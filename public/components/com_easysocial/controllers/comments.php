@@ -1,18 +1,17 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2012 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
-* @author       Jason Rey <jasonrey@stackideas.com>
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'site:/controllers/controller' );
+FD::import('site:/controllers/controller');
 
 class EasySocialControllerComments extends EasySocialController
 {
@@ -25,22 +24,17 @@ class EasySocialControllerComments extends EasySocialController
     public function save()
     {
         // Check for request forgeries.
-        FD::checkToken();
+        ES::checkToken();
 
         // Only registered users are allowed here.
-        FD::requireLogin();
-
-        // Get the view
-        $view = $this->getCurrentView();
-
-        // Get the current logged in user
-        $my = FD::user();
+        ES::requireLogin();
 
         // Check for permission first
-        $access = FD::access();
+        $access = ES::access();
 
+        // Ensure that the user is allowed to post comments
         if (!$access->allowed('comments.add')) {
-            return $view->call( __FUNCTION__ );
+            return $this->view->call(__FUNCTION__);
         }
 
         $element = $this->input->get('element', '', 'string');
@@ -48,19 +42,19 @@ class EasySocialControllerComments extends EasySocialController
         $verb = $this->input->get('verb', '', 'string');
         $uid = $this->input->get('uid', 0, 'int');
 
-        $input = JRequest::getVar( 'input', '' , 'post' , 'none' , JREQUEST_ALLOWRAW );
-        $data = JRequest::getVar( 'data', array() );
-        $streamid = JRequest::getVar( 'streamid', '' );
-        $parent = JRequest::getInt( 'parent', 0 );
+        $input = $this->input->get('input', '', 'raw');
+        $data = $this->input->get('data', array(), 'array');
+        $streamid = $this->input->get('streamid', 0, 'int');
+        $parent = $this->input->get('parent', 0, 'int');
 
-        $compositeElement = $element . '.' . $group . '.' . $verb;
+        // Construct the composite key
+        $composite = $element . '.' . $group . '.' . $verb;
 
         $table = FD::table('comments');
-
-        $table->element = $compositeElement;
+        $table->element = $composite;
         $table->uid = $uid;
         $table->comment = $input;
-        $table->created_by = FD::user()->id;
+        $table->created_by = $this->my->id;
         $table->created = FD::date()->toSQL();
         $table->parent = $parent;
         $table->params = $data;
@@ -69,7 +63,33 @@ class EasySocialControllerComments extends EasySocialController
         $state = $table->store();
 
         if (!$state) {
-            return $view->setMessage($table->getError(), SOCIAL_MSG_ERROR);
+            return $this->view->setMessage($table->getError(), SOCIAL_MSG_ERROR);
+        }
+
+        // Process attachments
+        $attachments = $this->input->get('attachmentIds', array(), 'array');
+
+        if ($attachments && $this->config->get('comments.attachments')) {
+
+            foreach ($attachments as $attachmentId) {
+
+                $attachmentId = (int) $attachmentId;
+
+                $file = FD::table('File');
+                $file->uid = $table->id;
+                $file->type = SOCIAL_TYPE_COMMENTS;
+
+                // Copy some of the data from the temporary table.
+                $file->copyFromTemporary($attachmentId);
+
+                // Save the file
+                $file->store();
+
+                // We need to resize it if necessary
+                if ($this->config->get('comments.resize.enabled') && $this->config->get('comments.resize.width') && $this->config->get('comments.resize.height')) {
+                    $file->resize($this->config->get('comments.resize.width'), $this->config->get('comments.resize.height'));
+                }
+            }
         }
 
         if ($streamid) {
@@ -85,7 +105,7 @@ class EasySocialControllerComments extends EasySocialController
 
             if ($doUpdate) {
                 $stream = FD::stream();
-                $stream->updateModified( $streamid );
+                $stream->updateModified( $streamid, $this->my->id, SOCIAL_STREAM_LAST_ACTION_COMMENT);
             }
         }
 
@@ -127,7 +147,7 @@ class EasySocialControllerComments extends EasySocialController
                     $tag->item_type = $entityType;
                 }
 
-                $tag->creator_id = $my->id;
+                $tag->creator_id = $this->my->id;
                 $tag->creator_type = SOCIAL_TYPE_USER;
 
                 $tag->target_id = $table->id;
@@ -142,9 +162,9 @@ class EasySocialControllerComments extends EasySocialController
                         'title'         => 'COM_EASYSOCIAL_EMAILS_USER_MENTIONED_YOU_IN_A_COMMENT_SUBJECT',
                         'template'      => 'site/comments/mentions',
                         'permalink'     => $permalink,
-                        'actor'         => $my->getName(),
-                        'actorAvatar'   => $my->getAvatar(SOCIAL_AVATAR_SQUARE),
-                        'actorLink'     => $my->getPermalink(false, true),
+                        'actor'         => $this->my->getName(),
+                        'actorAvatar'   => $this->my->getAvatar(SOCIAL_AVATAR_SQUARE),
+                        'actorLink'     => $this->my->getPermalink(false, true),
                         'message'       => $table->comment
                     );
 
@@ -154,7 +174,7 @@ class EasySocialControllerComments extends EasySocialController
                         'context_ids'   => $table->id,
                         'type'          => 'comments',
                         'url'           => $permalink,
-                        'actor_id'      => $my->id,
+                        'actor_id'      => $this->my->id,
                         'target_id'     => $tag->item_id,
                         'aggregate'     => false,
                         'content'       => $table->comment
@@ -165,16 +185,15 @@ class EasySocialControllerComments extends EasySocialController
                 }
             }
         }
-
-        $dispatcher = FD::dispatcher();
-
+        
         $comments = array(&$table);
-        $args = array( &$comments );
+        $args = array(&$comments);
 
         // @trigger: onPrepareComments
+        $dispatcher = ES::dispatcher();
         $dispatcher->trigger($group, 'onPrepareComments', $args);
 
-        return $view->call(__FUNCTION__, $table);
+        return $this->view->call(__FUNCTION__, $table);
     }
 
     public function update()
@@ -385,56 +404,91 @@ class EasySocialControllerComments extends EasySocialController
         $view->call( __FUNCTION__, $comments );
     }
 
+    /**
+     * Removes a comment attachment on the site
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return  
+     */
+    public function deleteAttachment()
+    {
+        // Check for request forgeries
+        ES::checkToken();
+
+        // Only registered users are allowed here
+        ES::requireLogin();
+
+        // Get the attachment id
+        $id = $this->input->get('id', 0, 'int');
+
+        $file = ES::table('File');
+        $file->load($id);
+
+        // Check if the owner of the attachment is really correct
+        if ($file->user_id != $this->my->id && !$this->my->isSiteAdmin()) {
+            return JError::raiseError(500, JText::_('You are not allowed to remove this file.'));
+        }
+
+        // Delete the file
+        $file->delete();
+
+        return $this->view->call(__FUNCTION__);
+    }
+
+    /**
+     * Triggered to delete a comment
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function delete()
     {
         // Check for request forgeries.
-        FD::checkToken();
+        ES::checkToken();
 
         // Only registered users are allowed here.
-        FD::requireLogin();
-
-        // Get the view
-        $view = FD::view( 'comments', false );
+        ES::requireLogin();
 
         // Check for permission first
-        $access = FD::access();
+        $access = ES::access();
 
         // Get the comment id
-        $id     = JRequest::getInt( 'id', 0 );
-
-        // Get the current logged in user
-        $my     = FD::user();
+        $id = $this->input->get('id', 0, 'int');
 
         // Load the comment object
-        $table  = FD::table( 'comments' );
-        $state = $table->load( $id );
+        $table = ES::table('Comments');
+        $state = $table->load($id);
 
         if (!$state) {
-            $view->setMessage( $table->getError(), SOCIAL_MSG_ERROR );
-            return $view->call( __FUNCTION__ );
+            $this->view->setMessage($table->getError(), SOCIAL_MSG_ERROR);
+            return $view->call(__FUNCTION__);
         }
 
         // There are cases where the app may need to allow the user to delete the comments.
-        $apps   = FD::apps();
+        $apps = ES::apps();
         $apps->load(SOCIAL_TYPE_USER);
 
-        $args           = array(&$table, &$my);
-        $dispatcher     = FD::dispatcher();
-        $allowed        = $dispatcher->trigger(SOCIAL_TYPE_USER, 'canDeleteComment', $args);
+        $args = array(&$table, &$this->my);
+        $dispatcher = ES::dispatcher();
+        $allowed = $dispatcher->trigger(SOCIAL_TYPE_USER, 'canDeleteComment', $args);
 
-        if ($my->isSiteAdmin() || $access->allowed('comments.delete') || ($table->isAuthor() && $access->allowed('comments.deleteown')) || in_array(true, $allowed)) {
-
-            $state  = $table->delete();
+        if ($this->my->isSiteAdmin() || $access->allowed('comments.delete') || ($table->isAuthor() && $access->allowed('comments.deleteown')) || in_array(true, $allowed)) {
+            
+            $state = $table->delete();
 
             if (!$state) {
-                $view->setMessage( $table->getError(), SOCIAL_MSG_ERROR );
+                $this->view->setMessage($table->getError(), SOCIAL_MSG_ERROR);
             }
 
         } else {
-            $view->setMessage( JText::_( 'COM_EASYSOCIAL_COMMENTS_NOT_ALLOWED_TO_DELETE' ) , SOCIAL_MSG_ERROR );
+            $this->view->setMessage(JText::_('COM_EASYSOCIAL_COMMENTS_NOT_ALLOWED_TO_DELETE'), SOCIAL_MSG_ERROR);
         }
 
-        return $view->call( __FUNCTION__ );
+        return $this->view->call(__FUNCTION__);
     }
 
     public function like()
@@ -516,7 +570,7 @@ class EasySocialControllerComments extends EasySocialController
 
     public function getUpdates()
     {
-        $data = JRequest::getVar( 'data', '' );
+        $data = $this->input->get('data', '', 'default');
 
         // Data comes in with the format of:
         // {
@@ -529,21 +583,21 @@ class EasySocialControllerComments extends EasySocialController
         //  }
         // }
 
-        // var_dump($data);
+        $newData = array();
+        $model = FD::model('comments');
 
-        $newData    = array();
-        $model      = FD::model( 'comments' );
-
-        $updateLimit = FD::config()->get( 'comments.limit', 10 );
+        $updateLimit = FD::config()->get('comments.limit', 10);
 
         $s = FD::string();
 
-        foreach( $data as $key => $blocks )
-        {
+        $disallowed = array('albums', 'photos');
+
+        foreach ($data as $key => $blocks) {
+
             $newData[$key] = array();
 
-            foreach( $blocks as $bkeys => $block )
-            {
+            foreach( $blocks as $bkeys => $block ) {
+
                 $tmp = explode('.', $bkeys);
                 $streamid = $s->escape($tmp['0']);
                 $uid = isset($tmp['1']) ? $s->escape($tmp['1']) : '';
@@ -551,7 +605,10 @@ class EasySocialControllerComments extends EasySocialController
                 // Construct mandatory options
                 $options = array('element' => $s->escape($key), 'limit' => 0, 'parentid' => 0);
 
-                if ($streamid) {
+                // Ensure that the element for photos and albums doesn't check against the stream_id.
+                // Because the albums and photos has a different method of retrieving the count.
+                $elementTmp = explode('.', $key);
+                if ($streamid && !in_array($elementTmp[0], $disallowed)) {
                     $options['stream_id'] = $streamid;
                 }
 
@@ -569,7 +626,8 @@ class EasySocialControllerComments extends EasySocialController
                 $count  = $block['count'];
 
                 // Get the new total value
-                $newData[$key][$bkeys]['total'] = $model->getCommentCount( $options );
+                $newTotal = $model->getCommentCount($options);
+                $newData[$key][$bkeys]['total'] = $newTotal;
 
                 // ids could be non-existent if the passed in array is empty
                 $ids    = array();
@@ -709,14 +767,32 @@ class EasySocialControllerComments extends EasySocialController
         $view->call( __FUNCTION__, $replies );
     }
 
+    /**
+     * Renders the edit comment form
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function getEditComment()
     {
-        $id = FD::input()->getInt('id');
+        // Check for request forgeries
+        ES::checkToken();
 
-        $comment = FD::table('comments');
+        // Only allow users to edit the comment if they are allowed to
+        ES::requireLogin();
+
+
+        $id = $this->input->get('id', 0, 'int');
+
+        // Get the comment table
+        $comment = ES::table('Comments');
         $comment->load($id);
 
-        $tags = FD::model('Tags')->getTags($id, 'comments');
+        // Get the tags for the comment
+        $tagsModel = ES::model('Tags');
+        $tags = $tagsModel->getTags($id, 'comments');
 
         $overlay = $comment->comment;
 
@@ -748,12 +824,12 @@ class EasySocialControllerComments extends EasySocialController
             $overlay = str_ireplace('[si:mentions]' . $i . '[/si:mentions]', $v, $overlay);
         }
 
-        $theme = FD::themes();
+        $theme = ES::themes();
         $theme->set('comment', $comment->comment);
         $theme->set('overlay', $overlay);
 
         $contents = $theme->output('site/comments/editForm');
 
-        $this->getCurrentView()->call(__FUNCTION__, $contents);
+        $this->view->call(__FUNCTION__, $contents);
     }
 }

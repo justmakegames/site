@@ -140,21 +140,21 @@ class SocialTemplate
 	 * @param	string	$tpl	The name of the file. Example: themes:/dashboard/default
 	 * @return	stdClass
 	 */
-	public function getTemplate( $namespace = null )
+	public function getTemplate($namespace = null)
 	{
 		// Explode the namespace
-		$parts  = explode(':', $namespace);
+		$parts = explode(':', $namespace);
 
 		// Legacy fixes.
-		$hasProtocol 	= count( $parts ) > 1 ? true : false;
+		$hasProtocol = count( $parts ) > 1 ? true : false;
 
 		if (!$hasProtocol) {
-			$namespace 	= 'themes:/' . $namespace;
+			$namespace = 'themes:/' . $namespace;
 		}
 
-		$template				= new stdClass();
-		$template->file 		= FD::resolve($namespace . '.' . $this->extension);
-		$template->script 		= FD::resolve($namespace . '.js');
+		$template = new stdClass();
+		$template->file = FD::resolve($namespace . '.' . $this->extension);
+		$template->script = FD::resolve($namespace . '.js');
 
 		return $template;
 	}

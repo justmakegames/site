@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <?php if( $location && $this->config->get( 'conversations.location' ) ){ ?>
 <div class="small mt-20">
-	<i class="ies-location-2 ies-small"></i> <?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_MESSAGE_POSTED_FROM' );?>
+	<i class="fa fa-map-marker "></i> <?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_MESSAGE_POSTED_FROM' );?>
 	<a href="javascript:void(0);">
 		<?php echo $location->getAddress( 30 ); ?>
 	</a>

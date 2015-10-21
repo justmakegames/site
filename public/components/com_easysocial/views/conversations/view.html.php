@@ -345,6 +345,17 @@ class EasySocialViewConversations extends EasySocialSiteView
 		// Get a list of participants for this particular conversation except myself.
 		$participants = $model->getParticipants($conversation->id);
 
+		// this flag is to indicate if there is only one participant and the participant is a ESAD.
+		$isESADuser = false;
+
+		if (count($participants) == 2) {
+			foreach($participants as $pUser) {
+				if ($pUser->id != $this->my->id && !$pUser->hasCommunityAccess()) {
+					$isESADuser = true;
+				}
+			}
+		}
+
 		// Fetch a list of messages for this particular conversation
 		$messages = $model->setLimit($this->themeConfig->get('messages_limit'))->getMessages($conversation->id, $this->my->id);
 
@@ -390,6 +401,7 @@ class EasySocialViewConversations extends EasySocialSiteView
 		$this->set('participants', $participants);
 		$this->set('messages', $messages);
 		$this->set('pagination', $pagination);
+		$this->set('isESADuser', $isESADuser);
 
 		echo parent::display('site/conversations/read');
 	}

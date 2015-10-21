@@ -1,17 +1,17 @@
 <?php
 /**
-* @package		Social
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @package		EasySocial
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( 'JPATH_BASE' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'admin:/tables/table' );
+FD::import('admin:/tables/table');
 
 class SocialTableStream extends SocialTable
 {
@@ -49,6 +49,9 @@ class SocialTableStream extends SocialTable
 	public $privacy_id = null;
 	public $access = null;
 	public $custom_access = null;
+
+	public $last_action = null;
+	public $last_userid = null;
 
 	static $_streams 		= array();
 
@@ -138,13 +141,21 @@ class SocialTableStream extends SocialTable
 
 	}
 
-	public function store( $updateNulls = false )
+	/**
+	 * Override the parent's store behavior
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function store($updateNulls = false)
 	{
-		if( is_null( $this->modified) )
-		{
-			$date 			= FD::date();
-			$this->modified	= $date->toMySQL();
+		if (is_null($this->modified)) {
+			$date = FD::date();
+			$this->modified = $date->toSql();
 		}
+
 		return parent::store();
 	}
 
@@ -343,6 +354,21 @@ class SocialTableStream extends SocialTable
 		$db->query();
 
 		return parent::delete();
+	}
+
+	/**
+	 * Publishes a stream on the site.
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function publish($pks = null, $state = 1, $userId = 0)
+	{
+		$this->state = SOCIAL_STREAM_STATE_PUBLISHED;
+
+		return $this->store();
 	}
 
 	/**

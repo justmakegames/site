@@ -5,37 +5,27 @@ EasySocial.module("albums/uploader", function($) {
 
     // require: start
     EasySocial.require()
-    .library(
-        "plupload"
-    )
-    .script(
-        "albums/uploader.item"
-    )
-    .view(
-    	"site/albums/upload.item"
-    )
+    .library("plupload")
+    .script("albums/uploader.item")
+    .view("site/albums/upload.item")
     .done(function(){
 
         // controller: start
-        EasySocial.Controller("Albums.Uploader",
+        EasySocial.Controller("Albums.Uploader", {
+    		defaultOptions: {
 
-        	{
-        		defaultOptions: {
+                view: {
+                    uploadItem: "site/albums/upload.item"
+                },
 
-                    view: {
-                        uploadItem: "site/albums/upload.item"
-                    },
+                direction: 'prepend',
 
-                    direction: 'prepend',
-
-                    "{uploadButton}"   : "[data-upload-button]",
-                    "{uploadItemGroup}": "[data-upload-item-group]",
-                    "{uploadItem}"     : "[data-upload-item]",
-                    "{uploadDropsite}" : "[data-upload-dropsite]"
-        		}
-        	},
-
-            function(self, opts, base) { return {
+                "{uploadButton}"   : "[data-upload-button]",
+                "{uploadItemGroup}": "[data-upload-item-group]",
+                "{uploadItem}"     : "[data-upload-item]",
+                "{uploadDropsite}" : "[data-upload-dropsite]"
+    		}
+    	}, function(self, opts, base) { return {
 
                 init: function() {
 
@@ -49,8 +39,7 @@ EasySocial.module("albums/uploader", function($) {
                                 $.extend({
                                     "{uploadButton}" : self.uploadButton.selector,
                                     "{uploadDropsite}": self.uploadDropsite.selector
-                                },
-                                self.options.settings)
+                                },self.options.settings)
                             );
 
                     // Plupload

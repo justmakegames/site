@@ -15,6 +15,7 @@
     <unique>true</unique>
     <files>
         <folder>config</folder>
+        <folder>themes</folder>
         <file>description.php</file>
         <file>description.xml</file>
     </files>

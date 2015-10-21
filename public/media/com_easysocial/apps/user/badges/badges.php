@@ -59,12 +59,17 @@ class SocialUserAppBadges extends SocialAppItem
 		}
 
 		// Process notifications for followers
-		if( $item->cmd == 'badges.unlocked' )
-		{
-			$badge 			= FD::table( 'Badge' );
+		if ($item->cmd == 'badges.unlocked') {
+			
+			$badge = FD::table('Badge');
 			$badge->load( $item->uid );
 
-			$item->title 	= JText::sprintf( 'APP_USER_BADGES_NOTIFICATIONS_YOU_HAVE_JUST_UNLOCKED' , $badge->get( 'title' ) );
+			// lets load 3rd party component's language file if this is not a core badge
+			if ($badge->extension && $badge->extension != 'com_easysocial') {
+				Foundry::language()->load( $badge->extension , JPATH_ROOT );
+			}
+
+			$item->title = JText::sprintf('APP_USER_BADGES_NOTIFICATIONS_YOU_HAVE_JUST_UNLOCKED' , $badge->get('title'));
 		}
 
 
@@ -140,11 +145,12 @@ class SocialUserAppBadges extends SocialAppItem
 	public function onAfterCommentSave(&$comment)
 	{
 		// We need to split it because the type now stores as badges.user.unlocked.[9999]
-		$namespace 	= explode('.', $comment->element);
+		$namespace = explode('.', $comment->element);
 
-		array_shift($namespace);
-
-		$context = implode('.', $namespace);
+		// get the corret context without ownerId
+		$contexts = explode('.', $comment->element);
+		array_pop($contexts);
+		$context = implode('.', $contexts);
 
 		if (count($namespace) < 4 || $context != 'badges.user.unlocked') {
 			return;
@@ -163,7 +169,8 @@ class SocialUserAppBadges extends SocialAppItem
 		$emailOptions = array(
 			'title' => 'APP_USER_BADGES_EMAILS_COMMENT_ITEM_TITLE',
 			'template' => 'apps/user/badges/comment.item',
-			'permalink' => $streamItem->getPermalink(true, true)
+			'permalink' => $streamItem->getPermalink(true, true),
+			'comment' => $comment->comment
 		);
 
 		$systemOptions	= array(
@@ -300,7 +307,7 @@ class SocialUserAppBadges extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#FEBC9D';
-		$obj->icon 		= 'ies-crown';
+		$obj->icon 		= 'fa fa-trophy';
 		$obj->label 	= 'APP_USER_BADGES_STREAM_TOOLTIP';
 
 		return $obj;
@@ -351,14 +358,20 @@ class SocialUserAppBadges extends SocialAppItem
 			return;
 		}
 
+		// Get the actor
+		$actor 		= $item->actor;
+
+		// check if the actor is ESAD profile or not, if yes, we skip the rendering.
+		if (! $actor->hasCommunityAccess()) {
+			$item->title = '';
+			return;
+		}
+
 		// Test if stream item is allowed
 		if( !$this->onStreamValidatePrivacy( $item ) )
 		{
 			return;
 		}
-
-		// Get the actor
-		$actor 		= $item->actor;
 
 		// Try to get the badge object from the params
 		$raw 		= $item->params;
@@ -366,11 +379,16 @@ class SocialUserAppBadges extends SocialAppItem
 
 		$badge->load( $item->contextId );
 
+		// lets load 3rd party component's language file if this is not a core badge
+		if ($badge->extension && $badge->extension != 'com_easysocial') {
+			Foundry::language()->load( $badge->extension , JPATH_ROOT );
+		}
+
 		// Set the display mode to be full.
 		$item->display	= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 	= '#FEBC9D';
-		$item->fonticon = 'ies-crown';
-		$item->label 	= JText::_( 'APP_USER_BADGES_STREAM_TOOLTIP' );
+		$item->fonticon = 'fa fa-trophy';
+		$item->label 	= FD::_( 'APP_USER_BADGES_STREAM_TOOLTIP', true );
 
 		// Format the likes for the stream
 		$likes 			= FD::likes();

@@ -17,7 +17,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<?php if( $appParams->get( 'stream_display_date' , true ) ){ ?>
 		<div class="fd-small">
-			<i class="ies-calendar"></i>&nbsp; <?php echo JText::sprintf( 'APP_GROUP_NEWS_STREAM_META_CREATED_ON' , FD::date( $news->created )->format( JText::_( 'DATE_FORMAT_LC' ) ) ); ?>
+			<i class="fa fa-calendar"></i>&nbsp; <?php echo JText::sprintf( 'APP_GROUP_NEWS_STREAM_META_CREATED_ON' , FD::date( $news->created )->format( JText::_( 'DATE_FORMAT_LC' ) ) ); ?>
 		</div>
 		<?php } ?>
 

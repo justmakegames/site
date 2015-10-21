@@ -48,7 +48,37 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                         </ul>
                     </div>
                 </div>
+
                 <div data-comments-item-comment><?php echo $comment->getComment(); ?></div>
+
+                <?php if ($attachments && $this->config->get('comments.attachments')) { ?>
+                <ul class="es-comment-attachments clearfix<?php echo count($attachments) > 1 ? ' is-multiple' : ''; ?>">
+                    <?php foreach ($attachments as $attachment) { ?>
+                    <li data-comment-attachment-item>
+                        <?php if ($attachment->user_id == $this->my->id || $this->my->isSiteAdmin()) { ?>
+                        <b href="javascript:void(0);" class="es-comment-attachment-remove" data-comment-attachment-delete data-id="<?php echo $attachment->id;?>"></b>
+                        <?php } ?>
+
+                        <?php if (count($attachments) > 1) { ?>
+                            <a href="<?php echo $attachment->getURI();?>" target="_blank" style="background-image: url('<?php echo $attachment->getURI();?>')"
+                                data-title="<?php echo $this->html('string.escape', $attachment->name);?>"
+                                data-lightbox="comment-<?php echo $comment->id;?>"
+                            >
+                                <i class="fa fa-search"></i>
+                            </a>
+                        <?php } else { ?>
+                            <a href="<?php echo $attachment->getURI();?>" target="_blank"
+                                data-title="<?php echo $this->html('string.escape', $attachment->name);?>"
+                                data-lightbox="comment-<?php echo $comment->id;?>"
+                            >
+                                <img src="<?php echo $attachment->getURI();?>" />
+                                <i class="fa fa-search"></i>
+                            </a>
+                        <?php } ?>
+                    </li>
+                    <?php } ?>
+                </ul>
+                <?php } ?>
 
                 <div class="es-comment-item-meta" data-comments-item-meta>
                     <div class="es-comment-item-date" data-comments-item-date>

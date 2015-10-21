@@ -30,7 +30,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				data-description=""
 			>
 				<a href="javascript:void(0);">
-					<i class="ies-feed-2 mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_ALL_ACTIVITIES' );?>
+					<i class="fa fa-rss-square mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_ALL_ACTIVITIES' );?>
 					<div class="label label-notification pull-right mr-20"></div>
 				</a>
 			</li>
@@ -43,7 +43,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				data-description=""
 			>
 				<a href="javascript:void(0);">
-					<i class="ies-eye mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_HIDDEN_ACTIVITIES' );?>
+					<i class="fa fa-eye mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_HIDDEN_ACTIVITIES' );?>
 				</a>
 			</li>
 
@@ -56,7 +56,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				data-description=""
 			>
 				<a href="javascript:void(0);">
-					<i class="ies-eye mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_HIDDEN_APPS' );?>
+					<i class="fa fa-eye mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_HIDDEN_APPS' );?>
 				</a>
 			</li>
 
@@ -69,7 +69,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				data-description=""
 			>
 				<a href="javascript:void(0);">
-					<i class="ies-eye mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_HIDDEN_ACTORS' );?>
+					<i class="fa fa-eye mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_HIDDEN_ACTORS' );?>
 				</a>
 			</li>
 

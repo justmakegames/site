@@ -13,15 +13,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div data-photo-menu class="es-media-item-menu es-photo-menu-item">
 
-	<div class="btn-group btn-group-xs">
+	<div class="btn-group btn-group-sm">
 		<?php if( $lib->featureable() ){ ?>
-		<div data-photo-feature-button class="btn btn-es btn-media<?php echo $photo->featured ? ' btn-es-primary' : '';?>">
-			<a href="javascript: void(0);"><i class="ies-star"></i></a>
+		<div data-photo-feature-button class="btn btn-es btn-es-featured btn-default<?php echo $photo->featured ? ' btn-es-primary' : '';?>">
+			<a href="javascript: void(0);"><i class="fa fa-star"></i></a>
 		</div>
 		<?php } ?>
-		<div class="es-media-item-menu-item btn btn-media btn-es dropdown_" data-item-actions-menu>
+		<div class="es-media-item-menu-item btn btn-default btn-es dropdown_" data-item-actions-menu>
 			<a href="javascript: void(0);" data-bs-toggle="dropdown">
-				<i class="ies-menu"></i>
+				<i class="fa fa-bars"></i>
 			</a>
 			<ul class="dropdown-menu">
 
@@ -38,11 +38,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<li class="divider"></li>
 				<?php } ?>
 
+				<?php if ($this->config->get('photos.original')) { ?>
 				<li data-photo-original-button>
 					<a href="<?php echo $photo->getSource( 'original' );?>" target="_blank">
 						<?php echo JText::_( 'COM_EASYSOCIAL_PHOTOS_VIEW_ORIGINAL' );?>
 					</a>
 				</li>
+				<?php } ?>
 
 				<?php if( $lib->downloadable() ){ ?>
 				<li data-photo-download-button>
@@ -95,21 +97,21 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php echo $this->includeTemplate('site/photos/popup/taglist'); ?>
 	<?php } ?>
 
-	<div class="btn-group btn-group-xs">
+	<div class="btn-group btn-group-sm">
 		<?php if( $lib->shareable() ){ ?>
-		<div class="btn btn-media btn-es" data-photo-share-button>
+		<div class="btn btn-default btn-es" data-photo-share-button>
 			<?php echo FD::get( 'Sharing' , array( 'url' => $photo->getPermalink( true , true ) , 'text' => JText::_( 'COM_EASYSOCIAL_PHOTOS_SHARE' ) ) )->getHTML(true); ?>
 		</div>
 		<?php } ?>
 
-		<div class="btn btn-media btn-es" data-photo-report-button>
+		<div class="btn btn-default btn-es" data-photo-report-button>
 			<?php echo FD::reports()->getForm( 'com_easysocial' , SOCIAL_TYPE_PHOTO , $photo->id , $photo->get( 'title' ) , JText::_( 'COM_EASYSOCIAL_PHOTOS_REPORT' ) , JText::_( 'COM_EASYSOCIAL_PHOTOS_REPORT_PHOTO_TITLE' ) , JText::_( 'COM_EASYSOCIAL_PHOTOS_REPORT_DESC' ) , $photo->getPermalink(true, true), true ); ?>
 		</div>
 	</div>
 
-	<div class="btn-group btn-group-xs pull-left">
+	<div class="btn-group btn-group-sm pull-left">
 		<div data-popup-close-button class="btn btn-es btn-media">
-			<a href="javascript: void(0);"><i class="ies-cancel-2"></i></a>
+			<a href="javascript: void(0);"><i class="fa fa-remove"></i></a>
 		</div>
 	</div>
 </div>

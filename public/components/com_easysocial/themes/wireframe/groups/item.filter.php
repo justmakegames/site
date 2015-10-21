@@ -24,7 +24,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-dashboardFeeds-Filter-edit
 		data-id="<?php echo $filter->id; ?>"
 	>
-		<i class="ies-pencil"></i>
+		<i class="fa fa-pencil"></i>
 	</a>
 
 	<a  href="<?php echo FRoute::groups( array( 'layout' => 'item' , 'id' => $group->getAlias() , 'filterId' => $filter->getAlias() ) );?>"
@@ -36,6 +36,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-title="<?php echo $this->html( 'string.escape' , $filter->title ); ?>"
 		class="data-dashboardfeeds-item"
 	>
-		<i class="ies-list mr-5"></i> <?php echo $filter->title; ?>
+		<i class="fa fa-list mr-5"></i> <?php echo $filter->title; ?>
 	</a>
 </li>

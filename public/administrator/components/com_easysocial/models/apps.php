@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,15 +9,15 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.model');
 
-FD::import( 'admin:/includes/model' );
+FD::import('admin:/includes/model');
 
 class EasySocialModelApps extends EasySocialModel
 {
-	private $data			= null;
+	private $data = null;
 	protected $pagination	= null;
 
 	protected $limitstart 	= null;
@@ -34,7 +34,7 @@ class EasySocialModelApps extends EasySocialModel
 	 * @since	1.3
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function loadAppCss($options = array())
 	{
@@ -154,30 +154,29 @@ class EasySocialModelApps extends EasySocialModel
 	 */
 	public function discover()
 	{
-		$paths	= array( SOCIAL_APPS . '/user', SOCIAL_APPS . '/group', SOCIAL_APPS . '/event', SOCIAL_FIELDS . '/user', SOCIAL_FIELDS . '/group', SOCIAL_FIELDS . '/event' );
-		$total 	= 0;
+		// Default paths
+		$folders = array(SOCIAL_APPS . '/user', SOCIAL_APPS . '/group', SOCIAL_APPS . '/event', SOCIAL_FIELDS . '/user', SOCIAL_FIELDS . '/group', SOCIAL_FIELDS . '/event');
+		$total = 0;
 
 		// Go through each of the folders and look for any app folders.
-		foreach( $paths as $path )
-		{
-			if( !JFolder::exists( $path ) )
-			{
+		foreach ($folders as $folder) {
+
+			if (!JFolder::exists($folder)) {
 				continue;
 			}
 
-			$folders 	= JFolder::folders( $path , '.' , false , true );
+			$items = JFolder::folders($folder, '.', false, true);
 
-			foreach( $folders as $folder )
-			{
+			foreach ($items as $item) {
+
 				// Load the installer and pass in the folder
-				$installer	= FD::get( 'Installer' );
-				$installer->load( $folder );
+				$installer = ES::installer();
+				$installer->load($item);
 
-				$state		= $installer->discover();
+				$state = $installer->discover();
 
-				if( $state )
-				{
-					$total	+= 1;
+				if ($state) {
+					$total += 1;
 				}
 			}
 		}
@@ -252,27 +251,25 @@ class EasySocialModelApps extends EasySocialModel
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function getItemsWithState( $options = array() )
+	public function getItemsWithState($options = array())
 	{
-		$db		= FD::db();
-		$sql	= $db->sql();
+		$db = ES::db();
+		$sql = $db->sql();
 
-		$sql->select( '#__social_apps' );
+		$sql->select('#__social_apps');
 
 		// Determine if we should only fetch apps that are widgets
-		$widget 	= isset( $options[ 'widget' ] ) ? $options[ 'widget' ] : false;
+		$widget = isset($options['widget']) ? $options['widget'] : false;
 
-		if( $widget )
-		{
-			$sql->where( 'widget' , SOCIAL_STATE_PUBLISHED );
+		if ($widget) {
+			$sql->where('widget', SOCIAL_STATE_PUBLISHED);
 		}
 
 		// Depending on type of apps.
-		$filter		= $this->getState( 'filter' );
+		$filter = $this->normalize($options, 'filter', 'all');
 
-		if( $filter && $filter != 'all' )
-		{
-			$sql->where( 'type', $filter );
+		if ($filter && $filter != 'all') {
+			$sql->where('type', $filter);
 		}
 
 		// Filter by group
@@ -450,33 +447,6 @@ class EasySocialModelApps extends EasySocialModel
 		$result = $cache->loadObjectList(array('app_id' => $appId));
 		$views = $cache->bindTable($result);
 
-		// $db 	= FD::db();
-		// $sql 	= $db->sql();
-
-		// $sql->select( '#__social_apps_views' );
-		// $sql->where( 'app_id' , $appId );
-
-		// $db->setQuery( $sql );
-
-		// $rows 	= $db->loadObjectList();
-
-		// FD::log($rows); exit;
-
-		// if( !$rows )
-		// {
-		// 	return false;
-		// }
-
-		// $views 	= array();
-
-		// foreach( $rows as $row )
-		// {
-		// 	$view 		= FD::table( 'AppView' );
-		// 	$view->bind( $row );
-
-		// 	$views[]	= $view;
-		// }
-
 		return $views;
 	}
 
@@ -503,25 +473,24 @@ class EasySocialModelApps extends EasySocialModel
 	 */
 	public function getDirectoryPermissions()
 	{
-		$jConfig 		= FD::jconfig();
+		$jConfig = ES::jconfig();
 
 		// Get a list of folders.
-		$folders 		= array(
-								$jConfig->getValue( 'tmp_path' ),
-								SOCIAL_MEDIA,
-								SOCIAL_APPS . '/fields',
-								SOCIAL_APPS . '/user'
-							);
+		$folders = array(
+						$jConfig->getValue( 'tmp_path' ),
+						SOCIAL_MEDIA,
+						SOCIAL_APPS . '/fields',
+						SOCIAL_APPS . '/user'
+					);
 
 		$directories	= array();
 
-		foreach( $folders as $folder )
-		{
-			$obj 			= new stdClass();
-			$obj->path		= $folder;
-			$obj->writable	= is_writable( $folder );
+		foreach ($folders as $folder) {
+			$obj = new stdClass();
+			$obj->path = $folder;
+			$obj->writable = is_writable($folder);
 
-			$directories[]	= $obj;
+			$directories[] = $obj;
 		}
 
 		return $directories;
@@ -537,32 +506,30 @@ class EasySocialModelApps extends EasySocialModel
 	 */
 	public function getGroupApps( $groupId )
 	{
-		$db 	= FD::db();
-		$sql 	= $db->sql();
+		$db = ES::db();
+		$sql = $db->sql();
 
-		$sql->select( '#__social_apps', 'a' );
-		$sql->column( 'a.*' );
+		$sql->select('#__social_apps', 'a');
+		$sql->column('a.*');
 
-		$sql->where( 'a.group' , SOCIAL_TYPE_GROUP );
-		$sql->where( 'a.state' , SOCIAL_STATE_PUBLISHED );
-		$sql->where( 'a.type' , SOCIAL_APPS_TYPE_APPS );
-
-		$sql->where( 'a.system' , SOCIAL_STATE_PUBLISHED , '!=' );
+		$sql->where('a.group', SOCIAL_TYPE_GROUP);
+		$sql->where('a.state', SOCIAL_STATE_PUBLISHED);
+		$sql->where('a.type', SOCIAL_APPS_TYPE_APPS);
+		$sql->where('a.system', SOCIAL_STATE_PUBLISHED, '!=');
 
 		$db->setQuery($sql);
 		$result = $db->loadObjectList();
 
-		$apps 	= array();
+		$apps = array();
 
-		foreach( $result as $row )
-		{
-			$app 		= FD::table( 'App' );
-			$app->bind( $row );
+		foreach ($result as $row) {
+			$app = ES::table('App');
+			$app->bind($row);
 
-			// Check if the apps should really have such view
-			if( $app->appListing( 'groups' , $groupId , SOCIAL_TYPE_GROUP ) )
-			{
-				$apps[]		= $app;
+			$hasListing = $app->appListing('groups', $groupId, SOCIAL_TYPE_GROUP);
+
+			if ($hasListing) {
+				$apps[] = $app;
 			}
 		}
 
@@ -615,99 +582,92 @@ class EasySocialModelApps extends EasySocialModel
 	 * @param	Array	An array of options.
 	 * @return	Array	An array of SocialTableField item.
 	 */
-	public function getApps( $options = array() , $debug = false )
+	public function getApps($options = array(), $debug = false)
 	{
 		static $cache = array();
 
-		$db 		= FD::db();
-		$sql		= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 
+		// Serialize the key so that we can cache them
 		ksort($options);
-		$keys = serialize($options);
+		$idx = serialize($options);
 
-		// $keys = implode( '-' , $options );
+		if (!isset($cache[$idx])) {
 
-		if( ! isset( $cache[ $keys ] ) )
-		{
-			$sql->select( '#__social_apps', 'a' );
-			$sql->column( 'a.*' );
+			$sql->select('#__social_apps', 'a');
+			$sql->column('a.*');
 
 			// If uid / key is passed in, we need to only fetch apps that are related to the uid / key.
-			$uid 		= isset( $options[ 'uid' ] ) ? $options[ 'uid' ] : null;
-			$key 		= isset( $options[ 'key' ] ) ? $options[ 'key' ] : null;
+			$uid = $this->normalize($options, 'uid');
+			$key = $this->normalize($options, 'key');
 
-			if( !is_null( $uid ) && !is_null( $key ) )
-			{
-				$sql->join( '#__social_apps_map', 'b' );
-				$sql->on( 'b.app_id', 'a.id' );
-				$sql->on( 'b.uid', $uid );
-				$sql->on( 'b.type', $key );
+			if (!is_null($uid) && !is_null($key)) {
+				$sql->join('#__social_apps_map', 'b');
+				$sql->on('b.app_id', 'a.id');
+				$sql->on('b.uid', $uid);
+				$sql->on('b.type', $key);
 
-				$sql->where( 'a.state' , SOCIAL_STATE_PUBLISHED );
+				$sql->where('a.state', SOCIAL_STATE_PUBLISHED);
 			}
 
 			// Test if 'view' is provided. If view is provided, we only want to fetch apps for these views.
-			$view 		= isset( $options[ 'view' ] ) ? $options[ 'view' ] : null;
+			$view = $this->normalize($options, 'view');
 
-			if( !is_null( $view ) )
-			{
-				$sql->innerjoin( '#__social_apps_views', 'c' );
+			if (!is_null($view)) {
+				$sql->innerjoin('#__social_apps_views', 'c' );
 				$sql->on( 'c.app_id', 'a.id' );
 				$sql->on( 'c.view', $view );
 			}
 
 			// If state filter is provided, we need to filter the state.
-			$state 		= isset( $options[ 'state' ] ) ? $options[ 'state' ] : null;
+			$state = $this->normalize($options, 'state');
 
-			if( !is_null( $state ) )
-			{
-				$sql->where( 'a.state', $state );
+			if (!is_null($state)) {
+				$sql->where('a.state', $state);
 			}
 
 			// If type filter is provided, we need to filter the type.
-			$type 		= isset( $options[ 'type' ] ) ? $options[ 'type' ] : null;
+			$type = $this->normalize($options, 'type');
 
-			if( !is_null( $type ) )
-			{
-				$sql->where( 'a.type', $type );
+			if (!is_null($type)) {
+				$sql->where('a.type', $type);
 			}
 
 			// If group filter is provided, we need to filter apps by group.
-			$group 		= isset( $options[ 'group' ] ) ? $options[ 'group' ] : null;
+			$group = $this->normalize($options, 'group');
 
-			if( !is_null( $group ) )
-			{
-				$sql->where( 'a.group', $group );
+			if (!is_null($group)) {
+				$sql->where('a.group', $group);
 			}
 
 			// Detect if we should only pull apps that are installable
-			$installable 	= isset( $options[ 'installable' ] ) ? $options[ 'installable' ] : null;
+			$installable = $this->normalize($options, 'installable');
 
-			if( !is_null( $installable ) )
-			{
-				$sql->where( '(' , '' , '' , 'AND' );
-				$sql->where( 'a.installable' , $installable , '=' , 'AND' );
-				$sql->where( 'a.default' , SOCIAL_STATE_PUBLISHED , '!=' , 'AND' );
-				$sql->where( ')' );
-
-				$sql->where( 'a.state' , SOCIAL_STATE_PUBLISHED );
+			if (!is_null($installable)) {
+				$sql->where('(', '', '', 'AND');
+				$sql->where('a.installable', $installable , '=' , 'AND');
+				$sql->where('a.default', SOCIAL_STATE_PUBLISHED, '!=', 'AND');
+				$sql->where(')');
+				$sql->where('a.state', SOCIAL_STATE_PUBLISHED);
 			}
 
 			// Check for widgets
-			$widgets 	= isset( $options[ 'widget' ] ) ? $options[ 'widget' ] : null;
+			$widgets = $this->normalize($options, 'widget');
 
-			if( $widgets )
-			{
+			if ($widgets) {
 				$sql->where('a.widget', $widgets);
 			}
 
 			// Check for core app
-			$core		= isset( $options['core'] ) ? $options['core'] : null;
+			$core = $this->normalize($options, 'core');
 
+			// If core is provided, we want to load core apps
 			if (!is_null($core)) {
-				$sql->where( 'a.core', $core );
+				$sql->where('a.core', $core);
 			}
 
+			// What is this?
 			if (!is_null($uid) && !is_null($key) && $group != 'group') {
 				$sql->where( '(' , '' , '' , 'AND' );
 				$sql->where( 'a.default' , SOCIAL_STATE_PUBLISHED , '=' , 'OR' );
@@ -716,71 +676,62 @@ class EasySocialModelApps extends EasySocialModel
 				if ($widgets) {
 					$sql->where('a.system', true , '=' , 'OR');
 				}
+
+				// If there is a list of inclusion given, we need to include these apps as well
+				$inclusion = $this->normalize($options, 'inclusion', null);
+
+				if (!is_null($inclusion) && $inclusion) {
+					$sql->where('a.id', $inclusion, 'IN', 'OR');
+				}
+
 				$sql->where( ')' );
 			}
 
-
-			if( !$uid && !$key && is_null( $installable ) && ( is_null( $type ) || $type == SOCIAL_APPS_TYPE_APPS ) )
-			{
-				$sql->where( 'a.default' , SOCIAL_STATE_PUBLISHED , '=' , 'OR' );
+			// What is this?
+			if (!$uid && !$key && is_null($installable) && (is_null($type) || $type == SOCIAL_APPS_TYPE_APPS)) {
+				$sql->where('a.default', SOCIAL_STATE_PUBLISHED, '=', 'OR');
 			}
 
-			$sort		= isset( $options['sort'] ) ? $options['sort'] : null;
-			$order		= isset( $options['order'] ) ? $options['order'] : 'asc';
+			// Sorting and ordering options
+			$sort = $this->normalize($options, 'sort');
 
-			if( !is_null( $sort ) )
-			{
-				$sql->order( $sort, $order );
+			if (!is_null($sort)) {
+				$order = $this->normalize($options, 'order', 'asc');
+				$sql->order($sort, $order);
 			}
 
 			// Set the total query.
-			$this->setTotal( $sql->getTotalSql() );
-
-			// For debugging purposes only.
-			if( $debug )
-			{
-				// echo $sql->debug();
-				// exit;
-			}
+			$this->setTotal($sql->getTotalSql());
 
 			// Get data
-			$result 	= $this->getData( $sql->getSql(), false );
+			$result = $this->getData($sql->getSql(), false);
 
-			if( !$result )
-			{
-				$cache[ $keys ] = false;
-				return false;
+			if (!$result) {
+				$cache[$idx] = false;
+				return $cache[$idx];
 			}
 
-			$apps 	= array();
+			$apps = array();
 
-			foreach( $result as $row )
-			{
-				$app 		= FD::table( 'App' );
-				$app->bind( $row );
+			foreach ($result as $row) {
+				$app = ES::table('App');
+				$app->bind($row);
 
 				// 3rd party apps might have their language strings
 				$app->loadLanguage();
 
 				// Check if the apps should really have such view
-				if( isset( $options[ 'view' ] ) )
-				{
-					if( $app->appListing( $options[ 'view' ] ) )
-					{
-						$apps[]	= $app;
-					}
-				}
-				else
-				{
-					$apps[]		= $app;
+				if ($view && $app->appListing($view)) {
+					$apps[]	= $app;
+				} else {
+					$apps[] = $app;
 				}
 			}
 
-			$cache[ $keys ] = $apps;
-
+			$cache[$idx] = $apps;
 		}
 
-		return $cache[ $keys ];
+		return $cache[$idx];
 	}
 
 
@@ -947,5 +898,24 @@ class EasySocialModelApps extends EasySocialModel
 		}
 
 		return $apps;
+	}
+
+	public function assignProfileUsersApps($profileId, $appId)
+	{
+		$db = ES::db();
+		$sql = $db->sql();
+
+		$now = ES::date()->toSql();
+
+		$query = "insert into `#__social_apps_map` (`uid`, `type`, `app_id`, `created`) select a.user_id, 'user', " . $db->Quote($appId) . ", " . $db->Quote($now);
+		$query .= " from `#__social_profiles_maps` as a";
+		$query .= " where not exists (select b.`uid` from `#__social_apps_map` as b where b.`uid` = a.`user_id` and b.`type` = " . $db->Quote(SOCIAL_TYPE_USER) . " and b.`app_id` = " . $db->Quote($appId) . ")";
+		$query .= " and a.`profile_id` = " . $db->Quote($profileId);
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+
+		$state = $db->query();
+		return $state;
 	}
 }

@@ -25,7 +25,7 @@ class SocialEventAppNews extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#F6C362';
-        $obj->icon = 'ies-broadcast-2';
+        $obj->icon = 'fa-bullhorn';
         $obj->label = 'APP_EVENT_NEWS_STREAM_TOOLTIP';
 
         return $obj;
@@ -43,11 +43,9 @@ class SocialEventAppNews extends SocialAppItem
         // Processes notifications when someone posts a new update in a event
         // context_type: event.news
         // type: events
-        if ($item->cmd == 'event.news') {
-
-            $hook   = $this->getHook('notification', 'news');
+        if ($item->cmd == 'events.news') {
+            $hook = $this->getHook('notification', 'news');
             $hook->execute($item);
-
             return;
         }
 
@@ -223,8 +221,8 @@ class SocialEventAppNews extends SocialAppItem
         // Define standard stream looks
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
         $item->color = '#F6C362';
-        $item->fonticon = 'ies-broadcast-2';
-        $item->label = JText::_('APP_EVENT_NEWS_STREAM_TOOLTIP');
+        $item->fonticon = 'fa fa-bullhorn';
+        $item->label = FD::_('APP_EVENT_NEWS_STREAM_TOOLTIP', true);
 
         // Do not allow user to repost an announcement
         $item->repost = false;

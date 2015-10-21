@@ -9,9 +9,12 @@
 		"title"			: "COM_EASYSOCIAL_ACCESS_GROUPS_CREATE_GROUP_TOTAL",
 		"description"	: "COM_EASYSOCIAL_ACCESS_GROUPS_CREATE_GROUP_TOTAL_TOOLTIP",
 		"name"			: "groups.limit",
-		"type"			: "limit",
+		"type"			: "limitinterval",
 		"group"			: "user",
-		"default"		: 0
+		"default"		: {
+			"value": 0,
+			"interval": 0
+		}
 	},
 	{
 		"title"			: "COM_EASYSOCIAL_ACCESS_GROUPS_JOIN_GROUP_TOTAL",
@@ -26,6 +29,29 @@
 		"description"	: "COM_EASYSOCIAL_ACCESS_GROUPS_CREATE_GROUP_MODERATION_TOOLTIP",
 		"group"			: "user",
 		"name"			: "groups.moderate"
+	},
+	{
+		"title": "COM_EASYSOCIAL_ACCESS_GROUPS_VIDEOS_ENABLED",
+		"description": "COM_EASYSOCIAL_ACCESS_GROUPS_VIDEOS_ENABLED_DESC",
+		"group": "group",
+		"name": "videos.create",
+		"type": "boolean",
+		"default": 1
+	},
+	{
+		"title": "COM_EASYSOCIAL_ACCESS_GROUPS_VIDEOS_TOTAL_VIDEOS_ALLOWED",
+		"group": "group",
+		"name": "videos.total",
+		"type": "limit",
+		"default": 0
+	},
+	{
+		"title": "COM_EASYSOCIAL_ACCESS_VIDEOS_MAX_SIZE",
+		"group": "group",
+		"name": "videos.maxsize",
+		"type": "limit",
+		"suffix": "MB",
+		"default": 0
 	},
 	{
 		"title"			: "COM_EASYSOCIAL_ACCESS_GROUPS_PHOTOS_ENABLED",

@@ -106,6 +106,27 @@ class SocialTableDefaultAvatar extends SocialTable
 	}
 
 	/**
+	 * Overrides parent's load implementation
+	 *
+	 * @since	1.4
+	 * @access	public
+	 */
+	public function load( $keys = null, $reset = true )
+	{
+		$state = null;
+
+		$cachekey = 'DefaultAvatar.' . $keys;
+
+		if (FD::cache()->exists($cachekey)) {
+			$state = parent::bind(FD::cache()->get($cachekey));
+		} else {
+			$state = parent::load( $keys, $reset );
+		}
+
+		return $state;
+	}
+
+	/**
 	 * Get's the absolute url for the image source.
 	 *
 	 * @since	1.0
@@ -237,10 +258,7 @@ class SocialTableDefaultAvatar extends SocialTable
 		$storagePath 	= $defaultsPath . '/' . FD::cleanPath( $typePath );
 
 		// Ensure storage path exists.
-		if( !FD::makeFolder( $storagePath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_AVATARS: Unable to create the path ' . $storagePath );
-
+		if (!FD::makeFolder($storagePath)) {
 			$this->setError( JText::_( 'Errors when creating default path for avatar' ) );
 			return false;
 		}
@@ -262,9 +280,7 @@ class SocialTableDefaultAvatar extends SocialTable
 		$image->load( $file[ 'tmp_name' ] );
 
 		// Test if the image is really a valid image.
-		if( !$image->isValid() )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_AVATARS: Image uploaded ' . $file[ 'name' ] . ' is invalid' );
+		if (!$image->isValid()) {
 			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_AVATARS_FILE_NOT_IMAGE' ) );
 			return false;
 		}

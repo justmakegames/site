@@ -31,7 +31,7 @@ class SocialUserAppEvents extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#f06050';
-        $obj->icon = 'ies-calendar';
+        $obj->icon = 'fa-calendar';
         $obj->label = 'APP_USER_EVENTS_STREAM_TOOLTIP';
 
         return $obj;
@@ -55,6 +55,11 @@ class SocialUserAppEvents extends SocialAppItem
 
         $event = FD::event($item->cluster_id);
 
+        // Only show Social sharing in public event
+        if ($event->type != SOCIAL_EVENT_TYPE_PUBLIC) {
+            $item->sharing = false;
+        }        
+
         // If the event is pending and is a new item, this means this event is created from the story form, and we want to show a message stating that the event is in pending
         if ($event->isPending() && !empty($item->isNew)) {
             $item->title = JText::_('APP_USER_EVENTS_STREAM_EVENT_PENDING_APPROVAL');
@@ -77,11 +82,11 @@ class SocialUserAppEvents extends SocialAppItem
 
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
         $item->color = '#f06050';
-        $item->fonticon = 'ies-calendar';
-        $item->label = JText::_('APP_USER_EVENTS_STREAM_TOOLTIP');
+        $item->fonticon = 'fa fa-calendar';
+        $item->label = FD::_('APP_USER_EVENTS_STREAM_TOOLTIP', true);
 
         if ($event->isGroupEvent()) {
-            $item->label = JText::_('APP_USER_EVENTS_GROUP_EVENT_STREAM_TOOLTIP');
+            $item->label = FD::_('APP_USER_EVENTS_GROUP_EVENT_STREAM_TOOLTIP', true);
         }
 
         if ($item->context === 'events' || $item->context === 'guests') {
@@ -143,7 +148,7 @@ class SocialUserAppEvents extends SocialAppItem
         if ($item->context === 'tasks') {
             $this->processTaskStream($item, $includePrivacy);
             return;
-        }
+        }        
     }
 
     private function processDiscussionStream(SocialStreamItem &$item, $includePrivacy)
@@ -339,6 +344,12 @@ class SocialUserAppEvents extends SocialAppItem
             return;
         }
 
+        // Ensure that the user has access to create events
+        if (!$this->my->getAccess()->get('events.create')) {
+            return;
+        }
+
+        // Ensure that events is enabled
         if (!FD::config()->get('events.enabled')) {
             return;
         }

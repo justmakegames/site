@@ -100,8 +100,8 @@ class SocialTableAlert extends SocialTable
 	public function loadUsers()
 	{
 		if (!$this->users) {
-			$db		= FD::db();
-			$sql	= $db->sql();
+			$db = FD::db();
+			$sql = $db->sql();
 
 			$sql->select('#__social_alert_map');
 			$sql->column('user_id', 'id');
@@ -243,7 +243,6 @@ class SocialTableAlert extends SocialTable
 			$state = $table->store();
 
 			if (!$state) {
-				FD::logError(__FILE__, __LINE__, $table->getError());
 				return false;
 			}
 		}
@@ -380,7 +379,7 @@ class SocialTableAlert extends SocialTable
 		}
 
 		if (is_object($options)) {
-			$options 	= FD::makeArray($options);
+			$options = FD::makeArray($options);
 		}
 
 		// If params is not set, just give it an empty array
@@ -416,7 +415,7 @@ class SocialTableAlert extends SocialTable
 
 		$mailer = FD::mailer();
 
-		$data	= new SocialMailerData();
+		$data = new SocialMailerData();
 
 		$data->set('title', $options['title']);
 		$data->set('template', $options['template']);
@@ -468,7 +467,17 @@ class SocialTableAlert extends SocialTable
 		}
 
 		foreach ($users as $uid) {
-			$user		= FD::user($uid);
+			$user = FD::user($uid);
+
+			// If user has been blocked, skip this altogether.
+			if ($user->block) {
+				continue;
+			}
+
+			// If user do not have community access, skip this altogether.
+			if (!$user->hasCommunityAccess()) {
+				continue;
+			}			
 
 			// Get the params
 			$params 	= $options['params'];

@@ -111,6 +111,11 @@ var Popbox = function(button, options) {
 			elementOptions[key] = val;
 		});
 
+	// Quick Hack
+	if (button.attr("data-popbox-offset")!==undefined) {
+		elementOptions["offset"] = parseInt(button.attr("data-popbox-offset"));
+	}
+
 	// If popbox was set up via jQuery, the element may not
 	// have the data-popbox attribute. We need this attribute
 	// for click and hover events to work (and keep things DRY).
@@ -345,6 +350,9 @@ $.extend(Popbox.prototype, {
 			});
 		}
 
+		// Insert active for button
+		popbox.button.addClass("active");
+
 		// Hide when popbox is blurred
 		if (popbox.toggle=="click") {
 
@@ -532,6 +540,9 @@ $.extend(Popbox.prototype, {
 			}
 		}
 
+		// Removed active for button
+		popbox.button.removeClass("active");
+
 		popbox.hideTimer = setTimeout(hide, popbox.hideDelay);
 	},
 
@@ -552,6 +563,8 @@ $(document)
 
 		var popbox = $(this).popbox("widget");
 
+		if (popbox.toggle=="hover") return;
+
 		if (popbox.enabled) {
 			popbox.hide();
 		} else {
@@ -562,7 +575,7 @@ $(document)
 
 		var popbox = $(this).popbox("widget");
 
-		if (popbox.toggle=="hover") popbox.show();
+		if (popbox.toggle=="hover" && !(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))) popbox.show();
 	})
 	.on('mouseout.popbox', '[data-popbox]', function(){
 

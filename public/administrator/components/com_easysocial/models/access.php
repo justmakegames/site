@@ -98,6 +98,11 @@ class EasySocialModelAccess extends EasySocialModel
 			case SOCIAL_TYPE_CLUSTERS:
 				$group = SOCIAL_TYPE_GROUP;
 			break;
+
+			case SOCIAL_TYPE_EVENT:
+				$group = SOCIAL_TYPE_EVENT;
+				$type = SOCIAL_TYPE_CLUSTERS;
+			break;
 		}
 
 		$rules = $model->getAllRules(array(
@@ -111,6 +116,9 @@ class EasySocialModelAccess extends EasySocialModel
 		}
 
 		$forms 	= array();
+
+		$requiredMaxUploadCheck = array('photos.maxsize', 'files.maxsize', 'videos.maxsize', 'photos.uploader.maxsize');
+		$iniMaxUpload = (int) ini_get('upload_max_filesize');
 
 		// Group rules by element
 		foreach ($rules as $rule)
@@ -129,6 +137,15 @@ class EasySocialModelAccess extends EasySocialModel
 			$rule->label = $rule->title;
 			$rule->tooltip = $rule->description;
 
+			$rule->maxupload = 0;
+			$rule->maxuploadDisplay = '';
+			// let check if this rule need to apply the max upload size or not.
+			// var_dump($rule->name);
+			if (in_array($rule->name, $requiredMaxUploadCheck)) {
+				$rule->maxupload = $iniMaxUpload; // in mb
+				$rule->maxuploadDisplay = JText::sprintf('COM_EASYSOCIAL_ACL_FILEUPLOAD_MAX_NOTICE', $iniMaxUpload);
+			}
+
 			if (empty($rule->type))
 			{
 				$rule->type = 'boolean';
@@ -141,6 +158,8 @@ class EasySocialModelAccess extends EasySocialModel
 
 			$forms[$rule->element]->fields[] = $rule;
 		}
+
+// var_dump($forms);exit;
 
 		$form 	= FD::form();
 		$form->load($forms);

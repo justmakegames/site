@@ -17,6 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			class="form-control input-sm searchable"
 			data-field-joomla_timezone-input
 			data-placeholder="<?php echo JText::_('PLG_FIELDS_JOOMLA_TIMEZONE_SELECT_TIMEZONE'); ?>"
+            class="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'chzn-rtl' : '';?>"
 	>
 		<option value="UTC" <?php if ($value === 'UTC') { ?>selected="selected"<?php } ?>>UTC</option>
 		<?php foreach( $timezones as $group => $countries ){ ?>

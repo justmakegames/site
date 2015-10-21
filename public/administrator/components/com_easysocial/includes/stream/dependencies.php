@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,26 +9,22 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
-
+defined('_JEXEC') or die('Unauthorized Access');
 
 class SocialStreamItem
 {
-	public $uid			= null;
-	public $title		= null;
-	public $content		= null;
-	public $preview		= null;
-	public $display		= null;
-	public $friendlyTS	= null;
-	public $actor_id	= null;
-	public $type		= null;
-	public $with 		= null;
-	public $location 	= null;
-	public $isNew		= null;
-
-	public function __construct()
-	{
-	}
+	public $uid = null;
+	public $title = null;
+	public $content = null;
+	public $preview = null;
+	public $display = null;
+	public $friendlyTS = null;
+	public $actor_id = null;
+	public $type = null;
+	public $with = null;
+	public $location = null;
+	public $isNew = null;
+	public $state = null;
 
 	/**
 	 * Determines if the stream item is posted in a cluster
@@ -36,7 +32,7 @@ class SocialStreamItem
 	 * @since	1.3.8
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function isCluster()
 	{
@@ -49,7 +45,7 @@ class SocialStreamItem
 	 * @since	1.3.8
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getCluster()
 	{
@@ -69,14 +65,14 @@ class SocialStreamItem
 	 * @since	1.3.8
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function setLikes($group, $useStreamId, $uid = null, $context = null, $verb = null)
 	{
 		$uid = is_null($uid) ? $this->uid : $uid;
 		$context = is_null($context) ? $this->context : $context;
 		$verb = is_null($verb) ? $this->verb : $verb;
-		
+
 		$likes = FD::likes();
 		$likes->get($uid, $context, $verb, $group, $useStreamId);
 
@@ -89,14 +85,14 @@ class SocialStreamItem
 	 * @since	1.3.8
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function setComments($group, $useStreamId, $options = array(), $uid = null, $context = null, $verb = null)
 	{
 		$uid = is_null($uid) ? $this->uid : $uid;
 		$context = is_null($context) ? $this->context : $context;
 		$verb = is_null($verb) ? $this->verb : $verb;
-		
+
 		// Retrieve the comments object
 		$comments = FD::comments($uid, $context, $verb, $group, $options, $useStreamId);
 		$this->comments = $comments;
@@ -108,7 +104,7 @@ class SocialStreamItem
 	 * @since	1.3.8
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function setRepost($group, $element, $uid = null)
 	{
@@ -126,11 +122,24 @@ class SocialStreamItem
 	 * @since	1.3.8
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getActor()
 	{
 		return $this->actor;
+	}
+
+	/**
+	 * Determines whether the stream is moderated
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function isModerated()
+	{
+		return $this->state == SOCIAL_STREAM_STATE_MODERATE;
 	}
 
 	/**
@@ -139,7 +148,7 @@ class SocialStreamItem
 	 * @since	5.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function isMini()
 	{
@@ -152,7 +161,7 @@ class SocialStreamItem
 	 * @since	1.3.8
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getTargets()
 	{
@@ -204,7 +213,7 @@ class SocialStreamItem
 	 * @since	1.3
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getPermalink($xhtml = false)
 	{
@@ -216,6 +225,67 @@ class SocialStreamItem
 		}
 
 		return $link;
+	}
+
+	/**
+	 * Determine if the viewer is the actor of stream item.
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function isOwner()
+	{
+		$my = FD::user();
+
+		if ($my->id == 0) {
+			return false;
+		}
+
+		return $my->id == $this->actor->id;
+	}
+
+	/**
+	 * Determines if the stream item can be made sticky
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function canSticky()
+	{
+		$my = FD::user();
+		$config = FD::config();
+
+		if (! $config->get('stream.pin.enabled')) {
+			return false;
+		}
+
+		// If the stream is moderated, it shouldn't be allowed to be stickied
+		if ($this->isModerated()) {
+			return false;
+		}
+
+		if ($my->isSiteAdmin()) {
+			return true;
+		}
+
+		if ($this->isCluster()) {
+        	$cluster = FD::cluster($this->cluster_type, $this->cluster_id);
+
+        	// if user is not the cluster owner or the admin, then dont alllow to sticky
+        	if (!$cluster->isOwner() && !$cluster->isAdmin()) {
+        		return false;
+        	}
+		} else {
+			if (! $this->isOwner()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
 

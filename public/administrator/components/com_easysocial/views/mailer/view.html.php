@@ -27,13 +27,8 @@ class EasySocialViewMailer extends EasySocialAdminView
 	public function display( $tpl = null )
 	{
 		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_EMAIL_ACTIVITIES' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-email_envelope' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_EMAIL_ACTIVITIES' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_EMAIL_ACTIVITIES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_EMAIL_ACTIVITIES');
 
 		// Add buttons
 		JToolbarHelper::publishList( 'publish' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_MARK_SENT') );

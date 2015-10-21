@@ -5,8 +5,8 @@
 var moduleFactory = function($) {
 // module body: start
 
-var module = this;
-var exports = function() {
+var module = this; 
+var exports = function() { 
 
 $.fn.pageslide = function(content, direction) {
 
@@ -35,24 +35,27 @@ $.fn.pageslide = function(content, direction) {
                 .removeClass("active")
                 .end();
 
+        viewport.trigger("pageslidestart");
+
         // Get container and switch class
         container = this.switchClass("fx-" + direction);
 
         setTimeout(function(){
             container.removeClass("fx-prev fx-next");
             page.siblings().detach();
+            viewport.trigger("pageslidestop");
         }, 500);
 
     return this;
 };
-};
+}; 
 
-exports();
-module.resolveWith(exports);
+exports(); 
+module.resolveWith(exports); 
 
 // module body: end
 
-};
+}; 
 // module factory: end
 
 FD40.module("pageslide", moduleFactory);

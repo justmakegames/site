@@ -28,14 +28,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					</ul>
 				</span>
 
-				<i class="ies-feed-2 mr-5"></i>
+				<i class="fa fa-rss-square mr-5"></i>
 				<a href="<?php echo $this->html( 'string.escape' , $feed->url );?>" target="_blank">
 					<?php echo $feed->title; ?>
 				</a>
 			</div>
 
 			<div class="feed-time">
-				<i class="ies-clock-2 ies-small"></i> <?php echo FD::date( $feed->created )->toLapsed();?>
+				<i class="fa fa-clock-o-2 "></i> <?php echo FD::date( $feed->created )->toLapsed();?>
 			</div>
 		</div>
 	</div>

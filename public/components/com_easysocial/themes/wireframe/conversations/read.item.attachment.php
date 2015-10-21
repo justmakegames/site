@@ -12,38 +12,39 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <?php if( $attachments && $this->config->get( 'conversations.attachments.enabled' ) ){ ?>
-<div class="conversation-attachments row">
+<div class="conversation-attachments">
 
-	<div class="col-md-12" data-conversation-attachment-wrapper>
+	<div data-conversation-attachment-wrapper>
 		<h6><?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_ATTACHMENTS' ); ?>:</h6>
 
 		<ul class="fd-reset-list">
 			<?php foreach( $attachments as $attachment ){ ?>
 				<li class="attach-item uploadItem<?php echo $attachment->hasPreview() ? ' preview' : ''; ?>" data-conversation-attachment>
-					<div class="">
-						<a href="<?php echo $attachment->getPermalink();?>" class="attach-link itemLink"
-							data-es-provide="tooltip"
-							data-original-title="<b><?php echo $this->html( 'string.escape' , $attachment->name );?></b><br /><br /><?php echo JText::sprintf( 'COM_EASYSOCIAL_CONVERSATIONS_FILE_UPLOADED_ON' , $attachment->getUploadedDate()->toLapsed() );?>"
-							data-html="true"
-							data-placement="bottom"
-						>
-							<i class="icon-es-<?php echo $attachment->getIconClass();?> mr-5"></i>
-							<?php echo $attachment->name; ?>
-						</a>
-
-						<span class="attach-size fd-small">
-							- <?php echo $attachment->getSize( 'kb' );?> <?php echo JText::_( 'COM_EASYSOCIAL_UNIT_KILOBYTES' );?>
-						</span>
-
-						<?php if( $attachment->isOwner( $this->my->id ) ){ ?>
-							<a href="javascript:void(0);" class="pull-right delete-attachment" data-attachment-delete data-id="<?php echo $attachment->id;?>"><i class="ies-cancel-2 ies-small"></i></a>
-						<?php } ?>
-
-						<?php if( $attachment->hasPreview() ){ ?>
-						<div class="attachment-preview">
-							<a href="<?php echo $attachment->getPreviewURI();?>" target="_blank"><img src="<?php echo $attachment->getPreviewURI();?>" /></a>
-						</div>
-						<?php } ?>
+					<div class="fd-cf">
+					    <div class="media">
+					        <div class="pull-left">
+					            <?php if( $attachment->hasPreview() ){ ?>
+					            <div class="attachment-preview">
+					            	<a href="<?php echo $attachment->getPreviewURI();?>" target="_blank"><img src="<?php echo $attachment->getPreviewURI();?>" /></a>
+					            </div>
+					            <?php } ?>
+					        </div>
+					        <div class="media-body">
+					            <div class="">
+					                10675669_636029936520492_8831380915507774114_n.jpg
+					                <span class="attach-size muted fd-small">- <?php echo $attachment->getSize( 'kb' );?> <?php echo JText::_( 'COM_EASYSOCIAL_UNIT_KILOBYTES' );?></span>
+					            </div>
+					            <div class="btn-group btn-group-xs" role="group" aria-label="...">
+					                <a class="btn btn-default" href="<?php echo $attachment->getPermalink();?>"><i class="fa fa-download"></i></a>
+					                <?php if( $attachment->isOwner( $this->my->id ) ){ ?>
+					                	<a href="javascript:void(0);" class="btn btn-default delete-attachment" data-attachment-delete data-id="<?php echo $attachment->id;?>"><i class="fa fa-remove"></i></a>
+					                <?php } ?>
+					            </div>
+					            
+					        </div>
+					    </div>
+					    
+					    
 					</div>
 				</li>
 			<?php } ?>

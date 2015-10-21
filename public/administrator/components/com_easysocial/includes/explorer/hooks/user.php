@@ -175,6 +175,18 @@ class SocialExplorerHookUser extends SocialExplorerHooks
 		return true;
 	}
 
+	/**
+	 * The user should always have access to delete their own files.
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function hasDeleteAccess(SocialTableFile $file)
+	{
+		return true;
+	}
 
 	/**
 	 * Determines if the viewer can view the explorer

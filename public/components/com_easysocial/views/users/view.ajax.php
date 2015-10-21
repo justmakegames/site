@@ -51,7 +51,7 @@ class EasySocialViewUsers extends EasySocialSiteView
 	 * @access	public
 	 * @param	Array	An array of SocialUser objects
 	 */
-	public function getUsersByFilter($users, $filter, $pagination = null)
+	public function getUsersByFilter($users, $filter, $pagination = null, $displayOptions = null)
 	{
 		$ajax  = FD::ajax();
 
@@ -64,6 +64,7 @@ class EasySocialViewUsers extends EasySocialSiteView
 		$theme->set('filter', 'search');
 		$theme->set('searchFilter', $filter);
 		$theme->set('id', $id);
+		$theme->set('displayOptions', $displayOptions);
 
 		$contents 	= $theme->output('site/users/default.list');
 
@@ -149,7 +150,7 @@ class EasySocialViewUsers extends EasySocialSiteView
 		$ajax 		= FD::ajax();
 
 		$filter 	= JRequest::getWord( 'filter' );
-		$sort 		= JRequest::getWord( 'sort' );
+		$sort 		= JRequest::getWord( 'sort', $this->config->get('users.listings.sorting') );
 
 		$theme 		= FD::themes();
 		$theme->set('users', $users);

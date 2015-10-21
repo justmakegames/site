@@ -37,21 +37,27 @@ defined('_JEXEC') or die('Unauthorized Access');
         </p>
 
         <?php if (!empty($comment)) { ?>
-        <table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;">
-            <tbody>
-                <tr>
-                    <td valign="top" width="100">
-                        <span style="display:block;margin: 0px auto 20px;border:1px solid #f5f5f5;width:64px;padding:3px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff">
-                            <a href="<?php echo $posterLink;?>"><img src="<?php echo $posterAvatar;?>" alt="<?php echo $this->html( 'string.escape' , $posterName );?>" style="border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff" width="64" height="64"/></a>
-                        </span>
-                    </td>
-                    <td valign="top" style="color:#888;background-color:#f8f9fb;text-align:left">
-                        <p style="margin:0;font-size:11px;">
-                            <?php echo $comment; ?>
-                        </p>
-                    </td>
-                </tr>
-            </tbody>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
+        <tr>
+        <td align="center">
+            <table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="table-layout:fixed;margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;">
+                <tbody>
+                    <tr>
+                        <td valign="top" width="100">
+                            <span style="display:block;margin: 0px auto 20px;border:1px solid #f5f5f5;width:64px;padding:3px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff">
+                                <a href="<?php echo $posterLink;?>"><img src="<?php echo $posterAvatar;?>" alt="<?php echo $this->html( 'string.escape' , $posterName );?>" style="border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff" width="64" height="64"/></a>
+                            </span>
+                        </td>
+                        <td valign="top" style="color:#888;background-color:#f8f9fb;text-align:left">
+                            <p style="margin:0;font-size:11px;">
+                                <?php echo $comment; ?>
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+        </tr>
         </table>
         <?php } ?>
 

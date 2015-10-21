@@ -75,9 +75,14 @@ class SocialGroupAppPhotosHookNotificationComments
 
         // If user uploads multiple photos on the stream
         if ($item->context_type == 'stream.group.upload') {
+
+            //Get the stream item object
+            $streamItem = FD::table('StreamItem');
+            $streamItem->load(array('uid' => $item->context_ids));
+
             // Get the photo object
             $photo  = FD::table('Photo');
-            $photo->load($item->context_ids);
+            $photo->load($streamItem->context_id);
 
             $item->content  = '';
 

@@ -4,23 +4,48 @@
 * @license      Proprietary Use License http://stackideas.com/licensing.html
 * @author       Stack Ideas Sdn Bhd
 **/
-/*------------------------------------*\
-    $Filterbar - filterbar.less
-\*------------------------------------*/
+
 .es-filterbar {
-    .clearfix();
     position: relative;
     z-index: 2;
-    height: 40px;
-    padding: 4px 14px;
+    padding: 0 0 15px;
+    margin: 0 0 15px;
     border-bottom: 1px solid @esBorder;
+
+    // AS FOR 1.4.3, .es-filterbar WILL UTILISE .row-table, AND .col-cell for its content
+
+    > .col-cell {
+        vertical-align: middle;
+    }
+
     .filterbar-title {
-        margin: 0;
-        line-height: 30px;
-        font-family: @esTitleFont;
+        font-weight: bold;
     }
-    .fd-nav-filter {
-        // left: 20px;
-        top: 2px;
+}
+
+
+.es-snackbar {
+    color: darken(@esBorder, 60%);
+    background: lighten(@esBorder, 6%);
+    border-radius: 3px;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0 10px;
+    margin-bottom: 15px;
+    line-height: 30px;
+
+    .dropdown-menu-right {
+        left: auto;
+        right: 0;
     }
-}//es-filterbar
+
+    .row-table {
+        display: table;
+        width: 100%;
+        
+        > .col-cell {
+            display: table-cell !important;
+            vertical-align: middle;
+        }
+    }
+}

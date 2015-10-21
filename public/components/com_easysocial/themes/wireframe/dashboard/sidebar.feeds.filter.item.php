@@ -24,7 +24,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-dashboardFeeds-Filter-edit
 		data-id="<?php echo $filter->id; ?>"
 	>
-		<i class="ies-pencil"></i>
+		<i class="fa fa-pencil"></i>
 	</a>
 
 	<a  href="javascript:void(0);"
@@ -35,6 +35,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-title="<?php echo $this->html( 'string.escape' , $filter->title ); ?>"
 		class="data-dashboardfeeds-item"
 	>
-		<i class="ies-list mr-5"></i> <?php echo $filter->title; ?>
+		<?php echo $filter->title; ?>
 	</a>
 </li>

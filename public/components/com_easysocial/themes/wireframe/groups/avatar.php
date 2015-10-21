@@ -21,7 +21,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         <div class="dropdown_ es-avatar-menu" data-avatar-menu>
             <a href="javascript:void(0);"
                class="es-flyout-button dropdown-toggle_"
-               data-bs-toggle="dropdown"><i class="ies-cog-2"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PHOTOS_EDIT_AVATAR' );?></a>
+               data-bs-toggle="dropdown"><i class="fa fa-cog"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PHOTOS_EDIT_AVATAR' );?></a>
             <ul class="dropdown-menu">
                 <li data-avatar-upload-button>
                     <a href="javascript:void(0);"><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_UPLOAD_AVATAR"); ?></a>

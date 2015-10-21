@@ -38,7 +38,7 @@
 
 
 // Badges
-@esBadgesWrapperBackground: url("../images/points-wrapper-bg.png") no-repeat bottom center;
+@esBadgesWrapperBackground: url("@{site_base_uri}/../images/points-wrapper-bg.png") no-repeat bottom center;
 @esBadgesBackground: darken(@esBackground, 2%); //fafafa
 @esBadgesBorder: @esBorder;
 @esBadgesFootBackground: darken(@esBadgesBackground, 4%); //888
@@ -48,7 +48,7 @@
 @esAchievementDateColor: @esColor;
 
 // Points
-@esPointsWrapperBackground: url("../images/points-wrapper-bg.png") no-repeat bottom center;
+@esPointsWrapperBackground: url("@{site_base_uri}/../images/points-wrapper-bg.png") no-repeat bottom center;
 @esPointsEmptyBackground: #f5f5f5;
 @esPointsEmptyBoderColor: #eee;
 
@@ -79,17 +79,15 @@
 @esConversationUnreadBackground: darken(@esBackground, 4%); //f5f5f5
 @esConversationSelectedBackground: @esSelectedBackground;
 @esConversationTimeColor: darken(@esBackground, 20%); //ccc
-@esConversationTimestampColor: @esConversationTimeColor;
+@esConversationTimestampColor: darken(@esConversationTimeColor, 50%);
 @esConversationAttachmentPreviewBackground: @esBackground;
 @esConversationAttachmentPreviewBorder: darken(@esConversationAttachmentPreviewBackground, 4%);
+@esConversationBubbleRightBackground: #EEF7FC;
+@esConversationBubbleLeftBackground: #fafafa;
 
-// Location
-@esLocationBackground: @esBackground;
-@esLocationColor: @esColor;
-@esLocationBorder: @esBorder;
-@esLocationSuggestionsBorder: darken(@esBackground, 20%); //ccc
-@esLocationSuggestionsActiveBackground: #E7EDF3;
-@esLocationTextboxBorder: @esLocationSuggestionsBorder;
+
+
+
 
 // Points History
 @esPointsHistoryBackground: @esBackground;

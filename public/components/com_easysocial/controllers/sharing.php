@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -27,109 +27,82 @@ class EasySocialControllerSharing extends EasySocialController
 	{
 		FD::checkToken();
 
-		$token		= JRequest::getString( 'token', '' );
-		$recipients	= JRequest::getVar( 'recipients', array() );
-		$content	= JRequest::getVar( 'content', '' );
+		$token = $this->input->get('token', '', 'default');
+		$recipients = $this->input->get('recipients', array(), 'array');
 
-		// Get the current view.
-		$view		= $this->getCurrentView();
-
-		// Cleaning
-		if( is_string( $recipients ) )
-		{
-			$recipients = explode( ',', FD::string()->escape( $recipients ) );
+		// Ensure that the recipients is an array
+		if (is_string($recipients)) {
+			$recipients = explode(',', FD::string()->escape($recipients));
 		}
 
-		if( is_array( $recipients ) )
-		{
-			foreach( $recipients as &$recipient )
-			{
-				$recipient = FD::string()->escape( $recipient );
+		// Check for the recipients validity
+		if (is_array($recipients)) {
 
-				if(!JMailHelper::isEmailAddress( $recipient ) )
-				{
-					return $view->call( __FUNCTION__, false, JText::_( 'COM_EASYSOCIAL_SHARING_EMAIL_INVALID_RECIPIENT' ) );
+			foreach ($recipients as $recipient) {
+				$recipient = FD::string()->escape($recipient);
+
+				$isValidEmail = JMailHelper::isEmailAddress($recipient);
+
+				if (!$isValidEmail) {
+					return $this->view->call(__FUNCTION__, false, JText::_('COM_EASYSOCIAL_SHARING_EMAIL_INVALID_RECIPIENT'));
 				}
 			}
 		}
 
-		$content	= FD::string()->escape( $content );
+		// Ensure that the contents are properly escaped
+		$content = $this->input->get('content', '', 'default');
+		$content = FD::string()->escape($content);
 
 		// Check for valid data
-		if( empty( $recipients ) )
-		{
-			return $view->call( __FUNCTION__, false, JText::_( 'COM_EASYSOCIAL_SHARING_EMAIL_NO_RECIPIENTS' ) );
+		if (!$recipients) {
+			return $this->view->call(__FUNCTION__, false, JText::_('COM_EASYSOCIAL_SHARING_EMAIL_NO_RECIPIENTS'));
 		}
 
-		if( empty( $token ) )
-		{
-			return $view->call( __FUNCTION__, false, JText::_( 'COM_EASYSOCIAL_SHARING_EMAIL_INVALID_TOKEN' ) );
+		// Ensure that a token is provided
+		if (!$token) {
+			return $this->view->call(__FUNCTION__, false, JText::_('COM_EASYSOCIAL_SHARING_EMAIL_INVALID_TOKEN'));
 		}
 
-		$session	= JFactory::getSession();
+		// Get the current session
+		$session = JFactory::getSession();
 
-		$config		= FD::config();
+		// Get the number of emails allowed to share
+		$limit = $this->config->get('sharing.email.limit', 0);
 
-		$limit		= $config->get( 'sharing.email.limit', 0 );
+		// Get the current timestamp
+		$now = FD::date()->toUnix();
 
-		$now		= FD::date()->toUnix();
+		// Get the time
+		$time = $session->get('easysocial.sharing.email.time');
+		$count = $session->get('easysocial.sharing.email.count');
 
-		$time		= $session->get( 'easysocial.sharing.email.time' );
-
-		$count		= $session->get( 'easysocial.sharing.email.count' );
-
-		if( is_null( $time ) )
-		{
-			$session->set( 'easysocial.sharing.email.time', $now );
+		if (is_null($time)) {
+			$session->set('easysocial.sharing.email.time', $now);
 			$time = $now;
 		}
 
-		if( is_null( $count ) )
-		{
-			$session->set( 'easysocial.sharing.email.count', 0 );
+		if (is_null($count)) {
+			$session->set('easysocial.sharing.email.count', 0);
 		}
 
-		$diff		= $now - $time;
+		// Get the time difference
+		$diff = $now - $time;
 
-		if( $diff <= 3600 )
-		{
-			if( $limit > 0 && $count >= $limit )
-			{
-				return $view->call( __FUNCTION__, false, JText::_( 'COM_EASYSOCIAL_SHARING_EMAIL_SHARING_LIMIT_MAXED' ) );
+		if ($diff <= 3600) {
+			if ($limit > 0 && $count >= $limit) {
+				return $this->view->call(__FUNCTION__, false, JText::_('COM_EASYSOCIAL_SHARING_EMAIL_SHARING_LIMIT_MAXED'));
 			}
 
 			$count++;
-
-			$session->set( 'easysocial.sharing.email.count', $count );
-		}
-		else
-		{
-			$session->set( 'easysocial.sharing.email.time', $now );
-			$session->set( 'easysocial.sharing.email.count', 1 );
+			$session->set('easysocial.sharing.email.count', $count);
+		} else {
+			$session->set('easysocial.sharing.email.time', $now);
+			$session->set('easysocial.sharing.email.count', 1);
 		}
 
-		$library	= FD::get( 'Sharing' );
+		$lib = FD::sharing();
+		$lib->sendLink($recipients, $token, $content);
 
-		$library->sendLink( $recipients, $token, $content );
-
-		$view->call( __FUNCTION__, true );
+		return $this->view->call(__FUNCTION__, true);
 	}
-
-	// Debugging purposes
-	// EasySocial.ajax('site/controllers/sharing/checkSession').done(function(time, diff, count, limit){console.log(time, diff, count, limit)})
-	// public function checkSession()
-	// {
-	// 	$session = JFactory::getSession();
-
-	// 	$ajax = FD::ajax();
-
-	// 	$time = $session->get( 'easysocial.sharing.email.time' );
-	// 	$count = $session->get( 'easysocial.sharing.email.count' );
-
-	// 	$diff = FD::date()->toUnix() - $time;
-
-	// 	$limit = FD::config()->get( 'sharing.email.limit' );
-
-	// 	$ajax->resolve( $time, $diff, $count, $limit );
-	// }
 }

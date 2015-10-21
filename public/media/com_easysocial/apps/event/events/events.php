@@ -17,7 +17,7 @@ class SocialEventAppEvents extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#f06050';
-        $obj->icon = 'ies-calendar';
+        $obj->icon = 'fa-calendar';
         $obj->label = 'APP_EVENT_EVENTS_STREAM_TOOLTIP';
 
         return $obj;
@@ -42,6 +42,11 @@ class SocialEventAppEvents extends SocialAppItem
 
         $event = FD::event($item->cluster_id);
 
+        // Only show Social sharing in public group
+        if (!$event->isOpen()) {
+            $item->sharing = false;
+        }
+
         if (!$event->canViewItem()) {
             return;
         }
@@ -53,8 +58,8 @@ class SocialEventAppEvents extends SocialAppItem
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
 
         $item->color = '#f06050';
-        $item->fonticon = 'ies-calendar';
-        $item->label = JText::_('APP_EVENT_EVENTS_STREAM_TOOLTIP');
+        $item->fonticon = 'fa fa-calendar';
+        $item->label = FD::_('APP_EVENT_EVENTS_STREAM_TOOLTIP', true);
 
         $actor = $item->actor;
 

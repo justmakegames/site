@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="es-theme-compiler">
-	<div class="tab-box tab-box-alt tab-box-sidenav">
+	<div class="tab-box tab-box-sidenav">
 		<div class="tabbable">
 			<ul class="nav nav-tabs nav-tabs-icons nav-tabs-side">
 				<?php

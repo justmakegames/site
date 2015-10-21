@@ -19,27 +19,64 @@ class ThemesHelperHTML
 	 * @since 	1.2
 	 * @access	public
 	 */
-	public static function miniheader( $obj )
+	public static function miniheader($obj)
 	{
-		$theme 	= FD::themes();
+		$theme = FD::themes();
 
-		if( $obj instanceof SocialUser )
-		{
-			$theme->set( 'user' , $obj );
-			$output 	= $theme->output( 'site/profile/mini.header' );
+		if ($obj instanceof SocialUser) {
+			$theme->set('user', $obj);
+			$output = $theme->output('site/profile/mini.header');
 		}
 
-		if( $obj instanceof SocialGroup )
-		{
-			$theme->set( 'group' , $obj );
-			$output 	= $theme->output( 'site/groups/mini.header' );
+		if ($obj instanceof SocialGroup) {
+			$theme->set('group', $obj);
+			$output = $theme->output('site/groups/mini.header');
 		}
 
-		if( $obj instanceof SocialEvent )
-		{
-			$theme->set( 'event' , $obj );
-			$output 	= $theme->output( 'site/events/mini.header' );
+		if ($obj instanceof SocialEvent) {
+
+			$theme->set('event', $obj);
+			$output = $theme->output('site/events/mini.header');
 		}
+
+		return $output;
+	}
+
+	/**
+	 * Renders the online state of a user
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public static function online($online = false, $size = 'small')
+	{
+		$theme = ES::themes();
+
+		$theme->set('online', $online);
+		$theme->set('size', $size);
+
+		$output = $theme->output('site/utilities/user.online.state');
+
+		return $output;
+	}
+
+	/**
+	 * Displays the video's title in html format
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public static function video(SocialVideo $video)
+	{
+		$theme = ES::themes();
+
+		$theme->set('video', $video);
+
+		$output = $theme->output('admin/html/html.video');
 
 		return $output;
 	}
@@ -53,7 +90,7 @@ class ThemesHelperHTML
 	 * @param	bool	True if to display a popbox
 	 * @return
 	 */
-	public static function user($id , $popbox = false , $popboxPosition = 'top-left', $avatar = false)
+	public static function user($id, $popbox = false, $popboxPosition = 'top-left', $avatar = false)
 	{
 		if (is_object($id)) {
 			$user = $id;
@@ -61,6 +98,9 @@ class ThemesHelperHTML
 			$user = FD::user($id);
 		}
 
+		if ($user->block) {
+			return $user->name;
+		}
 
 		$theme 	= FD::themes();
 
@@ -123,6 +163,32 @@ class ThemesHelperHTML
 		$theme->set( 'group' 	, $group );
 
 		$output 	= $theme->output( 'admin/html/html.group' );
+
+		return $output;
+	}
+
+	/**
+	 * Renders a map popbox
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public static function map(SocialLocation $location, $displayIcon = false)
+	{
+		$theme = ES::themes();
+
+		$latitude = $location->getLatitude();
+		$longitude = $location->getLongitude();
+		$address = $location->getAddress();
+
+		$theme->set('displayIcon', $displayIcon);
+		$theme->set('latitude', $latitude);
+		$theme->set('longitude', $longitude);
+		$theme->set('address', $address);
+
+		$output = $theme->output('admin/html/html.map');
 
 		return $output;
 	}

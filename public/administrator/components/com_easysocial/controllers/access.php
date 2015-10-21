@@ -78,51 +78,67 @@ class EasySocialControllerAccess extends EasySocialController
 		return $view->call(__FUNCTION__);
 	}
 
+	/**
+	 * Scan for access files on the site
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function scanFiles()
 	{
-		FD::checkToken();
+		// Check for request forgeries
+		ES::checkToken();
 
-		$view = $this->getCurrentView();
-
-		$config = FD::config();
-		$paths 	= $config->get('access.paths');
+		// Get available paths
+		$paths = $this->config->get('access.paths');
 
 		$model = FD::model('accessrules');
 
 		$files = array();
 
-		foreach ($paths as $path)
-		{
-			$data = $model->scan($path);
+		foreach ($paths as $path) {
+			$result = $model->scan($path);
 
-			$files = array_merge($files, $data);
+			$files = array_merge($files, $result);
 		}
 
-		return $view->call(__FUNCTION__, $files);
+		return $this->view->call(__FUNCTION__, $files);
 	}
 
+	/**
+	 * Install access rule files
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function installFile()
 	{
-		FD::checkToken();
+		// Check for request forgeries
+		ES::checkToken();
 
-		$view = $this->getCurrentView();
+		// Get the file from request
+		$file = $this->input->get('file', '', 'default');
 
-		$file = JRequest::getVar('file', '');
-
-		if (empty($file))
-		{
-			$view->setError('Invalid file path given to scan.');
-			return $view->call(__FUNCTION__);
+		if (!$file) {
+			return JError::raiseError(500, JText::_('Invalid file path given to scan for access files.'));
 		}
 
-		$model = FD::model('accessrules');
+		// Load up the model so that we can install the new rule
+		$model = ES::model('AccessRules');
 
+		// Try to install the rule now.
+		$rules = $model->install($file);
+		
 		$obj = (object) array(
 			'file' => str_ireplace(JPATH_ROOT, '', $file),
-			'rules' => $model->install($file)
+			'rules' => $rules
 		);
 
-		return $view->call(__FUNCTION__, $obj);
+		return $this->view->call(__FUNCTION__, $obj);
 	}
 
 	public function upload()

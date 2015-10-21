@@ -2,7 +2,8 @@
     {
         "library": [
             "gmaps",
-            "scrollTo"
+            "scrollTo",
+            "image"
         ],
         "view": [
             "site/location/story.suggestion"

@@ -5,7 +5,8 @@ EasySocial.module("story/locations", function($){
 	EasySocial.require()
 	.library(
 		"gmaps",
-		"scrollTo"
+		"scrollTo",
+		"image"
 	)
 	.view("site/location/story.suggestion")
 	.language(
@@ -109,19 +110,23 @@ EasySocial.module("story/locations", function($){
 							size: [width, height],
 							lat: lat,
 							lng: lng,
+							sensor: true,
+							scale: 2,
 							markers: [
 								{lat: lat, lng: lng}
 							]
 						});
 
-				mapImage
-					.attr("src", url)
-					.data({
-						width: width,
-						height: height
-					});
+				$.Image.get(url)
+					.done(function() {
+						mapImage.css({
+							"backgroundImage": $.cssUrl(url),
+							"backgroundSize": "cover",
+							"backgroundPosition": "center center"
+						});
 
-				self.base().addClass("has-location");
+						self.base().addClass("has-location");
+					});
 			},
 
 			// Memoized locations
@@ -243,25 +248,21 @@ EasySocial.module("story/locations", function($){
 
 				self.base().addClass("is-busy");
 
-				$.GMaps.geocode({
-					address: address,
-					callback: function(locations, status) {
+				EasySocial.ajax('site/controllers/location/getLocations', {
+					query: address
+				}).done(function(locations) {
+					self.base().removeClass("is-busy");
 
-						self.base().removeClass("is-busy");
+					// Store a copy of the results
+					self.locations[address] = locations;
 
-						if (status=="OK") {
+					// Suggestion locations
+					self.suggest(locations);
 
-							// Store a copy of the results
-							self.locations[address] = locations;
-
-							// Suggestion locations
-							self.suggest(locations);
-
-							self.lastQueryAddress = address;
-						}
-					}
+					self.lastQueryAddress = address;
+				}).fail(function(msg) {
+					console.log(msg);
 				});
-
 			}, 250),
 
 			suggest: function(locations) {
@@ -274,7 +275,7 @@ EasySocial.module("story/locations", function($){
 
 				if (locations.length < 0) return;
 
-				$.each(locations, function(i, location){
+				$.each(locations, function(i, location) {
 
 					// Create suggestion and append to list
 					self.view.suggestion({
@@ -343,8 +344,8 @@ EasySocial.module("story/locations", function($){
 				var location = suggestion.data("location");
 
 				self.navigate(
-					location.geometry.location.lat(),
-					location.geometry.location.lng()
+					location.latitude,
+					location.longitude
 				);
 			},
 
@@ -371,27 +372,37 @@ EasySocial.module("story/locations", function($){
 
 				self.currentLocation = location;
 
-				var lat = location.geometry.location.lat(),
-					lng = location.geometry.location.lng();
+				var process = $.Deferred();
 
-				self.navigate(lat, lng);
+				if ($.isEmpty(location.fulladdress)) {
+					self.getAddress(location.latitude, location.longitude)
+						.done(function(address) {
+							location.fulladdress = location.name + ', ' + address;
 
-				var address = location.formatted_address;
+							process.resolve(location);
+						});
+				} else {
+					process.resolve(location);
+				}
 
-				self.textField().val(address);
+				process.done(function(location) {
+					self.navigate(location.latitude, location.longitude);
 
-				self.lastQueryAddress = address;
+					self.textField().val(location.fulladdress);
 
-				var link =
-						$('<a href="javascript: void(0);" data-story-meta-location>')
-							.html(address)
-							.toHTML(),
+					self.lastQueryAddress = location.address;
 
-					caption = $.language("COM_EASYSOCIAL_STREAM_AT") + " " + link;
+					var link =
+							$('<a href="javascript: void(0);" data-story-meta-location>')
+								.html(location.fulladdress)
+								.toHTML(),
 
-				self.story.setMeta("location", caption);
+						caption = $.language("COM_EASYSOCIAL_STREAM_AT") + " " + link;
 
-				self.base().addClass("has-location");
+					self.story.setMeta("location", caption);
+
+					self.base().addClass("has-location");
+				});
 			},
 
 			unset: function() {
@@ -442,20 +453,21 @@ EasySocial.module("story/locations", function($){
 					self.base().removeClass("is-busy");
 				}, 8000);
 
+
+
 				$.GMaps.geolocate({
 					success: function(position) {
 
 						// story.clearMessage();
 
-						$.GMaps.geocode({
-							lat: position.coords.latitude,
-							lng: position.coords.longitude,
-							callback: function(locations, status){
-								if (status=="OK") {
-									self.suggest(locations);
-									self.textField().focus();
-								}
-							}
+						EasySocial.ajax('site/controllers/location/getLocations', {
+							latitude: position.coords.latitude,
+							longitude: position.coords.longitude
+						}).done(function(locations) {
+							self.suggest(locations);
+							self.textField().focus();
+						}).fail(function(msg) {
+							console.log(msg);
 						});
 					},
 					error: function(error) {
@@ -513,11 +525,46 @@ EasySocial.module("story/locations", function($){
 
 				if (!currentLocation) return;
 
-				save.data[ 'locations_short_address' ]		= currentLocation.address_components[0].long_name;
-				save.data['locations_formatted_address']	= currentLocation.formatted_address;
-				save.data['locations_lat']					= currentLocation.geometry.location.lat();
-				save.data['locations_lng']					= currentLocation.geometry.location.lng();
-				save.data['locations_data']					= JSON.stringify(currentLocation);
+				var task = save.addTask('saveLocation');
+
+				if ($.isEmpty(currentLocation.fulladdress)) {
+					self.getAddress(currentLocation.latitude, currentLocation.longitude).done(function(address) {
+						currentLocation.fulladdress = currentLocation.name + ', ' + address;
+
+						self.save(task, currentLocation);
+					});
+				} else {
+					self.save(task, currentLocation);
+				}
+			},
+
+			getAddress: $.memoize(function(latitude, longitude) {
+				var process = $.Deferred(),
+					geocoder = new google.maps.Geocoder(),
+					latlng = new google.maps.LatLng(latitude, longitude);
+
+				geocoder.geocode({
+					'latLng': latlng
+				},
+				function(results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						process.resolve(results[0].formatted_address);
+					}
+				});
+
+				return process;
+			}, function(lat, lng) {
+				return lat + ',' + lng;
+			}),
+
+			save: function(task, location) {
+				task.save.data['locations_short_address'] = location.name;
+				task.save.data['locations_lat'] = location.latitude;
+				task.save.data['locations_lng'] = location.longitude;
+				task.save.data['locations_formatted_address'] = location.fulladdress;
+				task.save.data['locations_data'] = JSON.stringify(location);
+
+				task.resolve();
 			},
 
 			"{story} clear": function() {

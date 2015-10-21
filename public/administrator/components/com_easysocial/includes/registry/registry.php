@@ -35,19 +35,18 @@ class SocialRegistry
 	public function __construct( $data = '' )
 	{
 		// Load our helpers
-		$name	= FD::getInstance( 'Version' )->getCodename();
-		$path	= dirname( __FILE__ ) . '/helpers/' . $name . '.php';
+		$name = FD::getInstance('Version')->getCodename();
+		$path = dirname( __FILE__ ) . '/helpers/' . $name . '.php';
 
-		require_once( $path );
+		require_once($path);
 
-		$className		= 'SocialRegistry' . ucfirst($name);
+		$className = 'SocialRegistry' . ucfirst($name);
 
-		$this->helper	= new $className( '' );
+		$this->helper = new $className( '' );
 
 		// Always use our own load methods.
-		if( !empty( $data ) )
-		{
-			$this->load( $data );
+		if (!empty($data)) {
+			$this->load($data);
 		}
 
 		return $this;

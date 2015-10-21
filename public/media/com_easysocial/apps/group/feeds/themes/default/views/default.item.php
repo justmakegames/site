@@ -16,7 +16,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<h5>
 			<a href="<?php echo @$rss->parser->get_link();?>" target="_blank">
 				<?php echo $rss->title; ?>
-				<i class="ies-new-tab ies-small"></i>
+				<i class="fa fa-new-tab "></i>
 			</a>
 			<span class="btn-group mr-10 pull-right">
 				<a href="javascript:void(0);" data-bs-toggle="dropdown" class="dropdown-toggle_ btn btn-dropdown">
@@ -52,7 +52,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<a href="javascript:void(0);" data-feed-open><?php echo @$item->get_title();?></a>
 
 				<div class="feed-item-meta pull-right">
-					<i class="ies-clock"></i> <span class="fd-small"><?php echo @$item->get_date( JText::_('COM_EASYSOCIAL_DATE_DMY') ); ?></span>
+					<i class="fa fa-clock-o"></i> <span class="fd-small"><?php echo @$item->get_date( JText::_('COM_EASYSOCIAL_DATE_DMY') ); ?></span>
 				</div>
 			</div>
 

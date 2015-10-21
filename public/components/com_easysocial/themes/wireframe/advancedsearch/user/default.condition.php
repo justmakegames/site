@@ -24,22 +24,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				$geo = explode( '|', $selected );
 			}
 	?>
-        <div class="input-group input-group-sm" style="width:250px;">
 
-			<input data-distance type="text" class="form-control input-sm"
-				   name="frmDistance" placeholder="<?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_ENTER_SOME_VALUE' , true );?>"
-				   value="<?php echo isset($geo[0]) ? $geo[0] : '';?>" />
-
-            <span class="input-group-btn">
-                <button class="btn btn-default" type="button" data-location-detect>
-                    <i class="ies-power" data-loaction-icon></i><?php echo JText::_('COM_EASYSOCIAL_ADVANCED_SEARCH_DETECT_LOCATION'); ?>
-                </button>
-            </span>
-        </div>
-        <div class="es-story-location-autocomplete" data-location-autocomplete>
-            <div class="es-story-location-suggestions" data-location-suggestions>
-            </div>
-        </div>
+		<input data-distance type="number" class="form-control input-sm"
+			   name="frmDistance" placeholder="<?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_ENTER_DISTANCE' , true );?>"
+			   value="<?php echo isset($geo[0]) ? $geo[0] : '';?>" />
         <input class="form-control input-sm" type="hidden" value="<?php echo isset($geo[1]) ? $geo[1] : '';?>" name="frmLatitude" data-latitude />
         <input class="form-control input-sm" type="hidden" value="<?php echo isset($geo[2]) ? $geo[2] : '';?>" name="frmLongitude" data-longitude />
         <input class="form-control input-sm" type="hidden" value="<?php echo isset($geo[3]) ? $geo[3] : '';?>" name="frmAddress" data-address />

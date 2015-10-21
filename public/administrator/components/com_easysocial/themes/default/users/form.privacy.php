@@ -12,142 +12,137 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 $esconfig = FD::config();
 ?>
-<div class="fd-small">
-	<div class="checkbox">
-		<label style="color:#000;">
-			<input type="checkbox" value="1" name="privacyReset" style="float:left;margin-left:-20px;"/> <?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_RESET_USER_DESCRIPTION' ); ?>
-		</label>
-	</div>
-</div>
 
-<div class="form-privacy" data-edit-privacy>
-<?php foreach( $privacy as $group => $items ){ ?>
 
-	<?php
+<div class="form-privacy row" data-edit-privacy>
+	<div class="col-lg-7">
+		<div class="panel">
+			<div class="panel-body">
+				<div class="fd-small">
+					<div class="es-checkbox">
+						<input type="checkbox" value="1" name="privacyReset" id="privacyReset"/> 
+						<label for="privacyReset">
+							<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_RESET_USER_DESCRIPTION' ); ?>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php foreach( $privacy as $group => $items ){ ?>
+			<?php
 
-		// var_dump($group);
-		// photos / albums
-		if (($group == 'albums' || $group == 'photos') && !$esconfig->get('photos.enabled')) {
-			continue;
-		}
-
-		// badges / achievements
-		if (($group == 'achievements') && !$esconfig->get('badges.enabled')) {
-			continue;
-		}
-
-		// followers
-		if (($group == 'followers') && !$esconfig->get('followers.enabled')) {
-			continue;
-		}
-	?>
-
-	<h3><?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_GROUP_' . strtoupper( $group ) ); ?></h3>
-	<hr />
-
-	<table class="table table-striped table-noborder">
-		<tbody>
-			<?php foreach( $items as $item ){
-
-				// profile - conversation
-				if (($group == 'profiles' && $item->rule == 'post.message') && !$esconfig->get('conversations.enabled')) {
+				// var_dump($group);
+				// photos / albums
+				if (($group == 'albums' || $group == 'photos') && !$esconfig->get('photos.enabled')) {
 					continue;
 				}
 
-				$hasCustom = ( $item->custom ) ? true : false;
-				$customIds = '';
-				$curValue  = '';
+				// badges / achievements
+				if (($group == 'achievements') && !$esconfig->get('badges.enabled')) {
+					continue;
+				}
+
+				// followers
+				if (($group == 'followers') && !$esconfig->get('followers.enabled')) {
+					continue;
+				}
 			?>
-			<tr>
-				<td width="30%">
-					<label class="control-label"><?php echo $item->label; ?></label>
-				</td>
+			<div class="panel">
+				<div class="panel-head">
+					<b><?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_GROUP_' . strtoupper( $group ) ); ?></b>
+				</div>
 
-				<td>
-					<div class="form-group mv-5" data-privacy-item>
-						<div class="col-md-1">
-							<i class="icon-es-help pull-left mr-10" <?php echo $this->html( 'bootstrap.popover' , $item->label , $item->tips , 'bottom' ); ?>></i>
-						</div>
-						<div class="col-md-10">
-							<div class="">
-								<select autocomplete="off" class="form-control input-sm privacySelection" name="privacy[<?php echo $item->groupKey;?>][<?php echo $item->rule;?>]" data-privacy-select>
-									<?php foreach( $item->options as $option => $value ){
-										if( $value )
-										{
-											$curValue = $option;
-										}
+				<div class="panel-body">
+							<?php foreach( $items as $item ){
 
-										if( $this->config->get( 'general.site.lockdown.enabled' ) && $option == SOCIAL_PRIVACY_0 )
-										{
-											continue;
-										}
-									?>
-										<option value="<?php echo $option;?>"<?php echo $value ? ' selected="selected"' : '';?>>
-											<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_OPTION_' . strtoupper( $option ) );?>
-										</option>
-									<?php } ?>
-								</select>
+								// profile - conversation
+								if (($group == 'profiles' && $item->rule == 'post.message') && !$esconfig->get('conversations.enabled')) {
+									continue;
+								}
 
-								<a <?php if( !$hasCustom ) { ?>style="display: none;"<?php } ?> href="javascript:void(0);" data-privacy-custom-edit-button>
-									<i class="icon-es-settings"></i>
-								</a>
+								$hasCustom = ( $item->custom ) ? true : false;
+								$customIds = '';
+								$curValue  = '';
+							?>
+							<div class="form-group">
+								<label class="col-md-5 control-label">
+									<?php echo $item->label; ?>
+									<i class="icon-es-help pull-right ml-10" <?php echo $this->html( 'bootstrap.popover' , $item->label , $item->tips , 'bottom' ); ?>></i>
+								</label>
 
-								<div data-privacy-custom-form
-									class="dropdown-menu dropdown-arrow-topleft privacy-custom-menu"
-									style="display:none;"
-								>
-									<div class="small mb-10 row-fluid">
-										<?php echo JText::_('COM_EASYSOCIAL_PRIVACY_CUSTOM_DIALOG_NAME'); ?>
-										<a href="javascript:void(0);" class="pull-right" data-privacy-custom-hide-button>
-											<i class="ies-cancel-2 ies-small" title="<?php echo JText::_('COM_EASYSOCIAL_PRIVACY_CUSTOM_DIALOG_HIDE' , true );?>"></i>
-										</a>
-									</div>
-									<div class="textboxlist" data-textfield >
-
-										<?php
-											if( $hasCustom )
+								<div class="col-md-7" data-privacy-item>
+									<select autocomplete="off" class="form-control input-sm privacySelection" name="privacy[<?php echo $item->groupKey;?>][<?php echo $item->rule;?>]" data-privacy-select>
+										<?php foreach( $item->options as $option => $value ){
+											if( $value )
 											{
-												foreach( $item->custom as $friend )
-												{
-													if( $customIds )
-													{
-														$customIds = $customIds . ',' . $friend->user_id;
-													}
-													else
-													{
-														$customIds = $friend->user_id;
-													}
+												$curValue = $option;
+											}
 
-													$friend = FD::user( $friend->user_id );
-										?>
-											<div class="textboxlist-item" data-id="<?php echo $friend->id; ?>" data-title="<?php echo $friend->getName(); ?>" data-textboxlist-item>
-												<span class="textboxlist-itemContent" data-textboxlist-itemContent><?php echo $friend->getName(); ?><input type="hidden" name="items" value="<?php echo $friend->id; ?>" /></span>
-												<a class="textboxlist-itemRemoveButton" href="javascript: void(0);" data-textboxlist-itemRemoveButton></a>
-											</div>
-										<?php
-												}
-
+											if( $this->config->get( 'general.site.lockdown.enabled' ) && $option == SOCIAL_PRIVACY_0 )
+											{
+												continue;
 											}
 										?>
+											<option value="<?php echo $option;?>"<?php echo $value ? ' selected="selected"' : '';?>>
+												<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_OPTION_' . strtoupper( $option ) );?>
+											</option>
+										<?php } ?>
+									</select>
 
-										<input type="text" class="textboxlist-textField" data-textboxlist-textField placeholder="<?php echo JText::_('COM_EASYSOCIAL_PRIVACY_CUSTOM_DIALOG_ENTER_NAME'); ?>" autocomplete="off" />
+									<a <?php if( !$hasCustom ) { ?>style="display: none;"<?php } ?> href="javascript:void(0);" data-privacy-custom-edit-button>
+										<i class="icon-es-settings"></i>
+									</a>
+
+									<div data-privacy-custom-form
+										class="dropdown-menu dropdown-arrow-topleft privacy-custom-menu"
+										style="display:none;"
+									>
+										<div class="small mb-10 row-fluid">
+											<?php echo JText::_('COM_EASYSOCIAL_PRIVACY_CUSTOM_DIALOG_NAME'); ?>
+											<a href="javascript:void(0);" class="pull-right" data-privacy-custom-hide-button>
+												<i class="fa fa-remove" title="<?php echo JText::_('COM_EASYSOCIAL_PRIVACY_CUSTOM_DIALOG_HIDE' , true );?>"></i>
+											</a>
+										</div>
+										<div class="textboxlist" data-textfield >
+
+											<?php
+												if( $hasCustom )
+												{
+													foreach( $item->custom as $friend )
+													{
+														if( $customIds )
+														{
+															$customIds = $customIds . ',' . $friend->user_id;
+														}
+														else
+														{
+															$customIds = $friend->user_id;
+														}
+
+														$friend = FD::user( $friend->user_id );
+											?>
+												<div class="textboxlist-item" data-id="<?php echo $friend->id; ?>" data-title="<?php echo $friend->getName(); ?>" data-textboxlist-item>
+													<span class="textboxlist-itemContent" data-textboxlist-itemContent><?php echo $friend->getName(); ?><input type="hidden" name="items" value="<?php echo $friend->id; ?>" /></span>
+													<a class="textboxlist-itemRemoveButton" href="javascript: void(0);" data-textboxlist-itemRemoveButton></a>
+												</div>
+											<?php
+													}
+
+												}
+											?>
+
+											<input type="text" class="textboxlist-textField" data-textboxlist-textField placeholder="<?php echo JText::_('COM_EASYSOCIAL_PRIVACY_CUSTOM_DIALOG_ENTER_NAME'); ?>" autocomplete="off" />
+										</div>
 									</div>
+
+									<input type="hidden" name="privacyID[<?php echo $item->groupKey;?>][<?php echo $item->rule; ?>]" value="<?php echo $item->id . '_' . $item->mapid;?>" />
+									<input type="hidden" name="privacyOld[<?php echo $item->groupKey;?>][<?php echo $item->rule; ?>]" value="<?php echo $curValue; ?>" />
+									<input type="hidden" data-hidden-custom name="privacyCustom[<?php echo $item->groupKey;?>][<?php echo $item->rule; ?>]" value="<?php echo $customIds; ?>" />
 								</div>
-
-								<input type="hidden" name="privacyID[<?php echo $item->groupKey;?>][<?php echo $item->rule; ?>]" value="<?php echo $item->id . '_' . $item->mapid;?>" />
-								<input type="hidden" name="privacyOld[<?php echo $item->groupKey;?>][<?php echo $item->rule; ?>]" value="<?php echo $curValue; ?>" />
-								<input type="hidden" data-hidden-custom name="privacyCustom[<?php echo $item->groupKey;?>][<?php echo $item->rule; ?>]" value="<?php echo $customIds; ?>" />
 							</div>
-						</div>
-
-
-					</div>
-				</td>
-			</tr>
-			<?php } ?>
-		</tbody>
-	</table>
-
-<?php } ?>
-
+							<?php } ?>
+				</div>
+			</div>
+		<?php } ?>
+	</div>
 </div>

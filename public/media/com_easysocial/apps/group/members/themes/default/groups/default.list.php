@@ -32,6 +32,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<i class="icon-es-dropdown"></i>
 			</a>
 			<ul class="dropdown-menu dropdown-menu-user messageDropDown">
+				<?php if ($group->isPendingInvitationApproval($user->id)) { ?>
+				<li>
+					<a href="javascript:void(0);" data-members-cancel-invitation><?php echo JText::_('APP_GROUP_MEMBERS_CANCEL_INVITATION'); ?></a>
+				</li>
+				<?php } ?>
+
 				<?php if( $group->isPendingMember( $user->id ) ){ ?>
 				<li>
 					<a href="javascript:void(0);" data-members-approve><?php echo JText::_( 'APP_GROUP_MEMBERS_APPROVE' ); ?></a>
@@ -64,8 +70,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<img src="<?php echo $user->getAvatar();?>" class="es-avatar pull-left" title="<?php echo $this->html( 'string.escape' , $user->getName() );?>" />
 		<h5>
-			<?php echo $this->html( 'html.user' , $user->id , true ); ?>
 
+			<?php echo $this->html( 'html.user' , $user->id , true ); ?>
+            &#8207;
 			<span class="label label-danger label-owner"><?php echo JText::_( 'APP_GROUP_MEMBERS_OWNER' ); ?></span>
 
 			<span class="label label-success label-admin"><?php echo JText::_( 'APP_GROUP_MEMBERS_ADMIN' ); ?></span>

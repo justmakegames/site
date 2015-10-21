@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form name="adminForm" id="adminForm" method="post" data-table-grid>
 
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -33,109 +33,110 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php } ?>
 	</div>
 
-	<table class="table table-striped table-es table-hover">
-		<thead>
-			<?php if( $this->tmpl != 'component' ){ ?>
-			<th width="1%" class="center">
-				<input type="checkbox" name="toggle" data-table-grid-checkall />
-			</th>
-			<?php } ?>
-
-			<th>
-				<?php echo $this->html( 'grid.sort' , 'title' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_TITLE' ) , $ordering , $direction ); ?>
-			</th>
-
-			<?php if( $this->tmpl != 'component' ){ ?>
-			<th width="1%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'state' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_STATE' ) , $ordering , $direction ); ?>
-			</th>
-
-			<th width="5%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'state' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_EXTENSION' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="5%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'command' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_COMMAND' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="15%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'created' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
-			</th>
-			<?php } ?>
-
-			<th width="<?php echo $this->tmpl == 'component' ? '8%' : '5%';?>" class="center">
-				<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
-			</th>
-		</thead>
-
-		<tbody>
-		<?php if( $badges ){ ?>
-			<?php $i = 0; ?>
-			<?php foreach( $badges as $badge ){ ?>
-			<tr>
-
+	<div class="panel-table">
+		<table class="app-table table table-eb table-striped">
+			<thead>
 				<?php if( $this->tmpl != 'component' ){ ?>
-				<td class="center">
-					<?php echo $this->html( 'grid.id' , $i , $badge->id ); ?>
-				</td>
+				<th width="1%" class="center">
+					<input type="checkbox" name="toggle" data-table-grid-checkall />
+				</th>
 				<?php } ?>
 
-				<td>
-					<img src="<?php echo $badge->getAvatar();?>" width="24" height="24" align="left" class="mr-10 mt-5" />
-
-					<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=badges&layout=form&id=' . $badge->id );?>"
-						data-id="<?php echo $badge->id;?>"
-						data-title="<?php echo $badge->get( 'title' );?>"
-						data-avatar="<?php echo $badge->getAvatar();?>"
-						data-alias="<?php echo $badge->getAlias();?>"
-						data-badge-insert
-						data-es-provide="tooltip"
-						data-content-original="<?php echo $badge->description;?>">
-						<?php echo $badge->get( 'title' ); ?>
-					</a>
-					<div class="fd-small">
-						<?php echo $badge->get( 'description' ); ?>
-					</div>
-				</td>
+				<th>
+					<?php echo $this->html( 'grid.sort' , 'title' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_TITLE' ) , $ordering , $direction ); ?>
+				</th>
 
 				<?php if( $this->tmpl != 'component' ){ ?>
-				<td class="center">
-					<?php echo $this->html( 'grid.published' , $badge , 'badges' ); ?>
-				</td>
-				<td class="center">
-					<?php echo $badge->getExtensionTitle();?>
-				</td>
+				<th width="1%" class="center">
+					<?php echo $this->html( 'grid.sort' , 'state' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_STATE' ) , $ordering , $direction ); ?>
+				</th>
 
-				<td class="center">
-					<?php echo $badge->command;?>
-				</td>
-
-				<td class="center">
-					<?php echo $badge->created;?>
-				</td>
+				<th width="5%" class="center">
+					<?php echo $this->html( 'grid.sort' , 'state' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_EXTENSION' ) , $ordering , $direction ); ?>
+				</th>
+				<th width="5%" class="center">
+					<?php echo $this->html( 'grid.sort' , 'command' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_COMMAND' ) , $ordering , $direction ); ?>
+				</th>
+				<th width="15%" class="center">
+					<?php echo $this->html( 'grid.sort' , 'created' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
+				</th>
 				<?php } ?>
 
-				<td class="center">
-					<?php echo $badge->id;?>
-				</td>
-			</tr>
+				<th width="<?php echo $this->tmpl == 'component' ? '8%' : '5%';?>" class="center">
+					<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
+				</th>
+			</thead>
+
+			<tbody>
+			<?php if( $badges ){ ?>
+				<?php $i = 0; ?>
+				<?php foreach( $badges as $badge ){ ?>
+				<tr>
+
+					<?php if( $this->tmpl != 'component' ){ ?>
+					<td class="center">
+						<?php echo $this->html( 'grid.id' , $i , $badge->id ); ?>
+					</td>
+					<?php } ?>
+
+					<td>
+						<img src="<?php echo $badge->getAvatar();?>" width="24" height="24" align="left" class="mr-10 mt-5" />
+
+						<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=badges&layout=form&id=' . $badge->id );?>"
+							data-id="<?php echo $badge->id;?>"
+							data-title="<?php echo $badge->get( 'title' );?>"
+							data-avatar="<?php echo $badge->getAvatar();?>"
+							data-alias="<?php echo $badge->getAlias();?>"
+							data-badge-insert
+							data-es-provide="tooltip"
+							data-content-original="<?php echo $badge->description;?>">
+							<?php echo $badge->get( 'title' ); ?>
+						</a>
+						<div class="fd-small">
+							<?php echo $badge->get( 'description' ); ?>
+						</div>
+					</td>
+
+					<?php if( $this->tmpl != 'component' ){ ?>
+					<td class="center">
+						<?php echo $this->html( 'grid.published' , $badge , 'badges' ); ?>
+					</td>
+					<td class="center">
+						<?php echo $badge->getExtensionTitle();?>
+					</td>
+
+					<td class="center">
+						<?php echo $badge->command;?>
+					</td>
+
+					<td class="center">
+						<?php echo $badge->created;?>
+					</td>
+					<?php } ?>
+
+					<td class="center">
+						<?php echo $badge->id;?>
+					</td>
+				</tr>
+				<?php } ?>
+			<?php } else { ?>
+				<tr class="is-empty">
+					<td class="empty" colspan="8">
+						<?php echo JText::_( 'COM_EASYSOCIAL_BADGES_LIST_EMPTY' ); ?>
+					</td>
+				</tr>
 			<?php } ?>
-		<?php } else { ?>
-			<tr class="is-empty">
-				<td class="empty" colspan="8">
-					<?php echo JText::_( 'COM_EASYSOCIAL_BADGES_LIST_EMPTY' ); ?>
-				</td>
-			</tr>
-		<?php } ?>
-		</tbody>
+			</tbody>
 
-		<tfoot>
-			<tr>
-				<td colspan="8">
-					<div class="footer-pagination"><?php echo $pagination->getListFooter(); ?></div>
-				</td>
-			</tr>
-		</tfoot>
-
-	</table>
+			<tfoot>
+				<tr>
+					<td colspan="8">
+						<div class="footer-pagination"><?php echo $pagination->getListFooter(); ?></div>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
 
 
 	<?php echo JHTML::_( 'form.token' ); ?>

@@ -30,9 +30,15 @@ class SocialLanguageHelper
 	 * @param	string
 	 * @return
 	 */
-	public static function getLanguages( $selected = '' )
+	public static function getLanguages( $selected = '', $subname = true )
 	{
 		$languages 	= JLanguageHelper::createLanguageList( $selected , constant( 'JPATH_SITE' ), true, true );
+
+		if (!$subname) {
+			for ($i = 0; $i < count($languages); $i++) {
+				$languages[$i]['text'] = preg_replace('#\(.*?\)#i', '', $languages[$i]['text']);
+			}
+		}
 
 		return $languages;
 	}

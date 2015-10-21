@@ -13,26 +13,30 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="row">
     <div class="col-md-12">
-        <div class="widget-box">
-        <h3><?php echo JText::_('COM_EASYSOCIAL_MAINTENANCE_EXECUTING_SCRIPTS'); ?></h3>
-        <p><?php echo JText::_('COM_EASYSOCIAL_MAINTENANCE_EXECUTING_SCRIPTS_DESC'); ?></p>
+        <div class="panel">
+            <div class="panel-head">
+                <b><?php echo JText::_('COM_EASYSOCIAL_MAINTENANCE_EXECUTING_SCRIPTS'); ?></b>
+                <p><?php echo JText::_('COM_EASYSOCIAL_MAINTENANCE_EXECUTING_SCRIPTS_DESC'); ?></p>
+            </div>
 
-        <table class="table table-striped table-noborder" data-table-scripts>
-            <thead>
-                <tr>
-                    <th><?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_TITLE'); ?></td>
-                    <th width="10%" class="center"><?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_STATUS'); ?></td>
-                </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($scripts as $script) { ?>
-                <tr data-row data-key="<?php echo $script->key; ?>">
-                    <td><?php echo $script->title; ?></td>
-                    <td class="center"><span class="label label-warning" data-status><i data-icon class="ies-wrench-3"></i></span></td>
-                </tr>
-            <?php } ?>
-            </tbody>
-        </table>
+            <div class="panel-body">
+                <table class="table table-striped table-noborder" data-table-scripts>
+                    <thead>
+                        <tr>
+                            <th><?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_TITLE'); ?></td>
+                            <th width="10%" class="center"><?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_STATUS'); ?></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($scripts as $script) { ?>
+                        <tr data-row data-key="<?php echo $script->key; ?>">
+                            <td><?php echo $script->title; ?></td>
+                            <td class="center"><span class="label label-warning" data-status><i data-icon class="fa fa-wrench-3"></i></span></td>
+                        </tr>
+                    <?php } ?>
+                    </tbody>
+                </table>
+            </th>
         </div>
     </div>
 </div>

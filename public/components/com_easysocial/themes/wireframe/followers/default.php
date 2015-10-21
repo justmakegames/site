@@ -18,7 +18,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 <div class="es-container" data-followers>
 	<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-		<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+		<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 	</a>
 	<div class="es-sidebar" data-sidebar>
 		<?php echo $this->render( 'module' , 'es-followers-sidebar-top' ); ?>
@@ -55,6 +55,21 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							</a>
 					</li>
 
+					<?php if ($user->id == $this->my->id) { ?>
+					<li class="follower-filter<?php echo $active == 'suggest' ? ' active' : '';?>"
+						data-followers-filter
+						data-followers-filter-type="suggest"
+						data-followers-filter-title="<?php echo JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_PEOPLE_TO_FOLLOW' );?>"
+						data-followers-filter-id="<?php echo $user->id;?>"
+						data-followers-filter-url="<?php echo $filterSuggest;?>"
+					>
+							<a href="javascript:void(0);" class="<?php echo $active == 'suggest' ? ' active' : '';?>">
+								<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_SUGGEST' );?>
+								<span class="es-count-no pull-right" data-suggest-count><?php echo $totalSuggest;?></span>
+							</a>
+					</li>
+					<?php } ?>
+
 				</ul>
 			</div>
 		</div>
@@ -67,7 +82,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php echo $this->render( 'module' , 'es-followers-before-contents' ); ?>
 		<?php echo $this->loadTemplate( 'site/followers/default.items' , array( 'active' => $active ,  'users' => $users , 'currentUser' => $currentUser ) ); ?>
 
-		<div class="es-pagination-footer">
+		<div class="es-pagination-footer" data-followers-pagination>
 			<?php echo $pagination->getListFooter( 'site' );?>
 		</div>
 		<?php echo $this->render( 'module' , 'es-followers-after-contents' ); ?>

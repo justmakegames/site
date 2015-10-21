@@ -52,13 +52,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<?php } ?>
 							<li class="mt-10">
 								<a href="<?php echo FRoute::friends( array( 'userid' => $user->getAlias() ) );?>" class="fd-small muted mr-10">
-									<i class="ies-users-2 ies-small"></i>  <?php echo $user->getTotalFriends();?> <?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS' ); ?>
+									<i class="fa fa-users"></i>  <?php echo $user->getTotalFriends();?> <?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS' ); ?>
 								</a>
 
 
 								<?php if( $this->config->get( 'followers.enabled' ) ) { ?>
 								<a href="<?php echo FRoute::followers( array( 'userid' => $user->getAlias() ) );?>" class="fd-small muted mr-10">
-									<i class="ies-heart ies-small"></i>
+									<i class="fa fa-heart "></i>
 									<?php if( $user->getTotalFollowers() ){ ?>
 										<?php echo $user->getTotalFollowers();?> <?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS' ); ?>
 									<?php } else { ?>

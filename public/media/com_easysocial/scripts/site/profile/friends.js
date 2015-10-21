@@ -75,12 +75,10 @@ EasySocial.module( 'site/profile/friends' , function($){
 
 						button.addClass("loading");
 
-						EasySocial.ajax(
-							"site/controllers/friends/request",
-							{
+						EasySocial.ajax("site/controllers/friends/request", {
 								id: self.options.target
 							})
-							.done( function(friendId, button){
+							.done(function(friendId, button) {
 
 								// Remove any previous dropdown
 								self.dropdown().remove();
@@ -90,20 +88,17 @@ EasySocial.module( 'site/profile/friends' , function($){
 
 								// Replace the button
 								self.button().replaceWith(button);
-							})
-							.fail(function(){
+							}).fail(function(obj){
 
-								EasySocial.dialog(
-								{
-									content 	: EasySocial.ajax( 'site/views/friends/exceeded' )
+								EasySocial.dialog({
+									content: obj.message
 								});
 
 								button.removeClass("loading");
 							});
 					},
 
-					"{cancelRequest} click" : function( el , event )
-					{
+					"{cancelRequest} click" : function(el , event) {
 						// If user can click on the cancel request, they should have a valid friend id by now.
 						var friendId 	= self.options.id;
 

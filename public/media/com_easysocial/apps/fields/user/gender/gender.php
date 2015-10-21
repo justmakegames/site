@@ -338,13 +338,18 @@ class SocialFieldsUserGenderValue extends SocialFieldValue
 			return '';
 		}
 
+		$lib = FD::privacy( FD::user()->id );
+		if (! $lib->validate( 'field.' . $this->element, $this->field_id, SOCIAL_TYPE_FIELD, $this->uid )) {
+			return '';
+		}
+
 		if ($display) {
 			// append gender icon.
 			$icontype = $this->value->value == 1 ? 'male' : 'female';
 			$icon = '';
 
 			if ($this->value->value != 3) {
-				$icon = '<i class="ies-small mr-5 ies-' . $icontype . '"></i>';
+				$icon = '<i class="fa mr-5 fa-' . $icontype . '"></i>';
 			}
 
 			$value = $icon . $this->value->title;
@@ -358,7 +363,7 @@ class SocialFieldsUserGenderValue extends SocialFieldValue
 
 			$advsearchLink = FRoute::search($params);
 
-			$value = '<a href="'.$advsearchLink.'">' . $value . '</a>';
+			$value = '<a class="fd-small muted" href="'.$advsearchLink.'">' . $value . '</a>';
 		}
 
 		return $value;

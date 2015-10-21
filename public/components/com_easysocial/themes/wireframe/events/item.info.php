@@ -13,18 +13,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if (!empty($fields)) { ?>
     <?php $empty = true; ?>
-        <div class="pl-20">
-            <table class="table table-striped profile-data-table">
-                <tbody>
-                    <?php foreach ($fields as $field) { ?>
-                        <?php if (!empty($field->output)) { ?>
-                            <?php echo $field->output; ?>
-                            <?php $empty = false; ?>
-                        <?php } ?>
+        <table class="table table-striped profile-data-table">
+            <tbody>
+                <?php foreach ($fields as $field) { ?>
+                    <?php if (!empty($field->output)) { ?>
+                        <?php echo $field->output; ?>
+                        <?php $empty = false; ?>
                     <?php } ?>
-                </tbody>
-            </table>
-        </div>
+                <?php } ?>
+            </tbody>
+        </table>
 
         <?php if ($empty){ ?>
         <div class="empty center">

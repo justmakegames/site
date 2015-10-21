@@ -28,7 +28,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php if ($options['showToolbar']) { ?>
 		<div class="media">
 			<div class="media-object pull-left">
-				<div class="es-avatar es-avatar-fd-reset-list es-inset"><img src="<?php echo $album->getCreator()->getAvatar(); ?>" /></div>
+				<div class="es-avatar"><img src="<?php echo $album->getCreator()->getAvatar(); ?>" /></div>
 			</div>
 			<div class="media-body">
 				<div data-album-owner class="es-album-owner"><?php echo JText::_("COM_EASYSOCIAL_ALBUMS_UPLOADED_BY"); ?> <a href="<?php echo $album->getCreator()->getPermalink(); ?>"><?php echo $album->getCreator()->getName(); ?></a></div>

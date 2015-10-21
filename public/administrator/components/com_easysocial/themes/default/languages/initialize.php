@@ -13,14 +13,21 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form name="adminForm" id="adminForm" method="post" data-table-grid>
 
-	<div class="languages-loader">
-		<?php echo JText::_( 'COM_EASYSOCIAL_INITIALIZING_LANGUAGE_LIST' );?><br />
+    <div class="languages-wrapper" data-languages-wrapper>
+    	<div class="languages-loader">
+    		<?php echo JText::_('COM_EASYSOCIAL_INITIALIZING_LANGUAGE_LIST');?><br />
+    	</div>
 
-		<i class="es-icon-loader"></i>
-	</div>
+        <div class="invalid-api">
+            <i class="fa fa-remove text-error"></i>
+            <?php echo JText::_('COM_EASYSOCIAL_INITIALIZING_LANGUAGE_SERVER_REJECTED_API_KEY');?><br />
 
-	<?php echo JHTML::_( 'form.token' ); ?>
+            <a href="/administrator/index.php?option=com_easysocial&view=settings&layout=form&page=system" class="btn btn-es"><?php echo JText::_('COM_EASYSOCIAL_CONFIGURE_API_KEY');?></a>
+        </div>
+    </div>
+
+	<?php echo JHTML::_('form.token'); ?>
 	<input type="hidden" name="option" value="com_easysocial" />
-	<input type="hidden" name="view" value="albums" />
-	<input type="hidden" name="controller" value="albums" />
+	<input type="hidden" name="view" value="languages" />
+	<input type="hidden" name="controller" value="languages" />
 </form>

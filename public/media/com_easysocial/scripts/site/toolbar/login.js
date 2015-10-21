@@ -18,24 +18,7 @@ EasySocial.module( 'site/toolbar/login' , function($){
 
 				init: function()
 				{
-					var html = self.dropdown().html(),
-						pos  = self.dropdown().data( 'dropdown-position' );
 
-					// Remove the temporary dropdown.
-					self.dropdown().remove();
-
-					// Implement popbox when the profile button is initiated
-					self.element.popbox(
-					{
-						content 	: html,
-						id			: "fd",
-						component   : "es",
-						type		: "toolbar",
-						toggle 		: "click",
-						position    : pos,
-						collision   : "flip none"
-					})
-					.attr("data-popbox", "");
 
 				},
 

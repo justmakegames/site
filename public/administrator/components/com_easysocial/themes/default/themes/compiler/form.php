@@ -35,15 +35,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php if ($memory_limit >= 96) { ?>
 			<div class="es-theme-compiler-actions">
 				<div class="btn-group pull-right">
-					<button type="button" class="btn btn-primary" data-build-button><i class="ies-power"></i> <?php echo JText::_('COM_EASYSOCIAL_THEMES_BUILD'); ?></button>
+					<button type="button" class="btn btn-primary" data-build-button><i class="fa fa-flash"></i> <?php echo JText::_('COM_EASYSOCIAL_THEMES_BUILD'); ?></button>
 					<button type="button" class="btn btn-primary dropdown-toggle_" data-bs-toggle="dropdown"><i class="caret"></i></button>
 					<ul class="dropdown-menu pull-right" role="menu">
-						<li data-build-without-minify-button><a href="javascript: void(0);"><i class="ies-power"></i> <?php echo JText::_('COM_EASYSOCIAL_THEMES_BUILD_WITHOUT_MINIFYING'); ?></a></button></li>
-						<li data-purge-button><a href="javascript: void(0);"><i class="ies-cabinet"></i> <?php echo JText::_('COM_EASYSOCIAL_THEMES_PURGE'); ?></a></li>
+						<li data-build-without-minify-button><a href="javascript: void(0);"><i class="fa fa-flash"></i> <?php echo JText::_('COM_EASYSOCIAL_THEMES_BUILD_WITHOUT_MINIFYING'); ?></a></button></li>
+						<li data-purge-button><a href="javascript: void(0);"><i class="fa fa-cabinet"></i> <?php echo JText::_('COM_EASYSOCIAL_THEMES_PURGE'); ?></a></li>
 					</ul>
 				</div>
 				<div class="btn-group pull-right mr-5">
-					<button type="button" class="btn" data-refresh-button><i class="ies-loop"></i> <?php echo JText::_('COM_EASYSOCIAL_THEMES_REFRESH'); ?></button>
+					<button type="button" class="btn" data-refresh-button><i class="fa fa-refresh"></i> <?php echo JText::_('COM_EASYSOCIAL_THEMES_REFRESH'); ?></button>
 				</div>
 			</div>
 			<?php } ?>

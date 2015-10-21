@@ -3,12 +3,20 @@ EasySocial.module('site/popbox/popbox', function($) {
 
 	EasySocial.module("notifications/popbox", function($){
 
-		this.resolve(function(popbox)
-		{
+		this.resolve(function(popbox) {
+			
+			var autoread = popbox.button.data('autoread');
+
 			return {
-				content: EasySocial.ajax( "site/controllers/notifications/getSystemItems",
-				{
+				
+				content: EasySocial.ajax( "site/controllers/notifications/getSystemItems", {
 					layout	: "popbox.notifications"
+				}).done(function(){
+
+					if (autoread) {
+						$('[data-notificationSystem-counter]').parents('li').removeClass('has-notice');
+						$('[data-notificationSystem-counter]').html(0);
+					}
 				}),
 				id: "fd",
 				component: "es",

@@ -1,17 +1,17 @@
 <?php
 /**
 * @package		EasyBlog
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'table.php' );
+require_once(dirname(__FILE__) . '/table.php');
 
 jimport('joomla.filesystem.file');
 jimport('joomla.filesystem.folder');
@@ -34,12 +34,12 @@ class EasyBlogTableBlogger extends EasyBlogTable
 	 * @return
 	 * @param object $db
 	 */
-	function __construct(& $db )
+	public function __construct(& $db )
 	{
 		parent::__construct( '#__easyblog_users' , 'id' , $db );
 	}
 
-	function bindPost()
+	public function bindPost()
 	{
 		$data	= array(
 							'nickname'		=> JRequest::getWord( 'nickname' ),
@@ -61,7 +61,7 @@ class EasyBlogTableBlogger extends EasyBlogTable
 		}
 	}
 
-	function getAvatar(){
+	public function getAvatar(){
 	    $avatar_link    = '';
 
         if($this->avatar == 'default.png' || $this->avatar == 'default_blogger.png' || $this->avatar == 'components/com_easyblog/assets/images/default_blogger.png' || $this->avatar == 'components/com_easyblog/assets/images/default.png' || empty($this->avatar))
@@ -74,6 +74,38 @@ class EasyBlogTableBlogger extends EasyBlogTable
     	}
 
 		return $avatar_link;
+	}
+
+	/**
+	 * Retrieve a list of tags that is associated with this tag
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getDefaultParams()
+	{
+
+		static $_cache = null;
+
+		if (! $_cache) {
+
+			$manifest = JPATH_ROOT . '/components/com_easyblog/views/blogger/tmpl/listings.xml';
+			$fieldsets = EB::form()->getManifest($manifest);
+
+			$obj = new stdClass();
+
+			foreach($fieldsets as $fieldset) {
+				foreach($fieldset->fields as $field) {
+					$obj->{$field->attributes->name} = $field->attributes->default;
+				}
+			}
+
+			$_cache = new JRegistry($obj);
+		}
+
+		return $_cache;
 	}
 
 }

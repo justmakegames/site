@@ -52,7 +52,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</form>
 	</content>
 	<buttons>
-		<button data-cancel-button type="button" class="btn btn-es"><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON'); ?></button>
-		<button data-purge-button type="button" class="btn btn-es-primary"><?php echo JText::_( 'COM_EASYSOCIAL_PURGE_CACHE_BUTTON' ); ?></button>
+		<button data-cancel-button type="button" class="btn btn-sm btn-es"><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON'); ?></button>
+		<button data-purge-button type="button" class="btn btn-sm btn-es-primary"><?php echo JText::_( 'COM_EASYSOCIAL_PURGE_CACHE_BUTTON' ); ?></button>
 	</buttons>
 </dialog>

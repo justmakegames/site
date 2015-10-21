@@ -17,9 +17,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	data-uid="<?php echo $uid;?>"
 	data-type="<?php echo $type;?>"
 	data-extension="<?php echo $extension;?>"
-	data-object="<?php echo $this->html( 'string.escape' , $itemTitle ); ?>"
-	data-title="<?php echo $this->html( 'string.escape' , $title ); ?>"
-	data-description="<?php echo $this->html( 'string.escape' , $description ); ?>"
+	data-object="<?php echo $this->html('string.escape', $itemTitle); ?>"
+	data-title="<?php echo $this->html('string.escape', $title); ?>"
+	data-description="<?php echo $this->html('string.escape', $description); ?>"
 >
-	<?php if ($icon) { ?><i class="ies-warning-2"></i> <?php } ?><?php echo $text; ?>
+	<?php echo $text; ?>
 </a>

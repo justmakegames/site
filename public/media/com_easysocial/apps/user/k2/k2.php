@@ -127,9 +127,9 @@ class SocialUserAppK2 extends SocialAppItem
 		// Decorate the stream item
 		$item->display 		= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 		= '#415457';
-		$item->fonticon 	= 'ies-list-2';
+		$item->fonticon 	= 'fa-list';
 
-		$item->label 	= JText::_('APP_USER_K2_STREAM_TOOLTIP');
+		$item->label 	= FD::_('APP_USER_K2_STREAM_TOOLTIP', true);
 
 		// Get application params
 		$params 	= $this->getParams();

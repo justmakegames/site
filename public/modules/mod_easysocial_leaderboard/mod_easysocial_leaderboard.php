@@ -12,50 +12,54 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Include main engine
-$file 	= JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
+$file = JPATH_ROOT . '/administrator/components/com_easysocial/includes/easysocial.php';
 
-jimport( 'joomla.filesystem.file' );
+jimport('joomla.filesystem.file');
 
-if( !JFile::exists( $file ) )
-{
-	return;
+if (!JFile::exists($file)) {
+    return;
 }
 
 // Include the engine file.
-require_once( $file );
+require_once($file);
 
 // Check if Foundry exists
-if( !FD::exists() )
-{
+if (!ES::exists()) {
 	FD::language()->loadSite();
-	echo JText::_( 'COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING' );
+	echo JText::_('COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING');
 	return;
 }
 
-$my 		= FD::user();
+$config = ES::config();
+
+// If achievements is disabled, we shouldn't display anything here.
+if (!$config->get('badges.enabled')) {
+    return;
+}
+
+$my = ES::user();
 
 // Load up the module engine
-$modules 	= FD::modules( 'mod_easysocial_leaderboard' );
+$modules = FD::modules( 'mod_easysocial_leaderboard' );
 
 // We need these packages
 $modules->loadComponentScripts();
 $modules->loadComponentStylesheets();
-$modules->addDependency( 'css' , 'javascript' );
+$modules->addDependency('css', 'javascript');
 
 // Get the layout to use.
-$layout 	= $params->get( 'layout' , 'default' );
-$suffix 	= $params->get( 'suffix' , '' );
-$total 		= (int) $params->get( 'total' , 10 );
+$layout = $params->get('layout', 'default');
+$suffix = $params->get('suffix', '');
+$total = (int) $params->get('total', 10);
 
 // Get the layout to use.
-$model 		= FD::model( 'Leaderboard' );
+$model = ES::model("Leaderboard");
 
 // Should we exclude admin here
-$config 		= FD::config();
-$excludeAdmin	= !$config->get( 'leaderboard.listings.admin' );
+$excludeAdmin = !$config->get('leaderboard.listings.admin');
 
-$options	= array( 'ordering' => 'points' , 'limit' => $total , 'excludeAdmin' => $excludeAdmin );
+$options = array('ordering' => 'points', 'limit' => $total, 'excludeAdmin' => $excludeAdmin);
 
-$users 		= $model->getLadder( $options );
+$users = $model->getLadder($options);
 
-require( JModuleHelper::getLayoutPath( 'mod_easysocial_leaderboard' , $layout ) );
+require(JModuleHelper::getLayoutPath('mod_easysocial_leaderboard', $layout));

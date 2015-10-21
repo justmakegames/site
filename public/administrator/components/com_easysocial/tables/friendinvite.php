@@ -129,8 +129,10 @@ class SocialTableFriendInvite extends SocialTable
 			$params->manageAlerts = false;
 			$params->link = FRoute::registration(array('invite' => $this->id, 'external' => true));
 
-			$template->setSender($sender->getName(), $sender->email);
-			$template->setReplyTo($sender->email);
+			// it seems like some mail server disallow to change the sender name and reply to. we will commment out this for now.
+			// $template->setSender($sender->getName(), $sender->email);
+			// $template->setReplyTo($sender->email);
+
 			$template->setRecipient('', $this->email);
 			$template->setTitle(JText::sprintf('COM_EASYSOCIAL_FRIENDS_INVITE_MAIL_SUBJECT', $jconfig->getValue('sitename')));
 			$template->setTemplate('site/friends/invite', $params);

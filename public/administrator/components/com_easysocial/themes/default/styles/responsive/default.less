@@ -8,7 +8,7 @@
 
 		//if dialog
 		&.es-window {
-			margin: 0;
+			margin: 0 !important; // !4039
 
 			//form
 			input,
@@ -78,19 +78,6 @@
 			display: none;
 		}
 
-		//stat
-		.es-stat {
-			.es-stat-items {
-				.es-stat-item {
-					> a {
-						span {
-							text-align: center;
-						}
-					}
-				}
-			}
-		}
-
 
 		//form
 		input,
@@ -111,38 +98,36 @@
 						margin: -1px 0 -1px -1px;
 					}
 				}
+			}//tab-box-alt
 
-				&.tab-box-sidenav {
-					.tab-content {
-						display: block;
-					}
-					.nav-tabs {
-						display: block;
-						> li {
-							float: left;
-							min-width: 50px;
-							width: 50%;
-							border-top: none;
-							border-bottom: 1px solid #ddd;
-							margin: 0;
-							&.active {
-								> a {
-									border: 1px solid transparent;
-									border-top: 1px solid #7CC110;
-								}
-
-							}
-							&:last-child {
-								// border-bottom: none;
-							}
+			&.tab-box-sidenav {
+				.tab-content {
+					display: block;
+				}
+				.nav-tabs {
+					display: block;
+					> li {
+						float: left;
+						min-width: 50px;
+						width: 50%;
+						border-top: none;
+						border-bottom: 1px solid #ddd;
+						margin: 0;
+						&.active {
 							> a {
 								border: 1px solid transparent;
-								// border-left: none;
+								border-top: 1px solid #7CC110;
 							}
+
+						}
+						&:last-child {
+						}
+						> a {
+							border: 1px solid transparent;
 						}
 					}
 				}
-			}//tab-box-alt
+			}
 		}//tab-box
 	}//es-wrap
 

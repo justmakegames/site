@@ -17,8 +17,18 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			); ?>
 
 	<span class="<?php echo $params->get( $field->name , $field->default ) == 0 ? 'hide' : '';?>" data-limit-limited>
-		<input data-limit-input type="text" name="<?php echo $field->inputName;?>" id="<?php echo $field->name;?>" placeholder="<?php echo isset( $field->placeholder ) ? $field->placeholder : '';?>"
-			class="form-control input-sm input-short text-center <?php echo isset( $field->class ) ? $field->class : '';?>"
+		<input data-limit-input type="text" name="<?php echo $field->inputName;?>"
+            <?php if (isset($field->maxupload) && $field->maxupload) { ?>
+            data-maxupload-check
+            data-maxupload="<?php echo $field->maxupload; ?>"
+            data-maxupload-key="<?php echo strtoupper(str_replace('.', '_', $field->name)); ?>"
+            <?php } ?>
+            id="<?php echo $field->name;?>"
+            placeholder="<?php echo isset( $field->placeholder ) ? $field->placeholder : '';?>"
+			class="form-control input-sm ml-5 input-short text-center <?php echo isset( $field->class ) ? $field->class : '';?>"
 			value="<?php echo $params->get( $field->name , $field->default );?>" /> <?php echo isset( $field->suffix ) ? $field->suffix : '';?>
 	</span>
 </div>
+<?php if (isset($field->maxupload) && $field->maxupload) { ?>
+<span class="fd-small"><?php echo $field->maxuploadDisplay; ?></span>
+<?php } ?>

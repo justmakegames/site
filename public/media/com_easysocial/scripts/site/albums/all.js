@@ -18,34 +18,33 @@ EasySocial.module( 'site/albums/all' , function($){
 		{
 			return{ 
 
-				init: function()
-				{
+				init: function() {
 				},
 
-				setActiveSort: function( el )
-				{
-					self.sort().removeClass( 'active' );
+				setActiveSort: function(el) {
+					self.sort().removeClass('active');
 
-					$( el ).addClass( 'active' );
+					$(el).addClass('active');
 				},
 
-				"{sort} click" : function( el , event )
-				{
+				"{sort} click" : function(el, event) {
 					event.preventDefault();
-					
-					self.setActiveSort( el );
+						
+					self.setActiveSort(el);
 
-					$( el ).route();
+					$(el).route();
 
 					// Set loading state for the content
-					self.contents().addClass( 'is-loading' );
-					self.contents().html( '&nbsp;' );
+					self.contents().addClass('is-loading');
+					self.contents().html('&nbsp;');
+
+					var sorting = el.data('albums-sort-type');
 
 					// Run the ajax call now
-					EasySocial.ajax( 'site/controllers/albums/getAlbums' )
-					.done(function( contents )
-					{
-						self.contents().html( contents );
+					EasySocial.ajax('site/controllers/albums/getAlbums', {
+						"sort": sorting
+					}).done(function(contents) {
+						self.contents().html(contents);
 					});
 				}
 			}

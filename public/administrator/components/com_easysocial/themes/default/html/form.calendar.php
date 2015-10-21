@@ -12,5 +12,5 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="datepicker-wrap">
-	<input autocomplete="off" type="text" class="datepicker input-sm" id="<?php echo $id;?>" name="<?php echo $name;?>" value="<?php echo $value;?>" data-form-calendar-<?php echo $uuid;?> <?php echo $attributes;?> />
+    <input autocomplete="off" type="text" class="datepicker input-sm" id="<?php echo $id;?>" name="<?php echo $name;?>" value="<?php echo $value;?>" data-form-calendar-<?php echo $uuid;?> <?php echo $attributes;?> />
 </div>

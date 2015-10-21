@@ -2,7 +2,7 @@
 	"title"	: "COM_EASYSOCIAL_MENU_GROUP_LANGUAGES",
 	"link"	: "index.php?option=com_easysocial&view=languages",
 	"access": "easysocial.access.languages",
-	"class"	: "ies-puzzle-2",
+	"class"	: "fa-puzzle-piece",
 	"view"	: "languages",
 	"active": "layout",
 	"childs":

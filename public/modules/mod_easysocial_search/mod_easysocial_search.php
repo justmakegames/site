@@ -12,37 +12,38 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Include main engine
-$file 	= JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
+jimport('joomla.filesystem.file');
+$file = JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
 
-jimport( 'joomla.filesystem.file' );
-
-if( !JFile::exists( $file ) )
-{
-	return;
+if (!JFile::exists($file)) {
+    return;
 }
 
-// Include the engine file.
-require_once( $file );
+require_once($file);
+
+// Load frontend's language file
+ES::language()->loadSite();
 
 // Check if Foundry exists
-if( !FD::exists() )
-{
-	FD::language()->loadSite();
-	echo JText::_( 'COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING' );
+if (!FD::exists()){
+	echo JText::_('COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING');
 	return;
 }
 
 // Load up the module engine
-$modules 	= FD::modules( 'mod_easysocial_search' );
+$modules = ES::modules('mod_easysocial_search');
 
 // We need these packages
 $modules->loadComponentScripts();
 $modules->loadComponentStylesheets();
-$modules->addDependency( 'css' , 'javascript' );
-$modules->loadScript( 'script.js' );
+$modules->addDependency('css', 'javascript');
+$modules->loadScript('script.js');
 
 // Get the layout to use.
-$layout 	= $params->get( 'layout' , 'default' );
-$suffix 	= $params->get( 'suffix' , '' );
+$layout = $params->get('layout', 'default');
+$suffix = $params->get('suffix', '');
 
-require( JModuleHelper::getLayoutPath( 'mod_easysocial_search' , $layout ) );
+$searchAdapter = ES::get('Search');
+$filterTypes = $searchAdapter->getTaxonomyTypes();
+
+require(JModuleHelper::getLayoutPath('mod_easysocial_search', $layout));

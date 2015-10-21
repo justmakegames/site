@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-class SocialPage
+class SocialPage extends EasySocial
 {
 	/**
 	 * Store a list of scripts on the page.
@@ -53,20 +53,11 @@ class SocialPage
 	{
 		static $obj = null;
 
-		if( !$obj )
-		{
-			$obj 	= new self();
+		if (!$obj) {
+			$obj = new self();
 		}
 
 		return $obj;
-	}
-
-	public function __construct()
-	{
-		$this->app  	= JFactory::getApplication();
-		$this->input	= $this->app->input;
-		$this->config 	= FD::config();
-		$this->doc 		= JFactory::getDocument();
 	}
 
 	public function toUri( $path )
@@ -134,12 +125,12 @@ class SocialPage
 		}
 
 		// Inline scripts
-		$script				= FD::get('Script');
-		$script->file		= SOCIAL_MEDIA . '/head.js';
+		$script = FD::get('Script');
+		$script->file = SOCIAL_MEDIA . '/head.js';
 		$script->scriptTag	= true;
-		$script->CDATA 		= true;
+		$script->CDATA = true;
 		$script->set('contents', implode($this->inlineScripts));
-		$inlineScript		= $script->parse();
+		$inlineScript = $script->parse();
 
 		if ($this->doc->getType() == 'html') {
 			$this->doc->addCustomTag($inlineScript);
@@ -328,10 +319,37 @@ class SocialPage
 		if (in_array($tmp, $pathways)) {
 			return false;
 		}
-		
+
 		$state = $pathway->addItem($title, $link);
 
 		return $state;
+	}
+
+	/**
+	 * Allows caller to set a canonical link
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function canonical($link)
+	{
+		$docLinks = $this->doc->_links;
+
+		// if joomla already added a canonial links here, we remove it.
+		if ($docLinks) {
+			foreach($docLinks as $jLink => $data) {
+				if ($data['relation'] == 'canonical' && $data['relType'] == 'rel') {
+
+					//unset this variable
+					unset($this->doc->_links[$jLink]);
+				}
+			}
+		}
+
+		$link = FD::string()->escape($link);
+		$this->doc->addHeadLink($link, 'canonical');
 	}
 
 	/**
@@ -340,33 +358,33 @@ class SocialPage
 	 * @access	public
 	 * @param	string	$title 	The title of the current page.
 	 */
-	public function title( $default , $override = true , $view = null )
+	public function title($default, $override = true, $view = null)
 	{
 		// Get the view.
-		$view 	= is_null( $view ) ? JRequest::getVar( 'view' ) : $view;
+		$view = is_null($view) ? $this->input->get('view', '', 'cmd') : $view;
 
 		// Get the passed in title.
-		$title	= $default;
+		$title = $default;
 
 		// @TODO: Create SEO section that allows admin to customize the header of the page. Test if there's any custom title set in SEO section
 
 		// Get current menu
-		$menu 		= JFactory::getApplication()->getMenu()->getActive();
+		$activeMenu = $this->app->getMenu()->getActive();
 
-		if( $menu )
-		{
-			$params 	= $menu->params;
-			$menuView 	= $menu->query[ 'view' ];
+		if ($activeMenu) {
+			$params = $activeMenu->params;
+			$menuView = $activeMenu->query['view'];
 
-			// Check if the current page_title is set in the menu parameters.
-			if( $params->get( 'page_title' ) && $override && $view == $menuView )
-			{
-				$title 	= $params->get( 'page_title' );
+			if ($params->get('page_title') && $override && $view == $menuView) {
+				$title = $params->get('page_title');
 			}
 		}
 
+		// Apply translations on the title
+		$title = JText::_($title);
+
 		// Prepare Joomla's site title if necessary.
-		$this->title 	= $this->getSiteTitle($title);
+		$this->title = $this->getSiteTitle($title);
 
 
 		// Need to think about keywords , author , metadesc and robots

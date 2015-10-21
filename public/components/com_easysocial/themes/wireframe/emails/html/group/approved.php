@@ -36,86 +36,92 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_GROUP_APPROVED' , $title ); ?>
         </p>
 
-        <table align="center" width="96px" border="0" cellpadding="0" cellspacing="0">
-        <tbody><tr>
-        <td width="96" height="96" style="border-collapse:collapse;"><span style="display:block;border:1px solid #f5f5f5;width:96px;height:96px;padding:3px;border-radius:50%;background:#fff;">
-            <img src="<?php echo $avatar;?>" alt="" style="width:96px;height: 96px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff; "/>
-        </span></td></tr>
-        </tbody></table>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
+        <tr>
+        <td align="center">
+            <table align="center" width="96px" border="0" cellpadding="0" cellspacing="0">
+            <tbody><tr>
+            <td width="96" height="96" style="border-collapse:collapse;"><span style="display:block;border:1px solid #f5f5f5;width:96px;height:96px;padding:3px;border-radius:50%;background:#fff;">
+                <img src="<?php echo $avatar;?>" alt="" style="width:96px;height: 96px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff; "/>
+            </span></td></tr>
+            </tbody>
+            </table>
 
-        <table align="center" width="380" style="margin-top:-10px" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td style="color:#888;border-top: 1px solid #ebebeb;padding: 15px 20px; background-color:#f8f9fb;font-size:13px;text-align:center">
-                    <?php echo $title;?>
-                </td>
-            </tr>
-        </table>
+            <table align="center" width="380" style="margin-top:-10px" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td style="color:#888;border-top: 1px solid #ebebeb;padding: 15px 20px; background-color:#f8f9fb;font-size:13px;text-align:center">
+                        <?php echo $title;?>
+                    </td>
+                </tr>
+            </table>
 
-        <a href="<?php echo $groupUrl;?>" style="
-        display:inline-block;
-        text-decoration:none;
-        font-weight:bold;
-        margin-top: 20px;
-        padding:10px 15px;
-        line-height:20px;
-        color:#fff;font-size: 12px;
-        background-color: #83B3DD;
-        background-image: linear-gradient(to bottom, #91C2EA, #6D9CCA);
-        background-repeat: repeat-x;
-        border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-        border-style: solid;
-        border-width: 1px;
-        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
-        border-radius:2px; -moz-border-radius:2px; -webkit-border-radius:2px;
-        "><?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_GROUP_VIEW_GROUP' ); ?></a>
+            <a href="<?php echo $groupUrl;?>" style="
+            display:inline-block;
+            text-decoration:none;
+            font-weight:bold;
+            margin-top: 20px;
+            padding:10px 15px;
+            line-height:20px;
+            color:#fff;font-size: 12px;
+            background-color: #83B3DD;
+            background-image: linear-gradient(to bottom, #91C2EA, #6D9CCA);
+            background-repeat: repeat-x;
+            border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+            border-style: solid;
+            border-width: 1px;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+            border-radius:2px; -moz-border-radius:2px; -webkit-border-radius:2px;
+            "><?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_GROUP_VIEW_GROUP' ); ?></a>
 
-        <span style="margin:30px auto;text-align:center;display:block">
-            <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/divider.png" alt="<?php echo JText::_( 'divider' );?>" />
-        </span>
+            <span style="margin:30px auto;text-align:center;display:block">
+                <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/divider.png" alt="<?php echo JText::_( 'divider' );?>" />
+            </span>
 
-        <span style="font-family:Arial;font-size:26px;font-weight:normal;color:#333;display:block; margin: 4px 0 20px;"><?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_WHATS_NEXT' );?></span>
+            <span style="font-family:Arial;font-size:26px;font-weight:normal;color:#333;display:block; margin: 4px 0 20px;"><?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_WHATS_NEXT' );?></span>
 
-        <table width="520" align="center" style="border:1px solid #ebebeb" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td>
-                    <table width="250" align="center">
-                        <tr>
-                            <td valign="top" style="padding: 10px 0;">
-                                <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/icon-group.png" alt="" />
-                            </td>
-                            <td valign="top" style="text-align:left;padding: 10px 0;font-size:12px;">
-                                <a href="<?php echo $editUrl;?>" style="text-decoration:none;color:#00aeef;">
-                                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_UPDATE_YOUR_GROUP' ); ?>
-                                </a>
-                                <p style="margin: 5px 0 0;color:#888;">
-                                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_UPDATE_YOUR_GROUP_DESC' ); ?>
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-                <td style="background:#ebebeb" width="1">
-                    <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/spacer.gif" alt="" width="1" />
-                </td>
-                <td>
-                    <table width="250" align="center">
-                        <tr>
-                            <td valign="top" style="padding: 10px 0;">
-                                <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/icon-discussion.png" alt="" />
-                            </td>
-                            <td valign="top" style="text-align:left;padding: 10px 0;font-size:12px;">
-                                <a href="<?php echo $groupUrl;?>" style="text-decoration:none;color:#00aeef;">
-                                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_GROUP_START_DISCUSSION' ); ?>
-                                </a>
-                                <p style="margin: 5px 0 0;color:#888;">
-                                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_GROUP_START_DISCUSSION_DESC' ); ?>
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
+            <table width="520" align="center" style="border:1px solid #ebebeb" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>
+                        <table width="250" align="center">
+                            <tr>
+                                <td valign="top" style="padding: 10px 0;">
+                                    <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/icon-group.png" alt="" />
+                                </td>
+                                <td valign="top" style="text-align:left;padding: 10px 0;font-size:12px;">
+                                    <a href="<?php echo $editUrl;?>" style="text-decoration:none;color:#00aeef;">
+                                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_UPDATE_YOUR_GROUP' ); ?>
+                                    </a>
+                                    <p style="margin: 5px 0 0;color:#888;">
+                                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_UPDATE_YOUR_GROUP_DESC' ); ?>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td style="background:#ebebeb" width="1">
+                        <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/spacer.gif" alt="" width="1" />
+                    </td>
+                    <td>
+                        <table width="250" align="center">
+                            <tr>
+                                <td valign="top" style="padding: 10px 0;">
+                                    <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/icon-discussion.png" alt="" />
+                                </td>
+                                <td valign="top" style="text-align:left;padding: 10px 0;font-size:12px;">
+                                    <a href="<?php echo $groupUrl;?>" style="text-decoration:none;color:#00aeef;">
+                                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_GROUP_START_DISCUSSION' ); ?>
+                                    </a>
+                                    <p style="margin: 5px 0 0;color:#888;">
+                                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_GROUP_START_DISCUSSION_DESC' ); ?>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        </tr>
         </table>
     </td>
 </tr>

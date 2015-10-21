@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,36 +9,30 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 // Import main table.
-FD::import( 'admin:/tables/table' );
+FD::import('admin:/tables/table');
 
-/**
- * Object mapping for profile types table.
- *
- * @author	Mark Lee <mark@stackideas.com>
- * @since	1.0
- */
 class SocialTableProfile extends SocialTable
 {
 	/**
 	 * The unique id for the profile type.
 	 * @var int
 	 */
-	public $id			= null;
+	public $id = null;
 
 	/**
 	 * The title of the profile type
 	 * @var string
 	 */
-	public $title		= null;
+	public $title = null;
 
 	/**
 	 * The alias of the profile type
 	 * @var string
 	 */
-	public $alias		= null;
+	public $alias = null;
 
 	/**
 	 * The description of the profile type
@@ -50,19 +44,19 @@ class SocialTableProfile extends SocialTable
 	 * The title of the profile type
 	 * @var int
 	 */
-	public $gid         = null;
+	public $gid = null;
 
 	/**
 	 * The title of the profile type
 	 * @var int
 	 */
-	public $default     = false;
+	public $default = false;
 
 	/**
 	 * The title of the profile type
 	 * @var int
 	 */
-	public $registration     = 1;
+	public $registration = 1;
 
 	/**
 	 * The default avatar for this profile type.
@@ -74,25 +68,39 @@ class SocialTableProfile extends SocialTable
 	 * The creation date time of the profile
 	 * @var datetime
 	 */
-	public $created     = null;
+	public $created = null;
+
+	public $apps = null;
+
+	/**
+	 * The creation date time of the profile
+	 * @var datetime
+	 */
+	public $modified = null;
 
 	/**
 	 * The state of the profile
 	 * @var int
 	 */
-	public $state       = 1;
+	public $state = 1;
 
 	/**
 	 * The parameters (JSON)
 	 * @var string
 	 */
-	public $params      = null;
+	public $params = null;
 
 	/**
 	 * The ordering of the profile
 	 * @var int
 	 */
-	public $ordering	= null;
+	public $ordering = null;
+
+	/**
+	 * The multisite id
+	 * @var string
+	 */
+	public $site_id = null;
 
 	/**
 	 * The number of users in this profile type.
@@ -104,14 +112,33 @@ class SocialTableProfile extends SocialTable
 	 * The users from this profile type.
 	 * @var int
 	 */
-	public $users 	= null;
+	public $users = null;
 
+	/**
+	 * Determines if the user has community access
+	 * @var int
+	 */
+	public $community_access = true;
 
 	public function __construct(& $db )
 	{
-		parent::__construct( '#__social_profiles' , 'id' , $db );
+		parent::__construct('#__social_profiles', 'id', $db);
 	}
 
+	// /**
+	//  * Overrides parent's load implementation
+	//  *
+	//  * @since	1.0
+	//  * @access	public
+	//  */
+	// public function load( $keys = null, $reset = true )
+	// {
+
+	// 	var_dump('here');
+	// 	$state = parent::load( $keys, $reset );
+
+	// 	return $state;
+	// }
 	/**
 	 * Retrieves the list of steps for this particular profile type.
 	 *
@@ -244,6 +271,10 @@ class SocialTableProfile extends SocialTable
 		{
 			$key 	= str_ireplace( '_' , '.' , $key );
 
+			if (is_array($value)) {
+				$value = FD::makeObject($value);
+			}
+
 			$registry->set( $key , $value );
 		}
 
@@ -363,12 +394,51 @@ class SocialTableProfile extends SocialTable
 		return $avatar->getSource( $size );
 	}
 
+	/**
+	 * Retrieves the list of default avatars for this profile type
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function getDefaultAvatar( $size = SOCIAL_AVATAR_MEDIUM )
 	{
-		$config 	= FD::config();
-		$path 	= rtrim( JURI::root() , '/' ) . $config->get( 'avatars.default.profiles.' . $size );
+		$config = FD::config();
+		$path = rtrim( JURI::root() , '/' ) . $config->get( 'avatars.default.profiles.' . $size );
 
 		return $path;
+	}
+
+	/**
+	 * Retrieves a list of default groups
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getDefaultGroups()
+	{
+		$params = $this->getParams();
+
+		$items = $params->get('default_groups');
+
+		$groups = array();
+
+		if (!$items) {
+			return $groups;
+		}
+
+		// Ensure that the items are unique
+		$items = array_unique($items);
+
+		foreach ($items as $id) {
+			$group = ES::group($id);
+			$groups[] = $group;
+		}
+
+		return $groups;
 	}
 
 	/**
@@ -380,25 +450,33 @@ class SocialTableProfile extends SocialTable
 	 * @param	Array	A list of ignored columns. (Optional)
 	 * @return	bool	True if binded successfully.
 	 *
-	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function bind( $data , $ignore = array() )
+	public function bind($data , $ignore = array(), $debug = false)
 	{
 		// Request the parent to bind the data.
-		$state 	= parent::bind( $data , $ignore );
+		$state = parent::bind($data, $ignore);
 
 		// Try to see if there's any params being set to the property as an array.
-		if( !is_null( $this->params ) && is_array( $this->params ) )
-		{
-			$registry 	= FD::get( 'Registry' );
+		if (!is_null($this->params) && is_array($this->params)) {
 
-			foreach( $this->params as $key => $value )
-			{
-				$registry->set( $key , $value );
+			$registry = ES::registry();
+
+			foreach ($this->params as $key => $value) {
+				$registry->set($key, $value);
 			}
 
 			// Set the params to a proper string.
-			$this->params	= $registry->toString();
+			$this->params = $registry->toString();
+		}
+
+		// If there's an array of apps, we need to convert it into save-able data
+		if ($this->apps && is_array($this->apps)) {
+			$this->apps = json_encode($this->apps);
+		}
+
+		// If there is no default apps provided, it should be reset back to empty
+		if (is_array($data) && !isset($data['apps'])) {
+			$this->apps = '';
 		}
 
 		return $state;
@@ -412,13 +490,13 @@ class SocialTableProfile extends SocialTable
 	 * @param	Array	An array of group id's.
 	 * @return	boolean	True on success false otherwise.
 	 */
-	public function bindUserGroups( $gids = array() )
+	public function bindUserGroups($gids = array())
 	{
-		$gids 	= FD::makeArray( $gids );
+		$gids = ES::makeArray($gids);
 
-		if( is_array( $gids ) && !empty( $gids ) )
-		{
-			$this->gid 	= FD::json()->encode( $gids );
+		if (is_array($gids) && !empty($gids)) {
+
+			$this->gid = json_encode($gids);
 
 			return true;
 		}
@@ -438,13 +516,15 @@ class SocialTableProfile extends SocialTable
 	public function store( $updateNulls = false )
 	{
 		// If created date is not provided, we generate it automatically.
-		if( is_null( $this->created ) )
-		{
-			$this->created 	= FD::date()->toMySQL();
+		if (is_null($this->created)) {
+			$this->created = FD::date()->toMySQL();
 		}
 
+		// Update the modified date.
+		$this->modified = FD::date()->toMySQL();
+
 		// Check the alias
-		$model = FD::model( 'profiles' );
+		$model = FD::model('profiles');
 		$alias = JFilterOutput::stringURLSafe( !empty( $this->alias ) ? $this->alias : $this->title );
 
 		$i = 2;
@@ -490,6 +570,9 @@ class SocialTableProfile extends SocialTable
 		{
 			$this->created 	= FD::date()->toMySQL();
 		}
+
+		// Update the modified date.
+		$this->modified = FD::date()->toMySQL();
 
 		// Update ordering column.
 		$this->ordering = $this->getNextOrder();
@@ -652,12 +735,32 @@ class SocialTableProfile extends SocialTable
 		return true;
 	}
 
+	/**
+	 * Retrieves a list of default apps for a profile
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getDefaultApps()
+	{
+		if ($this->apps && is_string($this->apps)) {
+			return json_decode($this->apps);
+		}
+
+		return array();
+	}
+
 	public function getEmailTitle( $type = '' )
 	{
 		// @TODO: Make this configurable.
-		$title 	= FD::jConfig()->getValue( 'sitename' );
+		$title = FD::jConfig()->getValue('sitename');
 
-		return JText::sprintf( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_EMAIL_TITLE' , $title );
+		// Load the correct language selected in the registration form
+		JFactory::getLanguage()->load('com_easysocial', JPATH_ROOT, $language);
+
+		return JText::sprintf('COM_EASYSOCIAL_EMAILS_REGISTRATION_EMAIL_TITLE', $title);
 	}
 
 	/**
@@ -668,14 +771,14 @@ class SocialTableProfile extends SocialTable
 	 * @param	string
 	 * @return
 	 */
-	public function getModeratorEmailTitle( $type = '' )
+	public function getModeratorEmailTitle($username)
 	{
 		// @TODO: Make this configurable.
-		$title 	= FD::jConfig()->getValue( 'sitename' );
+		$title = FD::jConfig()->getValue('sitename');
 
-		return JText::sprintf( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_MODERATOR_EMAIL_TITLE' , $title );
+		$message = JText::sprintf('COM_EASYSOCIAL_EMAILS_REGISTRATION_MODERATOR_EMAIL_TITLE', $username, $title);
 
-		return $title;
+		return $message;
 	}
 
 	/**
@@ -706,10 +809,13 @@ class SocialTableProfile extends SocialTable
 	 */
 	public function getModeratorEmailTemplate($type = '', $oauth = false)
 	{
-		$param	= $this->getParams();
-		$type	= !empty($type) ? $type : $this->getRegistrationType(false, $oauth);
+		$param = $this->getParams();
 
-		$path 	= 'site/registration/moderator.' . $type;
+		if (!$type) {
+			$type = $this->getRegistrationType(false, $oauth);
+		}
+
+		$path = 'site/registration/moderator.' . $type;
 
 		return $path;
 	}
@@ -777,13 +883,13 @@ class SocialTableProfile extends SocialTable
 	public function getRegistrationType($translate = false, $oauth = false)
 	{
 		// Load the params if it's not loaded.
-		$param  = $this->getParams();
-		$key 	= $oauth ? 'oauth.registration' : 'registration';
-		$type 	= $param->get($key, 'approvals');
-		$data 	= $type;
+		$param = $this->getParams();
+		$key = $oauth ? 'oauth.registration' : 'registration';
+		$type = $param->get($key, 'approvals');
+		$data = $type;
 
 		if ($translate) {
-			$data 	= JText::_('COM_EASYSOCIAL_REGISTRATIONS_TYPE_' . strtoupper( $type ));
+			$data = JText::_('COM_EASYSOCIAL_REGISTRATIONS_TYPE_' . strtoupper($type));
 		}
 
 		return $data;
@@ -812,10 +918,7 @@ class SocialTableProfile extends SocialTable
 		// Determine the state of the upload.
 		$state	= $avatar->upload( $file );
 
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'PROFILES: Unable to upload the avatar.' );
-
+		if (!$state) {
 			$this->setError( JText::_( 'There was some problems uploading the avatar' ) );
 			return false;
 		}
@@ -1021,6 +1124,21 @@ class SocialTableProfile extends SocialTable
 	}
 
 	/**
+	 * Retrieves the Joomla groups associated with the profile
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	Array
+	 */
+	public function getJoomlaGroups()
+	{
+		$gids = json_decode($this->gid);
+
+		return $gids;
+	}
+
+	/**
 	 * Check if this profile have avatar uploaded
 	 *
 	 * @since	1.0
@@ -1101,6 +1219,21 @@ class SocialTableProfile extends SocialTable
 		return false;
 	}
 
+	/**
+	 * Determines if this profile type allows registration
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function allowsRegistration()
+	{
+		$allowed = (bool) $this->registration;
+
+		return $allowed;
+	}
+
 	public function getTotalFields($visible = null)
 	{
 		static $cache = array();
@@ -1130,5 +1263,21 @@ class SocialTableProfile extends SocialTable
 		}
 
 		return $cache[$this->id][$visible];
+	}
+
+
+	public function assignUsersApps($apps = array())
+	{
+		if (! $apps) {
+			return false;
+		}
+
+		$appModel = ES::model('Apps');
+
+		foreach($apps as $app) {
+			$appModel->assignProfileUsersApps($this->id, $app);
+		}
+
+		return true;
 	}
 }

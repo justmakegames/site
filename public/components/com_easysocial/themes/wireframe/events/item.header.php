@@ -30,7 +30,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <?php if ($guest->isGuest() && !$event->isOver()) { ?>
             <div>
                 <a class="btn btn-block btn-es btn-sm" href="javascript:void(0);" data-action-invite>
-                    <i class="ies-users"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_FRIENDS');?>
+                    <i class="fa fa-paper-plane-o mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_FRIENDS');?>
                 </a>
             </div>
             <?php } ?>
@@ -38,7 +38,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <?php if ($this->my->isSiteAdmin() || $guest->isOwner() || $guest->isAdmin()) { ?>
             <div class="dropdown_">
                 <a class="btn btn-block btn-es-primary btn-sm" href="javascript:void(0);" data-bs-toggle="dropdown">
-                    <i class="ies-cog-2"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_MANAGE_EVENT');?> <i class="ies-arrow-down"></i>
+                    <i class="fa fa-cog mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_MANAGE_EVENT');?> <i class="fa fa-caret-down"></i>
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-user messageDropDown">
@@ -77,45 +77,45 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <?php if ($event->isGroupEvent()) { ?>
                     <span class="fd-small">
-                    <?php echo JText::sprintf('COM_EASYSOCIAL_EVENTS_EVENT_OF_GROUP_TITLE', '<i class="ies-users"></i> ' . $this->html('html.group', $event->getGroup())); ?>
+                    <?php echo JText::sprintf('COM_EASYSOCIAL_EVENTS_EVENT_OF_GROUP_TITLE', '<i class="fa fa-users"></i> ' . $this->html('html.group', $event->getGroup())); ?>
                     </span>
                 <?php } ?>
             </h2>
 
             <?php echo $this->render('module', 'es-events-after-name'); ?>
 
-            <nav class="es-profile-header-meta">
+            <nav class="es-list-vertical-divider mt-10">
 
                 <?php if (!$guest->isOwner()) { ?>
                 <span>
-                    <i class="ies-user muted"></i>
+                    <i class="fa fa-user muted"></i>
                     <?php echo $this->html('html.user', $event->creator_uid, true); ?>
                 </span>
                 <?php } ?>
 
                 <?php if ($event->isOpen()) { ?>
-                <span data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="ies-earth muted"></i>
+                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-globe muted"></i>
                     <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
                 </span>
                 <?php } ?>
 
                 <?php if ($event->isClosed()) { ?>
-                <span data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="ies-locked muted"></i>
+                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-lock muted"></i>
                     <?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT'); ?>
                 </span>
                 <?php } ?>
 
                 <?php if ($event->isInviteOnly()) { ?>
-                <span data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="ies-locked muted"></i>
+                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-lock muted"></i>
                     <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
                 </span>
                 <?php } ?>
 
                 <span>
-                    <i class="ies-folder-3 muted"></i>
+                    <i class="fa fa-folder muted"></i>
                     <a href="<?php echo FRoute::events(array('layout' => 'category', 'id' => $event->getCategory()->getAlias()));?>">
                         <?php echo $event->getCategory()->get('title'); ?>
                     </a>
@@ -125,7 +125,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <?php if ($this->config->get('events.ical', true)) { ?>
                 <span>
-                    <i class="ies-download muted"></i>
+                    <i class="fa fa-download muted"></i>
                     <a href="<?php echo FRoute::events(array('layout' => 'export', 'format' => 'ical', 'id' => $event->getAlias()));?>" target="_blank"><?php echo JText::_('COM_EASYSOCIAL_EVENTS_EXPORT_TO_ICAL');?></a>
                 </span>
                 <?php } ?>
@@ -135,13 +135,13 @@ defined('_JEXEC') or die('Unauthorized Access');
             </nav>
 
             <div class="mt-5">
-                <i class="ies-calendar mr-5"></i>
+                <i class="fa fa-calendar mr-5"></i>
                 <?php echo $event->getStartEndDisplay(); ?>
             </div>
 
             <?php if ($this->template->get('events_address', true) && !empty($event->address)) { ?>
             <div class="mt-5">
-                <i class="ies-location-2 mr-5"></i>
+                <i class="fa fa-map-marker mr-5"></i>
                 <a href="<?php echo $event->getAddressLink(); ?>" target="_blank"><?php echo $event->address; ?></a>
             </div>
             <?php } ?>
@@ -161,22 +161,37 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     <div class="es-profile-header-footer">
 
-        <nav class="pull-left pa-5">
+        <nav class="es-list-vertical-divider pull-left pa-5">
             <?php echo $this->render('widgets', 'event', 'events', 'eventStatsStart', array($event)); ?>
 
             <?php if ($event->getCategory()->getAcl()->get('photos.enabled', true) && $event->getParams()->get('photo.albums', true)) { ?>
             <span>
                 <a href="<?php echo FRoute::albums(array('uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT));?>">
-                    <i class="ies-picture"></i>
+                    <i class="fa fa-photo"></i>
+                    &#8207;
                     <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_ALBUMS', $event->getTotalAlbums()), $event->getTotalAlbums()); ?>
                 </a>
             </span>
             <?php } ?>
+
+            <?php if ($this->config->get('videos.enabled', true) && $event->getParams()->get('videos', true)) { ?>
             <span>
-                <i class="ies-graph"></i>
+                <a href="<?php echo FRoute::videos(array('uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT));?>">
+
+                    <i class="fa fa-film"></i>
+                    &#8207;
+                    <?php echo JText::sprintf(ES::string()->computeNoun('COM_EASYSOCIAL_EVENTS_VIDEOS' , $event->getTotalVideos()), $event->getTotalVideos()); ?>
+                </a>
+            </span>
+            <?php } ?>
+
+            <span>
+                <i class="fa fa-graph"></i>
+                &#8207;
                 <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_VIEWS', $event->hits), $event->hits); ?>
             </span>
             <span>
+            &#8207;
                 <?php echo FD::sharing(array('url' => $event->getPermalink(false, true), 'display' => 'dialog', 'text' => JText::_('COM_EASYSOCIAL_STREAM_SOCIAL'), 'css' => 'fd-small'))->getHTML(true); ?>
             </span>
             <?php echo $this->render('widgets', 'event', 'events', 'eventStatsEnd', array($event)); ?>

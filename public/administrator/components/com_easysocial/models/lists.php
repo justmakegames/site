@@ -296,6 +296,13 @@ class EasySocialModelLists extends EasySocialModel
 		$sql->join( '#__users' , 'uu' , 'INNER' );
 		$sql->on( 'a.target_id' , 'uu.id' );
 
+		// exclude esad users
+		$sql->innerjoin( '#__social_profiles_maps' , 'upm' , 'INNER' );
+		$sql->on( 'uu.id' , 'upm.user_id' );
+
+		$sql->innerjoin( '#__social_profiles' , 'up' , 'INNER' );
+		$sql->on( 'upm.profile_id' , 'up.id' );
+		$sql->on( 'up.community_access' , '1' );
 
 		$sql->join( '#__social_lists' , 'b' , 'INNER' );
 		$sql->on( 'a.list_id' , 'b.id' );
@@ -322,7 +329,6 @@ class EasySocialModelLists extends EasySocialModel
 		$sql->where( 'c.state' , SOCIAL_FRIENDS_STATE_FRIENDS );
 
 		$sql->where( 'uu.block' , '0' );
-
 
 		$db->setQuery( $sql );
 

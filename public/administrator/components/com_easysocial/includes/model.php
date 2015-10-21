@@ -63,20 +63,20 @@ class EasySocialModel extends EasySocialModelMain
 	protected $element 	= null;
 	protected $key 		= null;
 
-	public function __construct( $element , $config = array() )
+	public function __construct($element, $config = array())
 	{
-		$this->db 		= FD::db();
+		$this->db = FD::db();
 
 		// Set the element
-		$this->element 	= $element;
+		$this->element = $element;
 
 		// Set the key element for this model.
-		$this->key 		= 'com_easysocial.' . $element;
+		$this->key = 'com_easysocial.' . $element;
 
 		// We don't want to load any of the tables path because we use our own FD::table method.
-		$options 	= array( 'table_path' => JPATH_ROOT . '/libraries/joomla/database/table' );
+		$options = array('table_path' => JPATH_ROOT . '/libraries/joomla/database/table');
 
-		parent::__construct( $options );
+		parent::__construct($options);
 	}
 
 	/**
@@ -140,6 +140,23 @@ class EasySocialModel extends EasySocialModelMain
 		$value	= $app->getUserStateFromRequest( $this->key . '.' . $key , $key , $default , $type );
 
 		return $value;
+	}
+
+	/**
+	 * Allows caller to pass in an array of data to normalize the data
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function normalize($data, $key, $default = null)
+	{
+		if (isset($data[$key])) {
+			return $data[$key];
+		}
+
+		return $default;
 	}
 
 	public function setUserState($key, $value)
@@ -284,6 +301,26 @@ class EasySocialModel extends EasySocialModelMain
 	}
 
 	/**
+	 * Determines the total number of items based on the query given.
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string		The SQL query.
+	 * @param	bool		Uses outer count.
+	 * @param	string		Any specific column to count against. (Optional)
+	 * @return	int			The number of items.
+	 *
+	 * @author	Mark Lee	<mark@stackideas.com>
+	 */
+	protected function setTotalCount( $total )
+	{
+		// Set the total items here.
+		$this->setState( 'total' , $total );
+		$this->total = $total;
+		return true;
+	}
+
+	/**
 	 * If using the pagination query, child needs to use this method.
 	 *
 	 * @since	1.0
@@ -292,7 +329,7 @@ class EasySocialModel extends EasySocialModelMain
 	protected function getData( $query , $debug = false )
 	{
 		// If enforced to use limit, we get the limitstart values from properties.
-		$limit 			= $this->getState( 'limit' );
+		$limit = $this->getState('limit');
 		$limitstart 	= $this->getState( 'limitstart' );
 
 

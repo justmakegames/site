@@ -37,12 +37,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		class="es-album-cover-field no-cover"
 		<?php } ?>
 		>
-		<i class="ies-pictures-2"></i>
+		<i class="fa fa-image"></i>
 	</div>
 
 	<div class="sentence">
 		<div data-album-location class="es-album-location words">
-			<i class="ies-location"></i>
+			<i class="fa fa-map-marker"></i>
 			<span
 				data-album-location-caption
 				data-bs-toggle="dropdown"
@@ -64,7 +64,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<?php if ($album->hasDate()) { ?>
 		<div data-album-date class="es-album-date words has-data">
-			<i class="ies-clock"></i>
+			<i class="fa fa-clock-o"></i>
 			<span data-album-date-caption
 			      data-bs-toggle="dropdown"
 			      class="with-data">

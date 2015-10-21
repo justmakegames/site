@@ -12,18 +12,10 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Import main controller
-FD::import( 'admin:/controllers/controller' );
+ES::import('admin:/controllers/controller');
 
 class EasySocialControllerApps extends EasySocialController
 {
-	/**
-	 * Class constructor.
-	 *
-	 * @since	1.0
-	 * @access	public
-	 *
-	 * @author	Mark Lee <mark@stackideas.com>
-	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -69,23 +61,17 @@ class EasySocialControllerApps extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		// Get the current view
-		$view 	= $this->getCurrentView();
+		$model = ES::model('Apps');
+		$total = $model->discover();
 
-		$model 	= FD::model( 'Apps' );
-
-		$total	= $model->discover();
-
-		if( !$total )
-		{
-			$view->setMessage( JText::sprintf( 'COM_EASYSOCIAL_APPS_NO_APPS_DISCOVERED' , $total ) );
+		if (!$total) {
+			$this->view->setMessage('COM_EASYSOCIAL_APPS_NO_APPS_DISCOVERED');
+			return $this->view->call(__FUNCTION__, $total);
 		}
-		else
-		{
-			$view->setMessage( JText::sprintf( 'COM_EASYSOCIAL_APPS_DISCOVERED_APPS' , $total ) );
-		}
+		
+		$this->view->setMessage(JText::sprintf('COM_EASYSOCIAL_APPS_DISCOVERED_APPS', $total));
 
-		return $view->call( __FUNCTION__ , $total );
+		return $this->view->call(__FUNCTION__, $total);
 	}
 
 	/**
@@ -150,38 +136,37 @@ class EasySocialControllerApps extends EasySocialController
 		$view->setMessage( JText::_( 'COM_EASYSOCIAL_APPS_SAVED_SUCCESS' ) , SOCIAL_MSG_SUCCESS );
 		return $view->call( __FUNCTION__ , $app , $task );
 	}
-
+	
 	/**
-	 * Publishes an app
+	 * Unpublishes an app
 	 *
 	 * @since	1.0
 	 * @access	public
 	 */
 	public function publish()
 	{
-		// Check for request forgeries
-		FD::checkToken();
+		// Check for tokens.
+		ES::checkToken();
 
 		// Get apps from the request.
-		$ids	= JRequest::getVar( 'cid' );
+		$ids = JRequest::getVar('cid');
 
 		// Ensure that it's in an array form
-		$ids 	= FD::makeArray( $ids );
-// dump( $ids );
-		// Get the current view.
-		$view 	= $this->getCurrentView();
+		$ids = ES::makeArray($ids);
 
-		foreach( $ids as $id )
-		{
-			$app	= FD::table( 'App' );
-			$app->load( $id );
-
+		$type = '';
+		foreach ($ids as $id) {
+			$app = ES::table('App');
+			$app->load($id);
 			$app->publish();
+
+
+			$type = $app->type;
 		}
 
-		$view->setMessage( JText::_( 'COM_EASYSOCIAL_APPS_PUBLISHED_SUCCESSFULLY' ) , SOCIAL_MSG_SUCCESS );
+		$this->view->setMessage(JText::_('COM_EASYSOCIAL_APPS_PUBLISHED_SUCCESSFULLY'), SOCIAL_MSG_SUCCESS);
 
-		return $view->call( __FUNCTION__ );
+		return $this->view->call(__FUNCTION__, $type);
 	}
 
 	/**
@@ -193,28 +178,27 @@ class EasySocialControllerApps extends EasySocialController
 	public function unpublish()
 	{
 		// Check for tokens.
-		FD::checkToken();
+		ES::checkToken();
 
 		// Get apps from the request.
-		$ids	= JRequest::getVar( 'cid' );
+		$ids = JRequest::getVar('cid');
 
 		// Ensure that it's in an array form
-		$ids 	= FD::makeArray( $ids );
+		$ids = ES::makeArray($ids);
 
-		// Get the current view.
-		$view 	= $this->getCurrentView();
+		$type = '';
 
-		foreach( $ids as $id )
-		{
-			$app	= FD::table( 'App' );
-			$app->load( $id );
-
+		foreach ($ids as $id) {
+			$app = ES::table('App');
+			$app->load($id);
 			$app->unpublish();
+
+			$type = $app->type;
 		}
 
-		$view->setMessage( JText::_( 'COM_EASYSOCIAL_APPS_UNPUBLISHED_SUCCESSFULLY' ) , SOCIAL_MSG_SUCCESS );
+		$this->view->setMessage(JText::_('COM_EASYSOCIAL_APPS_UNPUBLISHED_SUCCESSFULLY'), SOCIAL_MSG_SUCCESS);
 
-		return $view->call( __FUNCTION__ );
+		return $this->view->call(__FUNCTION__, $type);
 	}
 
 	/**
@@ -325,59 +309,48 @@ class EasySocialControllerApps extends EasySocialController
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 **/
-	public function installFromDirectory( $path = '' )
+	public function installFromDirectory($path = '')
 	{
 		// Check for request forgeries.
 		FD::checkToken();
 
-
-		if( empty( $path ) )
-		{
-			$path		= JRequest::getVar( 'package-directory' , '' );
+		if (!$path) {
+			$path = $this->input->get('package-directory', '');
 		}
 
-		$view 		= $this->getCurrentView();
-		$jConfig	= FD::jconfig();
-		$info 		= FD::info();
+		// Get Joomla's configuration
+		$jConfig = ES::config('joomla');
 
 		// Try to detect if the temporary path is the same as the default path.
-		if( $path == $jConfig->getValue( 'tmp_path' ) || empty( $path ) )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_INSTALLER_PLEASE_SPECIFY_DIRECTORY' ) , SOCIAL_MSG_ERROR );
+		if ($path == $jConfig->getValue('tmp_path')) {
+			$this->view->setMessage('COM_EASYSOCIAL_INSTALLER_PLEASE_SPECIFY_DIRECTORY', SOCIAL_MSG_ERROR);
 
-			return $view->call( 'install' );
+			return $this->view->install();
 		}
 
 		// Retrieve the installer library.
-		$installer	= FD::get( 'Installer' );
+		$installer = ES::get('Installer');
 
 		// Try to load the installation from path.
-		$state 		= $installer->load( $path );
+		$state = $installer->load($path);
 
 		// If there's an error, we need to log it down.
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'APPS: Unable to install apps from directory ' . $path . ' because of the error ' . $installer->getError() );
+		if (!$state) {
+			$this->view->setMessage($installer->getError(), SOCIAL_MSG_ERROR);
 
-			$view->setMessage( $installer->getError() , SOCIAL_MSG_ERROR );
-
-			return $view->call( 'install' );
+			return $this->view->install();
 		}
 
-
-		// Let's try to install it now.
-		$app 	= $installer->install();
+		// Install the app now
+		$app = $installer->install();
 
 		// If there's an error installing, log this down.
-		if( $app === false )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'APPS: Unable to install apps from directory ' . $path . ' because of the error ' . $installer->getError() );
-
-			$view->setMessage( $installer->getError() , SOCIAL_MSG_ERROR );
-			return $view->call( 'install' );
+		if ($app === false) {
+			$this->view->setMessage($installer->getError(), SOCIAL_MSG_ERROR);
+			return $this->view->install();
 		}
 
-		return $view->installCompleted( $app );
+		return $this->view->installCompleted($app);
 	}
 
 	/**
@@ -395,40 +368,44 @@ class EasySocialControllerApps extends EasySocialController
 		// Check for request forgeries.
 		FD::checkToken();
 
-		$package		= JRequest::getVar( 'package' , array() , 'FILES' );
-		$info 			= FD::getInstance( 'Info' );
-		$view 			= $this->getCurrentView();
+		$package = JRequest::getVar('package', '', 'files');
 
 		// Test for empty packages.
-		if( !isset( $package[ 'tmp_name' ] ) || empty( $package[ 'tmp_name' ]) )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_APPS_PLEASE_UPLOAD_INSTALLER' ) , SOCIAL_MSG_ERROR );
-			return $view->install();
+		if (!isset($package['tmp_name']) || !$package['tmp_name']) {
+			$this->view->setMessage('COM_EASYSOCIAL_APPS_PLEASE_UPLOAD_INSTALLER', SOCIAL_MSG_ERROR);
+			return $this->view->install();
 		}
 
-		$source			= $package[ 'tmp_name' ];
-		$jConfig 		= FD::config( 'joomla' );
-		$destination 	= $jConfig->getValue( 'tmp_path' ) . '/' . $package[ 'name' ];
+		$source = $package['tmp_name'];
+		$jConfig = ES::config('joomla');
 
-		$installer 		= FD::get( 'Installer' );
+		// Construct the destination path
+		$destination = $jConfig->getValue('tmp_path') . '/' . $package['name'];
 
-		// Try to upload the file.
-		if( !$installer->upload( $source , $destination ) )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_APPS_UNABLE_TO_COPY_UPLOADED_FILE') , SOCIAL_MSG_ERROR );
-			return $view->call( 'install' );
+		// Get the installer library
+		$installer = ES::get('Installer');
+
+		// Now try to upload the installer
+		$state = $installer->upload($source, $destination);
+
+		if (!$state) {
+			$this->view->setMessage('COM_EASYSOCIAL_APPS_UNABLE_TO_COPY_UPLOADED_FILE', SOCIAL_MSG_ERROR);
+			return $this->view->install();
 		}
 
 		// Unpack the archive.
-		$path 	= $installer->extract( $destination );
+		$path = $installer->extract($destination);
 
-		if( $path === false )
-		{
-			$this->app->redirect( 'index.php?option=com_easysocial&view=applications&layout=error' , FD::get( 'Errors' )->getErrors( 'installer.extract' ) );
-			$this->app->close();
+		// When something went wrong with the installation, just display the error
+		if ($path === false) {
+			$error = ES::get('Errors')->getErrors('installer.extract');
+
+			$this->info->set($error, SOCIAL_MSG_ERROR);
+			$this->app->redirect('index.php?option=com_easysocial&view=applications&layout=error');
+			return $this->app->close();
 		}
 
-		return $this->installFromDirectory( $path );
+		return $this->installFromDirectory($path);
 	}
 
 	/**

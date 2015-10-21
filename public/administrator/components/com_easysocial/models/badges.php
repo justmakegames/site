@@ -157,8 +157,16 @@ class EasySocialModelBadges extends EasySocialModel
 		$sql->on( 'a.id', 'b.badge_id' );
 
 
-		$sql->join( '#__users' , 'uu' , 'INNER' );
+		$sql->innerjoin( '#__users' , 'uu' , 'INNER' );
 		$sql->on( 'b.user_id' , 'uu.id' );
+
+		// exclude esad users
+		$sql->innerjoin('#__social_profiles_maps', 'upm');
+		$sql->on('uu.id', 'upm.user_id');
+
+		$sql->innerjoin('#__social_profiles', 'up');
+		$sql->on('upm.profile_id', 'up.id');
+		$sql->on('up.community_access', '1');
 
 		if (FD::config()->get('users.blocking.enabled') && ! JFactory::getUser()->guest) {
 			$sql->leftjoin( '#__social_block_users' , 'bus');
@@ -222,8 +230,16 @@ class EasySocialModelBadges extends EasySocialModel
 		$sql->select( '#__social_badges_maps' , 'a' );
 		$sql->column( 'a.user_id' );
 
-		$sql->join( '#__users' , 'uu' , 'INNER' );
+		$sql->innerjoin( '#__users' , 'uu' , 'INNER' );
 		$sql->on( 'a.user_id' , 'uu.id' );
+
+		// exclude esad users
+		$sql->innerjoin('#__social_profiles_maps', 'upm');
+		$sql->on('uu.id', 'upm.user_id');
+
+		$sql->innerjoin('#__social_profiles', 'up');
+		$sql->on('upm.profile_id', 'up.id');
+		$sql->on('up.community_access', '1');
 
 		if (FD::config()->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 			$sql->leftjoin( '#__social_block_users' , 'bus');
@@ -659,65 +675,59 @@ class EasySocialModelBadges extends EasySocialModel
 	 * @param	string		The path to the .points file.
 	 * @return	bool		True if success false otherwise.
 	 */
-	public function install( $path )
+	public function install($path)
 	{
-		// Import platform's file library.
-		jimport( 'joomla.filesystem.file' );
+		jimport('joomla.filesystem.file');
 
 		// Read the contents
-		$contents 	= JFile::read( $path );
+		$contents = JFile::read($path);
 
 		// If contents is empty, throw an error.
-		if( empty( $contents ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'BADGES: Unable to read the file ' . $path );
-			$this->setError( JText::_( 'COM_EASYSOCIAL_BADGES_UNABLE_TO_READ_BADGE_FILE' ) );
+		if (!$contents) {
+			$this->setError(JText::_('COM_EASYSOCIAL_BADGES_UNABLE_TO_READ_BADGE_FILE'));
 			return false;
 		}
 
-		$json 		= FD::json();
-		$data 		= $json->decode( $contents );
-		// @TODO: Double check that this file is a valid JSON file.
+		// Restore the data into it's appropriate format
+		$data = json_decode($contents);
 
 		// Ensure that it's in an array form.
-		$data 		= FD::makeArray( $data );
+		if (!is_array($data)) {
+			$data = array($data);
+		}
 
 		// Let's test if there's data.
-		if( empty( $data ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'BADGES: Unable to read the file ' . $path );
-			$this->setError( JText::_( 'COM_EASYSOCIAL_BADGES_UNABLE_TO_READ_BADGE_FILE' ) );
+		if (!$data) {
+			$this->setError(JText::_('COM_EASYSOCIAL_BADGES_UNABLE_TO_READ_BADGE_FILE'));
 			return false;
 		}
 
-		$result 	= array();
+		$result = array();
 
-		foreach( $data as $row )
-		{
-			// Load the tables
-			$badge 	= FD::table( 'Badge' );
+		foreach ($data as $row) {
+
+			$badge = FD::table('Badge');
 
 			// If this already exists, we need to skip this.
-			$state 	= $badge->load( array( 'extension' => $row->extension , 'command' => $row->command ) );
+			$state = $badge->load(array('extension' => $row->extension, 'command' => $row->command));
 
-			if( $state )
-			{
+			if ($state) {
 				continue;
 			}
 
 			// Set to published by default.
-			$badge->state 	= SOCIAL_STATE_PUBLISHED;
+			$badge->state = SOCIAL_STATE_PUBLISHED;
 
 			// Bind the badge data.
-			$badge->bind( $row );
+			$badge->bind($row);
 
 			// Store it now.
 			$badge->store();
 
 			// Load language file.
-			JFactory::getLanguage()->load( $row->extension , JPATH_ROOT . '/administrator' );
+			JFactory::getLanguage()->load($row->extension, JPATH_ROOT . '/administrator');
 
-			$result[]	= JText::_( $badge->title );
+			$result[] = JText::_($badge->title);
 		}
 
 		return $result;

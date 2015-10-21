@@ -245,6 +245,9 @@ define('SOCIAL_TYPE_ACTIVITY', 'activity');
 define('SOCIAL_TYPE_FILES', 'files');
 define('SOCIAL_TYPE_EVENT', 'event');
 define('SOCIAL_TYPE_EVENTS', 'events');
+define('SOCIAL_TYPE_POLLS', 'polls');
+define('SOCIAL_TYPE_VIDEO', 'video');
+define('SOCIAL_TYPE_VIDEOS', 'videos');
 
 // Region types
 define('SOCIAL_REGION_TYPE_COUNTRY', 'country');
@@ -425,6 +428,7 @@ define('SOCIAL_STREAM_STATE_TRASHED', '0');
 define('SOCIAL_STREAM_STATE_PUBLISHED', '1');
 define('SOCIAL_STREAM_STATE_RESTORED', '2');
 define('SOCIAL_STREAM_STATE_ARCHIVED', '3');
+define('SOCIAL_STREAM_STATE_MODERATE', '5');
 
 define('SOCIAL_CLUSTER_CATEGORY_MEMBERS_LIMIT', 10);
 
@@ -439,6 +443,23 @@ define('SOCIAL_LOCATION_UNIT_MILE', 69);
 define('SOCIAL_LOCATION_UNIT_KM', 111);
 define('SOCIAL_LOCATION_RADIUS_MILE', 3959);
 define('SOCIAL_LOCATION_RADIUS_KM', 6371);
+
+define('SOCIAL_STREAM_LAST_ACTION_LIKE', 'like');
+define('SOCIAL_STREAM_LAST_ACTION_COMMENT', 'comment');
+
+define('SOCIAL_VIDEO_PUBLISHED', 1);
+define('SOCIAL_VIDEO_UNPUBLISHED', 0);
+define('SOCIAL_VIDEO_PENDING', 2);
+define('SOCIAL_VIDEO_PROCESSING', 3);
+define('SOCIAL_VIDEO_FEATURED', 1);
+define('SOCIAL_VIDEO_UPLOAD', 'upload');
+define('SOCIAL_VIDEO_LINK', 'link');
+
+define('SOCIAL_ACCESS_LIMIT_INTERVAL_NO', 0);
+define('SOCIAL_ACCESS_LIMIT_INTERVAL_DAILY', 1);
+define('SOCIAL_ACCESS_LIMIT_INTERVAL_WEEKLY', 2);
+define('SOCIAL_ACCESS_LIMIT_INTERVAL_MONTHLY', 3);
+define('SOCIAL_ACCESS_LIMIT_INTERVAL_YEARLY', 4);
 
 // Foundry
 require_once(JPATH_ROOT . '/media/foundry/4.0/joomla/framework.php');

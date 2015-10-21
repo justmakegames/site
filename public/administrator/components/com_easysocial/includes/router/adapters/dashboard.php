@@ -149,7 +149,7 @@ class SocialRouterDashboard extends SocialRouterAdapter
 				$vars['filter'] = $vars['type'];
 				unset($vars['type']);
 			}
-			
+
 			return $vars;
 		}
 
@@ -157,6 +157,19 @@ class SocialRouterDashboard extends SocialRouterAdapter
 		if ($total == 2 && $segments[ 0 ] == $this->translate('dashboard') && $segments[1] == $this->translate('dashboard_bookmarks')) {
 			$vars['view'] = 'dashboard';
 			$vars['type'] = 'bookmarks';
+
+			if ($this->doc->getType() != 'html') {
+				$vars['filter'] = $vars['type'];
+				unset($vars['type']);
+			}
+
+			return $vars;
+		}
+
+		// URL: http://site.com/menu/dashboard/bookmarks
+		if ($total == 2 && $segments[ 0 ] == $this->translate('dashboard') && $segments[1] == $this->translate('dashboard_sticky')) {
+			$vars['view'] = 'dashboard';
+			$vars['type'] = 'sticky';
 
 			if ($this->doc->getType() != 'html') {
 				$vars['filter'] = $vars['type'];
@@ -234,7 +247,7 @@ class SocialRouterDashboard extends SocialRouterAdapter
 		if ($total == 3 && $segments[ 1 ] == $this->translate('dashboard_layout_hashtag')) {
 			$vars['view'] = 'dashboard';
 			$vars['tag'] = $segments[2];
-			
+
 			return $vars;
 		}
 

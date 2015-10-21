@@ -31,7 +31,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/divider.png" alt="<?php echo JText::_( 'divider' );?>" />
 		</div>
 
-		<table width="540" cellspacing="0" cellpadding="0" border="0" align="center">
+		<table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="table-layout:fixed;margin: 0 auto;">
 			<tr>
 				<td>
 					<p style="text-align:left;">
@@ -46,7 +46,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</table>
 
 
-		<table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;">
+		<table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="table-layout:fixed;margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;">
 			<tbody>
 				<tr>
 					<td valign="top" width="100">

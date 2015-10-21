@@ -93,7 +93,7 @@ class SocialFieldsUserJoomla_fullname extends SocialFieldItem
 		}
 
 		// Detect if the name is changed.
-		$post['nameChanged']	= $this->nameChanged($post, $user);
+		$post['nameChanged'] = $this->nameChanged($post, $user);
 
 		return $this->save($post);
 	}
@@ -152,7 +152,7 @@ class SocialFieldsUserJoomla_fullname extends SocialFieldItem
 	 */
 	public function onEditAfterSave(&$data, &$user)
 	{
-		$config 	= FD::config();
+		$config = FD::config();
 
 		if ($config->get('users.aliasName') != 'realname') {
 			return;
@@ -459,6 +459,7 @@ class SocialFieldsUserJoomla_fullname extends SocialFieldItem
 		$this->displayForm($post, $default);
 
 		$error = $this->getError($errors);
+		
 
 		$this->set('error', $error);
 

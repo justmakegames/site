@@ -12,13 +12,15 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div data-friends-content>
-	<div class="es-filterbar">
-		<div class="pull-left">
-			<h4 class="h4 filterbar-title"><?php echo JText::_('COM_EASYSOCIAL_FRIENDS_INVITES_HEADING'); ?></h4>
+	<div class="es-snackbar row-table">
+		<div class="col-cell">
+			<?php echo JText::_('COM_EASYSOCIAL_FRIENDS_INVITES_HEADING'); ?>
 		</div>
-		<a href="<?php echo FRoute::friends(array('layout' => 'invite'));?>" class="btn btn-es-primary btn-sm pull-right">
-			<i class="ies-user-add"></i> <?php echo JText::_('COM_EASYSOCIAL_INVITE_FRIEND_BUTTON');?>
-		</a>
+		<div class="col-cell text-right fd-small">
+			<a href="<?php echo FRoute::friends(array('layout' => 'invite'));?>">
+				<?php echo JText::_('COM_EASYSOCIAL_INVITE_FRIEND_BUTTON');?>
+			</a>
+		</div>
 	</div>
 
 	<ul class="es-item-grid friend-items es-item-grid_1col<?php echo !$friends ? ' is-empty' : '';?>" data-friends-items>

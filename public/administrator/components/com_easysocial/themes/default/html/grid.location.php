@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="es-location <?php echo $classname; ?>" data-language="<?php echo FD::config()->get('general.location.language'); ?>">
+<div class="es-locations <?php echo $classname; ?>" data-language="<?php echo FD::config()->get('general.location.language'); ?>">
 	<div class="es-location-textbox">
 		<input type="text"
 			   value="<?php echo $location->address; ?>"
@@ -22,7 +22,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<button type="button" class="es-location-button btn btn-es" data-detect-location-button><?php echo JText::_('COM_EASYSOCIAL_DETECT_MY_LOCATION'); ?></button>
 	</div>
 	<div class="es-location-suggestions" data-location-suggestions></div>
-	<div class="es-location-map init" data-location-map></div>
+	<div class="es-location-map" data-location-map>
+	    <div>
+	        <img class="es-location-map-image" data-location-map-image />
+	    </div>
+	</div>
 	<input type="hidden" name="lat" data-location-lat value="<?php echo $location->latitude; ?>" />
 	<input type="hidden" name="lng" data-location-lng value="<?php echo $location->longitude; ?>" />
 </div>

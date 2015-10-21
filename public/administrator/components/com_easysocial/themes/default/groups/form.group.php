@@ -15,17 +15,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="es-user-form">
 		<div class="wrapper accordion">
 			<?php if (!$isNew) { ?>
-			<div class="tab-box tab-box-alt tab-box-sidenav">
+			<div class="tab-box tab-box-alt">
 				<div class="tabbable">
 					<ul id="userForm" class="nav nav-tabs nav-tabs-icons nav-tabs-side">
 						<li class="tabItem <?php if($activeTab == 'profile') { ?>active<?php } ?>" data-tabnav data-for="profile">
 							<a href="#profile" data-bs-toggle="tab">
-								<i class="ies-vcard ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_GROUPS_FORM_GROUP_DETAILS');?>
+								<?php echo JText::_('COM_EASYSOCIAL_GROUPS_FORM_GROUP_DETAILS');?>
 							</a>
 						</li>
 						<li class="tabItem <?php if($activeTab == 'members') { ?>active<?php } ?>" data-tabnav data-for="members">
 							<a href="#members" data-bs-toggle="tab">
-								<i class="ies-users ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_GROUPS_FORM_GROUP_MEMBERS');?>
+								<?php echo JText::_('COM_EASYSOCIAL_GROUPS_FORM_GROUP_MEMBERS');?>
 							</a>
 						</li>
 					</ul>

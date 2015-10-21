@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,24 +9,18 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
+defined('_JEXEC') or die('Unauthorized Access');
 
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
-
-// Include necessary libraries here.
-require_once( dirname( __FILE__ ) . '/option.php' );
+require_once(dirname(__FILE__) . '/option.php');
 
 
-class SocialPrivacy
+class SocialPrivacy extends EasySocial
 {
-	/**
-	 * The target item
-	 * @var 	int
-	 */
-	private $target 		= null;
-	private $type 			= null;
+	private $target = null;
+	private $type = null;
 
-	private $data			= null;
-	public static $keys		= array(
+	private $data = null;
+	public static $keys = array(
 								'public'			=> SOCIAL_PRIVACY_PUBLIC,	// 0
 								'member'			=> SOCIAL_PRIVACY_MEMBER,	// 10
 								'friends_of_friend'	=> SOCIAL_PRIVACY_FRIENDS_OF_FRIEND,	// 20
@@ -36,12 +30,12 @@ class SocialPrivacy
 							);
 
 	public static $icons	= array(
-								'public'			=> 'ies-earth',
-								'member'			=> 'ies-user-2',	// 10
-								'friends_of_friend'	=> 'ies-users',	// 20
-								'friend'			=> 'ies-users',	// 30
-								'only_me'			=> 'ies-locked',	// 40
-								'custom'			=> 'ies-wrench-2'	// 100
+								'public'			=> 'fa fa-globe',
+								'member'			=> 'fa fa-user',	// 10
+								'friends_of_friend'	=> 'fa fa-users',	// 20
+								'friend'			=> 'fa fa-users',	// 30
+								'only_me'			=> 'fa fa-lock',	// 40
+								'custom'			=> 'fa fa-wrench'	// 100
 							);
 
 	public static $resetMap 	= array(
@@ -63,10 +57,12 @@ class SocialPrivacy
 	 * @since	3.0
 	 * @access	public
 	 */
-	public function __construct( $target = '', $type = SOCIAL_PRIVACY_TYPE_USER )
+	public function __construct($target = '', $type = SOCIAL_PRIVACY_TYPE_USER)
 	{
 		$this->target = $target;
-		$this->type   = $type;
+		$this->type = $type;
+
+		parent::__construct();
 	}
 
 	/**
@@ -187,8 +183,7 @@ class SocialPrivacy
 	 */
 	public function getData()
 	{
-		if( empty( $this->data ) )
-		{
+		if (!$this->data) {
 			$this->data = $this->getPrivacyData();
 		}
 
@@ -205,24 +200,21 @@ class SocialPrivacy
 	 */
 	public function getPrivacyData()
 	{
-		static $items 	= array();
+		static $items = array();
 
-		if( empty( $this->target )  || empty( $this->type ) )
-		{
+		if (!$this->target || !$this->type) {
 			return false;
 		}
 
-		$key 	= $this->target . $this->type;
+		$key = $this->target . $this->type;
 
-		if( !isset( $items[ $key ] ) )
-		{
-			$model 			= FD::model( 'Privacy' );
-			$items[ $key ]	= $model->getData( $this->target , $this->type );
+		if (!isset($items[$key])) {
+			$model = FD::model('Privacy');
+			$items[$key] = $model->getData($this->target, $this->type);
 		}
 
-		return $items[ $key ];
+		return $items[$key];
 	}
-
 
 
 	/**
@@ -242,32 +234,26 @@ class SocialPrivacy
 		// lets get the privacy id based on the $rule.
 		$rules = explode( '.', $rule );
 
-		$element  = array_shift( $rules );
-		$rule 	  = implode( '.', $rules );
+		$element = array_shift( $rules );
+		$rule = implode( '.', $rules );
 
-		$model 		= FD::model( 'Privacy' );
-		$privacyId 	= $model->getPrivacyId( $element, $rule, true );
+		$model = ES::model('Privacy');
+		$privacyId = $model->getPrivacyId($element, $rule, true);
 
-		if( is_numeric( $pvalue ) )
-		{
-			$pvalue = $this->toKey( $pvalue );
+		if (is_numeric($pvalue)) {
+			$pvalue = $this->toKey($pvalue);
 		}
 
-		if( is_null( $userId ) || empty( $userId ) )
-		{
+		if (is_null($userId) || !$userId) {
 			$userId = $this->target;
 		}
 
 		// if still empty, then we will just use the current logged in user id.
-		if( is_null( $userId ) || empty( $userId ) )
-		{
-			$my 	= FD::user();
-			$userId = $my->id;
+		if (is_null($userId) || !$userId) {
+			$userId = $this->my->id;
 		}
 
-
-
-		$state = $model->update( $userId, $privacyId, $uid, $utype, $pvalue, $custom );
+		$state = $model->update($userId, $privacyId, $uid, $utype, $pvalue, $custom);
 		return $state;
 	}
 
@@ -319,6 +305,8 @@ class SocialPrivacy
 
 		$option->editable 	= $pItem->editable;
 
+		$option->override 	= false;
+
 		return $option;
 	}
 
@@ -330,40 +318,60 @@ class SocialPrivacy
 	 * @access	public
 	 * @param	int		The object unique id.
 	 * @param	string	The object type.
+	 * @editOverride 	array which accept only two key. 'override' and 'value'.
+	 * 						'override' (boolean) to indicate if overiding is needed or not.
+	 * 						'value' (boolean) to indicate the new value of editable property
 	 * @return 	string 	html code
 	 */
-	public function form( $uid, $utype, $ownerId, $command = null, $isHtml = false, $streamId = null )
+	public function form($uid, $utype, $ownerId, $command = null, $isHtml = false, $streamId = null, $editOverride = array())
 	{
-		$pItem 		= $this->getOption( $uid, $utype, $ownerId, $command );
+		// Get the current logged in user.
+		$my = ES::user();
+
+		// Get a list of privacy options
+		$pItem = $this->getOption($uid, $utype, $ownerId, $command);
 
 		//preload users
-		if( count( $pItem ) > 0 )
-		{
+		if (count($pItem) > 0) {
+
 			$arrUser = array();
 
-			foreach( $pItem->custom as $item )
-			{
+			foreach ($pItem->custom as $item) {
 				$arrUser[] = $item->user_id;
 			}
 
-			if( count( $arrUser ) > 0 )
-			{
-				FD::user( $arrUser );
+			if (count($arrUser) > 0) {
+				ES::user($arrUser);
 			}
 		}
 
-		$tooltipText = JText::_( 'COM_EASYSOCIAL_PRIVACY_TOOLTIPS_SHARED_WITH_' . strtoupper( $this->toKey( $pItem->value ) ) );
+		// TODO: should we check if the current user has the edit privacy override ability?
+		if ($my->id && $editOverride && isset($editOverride['override']) && isset($editOverride['value'])) {
+			if ($editOverride['override']) {
+				$pItem->editable = $editOverride['value'];
 
-		$theme 		= FD::get( 'Themes' );
-		$theme->set( 'item', $pItem );
-		$theme->set( 'utype' , $pItem->type );
-		$theme->set( 'uid' , $pItem->uid );
-		$theme->set( 'isHtml' , $isHtml );
-		$theme->set( 'tooltipText' , $tooltipText );
-		$theme->set( 'streamid', $streamId);
-		$theme->set( 'icon', $this->getIconClass( $this->toKey( $pItem->value ) ) );
+				$pItem->override = true;
+			}
+		}
 
-		$output 	= $theme->output( 'site/privacy/default.privacy.options' );
+		// Set the tooltip text
+		$tooltipText = FD::_('COM_EASYSOCIAL_PRIVACY_TOOLTIPS_SHARED_WITH_' . strtoupper($this->toKey($pItem->value)), true);
+
+		// Get the icon for the rule
+		$icon = $this->getIconClass($this->toKey($pItem->value));
+
+		$theme = ES::themes();
+		$theme->set('item', $pItem);
+		$theme->set('utype' , $pItem->type );
+		$theme->set('uid' , $pItem->uid );
+		$theme->set('isHtml' , $isHtml);
+		$theme->set('tooltipText', $tooltipText);
+		$theme->set('streamid', $streamId);
+		$theme->set('icon', $icon);
+
+		$namespace = 'site/privacy/default.privacy.options';
+
+		$output = $theme->output($namespace);
 
 		return $output;
 	}

@@ -100,20 +100,18 @@ class SocialRouterUsers extends SocialRouterAdapter
 	 */
 	public function parse(&$segments)
 	{
-		$vars 		= array();
-		$total 		= count($segments);
+		$vars = array();
+		$total = count($segments);
 
 		// URL: http://site.com/menu/users/online
-		if( ($total == 2 || $total == 3) && $segments[ 1 ] == $this->translate( 'users_filter_online' ) )
-		{
+		if( ($total == 2 || $total == 3) && $segments[ 1 ] == $this->translate( 'users_filter_online' ) ) {
 			$vars[ 'view' ]		= 'users';
 			$vars[ 'filter' ]	= 'online';
 
 			return $vars;
 		}
 
-		if( ($total == 2 || $total == 3 ) && $segments[ 1 ] == $this->translate( 'users_filter_photos' ) )
-		{
+		if( ($total == 2 || $total == 3 ) && $segments[ 1 ] == $this->translate( 'users_filter_photos' ) ) {
 			$vars[ 'view' ]		= 'users';
 			$vars[ 'filter' ]	= 'photos';
 
@@ -136,32 +134,48 @@ class SocialRouterUsers extends SocialRouterAdapter
 			return $vars;
 		}
 
-		// URL: http://site.com/menu/users
-		if( ( $total <= 3 ) && ($segments[ 0 ] == $this->translate( 'users' ) || $segments[ 1 ] == $this->translate( 'users_filter_all' ) ) )
-		{
-			$vars[ 'view' ]		= 'users';
+		// URL: http://site.com/menu/users/alphabetical or http://site.com/menu/users/latest
+		if ($total == 2 && ($segments[1] == $this->translate('users_sort_alphabetical') || $segments[1] == $this->translate('users_sort_latest') || $segments[1] == $this->translate('users_sort_lastlogin')) ) {
 
-			if( isset( $segments[ 1 ] ) )
-			{
-				if( $segments[ 1 ] == $this->translate( 'users_filter_online' ) )
-				{
-					$vars[ 'filter' ]	= 'online';
+			$vars['view'] = 'users';
+			$vars['sort'] = 'latest';
+
+			if ($segments[1] == $this->translate('users_sort_alphabetical')) {
+				$vars['sort'] = 'alphabetical';
+			}
+
+			if ($segments[1] == $this->translate('users_sort_lastlogin')) {
+				$vars['sort'] = 'lastlogin';
+			}
+
+			return $vars;
+		}
+
+		// URL: http://site.com/menu/users
+		if ($total <= 3 && ($segments[0] == $this->translate('users') || $segments[1] == $this->translate('users_filter_all'))) {
+
+			$vars['view'] = 'users';
+
+			if (isset($segments[1])) {
+
+				// Default to all
+				$vars['filter'] = 'all';
+
+				if ($segments[1] == $this->translate('users_filter_online')) {
+					$vars['filter'] = 'online';
 				}
-				else if($segments[ 1 ] == $this->translate( 'users_filter_photos' ))
-				{
-					$vars[ 'filter' ]	= 'photos';
-				}
-				else
-				{
-					$vars[ 'filter' ]	= 'all';
+
+				if ($segments[1] == $this->translate('users_filter_photos')) {
+					$vars['filter'] = 'photos';
 				}
 			}
 
-			if( isset( $segments[ 2 ] ) )
-			{
-				if( $segments[ 2 ] == $this->translate( 'users_sort_alphabetical' ) )
-				{
+			// dump($segments);
+			if (isset($segments[ 2 ])) {
+				if ($segments[ 2 ] == $this->translate('users_sort_alphabetical')) {
 					$vars[ 'sort' ]		= 'alphabetical';
+				} else if ($segments[ 2 ] == $this->translate('users_sort_lastlogin')) {
+					$vars[ 'sort' ]		= 'lastlogin';
 				} else {
 					$vars[ 'sort' ]		= 'latest';
 				}

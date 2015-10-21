@@ -1,4 +1,4 @@
-EasySocial.module( 'site/stream/item' , function(){
+EasySocial.module('site/stream/item', function() {
 
 	var module	= this;
 
@@ -14,11 +14,8 @@ EasySocial.module( 'site/stream/item' , function(){
 	)
 	.done(function($){
 
-		EasySocial.Controller(
-		'Stream.Item',
-		{
-			defaultOptions:
-			{
+		EasySocial.Controller('Stream.Item', {
+			defaultOptions: {
 				view: {
 					suggestItem: "site/friends/suggest.item",
 					tagSuggestItem: "site/hashtags/suggest.item"
@@ -34,9 +31,17 @@ EasySocial.module( 'site/stream/item' , function(){
 				"{updateStream}"	: "[data-stream-edit-update]",
 				"{cancelEditStream}" : "[data-stream-edit-cancel]",
 
+				"{editPoll}"	: "[data-stream-polls-edit]",
+				"{cancelEditPoll}"	: "[data-stream-polls-edit-cancel]",
+				"{updatePoll}"	: "[data-stream-polls-edit-update]",
 
+
+				"{publishItem}": "[data-stream-publish]",
 				"{addBookmark}": "[data-stream-bookmark-add]",
 				"{removeBookmark}": "[data-stream-bookmark-remove]",
+
+				"{addSticky}": "[data-stream-sticky-add]",
+				"{removeSticky}": "[data-stream-sticky-remove]",
 
 				"{hideLink}"	: "[data-stream-hide]",
 				"{unHideLink}"	: "[data-stream-show]",
@@ -65,12 +70,17 @@ EasySocial.module( 'site/stream/item' , function(){
 
 				"{share}"			: "[data-repost-action]",
 
+				// Translations
+				"{translateLink}": "[data-stream-translate]",
+				"{translateLoader}": "[data-stream-translate-loader]",
+
 				// for stream comment
 				"{streamCommentLink}" 	: "[data-stream-action-comments]",
 				"{streamCommentBlock}" 	: "[data-comments]"
 			}
-		},
-		function(self, opts, base) { return {
+		}, function(self, opts, base) {
+
+			return {
 
 				init: function() {
 					// Set the stream's unique id.
@@ -78,15 +88,31 @@ EasySocial.module( 'site/stream/item' , function(){
 					opts.context = base.data('context');
 					opts.ishidden = base.data('ishidden');
 					opts.actor = base.data('actor');
-
-					// Render core actions
-					// self.initActions();
 				},
 
 				plugins: {},
 
-				"{addBookmark} click": function(el, event)
-				{
+				"{translateLink} click": function(translateLink, event) {
+
+					// Get the stream content
+					var contents = self.streamContent().html();
+
+					// Add a loading indicator on the translation link
+					self.element.addClass('is-translating');
+
+					EasySocial.ajax('site/controllers/stream/translate', {
+						"contents": contents
+					})
+					.done(function(translated) {						
+						self.streamContent().html(translated);
+					})
+					.always(function() {
+						self.element.removeClass('is-translating');
+						self.element.addClass('is-translated');
+					});
+				},
+
+				"{addBookmark} click": function(el, event) {
 					// Add the bookmark class
 					self.element.addClass('is-bookmarked');
 
@@ -104,23 +130,69 @@ EasySocial.module( 'site/stream/item' , function(){
 					});
 				},
 
-				"{removeBookmark} click": function(el, event)
-				{
+				"{removeBookmark} click": function(el, event) {
 					var filterType = window.streamFilter || false;
 
+					// Remove the bookmarked class
 					if (filterType != 'bookmarks') {
-						// Remove the bookmarked class
 						self.element.removeClass('is-bookmarked');
 					}
 
 					EasySocial.ajax('site/controllers/stream/removeBookmark', {
 						"id": self.options.id
-					})
-					.done(function(html){
-
+					}).done(function(html) {
 						if (filterType == 'bookmarks') {
 							self.element.html(html);
 						}
+					});
+				},
+
+
+				"{addSticky} click": function(el, event) {
+					EasySocial.ajax('site/controllers/stream/addSticky', {
+						"id" : self.options.id
+					})
+					.done(function() {
+						// add sticky icon
+						self.element.addClass('is-sticky');
+					})
+					.fail(function(obj) {
+
+						// If this is failed, we need to display the message object
+						EasySocial.dialog({
+							content: obj.message
+						});
+
+					});
+				},
+
+				"{removeSticky} click": function(el, event) {
+					var filterType = window.streamFilter || false;
+
+					if (filterType != 'sticky') {
+						// Remove the bookmarked class
+						self.element.removeClass('is-sticky');
+					}
+
+					EasySocial.ajax('site/controllers/stream/removeSticky', {
+						"id": self.options.id
+					})
+					.done(function(html){
+
+						if (filterType == 'sticky') {
+							self.element.html(html);
+						}
+					});
+				},
+
+				"{publishItem} click": function(el, event) {
+					var id = opts.id;
+
+					EasySocial.ajax('site/controllers/stream/publish', {
+						"id": id
+					}).done(function() {
+						// When the stream is published, we want to hide the item
+						base.switchClass('is-published');
 					});
 				},
 
@@ -171,17 +243,14 @@ EasySocial.module( 'site/stream/item' , function(){
 				/**
 				 * Delete a stream item
 				 */
-
-				 "{deleteFeed} click" : function()
-				 {
-					var uid = self.options.id
+				 "{deleteFeed} click" : function() {
+					var uid = self.options.id;
 
 					EasySocial.dialog({
-						content		: EasySocial.ajax( 'site/views/stream/confirmDelete' ),
-						bindings	:
-						{
-							"{deleteButton} click" : function()
-							{
+						content: EasySocial.ajax('site/views/stream/confirmDelete'),
+						bindings: {
+
+							"{deleteButton} click" : function() {
 								EasySocial.ajax( 'site/controllers/stream/delete',
 								{
 									"id"		: uid,
@@ -214,6 +283,62 @@ EasySocial.module( 'site/stream/item' , function(){
 					});
 
 				 },
+
+				"{editPoll} click" : function()
+				{
+					var uid = self.options.id,
+						element = 'stream';
+
+					EasySocial.ajax('site/views/polls/edit',
+					{
+						"uid": uid,
+						"element": element,
+						"source": 'stream'
+					})
+					.done(function(html)
+					{
+						// Add editing state
+						self.element.addClass('is-editing');
+
+						self.streamContent().hide();
+
+						self.streamEditor().html(html);
+
+					});
+				},
+
+				"{cancelEditPoll} click" : function()
+				{
+					self.element.removeClass('is-editing');
+
+					// Remove the contents
+					self.streamEditor().html('');
+
+					// Show the contents
+					self.streamContent().show();
+				},
+
+				"{updatePoll} click": function()
+				{
+					var pollController = self.element.find('[data-polls-edit]').controller('EasySocial.Controller.Polls');
+
+					var valid = pollController.validateForm();
+
+                    if (! valid) {
+                        return task.reject('Error validating polls inputs. Please make sure all the required fields are filled in.');
+                    }
+
+					var data = pollController.toData();
+
+					EasySocial.ajax('site/controllers/polls/update', data)
+					.done(function(html, id)
+					{
+						self.streamContent().html(html);
+
+						self.cancelEditPoll().click();
+					});
+				},
+
 
 				"{cancelEditStream} click" : function()
 				{

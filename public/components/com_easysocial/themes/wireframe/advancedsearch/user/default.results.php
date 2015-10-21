@@ -25,7 +25,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<li class="fd-reset-list" data-search-pagination data-last-limit="<?php echo $nextlimit; ?>">
 			<?php if( $total > FD::themes()->getConfig()->get( 'search_limit' ) ) { ?>
-			<a class="btn btn-es-primary btn-stream-updates" href="javascript:void(0);" data-search-loadmore-button><i class="ies-refresh"></i>	<?php echo JText::_( 'COM_EASYSOCIAL_SEARCH_LOAD_MORE_ITEMS' ); ?></a>
+			<a class="btn btn-es-primary btn-stream-updates" href="javascript:void(0);" data-search-loadmore-button><i class="fa fa-refresh"></i>	<?php echo JText::_( 'COM_EASYSOCIAL_SEARCH_LOAD_MORE_ITEMS' ); ?></a>
 			<?php } ?>
 		</li>
 

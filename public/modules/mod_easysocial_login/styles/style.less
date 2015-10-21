@@ -14,15 +14,20 @@
             .input-area {
                 font-size: 11px;
                 display: table;
+                width: 100%;
                 .input-area-cell {
                     display: table-cell;
-                    padding: 0 4px 0 0;
+
+                    + .input-area-cell {
+                        padding: 0 0 0 10px;
+                    }
                 }
                 .form-inline {
+                    background: #fff !important;
                     padding-left: 18px;
                     border: 1px solid #d7d7d7;
                     border-radius: 3px;
-                    // width: 35%;
+                    width: 100% !important;
                     display: inline-block;
                     position: relative;
 
@@ -35,8 +40,12 @@
                         top: 12px;
                     }
 
+                    .form-control {
+                        border: 0 !important;
+                        background: none !important;
+                    }
+
                     input {
-                        // padding-top: 2px;
                         padding-left: 5px;
                         width: 55%;
                         font-size: 11px;
@@ -51,6 +60,7 @@
                         top: 5px;
                         right: 5px;
                     }
+
                 }
                 .es-secret-key {
                     // width: 21%;
@@ -69,6 +79,10 @@
                     font-size: 11px;
                     margin: 0;
 
+                }
+                .btn-login,
+                .btn-register {
+                    width: 100%;
                 }
                 input,
                 button {
@@ -117,15 +131,12 @@
                     content: '';
                     width: 100%;
                     position: absolute;
-                    // background-color: rgba(0, 0, 0, 0.1) !important;
                     left: 0;
                     right: 0;
                     top: 9px;
                     height: 1px;
-                    // bottom: 0;
                 }
                 strong {
-                    // background: #EFF0F4;
                     padding: 0 6px;
                     position: relative;
                     z-index: 2;

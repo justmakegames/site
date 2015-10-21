@@ -35,51 +35,41 @@ class EasySocialViewLogin extends EasySocialSiteView
 	 */
 	public function form( $tpl = null )
 	{
-		$ajax 	= FD::ajax();
-
-		$my 	= FD::user();
-
 		// If user is already logged in, they should not see this page.
-		if( $my->id > 0 )
-		{
-			$this->setMessage( JText::_( 'COM_EASYSOCIAL_LOGIN_ALREADY_LOGGED_IN' ) , SOCIAL_MSG_ERROR );
-			return $ajax->reject( $this->getMessage() );
+		if (!$this->my->guest) {
+			$this->setMessage(JText::_('COM_EASYSOCIAL_LOGIN_ALREADY_LOGGED_IN'), SOCIAL_MSG_ERROR);
+			return $this->ajax->reject($this->getMessage());
 		}
 
 		// Facebook codes.
-		$facebook 	= FD::oauth( 'Facebook' );
+		$facebook = FD::oauth('Facebook');
 
 		// Get any callback urls.
-		$return 	= FD::getCallback();
+		$return = FD::getCallback();
 
 		// If return value is empty, always redirect back to the dashboard
-		if( !$return )
-		{
+		if (!$return) {
 			$return	= FRoute::dashboard( array() , false );
 		}
 
 		// Determine if there's a login redirection
-		$config 		= FD::config();
-		$loginMenu 		= $config->get( 'general.site.login' );
+		$config = FD::config();
+		$loginMenu = $config->get('general.site.login');
 
-		if( $loginMenu != 'null' )
-		{
-			$return 	= FD::get( 'toolbar' )->getRedirectionUrl( $loginMenu );
+		if ($loginMenu != 'null') {
+			$return = FRoute::getMenuLink($loginMenu);
 		}
 
-		$return 	= base64_encode( $return );
+		$return = base64_encode($return);
 
-		$this->set( 'return'	, $return );
-		$this->set( 'facebook' 	, $facebook );
+		// Only display registration form when registrations are enabled.
+		if ($config->get('registrations.enabled')) {
 
-		if( $config->get( 'registrations.enabled' ) )
-		{
 			$profileId = $config->get('registrations.mini.profile', 'default');
 
 			if ($profileId === 'default') {
 				$profileId = Foundry::model( 'profiles' )->getDefaultProfile()->id;
 			}
-
 
 			$options = array(
 				'visible' => SOCIAL_PROFILES_VIEW_MINI_REGISTRATION,
@@ -89,28 +79,30 @@ class EasySocialViewLogin extends EasySocialSiteView
 			$fieldsModel = FD::model('Fields');
 			$fields = $fieldsModel->getCustomFields($options);
 
-			if( !empty( $fields ) )
-			{
+			if (!empty($fields)) {
 				FD::language()->loadAdmin();
 
 				$fieldsLib = FD::fields();
 
-				$session    	= JFactory::getSession();
-				$registration	= FD::table( 'Registration' );
-				$registration->load( $session->getId() );
+				$session = JFactory::getSession();
+				$registration = FD::table('Registration');
+				$registration->load($session->getId());
 
-				$data           = $registration->getValues();
+				$data = $registration->getValues();
 
-				$args = array( &$data, &$registration );
+				$args = array(&$data, &$registration);
 
-				$fieldsLib->trigger( 'onRegisterMini', SOCIAL_FIELDS_GROUP_USER, $fields, $args );
+				$fieldsLib->trigger('onRegisterMini', SOCIAL_FIELDS_GROUP_USER, $fields, $args);
 
-				$this->set( 'fields', $fields );
+				$this->set('fields', $fields);
 			}
 		}
 
-		$contents	= parent::display( 'site/login/dialog.login' );
+		$this->set('return', $return);
+		$this->set('facebook', $facebook);
 
-		return $ajax->resolve( $contents );
+		$contents = parent::display('site/login/dialog.login');
+
+		return $this->ajax->resolve( $contents );
 	}
 }

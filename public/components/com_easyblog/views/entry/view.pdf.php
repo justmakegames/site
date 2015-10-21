@@ -11,18 +11,12 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-jimport( 'joomla.application.component.view');
-
-require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'image.php' );
-require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'date.php' );
-require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'helper.php' );
+require_once(JPATH_COMPONENT . '/views/views.php');
 
 class EasyBlogViewEntry extends EasyBlogView
 {
-	function display( $tmpl = null )
+	public function display( $tmpl = null )
 	{
-
-
 		JPluginHelper::importPlugin( 'easyblog' );
 		$dispatcher = JDispatcher::getInstance();
 		$mainframe	= JFactory::getApplication();
@@ -31,119 +25,68 @@ class EasyBlogViewEntry extends EasyBlogView
 
 		//for trigger
 		$params		= $mainframe->getParams('com_easyblog');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
 
 		$joomlaVersion = EasyBlogHelper::getJoomlaVersion();
 
-	    $blogId = JRequest::getVar('id');
-	    if( empty($blogId) )
-		{
+	    $blogId = $this->input->get('id', 0, 'int');
+	    if (empty($blogId)) {
 			return JError::raiseError( 404, JText::_('COM_EASYBLOG_BLOG_NOT_FOUND') );
 		}
 
 	    $my 	= JFactory::getUser();
-	    $blog	= EasyBlogHelper::getTable( 'Blog', 'Table' );
+
+	    $blog	= EB::table('Blog');
 	    $blog->load($blogId);
 
-		//check if blog is password protected.
-		if($config->get('main_password_protect', true) && !empty($blog->blogpassword))
-		{
-			if(!EasyBlogHelper::verifyBlogPassword($blog->blogpassword, $blog->id))
-			{
-				echo JText::_('COM_EASYBLOG_PASSWORD_PROTECTED_PDF_ERROR');
+	    $post = EB::post($blogId);
 
-				return false;
-			}
+		// Check if blog is password protected.
+		$protected = $this->isProtected($post);
+
+		if ($protected !== false) {
+			return;
 		}
 
-		$blog->intro	= EasyBlogHelper::getHelper( 'Videos' )->strip( $blog->intro );
-		$blog->content	= EasyBlogHelper::getHelper( 'Videos' )->strip( $blog->content );
-
-
-		//onEasyBlogPrepareContent trigger start
-		$dispatcher->trigger('onEasyBlogPrepareContent', array (& $blog, & $params, $limitstart));
-		//onEasyBlogPrepareContent trigger end
-
-	    //onPrepareContent trigger start
-		$blog->introtext	= $blog->intro;
-		$blog->text			= $blog->content;
-		if($joomlaVersion >= '1.6'){
-			$dispatcher->trigger('onContentPrepare', array('easyblog.blog', &$blog, &$params, $limitstart));
-		} else {
-			$dispatcher->trigger('onPrepareContent', array (&$blog, &$params, $limitstart));
+		// If the blog post is already deleted, we shouldn't let it to be accessible at all.
+		if ($post->isTrashed()) {
+			return JError::raiseError(404, JText::_('COM_EASYBLOG_ENTRY_BLOG_NOT_FOUND'));
 		}
-		$blog->intro		= $blog->introtext;
-		$blog->content		= $blog->text;
-	    //onPrepareContent trigger end
 
-	    // @task: Retrieve tags output.
-	    $modelPT		= $this->getModel( 'PostTag' );
-	    $blogTags		= $modelPT->getBlogTags($blog->id);
-
-		$theme	= new CodeThemes();
-		$theme->set( 'tags' , $blogTags );
-		$tags 			= $theme->fetch( 'tags.item.php' );
-
-
-		//page setup
-	    $blogHtml		= '';
-	    $commentHtml	= '';
-	    $blogHeader		= '';
-	    $blogFooter		= '';
-	    $adsenseHtml	= '';
-	    $trackbackHtml  = '';
-
-
-	    $blogger	= null;
-	    if($blog->created_by != 0)
-	    {
-	    	$blogger 	= EasyBlogHelper::getTable( 'Profile', 'Table' );
-	    	$blogger->load( $blog->created_by );
-
-			$blogger->displayName   = $blogger->getName();
-	    }
-
-	    //onAfterDisplayTitle, onBeforeDisplayContent, onAfterDisplayContent trigger start
-		$blog->event = new stdClass();
-
-		if($joomlaVersion >= '1.6')
-		{
-			$results = $dispatcher->trigger('onContentAfterTitle', array ('easyblog.blog', &$blog, &$params, $limitstart));
-			$blog->event->afterDisplayTitle = JString::trim(implode("\n", $results));
-
-			$results = $dispatcher->trigger('onContentBeforeDisplay', array ('easyblog.blog', &$blog, &$params, $limitstart));
-			$blog->event->beforeDisplayContent = JString::trim(implode("\n", $results));
-
-			$results = $dispatcher->trigger('onContentAfterDisplay', array ('easyblog.blog', &$blog, &$params, $limitstart));
-			$blog->event->afterDisplayContent = JString::trim(implode("\n", $results));
-		} else {
-			$results = $dispatcher->trigger('onAfterDisplayTitle', array (&$blog, &$params, $limitstart));
-			$blog->event->afterDisplayTitle = JString::trim(implode("\n", $results));
-
-			$results = $dispatcher->trigger('onBeforeDisplayContent', array (&$blog, &$params, $limitstart));
-			$blog->event->beforeDisplayContent = JString::trim(implode("\n", $results));
-
-			$results = $dispatcher->trigger('onAfterDisplayContent', array (&$blog, &$params, $limitstart));
-			$blog->event->afterDisplayContent = JString::trim(implode("\n", $results));
+		// Check if the blog post is trashed
+		if (!$post->isPublished() && $this->my->id != $post->created_by && !EB::isSiteAdmin()) {
+			return JError::raiseError(404, JText::_('COM_EASYBLOG_ENTRY_BLOG_NOT_FOUND'));
 		}
-		//onAfterDisplayTitle, onBeforeDisplayContent, onAfterDisplayContent trigger end
 
+		// Check for team's privacy
+		$allowed = $this->checkTeamPrivacy($post);
 
+		if ($allowed === false) {
+			return JError::raiseError(404, JText::_('COM_EASYBLOG_TEAMBLOG_MEMBERS_ONLY'));
+		}
 
-	    $tplB = new CodeThemes();
+		// Check if the blog post is accessible.
+		$accessible = $post->isAccessible();
 
-	    $tplB->set('blog', $blog );
-	    $tplB->set('tags', $tags );
-	    $tplB->set('config'	, $config );
-	    $tplB->set('blogger', $blogger );
+		if (!$accessible->allowed) {
+			echo $accessible->error;
 
-		$blogHtml	= $tplB->fetch( 'blog.read.pdf.php' );
+			return;
+		}
 
-		//pdf page setup
+		// Format the post
+		$post = EB::formatter('entry', $post);
+		$tags = $post->getTags();
+
+		$theme 	= EB::template();
+		$theme->set('post', $post);
+		$theme->set('tags', $tags);
+
+		$blogHtml	= $theme->output( 'site/blogs/entry/pdf' );
+
 
 		$pageTitle	= EasyBlogHelper::getPageTitle($config->get('main_title'));
-	    $document->setTitle( $blog->title . $pageTitle );
-		$document->setName($blog->permalink);
+	    $document->setTitle( $post->title . $pageTitle );
+		$document->setName($post->getPermalink());
 
 		// Fix phoca pdf plugin.
 		if( method_exists( $document , 'setArticleText' ) )
@@ -152,5 +95,92 @@ class EasyBlogViewEntry extends EasyBlogView
 		}
 
 		echo $blogHtml;
+		return;
+	}
+
+	/**
+	 * Determines if the current post is protected
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function isProtected(EasyBlogPost &$blog)
+	{
+		// Password protection disabled
+		if (!$this->config->get('main_password_protect')) {
+			return false;
+		}
+
+		// Site admin should not be restricted
+		if (EB::isSiteAdmin()) {
+			return false;
+		}
+
+		// Blog does not contain any password protection
+		if (empty($blog->blogpassword)) {
+			return false;
+		}
+
+		// User already entered password
+		if ($blog->verifyPassword()) {
+			return false;
+		}
+		// Set the return url to the current url
+		$return = base64_encode(JRequest::getURI());
+		$category = $blog->getPrimaryCategory();
+		$blog->category = $category;
+		$blog->categories = $blog->getCategories();
+
+		// Get the blogger object
+		$blogger = EB::user($blog->created_by);
+
+		// Set the author object into the table.
+		$blog->author 	= $blogger;
+
+		$this->set('blogger', $blog->author);
+		$this->set('return', $return);
+		$this->set('blog', $blog);
+		$this->set('category', $category);
+
+		parent::display('blogs/entry/default.protected');
+
+		return;
+	}
+
+	/**
+	 * Determines if the user is allowed to view this post if this post is associated with a team.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function checkTeamPrivacy(EasyBlogPost &$blog)
+	{
+		$id = $blog->getTeamAssociation();
+
+		// This post is not associated with any team, so we do not need to check anything on the privacy
+		if (!$id) {
+			return true;
+		}
+
+		$team = EB::table('TeamBlog');
+		$team->load($id);
+
+		// If the team access is restricted to members only
+		if ($team->access == EBLOG_TEAMBLOG_ACCESS_MEMBER && !$team->isMember($this->my->id) && !EB::isSiteAdmin()) {
+			return false;
+		}
+
+		// If the team access is restricted to registered users, ensure that they are logged in.
+		if ($team->access == EBLOG_TEAMBLOG_ACCESS_REGISTERED && $this->my->guest) {
+			echo EB::showLogin();
+
+			return false;
+		}
+
+		return true;
 	}
 }

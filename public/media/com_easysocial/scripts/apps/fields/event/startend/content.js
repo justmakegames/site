@@ -1,6 +1,6 @@
 EasySocial.module('apps/fields/event/startend/content', function($) {
+    
     var module = this;
-
     var lang = EasySocial.options.momentLang;
 
     EasySocial
@@ -8,6 +8,7 @@ EasySocial.module('apps/fields/event/startend/content', function($) {
     .library('datetimepicker', 'moment/' + lang)
     .language('FIELDS_EVENT_STARTEND_VALIDATION_DATETIME_START_REQUIRED', 'FIELDS_EVENT_STARTEND_VALIDATION_DATETIME_END_REQUIRED')
     .done(function($) {
+
         EasySocial.Controller('Field.Event.Startend', {
             defaultOptions: {
                 dateFormat: '',
@@ -30,7 +31,9 @@ EasySocial.module('apps/fields/event/startend/content', function($) {
         }, function(self) {
             return {
                 init: function() {
-                    // There is an issue with yearto where if I set yearto = 2014, I won't be able to select 2014 dates. This is a bug in datetimepicker. Currently, temporarily, we manually add 1 to the value if there are value set.
+
+                    // There is an issue with yearto where if I set yearto = 2014, I won't be able to select 2014 dates. 
+                    // This is a bug in datetimepicker. Currently, temporarily, we manually add 1 to the value if there are value set.
                     if (!$.isEmpty(self.options.yearto)) {
                         self.options.yearto = parseInt(self.options.yearto) + 1;
                     } else {
@@ -39,14 +42,16 @@ EasySocial.module('apps/fields/event/startend/content', function($) {
 
                     self.options.yearfrom = self.options.yearfrom || 1930;
 
+                    // Add controller on the start date
                     self.startDatetime = self.startForm().addController('EasySocial.Controller.Field.Event.Startend.Form', {
                         '{parent}': self,
-                        type: 'start'
+                        "type": 'start'
                     });
 
+                    // Add controller on the end date
                     self.endDatetime = self.endForm().addController('EasySocial.Controller.Field.Event.Startend.Form', {
                         '{parent}': self,
-                        type: 'end'
+                        "type": 'end'
                     });
                 },
 
@@ -90,11 +95,23 @@ EasySocial.module('apps/fields/event/startend/content', function($) {
                 '{toggle}': '[data-picker-toggle]',
                 '{datetime}': '[data-datetime]'
             }
-        }, function(self) {
+        }, function(self, options) {
+
             return {
                 init: function() {
                     self.load();
                 },
+
+                "{window} easysocial.fields.startend.start.change": function() {
+
+                    // When the start date is changed, set the minimum date on the end date
+                    if (options.type == 'start' && self.parent.endDatetime) {
+                        self.parent.endDatetime.datetimepicker('destroy');
+
+                        self.parent.endDatetime.load();
+                    }
+                },
+
 
                 '{window} easysocial.fields.allday.change': function(el, ev, value) {
                     self.datetimepicker('destroy');
@@ -106,17 +123,30 @@ EasySocial.module('apps/fields/event/startend/content', function($) {
 
                 // We move this here because there is a possibility that we want to "reinit"
                 load: function() {
+
+                    // Generate a minimum date from momentjs
                     var minDate = new $.moment();
 
+                    // If configured to disallow past dates, we need to minus 1 on the date as we need to allow today.
                     if (self.parent.options.disallowPast) {
-                        // Minus 1 on the date to allow today
                         minDate.date(minDate.date() - 1);
                     } else {
                         minDate.year(self.parent.options.yearfrom);
                     }
 
-                    var allowTime = self.parent.options.allowTime && !self.parent.options.allday;
+                    // If this type is end date, we need to set the minimum date based on the start date
+                    if (options.type == 'end') {
+                        var startDatetimeValue = self.parent.startDatetime.datetime().val();
 
+                        if (startDatetimeValue) {
+                            var minDate = $.moment(startDatetimeValue);
+                            
+                            // minus 1 on the date as we need to allow today.
+                            var minDate = minDate.date(minDate.date() - 1);
+                        }
+                    }
+
+                    var allowTime = self.parent.options.allowTime && !self.parent.options.allday;
                     var dateFormat = self.parent.options.dateFormat;
 
                     // If time is not allowed, then we remove the time part
@@ -147,11 +177,11 @@ EasySocial.module('apps/fields/event/startend/content', function($) {
 
                     var date = self.datetime().val();
 
+                    // Datetimepicker is using moment.js, hence here we manually create a moment object to pass in instead of passing in date time string
+                    // This is because datetimepicker.setDate function passes along the format from self.options.calendarDateFormat to generate the date object, which will render moment.js to generate an invalid dateobject
+                    // self.options.calendarDateFormat is only for display purposes
+                    // Raw date object is always in SQL format
                     if (!$.isEmpty(date)) {
-                        // Datetimepicker is using moment.js, hence here we manually create a moment object to pass in instead of passing in date time string
-                        // This is because datetimepicker.setDate function passes along the format from self.options.calendarDateFormat to generate the date object, which will render moment.js to generate an invalid dateobject
-                        // self.options.calendarDateFormat is only for display purposes
-                        // Raw date object is always in SQL format
                         var dateObj = $.moment(date);
 
                         self.datetimepicker('setDate', dateObj);
@@ -167,11 +197,12 @@ EasySocial.module('apps/fields/event/startend/content', function($) {
                 },
 
                 '{picker} dp.change': function(el, ev) {
+
                     self.setDateValue(ev.date.toDate());
 
                     // easysocial.fields.startend.start.change
                     // easysocial.fields.startend.end.change
-                    $(window).trigger('easysocial.fields.startend.' + self.options.type + '.change', [ev.date]);
+                    $(window).trigger('easysocial.fields.startend.' + options.type + '.change', [ev.date]);
                 },
 
                 '{picker} change': function(el, ev) {

@@ -436,8 +436,7 @@ class SocialPhotoAdapterGroup extends SocialPhotoAdapter
 
 	public function allowUseCover()
 	{
-		if( $this->photo->uid == $this->group->id )
-		{
+		if ($this->photo->uid == $this->group->id) {
 			return true;
 		}
 

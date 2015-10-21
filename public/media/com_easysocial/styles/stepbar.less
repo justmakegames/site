@@ -30,10 +30,12 @@
                 background: #d6d6d6;
                 color: #888;
                 text-shadow: none;
-                [class^="ies-"],
-                [class*=" ies-"] {
+                .fa {
                     display: none;
                     line-height: 24px;
+                    &:before {
+                        font-size: 12px;
+                    }
                 }
                 .step-number {
                     display: block;
@@ -61,21 +63,13 @@
                 .step-number {
                     display: none;
                 }
-                [class^="ies-"],
-                [class*=" ies-"] {
+                .fa {
                     display: block;
-                    &:before {
-                        font-size: 12px;
-                    }
                 }
             }
             &.last {
-                [class^="ies-"],
-                [class*=" ies-"] {
+                .fa {
                     display: block;
-                    &:before {
-                        font-size: 12px;
-                    }
                 }
                 .step-number {
                     display: none;

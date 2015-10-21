@@ -16,30 +16,16 @@ FD::import( 'admin:/views/views' );
 
 class EasySocialViewReports extends EasySocialAdminView
 {
-
-	/**
-	 * Display a list of items that are reported on the site.
-	 *
-	 * @access	public
-	 * @return	null
-	 *
-	 */
 	public function display( $tpl = null )
 	{
-		// Apply buttons
 		JToolbarHelper::custom( 'purge' , 'trash' , '' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_PURGE_REPORTS' ) , false );
 		JToolbarHelper::deleteList();
 
 		// Set the structure heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_REPORTS' ) );
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_REPORTS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_REPORTS');
 
-		// Set the page icon here.
-		$this->setIcon( 'icon-jar jar-warning_cleanup' );
-
-		// Set the structure description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_REPORTS' ) );
-
-		$model 		= FD::model( 'Reports' , array( 'initState' => true ) );
+		$model = FD::model('Reports', array('initState' => true));
 
 		$search 	= $model->getState( 'search' );
 		$limit 		= $model->getState( 'limit' );

@@ -16,17 +16,17 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="wrapper accordion">
         <?php if (!$isNew) { ?>
 
-            <div class="tab-box tab-box-alt tab-box-sidenav">
+            <div class="tab-box tab-box-alt">
                 <div class="tabbable">
                     <ul id="userForm" class="nav nav-tabs nav-tabs-icons nav-tabs-side">
                         <li class="tabItem <?php if(empty($activeTab) || $activeTab == 'event') { ?>active<?php } ?>" data-tabnav data-for="event">
                             <a href="#event" data-bs-toggle="tab">
-                                <i class="ies-vcard ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_FORM_EVENT_DETAILS');?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_FORM_EVENT_DETAILS');?>
                             </a>
                         </li>
                         <li class="tabItem <?php if($activeTab == 'guests') { ?>active<?php } ?>" data-tabnav data-for="guests">
                             <a href="#guests" data-bs-toggle="tab">
-                                <i class="ies-users ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_FORM_EVENT_GUESTS');?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_FORM_EVENT_GUESTS');?>
                             </a>
                         </li>
                     </ul>

@@ -14,5 +14,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <?php echo $this->html( 'html.user' , $actor->id ); ?>
 
 <?php if( $target ){ ?>
-<i class="ies-arrow-right"></i> <?php echo $this->html( 'html.user' , $target->id ); ?>
+<i class="fa fa-caret-right"></i> <?php echo $this->html( 'html.user' , $target->id ); ?>
 <?php } ?>

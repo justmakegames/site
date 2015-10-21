@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form name="adminForm" id="adminForm" class="groupsForm" method="post" enctype="multipart/form-data">
 	<div class="wrapper accordion">
@@ -20,16 +20,16 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 				<div class="tab-content">
 					<div id="settings" class="tab-pane<?php echo $activeTab == 'settings' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/groups/form.category.settings' ); ?>
+						<?php echo $this->includeTemplate('admin/groups/form.category.settings'); ?>
 					</div>
 
 					<?php if( $category->id ){ ?>
 					<div id="fields" class="tab-pane<?php echo $activeTab == 'fields' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/profiles/form.fields', array( 'id' => $category->id ) ); ?>
+						<?php echo $this->includeTemplate('admin/profiles/form.fields', array('id' => $category->id, 'formType' => 'CLUSTER')); ?>
 					</div>
 
 					<div id="access" class="tab-pane<?php echo $activeTab == 'access' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/groups/form.category.access' ); ?>
+						<?php echo $this->includeTemplate('admin/groups/form.category.access'); ?>
 					</div>
 					<?php } ?>
 
@@ -45,5 +45,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<input type="hidden" name="task" value="saveCategory" />
 	<input type="hidden" name="id" value="<?php echo $category->id; ?>" />
 	<input type="hidden" name="cid" value="" />
-	<?php echo JHTML::_( 'form.token' );?>
+	<?php echo JHTML::_('form.token');?>
 </form>

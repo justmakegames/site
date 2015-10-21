@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-class SocialOpengraph
+class SocialOpengraph extends EasySocial
 {
 	public $properties 	= array();
 
@@ -28,46 +28,89 @@ class SocialOpengraph
 	{
 		static $obj = null;
 
-		if( !$obj )
-		{
-			$obj 	= new self();
+		if (!$obj) {
+			$obj = new self();
 		}
 
 		return $obj;
 	}
 
-	public function addImage( $image , $width = null , $height = null )
+	/**
+	 * Inserts an image into the opengraph headers
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function addImage($image, $width = null, $height = null)
 	{
-		$config 	= FD::config();
+		$obj = new stdClass();
 
-		$obj 			= new stdClass();
+		$obj->url = $image;
+		$obj->width = $width;
+		$obj->height = $height;
 
-		$obj->url 		= $image;
-		$obj->width 	= $width;
-		$obj->height 	= $height;
-
-		if( !isset( $this->properties[ 'image' ] ) )
-		{
-			$this->properties[ 'image' ]	= array();
+		if (!isset($this->properties['image'])) {
+			$this->properties['image'] = array();
 		}
 
-		$this->properties[ 'image' ][]	= $obj;
+		$this->properties['image'][] = $obj;
 
 		return $this;
 	}
 
-	public function addDescription( $content )
+	/**
+	 * Inserts the video into the opengraph headers
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function addVideo(SocialVideo $video)
 	{
-		$content = strip_tags( $content );
+		$this->addType('video');
+
+		$obj = new stdClass();
+		$obj->url = $video->getExternalPermalink();
+		$obj->type = 'text/html';
+		$obj->width = 1280;
+		$obj->height = 720;
+
+		$this->properties['video'][] = $obj;
+
+		return $this;
+	}
+
+	/**
+	 * Inserts the description of the page
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function addDescription($content)
+	{
+		$content = strip_tags($content);
 		$content = trim( $content );
 		$this->properties[ 'description' ]	= $content;
 
 		return $this;
 	}
 
-	public function addUrl( $url )
+	/**
+	 * Adds the url attribute
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function addUrl($url)
 	{
-		$this->properties[ 'url' ]	= $url;
+		$this->properties['url'] = $url;
 
 		return $this;
 	}
@@ -96,21 +139,17 @@ class SocialOpengraph
 	 */
 	public function addProfile( SocialUser $user )
 	{
-		$config 	= FD::config();
-
 		// Only proceed when opengraph is enabled
-		if( !$config->get( 'oauth.facebook.opengraph.enabled' ) )
-		{
+		if (!$this->config->get('oauth.facebook.opengraph.enabled')) {
 			return;
 		}
 
-		$this->properties[ 'type' ]		= 'profile';
+		$this->properties['type'] = 'profile';
+		$this->properties['title'] = JText::sprintf('COM_EASYSOCIAL_OPENGRAPH_PROFILE_TITLE', ucfirst($user->getName()));
 
-		$this->properties[ 'title' ]	= JText::sprintf( 'COM_EASYSOCIAL_OPENGRAPH_PROFILE_TITLE' , ucfirst( $user->getName() ) );
+		$this->addImage($user->getAvatar(SOCIAL_AVATAR_MEDIUM), SOCIAL_AVATAR_MEDIUM_WIDTH, SOCIAL_AVATAR_MEDIUM_HEIGHT);
 
-		$this->addImage( $user->getAvatar( SOCIAL_AVATAR_MEDIUM ) , SOCIAL_AVATAR_MEDIUM_WIDTH , SOCIAL_AVATAR_MEDIUM_HEIGHT );
-
-		$this->addUrl( $user->getPermalink( true , true ) );
+		$this->addUrl($user->getPermalink(true, true));
 
 		return $this;
 	}
@@ -152,21 +191,16 @@ class SocialOpengraph
 	 */
 	public function render()
 	{
-		$config 	= FD::config();
-
 		// Only proceed when opengraph is enabled
-		if( !$config->get( 'oauth.facebook.opengraph.enabled' ) )
-		{
+		if (!$this->config->get('oauth.facebook.opengraph.enabled')) {
 			return;
 		}
 
-		require_once( dirname( __FILE__ ) . '/renderer.php' );
+		require_once(dirname(__FILE__) . '/renderer.php');
 
-		foreach( $this->properties as $property => $data )
-		{
-			if( method_exists( 'OpengraphRenderer' , $property ) )
-			{
-				OpengraphRenderer::$property( $data );
+		foreach ($this->properties as $property => $data) {
+			if (method_exists('OpengraphRenderer', $property)) {
+				OpengraphRenderer::$property($data);
 			}
 		}
 

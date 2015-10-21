@@ -25,11 +25,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</div>
 
 			<div class="pull-left es-report-reporter">
-				<a href="<?php echo $report->getUser()->getPermalink();?>" class="es-avatar es-avatar-xs pull-left" target="_blank">
+				<a href="<?php echo $report->getUser()->getPermalink(true, true);?>" class="es-avatar es-avatar-xs pull-left" target="_blank">
 					<img src="<?php echo $report->getUser()->getAvatar();?>" alt="<?php echo $this->html( 'string.escape' , $report->getUser()->getName() ); ?>" />
 				</a>
 				<span class="es-report-username ml-10">
-					<a href="<?php echo $report->getUser()->getPermalink();?>" target="_blank"><?php echo $report->getUser()->getName();?></a>
+					<a href="<?php echo $report->getUser()->getPermalink(true, true);?>" target="_blank"><?php echo $report->getUser()->getName();?></a>
 				</span>
 
 				<span class="es-report-ip">
@@ -40,8 +40,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<div class=" pull-right es-report-action">
 				<a class="btn btn-es-danger btn-sm btn-remove" data-remove-item>
-					<i class="ies-cancel-2"></i>
-					<?php echo JText::_( 'COM_EASYSOCIAL_REMOVE_REPORT_BUTTON' ); ?>
+					<i class="fa fa-remove"></i>
+					<?php echo JText::_('COM_EASYSOCIAL_REMOVE_REPORT_BUTTON'); ?>
 				</a>
 			</div>
 		</li>

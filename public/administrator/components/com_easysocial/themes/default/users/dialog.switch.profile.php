@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -16,9 +16,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<height>200</height>
 	<selectors type="json">
 	{
-		"{submitButton}"  : "[data-submit-button]",
-		"{cancelButton}"  : "[data-cancel-button]",
-		"{form}"			: "[data-switch-profile-form]"
+		"{submitButton}": "[data-submit-button]",
+		"{cancelButton}": "[data-cancel-button]",
+		"{form}": "[data-switch-profile-form]"
 	}
 	</selectors>
 	<bindings type="javascript">
@@ -32,29 +32,38 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<content>
 		<div class="clearfix">
 			<form name="switchProfile" method="post" action="index.php" data-switch-profile-form>
-			<p>
-				<?php echo JText::_( 'COM_EASYSOCIAL_USERS_SWITCH_PROFILE_DIALOG_DESC' );?>
-			</p>
+				<p><?php echo JText::_('COM_EASYSOCIAL_USERS_SWITCH_PROFILE_DIALOG_DESC');?></p>
 
-			<div class="form-group">
-				<label for="total" class="col-md-3 fd-small"><?php echo JText::_( 'COM_EASYSOCIAL_USERS_SELECT_PROFILE' );?></label>
-				<div class="col-md-9">
-					<?php echo $this->html( 'form.profiles' , 'profile' ); ?>
+				<div class="form-group">
+					<label for="total" class="col-md-3 fd-small"><?php echo JText::_('COM_EASYSOCIAL_USERS_SELECT_PROFILE');?></label>
+					<div class="col-md-9">
+						<?php echo $this->html('form.profiles', 'profile'); ?>
+					</div>
 				</div>
-			</div>
 
-			<div>
-				<span class="label label-danger"><?php echo JText::_( 'COM_EASYSOCIAL_FOOTPRINT_IMPORTANT' );?></span>
-				<br /><?php echo JText::_( 'COM_EASYSOCIAL_USERS_SWITCH_PROFILE_DIALOG_FOOTNOTE' );?>
-			</div>
-			<input type="hidden" name="option" value="com_easysocial" />
-			<input type="hidden" name="controller" value="users" />
-			<input type="hidden" name="task" value="switchProfile" />
-			<input type="hidden" name="<?php echo FD::token();?>" value="1" />
+				<div class="form-group">
+					<div class="col-sm-offset-3 col-md-9">
+						<div class="checkbox">
+							<label for="switch_groups">
+								<input type="checkbox" value="1" name="switch_groups" id="switch_groups" />
+								<span><?php echo JText::_('COM_EASYSOCIAL_USERS_ALSO_SWITCH_JOOMLA_GROUPS');?></span>
+							</label>
+						</div>
+					</div>
+				</div>
 
-			<?php foreach( $ids as $id ){ ?>
-			<input type="hidden" name="cid[]" value="<?php echo $id; ?>" />
-			<?php } ?>
+				<div class="help-block">
+					<span class="label label-danger"><?php echo JText::_('COM_EASYSOCIAL_FOOTPRINT_IMPORTANT');?></span>
+					<br /><?php echo JText::_('COM_EASYSOCIAL_USERS_SWITCH_PROFILE_DIALOG_FOOTNOTE');?>
+				</div>
+				<input type="hidden" name="option" value="com_easysocial" />
+				<input type="hidden" name="controller" value="users" />
+				<input type="hidden" name="task" value="switchProfile" />
+				<input type="hidden" name="<?php echo FD::token();?>" value="1" />
+
+				<?php foreach ($ids as $id) { ?>
+				<input type="hidden" name="cid[]" value="<?php echo $id; ?>" />
+				<?php } ?>
 			</form>
 		</div>
 	</content>

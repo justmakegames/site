@@ -106,9 +106,7 @@ class EasySocialControllerFriends extends EasySocialController
 		$list 	= FD::table( 'List' );
 		$state 	= $list->load( $id );
 
-		if( !$id || !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'FRIENDS: Invalid id provided to retrieve list users.' );
+		if (!$id || !$state) {
 			$view->setMessage( JText::_( 'COM_EASYSOCIAL_FRIENDS_INVALID_LIST_ID' ) , SOCIAL_MSG_ERROR );
 
 			return $view->call( __FUNCTION__ , $list , array() );
@@ -291,10 +289,7 @@ class EasySocialControllerFriends extends EasySocialController
 		// @trigger: onFriendListBeforeSave
 		$dispatcher->trigger( SOCIAL_TYPE_USER , 'onFriendListAfterSave' , $args );
 
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'FRIENDS: Unable to create new friend list for user ' . $my->id );
-
+		if (!$state) {
 			$view->setMessage( JText::_( 'COM_EASYSOCIAL_LISTS_ERROR_CREATING_LIST' ) , SOCIAL_MSG_ERROR );
 
 			return $view->call( __FUNCTION__ , $list );
@@ -581,8 +576,13 @@ class EasySocialControllerFriends extends EasySocialController
 		$pagination	= $model->getPagination();
 
 		// Set additional vars for the pagination
+		$pagination->setVar('Itemid', FRoute::getItemId('friends'));
 		$pagination->setVar('view', 'friends');
-		$pagination->setVar('userid', $userAlias);
+
+		if ($type != 'suggest') {
+			$pagination->setVar('userid', $userAlias);
+		}
+
 		$pagination->setVar('filter', $type);
 
 		return $view->call(__FUNCTION__, $type, $friends, $pagination);
@@ -622,9 +622,11 @@ class EasySocialControllerFriends extends EasySocialController
 		$view 		= $this->getCurrentView();
 
 		// Properties
-		$search 	= JRequest::getVar( 'search' );
-		$exclude 	= JRequest::getVar( 'exclude' );
-		$includeme 	= JRequest::getVar( 'includeme', 0 );
+		$search  = $this->input->get('search', '', 'default');
+		$exclude = $this->input->get('exclude', '', 'default');
+		$includeme = $this->input->get('includeme', 0, 'default');
+		$showNonFriend = $this->input->get('showNonFriend', 0, 'int');
+
 
 		// Determine what type of string we should search for.
 		$config 	= FD::config();
@@ -633,20 +635,21 @@ class EasySocialControllerFriends extends EasySocialController
 		//check if we need to apply privacy or not.
 		$options = array();
 
-		if( $privacy )
-		{
+		if ($privacy) {
 			$options['privacy'] = $privacy;
 		}
 
-		if( $exclude )
-		{
+		if ($exclude) {
 			$options[ 'exclude' ] = $exclude;
 		}
 
 
-		if( $includeme )
-		{
+		if ($includeme) {
 			$options[ 'includeme' ] = $includeme;
+		}
+
+		if ($showNonFriend) {
+			$options[ 'everyone' ] = true;
 		}
 
 		// Try to get the search result.
@@ -668,27 +671,22 @@ class EasySocialControllerFriends extends EasySocialController
 	public function suggest($privacy = null)
 	{
 		// Check for valid tokens.
-		FD::checkToken();
+		ES::checkToken();
 
 		// Only valid registered user has friends.
-		FD::requireLogin();
-
-		$my 		= FD::user();
+		ES::requireLogin();
 
 		// Load friends model.
-		$model 		= FD::model( 'Friends' );
-
-		// Load the view.
-		$view 		= $this->getCurrentView();
+		$model = ES::model('Friends');
 
 		// Properties
 		$search  = $this->input->get('search', '', 'default');
 		$exclude = $this->input->get('exclude', '', 'default');
 		$includeme = $this->input->get('includeme', 0, 'default');
+		$showNonFriend = $this->input->get('showNonFriend', 0, 'int');
 
 		// Determine what type of string we should search for.
-		$config 	= FD::config();
-		$type 		= $config->get('users.displayName');
+		$type = $this->config->get('users.displayName');
 
 		//check if we need to apply privacy or not.
 		$options = array();
@@ -705,21 +703,25 @@ class EasySocialControllerFriends extends EasySocialController
 			$options['includeme'] = $includeme;
 		}
 
+		if ($showNonFriend) {
+			$options[ 'everyone' ] = true;
+		}
+
 		// Determine if we should search all users on the site
 		$searchType = $this->input->get('type', '', 'cmd');
 
-		if ($searchType == 'invitegroup' && $config->get('groups.invite.nonfriends')) {
+		if ($searchType == 'invitegroup' && $this->config->get('groups.invite.nonfriends')) {
 			$options['everyone'] = true;
 		}
 
-		if ($searchType == 'inviteevent' && $config->get('events.invite.nonfriends')) {
+		if ($searchType == 'inviteevent' && $this->config->get('events.invite.nonfriends')) {
 			$options['everyone'] = true;
 		}
 
 		// Try to get the search result.
-		$result		= $model->search($my->id , $search , $type, $options);
+		$result = $model->search($this->my->id , $search , $type, $options);
 
-		return $view->call( __FUNCTION__ , $result );
+		return $this->view->call(__FUNCTION__, $result);
 	}
 
 	/**
@@ -741,11 +743,8 @@ class EasySocialControllerFriends extends EasySocialController
 		FD::requireLogin();
 
 		// Get the target user that is being added.
-		$id		= $this->input->get('id', 0, 'int');
-		$user   = FD::user($id);
-
-		// Get the current view.
-		$view 	= $this->getCurrentView();
+		$id = $this->input->get('id', 0, 'int');
+		$user = FD::user($id);
 
 		// Get the appropriate callback
 		$allowedCallbacks	= array(__FUNCTION__, 'usersRequest', 'popboxRequest');
@@ -761,9 +760,9 @@ class EasySocialControllerFriends extends EasySocialController
 
 		// If the user doesn't exist;
 		if (!$user || !$id) {
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_FRIENDS_UNABLE_TO_LOCATE_USER' ) );
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_FRIENDS_UNABLE_TO_LOCATE_USER'));
 
-			return $view->call($callback);
+			return $this->view->call($callback);
 		}
 
 		// Get the current viewer.
@@ -771,20 +770,20 @@ class EasySocialControllerFriends extends EasySocialController
 
 		// Determine that the user did not exceed their friend usage.
 		if ($my->exceededFriendLimit()) {
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_FRIENDS_EXCEEDED_LIMIT' ) , SOCIAL_MSG_ERROR );
-			return $view->call( $callback );
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_FRIENDS_EXCEEDED_LIMIT'), SOCIAL_MSG_ERROR);
+			return $this->view->call($callback);
 		}
 
 		// Load up the model to check if they are already friends.
-		$model  = FD::model('Friends');
+		$model = FD::model('Friends');
 		$friend = $model->request($my->id, $user->id);
 
 		if ($friend === false) {
 			$friend = FD::table('Friend');
-			$view->setMessage($model->getError(), SOCIAL_MSG_ERROR);
+			$this->view->setMessage($model->getError(), SOCIAL_MSG_ERROR);
 		}
 
-		return $view->call( $callback , $friend );
+		return $this->view->call($callback, $friend);
 	}
 
 	/**

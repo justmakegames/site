@@ -145,24 +145,20 @@ class EasySocialControllerReports extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		// Get current view.
-		$view 		= $this->getCurrentView();
-
 		// Get the report id.
-		$id 		= JRequest::getInt( 'id' );
+		$id = $this->input->get('id', 0, 'int');
 
-		if( !$id )
-		{
-			$view->setMessage( JText::_( 'Invalid report id provided.' ) , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ );
+		if (!$id) {
+			$this->view->setMessage(JText::_( 'Invalid report id provided.' ) , SOCIAL_MSG_ERROR );
+			return $this->view->call( __FUNCTION__ );
 		}
 
-		$report 	= FD::table( 'Report' );
-		$report->load( $id );
+		$report = FD::table('Report');
+		$report->load($id);
 
-		$model 		= FD::model( 'Reports' );
-		$reporters	= $model->getReporters( $report->extension , $report->uid , $report->type );
+		$model = FD::model('Reports');
+		$reporters = $model->getReporters($report->extension, $report->uid, $report->type);
 
-		return $view->call( __FUNCTION__ , $reporters );
+		return $this->view->call(__FUNCTION__, $reporters);
 	}
 }

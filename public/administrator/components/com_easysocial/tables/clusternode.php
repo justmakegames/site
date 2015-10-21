@@ -75,6 +75,12 @@ class SocialTableClusterNode extends SocialTable
      */
     public $invited_by  = null;
 
+    /**
+     * reminder sent flag. currently used for event guest only.
+     * @var int
+     */
+    public $reminder_sent  = null;
+
     public function __construct(& $db)
     {
         parent::__construct('#__social_clusters_nodes' , 'id' , $db);

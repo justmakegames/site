@@ -9,6 +9,9 @@ EasySocial.module('apps/fields/user/joomla_password/content', function($) {
             'PLG_FIELDS_JOOMLA_PASSWORD_NOT_MATCHING',
             'PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_CHAR',
             'PLG_FIELDS_JOOMLA_PASSWORD_MAXIMUM_CHAR',
+            'PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_INTEGER',
+            'PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_SYMBOLS',
+            'PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_UPPERCASE',
             'PLG_FIELDS_JOOMLA_PASSWORD_STRENGTH_VERY_WEAK',
             'PLG_FIELDS_JOOMLA_PASSWORD_STRENGTH_WEAK',
             'PLG_FIELDS_JOOMLA_PASSWORD_STRENGTH_NORMAL',
@@ -33,6 +36,10 @@ EasySocial.module('apps/fields/user/joomla_password/content', function($) {
                         min : 4,
 
                         max : 0,
+
+                        minInteger: 0,
+                        minSymbol: 0,
+                        minUpperCase: 0,
 
                         '{field}'       : '[data-field-joomla_password]',
 
@@ -110,6 +117,31 @@ EasySocial.module('apps/fields/user/joomla_password/content', function($) {
                                 self.raiseError($.language('PLG_FIELDS_JOOMLA_PASSWORD_MAXIMUM_CHAR', self.options.max));
                                 return false;
                             }
+
+                            if(self.options.minInteger > 0) {
+                                var test = input.match(/[0-9]/g);
+                                if (!test || test.length < self.options.minInteger) {
+                                    self.raiseError($.language('PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_INTEGER', self.options.minInteger));
+                                    return false;
+                                }
+                            }
+
+                            if(self.options.minSymbol > 0) {
+                                var test = input.match(/[\W]/g);
+                                if (!test || test.length < self.options.minSymbol) {
+                                    self.raiseError($.language('PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_SYMBOLS', self.options.minSymbol));
+                                    return false;
+                                }
+                            }
+
+                            if(self.options.minUpperCase > 0) {
+                                var test = input.match(/[A-Z]/g);
+                                if (!test || test.length < self.options.minUpperCase) {
+                                    self.raiseError($.language('PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_UPPERCASE', self.options.minUpperCase));
+                                    return false;
+                                }
+                            }
+
 
                             return true;
                         },

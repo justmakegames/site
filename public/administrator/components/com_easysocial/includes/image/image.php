@@ -262,10 +262,10 @@ class SocialImage
 	 * @param	int			The resize mode.
 	 * @return	SocialImage	Returns itself for chaining.
 	 */
-	public function resize( $width = null , $height = null , $mode = ASIDO_RESIZE_PROPORTIONAL)
+	public function resize($width = null , $height = null, $mode = ASIDO_RESIZE_PROPORTIONAL)
 	{
 		// Resize
-		$this->adapter->resize( $this->image , $width , $height , $mode );
+		$this->adapter->resize($this->image, $width, $height, $mode);
 
 		return $this;
 	}

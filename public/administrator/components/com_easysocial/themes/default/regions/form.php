@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form id="adminForm" method="post" action="index.php" data-form>
-    <div class="widget-box">
+    <div class="panel">
         <div class="wbody wbody-padding">
             <div class="form-group">
                 <label class="col-md-3">
@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <i data-placement="bottom"
                         data-title="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_TYPE');?>"
                         data-content="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_TYPE_DESC'); ?>"
-                        data-es-provide="popover" class="icon-es-help pull-right"></i>
+                        data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
                 </label>
                 <div class="col-md-9">
                     <select name="type" data-type>
@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <i data-placement="bottom"
                         data-title="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_FORM_CHOOSE_PARENT');?>"
                         data-content="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_FORM_CHOOSE_PARENT_DESC'); ?>"
-                        data-es-provide="popover" class="icon-es-help pull-right"></i>
+                        data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
                 </label>
                 <div class="col-md-9" data-parent-content <?php if (!empty($parents)) { ?>data-loaded="1"<?php } ?>>
                     <?php if (empty($parents)) { ?>
@@ -52,13 +52,25 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </div>
             </div>
 
+            <?php if (FD::get('multisites')->exists()) { ?>
+            <div class="form-group">
+                <label class="col-md-3">
+                    <?php echo JText::_('COM_EASYSOCIAL_REGION_FORM_SITE_ID');?>
+                    <i class="fa fa-question-circle pull-right"
+                        <?php echo $this->html('bootstrap.popover', JText::_('COM_EASYSOCIAL_REGION_FORM_SITE_ID' ) , JText::_('COM_EASYSOCIAL_REGION_FORM_SITE_ID_DESCRIPTION'), 'bottom'); ?>
+                    ></i>
+                </label>
+                <div class="col-md-9"><?php echo FD::get('multisites')->getForm('site_id', $region->site_id); ?></div>
+            </div>
+            <?php } ?>
+
             <div class="form-group">
                 <label class="col-md-3">
                     <?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_NAME'); ?>
                     <i data-placement="bottom"
                         data-title="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_NAME');?>"
                         data-content="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_NAME_DESC'); ?>"
-                        data-es-provide="popover" class="icon-es-help pull-right"></i>
+                        data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
                 </label>
                 <div class="col-md-9">
                     <input type="text" name="name" class="form-control input-sm" value="<?php echo $region->name; ?>" />
@@ -71,7 +83,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <i data-placement="bottom"
                         data-title="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_CODE');?>"
                         data-content="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_CODE_DESC'); ?>"
-                        data-es-provide="popover" class="icon-es-help pull-right"></i>
+                        data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
                 </label>
                 <div class="col-md-9">
                     <input type="text" name="code" class="form-control input-sm" value="<?php echo $region->code; ?>" />
@@ -84,7 +96,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <i data-placement="bottom"
                         data-title="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_STATE');?>"
                         data-content="<?php echo JText::_('COM_EASYSOCIAL_REGIONS_REGION_STATE_DESC'); ?>"
-                        data-es-provide="popover" class="icon-es-help pull-right"></i>
+                        data-es-provide="popover" class="fa fa-question-circle pull-right"></i>
                 </label>
                 <div class="col-md-9">
                     <?php echo $this->html('grid.boolean', 'state', $region->state, '', 'data-state'); ?>

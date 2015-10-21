@@ -45,7 +45,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         <div class="es-category-meta">
             <ul class="fd-reset-list category-stats pull-left">
                 <li>
-                    <i class="ies-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_USERS_COUNT', $totalUsers), $totalUsers); ?>
+                    <i class="fa fa-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_USERS_COUNT', $totalUsers), $totalUsers); ?>
                 </li>
             </ul>
 
@@ -65,8 +65,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <!-- do not remove this element. This element is needed for the stream loodmore to work properly -->
             <div data-dashboardSidebar-menu data-type="profile" data-id="<?php echo $profile->id;?>" class="active"></div>
 
-            <?php echo $this->render('module', 'es-profiles-sidebar-top'); ?>
+            <?php echo $this->render('module', 'es-profiles-sidebar-top' , 'site/dashboard/sidebar.module.wrapper'); ?>
 
+            <?php if ($profile->get('community_access')) { ?>
             <div class="es-widget">
                 <div class="es-widget-head">
                     <div class="pull-left widget-title"><?php echo JText::_('COM_EASYSOCIAL_PROFILES_RANDOM_MEMBERS');?></div>
@@ -96,6 +97,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                     <?php } ?>
                 </div>
             </div>
+            <?php } ?>
 
             <div class="es-widget">
                 <div class="es-widget-head">
@@ -128,7 +130,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             </div>
 
 
-            <?php echo $this->render('module', 'es-profiles-sidebar-bottom'); ?>
+            <?php echo $this->render('module', 'es-profiles-sidebar-bottom' , 'site/dashboard/sidebar.module.wrapper'); ?>
         </div>
 
         <div class="es-content">

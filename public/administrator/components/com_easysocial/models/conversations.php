@@ -304,32 +304,31 @@ class EasySocialModelConversations extends EasySocialModel
 	 * @param	int $conversationId
 	 * @param	int $userId
 	 */
-	public function delete( $conversationId , $userId )
+	public function delete($conversationId, $userId)
 	{
-		$db			= FD::db();
-		$query 		= array();
+		$db = FD::db();
+		$query = array();
 
 		// We need to check if this is the last child item.
 		// If it's the last item, we need to delete everything else.
-		$query[]	= 'SELECT COUNT( DISTINCT( c.' . $db->nameQuote( 'user_id' ) . ') )';
-		$query[]	= 'FROM ' . $db->nameQuote( '#__social_conversations' ) . ' AS a';
-		$query[]	= 'INNER JOIN ' . $db->nameQuote( '#__social_conversations_message' ) . ' AS b';
-		$query[]	= 'ON a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'conversation_id' );
-		$query[]	= 'INNER JOIN ' . $db->nameQuote( '#__social_conversations_message_maps' ) . ' AS c';
-		$query[]	= 'ON a.' . $db->nameQuote( 'id' ) . ' = c.' . $db->nameQuote( 'message_id' );
-		$query[]	= 'WHERE a.' . $db->nameQuote( 'id' ) . ' = ' . $db->Quote( $conversationId );
-		$query[]	= 'AND c.' . $db->nameQuote( 'user_id' ) . ' != ' . $db->Quote( $userId );
-		$query[]	= 'GROUP BY a.' . $db->nameQuote( 'id' );
+		$query[] = 'SELECT COUNT( DISTINCT( c.' . $db->nameQuote( 'user_id' ) . ') )';
+		$query[] = 'FROM ' . $db->nameQuote( '#__social_conversations' ) . ' AS a';
+		$query[] = 'INNER JOIN ' . $db->nameQuote( '#__social_conversations_message' ) . ' AS b';
+		$query[] = 'ON a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'conversation_id' );
+		$query[] = 'INNER JOIN ' . $db->nameQuote( '#__social_conversations_message_maps' ) . ' AS c';
+		$query[] = 'ON a.' . $db->nameQuote( 'id' ) . ' = c.' . $db->nameQuote( 'message_id' );
+		$query[] = 'WHERE a.' . $db->nameQuote( 'id' ) . ' = ' . $db->Quote( $conversationId );
+		$query[] = 'AND c.' . $db->nameQuote( 'user_id' ) . ' != ' . $db->Quote( $userId );
+		$query[] = 'GROUP BY a.' . $db->nameQuote( 'id' );
 
 		// Glue query back.
-		$query 		= implode( ' ' , $query );
+		$query = implode(' ', $query);
 
-		$db->setQuery( $query );
-		$total	= $db->loadResult();
+		$db->setQuery($query);
+		$total = $db->loadResult();
 
-		if( $total <= 0 )
-		{
-			return $this->cleanup( $conversationId );
+		if ($total <= 0) {
+			return $this->cleanup($conversationId);
 		}
 
 		// @TODO: If user is on a multiconversation, leave the conversation
@@ -351,32 +350,32 @@ class EasySocialModelConversations extends EasySocialModel
 	 * @return	boolean
 	 * @param	int $conversationId
 	 */
-	private function cleanup( $conversationId )
+	private function cleanup($conversationId)
 	{
-		$db		= FD::db();
+		$db = FD::db();
 
 		// @rule: Delete conversation first
 		$query	= 'DELETE FROM ' . $db->nameQuote( '#__social_conversations' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'id' ) . ' = ' . $db->Quote( $conversationId );
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$db->Query();
 
 		// @rule: Delete messages for the conversation.
 		$query	= 'DELETE FROM ' . $db->nameQuote( '#__social_conversations_message' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'conversation_id' ) . ' = ' . $db->Quote( $conversationId );
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$db->Query();
 
 		// @rule: Delete messages mapping for the conversation.
 		$query	= 'DELETE FROM ' . $db->nameQuote( '#__social_conversations_message_maps' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'conversation_id' ) . ' = ' . $db->Quote( $conversationId );
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$db->Query();
 
 		// @rule: Delete participants for the conversation.
 		$query	= 'DELETE FROM ' . $db->nameQuote( '#__social_conversations_participants' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'conversation_id' ) . ' = ' . $db->Quote( $conversationId );
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$db->Query();
 
 		// // @rule: Delete any history of actions for this conversation
@@ -448,23 +447,23 @@ class EasySocialModelConversations extends EasySocialModel
 	 * @param	int			The unique user id.
 	 * @return	boolean
 	 */
-	public function leave( $conversationId , $userId )
+	public function leave($conversationId, $userId)
 	{
 		// Add user history into the messages table to keep track of who left the conversation.
-		$message	= FD::table( 'ConversationMessage' );
+		$message = FD::table('ConversationMessage');
 
-		$message->conversation_id 	= $conversationId;
-		$message->type 				= SOCIAL_CONVERSATION_TYPE_LEAVE;
-		$message->created_by		= $userId;
+		$message->conversation_id = $conversationId;
+		$message->type = SOCIAL_CONVERSATION_TYPE_LEAVE;
+		$message->created_by = $userId;
 
-		$state 		= $message->store();
+		$state = $message->store();
 
 		// Add message mapping so that participants can see the user leaving.
 		$this->addMessageMaps( $conversationId , $message->id , $this->getParticipants( $conversationId ) , $userId );
 
 		// Update user's participant state in this conversation.
 		// We will not delete the record yet unless the entire conversation is deleted by all parties.
-		$participant	= FD::table( 'ConversationParticipant' );
+		$participant = FD::table( 'ConversationParticipant' );
 		$participant->load( array( 'conversation_id' => $conversationId , 'user_id' => $userId ) );
 
 		$participant->state	= SOCIAL_CONVERSATION_STATE_LEFT;
@@ -595,8 +594,8 @@ class EasySocialModelConversations extends EasySocialModel
 	 */
 	public function getLastMessage( $conversationId , $viewerId )
 	{
-		$db 		= FD::db();
-		$sql 		= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 
 		$sql->column( 'b.*' );
 		$sql->select( '#__social_conversations_message' , 'b' );
@@ -624,15 +623,14 @@ class EasySocialModelConversations extends EasySocialModel
 
 		$db->setQuery( $sql );
 
-		$data 		= $db->loadObject();
+		$data = $db->loadObject();
 
-		if( !$data )
-		{
+		if (!$data) {
 			return $data;
 		}
 
-		$message 	= FD::table( 'ConversationMessage' );
-		$message->bind( $data );
+		$message = FD::table('ConversationMessage');
+		$message->bind($data);
 
 		return $message;
 	}
@@ -711,61 +709,107 @@ class EasySocialModelConversations extends EasySocialModel
 	}
 
 	/**
+	 * Deletes all conversations involving a particular user.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function deleteConversationsInvolvingUser($userId)
+	{
+		// Get a list of conversations on the site where the user is involved.
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = array();
+		$query[] = 'SELECT ' . $db->qn('conversation_id') . ' FROM ' . $db->qn('#__social_conversations_message_maps');
+		$query[] = 'WHERE ' . $db->qn('user_id') . '=' . $db->Quote($userId);
+		$query[] = 'GROUP BY ' . $db->qn('conversation_id');
+
+		$query = implode(' ', $query);
+		$sql->raw($query);
+
+		$db->setQuery($sql);
+		$conversationIds = $db->loadColumn();
+
+		// If the user isn't involved in any conversation at all, skip this.
+		if (!$conversationIds) {
+			return;
+		}
+
+		foreach ($conversationIds as $id) {
+			$id = (int) $id;
+			
+			$conversation = FD::table('Conversation');
+			$conversation->load($id);
+
+			if ($conversation->isMultiple()) {
+
+				// Make the user leave the conversation
+				$this->leave($id, $userId);
+			} else {
+				$this->cleanup($id);
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Retrieves a list of conversations for a particular node
 	 *
 	 * @param	int		$userId				The current user id of the viewer
 	 *
 	 * @return	array	An array that contains SocialTableConversationMessage objects.
 	 */
-	public function getConversations( $userId , $options = array() )
+	public function getConversations($userId, $options = array())
 	{
 		$config = FD::config();
-		$db		= FD::db();
-		$sql 	= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 
-		// $query[] = 'SELECT `a`.*,`b`.`message`,`c`.`isread`';
 		$query[] = 'SELECT a.`id`, a.`created`, a.`lastreplied`, a.`type`, b.`created_by`, b.`message`, c.`isread`';
 		$query[] = '	FROM `#__social_conversations` AS `a`';
 		$query[] = '	INNER JOIN `#__social_conversations_message` AS `b` ON `a`.`id` = `b`.`conversation_id`';
 		$query[] = '	INNER JOIN `#__social_conversations_message_maps` AS `c` ON `c`.`message_id` = `b`.`id`';
 		$query[] = '	INNER JOIN  (select cm.`conversation_id`, max(cm.`message_id`) as `message_id` from `#__social_conversations_message_maps` as cm';
 		$query[] = '					inner join `#__social_conversations_message` as bm on cm.`message_id` = bm.`id`';
+
 		if ($config->get('users.blocking.enabled')) {
 			$query[] = '					LEFT JOIN `#__social_block_users` AS `bus` ON `bm`.`created_by` = `bus`.`user_id` AND `bus`.`target_id` = ' . $db->Quote($userId);
 		}
+
 		$query[] = '					WHERE `cm`.`user_id` = ' . $db->Quote($userId);
 
 		// Process any additional filters here.
-		if( isset( $options[ 'archives' ] ) && $options[ 'archives' ] )
-		{
+		if (isset($options['archives']) && $options['archives']) {
 			$query[] = '				AND `cm`.`state` = ' . $db->Quote(SOCIAL_CONVERSATION_STATE_ARCHIVED);
-		}
-		else
-		{
+		} else {
 			$query[] = '				AND `cm`.`state` = ' . $db->Quote(SOCIAL_CONVERSATION_STATE_PUBLISHED);
 		}
+
 		// @rule: Respect filter options
-		if( isset( $options['filter'] ) )
-		{
-			switch( $options[ 'filter' ] )
-			{
-				case 'unread':
-					$query[] = '		AND `cm`.`isread` = ' . $db->Quote(SOCIAL_CONVERSATION_UNREAD);
-					break;
-				case 'read':
-					$query[] = '		AND `cm`.`isread` = ' . $db->Quote(SOCIAL_CONVERSATION_READ);
-					break;
+		if (isset($options['filter'])) {
+
+			if ($options['filter'] == 'unread') {
+				$query[] = '		AND `cm`.`isread` = ' . $db->Quote(SOCIAL_CONVERSATION_UNREAD);
+			}
+
+			if ($options['filter'] == 'read') {
+				$query[] = '		AND `cm`.`isread` = ' . $db->Quote(SOCIAL_CONVERSATION_READ);
 			}
 		}
 
 		if ($config->get('users.blocking.enabled')) {
 			$query[] = '					and `bus`.`id` IS NULL';
 		}
+
 		$query[] = '					group by cm.`conversation_id`) as x';
 		$query[] = '				ON c.`message_id` = x.`message_id`';
 
+		// user block
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
-		    // user block
 		    $query[] = ' LEFT JOIN ' . $db->nameQuote( '#__social_block_users' ) . ' as bus';
 		    $query[] = ' ON a.' . $db->nameQuote( 'created_by' ) . ' = bus.' . $db->nameQuote( 'user_id' ) ;
 		    $query[] = ' AND bus.' . $db->nameQuote( 'target_id' ) . ' = ' . $db->Quote( JFactory::getUser()->id ) ;
@@ -779,37 +823,32 @@ class EasySocialModelConversations extends EasySocialModel
 		}
 
 		// Process any additional filters here.
-		if( isset( $options[ 'archives' ] ) && $options[ 'archives' ] )
-		{
+		if (isset($options['archives']) && $options['archives']) {
 			$query[] = 'AND `c`.`state` = ' . $db->Quote(SOCIAL_CONVERSATION_STATE_ARCHIVED);
-		}
-		else
-		{
+		} else {
 			$query[] = 'AND `c`.`state` = ' . $db->Quote(SOCIAL_CONVERSATION_STATE_PUBLISHED);
 		}
+
 		// @rule: Respect filter options
-		if( isset( $options['filter'] ) )
-		{
-			switch( $options[ 'filter' ] )
-			{
-				case 'unread':
-					$query[] = 'AND `c`.`isread` = ' . $db->Quote(SOCIAL_CONVERSATION_UNREAD);
-					break;
-				case 'read':
-					$query[] = 'AND `c`.`isread` = ' . $db->Quote(SOCIAL_CONVERSATION_READ);
-					break;
+		if (isset($options['filter'])) {
+
+			if ($options['filter'] == 'unread') {
+				$query[] = '		AND `c`.`isread` = ' . $db->Quote(SOCIAL_CONVERSATION_UNREAD);
+			}
+
+			if ($options['filter'] == 'read') {
+				$query[] = '		AND `c`.`isread` = ' . $db->Quote(SOCIAL_CONVERSATION_READ);
 			}
 		}
 
 		// @rule: Only get the count
-		if( isset( $options[ 'count' ] ) && $options[ 'count' ] === true )
-		{
+		if (isset($options['count']) && $options['count'] === true) {
 			$query[0] = 'SELECT count(1)';
 			$query = implode(' ', $query);
 
 			$sql->raw($query);
 			$db->setQuery( $sql );
-			$total 	= $db->loadResult( $sql );
+			$total = $db->loadResult($sql);
 
 			return $total;
 		}
@@ -828,7 +867,8 @@ class EasySocialModelConversations extends EasySocialModel
 		// glue all the string.
 		$query = implode(' ', $query);
 
-
+		// $sql->raw($query);
+		// echo $sql->debug();exit;
 		// echo $sql;
 		// echo $query;
 
@@ -836,27 +876,23 @@ class EasySocialModelConversations extends EasySocialModel
 
 		$rows = array();
 
-		if( $maxlimit )
-		{
+		if ($maxlimit) {
 			$query .= ' LIMIT ' . $maxlimit;
 
 			$sql->raw($query);
-			$db->setQuery( $sql );
+			$db->setQuery($sql);
 			$rows	= $db->loadObjectList();
-		}
-		else
-		{
+		} else {
 
-			$limit 	= isset( $options[ 'limit' ] ) ? $options[ 'limit' ] : '';
+			$limit = isset($options['limit']) ? $options['limit'] : '';
 
-			if( $limit )
-			{
+			if ($limit) {
 				$this->setState( 'limit' , $limit );
 
 				// Get the limitstart.
-				$limitstart 	= $this->getUserStateFromRequest( 'limitstart' , 0 );
+				$limitstart = $this->getUserStateFromRequest( 'limitstart' , 0 );
 
-				$limitstart 	= ( $limit != 0 ? ( floor( $limitstart / $limit ) * $limit ) : 0 );
+				$limitstart = ( $limit != 0 ? ( floor( $limitstart / $limit ) * $limit ) : 0 );
 
 				$this->setState( 'limitstart' , $limitstart );
 
@@ -865,27 +901,23 @@ class EasySocialModelConversations extends EasySocialModel
 				$totalSql = $sql->getSql();
 				$this->setTotal( $totalSql , true );
 
-				$rows				= $this->getData( $sql->getSql() );
-			}
-			else
-			{
+				$rows = $this->getData( $sql->getSql() );
+			} else {
 				$sql->raw($query);
-				$db->setQuery( $sql );
-				$rows	= $db->loadObjectList( $sql );
+				$db->setQuery($sql);
+				$rows = $db->loadObjectList();
 			}
 		}
 
-		$conversations		= array();
+		$conversations = array();
 
-		foreach( $rows as $row )
-		{
-			$conversation	= FD::table( 'Conversation' );
-			$conversation->bind( $row );
+		foreach ($rows as $row) {
+			$conversation = FD::table('Conversation');
+			$conversation->bind($row);
 
-			// var_dump($conversation);
-
-			$conversations[]	= $conversation;
+			$conversations[] = $conversation;
 		}
+
 		return $conversations;
 	}
 

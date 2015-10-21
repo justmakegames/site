@@ -145,6 +145,7 @@ class EasySocialControllerMaintenance extends EasySocialController
 
         $tables = array();
         $indexes = array();
+        $changes = array();
         $affected = 0;
 
         $db = FD::db();
@@ -152,6 +153,7 @@ class EasySocialControllerMaintenance extends EasySocialController
         foreach ($result as $row) {
             $columnExist = true;
             $indexExist = true;
+            $alterTable = false;
 
             if (isset($row->column)) {
                 // Store the list of tables that needs to be queried
@@ -163,6 +165,10 @@ class EasySocialControllerMaintenance extends EasySocialController
                 $columnExist = in_array($row->column , $tables[$row->table]);
             }
 
+            if (isset($row->alter)) {
+                $alterTable = true;
+            }
+
             if (isset($row->index)) {
                 if (!isset($indexes[$row->table])) {
                     $indexes[$row->table] = $db->getTableIndexes($row->table);
@@ -171,7 +177,7 @@ class EasySocialControllerMaintenance extends EasySocialController
                 $indexExist = in_array($row->index, $indexes[$row->table]);
             }
 
-            if (!$columnExist || !$indexExist) {
+            if ($alterTable || !$columnExist || !$indexExist) {
                 $sql = $db->sql();
                 $sql->raw($row->query);
 

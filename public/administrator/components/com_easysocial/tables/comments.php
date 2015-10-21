@@ -1,37 +1,36 @@
 <?php
 /**
-* @package      Social
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Private Limited. All rights reserved.
+* @package      EasySocial
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
-* @author       Jason Rey <jasonrey@stackideas.com>
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('JPATH_BASE') or die('Unauthorized Access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import('admin:/tables/table');
+ES::import('admin:/tables/table');
 
 class SocialTableComments extends SocialTable
 {
-    public $id          = null;
-    public $element     = null;
-    public $uid         = null;
-    public $comment     = null;
-    public $created_by  = null;
-    public $created     = null;
-    public $depth       = null;
-    public $parent      = null;
-    public $child       = null;
-    public $lft         = null;
-    public $rgt         = null;
-    public $params      = null;
-    public $stream_id   = null;
+    public $id = null;
+    public $element = null;
+    public $uid = null;
+    public $comment = null;
+    public $created_by = null;
+    public $created = null;
+    public $depth = null;
+    public $parent = null;
+    public $child = null;
+    public $lft = null;
+    public $rgt = null;
+    public $params = null;
+    public $stream_id = null;
 
     // flag to tell if store need to trigger onBeforeCommentSave and onAfterCommentSave
-    public $_trigger    = true;
+    public $_trigger = true;
 
     public function __construct($db)
     {
@@ -97,7 +96,6 @@ class SocialTableComments extends SocialTable
         $state = parent::store();
 
         if (!$state) {
-            FD::logError(__FILE__, __LINE__, $this->getError());
             return false;
         }
 
@@ -134,14 +132,20 @@ class SocialTableComments extends SocialTable
         $state = $this->store();
 
         if (!$state) {
-            FD::logError(__FILE__, __LINE__, $this->getError());
             return false;
         }
 
         return true;
     }
 
-    // Overwrite of the original delete function to include more hooks
+    /**
+     * Overwrite of the original delete function to include more hooks
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function delete($pk = null)
     {
         $arguments  = array(&$this);
@@ -156,6 +160,10 @@ class SocialTableComments extends SocialTable
             // Clear out all the likes for this comment
             $likesModel = FD::model('likes');
             $likesModel->delete($this->uid, 'comments');
+
+            // Delete files related to this comment
+            $filesModel = ES::model('Files');
+            $filesModel->deleteFiles($this->id, 'comments');
 
             // Trigger afterDelete event
             $dispatcher->trigger(SOCIAL_APPS_GROUP_USER, 'onAfterDeleteComment', $arguments);
@@ -189,31 +197,6 @@ class SocialTableComments extends SocialTable
 
         $dispatcher->trigger(SOCIAL_APPS_GROUP_USER, $afterTrigger, array($this->element, $this->uid, $this, $likesTable));
 
-        // Moved to story app where story app collectively handle for all like comments notification.
-
-        // The app should render this
-        // if (!$hasLiked && $this->created_by != FD::user()->id) {
-        //  $emailOptions = array(
-        //      'title'     => JText::sprintf('COM_EASYSOCIAL_COMMENTS_LIKE_EMAIL_TITLE', FD::user()->getName()),
-        //      'template'  => 'site/comments/new.comment.like',
-        //      'params'    => array(
-        //          'actor'         => FD::user()->getName(),
-        //          'posterName'    => FD::user()->getName(),
-        //          'comment'       => $this->comment
-        //      )
-        //  );
-
-        //  $systemOptions = array(
-        //      'uid'       => $this->id,
-        //      'actor_id'  => FD::user()->id,
-        //      'type'      => 'comments',
-        //      'url'       => $this->getParams()->get('url', ''),
-        //      'title'     => JText::_('COM_EASYSOCIAL_COMMENTS_LIKE_SYSTEM_TITLE')
-        //  );
-
-        //  FD::notify('comments.like', array($this->created_by), $emailOptions, $systemOptions);
-        // }
-
         return $likesLib;
     }
 
@@ -228,17 +211,20 @@ class SocialTableComments extends SocialTable
     // This will return HTML of 1 single comment block
     public function renderHTML($options = array())
     {
-        $user = FD::user($this->created_by);
+        $user = ES::user($this->created_by);
+        $isAuthor = $this->isAuthor();
+        $likes = ES::likes($this->id, 'comments', 'like', SOCIAL_APPS_GROUP_USER);
 
-        $isAuthor   = $this->isAuthor();
-
-        $likes = FD::likes($this->id, 'comments', 'like', SOCIAL_APPS_GROUP_USER);
-
-        $theme = FD::themes();
+        $theme = ES::themes();
 
         // Determines if the viewer can delete the comment
         $deleteable = isset($options['deleteable']) ? $options['deleteable'] : $isAuthor;
 
+        // Get attachments associated with this comment
+        $model = ES::model('Files');
+        $attachments = $model->getFiles($this->id, SOCIAL_TYPE_COMMENTS);
+
+        $theme->set('attachments', $attachments);
         $theme->set('deleteable', $deleteable);
         $theme->set('comment', $this);
         $theme->set('user', $user);
@@ -280,7 +266,7 @@ class SocialTableComments extends SocialTable
         $comment = $this->comment;
 
         // Load up the string library
-        $stringLib = FD::get('string');
+        $stringLib = ES::get('string');
 
         // Determine if read more is needed.
         $readmore = JString::strlen($comment) > 150;
@@ -303,7 +289,7 @@ class SocialTableComments extends SocialTable
         // Generate a unique id.
         $uid = uniqid();
 
-        $model = FD::model('Tags');
+        $model = ES::model('Tags');
         $tags = $model->getTags($this->id, 'comments');
 
         $comment = $stringLib->escape($comment);
@@ -322,7 +308,8 @@ class SocialTableComments extends SocialTable
         }
 
         // Apply bbcode on the comment
-        $comment = $stringLib->parseBBCode($comment, array('escape' => false));
+        $config = ES::config();
+        $comment = $stringLib->parseBBCode($comment, array('escape' => false, 'emoticons' => $config->get('comments.smileys')));
 
         $html = $comment;
 
@@ -336,18 +323,6 @@ class SocialTableComments extends SocialTable
         }
 
         return $html;
-
-        // // Load up the them
-        // $theme       = FD::themes();
-
-        // $theme->set('uid'        , $uid);
-        // $theme->set('balance'    , $balance);
-        // $theme->set('comment'    , $comment);
-        // $theme->set('readmore'   , $readmore);
-
-        // $comment     = $theme->output('site/comments/template');
-
-        // return $comment;
     }
 
     /**

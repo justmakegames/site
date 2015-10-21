@@ -22,40 +22,29 @@ FD::import( 'admin:/includes/views' );
  */
 abstract class EasySocialAdminView extends EasySocialView
 {
-	/**
-	 * Page variable
-	 * @var 	stdClass
-	 */
-	protected $page 		= null;
+	protected $page = null;
 
-	/**
-	 * Class Constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	null
-	 * @return	null
-	 *
-	 * @author	Mark Lee <mark@stackideas.com>
-	 */
-	public function __construct( $config = array() )
+	public function __construct($config = array())
 	{
 		// Initialize page.
-		$this->page 	= new stdClass();
+		$page = new stdClass();
 
 		// Initialize page values.
-		$this->page->icon 			= '';
-		$this->page->iconUrl		= '';
-		$this->page->heading 		= '';
-		$this->page->description	= '';
+		$page->icon = '';
+		$page->iconUrl = '';
+		$page->heading = '';
+		$page->description = '';
+
+		$this->page = $page;
+		$this->my = FD::user();
 
 		// Initialize the breadcrumbs
 		$this->breadcrumbs	= array();
 
-		$view		= $this->getName();
+		$view = $this->getName();
 
 		// Disallow access if user does not have sufficient permissions
-		$rule 		= 'easysocial.access.' . $view;
+		$rule = 'easysocial.access.' . $view;
 
 		// For fields, it uses a different view
 		if ($view == 'fields') {
@@ -77,11 +66,9 @@ abstract class EasySocialAdminView extends EasySocialView
 	 * @param	string
 	 * @return
 	 */
-	public function authorise( $command , $extension = 'com_easysocial' )
+	public function authorise($command, $extension = 'com_easysocial')
 	{
-		$user 	= FD::user();
-
-		return $user->authorise( $command , $extension );
+		return $this->my->authorise($command, $extension);
 	}
 
 	/**
@@ -93,9 +80,9 @@ abstract class EasySocialAdminView extends EasySocialView
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function setHeading( $title )
+	public function setHeading($title)
 	{
-		$this->page->heading	= $title;
+		$this->page->heading = JText::_($title);
 	}
 
 	/**

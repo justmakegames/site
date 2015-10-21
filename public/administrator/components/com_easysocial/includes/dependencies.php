@@ -25,7 +25,7 @@ if (!function_exists('dump')) {
 		$args = func_get_args();
 
 		echo '<pre>';
-		
+
 		foreach ($args as $arg) {
 			var_dump($arg);
 		}
@@ -44,18 +44,38 @@ define('SOCIAL_SCRIPT_CODE', '<div class="center mt-20"><a href="http://stackide
 class EasySocial
 {
 	public $config = null;
+	public $jConfig = null;
 	public $app = null;
 	public $input = null;
 	public $my = null;
 	public $doc = null;
+	public $access = null;
+
+	protected $error = null;
 
 	public function __construct()
 	{
 		$this->doc = JFactory::getDocument();
-		$this->config = FD::config();
+		$this->config = ES::config();
+		$this->jConfig = ES::jConfig();
 		$this->app = JFactory::getApplication();
-		$this->input = $this->app->input;
-		$this->my = FD::user();
+		$this->input = ES::request();
+		$this->my = ES::user();
+		$this->access = ES::access();
+	}
+
+	public function setError($message)
+	{
+		$this->error = $message;
+	}
+
+	public function getError()
+	{
+		if (!$this->error) {
+			return false;
+		}
+
+		return JText::_($this->error);
 	}
 }
 

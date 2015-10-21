@@ -18,7 +18,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <?php } ?>
 
 <?php if( $target && $actor->id != $target->id  ){ ?>
-<i class="ies-arrow-right"></i>
+<i class="fa fa-caret-right"></i>
 	<?php if( ! $target->isBlock() ) { ?>
 	<a href="<?php echo $target->getPermalink();?>"><?php echo $target->getName();?></a>
 	<?php } else { ?>

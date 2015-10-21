@@ -205,11 +205,11 @@ class EasySocialModelNotifications extends EasySocialModel
 	 */
 	public function getCount( $options = array() )
 	{
-		$db 		= FD::db();
-		$sql 		= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 
-		$sql->select( '#__social_notifications', 'a' );
-		$sql->column( 'COUNT(1)' );
+		$sql->select('#__social_notifications', 'a' );
+		$sql->column('COUNT(1)');
 
 		if (FD::config()->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    $sql->leftjoin( '#__social_block_users' , 'bus');
@@ -219,7 +219,7 @@ class EasySocialModelNotifications extends EasySocialModel
 		}
 
 		// Only fetch items from specific target id and type if necessary.
-		$target 		= isset( $options[ 'target' ] ) ? $options[ 'target' ] : null;
+		$target = isset($options['target']) ? $options['target'] : null;
 
 		if( !is_null( $target ) && is_array( $target ) )
 		{
@@ -238,17 +238,14 @@ class EasySocialModelNotifications extends EasySocialModel
 
 		// if badges / achievement system disabled, then we shouldn't retrive badges related notifications.
 		$config = FD::config();
-		if(! $config->get( 'badges.enabled' ) )
-		{
+
+		if (!$config->get('badges.enabled')) {
 			$sql->where( 'a.type' , SOCIAL_TYPE_BADGES, '!=' );
 		}
 
+		$db->setQuery($sql);
 
-
-// echo $sql->debug();exit;
-		$db->setQuery( $sql );
-
-		$total 		= $db->loadResult();
+		$total = $db->loadResult();
 
 		return $total;
 	}

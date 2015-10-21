@@ -31,6 +31,7 @@ if( !FD::exists() )
 	echo JText::_( 'COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING' );
 	return;
 }
+
 $config 	= FD::config();
 
 // If photos is not enabled, do not display the albums
@@ -39,25 +40,56 @@ if( !$config->get( 'photos.enabled' ) )
 	return;
 }
 
-$my 		= FD::user();
+FD::document()->init();
+
+$my = FD::user();
+
 
 // Load up the module engine
-$modules 	= FD::modules( 'mod_easysocial_albums' );
+$modules = FD::modules('mod_easysocial_albums');
+$modules->loadComponentStylesheets();
 
 // We need these packages
 $modules->addDependency( 'css' , 'javascript' );
 
 // Get the layout to use.
-$layout 	= $params->get( 'layout' , 'default' );
-$suffix 	= $params->get( 'suffix' , '' );
+$layout = $params->get( 'layout' , 'default' );
+$suffix = $params->get( 'suffix' , '' );
 
 // module setting
-$withCover 	= $params->get( 'withCover' , 0 );
-$limit 		= $params->get( 'total' , 6 );
+$withCover = $params->get( 'withCover' , 0 );
+$limit = $params->get( 'total' , 6 );
+
+$userid = (int) $params->get('userid', 0);
+$albumid = (int) $params->get('albumid', 0);
+
+$options = array( 'core' => false, 'withCovers' => $withCover, 'limit' => $limit, 'order' => 'created', 'direction' => 'desc', 'excludeblocked' => 1, 'privacy' => true);
+
+if ($userid) {
+    $options['userId'] = (int) $userid;
+}
+
+if ($albumid) {
+    $options['albumId'] = (int) $albumid;
+}
 
 // Retrieve recent albums from the site.
 $albumsModel	= FD::model( 'Albums' );
-$recentAlbums	= $albumsModel->getAlbums('' , '' , array( 'core' => false, 'withCovers' => $withCover, 'limit' => $limit, 'order' => 'created', 'direction' => 'desc', 'excludeblocked' => 1, 'privacy' => true) );
+$recentAlbums   = $albumsModel->getAlbums('' , '' , $options );
+
+if ($recentAlbums) {
+    $photoIds = array();
+
+    foreach($recentAlbums as $album) {
+        if ($album->cover_id) {
+            $photoIds[] = $album->cover_id;
+        }
+    }
+
+    if ($photoIds) {
+        FD::cache()->cachePhotos($photoIds);
+    }
+}
 
 
 require( JModuleHelper::getLayoutPath( 'mod_easysocial_albums' , $layout ) );

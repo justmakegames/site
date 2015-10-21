@@ -74,7 +74,12 @@ class SocialFieldsUserJoomla_email extends SocialFieldItem
 
 	public function onRegisterMiniValidate(&$post)
 	{
-		if (empty($post['email-reconfirm']) && !empty($post['email'])) {
+		// if (empty($post['email-reconfirm']) && !empty($post['email'])) {
+		// 	$post['email-reconfirm'] = $post['email'];
+		// }
+
+		// Check if reconfirm passwords is disabled.
+		if (!$this->params->get('mini_reconfirm_email') && isset($post['email'])) {
 			$post['email-reconfirm'] = $post['email'];
 		}
 

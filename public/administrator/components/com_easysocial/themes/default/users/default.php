@@ -14,7 +14,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <form name="adminForm" id="adminForm" method="post" data-table-grid>
 
 	<?php if( $this->tmpl != 'component' ){ ?>
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -22,9 +22,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<div class="form-group">
 			<strong><?php echo JText::_( 'COM_EASYSOCIAL_FILTER_BY' ); ?> :</strong>
 			<div>
-				<?php echo $this->html( 'filter.published' , 'published' , $published ); ?>
-				<?php echo $this->html( 'filter.usergroups' , 'group' , $group ); ?>
-				<?php echo $this->html( 'filter.profiles' , 'profile' , $profile ); ?>
+				<?php echo $this->html('filter.published', 'published', $published); ?>
+				<?php echo $this->html('filter.usergroups', 'group' , $group); ?>
+				<?php echo $this->html('filter.profiles', 'profile' , $profile); ?>
 			</div>
 		</div>
 
@@ -35,7 +35,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php } ?>
 
 	<?php if( $this->tmpl == 'component' ){ ?>
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<input type="text" name="search" class="form-control input-sm" />
 			<button class="btn btn-es btn-medium"><?php echo JText::_( 'COM_EASYSOCIAL_SEARCH_BUTTON' ); ?></button>
@@ -44,9 +44,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php } ?>
 
 
-	<div id="usersTable" data-users>
-
-		<table class="table table-striped table-es table-hover">
+	<div id="usersTable" class="panel-table" data-users>
+		<table class="app-table table table-eb table-striped">
 			<thead>
 				<tr>
 					<?php if( $multiple ){ ?>
@@ -65,20 +64,23 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 					<?php if( $this->tmpl != 'component' ){ ?>
 					<th width="5%" class="center">
-						<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_FRIENDS' ); ?>
-					</th>
-					<th width="5%" class="center">
-						<?php echo $this->html( 'grid.sort' , 'points' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_POINTS' ) , $ordering , $direction ); ?>
-					</th>
-					<th width="5%" class="center">
 						<?php echo $this->html( 'grid.sort' , 'block' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ENABLED' ) , $ordering , $direction ); ?>
 					</th>
 					<th width="5%" class="center">
 						<?php echo $this->html( 'grid.sort' , 'block' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ACTIVATED' ) , $ordering , $direction ); ?>
 					</th>
+
+					<th width="5%" class="center">
+						<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_FRIENDS' ); ?>
+					</th>
+					<th width="5%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'points' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_POINTS' ) , $ordering , $direction ); ?>
+					</th>
+
 					<th width="10%" class="center">
 						<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_PROFILE_TYPE' ); ?>
 					</th>
+
 					<th width="10%" class="center">
 						<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_USER_GROUPS' ); ?>
 					</th>
@@ -87,6 +89,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<th width="10%" class="center">
 						<?php echo $this->html( 'grid.sort' , 'email' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_EMAIL' ) , $ordering , $direction ); ?>
 					</th>
+
+					<?php if ($this->tmpl != 'component') { ?>
+					<th width="5%" class="center">
+						<?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_ACCOUNT_TYPE'); ?>
+					</th>
+					<?php } ?>
 
 					<th width="<?php echo $this->tmpl == 'component' ? '10%' : '5%';?>" class="center">
 						<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_USERS_ID' ) , $ordering , $direction ); ?>
@@ -105,7 +113,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<tr data-user-item
 					data-name="<?php echo $userObj->getName();?>"
 					data-title="<?php echo $this->html( 'string.escape' , $userObj->name );?>"
-					data-alias="<?php echo $userObj->getAlias();?>"
+					data-alias="<?php echo $userObj->getAlias(true, true);?>"
 					data-avatar="<?php echo $userObj->getAvatar(SOCIAL_AVATAR_MEDIUM);?>"
 					data-email="<?php echo $userObj->email;?>"
 					data-id="<?php echo $userObj->id;?>">
@@ -116,32 +124,19 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<?php } ?>
 
 					<td style="text-align:left;">
-						<?php if( $this->tmpl != 'component' ){ ?>
-						<span class="pull-left mr-5">
-							<i class="icon-es-<?php echo $userObj->type;?>-16 mr-5 mt-5"
-								data-original-title="<?php echo $this->html( 'string.escape' , JText::sprintf( 'COM_EASYSOCIAL_USERS_USER_ACCOUNT_TYPE' , $userObj->type ) );?>"
-								data-es-provide="tooltip"
-							></i>
-						</span>
-
-						<span class="es-avatar es-avatar-rounded pull-left mr-15 ml-5">
-							<img src="<?php echo $userObj->getAvatar( SOCIAL_AVATAR_MEDIUM );?>" width="24" align="left" />
-						</span>
-						<?php } else { ?>
-						<span class="es-avatar-rounded es-avatar mr-15 ml-5 pull-left">
-							<img src="<?php echo $userObj->getAvatar( SOCIAL_AVATAR_MEDIUM );?>" width="16" align="left" />
-						</span>
-						<?php } ?>
-
 						<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=users&layout=form&id=' . $user->id );?>"
 							data-user-insert
 							data-id="<?php echo $user->id;?>"
-							data-alias="<?php echo $userObj->getAlias();?>"
+							data-alias="<?php echo $userObj->getAlias(true, true);?>"
 							data-title="<?php echo $this->html( 'string.escape' , $userObj->name );?>"
 							data-avatar="<?php echo $this->html( 'string.escape' , $userObj->getAvatar( SOCIAL_AVATAR_MEDIUM ) );?>"
 						>
 							<?php echo $userObj->name;?>
 						</a>
+
+						<?php if ($userObj->require_reset) { ?>
+							<span class="fd-small label label-warning">Reset password required</span>
+						<?php } ?>
 
 						<?php if( $this->tmpl != 'component' ){ ?>
 						<div class="fd-small">
@@ -152,18 +147,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<?php } ?>
 						</div>
 						<?php } ?>
+
 					</td>
 					<td class="center">
 						<span><?php echo $userObj->username;?></span>
 					</td>
 
-					<?php if( $this->tmpl != 'component' ){ ?>
-					<td class="center">
-						<?php echo $userObj->getTotalFriends(); ?>
-					</td>
-					<td class="center">
-						<?php echo $userObj->points; ?>
-					</td>
+					<?php if ($this->tmpl != 'component') { ?>
 					<td class="center">
 						<?php if( $userObj->state == SOCIAL_USER_STATE_PENDING ){ ?>
 							<a class="es-state-locked" href="javascript:void(0);"
@@ -181,11 +171,19 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<a href="javascript:void(0);" class="es-state-publish" data-es-provide="tooltip" data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_USERS_USER_IS_ACTIVATED' );?>"></a>
 						<?php } ?>
 					</td>
+
+					<td class="center">
+						<?php echo $userObj->getTotalFriends(); ?>
+					</td>
+					<td class="center">
+						<?php echo $userObj->points; ?>
+					</td>
+
 					<td class="center">
 						<?php $title = $userObj->getProfile()->title; ?>
 
 						<?php if( $title ){ ?>
-							<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=profiles&layout=form&id=' . $userObj->getProfile()->id );?>"><?php echo $title; ?></a>
+							<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=profiles&layout=form&id=' . $userObj->getProfile()->id );?>"><?php echo JText::_($title); ?></a>
 						<?php } else { ?>
 							<?php echo JText::_( 'COM_EASYSOCIAL_NOT_AVAILABLE' ); ?>
 						<?php } ?>
@@ -209,6 +207,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						<?php } ?>
 					</td>
 
+					<?php if ($this->tmpl != 'component') { ?>
+					<td class="center">
+						<i class="icon-es-<?php echo $userObj->type;?>-16 mr-5 mt-5"
+							data-original-title="<?php echo $this->html( 'string.escape' , JText::sprintf( 'COM_EASYSOCIAL_USERS_USER_ACCOUNT_TYPE' , $userObj->type ) );?>"
+							data-es-provide="tooltip"
+						></i>
+					</td>
+					<?php } ?>
+
 					<td class="center">
 						<?php echo $userObj->id;?>
 					</td>
@@ -218,7 +225,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<?php } else { ?>
 			<tr>
-				<td class="empty center" colspan="10">
+				<td class="empty center" colspan="12">
 					<div><?php echo JText::_( 'COM_EASYSOCIAL_USERS_NO_USERS_FOUND_BASED_ON_SEARCH_RESULT' ); ?></div>
 				</td>
 			</tr>
@@ -227,16 +234,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<tfoot>
 				<tr>
-					<td colspan="11">
+					<td colspan="12">
 						<div class="footer-pagination">
 							<?php echo $pagination->getListFooter(); ?>
 						</div>
 					</td>
 				</tr>
 			</tfoot>
-
 		</table>
-
 	</div>
 
 	<?php echo JHTML::_( 'form.token' ); ?>

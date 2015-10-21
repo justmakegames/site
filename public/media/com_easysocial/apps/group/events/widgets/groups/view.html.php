@@ -23,14 +23,15 @@ class EventsWidgetsGroups extends SocialAppsWidgets
 
         $group = FD::group($groupId);
 
+
         if (!$group->getAccess()->get('events.groupevent', true)) {
             return;
         }
 
         $my = FD::user();
 
-        $days = $params->get('widgets_days', 14);
-        $total = $params->get('widgets_total', 5);
+        $days = $params->get('widget_days', 14);
+        $total = $params->get('widget_total', 5);
 
         $date = FD::date();
 
@@ -67,7 +68,14 @@ class EventsWidgetsGroups extends SocialAppsWidgets
 
     public function groupAdminStart($group)
     {
-        if (!$group->canCreateEvent()) {
+        $my = FD::user();
+        $config = FD::config();
+
+        if (!$config->get('events.enabled') || !$my->getAccess()->get('events.create')) {
+            return;
+        }
+
+        if (!$group->canCreateEvent() || !$group->getCategory()->getAcl()->get('events.groupevent')) {
             return;
         }
 

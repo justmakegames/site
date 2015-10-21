@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="es-field-datetime-form with-border mb-5" data-field-datetime-form>
     <div class="es-field-datetime-textbox">
-        <i class="ies-calendar-2"></i>
+        <i class="fa fa-calendar"></i>
         <input class="datepicker-wrap form-control input-sm" data-field-datetime-select type="text" placeholder="<?php echo JText::_($params->get('placeholder')); ?>" />
     </div>
 </div>

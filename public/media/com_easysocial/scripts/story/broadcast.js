@@ -11,7 +11,8 @@ EasySocial.module("story/broadcast", function($){
 						"{profile}" : "[data-broadcast-profile]",
 						"{title}" : "[data-broadcast-title]",
 						"{link}" : "[data-broadcast-link]",
-						"{message}": "[data-broadcast-message]"
+						"{message}": "[data-broadcast-message]",
+						"{type}": "[data-broadcast-type]"
 					}
 				},
 				function(self)
@@ -27,9 +28,10 @@ EasySocial.module("story/broadcast", function($){
 						// Determines which profile we should broadcast to
 						var profileId = self.profile().val(),
 							title = self.title().val(),
-							link = self.link().val();
+							link = self.link().val(),
+							type = self.type().val();
 
-						var data = {"broadcast": "1", "profileId" : profileId, "title" : title, "link" : link};
+						var data = {"broadcast": "1", "profileId" : profileId, "title" : title, "link" : link, "type" : type};
 
 						save.addData(self, data);
 					},

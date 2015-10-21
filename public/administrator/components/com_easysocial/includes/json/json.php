@@ -91,16 +91,23 @@ class SocialJSON
 		return false;
 	}
 
-	public function send($data) {
-
+	/**
+	 * Renders the json data back to the caller.
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function send($data)
+	{
 		// For json responses, "application/json; charset=utf-8" is the standard content type.
 		// Using "application/json" causes IE9 to download the response as a file.
 		// Using "text/html" causes unterminated string literal when parsing json response in IE9.
 		// Using "text/plain" causes Firebug not to syntax highlight json response.
 		// Using anything other than "application/json" causes older Chrome to make warnings that the content-type is obselete.
-
 		header('Content-type: text/plain; UTF-8');
-		echo FD::makeJSON($data);
+		echo ES::makeJSON($data);
 		exit;
 	}
 }

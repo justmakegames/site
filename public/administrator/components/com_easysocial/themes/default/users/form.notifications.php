@@ -11,39 +11,49 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
+<div class="row">
+	<div class="col-lg-7">
 <?php foreach( array( 'system', 'others' ) as $group ) {
 	if( isset( $alerts[ $group ] ) ) {
 ?>
 <?php foreach( $alerts[$group] as $alert ) { ?>
-	<?php if( isset( $alert[ 'title' ] ) ){ ?>
-	<h3><?php echo JText::_( $alert['title'] ); ?></h3>
-	<hr />
-	<?php } ?>
-
-	<table class="table table-striped table-noborder">
-		<thead>
-			<tr>
-				<td width="30%">&nbsp;</td>
-				<td width="1%">&nbsp;</td>
-				<td width="15%" class="center"><?php echo JText::_('COM_EASYSOCIAL_PROFILE_NOTIFICATION_SYSTEM'); ?></td>
-				<td width="15%" class="center"><?php echo JText::_('COM_EASYSOCIAL_PROFILE_NOTIFICATION_EMAIL'); ?></td>
-				<td>&nbsp;</td>
-			</tr>
-		</thead>
-		<tbody>
-		<?php foreach( $alert[ 'data' ] as $rule ){ ?>
-			<tr>
-				<td><?php echo $rule->getTitle(); ?></td>
-				<td>
-					<i class="icon-es-help" <?php echo $this->html( 'bootstrap.popover' , $rule->getTitle() , $rule->getDescription() , 'bottom' ); ?>></i>
-				</td>
-				<td class="pa-5 center"><?php echo $rule->system >= 0 ? $this->html( 'grid.boolean', 'notifications[system][' . $rule->id . ']', $rule->system ) : JText::_( 'COM_EASYSOCIAL_PROFILE_NOTIFICATION_NOT_APPLICABLE' ); ?></td>
-				<td class="pa-5 center"><?php echo $rule->email >= 0 ? $this->html( 'grid.boolean', 'notifications[email][' . $rule->id .']', $rule->email ) : JText::_( 'COM_EASYSOCIAL_PROFILE_NOTIFICATION_NOT_APPLICABLE' ); ?></td>
-				<td>&nbsp;</td>
-			</tr>
+	<div class="panel">
+		<?php if( isset( $alert[ 'title' ] ) ){ ?>
+			<div class="panel-head">
+				<b><?php echo JText::_( $alert['title'] ); ?></b>
+			</div>
 		<?php } ?>
-		</tbody>
-	</table>
+
+		<div class="panel-body">
+			<table class="table table-striped table-noborder">
+				<thead>
+					<tr>
+						<td width="30%">&nbsp;</td>
+						<td width="2%">&nbsp;</td>
+						<td width="34%" class="center"><?php echo JText::_('COM_EASYSOCIAL_PROFILE_NOTIFICATION_SYSTEM'); ?></td>
+						<td width="34%" class="center"><?php echo JText::_('COM_EASYSOCIAL_PROFILE_NOTIFICATION_EMAIL'); ?></td>
+						<td>&nbsp;</td>
+					</tr>
+				</thead>
+				<tbody>
+				<?php foreach( $alert[ 'data' ] as $rule ){ ?>
+					<tr>
+						<td><?php echo $rule->getTitle(); ?></td>
+						<td>
+							<i class="icon-es-help" <?php echo $this->html( 'bootstrap.popover' , $rule->getTitle() , $rule->getDescription() , 'bottom' ); ?>></i>
+						</td>
+						<td class="pa-5 center"><?php echo $rule->system >= 0 ? $this->html( 'grid.boolean', 'notifications[system][' . $rule->id . ']', $rule->system ) : JText::_( 'COM_EASYSOCIAL_PROFILE_NOTIFICATION_NOT_APPLICABLE' ); ?></td>
+						<td class="pa-5 center"><?php echo $rule->email >= 0 ? $this->html( 'grid.boolean', 'notifications[email][' . $rule->id .']', $rule->email ) : JText::_( 'COM_EASYSOCIAL_PROFILE_NOTIFICATION_NOT_APPLICABLE' ); ?></td>
+						<td>&nbsp;</td>
+					</tr>
+				<?php } ?>
+				</tbody>
+			</table>
+		</div>
+	</div>
 <?php }
 	} //if isset()
 }
+?>
+	</div>
+</div>

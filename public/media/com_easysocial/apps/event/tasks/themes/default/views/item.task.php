@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <?php } ?>
 
             <span class="pull-right task-created">
-                <i class="ies-clock"></i> <?php echo FD::date($task->created)->toLapsed(); ?>
+                <i class="fa fa-clock-o"></i> <?php echo FD::date($task->created)->toLapsed(); ?>
             </span>
         </div>
 
@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="task-meta">
             <ul class="list-unstyled task-actions">
                 <li>
-                    <i class="ies-warning-2"></i> <?php echo JText::sprintf('APP_EVENT_TASKS_DUE_ON', FD::date($task->due)->format(JText::_('DATE_FORMAT_LC1'))); ?>
+                    <i class="fa fa-warning-2"></i> <?php echo JText::sprintf('APP_EVENT_TASKS_DUE_ON', FD::date($task->due)->format(JText::_('DATE_FORMAT_LC1'))); ?>
                 </li>
             </ul>
         </div>

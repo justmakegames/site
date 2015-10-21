@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                     <div class="discussion-header">
                         <div class="discussion-avatar pull-left">
-                            <img src="<?php echo $author->getAvatar(); ?>" title="<?php echo $this->html('string.escape', $author->getName()); ?>" class="es-avatar" />
+                            <img src="<?php echo $author->getAvatar(); ?>" title="<?php echo $this->html('string.escape', $author->getName()); ?>" class="es-avatar" data-popbox="module://easysocial/profile/popbox" data-user-id="<?php echo $author->id; ?>"/>
                         </div>
 
                         <h3 class="discussion-title pull-left">
@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             </a>
                             <div class="discussion-status">
                                 <span class="label label-success label-resolved"><?php echo JText::_('APP_EVENT_DISCUSSIONS_RESOLVED'); ?></span>
-                                <span class="label label-warning label-locked"><i class="ies-locked locked-icon"></i> <?php echo JText::_('APP_EVENT_DISCUSSIONS_LOCKED'); ?></span>
+                                <span class="label label-warning label-locked"><i class="fa fa-lock locked-icon"></i> <?php echo JText::_('APP_EVENT_DISCUSSIONS_LOCKED'); ?></span>
                                 <span class="label label-danger label-unanswered"><?php echo JText::_('APP_EVENT_DISCUSSIONS_UNANSWERED'); ?></span>
                             </div>
                         </h3>
@@ -76,7 +76,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <div class="clearfix">
                             <h4 class="pull-left"><?php echo JText::_('APP_EVENT_DISCUSSIONS_REPLIES'); ?> (<span data-reply-count><?php echo $discussion->total_replies; ?></span>)</h4>
                             <?php if ($event->getGuest()->isGuest()) { ?>
-                            <a href="<?php echo FRoute::apps(array('layout' => 'canvas', 'customView' => 'item', 'uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT, 'id' => $app->getAlias(), 'discussionId' => $discussion->id), false); ?>#reply" class="pull-right btn btn-es-success btn-small mt-5 btn-post-reply"><?php echo JText::_('APP_EVENT_DISCUSSIONS_POST_REPLY'); ?> <i class="ies-share-2 ies-small"></i></a>
+                            <a href="<?php echo FRoute::apps(array('layout' => 'canvas', 'customView' => 'item', 'uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT, 'id' => $app->getAlias(), 'discussionId' => $discussion->id), false); ?>#reply" class="pull-right btn btn-es-success btn-small mt-5 btn-post-reply"><?php echo JText::_('APP_EVENT_DISCUSSIONS_POST_REPLY'); ?> <i class="fa fa-share-2 "></i></a>
                             <?php } ?>
                         </div>
                         <hr />
@@ -98,7 +98,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <a id="reply"></a>
 
                             <form data-reply-form class="reply-form">
-                                <div class="alert alert-error alert-empty">
+                                <div class="alert alert-dismissable alert-error alert-empty">
                                     <button type="button" class="close" data-bs-dismiss="alert">×</button>
                                     <?php echo JText::_('APP_EVENT_DISCUSSIONS_EMPTY_REPLY_ERROR'); ?>
                                 </div>
@@ -111,7 +111,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             </form>
 
                             <div class="locked-form">
-                                <i class="ies-locked"></i>
+                                <i class="fa fa-lock"></i>
                                 <?php echo JText::_('APP_EVENT_DISCUSSIONS_IS_LOCKED'); ?>
                             </div>
                         </div>
@@ -127,7 +127,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php if ($event->getGuest()->isGuest()) { ?>
                     <div class="mt-5">
                         <a href="<?php echo FRoute::apps(array('layout' => 'canvas', 'uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT, 'id' => $app->getAlias(), 'customView' => 'create')); ?>"
-                            class="btn btn-es-primary btn-create"><i class="ies-pencil"></i>&nbsp; <?php echo JText::_('APP_EVENT_DISCUSSIONS_CREATE_DISCUSSION'); ?> &rarr;</a>
+                            class="btn btn-es-primary btn-create"><i class="fa fa-pencil"></i>&nbsp; <?php echo JText::_('APP_EVENT_DISCUSSIONS_CREATE_DISCUSSION'); ?> &rarr;</a>
                     </div>
                     <?php } ?>
 
@@ -137,24 +137,24 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <hr />
                         <ul class="list-unstyled">
                             <li>
-                                <i class="ies-user"></i> <?php echo JText::sprintf('APP_EVENT_DISCUSSIONS_STARTED_BY', $this->html('html.user', $author->id)); ?>
+                                <i class="fa fa-user"></i> <?php echo JText::sprintf('APP_EVENT_DISCUSSIONS_STARTED_BY', $this->html('html.user', $author->id)); ?>
                             </li>
                             <li>
-                                <i class="ies-calendar"></i> <?php echo FD::date($discussion->created)->format(JText::_('DATE_FORMAT_LC1')); ?>
+                                <i class="fa fa-calendar"></i> <?php echo FD::date($discussion->created)->format(JText::_('DATE_FORMAT_LC1')); ?>
                             </li>
                             <li>
-                                <i class="ies-eye"></i> <?php echo JText::sprintf(FD::string()->computeNoun('APP_EVENT_DISCUSSIONS_HITS', $discussion->hits), $discussion->hits); ?>
+                                <i class="fa fa-eye"></i> <?php echo JText::sprintf(FD::string()->computeNoun('APP_EVENT_DISCUSSIONS_HITS', $discussion->hits), $discussion->hits); ?>
                             </li>
                             <li>
-                                <i class="ies-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('APP_EVENT_DISCUSSIONS_PARTICIPANTS', count($participants)), count($participants)); ?>
+                                <i class="fa fa-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('APP_EVENT_DISCUSSIONS_PARTICIPANTS', count($participants)), count($participants)); ?>
                             </li>
                             <li>
-                                <i class="ies-comments"></i> <?php echo JText::sprintf(FD::string()->computeNoun('APP_EVENT_DISCUSSIONS_TOTAL_REPLIES', $discussion->total_replies), '<span data-reply-count>' . $discussion->total_replies . '</span>'); ?>
+                                <i class="fa fa-comments"></i> <?php echo JText::sprintf(FD::string()->computeNoun('APP_EVENT_DISCUSSIONS_TOTAL_REPLIES', $discussion->total_replies), '<span data-reply-count>' . $discussion->total_replies . '</span>'); ?>
                             </li>
 
                             <?php if ($answer) { ?>
                             <li>
-                                <i class="ies-fire"></i> <?php echo JText::sprintf('APP_EVENT_DISCUSSIONS_ANSWERED_BY', '<a href="#reply-' . $answer->id . '">' . $answer->author->getName() . '</a>'); ?>
+                                <i class="fa fa-fire"></i> <?php echo JText::sprintf('APP_EVENT_DISCUSSIONS_ANSWERED_BY', '<a href="#reply-' . $answer->id . '">' . $answer->author->getName() . '</a>'); ?>
                             </li>
                             <?php } ?>
                         </ul>

@@ -12,13 +12,14 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="form-uploader filesForm fileUploader">
-	<h5>
-		<i class="icon-es-attachment"></i> <?php echo JText::_( 'COM_EASYSOCIAL_UPLOADER_TITLE' );?>
+	<div class="es-snackbar">
+		<?php echo JText::_( 'COM_EASYSOCIAL_UPLOADER_TITLE' );?>
 		<?php if( isset( $size ) ){ ?>
-		(<span class="fd-small"><?php echo JText::_( 'COM_EASYSOCIAL_UPLOADER_MAX_SIZE' );?>: <?php echo $size;?><?php echo JText::_( 'COM_EASYSOCIAL_UNIT_MEGABYTES' );?></span>)
+		&nbsp;
+		&nbsp;
+		<span class="fd-small"><?php echo JText::_( 'COM_EASYSOCIAL_UPLOADER_MAX_SIZE' );?>: <?php echo $size;?><?php echo JText::_( 'COM_EASYSOCIAL_UNIT_MEGABYTES' );?></span>
 		<?php } ?>
-	</h5>
-	<hr />
+	</div>
 
 	<div class="upload-queue" data-uploaderQueue></div>
 

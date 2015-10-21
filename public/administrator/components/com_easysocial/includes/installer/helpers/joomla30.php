@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,21 +9,15 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-jimport( 'joomla.installer.installer' );
-jimport( 'joomla.installer.helper' );
-jimport( 'joomla.filesystem.folder' );
-jimport( 'joomla.filesystem.file' );
+jimport('joomla.installer.installer');
+jimport('joomla.installer.helper');
+jimport('joomla.filesystem.folder');
+jimport('joomla.filesystem.file');
 
-require_once( dirname( __FILE__ ) . '/joomla.php' );
+require_once(__DIR__ . '/joomla.php');
 
-/**
- * Installation helper for Joomla 3.0
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialInstallerHelperJoomla30 extends SocialInstallerJoomla
 {
 	/**
@@ -36,35 +30,31 @@ class SocialInstallerHelperJoomla30 extends SocialInstallerJoomla
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function load( $path )
+	public function load($path)
 	{
 		// Test if the folder really exists.
-		if( !JFolder::exists( $path ) )
-		{
-			$this->setError( JText::_( 'COM_EASYSOCIAL_INSTALLER_TEMPORARY_FOLDER_NOT_FOUND' ) );
+		if (!JFolder::exists($path)) {
+			$this->setError(JText::_('COM_EASYSOCIAL_INSTALLER_TEMPORARY_FOLDER_NOT_FOUND'));
 			return false;
 		}
 
 		// Locate for the manifest file in the folder.
-		$files 		= JFolder::files( $path , '.xml' , self::RECURSIVE_SEARCH , self::RETRIEVE_FULL_PATH );
+		$files = JFolder::files( $path , '.xml' , self::RECURSIVE_SEARCH , self::RETRIEVE_FULL_PATH);
 
 		// Set the source so the parent can manipulate it ?
-		$this->source	= $path;
+		$this->source = $path;
 
 		// If there's no .xml files, throw errors here.
-		if (!$files || count( $files ) <= 0 )
-		{
-			$this->setError( JText::_( 'COM_EASYSOCIAL_INSTALLER_MANIFEST_FILE_NOT_FOUND' ) );
+		if (!$files || count( $files ) <= 0) {
+			$this->setError(JText::_('COM_EASYSOCIAL_INSTALLER_MANIFEST_FILE_NOT_FOUND'));
 			return false;
 		}
 
 		// Load through the list of manifest files to perform the installation.
-		foreach( $files as $file )
-		{
-			$parser 	= FD::get( 'Parser' );
+		foreach ($files as $file) {
 
-			// Render the xml file.
-			$parser->load( $file );
+			$parser = ES::parser();
+			$parser->load($file);
 
 			// Set the app type.
 			$this->type 	= (string) $parser->attributes()->type;

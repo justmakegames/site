@@ -11,8 +11,6 @@
 &.view-friends {
 	.es-item-list,
 	.es-item-grid {
-		padding: 10px;
-
 		&.friend-items {
 
 			.es-item {
@@ -60,11 +58,6 @@
 	}
 
 	.listActions{
-
-		a{
-			font-size: 11px;
-		}
-
 		.dropdown-menu-lists {
 			hr {
 				margin: 5px 0;
@@ -89,18 +82,21 @@
 			{
 				li > a {
 					// .getContrast(@esFriendsItemBackground);
-					font-size: 11px;
+					font-size: @baseFontSize;
 					padding: 3px 10px;
 				}
 			}
 		}
 		.es-friends-links {
-			font-size: 11px;
+			font-size: @baseFontSize;
+			
 			> li {
-				margin-bottom: 4px;
-                + li {
-                    margin-left: 5px;
-                }
+				margin: 0 10px 5px 0;
+
+				&:last-child {
+					margin: 0 0 5px 0;
+				}
+
 				> a {
 					// .getContrast(@esFriendsItemBackground);
 					// color: @esFriendsItemColor;
@@ -125,7 +121,7 @@
 	h5 {
 		font-size: 12px;
 		a {
-			font-size: 11px;
+			font-size: @baseFontSize;
 			font-weight: normal;
 			margin-right: 5px;
 		}

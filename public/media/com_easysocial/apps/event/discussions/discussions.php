@@ -26,7 +26,7 @@ class SocialEventAppDiscussions extends SocialAppItem
         $obj = new stdClass();
 
         $obj->color = '#69b598';
-        $obj->icon = 'ies-comments';
+        $obj->icon = 'fa-comments';
         $obj->label = 'APP_EVENT_DISCUSSIONS_STREAM_TOOLTIP';
 
         return $obj;
@@ -308,8 +308,8 @@ class SocialEventAppDiscussions extends SocialAppItem
         // Define standard stream looks
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
         $item->color = '#69b598';
-        $item->fonticon = 'ies-comments';
-        $item->label = JText::_('COM_EASYSOCIAL_STREAM_CONTEXT_TITLE_DISCUSSIONS_TOOLTIP');
+        $item->fonticon = 'fa fa-comments';
+        $item->label = FD::_('COM_EASYSOCIAL_STREAM_CONTEXT_TITLE_DISCUSSIONS_TOOLTIP', true);
 
         $params = $this->getApp()->getParams();
 

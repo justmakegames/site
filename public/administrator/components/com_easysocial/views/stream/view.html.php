@@ -18,19 +18,8 @@ class EasySocialViewStream extends EasySocialAdminView
 {
     public function display($tpl = null)
     {
-        // Check access
-        if (!$this->authorise('easysocial.access.stream')) {
-            $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR') , 'error');
-        }
-
-        // Set page heading
-        $this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_STREAM'));
-
-        // Set page description
-        $this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_STREAM'));
-
-        // Set page icon
-        $this->setIcon('ies-database');
+        $this->setHeading('COM_EASYSOCIAL_HEADING_STREAM');
+        $this->setDescription('COM_EASYSOCIAL_DESCRIPTION_STREAM');
 
         // Check if this is from after execution
         $success = JRequest::getInt('success');
@@ -55,8 +44,6 @@ class EasySocialViewStream extends EasySocialAdminView
         $this->set('limit', $limit);
         $this->set('state', $state);
         $this->set('items', $items);
-
-        // var_dump($state);
 
         echo parent::display('admin/stream/default');
     }
@@ -93,9 +80,9 @@ class EasySocialViewStream extends EasySocialAdminView
 
     private function toolbar($state)
     {
-        // var_dump($state);
-
-        JToolbarHelper::custom( 'purge' , 'trash' , '' , JText::_( 'COM_EASYSOCIAL_STREAM_PURGE' ) , true );
+        if ($state == SOCIAL_STREAM_STATE_TRASHED) {
+            JToolbarHelper::custom('purge', 'trash', '', JText::_('COM_EASYSOCIAL_STREAM_DELETE'), true);
+        }
 
         if ($state == 'all' || $state == SOCIAL_STREAM_STATE_RESTORED) {
             JToolbarHelper::custom( 'trash' , 'trash' , '' , JText::_( 'COM_EASYSOCIAL_STREAM_TRASH' ) , true );

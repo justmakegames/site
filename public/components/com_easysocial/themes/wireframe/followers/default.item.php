@@ -34,11 +34,23 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<ul class="dropdown-menu dropdown-menu-user messageDropDown">
 
 					<?php if( $active != 'followers' ){ ?>
-					<li data-followers-item-unfollow>
-						<a href="javascript:void(0);">
-							<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_UNFOLLOW' );?>
-						</a>
-					</li>
+
+						<?php if( $active == 'following' ){ ?>
+						<li data-followers-item-unfollow>
+							<a href="javascript:void(0);">
+								<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_UNFOLLOW' );?>
+							</a>
+						</li>
+						<?php } ?>
+
+						<?php if( $active == 'suggest' ){ ?>
+						<li data-followers-item-follow>
+							<a href="javascript:void(0);">
+								<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_FOLLOW' );?>
+							</a>
+						</li>
+						<?php } ?>
+
 					<li class="divider">
 						<hr />
 					</li>
@@ -58,10 +70,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<div class="es-item-title">
 					<a href="<?php echo $user->getPermalink();?>"><?php echo $user->getName();?></a>
 				</div>
-				<ul class="fd-reset-list list-inline">
+				<ul class="es-friends-links fd-reset-list list-inline">
 					<li>
 						<a href="<?php echo FRoute::friends( array( 'userid' => $user->getAlias() ) );?>" class="fd-small muted">
-							<i class="ies-users-2 "></i>
+							<i class="fa fa-users"></i>
 
 							<?php if( $user->getTotalFriends() ){ ?>
 								<?php echo $user->getTotalFriends();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_FRIENDS' , $user->getTotalFriends() ) ); ?>
@@ -72,7 +84,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					</li>
 					<li>
 						<a href="<?php echo FRoute::followers( array( 'userid' => $user->getAlias() ) );?>" class="fd-small muted">
-							<i class="ies-heart "></i>
+							<i class="fa fa-heart "></i>
 							<?php if( $user->getTotalFollowers() ){ ?>
 								<?php echo $user->getTotalFollowers();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_FOLLOWERS' , $user->getTotalFollowers() ) ); ?>
 							<?php } else { ?>
@@ -84,7 +96,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<?php if ( $this->config->get( 'badges.enabled' ) ) { ?>
 					<li>
 						<a href="<?php echo FRoute::badges( array( 'layout' => 'achievements' , 'userid' => $user->getAlias() ) );?>" class="fd-small muted">
-							<i class="ies-crown "></i>
+							<i class="fa fa-trophy "></i>
 							<?php if( $user->getTotalbadges() ){ ?>
 								<?php echo $user->getTotalbadges();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_BADGES' , $user->getTotalbadges() ) ); ?>
 							<?php } else { ?>
@@ -99,7 +111,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						if( FD::privacy( $this->my->id )->validate( 'profiles.post.message' , $user->id ) ){ ?>
 						<li data-followers-item-compose>
 							<a href="javascript:void(0);" class="fd-small muted">
-								<i class="ies-mail-2 "></i> <?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_SEND_MESSAGE' ); ?>
+								<i class="fa fa-envelope "></i> <?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_SEND_MESSAGE' ); ?>
 							</a>
 						</li>
 						<?php } ?>

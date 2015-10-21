@@ -24,17 +24,18 @@ EasySocial.module("albums/item", function($){
 					editable: false,
 					multipleSelection: false,
 
-					"{header}"        : "[data-album-header]",
-					"{content}"       : "[data-album-content]",
-					"{footer}"        : "[data-album-footer]",
+					"{header}": "[data-album-header]",
+					"{content}": "[data-album-content]",
+					"{footer}": "[data-album-footer]",
 
-					"{info}"          : "[data-album-info]",
+					"{info}": "[data-album-info]",
 
-					"{title}"         : "[data-album-title]",
+					"{title}": "[data-album-title]",
 					"{caption}"       : "[data-album-caption]",
 					"{location}"      : "[data-album-location]",
 					"{date}"          : "[data-album-date]",
 					"{cover}"         : "[data-album-cover]",
+					"{favouriteButton}"	  : "[data-album-favourite-button]",
 
 					"{photoItemGroup}": "[data-photo-item-group]",
 					"{photoItem}"     : "[data-photo-item]",
@@ -64,8 +65,7 @@ EasySocial.module("albums/item", function($){
 					self.nextStart = base.data("album-nextstart") || -1;
 
 					// If this viewer is editable, load & implement editor.
-					if (self.options.editable)
-					{
+					if (self.options.editable) {
 						EasySocial.module("albums/editor")
 							.done(function(EditorController)
 							{
@@ -191,7 +191,7 @@ EasySocial.module("albums/item", function($){
 							.masonry({
 								columnWidth: ".es-photo-item.grid-sizer",
 								itemSelector: self.photoItem.selector + ", " + self.uploadItem.selector,
-								isRTL: self.options.rtl
+								isOriginLeft: !self.options.rtl
 							});
 					}
 				},
@@ -442,9 +442,12 @@ EasySocial.module("albums/item", function($){
 						return;
 					}
 
-					if (moreButton.disabled()) return;
+					if (moreButton.disabled()) {
+						return;
+					}
 
 					// Disable this button
+					moreButton.toggleClass('loading');
 					moreButton.disabled(true);
 
 					// Set the button into loading state
@@ -468,8 +471,12 @@ EasySocial.module("albums/item", function($){
 								$.buildHTML(html).appendTo(photoItemGroup);
 							});
 
+							moreButton.toggleClass('loading');
+
 							// If there is no more photos to load, hide the button
-							if (nextStart < 0) moreButton.hide();
+							if (nextStart < 0) {
+								moreButton.hide();
+							}
 
 							self.setLayout();
 						})
@@ -498,6 +505,20 @@ EasySocial.module("albums/item", function($){
 					{
 						self.counterBar().addClass( 'hide' );
 					}
+				},
+
+				"{favouriteButton} click": function()
+				{
+					EasySocial.ajax(
+						"site/controllers/albums/favourite",
+						{
+							id: self.id
+						}
+					)
+					.done(function(favourite) {
+					
+						self.favouriteButton().toggleClass( "is-fav btn-es-primary" );	
+					});
 				}
 
 			}});

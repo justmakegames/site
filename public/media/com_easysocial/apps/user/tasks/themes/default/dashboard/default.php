@@ -12,10 +12,12 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="app-tasks" data-tasks>
-	<div class="es-filterbar">
-		<div class="h5 pull-left filterbar-title"><?php echo JText::_( 'APP_USER_TASKS_MANAGE_TASKS' ); ?></div>
+	<div class="es-filterbar row-table">
+		<div class="col-cell filterbar-title"><?php echo JText::_( 'APP_USER_TASKS_MANAGE_TASKS' ); ?></div>
 
-		<a class="btn btn-es-primary btn-sm pull-right" href="javascript:void(0);" data-tasks-create><?php echo JText::_( 'APP_USER_TASKS_NEW_TASK_BUTTON' ); ?></a>
+		<div class="col-cell cell-tight">
+			<a class="btn btn-es-primary btn-sm pull-right" href="javascript:void(0);" data-tasks-create><?php echo JText::_( 'APP_USER_TASKS_NEW_TASK_BUTTON' ); ?></a>
+		</div>
 	</div>
 
 	<div class="app-contents<?php echo !$tasks ? ' is-empty' : '';?>" data-app-contents>
@@ -37,7 +39,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 
 		<div class="app-contents-data">
-			<ul class="list-unstyled tasks-list mt-20" data-tasks-lists>
+			<ul class="list-unstyled tasks-list mt-20 ml-0" data-tasks-lists>
 				<?php if( $tasks ){ ?>
 					<?php foreach( $tasks as $task ){ ?>
 						<?php echo $this->loadTemplate( 'themes:/apps/user/tasks/dashboard/item' , array( 'task' => $task ) ); ?>
@@ -47,7 +49,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 
 		<div class="empty" data-tasks-empty>
-			<i class="ies-checkbox"></i>
+			<i class="fa fa-checkbox"></i>
 			<?php echo JText::_( 'APP_USER_TASKS_NO_TASKS_YET' ); ?>
 		</div>
 	</div>

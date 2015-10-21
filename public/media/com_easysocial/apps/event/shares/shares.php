@@ -55,7 +55,7 @@ class SocialEventAppShares extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#e74c3c';
-        $obj->icon = 'ies-refresh';
+        $obj->icon = 'fa-refresh';
         $obj->label = 'APP_EVENT_REPOST_STREAM_TITLE';
 
         return $obj;
@@ -219,7 +219,7 @@ class SocialEventAppShares extends SocialAppItem
         }
 
         // Decorate the stream item
-        $item->fonticon = 'ies-refresh';
+        $item->fonticon = 'fa fa-refresh';
         $item->color = '#e74c3c';
         $item->label = JText::_('APP_EVENT_REPOST_STREAM_TITLE');
         $item->title = $helper->getTitle();

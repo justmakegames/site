@@ -27,13 +27,11 @@ jQuery(document).ready( function(){
 });
 </script>
 <form name="installation" data-installation-form>
-<p class="section-desc">
-	<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_MAINTENANCE_DESC' ); ?>
-</p>
 
-<div data-sync-progress>
-	<div class="es-logs">
-		<ol class="split" data-progress-logs>
+	<p><?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_MAINTENANCE_DESC'); ?></p>
+
+	<div data-sync-progress>
+		<ol class="install-logs list-reset" data-progress-logs="">
 			<li class="pending" data-progress-syncuser>
 				<b class="split__title"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_MAINTENANCE_SYNC_USERS' );?></b>
 				<span class="progress-state text-info"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_MAINTENANCE_EXECUTING' );?></span>
@@ -60,16 +58,15 @@ jQuery(document).ready( function(){
 			</li>
 		</ol>
 	</div>
-</div>
 
-<input type="hidden" name="option" value="com_easysocial" />
-<input type="hidden" name="active" value="<?php echo $active; ?>" />
+	<input type="hidden" name="option" value="com_easysocial" />
+	<input type="hidden" name="active" value="<?php echo $active; ?>" />
 
-<?php if( $reinstall ){ ?>
-<input type="hidden" name="reinstall" value="1" />
-<?php } ?>
+	<?php if( $reinstall ){ ?>
+	<input type="hidden" name="reinstall" value="1" />
+	<?php } ?>
 
-<?php if( $update ){ ?>
-<input type="hidden" name="update" value="1" />
-<?php } ?>
+	<?php if( $update ){ ?>
+	<input type="hidden" name="update" value="1" />
+	<?php } ?>
 </form>

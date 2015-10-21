@@ -22,7 +22,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</ul>
 	<?php } else { ?>
 	<div class="empty">
-		<i class="ies-feed-2"></i>
+		<i class="fa fa-rss-square"></i>
 		<?php echo JText::_( 'APP_FEEDS_NO_FEED_YET' ); ?>
 	</div>
 	<?php } ?>

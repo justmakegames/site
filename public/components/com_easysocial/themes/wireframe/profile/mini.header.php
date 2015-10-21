@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<?php if( !$user->isViewer() ){ ?>
+<?php if( !$user->isViewer()){ ?>
 <div class="es-header-mini">
 
 	<div class="es-header-mini-cover" style="background-image: url('<?php echo $user->getCover();?>');background-position: <?php echo $user->getCoverPosition();?>;">
@@ -24,7 +24,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<img alt="<?php echo $this->html( 'string.escape' , $user->getName() );?>" src="<?php echo $user->getAvatar( SOCIAL_AVATAR_SQUARE );?>" />
 		</a>
 
+		<?php if ($user->hasCommunityAccess()) { ?>
 		<?php echo $this->loadTemplate( 'site/utilities/user.online.state' , array( 'online' => $user->isOnline() , 'size' => 'small' ) ); ?>
+		<?php } ?>
 	</div>
 
 	<div class="es-header-mini-body" data-appscroll>
@@ -38,12 +40,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				</li>
 
 				<?php if( $this->template->get( 'profile_last_online' ) ){ ?>
-				<li class="mt-5 teaser-about small">
+				<li class="mt-5 es-teaser-about small">
 					<?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_LAST_SEEN' );?>, <strong><?php echo $user->getLastVisitDate( 'lapsed' ); ?></strong>
 				</li>
 				<?php } ?>
 			</ul>
 
+			<?php if ($user->hasCommunityAccess()) { ?>
 			<div class="fd-small">
 				<a href="<?php echo FRoute::profile( array( 'id' => $user->getAlias() , 'layout' => 'about' ) );?>"><?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_MORE_INFO' ); ?></a>
 
@@ -52,16 +55,17 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<?php echo FD::reports()->getForm( 'com_easysocial' , SOCIAL_TYPE_USER , $user->id , $user->getName() , JText::_( 'COM_EASYSOCIAL_PROFILE_REPORT_USER' ) , '' , JText::_( 'COM_EASYSOCIAL_PROFILE_REPORT_USER_DESC' ) , $user->getPermalink( true , true )); ?>
 				<?php } ?>
 			</div>
+			<?php } ?>
 
 		</div>
 
-		<?php if( $user->getApps( 'profile' ) ){ ?>
+		<?php if ($user->hasCommunityAccess() && $user->getApps('profile')){ ?>
 		<div class="btn- btn-scroll" data-appscroll-buttons>
 			<a href="javascript:void(0);" class="btn btn-left" data-appscroll-prev-button>
-				<i class="ies-arrow-left"></i>
+				<i class="fa fa-caret-left"></i>
 			</a>
 			<a href="javascript:void(0);" class="btn btn-right" data-appscroll-next-button>
-				<i class="ies-arrow-right"></i>
+				<i class="fa fa-caret-right"></i>
 			</a>
 		</div>
 
@@ -81,7 +85,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	</div>
 
-
+	<?php if ($user->hasCommunityAccess()) { ?>
 	<div class="es-header-mini-footer">
 		<div class="">
 
@@ -126,6 +130,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		</div>
 	</div>
+	<?php } ?>
 
 </div>
 <?php } ?>

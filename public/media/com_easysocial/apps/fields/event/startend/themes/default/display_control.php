@@ -14,14 +14,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="col-md-6 es-field-event-startend-box" data-startend-box>
     <div class="es-field-box">
         <div class="es-field-box-header">
-            <i class="ies-calendar-2"></i> <?php echo JText::_('FIELDS_EVENT_STARTEND_' . strtoupper($type) . '_DATETIME'); ?>
+            <i class="fa fa-calendar"></i> <?php echo JText::_('FIELDS_EVENT_STARTEND_' . strtoupper($type) . '_DATETIME'); ?>
         </div>
         <p class="text-center es-field-event-startend-datetime" data-date data-date-utc="<?php echo $datetime->toSql(); ?>">
             <?php echo $datetime->toFormat($dateFormat); ?>
         </p>
         <?php if ($allowTimezone) { ?>
         <div class="text-center">
-            <a href="javascript:void(0);" class="btn btn-es btn-block btn-xs" data-popbox data-popbox-position="bottom-right"><span data-timezone="<?php echo $timezone; ?>"><?php echo $timezone; ?></span> <i class="ies-arrow-down ies-small"></i></a>
+            <a href="javascript:void(0);" class="btn btn-es btn-block btn-xs" data-popbox data-popbox-position="bottom-right"><span data-timezone="<?php echo $timezone; ?>"><?php echo $timezone; ?></span> <i class="fa fa-arrow-down "></i></a>
         </div>
 
         <div style="display: none" data-popbox-content>

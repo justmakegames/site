@@ -19,7 +19,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<?php foreach( $users as $user ){ ?>
 				<li>
 					<a href="<?php echo $user->getPermalink();?>" class="es-avatar">
-						<img src="<?php echo $user->getAvatar();?>"<?php echo $params->get( 'popover' , true ) ? ' data-popbox="module://easysocial/profile/popbox" data-popbox-position="' . $params->get( 'popover_position' , 'top-left' ) . '" data-user-id="' . $user->id . '"' : '';?> />
+						<img src="<?php echo $user->getAvatar();?>" data-popbox-toggle="hover" <?php echo $params->get( 'popover' , true ) ? ' data-popbox="module://easysocial/profile/popbox" data-popbox-position="' . $params->get( 'popover_position' , 'top-left' ) . '" data-user-id="' . $user->id . '"' : '';?> />
 					</a>
 				</li>
 				<?php } ?>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,9 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'site:/controllers/controller' );
+FD::import('site:/controllers/controller');
 
 class EasySocialControllerCrawler extends EasySocialController
 {
@@ -24,48 +24,44 @@ class EasySocialControllerCrawler extends EasySocialController
 	public function fetch()
 	{
 		// Check for request forgeries!
-		$urls		= JRequest::getVar( 'urls' );
-
-		// Ensure that the urls are in an array
-		FD::makeArray( $urls );
-
-		// Get the current view.
-		$view 		= $this->getCurrentView();
+		$urls = $this->input->get('urls', array(), 'array');
 
 		// Result placeholder
-		$result 	= array();
+		$result = array();
 
-		if( !$urls || empty( $urls ) )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_CRAWLER_INVALID_URL_PROVIDED' ) , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ );
+		if (!$urls) {
+			$this->view->setMessage('COM_EASYSOCIAL_CRAWLER_INVALID_URL_PROVIDED', SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
-		$crawler 	= FD::get( 'Crawler' );
+		// Get the crawler
+		$crawler = FD::get('crawler');
 
 		foreach ($urls as $url) {
+
+			// Generate a hash for the url
 			$hash = md5($url);
 
-			$link 		= FD::table( 'Link' );
+			$link = FD::table('Link');
 			$exists = $link->load(array('hash' => $hash));
 
 			// If it doesn't exist, store it.
-			if( !$exists )
-			{
-				$crawler->crawl( $url );
-				$data 			= $crawler->getData();
-				
-				$link->hash 	= $hash;
-				$link->data		= FD::json()->encode( $data );
+			if (!$exists) {
 
-				// Store the new link
+				$crawler->crawl($url);
+
+				// Get the data from our crawler library
+				$data = $crawler->getData();
+				
+				// Now we need to cache the link so that the next time, we don't crawl it again.
+				$link->hash = $hash;
+				$link->data = json_encode($data);
 				$link->store();
 			}
 
-			$result[ $url ]	= FD::json()->decode( $link->data );
+			$result[$url] = json_decode($link->data);
 		}
 
-
-		return $view->call( __FUNCTION__ , $result );
+		return $this->view->call(__FUNCTION__, $result);
 	}
 }

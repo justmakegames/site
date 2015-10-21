@@ -20,6 +20,10 @@ defined('_JEXEC') or die('Unauthorized Access');
         <?php if ($total != 0) { ?>
         <span class="widget-label">(<?php echo $total; ?>)</span>
         <?php } ?>
+
+        <?php if ($albums) { ?>
+            <a class="fd-small pull-right" href="<?php echo FRoute::albums(array('uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT)); ?>"><?php echo JText::_('APP_EVENT_PHOTOS_WIDGET_VIEW_ALL_ALBUMS'); ?></a>
+        <?php } ?>
     </div>
     <div class="es-widget-body">
         <ul class="widget-list-grid">
@@ -44,12 +48,5 @@ defined('_JEXEC') or die('Unauthorized Access');
             </li>
             <?php } ?>
         </ul>
-
-        <?php if ($albums) { ?>
-        <div>
-            <a class="fd-small" href="<?php echo FRoute::albums(array('uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT)); ?>"><?php echo JText::_('APP_EVENT_PHOTOS_WIDGET_VIEW_ALL_ALBUMS'); ?> &rarr;</a>
-        </div>
-        <?php } ?>
-
     </div>
 </div>

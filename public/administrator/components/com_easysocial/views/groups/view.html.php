@@ -24,18 +24,11 @@ class EasySocialViewGroups extends EasySocialAdminView
 	 * @param	null
 	 * @return	null
 	 *
-	 * @author	Mark Lee <mark@stackideas.com>
 	 */
 	public function display($tpl = null)
 	{
-		// Set the structure heading here.
-		$this->setHeading(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_GROUPS'));
-
-		// Set page icon.
-		$this->setIcon('ies-users');
-
-		// Set the structure description here.
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_GROUPS'));
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_GROUPS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_GROUPS');
 
 		// Add buttons for the groups
 		JToolbarHelper::addNew('create', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_NEW'), false);
@@ -46,20 +39,22 @@ class EasySocialViewGroups extends EasySocialAdminView
 		JToolbarHelper::publishList('publish');
 		JToolbarHelper::unpublishList('unpublish');
 		JToolbarHelper::divider();
+		JToolbarHelper::custom('makeFeatured', 'featured', '', JText::_('COM_EASYSOCIAL_MAKE_FEATURED'));
+		JToolbarHelper::custom('removeFeatured', 'star', '', JText::_('COM_EASYSOCIAL_REMOVE_FEATURED'));
 		JToolbarHelper::deleteList('', 'delete', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_DELETE'));
 
 		// Gets a list of profiles from the system.
-		$model 		= FD::model('Groups', array('initState' => true));
+		$model = FD::model('Groups', array('initState' => true));
 
 		// Get the search query from post
-		$search		= JRequest::getVar('search', $model->getState('search'));
+		$search = JRequest::getVar('search', $model->getState('search'));
 
 		// Get the current ordering.
-		$ordering 	= JRequest::getVar('ordering', $model->getState('ordering'));
-		$direction 	= JRequest::getVar('direction', $model->getState('direction'));
-		$state	 	= JRequest::getVar('state', $model->getState('state'));
-		$type	 	= JRequest::getInt('type', $model->getState('type'));
-		$limit 		= $model->getState('limit');
+		$ordering = JRequest::getVar('ordering', $model->getState('ordering'));
+		$direction = JRequest::getVar('direction', $model->getState('direction'));
+		$state = JRequest::getVar('state', $model->getState('state'));
+		$type = JRequest::getInt('type', $model->getState('type'));
+		$limit = $model->getState('limit');
 
 		// Load front end language file
 		FD::language()->loadSite();
@@ -71,16 +66,16 @@ class EasySocialViewGroups extends EasySocialAdminView
 		$callback 	= JRequest::getVar('callback', '');
 
 		// Set properties for the template.
-		$this->set('type'			, $type);
-		$this->set('layout'		, $this->getLayout());
-		$this->set('ordering'		, $ordering);
-		$this->set('limit'			, $limit);
-		$this->set('state'			, $state);
-		$this->set('direction'		, $direction);
-		$this->set('callback'		, $callback);
+		$this->set('type', $type);
+		$this->set('layout', $this->getLayout());
+		$this->set('ordering', $ordering);
+		$this->set('limit', $limit);
+		$this->set('state', $state);
+		$this->set('direction', $direction);
+		$this->set('callback', $callback);
 		$this->set('pagination'	, $pagination);
-		$this->set('groups'		, $groups);
-		$this->set('search'		, $search);
+		$this->set('groups', $groups);
+		$this->set('search', $search);
 
 		echo parent::display('admin/groups/default');
 	}
@@ -97,22 +92,15 @@ class EasySocialViewGroups extends EasySocialAdminView
 	 */
 	public function pending($tpl = null)
 	{
-		// Set the structure heading here.
-		$this->setHeading(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_PENDING_GROUPS'));
-
-		// Set page icon.
-		$this->setIcon('ies-users');
-
-		// Set the structure description here.
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_PENDING_GROUPS'));
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_PENDING_GROUPS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_PENDING_GROUPS');
 
 		// Display buttons on this page.
-
 		JToolbarHelper::custom('approve', 'publish', 'social-publish-hover', JText::_('COM_EASYSOCIAL_APPROVE_BUTTON'), true);
 		JToolbarHelper::custom('reject', 'unpublish', 'social-unpublish-hover', JText::_('COM_EASYSOCIAL_REJECT_BUTTON'), true);
 
 		// Gets a list of profiles from the system.
-		$model 		= FD::model('Groups', array('initState' => true));
+		$model = FD::model('Groups', array('initState' => true));
 
 		// Get the search query from post
 		$search		= JRequest::getVar('search', $model->getState('search'));
@@ -152,13 +140,8 @@ class EasySocialViewGroups extends EasySocialAdminView
 	public function categories($tpl = null)
 	{
 		// Set the structure heading here.
-		$this->setHeading(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_GROUPS_CATEGORIES'));
-
-		// Set page icon.
-		$this->setIcon('ies-folder-3');
-
-		// Set the structure description here.
-		$this->setDescription(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_GROUPS_CATEGORIES_DESC'));
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_GROUPS_CATEGORIES');
+		$this->setDescription('COM_EASYSOCIAL_TOOLBAR_TITLE_GROUPS_CATEGORIES_DESC');
 
 		// Add buttons for the groups
 		JToolbarHelper::addNew('categoryForm', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_NEW'), false);
@@ -169,30 +152,30 @@ class EasySocialViewGroups extends EasySocialAdminView
 		JToolbarHelper::deleteList('', 'deleteCategory', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_DELETE'));
 
 		// Gets a list of profiles from the system.
-		$model		= FD::model('GroupCategories', array('initState' => true));
+		$model = FD::model('GroupCategories', array('initState' => true));
 
-		$search		= $model->getState('search');
-		$ordering	= $model->getState('ordering');
-		$direction	= $model->getState('direction');
-		$state		= $model->getState('state');
-		$limit		= $model->getState('limit');
+		$search = $model->getState('search');
+		$ordering = $model->getState('ordering');
+		$direction = $model->getState('direction');
+		$state = $model->getState('state');
+		$limit = $model->getState('limit');
 
 		// Prepare options
 		$categories	= $model->getItems();
 		$pagination	= $model->getPagination();
 
-		$callback 	= JRequest::getVar('callback', '');
+		$callback = $this->input->get('callback', '', 'default');
 
 		// Set properties for the template.
-		$this->set('layout'		, $this->getLayout());
-		$this->set('ordering'	, $ordering);
-		$this->set('limit'		, $limit);
-		$this->set('state'		, $state);
-		$this->set('direction'	, $direction);
-		$this->set('callback'	, $callback);
-		$this->set('pagination'	, $pagination);
-		$this->set('categories'	, $categories);
-		$this->set('search'		, $search);
+		$this->set('layout', $this->getLayout());
+		$this->set('ordering', $ordering);
+		$this->set('limit', $limit);
+		$this->set('state', $state);
+		$this->set('direction', $direction);
+		$this->set('callback', $callback);
+		$this->set('pagination', $pagination);
+		$this->set('categories', $categories);
+		$this->set('search', $search);
 
 		echo parent::display('admin/groups/categories');
 	}
@@ -212,7 +195,7 @@ class EasySocialViewGroups extends EasySocialAdminView
 			return $this->form($group);
 		}
 
-		$activeTab 	= JRequest::getWord('activeTab', 'profile');
+		$activeTab = $this->input->get('activeTab', 'profile', 'word');
 
 		if ($task == 'apply') {
 			return $this->redirect('index.php?option=com_easysocial&view=groups&layout=form&id=' . $group->id . '&activeTab=' . $activeTab);
@@ -248,57 +231,53 @@ class EasySocialViewGroups extends EasySocialAdminView
 		JToolbarHelper::cancel('cancel', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_CANCEL'));
 
 		// Perhaps this is an edited category
-		$id		= JRequest::getInt('id');
+		$id = $this->input->get('id', 0, 'int');
 
-		$group	= FD::table('Group');
+		$group = FD::table('Group');
 		$group->load($id);
 
-		// Set page icon.
-		$this->setIcon('ies-users');
-
 		// Load front end's language file
-		FD::language()->loadSite();
+		ES::language()->loadSite();
+
+		// Get the category
+		$categoryId = $this->input->get('category_id', 0, 'int');
+
+		// Default heading and description
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_CREATE_GROUP');
+		$this->setDescription('COM_EASYSOCIAL_TOOLBAR_TITLE_CREATE_GROUP_CATEGORY_DESC');
 
 		// Set the structure heading here.
 		if ($group->id) {
 			$this->setHeading($group->get('title'));
-			$this->setDescription(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_EDIT_GROUP_DESC'));
+			$this->setDescription('COM_EASYSOCIAL_TOOLBAR_TITLE_EDIT_GROUP_DESC');
 
-			$categoryId 	= $group->category_id;
-			$group 			= FD::group($id);
-		}
-		else {
-			$this->setHeading(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_CREATE_GROUP'));
-			$this->setDescription(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_CREATE_GROUP_CATEGORY_DESC'));
-
-			// Get the category
-			$categoryId 	= JRequest::getInt('category_id');
-
+			$categoryId = $group->category_id;
+			$group = FD::group($id);
+		} else {
 			FD::import('admin:/includes/group/group');
-			$group 			= new SocialGroup();
+			$group = new SocialGroup();
 		}
 
-		$category 		= FD::table('GroupCategory');
+		$category = FD::table('GroupCategory');
 		$category->load($categoryId);
 
 		// Get the steps
-		$stepsModel 	= FD::model('Steps');
-		$steps 			= $stepsModel->getSteps($categoryId, SOCIAL_TYPE_CLUSTERS);
+		$stepsModel = FD::model('Steps');
+		$steps = $stepsModel->getSteps($categoryId, SOCIAL_TYPE_CLUSTERS);
 
 		// Get the fields
-		$lib 			= FD::fields();
-		$fieldsModel 	= FD::model('Fields');
+		$lib = FD::fields();
+		$fieldsModel = FD::model('Fields');
 
-
-		$post 			= JRequest::get('post');
-		$args 			= array(&$post, &$group, &$errors);
+		$post = $this->input->getArray('post');
+		$args = array(&$post, &$group, &$errors);
 
 		foreach ($steps as &$step) {
 			if ($group->id) {
-				$step->fields 	= $fieldsModel->getCustomFields(array('step_id' => $step->id, 'data' => true, 'dataId' => $group->id, 'dataType' => SOCIAL_TYPE_GROUP));
+				$step->fields = $fieldsModel->getCustomFields(array('step_id' => $step->id, 'data' => true, 'dataId' => $group->id, 'dataType' => SOCIAL_TYPE_GROUP));
 			}
 			else {
-				$step->fields 	= $fieldsModel->getCustomFields(array('step_id' => $step->id));
+				$step->fields = $fieldsModel->getCustomFields(array('step_id' => $step->id));
 			}
 
 			// @trigger onAdminEdit
@@ -307,12 +286,11 @@ class EasySocialViewGroups extends EasySocialAdminView
 			}
 		}
 
-		$this->set('group'		, $group);
-		$this->set('steps'		, $steps);
-		$this->set('category'	, $category);
+		$this->set('group', $group);
+		$this->set('steps', $steps);
+		$this->set('category', $category);
 
-		$model = FD::model('GroupMembers', array('initState' => true));
-
+		$model = ES::model('GroupMembers', array('initState' => true));
 		$members = $model->getItems(array('groupid' => $group->id));
 
 		$pagination = $model->getPagination();
@@ -324,8 +302,8 @@ class EasySocialViewGroups extends EasySocialAdminView
 		$this->set('pagination', $pagination);
 
 		$activeTab = JRequest::getWord('activeTab', 'profile');
-		$this->set('activeTab', $activeTab);
 
+		$this->set('activeTab', $activeTab);
 		$this->set('isNew', empty($group->id));
 
 		return parent::display('admin/groups/form.group');
@@ -342,29 +320,27 @@ class EasySocialViewGroups extends EasySocialAdminView
 	public function categoryForm($tpl = null)
 	{
 		// Perhaps this is an edited category
-		$id			= JRequest::getInt('id');
+		$id = $this->input->get('id', 0, 'int');
 
-		$category	= FD::table('GroupCategory');
+		$category = ES::table('GroupCategory');
+
+		// By default the published state should be published.
+		$category->state = SOCIAL_STATE_PUBLISHED;
+
+		// If there's an id, try to load it
 		$category->load($id);
+
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_CREATE_GROUP_CATEGORY');
+		$this->setDescription('COM_EASYSOCIAL_TOOLBAR_TITLE_CREATE_GROUP_CATEGORY_DESC');
 
 		// Set the structure heading here.
 		if ($category->id) {
 			$this->setHeading($category->get('title'));
-			$this->setDescription(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_EDIT_GROUP_CATEGORY_DESC'));
+			$this->setDescription('COM_EASYSOCIAL_TOOLBAR_TITLE_EDIT_GROUP_CATEGORY_DESC');
 		}
-		else {
-			$this->setHeading(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_CREATE_GROUP_CATEGORY'));
-			$this->setDescription(JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_CREATE_GROUP_CATEGORY_DESC'));
-
-			// By default the published state should be published.
-			$category->state 	= SOCIAL_STATE_PUBLISHED;
-		}
-
-		// Set page icon.
-		$this->setIcon('ies-folder-3');
 
 		// Load front end's language file
-		Foundry::language()->loadSite();
+		ES::language()->loadSite();
 
 		JToolbarHelper::apply('applyCategory', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE'), false, false);
 		JToolbarHelper::save('saveCategory', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_CLOSE'));
@@ -384,7 +360,7 @@ class EasySocialViewGroups extends EasySocialAdminView
 
 			// Get the available custom fields for groups
 			$appsModel		= FD::model('Apps');
-			$defaultApps	= $appsModel->getApps($options);
+			$defaultFields	= $appsModel->getApps($options);
 
 			// Get the steps for this id
 			$stepsModel		= FD::model('Steps');
@@ -429,8 +405,8 @@ class EasySocialViewGroups extends EasySocialAdminView
 			$usedUniqueAppsCount = 0;
 
 			// hide the apps if it is a core app and it is used in the field
-			if ($defaultApps) {
-				foreach ($defaultApps as $app) {
+			if ($defaultFields) {
+				foreach ($defaultFields as $app) {
 					$app->hidden = false;
 
 					// If app is core, increase the coreAppsCount counter
@@ -464,7 +440,7 @@ class EasySocialViewGroups extends EasySocialAdminView
 			unset($tmpFields);
 
 			// Get the creation access
-			$createAccess	= $category->getAccess('create');
+			$createAccess = $category->getAccess('create');
 
 			// We need to know if there are any core apps remain
 			$coreAppsRemain = $usedCoreAppsCount < $coreAppsCount;
@@ -474,28 +450,16 @@ class EasySocialViewGroups extends EasySocialAdminView
 
 			// Set the profiles allowed to create groups
 			$this->set('createAccess', $createAccess);
-
-			// Set the flag of coreAppsRemain
 			$this->set('coreAppsRemain', $coreAppsRemain);
-
-			// Set the flag of uniqueAppsRemain
 			$this->set('uniqueAppsRemain', $uniqueAppsRemain);
-
-			// Set the default apps to the template.
-			$this->set('defaultApps'	, $defaultApps);
-
-			// Set the steps for the template.
-			$this->set('steps'			, $steps);
-
-			// Set the fields to the template
-			$this->set('fields'		, $fields);
-
-			// Set the field group type to the template
+			$this->set('defaultFields', $defaultFields);
+			$this->set('steps', $steps);
+			$this->set('fields', $fields);
 			$this->set('fieldGroup'	, SOCIAL_FIELDS_GROUP_GROUP);
 
 			// Render the access form.
-			$accessModel 	= FD::model('Access');
-			$accessForm		= $accessModel->getForm($category->id, SOCIAL_TYPE_CLUSTERS, 'access');
+			$accessModel = ES::model('Access');
+			$accessForm = $accessModel->getForm($category->id, SOCIAL_TYPE_CLUSTERS, 'access');
 			$this->set('accessForm'	, $accessForm);
 		}
 
@@ -713,7 +677,7 @@ class EasySocialViewGroups extends EasySocialAdminView
 	{
 		FD::info()->set($this->getMessage());
 
-		$this->redirect('index.php?option=com_easysocial&view=groups&layout=' . $layout);
+		$this->redirect('index.php?option=com_easysocial&view=groups&layout=' . $layout . '&ordering=ordering');
 	}
 
 	/**

@@ -25,7 +25,7 @@ EasySocial.module("photos/editor", function($){
 					"{dateCaption}"       : "[data-photo-date-caption]",
 					"{addDateCaption}"    : "[data-photo-adddate-button]",
 
-					"{locationWidget}"  : ".es-photo-location-form .es-location",
+					"{locationWidget}"  : ".es-photo-location-form .es-locations",
 					"{latitude}"        : "[data-location-lat]",
 					"{longitude}"       : "[data-location-lng]",
 
@@ -246,7 +246,7 @@ EasySocial.module("photos/editor", function($){
 
 				"{locationWidget} locationChange": function(el, event, location) {
 
-					var address = location.formatted_address;
+					var address = location.address || location.fulladdress || location.formatted_address;
 					self.locationCaption().html(address);
 					self.location().addClass("has-data");
 				},

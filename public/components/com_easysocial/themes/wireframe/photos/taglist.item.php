@@ -18,9 +18,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
      <?php } ?>
      data-photo-tag-type="<?php echo $tag->type; ?>"
      class="es-photo-tag-list-item es-photo-tag-<?php echo $tag->type; ?>">
-    <i class="ies-eye"></i>
+    <i class="fa fa-eye"></i>
 	<a href="javascript: void(0);"><span><?php echo $tag->label; ?></span></a>
 	<?php if ($tag->deleteable()) { ?>
-	<b data-photo-tag-remove-button data-photo-tag-id="<?php echo $tag->id; ?>"><i class="ies-cancel-2"></i> <span><?php echo JText::_('COM_EASYSOCIAL_PHOTOS_TAG_REMOVE_TAG'); ?></span></b>
+	<b data-photo-tag-remove-button data-photo-tag-id="<?php echo $tag->id; ?>"><i class="fa fa-remove"></i> <span><?php echo JText::_('COM_EASYSOCIAL_PHOTOS_TAG_REMOVE_TAG'); ?></span></b>
 	<?php } ?>
 </div>

@@ -100,8 +100,10 @@
 // -------------------------
 .btn-es-primary,
 .btn-es-primary:focus {
-    .button-variant(#fff; @btnEsPrimaryBackground; @btnEsPrimaryBackgroundHighlight) !important;
-
+    color: #fff !important;
+    border: 1px solid @btnEsPrimaryBorder !important;
+    #gradient > .vertical(@start-color: @btnEsPrimaryBackgroundHighlight; @end-color: @btnEsPrimaryBackground) !important;
+    background-position: 0; // override bs2 templates
     > a {
         color: #fff;
     }
@@ -110,31 +112,46 @@
 // Success appears as green
 .btn-es-success,
 .btn-es-success:focus {
-    .button-variant(#fff; @btnEsSuccessBackground; @btnEsSuccessBackgroundHighlight) !important;
+    color: #fff !important;
+    border: 1px solid @btnEsSuccessBorder !important;
+    #gradient > .vertical(@start-color: @btnEsSuccessBackgroundHighlight; @end-color: @btnEsSuccessBackground) !important;
+    background-position: 0; // override bs2 templates
 }
 
 // Warning appears are orange
 .btn-es-warning,
 .btn-es-warning:focus {
-    .button-variant(#e09f00; @btnEsWarningBackground; @btnEsWarningBackgroundHighlight) !important;
+    color: #fff !important;
+    border: 1px solid @btnEsWarningBorder !important;
+    #gradient > .vertical(@start-color: @btnEsWarningBackgroundHighlight; @end-color: @btnEsWarningBackground) !important;
+    background-position: 0; // override bs2 templates
 }
 
 // Danger and error appear as red
 .btn-es-danger,
 .btn-es-danger:focus {
-    .button-variant(#fff; @btnEsDangerBackground; @btnEsDangerBackgroundHighlight) !important;
+    color: #fff !important;
+    border: 1px solid @btnEsDangerBorder !important;
+    #gradient > .vertical(@start-color: @btnEsDangerBackgroundHighlight; @end-color: @btnEsDangerBackground) !important;
+    background-position: 0; // override bs2 templates
 }
 
 // Info
 .btn-es-info,
 .btn-es-info:focus {
-    .button-variant(#fff; @btnEsInfoBackground; @btnEsInfoBackgroundHighlight) !important;
+    color: #fff !important;
+    border: 1px solid @btnEsInfoBorder !important;
+    #gradient > .vertical(@start-color: @btnEsInfoBackgroundHighlight; @end-color: @btnEsInfoBackground) !important;
+    background-position: 0; // override bs2 templates
 }
 
 // Inverse appears as dark gray
 .btn-es-inverse,
 .btn-es-inverse:focus {
-    .button-variant(#fff; @btnEsInverseBackground; @btnEsInverseBackgroundHighlight) !important;
+    color: #fff !important;
+    border: 1px solid @btnEsInverseBorder !important;
+    #gradient > .vertical(@start-color: @btnEsInverseBackgroundHighlight; @end-color: @btnEsInverseBackground) !important;
+    background-position: 0; // override bs2 templates
 }
 
 

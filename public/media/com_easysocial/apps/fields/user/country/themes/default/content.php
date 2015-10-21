@@ -18,7 +18,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php foreach( $selected as $item ) { ?>
 			<div class="textboxlist-item" data-id="<?php echo $item->id; ?>" data-title="<?php echo $item->title; ?>" data-textboxlist-item>
 				<span class="textboxlist-itemContent" data-textboxlist-itemContent><?php echo $item->title; ?><input type="hidden" name="<?php echo $inputName; ?>[]" value="<?php echo $item->id; ?>" /></span>
-				<div class="textboxlist-itemRemoveButton" data-textboxlist-itemRemoveButton><i class="ies-cancel-2"></i></div>
+				<div class="textboxlist-itemRemoveButton" data-textboxlist-itemRemoveButton><i class="fa fa-remove"></i></div>
 			</div>
 			<?php } ?>
 		<?php } ?>
@@ -30,7 +30,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php if( $params->get( 'select_type' ) === 'multilist' ) { ?>
 	<select data-country-select-multilist multiple="multiple" size="<?php echo $params->get( 'multilist_size' ); ?>" name="<?php echo $inputName; ?>[]">
 		<?php foreach( $countries as $country ) { ?>
-		<option value="<?php echo $country->title; ?>" <?php if( !empty( $selected ) && in_array( $country->title, $selected ) ) { ?>selected="selected"<?php } ?>><?php echo $country->title; ?></option>
+		<option value="<?php echo $country->id; ?>" <?php if( !empty( $selected ) && in_array( $country->id, $selected ) ) { ?>selected="selected"<?php } ?>><?php echo $country->title; ?></option>
 		<?php } ?>
 	</select>
 	<?php } ?>
@@ -38,16 +38,16 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php if( $params->get( 'select_type' ) === 'checkbox' ) { ?>
 	<div data-country-select-checkbox style="height: 200px; overflow-y: scroll;">
 		<?php foreach( $countries as $country ) { ?>
-		<label><input type="checkbox" value="<?php echo $country->title; ?>" name="<?php echo $inputName; ?>[]" <?php if( !empty( $selected ) && in_array( $country->title, $selected ) ) { ?>checked="checked"<?php } ?> /> <?php echo $country->title; ?></label>
+		<label><input type="checkbox" value="<?php echo $country->id; ?>" name="<?php echo $inputName; ?>[]" <?php if( !empty( $selected ) && in_array( $country->id, $selected ) ) { ?>checked="checked"<?php } ?> /> <?php echo $country->title; ?></label>
 		<?php } ?>
 	</div>
 	<?php } ?>
 
 	<?php if( $params->get( 'select_type' ) === 'dropdown' ) { ?>
 	<select data-country-select-dropdown name="<?php echo $inputName;?>[]">
-		<option value=""><?php echo JText::_( 'PLG_FIELDS_COUNTRY_SELECT_A_COUNTRY' ); ?></option>
-		<?php foreach( $countries as $country ){ ?>
-		<option value="<?php echo $country->id;?>" <?php if( !empty( $selected ) && in_array( $country->title, $selected ) ) { ?>selected="selected"<?php } ?>><?php echo $country->title;?></option>
+		<option value=""><?php echo JText::_('PLG_FIELDS_COUNTRY_SELECT_A_COUNTRY'); ?></option>
+		<?php foreach ($countries as $country) { ?>
+			<option value="<?php echo $country->id;?>" <?php echo !empty($selected) && in_array($country->id, $selected) ? ' selected="selected"' : '';?>><?php echo $country->title;?></option>
 		<?php } ?>
 	</select>
 	<?php } ?>

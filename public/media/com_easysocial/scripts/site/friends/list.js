@@ -212,6 +212,8 @@ EasySocial.module( 'site/friends/list' , function($){
 
 											// Pass the item to the parent so it gets inserted into the friends list.
 											self.parent.insertItem( item );
+
+											$('[data-friends-items]').removeClass('is-empty');
 											
 											// Close the dialog
 											EasySocial.dialog().close();

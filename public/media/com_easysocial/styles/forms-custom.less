@@ -28,7 +28,7 @@ input[type="color"] {
 	&:focus {
 		border-color: @input-border;
 		outline:0px !important;
-		-webkit-appearance:none;
+		// -webkit-appearance:none;
 		.box-shadow(none);
 	}
 }
@@ -204,11 +204,12 @@ label {
 		content: '';
 		position: absolute;
 		right: 8px;
-		top: 8px;
+		top: 50%;
 		color: #888;
+		margin-top: -6px;
 
-		content: "\e06c";
-		font-family: easysocial;
+		content: "\f073";
+		font-family: FontAwesome;
 		font-weight: normal;
 		font-style: normal;
 		display: inline-block;
@@ -642,9 +643,7 @@ label {
     }
 }
 
-.es-field-location-form {
-	border: 1px solid @esBorder !important;
-}
+
 
 .es-field-datetime-group { // inline year/month/day
     text-align: center;
@@ -813,4 +812,17 @@ textarea.es-form-loading {
             margin-bottom: 10px;
         }
     }
+}
+
+
+// Scale down recaptcha in narrow view #4058
+@media (max-width: 369px) {
+[data-field-recaptcha] {
+	transform:scale(0.86);
+	transform-origin:0;
+	-webkit-transform:scale(0.86);
+	transform:scale(0.86);
+	-webkit-transform-origin:0 0;
+	transform-origin:0 0;
+	}
 }

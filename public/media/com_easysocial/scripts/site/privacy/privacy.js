@@ -38,7 +38,7 @@ EasySocial.module("site/privacy/privacy", function($){
 			},
 
 			getData: function(item) {
-				return $._.pick(item.data(), "uid", "utype", "value", "pid", "privacyicon", "streamid");
+				return $._.pick(item.data(), "uid", "utype", "value", "pid", "privacyicon", "streamid", "pitemid", "userid");
 			},
 
 			"{self} click" : function(el, event) {
@@ -150,7 +150,9 @@ EasySocial.module("site/privacy/privacy", function($){
 							value 	: data.value,
 							pid 	: data.pid,
 							custom 	: data.custom,
-							streamid: data.streamid
+							streamid: data.streamid,
+							userid	: data.userid,
+							pitemid	: data.pitemid
 						})
 						.done(function(){
 

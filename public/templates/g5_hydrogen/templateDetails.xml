@@ -38,6 +38,7 @@
     </files>
 
     <positions>
+        <position>breadcrumb-right</position>
         <position>breadcrumbs</position>
         <position>debug</position>
         <position>footer</position>

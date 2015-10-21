@@ -32,7 +32,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						<i class="loading-indicator fd-small"></i>
 
 						<a class="btn btn-es-primary btn-small view-profile" href="<?php echo FRoute::profile( array( 'id' => $connection->user->getAlias() ) );?>" data-friend-item-action>
-							<?php echo JText::_( 'COM_EASYSOCIAL_VIEW_PROFILE_BUTTON' ); ?> <i class="ies-arrow-right ies-small ies-white"></i>
+							<?php echo JText::_( 'COM_EASYSOCIAL_VIEW_PROFILE_BUTTON' ); ?> <i class="fa fa-caret-right ies-small ies-white"></i>
 						</a>
 						<a class="btn btn-es btn-small reject-friend" href="javascript:void(0);" data-friend-item-reject data-friend-item-action data-id="<?php echo $connection->id;?>">
 							<?php echo JText::_( 'COM_EASYSOCIAL_REJECT_BUTTON' );?>

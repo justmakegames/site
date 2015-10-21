@@ -159,7 +159,7 @@ class SocialUserAppStory extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#16a085';
-		$obj->icon 		= 'ies-pencil-2';
+		$obj->icon 		= 'fa fa-pencil';
 		$obj->label 	= 'APP_USER_STORY_UPDATES_STREAM_TOOLTIP';
 
 		return $obj;
@@ -473,21 +473,21 @@ class SocialUserAppStory extends SocialAppItem
 
 		$stream->display = SOCIAL_STREAM_DISPLAY_FULL;
 		$stream->color = '#16a085';
-		$stream->fonticon = 'ies-pencil-2';
-		$stream->label = JText::_('APP_USER_STORY_UPDATES_STREAM_TOOLTIP');
+		$stream->fonticon = 'fa fa-pencil';
+		$stream->label = FD::_('APP_USER_STORY_UPDATES_STREAM_TOOLTIP', true);
 
 		if ($stream->cluster_id) {
 
 			if ($stream->cluster_type == SOCIAL_TYPE_GROUP) {
 				$stream->color 		= '#303229';
-				$stream->fonticon	= 'ies-users';
-				$stream->label		= JText::_( 'APP_USER_STORY_GROUPS_STREAM_TOOLTIP' );
+				$stream->fonticon	= 'fa-users';
+				$stream->label		= FD::_( 'APP_USER_STORY_GROUPS_STREAM_TOOLTIP', true);
 			}
 
 			if ($stream->cluster_type == SOCIAL_TYPE_EVENT) {
 				$stream->color = '#f06050';
-				$stream->fonticon = 'ies-calendar';
-				$stream->label = JText::_('APP_USER_STORY_EVENTS_STREAM_TOOLTIP');
+				$stream->fonticon = 'fa fa-calendar';
+				$stream->label = FD::_('APP_USER_STORY_EVENTS_STREAM_TOOLTIP', true);
 			}
 		}
 
@@ -522,6 +522,11 @@ class SocialUserAppStory extends SocialAppItem
 				$stream->repost 		= false;
 				$stream->commentForm 	= false;
 			}
+
+			// Sharing only show in public group
+			if (!$cluster->isOpen()) {
+				$stream->sharing = false;
+			}
 		}
 
 		// Get application params
@@ -537,7 +542,14 @@ class SocialUserAppStory extends SocialAppItem
 			$object = $clusterReg->get($stream->cluster_type);
 
 			$cluster = FD::cluster($stream->cluster_type);
-			$cluster->bind($object);
+
+			if ($object) {
+				// If have the object only bind
+				$cluster->bind($object);
+
+			} else {
+				$cluster = $stream->getCluster();
+			}
 
 			$this->set('cluster', $cluster);
 		}
@@ -550,6 +562,7 @@ class SocialUserAppStory extends SocialAppItem
 		$stream->opengraph->addDescription($stream->content);
 
 		if ($includePrivacy) {
+			// $stream->privacy = $privacy->form($uid, SOCIAL_TYPE_STORY, $stream->actor->id, 'story.view', false, $stream->uid, array('override' => true, 'value' => true));
 			$stream->privacy = $privacy->form($uid, SOCIAL_TYPE_STORY, $stream->actor->id, 'story.view', false, $stream->uid);
 		}
 

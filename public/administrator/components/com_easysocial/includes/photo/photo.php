@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,18 +9,11 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-// Import the required file and folder classes.
-jimport( 'joomla.filesystem.file' );
-jimport( 'joomla.filesystem.folder' );
+jimport('joomla.filesystem.file');
+jimport('joomla.filesystem.folder');
 
-/**
- * Photos library.
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialPhoto
 {
 	/**
@@ -128,26 +121,26 @@ class SocialPhoto
 		}
 
 		// Build user alias
-		$creator 	= $this->creator();
-		$viewer  	= FD::user($options['viewer']);
+		$creator = $this->creator();
+		$viewer = FD::user($options['viewer']);
 
 		// Generate photo item template
-		$theme		= FD::themes();
+		$theme = FD::themes();
 
 		// Get the album library
-		$albumLib 	= $this->album();
+		$albumLib = $this->album();
 
-		$theme->set( 'lib'		, $this );
-		$theme->set( 'tags'		, $this->data->getTags() );
-		$theme->set( 'comments'	, $this->comments()      );
-		$theme->set( 'likes'	, $this->likes()         );
-		$theme->set( 'shares'	, $this->reposts()       );
-		$theme->set( 'albumLib'	, $albumLib );
-		$theme->set( 'album'    , $albumLib->data );
-		$theme->set( 'photo'    , $this->data            );
-		$theme->set( 'creator'  , $creator               );
-		$theme->set( 'privacy'  , $this->privacy()       );
-		$theme->set( 'options'  , $options               );
+		$theme->set( 'lib', $this);
+		$theme->set( 'tags', $this->data->getTags());
+		$theme->set( 'comments', $this->comments());
+		$theme->set( 'likes', $this->likes());
+		$theme->set( 'shares', $this->reposts());
+		$theme->set( 'albumLib', $albumLib);
+		$theme->set( 'album', $albumLib->data);
+		$theme->set( 'photo', $this->data);
+		$theme->set( 'creator', $creator);
+		$theme->set( 'privacy', $this->privacy());
+		$theme->set( 'options', $options);
 
 		return $theme->output($options['template']);
 	}
@@ -188,8 +181,16 @@ class SocialPhoto
 		$context	= SOCIAL_TYPE_PHOTO;
         $id      	= $this->data->id;
 
-        // stream id
         $streamId = $this->getPhotoStreamId($id, $verb, false);
+        if ($verb == 'upload') {
+        	// we now this photo is uploaded via stream's story form.
+            $model      = FD::model('Stream');
+            $aggregated = $model->isAggregated($this->data->id, 'photos');
+
+            if ($aggregated) {
+				$streamId = '0';
+            }
+        }
 
         // NOTE:
         // We do not need to do any checking or fix any relations here since liking a photo should always be liking a photo
@@ -217,8 +218,16 @@ class SocialPhoto
 		// The object id should always be the photo id
         $id     	= $this->data->id;
 
-        // stream id
         $streamId = $this->getPhotoStreamId($id, $verb, false);
+        if ($verb == 'upload') {
+        	// we now this photo is uploaded via stream's story form.
+            $model      = FD::model('Stream');
+            $aggregated = $model->isAggregated($this->data->id, 'photos');
+
+            if ($aggregated) {
+				$streamId = '0';
+            }
+        }
 
         // Get the permalink to the photo
         $permalink 	= $this->data->getPermalink(false, true);

@@ -30,7 +30,7 @@ class SocialUserAppUsers extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#EF9033';
-		$obj->icon 		= 'ies-locked';
+		$obj->icon 		= 'fa fa-lock';
 		$obj->label 	= 'APP_USER_USERS_LOGIN_STREAM_TOOLTIP';
 
 		return $obj;
@@ -147,12 +147,19 @@ class SocialUserAppUsers extends SocialAppItem
 
 		// Decorate the stream
 		$item->color 	= '#EF9033';
-		$item->fonticon	= 'ies-locked';
-		$item->label 	= JText::_( 'APP_USER_USERS_LOGIN_STREAM_TOOLTIP' );
+		$item->fonticon	= 'fa-lock';
+		$item->label 	= FD::_( 'APP_USER_USERS_LOGIN_STREAM_TOOLTIP', true);
 		$item->display 	= SOCIAL_STREAM_DISPLAY_MINI;
 
 		// Set the actor
 		$actor			= $item->actor;
+
+		// check if actor is an ESAD user, if yes, do not render the stream.
+		if (! $actor->hasCommunityAccess()) {
+			$item->title 	= '';
+			return;
+		}
+
 		$this->set( 'actor'	, $actor );
 
 		$item->title 	= parent::display( 'streams/login.title' );

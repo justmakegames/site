@@ -36,7 +36,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<?php if( isset( $field->tooltip) ){ ?>
 							<i data-placement="bottom" data-title="<?php echo JText::_( $field->label , true );?>"
 								data-content="<?php echo JText::_( $field->tooltip , true );?>"
-								data-es-provide="popover" class="icon-es-help pull-right ml-5"></i>
+								data-es-provide="popover" class="fa fa-question-circle pull-right ml-5"></i>
 							<?php } ?>
 						</label>
 

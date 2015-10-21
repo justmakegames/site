@@ -22,7 +22,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<div data-photo-date class="es-photo-date small"><?php echo FD::date( $photo->created )->toLapsed(); ?></div>
 		<?php if( $photo->getLocation() ) { ?>
 		<div data-photo-location class="es-photo-location small">
-			<i class="ies-location-2 ies-small"></i> <?php echo $photo->getLocation()->get( 'address' ); ?>
+			<i class="fa fa-map-marker "></i> <?php echo $photo->getLocation()->get( 'address' ); ?>
 		</div>
 		<?php } ?>
 	</div>

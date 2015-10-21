@@ -81,6 +81,52 @@ class SocialTableLanguage extends SocialTable
 	}
 
 	/**
+	 * Determines if the language is installed
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function isInstalled()
+	{
+		return $this->state == SOCIAL_LANGUAGES_INSTALLED;			
+	}
+
+	/**
+	 * Allows caller to uninstall a language
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function uninstall()
+	{
+		$locale = $this->locale;
+
+		$paths = array(JPATH_ADMINISTRATOR . '/language/' . $locale, JPATH_ROOT . '/language/' . $locale);
+
+		// Get the list of files on each folders
+		foreach ($paths as $path) {
+			
+			$filter = 'easysocial';
+			$files = JFolder::files($path, $filter, false, true);
+
+			if (!$files) {
+				continue;
+			}
+
+			foreach ($files as $file) {
+				JFile::delete($file);
+			}
+		}
+
+		$this->state = SOCIAL_LANGUAGES_NOT_INSTALLED;
+		return $this->store();
+	}
+
+	/**
 	 * Installs a language file
 	 *
 	 * @since	1.0
@@ -174,7 +220,7 @@ class SocialTableLanguage extends SocialTable
 		JFolder::delete($extractedFolder);
 
 		// Once the language files are copied accordingly, update the state
-		$this->state 	= SOCIAL_LANGUAGES_INSTALLED;
+		$this->state = SOCIAL_LANGUAGES_INSTALLED;
 
 		return $this->store();
 	}

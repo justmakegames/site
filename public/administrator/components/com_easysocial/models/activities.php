@@ -220,13 +220,13 @@ class EasySocialModelActivities extends EasySocialModel
         $header .= ', a.' . $db->nameQuote( 'modified' ) . ', b.' . $db->nameQuote( 'context_type' ) . ', b.' . $db->nameQuote( 'context_id' ) . ', b.' . $db->nameQuote( 'target_id' );
 
         $header .= ', b.' . $db->nameQuote( 'created' ) . ', b.' . $db->nameQuote( 'id' ) . ', b.' . $db->nameQuote( 'uid' ) . ', b.' . $db->nameQuote( 'verb' );
+        $header .= ', b.' . $db->nameQuote('state');
         $header .= ', p.' . $db->nameQuote( 'value' ) . ' as ' . $db->nameQuote( 'privacy' );
 
         $header .= ', l.id as loc_id, l.uid as loc_uid, l.type as loc_type, l.user_id as loc_user_id, l.created as loc_created, l.short_address as loc_short_address';
         $header .= ',l.address as loc_address, l.longitude as loc_longitude, l.latitude as loc_latitude, l.params as loc_params';
         $header .= ',md.id as md_id, md.namespace as md_namespace,md.namespace_uid as md_namespace_uid, md.icon as md_icon, md.verb as md_verb, md.subject as md_subject, md.custom as md_custom';
-        $header .= ',md.text as md_text, md.user_id as md_user_id, md.created as md_created, sbm.id as bookmarked';
-
+        $header .= ',md.text as md_text, md.user_id as md_user_id, md.created as md_created, sbm.id as bookmarked, 0 as sticky, 0 as last_userid, 0 as last_action';
 
         $header .= ',FLOOR( ( UNIX_TIMESTAMP( now() ) - UNIX_TIMESTAMP( a.' . $db->nameQuote( 'modified' ) . ' ) ) / 60 ) AS ' . $db->nameQuote( 'min' );
         $header .= ',FLOOR( ( UNIX_TIMESTAMP( now() ) - UNIX_TIMESTAMP( a.' . $db->nameQuote( 'modified' ) . ' ) ) / 60 / 60 ) AS ' . $db->nameQuote( 'hour' );

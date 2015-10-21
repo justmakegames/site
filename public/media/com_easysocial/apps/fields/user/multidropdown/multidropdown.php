@@ -145,7 +145,7 @@ class SocialFieldsUserMultidropdown extends SocialFieldItem
 				$params = array( 'layout' => 'advanced' );
 				$params['criterias[]'] = $field->unique_key . '|' . $field->element;
 				$params['operators[]'] = 'contain';
-				$params['conditions[]'] = $v;
+				$params['conditions[]'] = $r;
 
 				$advsearchLink = FRoute::search($params);
 				$option->advancedsearchlink = $advsearchLink;

@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		Social
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @package		EasySocial
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -48,6 +48,8 @@ class EasySocialViewSearch extends EasySocialSiteView
 		$theme->set( 'criteriaHTML'		, $data['criteria'] );
 		$theme->set( 'match'			, $data['match'] );
 		$theme->set( 'avatarOnly'		, $data['avatarOnly'] );
+		$theme->set( 'sort'				, $data['sort'] );
+		$theme->set( 'displayOptions'	, $data['displayOptions'] );
 
 		$theme->set( 'results'			, $data['results'] );
 		$theme->set( 'total'			, $data['total'] );
@@ -108,7 +110,7 @@ class EasySocialViewSearch extends EasySocialSiteView
 		return $ajax->resolve( $contents );
 	}
 
-	public function getItems( $data, $last_type, $next_limit, $isloadmore = false, $ismini = false, $totalCnt = 0 )
+	public function getItems( $data, $last_type, $next_limit, $isloadmore = false, $ismini = false, $totalCnt = 0, $filters = array() )
 	{
 		// Load ajax lib
 		$ajax	= FD::ajax();
@@ -130,6 +132,7 @@ class EasySocialViewSearch extends EasySocialSiteView
 		$theme->set( 'keywords', $keywords );
 		$theme->set( 'total', $totalCnt );
 		$theme->set( 'showadvancedlink', $showadvancedlink );
+		$theme->set( 'filters', $filters );
 
 		$next_type 		= '';
 		$next_update 	= '';

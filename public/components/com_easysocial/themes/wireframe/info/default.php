@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="alert alert-<?php echo $class;?>">
-	<button type="button" class="close" data-bs-dismiss="alert">×</button>
+<div class="alert alert-dismissable alert-<?php echo $class;?>">
+	<a class="close" data-bs-dismiss="alert"><i class="fa fa-remove"></i></a>
 	<?php echo $content; ?>
 </div>

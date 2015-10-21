@@ -41,7 +41,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<div class="muted small note-date">
 		<time datetime="<?php echo $this->html( 'string.date' , $note->created ); ?>" class="note-date">
-			<i class="ies-calendar"></i>&nbsp; <?php echo $this->html( 'string.date' , $note->created , JText::_( 'DATE_FORMAT_LC1' ) ); ?>
+			<i class="fa fa-calendar"></i>&nbsp; <?php echo $this->html( 'string.date' , $note->created , JText::_( 'DATE_FORMAT_LC1' ) ); ?>
 		</time>
 	</div>
 </li>

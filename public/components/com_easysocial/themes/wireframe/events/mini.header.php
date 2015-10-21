@@ -37,22 +37,22 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                     </h2>
 
                     <?php if ($event->isOpen()) { ?>
-                    <span class="label label-success" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                        <i class="ies-earth"></i>
+                    <span class="label label-success" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
+                        <i class="fa fa-globe"></i>
                         <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
                     </span>
                     <?php } ?>
 
                     <?php if ($event->isClosed()) { ?>
-                    <span class="label label-danger" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                        <i class="ies-locked"></i>
+                    <span class="label label-danger" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
+                        <i class="fa fa-lock"></i>
                         <?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT'); ?>
                     </span>
                     <?php } ?>
 
                     <?php if ($event->isInviteOnly()) { ?>
-                    <span data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                        <i class="ies-locked"></i>
+                    <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
+                        <i class="fa fa-lock"></i>
                         <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
                     </span>
                     <?php } ?>
@@ -60,7 +60,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
                 <?php if ($event->isGroupEvent()) { ?>
                 <li>
-                    <?php echo JText::sprintf('COM_EASYSOCIAL_EVENTS_GROUP_EVENT_OF_GROUP', '<i class="ies-users"></i> ' . $this->html('html.group', $event->getGroup())); ?>
+                    <?php echo JText::sprintf('COM_EASYSOCIAL_EVENTS_GROUP_EVENT_OF_GROUP', '<i class="fa fa-users"></i> ' . $this->html('html.group', $event->getGroup())); ?>
                 </li>
                 <?php } ?>
             </ul>
@@ -78,10 +78,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         <?php if ( ( !isset($showApps) || (isset($showApps) && $showApps)) && $event->getApps() && ($event->getGuest()->isGuest() || $event->isOpen() ) ){ ?>
         <div class="btn- btn-scroll" data-appscroll-buttons>
             <a href="javascript:void(0);" class="btn btn-left" data-appscroll-prev-button>
-                <i class="ies-arrow-left"></i>
+                <i class="fa fa-caret-left"></i>
             </a>
             <a href="javascript:void(0);" class="btn btn-right" data-appscroll-next-button>
-                <i class="ies-arrow-right"></i>
+                <i class="fa fa-caret-right"></i>
             </a>
         </div>
 
@@ -103,26 +103,26 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
     <div class="es-header-mini-footer">
         <div class="pull-left">
-            <ul class="list-inline mb-0 ml-0">
+            <div class="es-list-vertical-divider mb-0 ml-0">
                 <?php echo $this->render('widgets', 'event', 'events', 'miniEventStatsStart', array($event)); ?>
-                <li>
+                <span>
                     <a href="<?php echo FRoute::events(array('layout' => 'category' , 'id' => $event->getCategory()->getAlias()));?>">
-                        <i class="ies-database"></i> <?php echo $event->getCategory()->get('title'); ?>
+                        <i class="fa fa-database"></i> <?php echo $event->getCategory()->get('title'); ?>
                     </a>
-                </li>
-                <li>
+                </span>
+                <span>
                     <a href="<?php echo FRoute::albums(array( 'uid' => $event->getAlias() , 'type' => SOCIAL_TYPE_EVENT ) );?>">
-                        <i class="ies-picture"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_ALBUMS' , $event->getTotalAlbums() ) , $event->getTotalAlbums() ); ?>
+                        <i class="fa fa-photo"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_ALBUMS' , $event->getTotalAlbums() ) , $event->getTotalAlbums() ); ?>
                     </a>
-                </li>
-                <li>
-                    <i class="ies-eye"></i> <?php echo JText::sprintf(FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_VIEWS' , $event->hits ) , $event->hits ); ?></a>
-                </li>
+                </span>
+                <span>
+                    <i class="fa fa-eye"></i> <?php echo JText::sprintf(FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_VIEWS' , $event->hits ) , $event->hits ); ?></a>
+                </span>
                 <?php echo $this->render('widgets', 'event', 'events', 'miniEventStatsEnd', array($event)); ?>
-                <li>
+                <span>
                     <?php echo FD::sharing( array('url' => $event->getPermalink(false, true), 'display' => 'dialog', 'text' => JText::_('COM_EASYSOCIAL_STREAM_SOCIAL') , 'css' => 'fd-small' ) )->getHTML(true); ?>
-                </li>
-            </ul>
+                </span>
+            </div>
         </div>
 
         <div data-guest-state-wrap data-id="<?php echo $event->id; ?>" data-allowmaybe="<?php echo (int) $event->getParams()->get('allowmaybe'); ?>" data-allownotgoingguest="<?php echo (int) $event->getGuest()->isOwner() || $event->getParams()->get('allownotgoingguest'); ?>" data-hidetext="1" data-refresh class="mr-10">

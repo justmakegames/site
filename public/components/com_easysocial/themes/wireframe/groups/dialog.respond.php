@@ -16,44 +16,29 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<height>150</height>
 	<selectors type="json">
 	{
-		"{closeButton}"  : "[data-close-button]",
-		"{rejectButton}"	: "[data-reject-button]",
-		"{acceptButton}"	: "[data-accept-button]",
-		"{form}"			: "[data-group-invite-respond]",
-		"{responseValue}"	: "[data-respond-value]"
+		"{closeButton}": "[data-close-button]",
+		"{rejectButton}": "[data-reject-button]",
+		"{acceptButton}": "[data-accept-button]",
+		"{form}": "[data-group-invite-respond]",
+		"{responseValue}": "[data-respond-value]"
 	}
 	</selectors>
 	<bindings type="javascript">
 	{
-		"{closeButton} click": function()
-		{
+		"{closeButton} click": function() {
 			this.parent.close();
-		},
-
-		"{rejectButton} click" : function()
-		{
-			this.responseValue().val( 'reject' );
-
-			this.form().submit();
-		},
-
-		"{acceptButton} click" : function()
-		{
-			this.responseValue().val( 'accept' );
-
-			this.form().submit();
 		}
 	}
 	</bindings>
-	<title><?php echo JText::sprintf( 'COM_EASYSOCIAL_GROUPS_DIALOG_RESPOND_TITLE' , $group->getName() ); ?></title>
+	<title><?php echo JText::sprintf('COM_EASYSOCIAL_GROUPS_DIALOG_RESPOND_TITLE', $group->getName()); ?></title>
 	<content>
 		<p class="mt-5">
 			<img src="<?php echo $group->getAvatar();?>" class="ml-5 es-avatar" align="right" />
 
-			<?php echo JText::sprintf( 'COM_EASYSOCIAL_GROUPS_DIALOG_RESPOND_CONTENT' , $invitor->getName() , $group->getName() );?>
+			<?php echo JText::sprintf('COM_EASYSOCIAL_GROUPS_DIALOG_RESPOND_CONTENT', $inviter->getName() , $group->getName() );?>
 		</p>
 
-		<form data-group-invite-respond method="post" action="<?php echo JRoute::_( 'index.php' );?>">
+		<form data-group-invite-respond method="post" action="<?php echo JRoute::_('index.php');?>">
 			<?php echo $this->html( 'form.token' ); ?>
 			<input type="hidden" name="option" value="com_easysocial" />
 			<input type="hidden" name="controller" value="groups" />

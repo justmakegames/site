@@ -154,12 +154,6 @@ class EasySocialControllerMigrators extends EasySocialController
 		// Get the current path that we should be searching for.
 		$file 		= JRequest::getVar( 'file' , '' );
 
-		// Log errors when invalid data is passed in.
-		if( empty( $file ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'Privacy Scan: Invalid file path given to scan.' );
-		}
-
 		// Retrieve the points model to scan for the path
 		$model 	= FD::model( 'Privacy' );
 
@@ -170,5 +164,77 @@ class EasySocialControllerMigrators extends EasySocialController
 		$obj->rules 	= $model->install( $file );
 
 		return $view->call( __FUNCTION__ , $obj );
+	}
+
+
+	public function purgeJomsocialEventHistory() {
+
+		// Check for request forgeries
+		FD::checkToken();
+
+		$this->purgeHistory('jomsocialevent');
+	}
+
+	public function purgeJomsocialGroupHistory() {
+
+		// Check for request forgeries
+		FD::checkToken();
+
+		$this->purgeHistory('jomsocialgroup');
+	}
+
+	public function purgeJoomlaHistory() {
+
+		// Check for request forgeries
+		FD::checkToken();
+
+		$this->purgeHistory('joomla');
+	}
+
+	public function purgeJomsocialHistory() {
+
+		// Check for request forgeries
+		FD::checkToken();
+
+		$this->purgeHistory('jomsocial');
+	}
+
+	public function purgeCbHistory() {
+
+		// Check for request forgeries
+		FD::checkToken();
+
+		$this->purgeHistory('cb');
+	}
+
+	public function purgeKunenaHistory() {
+
+		// Check for request forgeries
+		FD::checkToken();
+
+		$this->purgeHistory('kunena');
+	}
+
+	public function purgeEasyblogHistory() {
+
+		// Check for request forgeries
+		FD::checkToken();
+
+		$this->purgeHistory('easyblog');
+	}
+
+	private function purgeHistory($type)
+	{
+		// Check for request forgeries
+		FD::checkToken();
+
+		//get current view
+		$view = $this->getCurrentView();
+
+		$model = FD::model('Migrators');
+		$model->purgeHistory($type);
+
+		$view->setMessage( JText::_( 'COM_EASYSOCIAL_MIGRATOR_PURGE_SUCCESSFULLY' ) , SOCIAL_MSG_SUCCESS );
+		return $view->call( 'purgeHistory' , $type );
 	}
 }

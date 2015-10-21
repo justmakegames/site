@@ -83,20 +83,20 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="media-meta mt-5 muted">
             <div>
                 <span>
-                    <i class="ies-calendar"></i>
+                    <i class="fa fa-calendar"></i>
                     <?php echo $event->getStartEndDisplay(); ?>
                 </span>
                 <?php if (!$guest->isOwner()) { ?>
                 &middot;
                 <span>
-                    <i class="ies-user"></i>
+                    <i class="fa fa-user"></i>
                     <?php echo $this->html('html.user', $owner, true); ?>
                 </span>
                 <?php } ?>
                 <?php if (empty($isGroupOwner) && $event->isGroupEvent()) { ?>
                 &middot;
                 <span>
-                    <i class="ies-users"></i>
+                    <i class="fa fa-users"></i>
                     <?php echo $this->html('html.group', $event->getMeta('group_id'), true); ?>
                 </span>
                 <?php } ?>
@@ -104,14 +104,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <?php if ($this->template->get('events_address', true) && !empty($event->address)) { ?>
             <div>
-                <i class="ies-location-2"></i>
+                <i class="fa fa-map-marker"></i>
                 <a href="<?php echo $event->getAddressLink(); ?>" target="_blank"><?php echo $event->address; ?></a>
             </div>
             <?php } ?>
 
             <?php if (!empty($showDistance)) { ?>
             <div>
-                <i class="ies-compass"></i>
+                <i class="fa fa-compass"></i>
                 <?php echo JText::sprintf('COM_EASYSOCIAL_EVENTS_EVENT_DISTANCE_AWAY', $event->distance, $this->config->get('general.location.proximity.unit', 'mile')); ?>
             </div>
             <?php } ?>
@@ -131,35 +131,35 @@ defined('_JEXEC') or die('Unauthorized Access');
 
         <div class="media-meta mt-5 mb-10 muted">
             <?php if ($event->isOpen()) { ?>
-            <span data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
-                <i class="ies-earth"></i>
+            <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
+                <i class="fa fa-globe"></i>
                 <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
             </span>
             <?php } ?>
 
             <?php if ($event->isPrivate()) { ?>
-            <span data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
-                <i class="ies-locked"></i>
+            <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
+                <i class="fa fa-lock"></i>
                 <?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT'); ?>
             </span>
             <?php } ?>
 
             <?php if ($event->isInviteOnly()) { ?>
-            <span data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
-                <i class="ies-mail-3"></i>
+            <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
+                <i class="fa fa-envelope"></i>
                 <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
             </span>
             <?php } ?>
 
             <span>
-                <i class="ies-folder-3"></i>
+                <i class="fa fa-folder"></i>
                 <a data-item-category data-item-category-id="<?php echo $event->getCategory()->id; ?>" href="<?php echo FRoute::events(array('layout' => 'category', 'id' => $event->getCategory()->getAlias())); ?>">
                     <?php echo $event->getCategory()->get('title'); ?>
                 </a>
             </span>
 
             <span>
-                <i class="ies-users"></i>
+                <i class="fa fa-users"></i>
                 <a href="<?php echo FRoute::events(array('layout' => 'item', 'id' => $event->getAlias(), 'appId' => $guestApp->getAlias()));?>"><?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_GUESTS', $event->getTotalGuests()), $event->getTotalGuests()); ?></a>
             </span>
         </div>

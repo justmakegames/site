@@ -12,7 +12,7 @@ $uploadUrl = FRoute::raw('index.php?option=com_easysocial&controller=photos&task
 						. '&layout=' . $options['layout']
 						. '&uid=' . $lib->uid
 						. '&type=' . $lib->type
-						. '&createStream=' . ($options['layout']=='form' ? 0 : 1)
+						. '&createStream=1'
 						. '&' . FD::token() . '=1');
 ?>
 

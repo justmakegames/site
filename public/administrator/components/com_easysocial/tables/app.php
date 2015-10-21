@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,35 +9,30 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'admin:/tables/table' );
+// Dependencies
+ES::import('admin:/tables/table');
 
-/**
- * Object mapping for `#__social_apps` table.
- *
- * @author	Mark Lee <mark@stackideas.com>
- * @since	1.0
- */
 class SocialTableApp extends SocialTable
 {
 	/**
 	 * The unique id of the application
 	 * @var int
 	 */
-	public $id			= null;
+	public $id = null;
 
 	/**
 	 * The type of the application. E.g: fields, applications
 	 * @var string
 	 */
-	public $type		= null;
+	public $type = null;
 
 	/**
 	 * Determines if the application is a core application.
 	 * @var int
 	 */
-	public $core		= null;
+	public $core = null;
 
 	/**
 	 * Determines if the application is only used for processing only.
@@ -280,7 +275,10 @@ class SocialTableApp extends SocialTable
 	 */
 	public function appListing( $view , $uid = '' , $type = '' )
 	{
-		return FD::apps()->hasAppListing( $this , $view , $uid , $type );
+		$apps = ES::apps();
+		$hasListing = $apps->hasAppListing($this, $view, $uid, $type);
+
+		return $hasListing;
 	}
 
 	/**
@@ -597,22 +595,13 @@ class SocialTableApp extends SocialTable
 	 */
 	public function uninstall()
 	{
-		$path 	= SOCIAL_APPS . '/' . $this->group . '/' . $this->element;
-
+		$path = SOCIAL_APPS . '/' . $this->group . '/' . $this->element;
+		$exists = JFolder::exists($path);
 		// Check if the folder exists.
-		if( !JFolder::exists( $path ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'APPS: Removal of app folder failed because the folder ' . $path . ' does not exist.' );
-		}
-		else
-		{
+		if ($exists) {
+
 			// Try to delete the folder
 			$state 	= JFolder::delete( $path );
-
-			if( !$state )
-			{
-				FD::logError( __FILE__ , __LINE__ , 'APPS: Removal of app folder ' . $path . ' failed because of permission issues.' );
-			}
 		}
 
 		// Delete app views
@@ -1176,34 +1165,29 @@ class SocialTableApp extends SocialTable
 	 */
 	public function loadLanguage($reload = false, $default = true)
 	{
-		if( empty( $this->type ) || empty( $this->group ) || empty( $this->element ) )
-		{
+		if (empty($this->type) || empty($this->group) || empty($this->element)) {
 			return false;
 		}
 
-		$func = '';
+		$method = '';
 
-		switch( $this->type )
-		{
-			case SOCIAL_APPS_TYPE_APPS:
-				$func = 'app';
-			break;
-
-			case SOCIAL_APPS_TYPE_FIELDS:
-				$func = 'field';
-			break;
+		if ($this->type == SOCIAL_APPS_TYPE_APPS) {
+			$method = 'app';
 		}
 
-		if( empty( $func ) )
-		{
+		if ($this->type == SOCIAL_APPS_TYPE_FIELDS) {
+			$method = 'field';
+		}
+
+		if (!$method) {
 			return false;
 		}
 
-		$func = 'load' . strtoupper( $func );
+		$method = 'load' . strtoupper($method);
 
 		$lang = FD::language();
 
-		$lang->$func( $this->group, $this->element, $reload = false, $default = true );
+		$lang->$method($this->group, $this->element, $reload, $default);
 
 		return true;
 	}

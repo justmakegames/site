@@ -15,83 +15,83 @@ $activeUser = ( isset( $user ) ) ? $user : FD::user();
 ?>
 <div data-friends-content>
 
-	<div class="es-filterbar">
-		<div class="pull-left half-width">
-			<h4 class="h4 filterbar-title">
-				<?php if ($filter == 'list') { ?>
-					<?php echo $activeList->get('title'); ?>
-				<?php } else { ?>
-					<?php if( $filter == 'pending' ){ ?>
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_PENDING_FRIENDS' ); ?>
-					<?php } ?>
-
-					<?php if( $filter == 'all' ){ ?>
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_ALL_FRIENDS' ); ?>
-					<?php } ?>
-
-					<?php if( $filter == 'mutual' ){ ?>
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_MUTUAL_FRIENDS' ); ?>
-					<?php } ?>
-
-					<?php if( $filter == 'suggest' ){ ?>
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_SUGGEST_FRIENDS' ); ?>
-					<?php } ?>
-
-					<?php if( $filter == 'request' ){ ?>
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_FRIENDS_REQUEST_SENT' ); ?>
-					<?php } ?>
-
+	<div class="es-snackbar row-table">
+		<div class="col-cell half-width">
+			<?php if ($filter == 'list') { ?>
+				<?php echo $activeList->get('title'); ?>
+			<?php } else { ?>
+				<?php if( $filter == 'pending' ){ ?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_PENDING_FRIENDS' ); ?>
 				<?php } ?>
-			</h4>
+
+				<?php if( $filter == 'all' ){ ?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_ALL_FRIENDS' ); ?>
+				<?php } ?>
+
+				<?php if( $filter == 'mutual' ){ ?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_MUTUAL_FRIENDS' ); ?>
+				<?php } ?>
+
+				<?php if( $filter == 'suggest' ){ ?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_SUGGEST_FRIENDS' ); ?>
+				<?php } ?>
+
+				<?php if( $filter == 'request' ){ ?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_HEADING_FRIENDS_REQUEST_SENT' ); ?>
+				<?php } ?>
+
+			<?php } ?>
 		</div>
 
 		<?php if ($filter == 'list') { ?>
-		<div class="btn-radius pull-right listActions"
-			data-friendList-actions
-			data-id="<?php echo $activeList->id;?>"
-			data-userid="<?php echo $activeUser->id;?>"
-			data-title="<?php echo $this->html( 'string.escape' , $activeList->title );?>"
-		>
-			<a href="javascript:void(0);" class="btn btn-es" data-bs-toggle="dropdown"><?php echo JText::_( 'COM_EASYSOCIAL_MANAGE_LIST_BUTTON' );?> <b class="caret"></b></a>
+		<div class="col-cell cell-tight">
+			<div class="btn-radius listActions dropdown"
+				data-friendList-actions
+				data-id="<?php echo $activeList->id;?>"
+				data-userid="<?php echo $activeUser->id;?>"
+				data-title="<?php echo $this->html( 'string.escape' , $activeList->title );?>"
+			>
+				<a href="javascript:void(0);" class="fd-small" data-bs-toggle="dropdown"><?php echo JText::_( 'COM_EASYSOCIAL_MANAGE_LIST_BUTTON' );?> <b class="caret"></b></a>
 
-			<ul class="dropdown-menu dropdown-menu-lists dropdown-arrow-topright">
-				<?php if($this->config->get('conversations.enabled')) { ?>
-				<li>
-					<a href="javascript:void(0);" data-es-conversations-compose data-es-conversations-listid="<?php echo $activeList->id;?>">
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_START_CONVERSATION' );?>
-					</a>
-				</li>
-				<li>
-					<hr />
-				</li>
-				<?php } ?>
-				<li>
-					<a href="<?php echo FRoute::friends( array( 'layout' => 'listForm' , 'id' => $activeList->id ) );?>">
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_EDIT' );?>
-					</a>
-				</li>
-				<li>
-					<a href="javascript:void(0);" data-friendListActions-add>
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_ADD' );?>
-					</a>
-				</li>
-				<li>
-					<hr />
-				</li>
-				<li>
-					<a href="javascript:void(0);" data-friendListActions-default>
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_SET_DEFAULT' );?>
-					</a>
-				</li>
-				<li>
-					<hr />
-				</li>
-				<li data-lists-delete>
-					<a href="javascript:void(0);" data-friendListActions-delete>
-						<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_DELETE' );?>
-					</a>
-				</li>
-			</ul>
+				<ul class="dropdown-menu dropdown-menu-right dropdown-menu-lists dropdown-arrow-topright">
+					<?php if($this->config->get('conversations.enabled')) { ?>
+					<li>
+						<a href="javascript:void(0);" data-es-conversations-compose data-es-conversations-listid="<?php echo $activeList->id;?>">
+							<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_START_CONVERSATION' );?>
+						</a>
+					</li>
+					<li>
+						<hr />
+					</li>
+					<?php } ?>
+					<li>
+						<a href="<?php echo FRoute::friends( array( 'layout' => 'listForm' , 'id' => $activeList->id ) );?>">
+							<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_EDIT' );?>
+						</a>
+					</li>
+					<li>
+						<a href="javascript:void(0);" data-friendListActions-add>
+							<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_ADD' );?>
+						</a>
+					</li>
+					<li>
+						<hr />
+					</li>
+					<li>
+						<a href="javascript:void(0);" data-friendListActions-default>
+							<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_SET_DEFAULT' );?>
+						</a>
+					</li>
+					<li>
+						<hr />
+					</li>
+					<li data-lists-delete>
+						<a href="javascript:void(0);" data-friendListActions-delete>
+							<?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_DELETE' );?>
+						</a>
+					</li>
+				</ul>
+			</div>
 		</div>
 		<?php } ?>
 	</div>

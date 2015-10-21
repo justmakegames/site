@@ -15,31 +15,35 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="row">
 
 	<div class="col-md-6">
-		<div class="widget-box">
-			<h3><?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_FORM_GENERAL' );?></h3>
+		<div class="panel">
+			<div class="panel-head">
+				<b><?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_FORM_GENERAL' );?></b>
+			</div>
 
-			<div class="form-group">
-				<label for="page_title" class="col-md-5">
-					<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_FORM_DEFAULT' );?>
-					<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_FORM_DEFAULT' , true );?>" data-content="<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_FORM_DEFAULT_DESC' , true ); ?>" data-es-provide="popover" class="icon-es-help pull-right" data-original-title=""></i>
-				</label>
-				<div class="col-md-7">
-					<select class="input-full" value="<?php echo $privacy->value;?>" name="value">
-					<?php
-						$options = FD::json()->decode( $privacy->options );
+			<div class="panel-body">
+				<div class="form-group">
+					<label for="page_title" class="col-md-5">
+						<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_FORM_DEFAULT' );?>
+						<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_FORM_DEFAULT' , true );?>" data-content="<?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_FORM_DEFAULT_DESC' , true ); ?>" data-es-provide="popover" class="fa fa-question-circle pull-right" data-original-title=""></i>
+					</label>
+					<div class="col-md-7">
+						<select class="input-full" value="<?php echo $privacy->value;?>" name="value">
+						<?php
+							$options = FD::json()->decode( $privacy->options );
 
-						foreach( $options->options as $option )
-						{
-							//$value 		= FD::call( 'Privacy' , 'toValue' , $option );
-							$value 		= FD::privacy()->toValue( $option );
-							$isChecked 	= ( $privacy->value == $value ) ? ' selected="selected"' : '';
-							$label     	= JText::_( 'COM_EASYSOCIAL_PRIVACY_OPTION_' . strtoupper( $option ) );
+							foreach( $options->options as $option )
+							{
+								//$value 		= FD::call( 'Privacy' , 'toValue' , $option );
+								$value 		= FD::privacy()->toValue( $option );
+								$isChecked 	= ( $privacy->value == $value ) ? ' selected="selected"' : '';
+								$label     	= JText::_( 'COM_EASYSOCIAL_PRIVACY_OPTION_' . strtoupper( $option ) );
+							?>
+							<option value="<?php echo $value; ?>"<?php echo $isChecked; ?>><?php echo $label; ?></option>
+						<?php
+							}
 						?>
-						<option value="<?php echo $value; ?>"<?php echo $isChecked; ?>><?php echo $label; ?></option>
-					<?php
-						}
-					?>
-					</select>
+						</select>
+					</div>
 				</div>
 			</div>
 		</div>

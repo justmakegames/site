@@ -26,19 +26,8 @@ class EasySocialViewUsers extends EasySocialAdminView
 	 */
 	public function display($tpl = null)
 	{
-		// Disallow access
-		if (!$this->authorise('easysocial.access.users')) {
-			$this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR'), 'error');
-		}
-
-		// Set page heading
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_USERS'));
-
-		// Set page icon
-		$this->setIcon('icon-jar jar-user_client');
-
-		// Set page description
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_USERS'));
+		$this->setHeading('COM_EASYSOCIAL_HEADING_USERS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_USERS');
 
 		// Add Joomla buttons
 		JToolbarHelper::addNew();
@@ -56,28 +45,32 @@ class EasySocialViewUsers extends EasySocialAdminView
 		JToolbarHelper::deleteList();
 
 		// Get the model
-		$modelProfiles 	= FD::model('Profiles');
-		$model 			= FD::model('Users', array('initState' => true));
+		$profilesModel = FD::model('Profiles');
+		$model = FD::model('Users', array('initState' => true));
 
 		// perform some maintenance actions here
-		$modelProfiles->deleteOrphanItems();
+		$profilesModel->deleteOrphanItems();
 
 		// Get filter states.
-		$ordering 	= JRequest::getVar('ordering', $model->getState('ordering'));
-		$direction 	= JRequest::getVar('direction'	, $model->getState('direction'));
-		$limit 		= $model->getState('limit');
-		$published 	= $model->getState('published');
-		$search 	= JRequest::getVar('search'	, $model->getState('search'));
-		$group		= JRequest::getInt('group', $model->getState('group'));
-		$profile 	= JRequest::getInt('profile', $model->getState('profile'));
+		$ordering = $this->input->get('ordering', $model->getState('ordering'), 'default');
+		$direction = $this->input->get('direction', $model->getState('direction'), 'default');
+
+		$limit = $model->getState('limit');
+		$published = $model->getState('published');
+
+		$search = $this->input->get('search', $model->getState('search'), 'default');
+		$group = $this->input->get('group', $model->getState('group'), 'int');
+		$profile = $this->input->get('profile', $model->getState('profile'), 'int');
 
 		// Checks if user listing that is retrieved requires multiple selection or not
 		// Multiple is enabled by default, assuming that we are on normal user listing page
 		// If tmpl = component, this means that other elements is retrieving user listing through ajax, in that case, we default it to false instead
 		$multiple = true;
-		if (JRequest::getString('tmpl') === 'component') {
-			$multiple = JRequest::getBool('multiple', false);
+
+		if ($this->input->get('tmpl', '', 'string') === 'component') {
+			$multiple = $this->input->get('multiple', false, 'bool');
 		}
+
 		$this->set('multiple', $multiple);
 
 		// Get users
@@ -123,18 +116,8 @@ class EasySocialViewUsers extends EasySocialAdminView
 	 */
 	public function export()
 	{
-		// Disallow access
-		if (!$this->authorise('easysocial.access.users')) {
-			$this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR'), 'error');
-		}
-
-		// Set page heading
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_EXPORT_USERS'));
-
-		$this->setIcon('ies-download');
-
-		// Set page description
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_EXPORT_USERS'));
+		$this->setHeading('COM_EASYSOCIAL_HEADING_EXPORT_USERS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_EXPORT_USERS');
 
 		// Get a list of profiles on the site
 		$model = FD::model('Profiles');
@@ -157,27 +140,17 @@ class EasySocialViewUsers extends EasySocialAdminView
 	 */
 	public function pending()
 	{
-		// Disallow access
-		if(!$this->authorise('easysocial.access.users'))
-		{
-			$this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR'), 'error');
-		}
-
-		// Display buttons on this page.
 		JToolbarHelper::deleteList();
 		JToolbarHelper::divider();
 		JToolbarHelper::custom('approve', 'publish', 'social-publish-hover', JText::_('COM_EASYSOCIAL_APPROVE_BUTTON'), true);
 		JToolbarHelper::custom('reject', 'unpublish', 'social-unpublish-hover', JText::_('COM_EASYSOCIAL_REJECT_BUTTON'), true);
 
-		// Set page heading
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_PENDING_APPROVALS'));
 
-		$this->setIcon('ies-vcard');
-		// Set page description
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_PENDING_APPROVALS'));
+		$this->setHeading('COM_EASYSOCIAL_HEADING_PENDING_APPROVALS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_PENDING_APPROVALS');
 
 		// Get the user's model.
-		$model 			= FD::model('Users');
+		$model = FD::model('Users', array('initState' => true));
 
 		$ordering 	= JRequest::getVar('ordering', $model->getState('ordering'));
 		$direction 	= JRequest::getVar('direction'	, $model->getState('direction'));
@@ -186,7 +159,7 @@ class EasySocialViewUsers extends EasySocialAdminView
 		$filter		= JRequest::getWord('filter', $model->getState('filter'));
 		$profile 	= JRequest::getInt('profile', $model->getState('profile'));
 
-		$result 		= $model->getUsers(array('state' => SOCIAL_REGISTER_APPROVALS));
+		$result 		= $model->getUsers(array('state' => SOCIAL_REGISTER_APPROVALS, 'ignoreESAD' => true, 'limit' => $limit));
 		$pagination 	= $model->getPagination();
 		$users 			= array();
 
@@ -315,10 +288,8 @@ class EasySocialViewUsers extends EasySocialAdminView
 	 */
 	public function newForm($errors = null)
 	{
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_CREATE_USER'));
-
-		// Set page description
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_CREATE_USER'));
+		$this->setHeading('COM_EASYSOCIAL_HEADING_CREATE_USER');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_CREATE_USER');
 
 		// Get the profile id
 		$profileId	= JRequest::getInt('profileId');
@@ -355,7 +326,7 @@ class EasySocialViewUsers extends EasySocialAdminView
 
 			// Get the custom fields for each of the steps.
 			foreach ($steps as &$step) {
-				$step->fields = $fieldsModel->getCustomFields(array('step_id' => $step->id));
+				$step->fields = $fieldsModel->getCustomFields(array('step_id' => $step->id, 'visible'=> SOCIAL_PROFILES_VIEW_REGISTRATION) );
 
 				// Trigger onEdit for custom fields.
 				if (!empty($step->fields)) {
@@ -389,10 +360,6 @@ class EasySocialViewUsers extends EasySocialAdminView
 		$profile = $user->getProfile();
 
 		$this->setHeading($user->getName() . ' (' . $profile->get('title') . ')');
-
-		$this->setIconUrl($user->getAvatar(SOCIAL_AVATAR_LARGE));
-
-		// Set page description
 		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_EDIT_USER'));
 
 		// Load up language file from the front end.
@@ -440,7 +407,7 @@ class EasySocialViewUsers extends EasySocialAdminView
 		$fieldsModel 	= FD::model('Fields');
 
 		// Get custom fields library.
-		$fields 	= FD::fields();
+		$fields = FD::fields();
 
 		// Manually set the user here because admin edit might be editing a different user
 		$fields->setUser($user);
@@ -448,41 +415,41 @@ class EasySocialViewUsers extends EasySocialAdminView
 		// Get the custom fields for each of the steps.
 		foreach ($steps as &$step) {
 
-			$step->fields 	= $fieldsModel->getCustomFields(array('step_id' => $step->id, 'data' => true, 'dataId' => $user->id, 'dataType' => SOCIAL_TYPE_USER));
+			$step->fields = $fieldsModel->getCustomFields(array('step_id' => $step->id, 'data' => true, 'dataId' => $user->id, 'dataType' => SOCIAL_TYPE_USER));
 
 			// Trigger onEdit for custom fields.
-			if(!empty($step->fields))
-			{
-				$post = JRequest::get('post');
-				$args 	= array(&$post, &$user, $errors);
+			if (!empty($step->fields)) {
+				$post = $this->input->getArray('post');
+				$args = array(&$post, &$user, $errors);
+
 				$fields->trigger('onAdminEdit', SOCIAL_FIELDS_GROUP_USER, $step->fields, $args);
 			}
 		}
 
 		// Get user badges
-		$badges 	= $user->getBadges();
+		$badges = $user->getBadges();
 
 		// Get the user notification settings
-		$alertLib 	= FD::alert();
-		$alerts 	= $alertLib->getUserSettings($user->id);
+		$alertLib = FD::alert();
+		$alerts = $alertLib->getUserSettings($user->id);
 
 		// Get stats
-		$stats 		= $this->getStats($user);
+		$stats = $this->getStats($user);
 
 		// Get user points history
-		$pointsModel   = FD::model('Points');
+		$pointsModel = FD::model('Points');
 		$pointsHistory = $pointsModel->getHistory($user->id, array('limit' => 20));
 		$pointsPagination = $pointsModel->getPagination();
 
 		// Get user's groups
-		$userGroups 	= array_keys($user->groups);
+		$userGroups = array_keys($user->groups);
 
 		// We need to hide the guest user group that is defined in com_users options.
 		// Public group should also be hidden.
-		$userOptions 	= JComponentHelper::getComponent('com_users')->params;
+		$userOptions = JComponentHelper::getComponent('com_users')->params;
 
 		$defaultRegistrationGroup 	= $userOptions->get('new_usertype');
-		$guestGroup		= array(1, $userOptions->get('guest_usergroup'));
+		$guestGroup = array(1, $userOptions->get('guest_usergroup'));
 
 		$this->set('userGroups'	, $userGroups);
 		$this->set('guestGroup'	, $guestGroup);

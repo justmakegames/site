@@ -1,7 +1,7 @@
 {
 	"title"	: "COM_EASYSOCIAL_MENU_GROUP_DASHBOARD",
 	"link"	: "index.php?option=com_easysocial",
-	"class"	: "ies-home-2",
+	"class"	: "fa-home",
 	"view"	: "easysocial",
 	"active": "view",
 	"childs": []

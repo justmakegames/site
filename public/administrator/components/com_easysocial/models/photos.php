@@ -227,80 +227,169 @@ class EasySocialModelPhotos extends EasySocialModel
 	 * @param	string
 	 * @return
 	 */
-	public function getPhotos( $options = array() )
+	/**
+	 * Retrieves list of photos
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getPhotos($options = array())
 	{
-		$db		= FD::db();
 
-		// Get the query object
-		$sql	= $db->sql();
+		$accessColumn = "(select pri.value as `access` from `#__social_privacy_items` as pri";
+		$accessColumn .= " left join `#__social_privacy_customize` as prc on pri.id = prc.uid and prc.utype = 'item' where pri.uid=a.id and pri.`type` = 'photos'";
+		$accessColumn .= " UNION ALL ";
+		$accessColumn .= " select prm.value as `access`";
+		$accessColumn .= " from `#__social_privacy_map` as prm";
+		$accessColumn .= "	inner join `#__social_privacy` as pp on prm.privacy_id = pp.id";
+		$accessColumn .= "	left join `#__social_privacy_customize` as prc on prm.id = prc.uid and prc.utype = 'user'";
+		$accessColumn .= " where prm.uid = a.user_id and prm.utype = 'user'";
+		$accessColumn .= "	and pp.type = 'photos' and pp.rule = 'view'";
+		$accessColumn .= " union all ";
+		$accessColumn .= " select prm.value as `access`";
+		$accessColumn .= " from `#__social_privacy_map` as prm";
+		$accessColumn .= "	inner join `#__social_privacy` as pp on prm.privacy_id = pp.id";
+		$accessColumn .= "	inner join `#__social_profiles_maps` pmp on prm.uid = pmp.profile_id";
+		$accessColumn .= " where prm.utype = 'profiles' and pmp.user_id = a.user_id";
+		$accessColumn .= "	and pp.type = 'photos' and pp.rule = 'view'";
+		$accessColumn .= " limit 1";
+		$accessColumn .= ") as access";
 
-		$sql->select( '#__social_photos' );
+		$accessCustomColumn = "(select concat(',', group_concat(prc.user_id SEPARATOR ','), ',') as `custom_access` from `#__social_privacy_items` as pri";
+		$accessCustomColumn .= " left join `#__social_privacy_customize` as prc on pri.id = prc.uid and prc.utype = 'item' where pri.uid=a.id and pri.`type` = 'photos'";
+		$accessCustomColumn .= " UNION ALL ";
+		$accessCustomColumn .= " select concat(',', group_concat(prc.user_id SEPARATOR ','), ',') as `custom_access`";
+		$accessCustomColumn .= " from `#__social_privacy_map` as prm";
+		$accessCustomColumn .= "	inner join `#__social_privacy` as pp on prm.privacy_id = pp.id";
+		$accessCustomColumn .= "	left join `#__social_privacy_customize` as prc on prm.id = prc.uid and prc.utype = 'user'";
+		$accessCustomColumn .= " where prm.uid = a.user_id and prm.utype = 'user'";
+		$accessCustomColumn .= "	and pp.type = 'photos' and pp.rule = 'view'";
+		$accessCustomColumn .= " limit 1";
+		$accessCustomColumn .= ") as custom_access";
 
-		$albumId = isset( $options[ 'album_id' ] ) ? $options[ 'album_id' ] : null;
 
-		$start = isset( $options['start'] ) ? $options['start'] : 0;
-		$limit = isset( $options['limit'] ) ? $options['limit'] : 10;
+		$db = FD::db();
+		$sql = $db->sql();
 
-		if( !is_null( $albumId ) )
-		{
-			$sql->where( 'album_id' , $albumId );
+		$albumId = isset($options['album_id']) ? $options['album_id'] : null;
+		$start = isset($options['start']) ? $options['start'] : 0;
+		$limit = isset($options['limit']) ? $options['limit'] : 10;
+
+		$state = isset($options['state']) ? $options['state'] : SOCIAL_STATE_PUBLISHED;
+		$uid = isset($options['uid']) ? $options['uid'] : false;
+		$storage = isset($options['storage']) ? $options['storage'] : '';
+		$pagination = isset($options['pagination']) ? $options['pagination'] : true;
+		$exclusion 		= isset($options['exclusion']) ? $options['exclusion'] :'';
+		$privacy = isset($options['privacy']) ? $options['privacy'] :'';
+
+		$ordering = isset($options['ordering']) ? $options['ordering'] : '';
+		$sort = isset($options['sort']) ? $options['sort'] : 'DESC';
+
+		$query = array();
+
+		if ($privacy) {
+			$query[] = "select * from (";
 		}
 
-		$state 	= isset( $options[ 'state' ] ) ? $options[ 'state' ] : SOCIAL_STATE_PUBLISHED;
 
-		$sql->where( 'state' , $state );
+		$query[] = "select a.*";
+
+		if ($privacy) {
+			$query[] = ", $accessColumn, $accessCustomColumn";
+		}
+
+		$query[] = "from `#__social_photos` as a";
+		$query[] = "where a.`state` = " . $db->Quote($state);
+
+
+		if (!is_null($albumId)) {
+			$query[] = "and a.`album_id` = " . $db->Quote($albumId);
+		}
 
 		// If user id is specified, we only fetch photos that are created by the user.
-		$uid 	= isset( $options[ 'uid' ] ) ? $options[ 'uid' ] : false;
-
-		if( $uid )
-		{
-			$sql->where( 'uid' 	, $uid );
-			$sql->where( 'type' , SOCIAL_TYPE_USER );
+		if ($uid) {
+			$query[] = "and a.`uid` = " . $db->Quote($uid);
+			$query[] = "and a.`type` = " . $db->Quote(SOCIAL_TYPE_USER);
 		}
 
-		$storage 	= isset( $options[ 'storage' ] ) ? $options[ 'storage' ] : '';
-
-		if( $storage )
-		{
-			$sql->where( 'storage' , $storage );
-		}
-
-		// Determine if we should paginate items
-		$pagination 	= isset( $options[ 'pagination' ] ) ? $options[ 'pagination' ] : true;
-
-		if( $pagination )
-		{
-			$sql->limit( $start, $limit );
-		}
-
-		$ordering 		= isset($options['ordering']) ? $options['ordering'] : '';
-
-		if (!empty($ordering)) {
-
-			if ($ordering == 'random') {
-				$sql->order('', '', 'RAND');
-			}
-
-		} else {
-			$sql->order( 'ordering' );
+		if ($storage) {
+			$query[] = " and a.`storage` = " . $db->Quote($storage);
 		}
 
 		// If there's an exclusion list, exclude it
-		$exclusion 		= isset($options['exclusion']) ? $options['exclusion'] :'';
-
 		if (!empty($exclusion)) {
 
 			// Ensure that it's an array
 			$exclusion	= FD::makeArray($exclusion);
 
-			foreach($exclusion as $id) {
-				$sql->where('id', $id, '!=', 'AND');
+			$eIds = implode(',', $exclusion);
+			$query[] = "and a.`id` NOT IN ($eIds)";
+		}
+
+		if (!empty($ordering)) {
+
+			if ($ordering == 'random') {
+				$query[] = "order by RAND()";
 			}
+
+			if ($ordering == 'created') {
+				$query[] = "order by a.`created` $sort";
+			}
+
+			if ($ordering == 'ordering') {
+				$query[] = "order by a.`ordering` $sort";
+			}
+
+		} else {
+			$query[] = "order by a.`ordering` $sort";
+		}
+
+		if ($privacy) {
+
+			$viewer = FD::user()->id;
+
+
+			$query[] = ") as x";
+
+			// privacy here.
+			$query[] = ' WHERE (';
+
+			//public
+			$query[] = '(x.`access` = ' . $db->Quote( SOCIAL_PRIVACY_PUBLIC ) . ') OR';
+
+			//member
+			$query[] = '( (x.`access` = ' . $db->Quote(SOCIAL_PRIVACY_MEMBER) . ') AND (' . $viewer . ' > 0 ) ) OR ';
+
+			//friends
+			$query[] = '( (x.`access` = ' . $db->Quote(SOCIAL_PRIVACY_FRIEND) . ') AND ( (' . $this->generateIsFriendSQL( 'x.`user_id`', $viewer ) . ') > 0 ) ) OR ';
+
+			//only me
+			$query[] = '( (x.`access` = ' . $db->Quote(SOCIAL_PRIVACY_ONLY_ME) . ') AND ( x.`user_id` = ' . $viewer . ' ) ) OR ';
+
+			// custom
+			$query[] = '( (x.`access` = ' . $db->Quote(SOCIAL_PRIVACY_CUSTOM) . ') AND ( x.`custom_access` LIKE ' . $db->Quote( '%,' . $viewer . ',%' ) . '    ) ) OR ';
+
+			// my own items.
+			$query[] = '(x.`user_id` = ' . $viewer . ')';
+
+			// privacy checking end here.
+			$query[] = ')';
 
 		}
 
-		// var_dump( $sql->toString() );
+		// Determine if we should paginate items
+		if ($pagination) {
+			$query[] = "limit " . $start . "," . $limit;
+		}
+
+		$query = implode(' ', $query);
+
+		$sql->raw($query);
+
+		// echo $sql;
+		// echo '<br />';
 
 		$db->setQuery( $sql );
 
@@ -324,6 +413,14 @@ class EasySocialModelPhotos extends EasySocialModel
 
 		return $photos;
 	}
+
+	public function generateIsFriendSQL( $source, $target )
+	{
+		$query = "select count(1) from `#__social_friends` where ( `actor_id` = $source and `target_id` = $target) OR (`target_id` = $source and `actor_id` = $target) and `state` = 1";
+
+		return $query;
+	}
+
 
 	/**
 	 * Retrieves the meta data about a photo

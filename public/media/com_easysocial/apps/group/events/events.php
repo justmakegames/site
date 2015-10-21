@@ -19,7 +19,7 @@ class SocialGroupAppEvents extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#f06050';
-        $obj->icon = 'ies-calendar';
+        $obj->icon = 'fa-calendar';
         $obj->label = 'APP_GROUP_EVENTS_STREAM_TOOLTIP';
 
         return $obj;
@@ -40,7 +40,16 @@ class SocialGroupAppEvents extends SocialAppItem
             return;
         }
 
+        // If events is disabled, we shouldn't display this
         if (!FD::config()->get('events.enabled')) {
+            return;
+        }
+
+        // Ensure that the group category has access to create events
+        $group = FD::group($story->cluster);
+        $access = $group->getAccess();
+
+        if (!$access->get('events.groupevent')) {
             return;
         }
 
@@ -173,13 +182,13 @@ class SocialGroupAppEvents extends SocialAppItem
 
     public function onBeforeGetStream(&$options, $view = '')
     {
-
         if ($view != 'groups') {
             return;
         }
 
         $layout = JRequest::getVar('layout', '');
-        if ($layout != 'item') {
+        if ($layout == 'category') {
+            // if this is viewing group category page, we ignore the events stream for groups.
             return;
         }
 
@@ -210,9 +219,21 @@ class SocialGroupAppEvents extends SocialAppItem
         $options['clusterId'] = array_merge($options['clusterId'], $groupEvents);
     }
 
+    /**
+     * Determines if this app should be visible in the group page
+     *
+     * @since   5.0
+     * @access  public
+     * @param   string
+     * @return
+     */
     public function appListing($view, $groupId, $type)
     {
         $group = FD::group($groupId);
+
+        if (!$this->config->get('events.enabled')) {
+            return false;
+        }
 
         return $group->getAccess()->get('events.groupevent', true);
     }

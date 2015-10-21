@@ -32,13 +32,13 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php } ?>
             </div>
 
+            <?php if ($params->get('display_counter', true)) { ?>
             <div class="es-category-meta">
-                <?php if ($params->get('display_counter' , true)){ ?>
                 <span class="hit-counter">
-                    <i class="ies-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('MOD_EASYSOCIAL_EVENTS_CATEGORY_EVENTS_COUNT' , $category->getTotalEvents()) , $category->getTotalEvents()); ?>
+                    <i class="fa fa-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('MOD_EASYSOCIAL_EVENTS_CATEGORY_EVENTS_COUNT' , $category->getTotalEvents()) , $category->getTotalEvents()); ?>
                 </span>
-                <?php } ?>
             </div>
+            <?php } ?>
         </li>
         <?php } ?>
     </ul>

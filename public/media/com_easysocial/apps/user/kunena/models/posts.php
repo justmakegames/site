@@ -124,6 +124,40 @@ class PostsModel extends EasySocialModel
 	}
 
 	/**
+	 * Retrieves the total replies posted in Kunena
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	int			The author's id.
+	 *
+	 * @return	Array		A list of notes item.
+	 */
+	public function getTotalReplies($userId)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$sql->select('#__kunena_messages', 'a');
+		$sql->column('COUNT(1)');
+		$sql->join( '#__kunena_categories' , 'b' );
+		$sql->on('a.catid', 'b.id');
+
+		$sql->join('#__kunena_messages_text' , 'c' );
+		$sql->on('a.id' , 'c.mesid' );
+
+		$sql->where('a.parent', 0, '!=');
+		$sql->where('a.userid', $userId);
+		$sql->where('b.published', 1);
+
+		$db->setQuery($sql);
+
+		$posts	= (int) $db->loadResult();
+
+		return $posts;
+	}
+
+
+	/**
 	 * Retrieves replies posted in Kunena
 	 *
 	 * @since	1.0

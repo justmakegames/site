@@ -18,7 +18,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<div class="es-container" data-group-about>
 		<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-			<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+			<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 		</a>
 		<div class="es-sidebar" data-sidebar>
 			<div class="es-widget">
@@ -48,7 +48,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<div class="es-content pt-20">
 			<?php if( ( $group->isOwner() || $group->isAdmin() ) && $incomplete ){ ?>
 			<div class="es-groups-incomplete-info clearfix">
-				<div class="pull-left"><i class="ies-signup mr-5"></i> <?php echo JText::sprintf( 'COM_EASYSOCIAL_GROUPS_PROFILE_NOT_COMLETED_YET' ); ?></div>
+				<div class="pull-left"><i class="fa fa-signup mr-5"></i> <?php echo JText::sprintf( 'COM_EASYSOCIAL_GROUPS_PROFILE_NOT_COMLETED_YET' ); ?></div>
 
 				<a href="<?php echo $group->getEditPermalink();?>" class="btn btn-es-primary btn-sm pull-right"><?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_UPDATE_GROUP_DETAILS' ); ?> &rarr;</a>
 			</div>
@@ -60,18 +60,16 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<div id="tab-<?php echo $step->id;?>" class="profile-data-box step-content tab-pane<?php echo $i == 0 ? ' active' :'';?>" data-id="<?php echo $step->id; ?>" data-profile-about-step-content>
 					<?php if( $step->fields ){ ?>
 						<?php $empty = true; ?>
-                        <div class="pl-20">
-    						<table class="table table-striped profile-data-table">
-    							<tbody>
-    								<?php foreach( $step->fields as $field ){ ?>
-    									<?php if( !empty( $field->output ) ){ ?>
-    											<?php echo $field->output; ?>
-    										<?php $empty = false; ?>
-    									<?php } ?>
-    								<?php } ?>
-    							</tbody>
-    						</table>
-                        </div>
+							<table class="table table-striped profile-data-table">
+								<tbody>
+									<?php foreach( $step->fields as $field ){ ?>
+										<?php if( !empty( $field->output ) ){ ?>
+												<?php echo $field->output; ?>
+											<?php $empty = false; ?>
+										<?php } ?>
+									<?php } ?>
+								</tbody>
+							</table>
 
 						<?php if( $empty ){ ?>
 						<div class="empty center">

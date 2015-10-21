@@ -34,7 +34,7 @@ class SocialEventAppTasks extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#658ea6';
-        $obj->icon = 'ies-checkbox-checked';
+        $obj->icon = 'fa-check-square';
         $obj->label = 'APP_EVENT_TASKS_STREAM_TOOLTIP';
 
         return $obj;
@@ -241,7 +241,7 @@ class SocialEventAppTasks extends SocialAppItem
      */
     public function onNotificationLoad(SocialTableNotification &$item)
     {
-        $cmds = array('events.milestone.create', 'events.task.create', 'events.task.completed', 'comments.item', 'comments.involved', 'likes.item', 'likes.involved');
+        $cmds = array('events.milestone.created', 'events.task.created', 'events.task.completed', 'comments.item', 'comments.involved', 'likes.item', 'likes.involved');
 
         if (!in_array($item->cmd, $cmds)) {
             return;
@@ -275,7 +275,7 @@ class SocialEventAppTasks extends SocialAppItem
             $item->content = $task->title;
         }
 
-        if ($item->cmd === 'events.task.create') {
+        if ($item->cmd === 'events.task.created') {
             // Get the milestone data
             $id = $item->context_ids;
             $task = FD::table('Task');
@@ -288,7 +288,8 @@ class SocialEventAppTasks extends SocialAppItem
             $item->content = $task->title;
         }
 
-        if ($item->cmd === 'events.milestone.create') {
+        if ($item->cmd === 'events.milestone.created') {
+            
             // Get the milestone data
             $id = $item->context_ids;
             $milestone = FD::table('Milestone');
@@ -381,7 +382,9 @@ class SocialEventAppTasks extends SocialAppItem
 
         // Create plugin object
         $plugin = $story->createPlugin('tasks', 'panel');
-        $plugin->button->html = $theme->output('themes:/apps/event/tasks/story/panel.button');
+
+        // Get the button's styling
+        $button = $theme->output('site/tasks/story/button');
 
         // Attachment script
         $script = FD::get('Script');
@@ -394,14 +397,21 @@ class SocialEventAppTasks extends SocialAppItem
             // We need to attach the button to the story panel
             $theme->set('permalink', $permalink);
 
-            $plugin->content->html = $theme->output('themes:/apps/event/tasks/story/panel.empty');
+            $form = $theme->output('site/tasks/story/empty');
+
+            $plugin->setHtml($button, $form);
+            
             return $plugin;
         }
 
         // We need to attach the button to the story panel
         $theme->set('milestones', $milestones);
 
-        $plugin->content->html = $theme->output('themes:/apps/event/tasks/story/panel.content');
+        // Get the form for the app
+        $form = $theme->output('site/tasks/story/form');
+
+        $plugin->setHtml($button, $form);
+        $plugin->setScript($script->output('site/tasks/story/plugin'));
 
         return $plugin;
     }
@@ -433,8 +443,8 @@ class SocialEventAppTasks extends SocialAppItem
 
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
         $item->color = '#658ea6';
-        $item->fonticon = 'ies-checkbox-checked';
-        $item->label = JText::_('APP_EVENT_TASKS_STREAM_TOOLTIP');
+        $item->fonticon = 'fa fa-check-square';
+        $item->label = FD::_('APP_EVENT_TASKS_STREAM_TOOLTIP', true);
 
         // Get the verb
         $verb = $item->verb;

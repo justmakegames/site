@@ -15,14 +15,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="row">
 
 	<div class="col-md-6">
-		<div class="widget-box">
-			<h3><?php echo JText::_( 'COM_EASYSOCIAL_ALERTS_INSTALL_UPLOAD' );?></h3>
+		<div class="panel">
+			<div class="panel-head">
+				<b><?php echo JText::_( 'COM_EASYSOCIAL_ALERTS_INSTALL_UPLOAD' );?></b>
+				<p><?php echo JText::_( 'COM_EASYSOCIAL_ALERTS_INSTALL_UPLOAD_DESC' );?></p>
+			</div>
 
-			<p>
-				<?php echo JText::_( 'COM_EASYSOCIAL_ALERTS_INSTALL_UPLOAD_DESC' );?>
-			</p>
-
-			<div>
+			<div class="panel-body">
 				<input type="file" name="package" id="package" class="input" style="width:265px;" data-uniform />
 				<button class="btn btn-small btn-es-primary installUpload"><?php echo JText::_( 'COM_EASYSOCIAL_UPLOAD_AND_INSTALL_BUTTON' );?> &raquo;</button>
 			</div>

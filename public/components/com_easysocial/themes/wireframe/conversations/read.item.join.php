@@ -12,24 +12,22 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <li class="message-item" data-readConversation-item data-id="<?php echo $message->id;?>">
-	<div class="row">
-		<div class="col-md-12 fd-small">
+	<div class="fd-cf fd-small">
 
-			<div class="pull-left">
-				<i class="ies-users ies-small"></i>
+		<div class="pull-left">
+			<i class="fa fa-users "></i>
 
-				<?php echo JText::sprintf('COM_EASYSOCIAL_CONVERSATIONS_INVITED_INTO_CONVERSATION_MESSAGE', $this->html('html.user', $message->getCreator()->id), $this->html('html.user', $message->getTarget()->id)); ?>
-			</div>
+			<?php echo JText::sprintf('COM_EASYSOCIAL_CONVERSATIONS_INVITED_INTO_CONVERSATION_MESSAGE', $this->html('html.user', $message->getCreator()->id), $this->html('html.user', $message->getTarget()->id)); ?>
+		</div>
 
-			<div class="pull-right">
-				<span class="message-time">
-					<time>
-						<i class="ies-clock-2 ies-small"></i> <?php echo FD::date( $message->created )->toLapsed();?>
-					</time>
-				</span>
-			</div>
-
+		<div class="pull-right">
+			<span class="message-time">
+				<time>
+					<i class="fa fa-clock-o-2 "></i> <?php echo FD::date( $message->created )->toLapsed();?>
+				</time>
+			</span>
 		</div>
 
 	</div>
+
 </li>

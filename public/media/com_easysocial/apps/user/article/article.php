@@ -47,7 +47,7 @@ class SocialUserAppArticle extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#FCCD1B';
-		$obj->icon 		= 'ies-list-2';
+		$obj->icon 		= 'fa fa-list';
 		$obj->label 	= 'APP_USER_ARTICLE_STREAM_TOOLTIP';
 
 		return $obj;
@@ -173,8 +173,8 @@ class SocialUserAppArticle extends SocialAppItem
 		// Decorate the stream item
 		$item->display 	= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 	= '#FCCD1B';
-		$item->fonticon	= 'ies-list-2';
-		$item->label 	= JText::_( 'APP_USER_ARTICLE_STREAM_TOOLTIP' );
+		$item->fonticon	= 'fa-list';
+		$item->label 	= FD::_( 'APP_USER_ARTICLE_STREAM_TOOLTIP', true );
 
 		// Get application params
 		$params 	= $this->getParams();

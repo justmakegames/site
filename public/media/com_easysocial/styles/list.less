@@ -8,14 +8,17 @@
 // .es-item-list,
 .es-item-grid {
 	width: 100%;
+    .fd-reset-list();
 	.clearfix();
 	> li {
 		.clearfix();
+        .fd-reset-list();
 		margin-bottom: 10px;
 	}
 }
 
 .es-item-list {
+    .fd-reset-list();
 	display: block;
 	list-style: none outside none;
 	> li {
@@ -28,6 +31,7 @@
 	list-style: none;
 	line-height: normal;
 	> li {
+        .fd-reset-list();
 		float: left;
 		position: relative;
 		margin-right: 1%;
@@ -236,5 +240,30 @@
                 margin-left: 10px;
             }
         }
+    }
+}
+
+
+
+// List with vertical divider
+.es-list-vertical-divider {
+    >:not(:first-child) {
+        margin-left: 10px;
+        padding-left: 10px;
+        border-left: 1px dotted @esBorder;
+    }
+    > span,
+    > div {
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    .fa-film {
+        position: relative;
+        top: -1px;
     }
 }

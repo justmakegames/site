@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -31,36 +31,44 @@ jQuery(document).ready( function(){
 <form name="installation" method="post" data-installation-form>
 
 <p class="section-desc">
-	<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INSTALLING_DESC' );?>
+	<?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_INSTALLING_DESC');?>
 </p>
 
-<div class="alert alert-success" data-installation-completed style="display: none;">
-	<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INSTALLING_COMPLETED' ); ?>
+<div data-installation-completed style="display: none;margin-bottom: 20px;">
+	<hr />
+	<div class="text-success"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INSTALLING_COMPLETED' ); ?></div>
 </div>
 
 <div data-install-progress>
 
-	<div class="es-progress-wrap">
-		<div class="progress progress-info progress-striped">
-			<div class="bar" style="width: 1%" data-progress-bar></div>
+	<div class="install-progress">
+		<div class="row-table">
+			<div class="col-cell">
+				<div data-progress-active-message=""><?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_INSTALLING_DOWNLOADING_FILES');?></div>
+			</div>
+			<div class="col-cell cell-result text-right">
+				<div class="progress-result" data-progress-bar-result="">0%</div>
+			</div>
 		</div>
-		<div class="progress-result" data-progress-bar-result>0%</div>
-	</div>
-	<div class="install-note">
-		<p data-progress-active-message><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INSTALLING_DOWNLOADING_FILES' );?></p>
-	</div>
-	<div class="es-logs">
-		<ol class="split" data-progress-logs>
-			<li class="active" data-progress-download>
-				<b class="split__title"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INSTALLING_DOWNLOADING_FILES' );?></b>
-				<span class="progress-state text-info"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_DOWNLOADING' );?></span>
-				<div class="notes"></div>
-			</li>
-			<?php include( dirname( __FILE__ ) . '/installing.steps.php' ); ?>
-		</ol>
+
+		<div class="progress">
+			<div class="progress-bar progress-bar-info progress-bar-striped" data-progress-bar="" style="width: 1%"></div>
+		</div>
 	</div>
 
+
+	<ol class="install-logs list-reset" data-progress-logs="">
+		<li class="active" data-progress-download>
+			<b class="split__title"><?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_INSTALLING_DOWNLOADING_FILES');?></b>
+			<span class="progress-state text-info"><?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_DOWNLOADING');?></span>
+			<div class="notes"></div>
+		</li>
+
+		<?php include(__DIR__ . '/installing.steps.php'); ?>
+	</ol>
 </div>
+
+
 
 <input type="hidden" name="option" value="com_easysocial" />
 <input type="hidden" name="install" value="1" />

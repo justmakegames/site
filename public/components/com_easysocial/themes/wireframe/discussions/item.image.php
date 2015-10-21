@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <a href="<?php echo $file->getPreviewURI();?>" target="_blank">
 	<span class="discussion-embed-item discussion-embed-image">
-		<i class="ies-download-3"></i>
+		<i class="fa fa-download"></i>
 		<span class="discussion-embed-caption">
 			<?php echo $file->name;?> (<?php echo $file->getSize();?><?php echo JText::_( 'COM_EASYSOCIAL_UNIT_KILOBYTES' );?>)
 		</span>

@@ -35,28 +35,28 @@ defined('_JEXEC') or die('Unauthorized Access');
 <?php } else { ?>
     <?php if ($filter == 'featured'){ ?>
     <div class="empty empty-hero">
-        <i class="ies-calendar-2 mb-10"></i>
+        <i class="fa fa-calendar mb-10"></i>
         <div><?php echo JText::_('COM_EASYSOCIAL_EVENTS_NO_FEATURED_EVENTS_FOUND');?></div>
     </div>
     <?php } ?>
 
     <?php if ($filter == 'invited'){ ?>
     <div class="empty empty-hero">
-        <i class="ies-calendar-2 mb-10"></i>
+        <i class="fa fa-calendar mb-10"></i>
         <div><?php echo JText::_('COM_EASYSOCIAL_EVENTS_NO_INVITED_EVENTS_FOUND');?></div>
     </div>
     <?php } ?>
 
     <?php if ($filter != 'featured' && $filter != 'invited' && empty($featuredEvents)) { ?>
     <div class="empty empty-hero">
-        <i class="ies-calendar-2"></i>
+        <i class="fa fa-calendar"></i>
         <div><?php echo JText::_('COM_EASYSOCIAL_EVENTS_NO_EVENTS_FOUND'); ?></div>
     </div>
     <?php } ?>
 
     <?php if ($delayed && $filter === 'nearby') { ?>
     <div class="es-detecting-location">
-        <i class="ies-earth es-muted"></i>
+        <i class="fa fa-globe es-muted"></i>
         <?php echo JText::_('COM_EASYSOCIAL_EVENTS_DETECTING_LOCATION'); ?>
         <i class="icon-loader"></i>
     </div>

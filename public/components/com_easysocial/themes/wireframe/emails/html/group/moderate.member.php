@@ -40,70 +40,74 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/divider.png" alt="<?php echo JText::_( 'divider' );?>" />
 		</span>
 
-		<table width="540" align="center" style="margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;" border="0" cellspacing="0" cellpadding="0">
-			<tr>
-				<td valign="middle" width="100">
-					<span style="display:block;margin: 0px auto 20px;border:1px solid #f5f5f5;width:64px;padding:3px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff">
-						<a href="<?php echo $userLink;?>"><img src="<?php echo $userAvatar;?>" alt="<?php echo $this->html( 'string.escape' , $userName );?>" style="border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff" width="64" height="64"/></a>
-					</span>
-				</td>
-				<td valign="top">
-					<table style="font-size: 14px;margin: 0 auto 10px 20px; text-align:left;color:#798796" align="">
-						<tr>
-							<td>
-								<strong><?php echo $userName;?></strong>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<a href="<?php echo $reject;?>" style="
-								display:inline-block;
-								text-decoration:none;
-								font-weight:bold;
-								margin-top: 5px;
-								padding:4px 15px;
-								line-height:20px;
-								color:#fff;font-size: 12px;
-								background-color: #B41C1B;
-								background-image: linear-gradient(to bottom, #B41C1B, #821211);
-								background-repeat: repeat-x;
-								border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-								text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-								border-style: solid;
-								border-width: 1px;
-								box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
-								border-radius:2px; -moz-border-radius:2px; -webkit-border-radius:2px;
-								">
-									<?php echo JText::_( 'COM_EASYSOCIAL_REJECT_BUTTON' );?>
-								</a>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
+        <tr>
+        <td align="center">
+    		<table width="540" align="center" style="margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;" border="0" cellspacing="0" cellpadding="0">
+    			<tr>
+    				<td valign="middle" width="100">
+    					<span style="display:block;margin: 0px auto 20px;border:1px solid #f5f5f5;width:64px;padding:3px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff">
+    						<a href="<?php echo $userLink;?>"><img src="<?php echo $userAvatar;?>" alt="<?php echo $this->html( 'string.escape' , $userName );?>" style="border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff" width="64" height="64"/></a>
+    					</span>
+    				</td>
+    				<td valign="top">
+    					<table style="font-size: 14px;margin: 0 auto 10px 20px; text-align:left;color:#798796" align="">
+    						<tr>
+    							<td>
+    								<strong><?php echo $userName;?></strong>
+    							</td>
+    						</tr>
+    						<tr>
+    							<td>
+    								<a href="<?php echo $reject;?>" style="
+    								display:inline-block;
+    								text-decoration:none;
+    								font-weight:bold;
+    								margin-top: 5px;
+    								padding:4px 15px;
+    								line-height:20px;
+    								color:#fff;font-size: 12px;
+    								background-color: #B41C1B;
+    								background-image: linear-gradient(to bottom, #B41C1B, #821211);
+    								background-repeat: repeat-x;
+    								border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    								border-style: solid;
+    								border-width: 1px;
+    								box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+    								border-radius:2px; -moz-border-radius:2px; -webkit-border-radius:2px;
+    								">
+    									<?php echo JText::_( 'COM_EASYSOCIAL_REJECT_BUTTON' );?>
+    								</a>
 
-								<a href="<?php echo $approve;?>" style="
-								display:inline-block;
-								text-decoration:none;
-								font-weight:bold;
-								margin-top: 5px;
-								padding:4px 15px;
-								line-height:20px;
-								color:#fff;font-size: 12px;
-								background-color: #83B3DD;
-								background-image: linear-gradient(to bottom, #91C2EA, #6D9CCA);
-								background-repeat: repeat-x;
-								border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-								text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-								border-style: solid;
-								border-width: 1px;
-								box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
-								border-radius:2px; -moz-border-radius:2px; -webkit-border-radius:2px;
-								">
-									<?php echo JText::_('COM_EASYSOCIAL_EMAILS_APPROVE_USER_BUTTON');?>
-								</a>
-							</td>
-						</tr>
+    								<a href="<?php echo $approve;?>" style="
+    								display:inline-block;
+    								text-decoration:none;
+    								font-weight:bold;
+    								margin-top: 5px;
+    								padding:4px 15px;
+    								line-height:20px;
+    								color:#fff;font-size: 12px;
+    								background-color: #83B3DD;
+    								background-image: linear-gradient(to bottom, #91C2EA, #6D9CCA);
+    								background-repeat: repeat-x;
+    								border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    								border-style: solid;
+    								border-width: 1px;
+    								box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+    								border-radius:2px; -moz-border-radius:2px; -webkit-border-radius:2px;
+    								">
+    									<?php echo JText::_('COM_EASYSOCIAL_EMAILS_APPROVE_USER_BUTTON');?>
+    								</a>
+    							</td>
+    						</tr>
 
-					</table>
-				</td>
-			</tr>
-		</table>
+    					</table>
+    				</td>
+    			</tr>
+    		</table>
+        </td>
+        </tr>
+        </table>
 
 	</td>
 </tr>

@@ -21,7 +21,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	class="es-container es-photo-browser es-media-browser">
 
 	<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-		<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+		<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 	</a>
 
 	<div data-photo-browser-sidebar class="es-sidebar" data-sidebar>
@@ -35,7 +35,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					class="btn btn-es-primary btn-media">
 					<a
 						data-photo-back-button-link
-						href="<?php echo $lib->getAlbumLink(); ?>"><i class="ies-arrow-left-2"></i> <?php echo JText::_('COM_EASYSOCIAL_PHOTOS_BACK_TO_ALBUM'); ?></a>
+						href="<?php echo $lib->getAlbumLink(); ?>"><i class="fa fa-arrow-left"></i> <?php echo JText::_('COM_EASYSOCIAL_PHOTOS_BACK_TO_ALBUM'); ?></a>
 				</div>
 			</div>
 

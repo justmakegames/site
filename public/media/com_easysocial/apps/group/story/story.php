@@ -25,7 +25,7 @@ class SocialGroupAppStory extends SocialAppItem
     {
         $obj            = new stdClass();
         $obj->color     = '#6E9545';
-        $obj->icon      = 'ies-pencil-2';
+        $obj->icon      = 'fa fa-pencil';
         $obj->label     = 'APP_USER_STORY_UPDATES_STREAM_TOOLTIP';
 
         return $obj;
@@ -40,31 +40,29 @@ class SocialGroupAppStory extends SocialAppItem
      *
      * @return  none
      */
-    public function onAfterLikeSave( &$likes )
+    public function onAfterLikeSave(&$likes)
     {
-        if( !$likes->type )
-        {
+        if (!$likes->type) {
             return;
         }
 
         // Set the default element.
-        $uid        = $likes->uid;
-        $data       = explode( '.', $likes->type);
-        $element    = $data[0];
-        $group      = $data[1];
-        $verb       = $data[2];
+        $uid = $likes->uid;
+        $data = explode( '.', $likes->type);
+        $element = $data[0];
+        $group = $data[1];
+        $verb = $data[2];
 
-        if( $element != 'story' )
-        {
+        if ($element != 'story') {
             return;
         }
 
         // Get the owner of the post.
-        $stream     = FD::table('Stream');
+        $stream = FD::table('Stream');
         $stream->load($uid);
 
         // Get the actor
-        $actor      = FD::user($likes->created_by);
+        $actor = FD::user($likes->created_by);
 
         $emailOptions   = array(
             'title'     => 'APP_GROUP_STORY_EMAILS_LIKE_ITEM_SUBJECT',
@@ -84,12 +82,18 @@ class SocialGroupAppStory extends SocialAppItem
         );
 
         // Notify the owner first
-        FD::notify('likes.item', array($stream->actor_id), $emailOptions, $systemOptions);
+        if ($actor->id != $stream->actor_id) {
+            FD::notify('likes.item', array($stream->actor_id), $emailOptions, $systemOptions);
+        }
 
         // Get a list of recipients to be notified for this stream item
         // We exclude the owner of the note and the actor of the like here
-        $recipients     = $this->getStreamNotificationTargets($likes->uid, $element, $group, $verb, array(), array($stream->actor_id, $likes->created_by));
+        $recipients = $this->getStreamNotificationTargets($likes->uid, $element, $group, $verb, array(), array($stream->actor_id, $likes->created_by));
 
+        if (!$recipients) {
+            return;
+        }
+        
         $emailOptions['title']      = 'APP_USER_NOTES_EMAILS_LIKE_INVOLVED_TITLE';
         $emailOptions['template']   = 'apps/group/story/like.involved';
 
@@ -129,7 +133,7 @@ class SocialGroupAppStory extends SocialAppItem
         if ($actor->id == $stream->actor_id) {
             return;
         }
-        
+
         $emailOptions   = array(
             'title'     => 'APP_GROUP_STORY_EMAILS_COMMENT_ITEM_TITLE',
             'template'  => 'apps/group/story/comment.item',
@@ -181,9 +185,9 @@ class SocialGroupAppStory extends SocialAppItem
         // Process notifications when someone likes your post
         // context_type: stream.group.create, links.create
         // type: likes
-        $allowed    = array('story.group.create', 'links.create', 'photos.group.share');
+        $allowed = array('story.group.create', 'links.create', 'photos.group.share');
         if ($item->type == 'likes' && in_array($item->context_type, $allowed)) {
-            $hook   = $this->getHook('notification', 'likes');
+            $hook = $this->getHook('notification', 'likes');
             $hook->execute($item);
 
             return;
@@ -355,7 +359,7 @@ class SocialGroupAppStory extends SocialAppItem
 
         // Get a list of group members
         $model      = FD::model('Groups');
-        $targets    = $model->getMembers($group->id, array('exclude' => $actor->id));
+        $targets    = $model->getMembers($group->id, array('exclude' => $actor->id, 'state' => SOCIAL_STATE_PUBLISHED));
 
         // If there's nothing to send skip this altogether.
         if (!$targets) {
@@ -423,9 +427,9 @@ class SocialGroupAppStory extends SocialAppItem
         $actor = $item->getActor();
 
         // Decorate the stream
-        $item->fonticon = 'ies-pencil-2';
+        $item->fonticon = 'fa fa-pencil';
         $item->color = '#6E9545';
-        $item->label = JText::_( 'APP_GROUP_STORY_STREAM_TOOLTIP' );
+        $item->label = FD::_( 'APP_GROUP_STORY_STREAM_TOOLTIP', true);
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
 
         $this->set('group', $group);

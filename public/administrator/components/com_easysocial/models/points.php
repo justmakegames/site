@@ -449,9 +449,7 @@ class EasySocialModelPoints extends EasySocialModel
 		$contents 	= JFile::read( $path );
 
 		// If contents is empty, throw an error.
-		if( empty( $contents ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'POINTS: Unable to read the file ' . $path );
+		if (empty($contents)) {
 			$this->setError( JText::_( 'Unable to read points file' ) );
 			return false;
 		}
@@ -465,9 +463,7 @@ class EasySocialModelPoints extends EasySocialModel
 		$data 		= FD::makeArray( $data );
 
 		// Let's test if there's data.
-		if( empty( $data ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'POINTS: Unable to read the file ' . $path );
+		if (empty($data)) {
 			$this->setError( JText::_( 'Unable to read points file' ) );
 			return false;
 		}

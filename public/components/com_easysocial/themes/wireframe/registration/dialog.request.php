@@ -67,6 +67,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                         <button class="btn btn-es-primary btn-block mb-20" type="button" data-registermini-submit><?php echo JText::_('MOD_EASYSOCIAL_REGISTRATION_REQUESTER_REGISTER_NOW_BUTTON');?> &rarr;</button>
 
+                        <input type="hidden" name="option" value="com_easysocial" />
+                        <input type="hidden" name="controller" value="registration" />
+                        <input type="hidden" name="task" value="miniRegister" />
+                        <?php echo $this->html( 'form.token' );?>
                     </form>
                     <?php } ?>
                 </div>

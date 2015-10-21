@@ -1,6 +1,6 @@
 EasySocial.module('site/stream/stream', function(){
 
-	var module	= this;
+	var module = this;
 
 	EasySocial.require()
 	.script('site/stream/item')
@@ -8,8 +8,8 @@ EasySocial.module('site/stream/stream', function(){
 	.language('COM_EASYSOCIAL_STREAM_LOAD_PREVIOUS_STREAM_ITEMS')
 	.done(function($) {
 
-		EasySocial.Controller('Stream', 
-		{
+		EasySocial.Controller('Stream', {
+
 			defaultOptions: {
 				// Check every 30 seconds by default.
 				interval	: 30,
@@ -49,7 +49,7 @@ EasySocial.module('site/stream/stream', function(){
 
 					// Do not run updates checking when viewing single stream page.
 					if (self.options.source != 'stream' && self.options.source != 'unity') {
-						
+
 						// Run the checking on new updates
 						if( self.options.checknew == true ) {
 							self.startMonitoring();
@@ -331,6 +331,24 @@ EasySocial.module('site/stream/stream', function(){
 							self.item().where('id',uid).remove();
 						});
 
+						var itemCount = streamIds.length;
+
+						// we need to update the pagination next limit start
+						var pagination = '';
+
+						if (self.paginationGuest().length > 0) {
+							pagination = self.paginationGuest();
+						} else {
+							pagination = self.pagination();
+						}
+
+						var	startlimit = pagination.data("nextlimit");
+						startlimit = startlimit + itemCount;
+
+						pagination.data({
+							nextlimit: startlimit
+						});
+
 						//clear the new feeds notification.
 						self.newNotiBar().html('');
 
@@ -398,7 +416,7 @@ EasySocial.module('site/stream/stream', function(){
 								pagination.html('');
 							} else {
 								//append the anchor link.
-								// link = '<a class="btn btn-es-primary btn-stream-updates" href="javascript:void(0);"><i class="ies-refresh"></i> ' + $.language('COM_EASYSOCIAL_STREAM_LOAD_PREVIOUS_STREAM_ITEMS') + '</a>';
+								// link = '<a class="btn btn-es-primary btn-stream-updates" href="javascript:void(0);"><i class="fa fa-repeat"></i> ' + $.language('COM_EASYSOCIAL_STREAM_LOAD_PREVIOUS_STREAM_ITEMS') + '</a>';
 								// pagination.html( link );
 								pagination.html( self.view.loadmoreContent() );
 
@@ -493,7 +511,7 @@ EasySocial.module('site/stream/stream', function(){
 								pagination.html('');
 							} else {
 								//append the anchor link.
-								// link = '<a class="btn btn-es-primary btn-stream-updates" href="javascript:void(0);"><i class="ies-refresh"></i> ' + $.language('COM_EASYSOCIAL_STREAM_LOAD_PREVIOUS_STREAM_ITEMS') + '</a>';
+								// link = '<a class="btn btn-es-primary btn-stream-updates" href="javascript:void(0);"><i class="fa fa-repeat"></i> ' + $.language('COM_EASYSOCIAL_STREAM_LOAD_PREVIOUS_STREAM_ITEMS') + '</a>';
 								// pagination.html( link );
 								pagination.html( self.view.loadmoreContent() );
 							}

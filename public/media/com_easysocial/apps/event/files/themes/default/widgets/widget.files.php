@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <div class="row author-info">
                     <div class="col-md-12 fd-small">
-                        <i class="ies-user"></i> <?php echo JText::sprintf('APP_EVENT_FILES_UPLOADED_BY', $this->html('html.user', $file->user_id, true)); ?>
+                        <i class="fa fa-user"></i> <?php echo JText::sprintf('APP_EVENT_FILES_UPLOADED_BY', $this->html('html.user', $file->user_id, true)); ?>
                     </div>
                 </div>
             </li>

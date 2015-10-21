@@ -316,12 +316,6 @@ class EasySocialControllerBadges extends EasySocialController
 		// Get the current path that we should be searching for.
 		$file 		= JRequest::getVar( 'file' , '' );
 
-		// Log errors when invalid data is passed in.
-		if( empty( $file ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'BADGES: Invalid file path given to scan.' );
-		}
-
 		// Retrieve the points model to scan for the path
 		$model 	= FD::model( 'Badges' );
 

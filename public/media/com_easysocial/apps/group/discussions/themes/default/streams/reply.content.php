@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="row mb-10 mt-10">
-	<div class="col-md-12">
+	<div class="col-xs-12">
 		<div class="media">
 			<div class="media-object pull-right media-stats">
 				<ul class="list-unstyled">
@@ -28,7 +28,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<div class="media-body">
 				<div class="discussion-title"><a href="<?php echo $permalink;?>"><?php echo $discussion->title; ?></a></div>
 				<div class="discussion-meta fd-small">
-					<i class="ies-calendar"></i>&nbsp; <?php echo JText::sprintf( 'APP_GROUP_DISCUSSIONS_CONTENT_REPLIED_ON_META' , FD::date( $reply->created )->format(JText::_('DATE_FORMAT_LC1')) ); ?>
+					<i class="fa fa-calendar"></i>&nbsp; <?php echo JText::sprintf( 'APP_GROUP_DISCUSSIONS_CONTENT_REPLIED_ON_META' , FD::date( $reply->created )->format(JText::_('DATE_FORMAT_LC1')) ); ?>
 				</div>
 			</div>
 		</div>

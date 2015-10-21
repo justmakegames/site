@@ -13,15 +13,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 $version	= FD::getInstance( 'Version' );
 
-if( $version->getVersion() >= '3.0' )
-{
-	class EasySocialParentController extends JControllerLegacy
-	{
-	}
-}
-else
-{
-	jimport( 'joomla.application.component.controller' );
+if ($version->getVersion() >= '3.0') {
+	class EasySocialParentController extends JControllerLegacy { }
+} else {
+	
+	jimport('joomla.application.component.controller');
+	
 	class EasySocialParentController extends JController
 	{
 		public function __construct()
@@ -66,5 +63,31 @@ class EasySocialControllerMain extends EasySocialParentController
 		$view = FD::view($className, $backend);
 
 		return $view;
+	}
+
+	/**
+	 * Allows caller to verify that the user is logged in
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function requireLogin()
+	{
+		return ES::requireLogin();
+	}
+
+	/**
+	 * Checks for token existance
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function checkToken()
+	{
+		return ES::checkToken();
 	}
 }

@@ -11,4 +11,4 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<a class="btn-es btn-friends" href="javascript:void(0);" data-popbox-friends-add><i class="ies-plus ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_POPOVER_ADD_AS_FRIEND' );?></a>
+<a class="btn-es btn-friends" href="javascript:void(0);" data-popbox-friends-add><i class="fa fa-plus  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_POPOVER_ADD_AS_FRIEND' );?></a>

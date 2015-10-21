@@ -46,7 +46,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<div class="form-group">
 					<div class="col-sm-3">
 						<label for="total" class="fd-small"><?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_TITLE' );?></label>
-						<i class="icon-es-help pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_TITLE_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_TITLE' );?>" data-placement="bottom"></i>
+						<i class="fa fa-question-circle pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_TITLE_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_TITLE' );?>" data-placement="bottom"></i>
 					</div>
 
 					<div class="col-sm-9">
@@ -58,7 +58,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<div class="form-group">
 					<div class="col-sm-3">
 						<label for="total" class="fd-small"><?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_DESCRIPTION' );?></label>
-						<i class="icon-es-help pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_DESCRIPTION_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_DESCRIPTION' );?>" data-placement="bottom"></i>
+						<i class="fa fa-question-circle pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_DESCRIPTION_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_DESCRIPTION' );?>" data-placement="bottom"></i>
 					</div>
 
 					<div class="col-sm-9">
@@ -72,7 +72,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<div class="form-group">
 					<div class="col-sm-3">
 						<label for="total" class="fd-small"><?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_STARTDATE' );?></label>
-						<i class="icon-es-help pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_STARTDATE_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_STARTDATE' );?>" data-placement="bottom"></i>
+						<i class="fa fa-question-circle pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_STARTDATE_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_STARTDATE' );?>" data-placement="bottom"></i>
 					</div>
 
 					<div class="col-sm-9">
@@ -83,7 +83,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<div class="form-group">
 					<div class="col-sm-3">
 						<label for="total" class="fd-small"><?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_ENDDATE' );?></label>
-						<i class="icon-es-help pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_ENDDATE_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_ENDDATE' );?>" data-placement="bottom"></i>
+						<i class="fa fa-question-circle pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_ENDDATE_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_CREATE_NEW_SCHEDULE_ENDDATE' );?>" data-placement="bottom"></i>
 					</div>
 
 					<div class="col-sm-9">
@@ -95,7 +95,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<div class="form-group">
 					<div class="col-sm-3">
 						<label for="total" class="fd-small"><?php echo JText::_( 'APP_CALENDAR_PUBLISH_STREAM' );?></label>
-						<i class="icon-es-help pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_PUBLISH_STREAM_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_PUBLISH_STREAM' );?>" data-placement="bottom"></i>
+						<i class="fa fa-question-circle pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_PUBLISH_STREAM_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_PUBLISH_STREAM' );?>" data-placement="bottom"></i>
 					</div>
 
 					<div class="col-sm-9">
@@ -107,7 +107,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<div class="form-group">
 					<div class="col-sm-3">
 						<label for="total" class="fd-small"><?php echo JText::_( 'APP_CALENDAR_ALL_DAY' );?></label>
-						<i class="icon-es-help pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_ALL_DAY_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_ALL_DAY' );?>" data-placement="bottom"></i>
+						<i class="fa fa-question-circle pull-right" data-es-provide="popover" data-content="<?php echo JText::_( 'APP_CALENDAR_ALL_DAY_DESC' );?>" data-title="<?php echo JText::_( 'APP_CALENDAR_ALL_DAY' );?>" data-placement="bottom"></i>
 					</div>
 
 					<div class="col-sm-9">

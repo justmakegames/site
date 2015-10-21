@@ -75,70 +75,102 @@ defined('_JEXEC') or die('Unauthorized Access');
 <?php } ?>
 
 <?php if (!$delayed && ($showSorting || $showPastFilter || $showDistanceSorting)) { ?>
-<div class="fd-cf mb-10 mt-5">
+<div class="row-table mt-15 mb-15">
     <?php if ($showDistanceSorting) { ?>
-        <div class="form-inline pull-left">
-            <div class="form-group">
-                <label class="sr-only" for=""><?php echo JText::_('COM_EASYSOCIAL_EVENTS_DISTANCE'); ?>: </label>
-                <select class="form-control input-sm" data-events-radius>
-                    <option value="">10 <?php echo $distanceUnit; ?></option>
-                    <option value="25" <?php if ($distance == 25) { ?>selected="selected"<?php } ?>>25 <?php echo $distanceUnit; ?></option>
-                    <option value="50" <?php if ($distance == 50) { ?>selected="selected"<?php } ?>>50 <?php echo $distanceUnit; ?></option>
-                    <option value="100" <?php if ($distance == 100) { ?>selected="selected"<?php } ?>>100 <?php echo $distanceUnit; ?></option>
-                    <option value="200" <?php if ($distance == 200) { ?>selected="selected"<?php } ?>>200 <?php echo $distanceUnit; ?></option>
-                    <option value="300" <?php if ($distance == 300) { ?>selected="selected"<?php } ?>>300 <?php echo $distanceUnit; ?></option>
-                    <option value="400" <?php if ($distance == 400) { ?>selected="selected"<?php } ?>>400 <?php echo $distanceUnit; ?></option>
-                    <option value="500" <?php if ($distance == 500) { ?>selected="selected"<?php } ?>>500 <?php echo $distanceUnit; ?></option>
-                    <?php if (!empty($distance) && !in_array($distance, array(10, 25, 50, 100, 200, 300, 400, 500))) { ?>
-                    <option value="<?php echo $distance; ?>" selected="selected"><?php echo $distance; ?> <?php echo $distanceUnit; ?></option>
-                    <?php } ?>
-                </select>
+        <div class="col-cell cell-mid">
+            <div class="form-inline pull-left">
+                <div class="form-group">
+                    <label class="sr-only" for=""><?php echo JText::_('COM_EASYSOCIAL_EVENTS_DISTANCE'); ?>: </label>
+                    <select class="form-control input-sm" data-events-radius>
+                        <option value="">10 <?php echo $distanceUnit; ?></option>
+                        <option value="25" <?php if ($distance == 25) { ?>selected="selected"<?php } ?>>25 <?php echo $distanceUnit; ?></option>
+                        <option value="50" <?php if ($distance == 50) { ?>selected="selected"<?php } ?>>50 <?php echo $distanceUnit; ?></option>
+                        <option value="100" <?php if ($distance == 100) { ?>selected="selected"<?php } ?>>100 <?php echo $distanceUnit; ?></option>
+                        <option value="200" <?php if ($distance == 200) { ?>selected="selected"<?php } ?>>200 <?php echo $distanceUnit; ?></option>
+                        <option value="300" <?php if ($distance == 300) { ?>selected="selected"<?php } ?>>300 <?php echo $distanceUnit; ?></option>
+                        <option value="400" <?php if ($distance == 400) { ?>selected="selected"<?php } ?>>400 <?php echo $distanceUnit; ?></option>
+                        <option value="500" <?php if ($distance == 500) { ?>selected="selected"<?php } ?>>500 <?php echo $distanceUnit; ?></option>
+                        <?php if (!empty($distance) && !in_array($distance, array(10, 25, 50, 100, 200, 300, 400, 500))) { ?>
+                        <option value="<?php echo $distance; ?>" selected="selected"><?php echo $distance; ?> <?php echo $distanceUnit; ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+        </div>
+    <?php } else if ($showPastFilter) { ?>
+        <div class="col-cell cell-mid">
+            <div class="es-checkbox mr-5 mt-0">
+                <input type="checkbox" class="pull-right ml-5" data-events-past <?php if ($includePast) { ?>checked="checked"<?php } ?>>
+                <label>
+                    <a
+                        href="<?php echo $hrefs[$ordering][$includePast ? 'nopast' : 'past']; ?>"
+                        data-start-past="<?php echo $hrefs['start']['past']; ?>"
+                        data-start-nopast="<?php echo $hrefs['start']['nopast']; ?>"
+                        <?php if ($showSorting) { ?>
+                        data-created-past="<?php echo $hrefs['created']['past']; ?>"
+                        data-created-nopast="<?php echo $hrefs['created']['nopast']; ?>"
+                        <?php } ?>
+                        <?php if ($showDistanceSorting) { ?>
+                        data-distance-past="<?php echo $hrefs['distance']['past']; ?>"
+                        data-distance-nopast="<?php echo $hrefs['distance']['nopast']; ?>"
+                        <?php } ?>
+                        data-events-past-link
+                        title="<?php echo FD::page()->title; ?>"
+                    ><?php echo JText::_('COM_EASYSOCIAL_EVENTS_INCLUDE_PAST_EVENTS'); ?></a>
+                </label>
             </div>
         </div>
     <?php } ?>
 
+
     <?php if ($showSorting || $showDistanceSorting) { ?>
-    <div class="btn-group btn-group-sort pull-right" data-events-sorting>
-        <a class="btn btn-es trending <?php if ($ordering == 'start') { ?>active<?php } ?>" data-es-provide="tooltip" data-placement="bottom" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_EVENT_DATE', true);?>" href="<?php echo $hrefs['start'][$showPastFilter && $includePast ? 'past' : 'nopast']; ?>" data-ordering="start" data-filter="<?php echo $activeCategory ? 'category' : $filter; ?>" data-categoryid="<?php echo $activeCategory ? $activeCategory->id : ''; ?>" title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_EVENT_DATE', true);?>">
-            <i class="ies-clock ies-small"></i>
-        </a>
+        <div class="col-cell cell-mid">
+            <div class="btn-group btn-group-sort pull-right" data-events-sorting>
+                <a class="btn btn-es trending <?php if ($ordering == 'start') { ?>active<?php } ?>" data-es-provide="tooltip" data-placement="bottom" data-original-title="" href="<?php echo $hrefs['start'][$showPastFilter && $includePast ? 'past' : 'nopast']; ?>" data-ordering="start" data-filter="<?php echo $activeCategory ? 'category' : $filter; ?>" data-categoryid="<?php echo $activeCategory ? $activeCategory->id : ''; ?>" title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_EVENT_DATE', true);?>">
+                    <i class="fa fa-clock-o"></i>
+                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORTING_EVENT_DATE');?>
+                </a>
 
-        <?php if ($showSorting) { ?>
-        <a class="btn btn-es recent <?php if ($ordering == 'created') { ?>active<?php } ?>" data-es-provide="tooltip" data-placement="bottom" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_CREATED_DATE', true);?>" href="<?php echo $hrefs['created'][$showPastFilter && $includePast ? 'past' : 'nopast']; ?>" data-ordering="created" data-filter="<?php echo $activeCategory ? 'category' : $filter; ?>" data-categoryid="<?php echo $activeCategory ? $activeCategory->id : ''; ?>" title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_CREATED_DATE', true);?>">
-            <i class="ies-calendar-2 ies-small"></i>
-        </a>
-        <?php } ?>
-
-        <?php if ($showDistanceSorting) { ?>
-        <a class="btn btn-es recent <?php if ($ordering == 'distance') { ?>active<?php } ?>" data-es-provide="tooltip" data-placement="bottom" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_DISTANCE', true);?>" href="<?php echo $hrefs['distance'][$showPastFilter && $includePast ? 'past' : 'nopast']; ?>" data-ordering="distance" data-filter="<?php echo $activeCategory ? 'category' : $filter; ?>" data-categoryid="<?php echo $activeCategory ? $activeCategory->id : ''; ?>" title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_DISTANCE', true);?>">
-            <i class="ies-location-2 ies-small"></i>
-        </a>
-        <?php } ?>
-    </div>
-    <?php } ?>
-
-    <?php if ($showPastFilter) { ?>
-    <div class="checkbox mr-5 mt-0 pull-right">
-        <label>
-            <a
-                href="<?php echo $hrefs[$ordering][$includePast ? 'nopast' : 'past']; ?>"
-                data-start-past="<?php echo $hrefs['start']['past']; ?>"
-                data-start-nopast="<?php echo $hrefs['start']['nopast']; ?>"
                 <?php if ($showSorting) { ?>
-                data-created-past="<?php echo $hrefs['created']['past']; ?>"
-                data-created-nopast="<?php echo $hrefs['created']['nopast']; ?>"
+                <a class="btn btn-es recent <?php if ($ordering == 'created') { ?>active<?php } ?>" data-es-provide="tooltip" data-placement="bottom" data-original-title="" href="<?php echo $hrefs['created'][$showPastFilter && $includePast ? 'past' : 'nopast']; ?>" data-ordering="created" data-filter="<?php echo $activeCategory ? 'category' : $filter; ?>" data-categoryid="<?php echo $activeCategory ? $activeCategory->id : ''; ?>" title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_CREATED_DATE', true);?>">
+                    <i class="fa fa-calendar"></i>
+                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORTING_EVENT_CREATED_DATE');?>
+                </a>
                 <?php } ?>
+
                 <?php if ($showDistanceSorting) { ?>
-                data-distance-past="<?php echo $hrefs['distance']['past']; ?>"
-                data-distance-nopast="<?php echo $hrefs['distance']['nopast']; ?>"
+                <a class="btn btn-es recent <?php if ($ordering == 'distance') { ?>active<?php } ?>" data-es-provide="tooltip" data-placement="bottom" data-original-title="" href="<?php echo $hrefs['distance'][$showPastFilter && $includePast ? 'past' : 'nopast']; ?>" data-ordering="distance" data-filter="<?php echo $activeCategory ? 'category' : $filter; ?>" data-categoryid="<?php echo $activeCategory ? $activeCategory->id : ''; ?>" title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORT_BY_DISTANCE', true);?>">
+                    <i class="fa fa-map-marker"></i>
+                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SORTING_EVENT_DISTANCE');?>
+                </a>
                 <?php } ?>
-                data-events-past-link
-                title="<?php echo FD::page()->title; ?>"
-            ><?php echo JText::_('COM_EASYSOCIAL_EVENTS_INCLUDE_PAST_EVENTS'); ?></a> <input type="checkbox" class="pull-right ml-5" data-events-past <?php if ($includePast) { ?>checked="checked"<?php } ?>>
-        </label>
-    </div>
+            </div>
+        </div>
     <?php } ?>
 </div>
+
+<?php if ($showPastFilter && $showDistanceSorting) { ?>
+<div class="es-checkbox mr-5 mt-0">
+    <input type="checkbox" class="pull-right ml-5" data-events-past <?php if ($includePast) { ?>checked="checked"<?php } ?>>
+    <label>
+        <a
+            href="<?php echo $hrefs[$ordering][$includePast ? 'nopast' : 'past']; ?>"
+            data-start-past="<?php echo $hrefs['start']['past']; ?>"
+            data-start-nopast="<?php echo $hrefs['start']['nopast']; ?>"
+            <?php if ($showSorting) { ?>
+            data-created-past="<?php echo $hrefs['created']['past']; ?>"
+            data-created-nopast="<?php echo $hrefs['created']['nopast']; ?>"
+            <?php } ?>
+            <?php if ($showDistanceSorting) { ?>
+            data-distance-past="<?php echo $hrefs['distance']['past']; ?>"
+            data-distance-nopast="<?php echo $hrefs['distance']['nopast']; ?>"
+            <?php } ?>
+            data-events-past-link
+            title="<?php echo FD::page()->title; ?>"
+        ><?php echo JText::_('COM_EASYSOCIAL_EVENTS_INCLUDE_PAST_EVENTS'); ?></a>
+    </label>
+</div>
+<?php } ?>
 
 <hr />
 <?php } ?>

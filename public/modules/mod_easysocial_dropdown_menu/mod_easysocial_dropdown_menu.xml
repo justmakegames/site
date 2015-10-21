@@ -2,12 +2,12 @@
 <extension version="3.1" type="module" client="site" method="upgrade">
 	<name>EasySocial Dropdown Menu</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>26th November 2014</creationDate>
+	<creationDate>19th October 2015</creationDate>
 	<copyright>Copyright (C) 2009 - 2013 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>1.3.13</version>
+	<version>1.4.3</version>
 	<description><![CDATA[MOD_EASYSOCIAL_DROPDOWN_MENU_DESC]]></description>
 	<files>
 		<folder>styles</folder>
@@ -68,6 +68,7 @@
                     <option value="flip none">flip horizontal</option>
                     <option value="none flip">flip vertical</option>
                 </field>
+                <field name="popbox_offset" class="input-mini text-center" type="text" default="10" label="MOD_EASYSOCIAL_DROPDOWN_MENU_POPBOX_OFFSET" description="MOD_EASYSOCIAL_DROPDOWN_MENU_POPBOX_OFFSET_DESC" />
                 <field name="register_button" type="radio" class="btn-group" default="1" label="MOD_EASYSOCIAL_DROPDOWN_MENU_REGISTER_BUTTON" description="MOD_EASYSOCIAL_DROPDOWN_MENU_REGISTER_BUTTON_DESC">
                     <option value="0">JNO</option>
                     <option value="1">JYES</option>
@@ -78,6 +79,10 @@
                     <option value="hidden_checked">MOD_EASYSOCIAL_DROPDOWN_MENU_HIDDEN_CHECKED</option>
                     <option value="hidden">MOD_EASYSOCIAL_DROPDOWN_MENU_HIDDEN</option>
                 </field>
+				<field name="use_secure_url" type="radio" class="btn-group" default="0" label="MOD_EASYSOCIAL_DROPDOWN_MENU_USE_SECURE_URL" description="MOD_EASYSOCIAL_DROPDOWN_MENU_USE_SECURE_URL_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
 			</fieldset>
 			<fieldset name="advanced">
 				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />

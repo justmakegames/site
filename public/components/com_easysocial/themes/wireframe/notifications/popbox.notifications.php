@@ -57,8 +57,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 									<div class="object-timestamp mt-5">
 										<?php if( $notification->icon ){ ?>
 										<i class="icon-es-games icon-tb-notice pull-left"></i>
+										<?php } else if ($notification->type == 'broadcast') { ?>
+										<i class="fa fa-bullhorn "></i>
 										<?php } else { ?>
-										<i class="ies-earth ies-small"></i>
+										<i class="fa fa-globe "></i>
 										<?php } ?>
 										<small><?php echo $notification->since; ?></small>
 									</div>
@@ -72,7 +74,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php } else { ?>
 				<li class="requestItem empty center">
 					<div class="mt-20 pl-10 pr-10 fd-small">
-						<i class="ies-info ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_NOTIFICATIONS_NO_UNREAD' ); ?>
+						<i class="fa fa-info  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_NOTIFICATIONS_NO_UNREAD' ); ?>
 					</div>
 				</li>
 			<?php } ?>

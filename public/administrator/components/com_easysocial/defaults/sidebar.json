@@ -1,5 +1,6 @@
 [
 	"dashboard",
+	"access",
 	"settings",
 	"themes",
 	"languages",
@@ -9,6 +10,7 @@
 	"events",
 	"regions",
 	"albums",
+	"videos",
 	"apps",
 	"points",
 	"badges",
@@ -16,8 +18,7 @@
 	"privacy",
 	"emails",
 	"reports",
-	"migrators",
-	"access",
+	"migrators",	
 	"stream",
 	"maintenance"
 ]

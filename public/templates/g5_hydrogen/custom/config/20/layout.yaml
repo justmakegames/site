@@ -119,22 +119,24 @@ children:
                   title: Breadcrumbs
                 children: {  }
           -
-            id: 37aabccb-7936-4076-adc0-df2309c5a656
+            id: 8efafa88-efbd-4d9e-b6fa-0f925718f3a2
             type: block
             subtype: false
             title: Untitled
             attributes:
+              size: 33
               extra: {  }
               fixed: '0'
-              size: 33
             children:
               -
-                id: fd2d80a3-0b17-4698-a63d-904efa91b9bc
-                type: particle
-                subtype: mobile-menu
+                id: 1982d7db-e66f-4742-8ae0-94621d9ef3cf
+                type: position
+                subtype: position
                 title: 'Breadcrumb Right'
                 attributes:
                   enabled: 1
+                  key: breadcrumb-right
+                  title: 'Breadcrumb Right'
                 children: {  }
       -
         id: 430bbadc-76c3-fa9d-9064-1c88d20260ad
@@ -386,12 +388,27 @@ children:
         attributes: {  }
         children:
           -
+            id: 45a0cc1b-66a0-461d-9852-45762beb2ae8
+            type: block
+            subtype: false
+            title: Untitled
+            attributes:
+              size: 50
+            children:
+              -
+                id: 14ef843a-8397-4d30-bd88-4672f5252412
+                type: atom
+                subtype: analytics
+                title: 'Google Analytics'
+                attributes: {  }
+                children: {  }
+          -
             id: 9e4b081a-ca1d-4ede-b2eb-daabffc67890
             type: block
             subtype: false
             title: Untitled
             attributes:
-              size: 100
+              size: 50
             children:
               -
                 id: d2c16a15-8e9b-43cb-ac94-380e40a7dd82

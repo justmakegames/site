@@ -11,4 +11,5 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<i class="ies-calendar-2" data-story-attachment-icon data-es-provide="tooltip" data-placement="top" data-original-title="<?php echo JText::_( 'APP_USER_EVENTS_PANEL_TOOLTIP' );?>" data-story-event-panel-button></i>
+<i class="fa fa-calendar" data-story-attachment-icon data-es-provide="tooltip" data-placement="top" data-original-title="<?php echo FD::_('APP_USER_EVENTS_PANEL_TOOLTIP', true );?>" data-story-event-panel-button></i>
+<span><?php echo FD::_('COM_EASYSOCIAL_STORY_EVENT', true );?></span>

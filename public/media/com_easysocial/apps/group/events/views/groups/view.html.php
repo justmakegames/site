@@ -29,18 +29,36 @@ class EventsViewGroups extends SocialAppsView
 
         $params = $this->app->getParams();
 
-        $this->set('group', $group);
-
+        // Retrieve event's model
         $model = FD::model('Events');
 
-        $start = FD::input()->getInt('start', 0);
+        // Get the start date
+        $start = $this->input->get('start', 0, 'int');
 
-        $includePast = FD::input()->getInt('includePast', 0);
+        // Should we include past events?
+        $includePast = $this->input->get('includePast', 0, 'int');
 
-        $ordering = FD::input()->getString('ordering', 'start');
+        // Ordering of the events
+        $ordering = $this->input->get('ordering', 'start', 'string');
 
+        // Get featured events
+        $featuredOptions = array(
+            'state' => SOCIAL_STATE_PUBLISHED,
+            'featured' => true,
+            'ordering' => 'start',
+            'limit' => 5,
+            'limitstart' => $start,
+            'group_id' => $group->id,
+            'type' => 'all',
+            'ordering' => $ordering
+        );
+
+        $featuredEvents = $model->getEvents($featuredOptions);
+
+        // Default options
         $options = array(
             'state' => SOCIAL_STATE_PUBLISHED,
+            'featured' => false,
             'ordering' => 'start',
             'limit' => 5,
             'limitstart' => $start,
@@ -65,9 +83,6 @@ class EventsViewGroups extends SocialAppsView
         $pagination->setVar('id', $group->getAlias());
         $pagination->setVar('appId', $this->app->getAlias());
 
-        $this->set('events', $events);
-        $this->set('pagination', $pagination);
-
         $hrefs = array();
         $routeOptions = array(
             'layout' => 'item',
@@ -90,6 +105,10 @@ class EventsViewGroups extends SocialAppsView
         $this->set('hrefs', $hrefs);
 
         // Parameters to work with site/event/default.list
+        $this->set('featuredEvents', $featuredEvents);
+        $this->set('events', $events);
+        $this->set('pagination', $pagination);
+        $this->set('group', $group);
         $this->set('filter', 'all');
         $this->set('delayed', false);
         $this->set('showSorting', true);

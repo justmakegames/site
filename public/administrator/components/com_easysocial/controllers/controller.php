@@ -19,14 +19,10 @@ class EasySocialController extends EasySocialControllerMain
 	protected $app	= null;
 
 	// This will notify the parent class that this is for the back end.
-	protected $location 	= 'backend';
+	protected $location = 'backend';
 
 	public function __construct()
 	{
-		$this->app = JFactory::getApplication();
-		$this->input = $this->app->input;
-		$this->config = FD::config();
-
 		parent::__construct();
 	}
 

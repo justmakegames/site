@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,78 +9,69 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'site:/controllers/controller' );
+ES::import('site:/controllers/controller');
 
 class EasySocialControllerUploader extends EasySocialController
 {
-
 	/**
-	 * Responsible to handle temporary file uploads. This is useful for services that may want
-	 * to upload files before their real items are created.
+	 * Allows caller to temporarily upload a file
 	 *
 	 * @since	1.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
 	public function uploadTemporary()
 	{
 		// Check for request forgeries.
-		FD::checkToken();
+		$this->checkToken();
 
 		// Only registered users are allowed here.
-		FD::requireLogin();
+		$this->requireLogin();
 
-		// Get the view.
-		$view 	= $this->getCurrentView();
+		// Get the type of storage
+		$type = $this->input->get('type', '', 'word');
 
-		$type 	= JRequest::getVar( 'type' );
-
-		$config = FD::config();
-		$limit 	= $config->get( $type . '.attachments.maxsize' );
+		// Get the limit
+		$limit = $this->config->get($type . '.attachments.maxsize');
 
 		// Set uploader options
-		$options = array(
-			'name'        => 'file',
-			'maxsize' => $limit . 'M'
-		);
+		$options = array('name' => 'file', 'maxsize' => $limit . 'M');
 
 		// Get uploaded file
-		$data	= FD::uploader( $options )->getFile();
+		$uploader = FD::uploader($options);
+		$data = $uploader->getFile();
 
 		// If there was an error getting uploaded file, stop.
-		if ($data instanceof SocialException)
-		{
-			$view->setMessage($data);
-			return $view->call(__FUNCTION__);
+		if ($data instanceof SocialException) {
+			$this->view->setMessage($data);
+			return $this->view->call(__FUNCTION__);
 		}
 
-		if( !$data )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_UPLOADER_FILE_DID_NOT_GET_UPLOADED' ) , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ );
+		if (!$data) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_UPLOADER_FILE_DID_NOT_GET_UPLOADED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
-
-		// Get the current logged in user.
-		$my 	= FD::user();
 
 		// Let's get the temporary uploader table.
-		$uploader 			= FD::table( 'Uploader' );
-		$uploader->user_id	= $my->id;
+		$uploader = ES::table('Uploader');
+		$uploader->user_id = $this->my->id;
 
-		// Pass uploaded data to the uploader.
-		$uploader->bindFile( $data );
+		// Bind the data on the uploader
+		$uploader->bindFile($data);
 
-		$state 	= $uploader->store();
+		// Try to save the uploader
+		$state = $uploader->store();
 
-		if( !$state )
-		{
-			$view->setMessage( $uploader->getError() , SOCIAL_MSG_ERROR );
+		if (!$state) {
+			$this->view->setMessage($uploader->getError(), SOCIAL_MSG_ERROR);
 
-			return $view->call( __FUNCTION__ , $uploader );
+			return $this->view->call(__FUNCTION__, $uploader);
 		}
 
-		return $view->call( __FUNCTION__ , $uploader );
+		return $this->view->call(__FUNCTION__, $uploader);
 	}
 
 	/**
@@ -94,38 +85,25 @@ class EasySocialControllerUploader extends EasySocialController
 	public function delete()
 	{
 		// Check for request forgeries
-		FD::checkToken();
+		ES::checkToken();
 
 		// Only logged in users are allowed to delete anything
-		FD::requireLogin();
-
-		// Get the current view
-		$view	= $this->getCurrentView();
-
-		// Get the current user
-		$my 	= FD::user();
+		ES::requireLogin();
 
 		// Get the uploader id
-		$id 	= JRequest::getInt( 'id' );
+		$id = $this->input->get('id', 0, 'int');
 
-		$uploader	= FD::table( 'Uploader' );
-		$uploader->load( $id );
+		$uploader = ES::table('Uploader');
+		$uploader->load($id);
 
 		// Check if the user is really permitted to delete the item
-		if( !$id || !$uploader->id || $uploader->user_id != $my->id )
-		{
-			return $view->call( __FUNCTION__ );
+		if (!$id || !$uploader->id || $uploader->user_id != $this->my->id) {
+			return $this->view->call(__FUNCTION__);
 		}
 
-		$state 	= $uploader->delete();
+		$state = $uploader->delete();
 
-		// If deletion fails, silently log the error
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , JText::_( 'UPLOADER: Unable to delete the item [' . $uploader->id . '] because ' . $uploader->getError() ) );
-		}
-
-		return $view->call( __FUNCTION__ );
+		return $this->view->call(__FUNCTION__);
 	}
 
 }

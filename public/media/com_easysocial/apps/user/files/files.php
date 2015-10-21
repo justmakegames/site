@@ -14,12 +14,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 FD::import('admin:/includes/apps/apps');
 FD::import('admin:/includes/group/group');
 
-/**
- * Files application for EasySocial.
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialUserAppFiles extends SocialAppItem
 {
 	/**
@@ -182,7 +176,7 @@ class SocialUserAppFiles extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#00B6AD';
-		$obj->icon 		= 'ies-file';
+		$obj->icon 		= 'fa fa-file';
 		$obj->label 	= 'APP_USER_FILES_STREAM_TOOLTIP';
 
 		return $obj;
@@ -244,18 +238,23 @@ class SocialUserAppFiles extends SocialAppItem
 				return;
 			}
 
+			// Do not show social share button in private/invite group
+			if (!$cluster->isOpen()) {
+				$item->sharing = false;
+			}			
+
 			$item->display = SOCIAL_STREAM_DISPLAY_FULL;
 
 			if ($item->cluster_type == SOCIAL_TYPE_GROUP) {
 				$item->color = '#303229';
-				$item->fonticon	= 'ies-users';
-				$item->label = JText::_('APP_USER_FILES_GROUPS_STREAM_TOOLTIP');
+				$item->fonticon	= 'fa fa-users';
+				$item->label = FD::_('APP_USER_FILES_GROUPS_STREAM_TOOLTIP', true);
 			}
 
 			if ($item->cluster_type == SOCIAL_TYPE_EVENT) {
 				$item->color = '#f06050';
-				$item->fonticon = 'ies-calendar';
-				$item->label = JText::_('APP_USER_EVENTS_STREAM_TOOLTIP');
+				$item->fonticon = 'fa fa-calendar';
+				$item->label = FD::_('APP_USER_EVENTS_STREAM_TOOLTIP', true);
 			}
 
 			if ($item->verb == 'uploaded') {
@@ -297,8 +296,8 @@ class SocialUserAppFiles extends SocialAppItem
 
 			$item->display = SOCIAL_STREAM_DISPLAY_FULL;
 			$item->color = '#00B6AD';
-			$item->fonticon	= 'ies-file';
-			$item->label = JText::_('APP_USER_FILES_STREAM_TOOLTIP');
+			$item->fonticon	= 'fa fa-file';
+			$item->label = FD::_('APP_USER_FILES_STREAM_TOOLTIP', true);
 
 			// Apply likes on the stream
 			$likes = FD::likes();
@@ -326,19 +325,51 @@ class SocialUserAppFiles extends SocialAppItem
 	{
 		$params = FD::registry($item->params);
 
-		// Get the file object
-		$file = FD::table('File');
-		$exists = $file->load($params->get('file')->id);
+		// Default items
+		$files = array();
 
-		if (!$exists) {
-			return;
+		// Load the file from params
+		$obj = $params->get('file');
+
+		// Default content
+		$content = '';
+
+		if (is_object($obj)) {
+	
+			// Get the file object
+			$file = FD::table('File');
+
+			$exists = $file->load($obj->id);
+
+			if (!$exists) {
+				return;
+			}
+
+
+			$files[] = $file;
+
+		} else {
+			
+			// This is not an object and probably it's an array?
+			$params = FD::registry($item->contextParams[0]);
+			$fileItems = $params->get('file');
+			
+			foreach ($fileItems as $fileId) {
+				$file = FD::table('File');
+				$file->load((int) $fileId);
+
+				$files[] = $file;
+			}
+
+			$content = $item->content;
 		}
 
 		// Get the actor
 		$actor = $item->actor;
 
+		$this->set('content', $content);
 		$this->set('actor', $actor);
-		$this->set('file', $file);
+		$this->set('files', $files);
 
 		$clusterType = '';
 
@@ -391,6 +422,9 @@ class SocialUserAppFiles extends SocialAppItem
 		$script	= FD::script();
 		$script->set('allowedExtensions', $allowedExtensions);
 		$script->set('maxFileSize', $maxFileSize);
+		$script->set('type', SOCIAL_TYPE_USER);
+		$script->set('uid', $this->my->id);
+
 		$plugin->script	= $script->output('apps:/user/files/story');
 
 		return $plugin;

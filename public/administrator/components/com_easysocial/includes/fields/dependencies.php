@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,20 +9,14 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import('admin:/includes/fields/value');
+// Dependencies
+ES::import('admin:/includes/fields/value');
 
 // We forcefully load the site language here because in backend edit user/group/event page, the field is making an ajax call to the respective field, and there will be success/error message accordingly
-FD::language()->loadSite();
+ES::language()->loadSite();
 
-/**
- * Child classes must inherit these otherwise
- * fields would not work correctly.
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 abstract class SocialFieldItem
 {
 	/**
@@ -103,19 +97,37 @@ abstract class SocialFieldItem
 	 */
 	public $event = null;
 
-	/**
-	 * Class constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 */
-	public function __construct( $config = array() )
+	public function __construct($config = array())
 	{
-		$app 	= JFactory::getApplication();
-		$this->input = $app->input;
-		$this->config = FD::config();
+		$app = JFactory::getApplication();
 
+		$this->input = ES::request();
+		$this->config = ES::config();
+		$this->my = ES::user();
+		$this->doc = JFactory::getDocument();
+
+		if ($this->doc->getType() == 'ajax') {
+			$this->ajax = ES::ajax();
+		}
+		
 		$this->init($config);
+	}
+
+	/**
+	 * Normalizes a given set of data
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function normalize($data, $key, $default = null)
+	{
+		if (isset($data[$key])) {
+			return $data[$key];
+		}
+
+		return $default;
 	}
 
 	/**
@@ -161,11 +173,10 @@ abstract class SocialFieldItem
 	public function getParams()
 	{
 		// Default params
-		$params 	= FD::registry();
+		$params = FD::registry();
 
-		if( isset( $this->field ) )
-		{
-			$params 	= $this->field->getParams();
+		if (isset($this->field)) {
+			$params = $this->field->getParams();
 		}
 
 		return $params;
@@ -503,13 +514,15 @@ abstract class SocialFieldItem
 	 * @param	string	The error message
 	 * @return
 	 */
-	public function setError( $message = null )
+	public function setError($message = null)
 	{
 		// Set the field to report an error.
-		$this->hasErrors 	= true;
+		$this->hasErrors = true;
 
 		// Set the error message.
-		$this->error 		= $message;
+		$this->error = JText::_($message);
+
+		return false;
 	}
 
 	/**
@@ -734,9 +747,9 @@ abstract class SocialFieldItem
 	 * @param  string $text
 	 * @return string
 	 */
-	public function escape( $text )
+	public function escape($text)
 	{
-		return FD::string()->escape( $text );
+		return ES::string()->escape( $text );
 	}
 
 	/**
@@ -758,6 +771,21 @@ abstract class SocialFieldItem
 		}
 
 		return $container;
+	}
+
+	/**
+	 * Retrieves the field value from post data
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	final public function getValueFromPost($post)
+	{
+		$value = !empty($post[$this->inputName]) ? $post[$this->inputName] : '';
+
+		return $value;
 	}
 }
 

@@ -35,6 +35,7 @@ EasySocial.module( 'site/search/advanced.criteria' , function(){
 				"{dataNotice}" : "[data-criteria-notice]",
 
 				"{locationLabel}" : "[data-location-label]",
+				"{textField}" : "[data-location-textfield]",
 
 				// loading gif
 				view :
@@ -50,8 +51,8 @@ EasySocial.module( 'site/search/advanced.criteria' , function(){
 				{
 					self.element.addController(EasySocial.Controller.Search.Map);
 
-					if (self.frmAddress().val() != '') {
-                    	self.locationLabel().html(self.frmAddress().val());
+					if (self.frmAddress().val() != undefined && self.frmAddress().val() != '') {
+                    	self.textField().val(self.frmAddress().val());
                     	self.locationLabel().removeClass('hide');
 					}
 				},
@@ -258,6 +259,12 @@ EasySocial.module( 'site/search/advanced.criteria' , function(){
 								self.itemCondition().remove();
 								var contents = $.buildHTML( conditions );
 								contents.insertAfter( self.itemOperator() );
+
+								if (datakey == 'distance') {
+									self.locationLabel().removeClass('hide');
+								} else {
+									self.locationLabel().addClass('hide');
+								}
 
 							})
 							.fail( function( messageObj ){

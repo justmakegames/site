@@ -5,8 +5,8 @@
 var moduleFactory = function($) {
 // module body: start
 
-var module = this;
-var exports = function() {
+var module = this; 
+var exports = function() { 
 
 /**
  * mOxie - multi-runtime File API & XMLHttpRequest L2 Polyfill
@@ -3516,19 +3516,6 @@ define('moxie/file/FileInput', [
 				this.files = null;
 			}
 		});
-
-		// FOUNDRY_HACK
-		// Carry FileInput events over to jQuery
-		var trigger = self.trigger;
-
-		self.trigger = function(eventName) {
-
-			var result = trigger.apply(self, arguments);
-
-			$(options.browse_button).trigger("fileinput" + eventName, [self].concat($.makeArray(arguments).slice(1)));
-
-			return result;
-		}
 	}
 
 	FileInput.prototype = EventTarget.instance;
@@ -3711,19 +3698,6 @@ define('moxie/file/FileDrop', [
 				this.files = null;
 			}
 		});
-
-		// FOUNDRY_HACK
-		// Carry FileDrop events over to jQuery
-		var trigger = self.trigger;
-
-		self.trigger = function(eventName) {
-
-			var result = trigger.apply(self, arguments);
-
-			$(options.drop_zone).trigger("filedrop" + eventName, [self].concat($.makeArray(arguments).slice(1)));
-
-			return result;
-		}
 	}
 
 	FileDrop.prototype = EventTarget.instance;
@@ -11667,7 +11641,6 @@ plupload.Uploader = function(options) {
 			for (i = 0; i < files.length; i++) {
 				if (!file && files[i].status == plupload.QUEUED) {
 					file = files[i];
-
 					if (this.trigger("BeforeUpload", file)) {
 						file.status = plupload.UPLOADING;
 						this.trigger("UploadFile", file);
@@ -11804,19 +11777,59 @@ plupload.Uploader = function(options) {
 		if (settings.browse_button) {
 			plupload.each(settings.browse_button, function(el) {
 				queue.push(function(cb) {
+					var fileInput = new o.FileInput(plupload.extend({}, options, {
+						accept: settings.filters.mime_types,
+						name: settings.file_data_name,
+						multiple: settings.multi_selection,
+						container: settings.container,
+						browse_button: el
+					}));
 
-					// FOUNDRY_HACK
-					// Refactored addFileInput into a separate method.
-					var fileInput = addFileInput.call(self, el, plupload.extend(options, {autoinit: false}));
-
-					var onready = fileInput.onready;
 					fileInput.onready = function() {
-						onready.apply(fileInput, arguments);
+						var info = o.Runtime.getInfo(this.ruid);
+
+						// for backward compatibility
+						o.extend(self.features, {
+							chunks: info.can('slice_blob'),
+							multipart: info.can('send_multipart'),
+							multi_selection: info.can('select_multiple')
+						});
+
 						inited++;
+						fileInputs.push(this);
 						cb();
 					};
 
+					fileInput.onchange = function() {
+						self.addFile(this.files);
+					};
+
+					fileInput.bind('mouseenter mouseleave mousedown mouseup', function(e) {
+						if (!disabled) {
+							if (settings.browse_button_hover) {
+								if ('mouseenter' === e.type) {
+									o.addClass(el, settings.browse_button_hover);
+								} else if ('mouseleave' === e.type) {
+									o.removeClass(el, settings.browse_button_hover);
+								}
+							}
+
+							if (settings.browse_button_active) {
+								if ('mousedown' === e.type) {
+									o.addClass(el, settings.browse_button_active);
+								} else if ('mouseup' === e.type) {
+									o.removeClass(el, settings.browse_button_active);
+								}
+							}
+						}
+					});
+
+					fileInput.bind('mousedown', function() {
+						self.trigger('Browse');
+					});
+
 					fileInput.bind('error runtimeerror', function() {
+						fileInput = null;
 						cb();
 					});
 
@@ -11829,19 +11842,26 @@ plupload.Uploader = function(options) {
 		if (settings.drop_element) {
 			plupload.each(settings.drop_element, function(el) {
 				queue.push(function(cb) {
+					var fileDrop = new o.FileDrop(plupload.extend({}, options, {
+						drop_zone: el
+					}));
 
-					// FOUNDRY_HACK
-					// Refactored addFileDrop into a separate method.
-					var fileDrop = addFileDrop.call(self, el, plupload.extend(options, {autoinit: false}));
-
-					var onready = fileDrop.onready;
 					fileDrop.onready = function() {
-						onready.apply(fileDrop, arguments);
+						var info = o.Runtime.getInfo(this.ruid);
+
+						self.features.dragdrop = info.can('drag_and_drop'); // for backward compatibility
+
 						inited++;
+						fileDrops.push(this);
 						cb();
 					};
 
+					fileDrop.ondrop = function() {
+						self.addFile(this.files);
+					};
+
 					fileDrop.bind('error runtimeerror', function() {
+						fileDrop = null;
 						cb();
 					});
 
@@ -11858,111 +11878,6 @@ plupload.Uploader = function(options) {
 		});
 	}
 
-	// FOUNDRY_HACK
-	// Refactored addFileInput into a separate method.
-	function addFileInput(el, options) {
-
-		// FOUNDRY_HACK
-		// The options normalizing sequence here has been rearranged.
-		var self = this,
-			defaultOptions = {
-				accept: settings.filters.mime_types,
-				name: settings.file_data_name,
-				multiple: settings.multi_selection,
-				container: settings.container,
-				browse_button: el,
-
-				// FOUNDRY_HACK
-				// Add autoinit option.
-				autoinit: true
-			},
-			options = plupload.extend(defaultOptions, options),
-			fileInput = new o.FileInput(options);
-
-		fileInput.onready = function() {
-			var info = o.Runtime.getInfo(this.ruid);
-
-			// for backward compatibility
-			o.extend(self.features, {
-				chunks: info.can('slice_blob'),
-				multipart: info.can('send_multipart'),
-				multi_selection: info.can('select_multiple')
-			});
-
-			fileInputs.push(this);
-		};
-
-		fileInput.onchange = function() {
-
-			self.addFile(this.files, null, this);
-		};
-
-		fileInput.bind('mouseenter mouseleave mousedown mouseup', function(e) {
-			if (!disabled) {
-				if (settings.browse_button_hover) {
-					if ('mouseenter' === e.type) {
-						o.addClass(el, settings.browse_button_hover);
-					} else if ('mouseleave' === e.type) {
-						o.removeClass(el, settings.browse_button_hover);
-					}
-				}
-
-				if (settings.browse_button_active) {
-					if ('mousedown' === e.type) {
-						o.addClass(el, settings.browse_button_active);
-					} else if ('mouseup' === e.type) {
-						o.removeClass(el, settings.browse_button_active);
-					}
-				}
-			}
-		});
-
-		fileInput.bind('mousedown', function() {
-			self.trigger('Browse');
-		});
-
-		fileInput.bind('error runtimeerror', function() {
-			fileInput = null;
-		});
-
-		if (options.autoinit) {
-			fileInput.init();
-		}
-
-		return fileInput;
-	}
-
-	function addFileDrop(el, options) {
-
-		var self = this,
-			options = plupload.extend({autoinit: true}, options, {
-				drop_zone: el
-			}),
-			fileDrop = new o.FileDrop(options);
-
-		fileDrop.onready = function() {
-			var info = o.Runtime.getInfo(this.ruid);
-
-			self.features.dragdrop = info.can('drag_and_drop'); // for backward compatibility
-
-			fileDrops.push(this);
-		};
-
-		fileDrop.ondrop = function() {
-
-			self.addFile(this.files, null, this);
-		};
-
-		fileDrop.bind('error runtimeerror', function() {
-			fileDrop = null;
-		});
-
-		if (options.autoinit) {
-			fileDrop.init();
-		}
-
-		return fileDrop;
-	}
 
 	function resizeImage(blob, params, cb) {
 		var img = new o.Image();
@@ -12456,8 +12371,8 @@ plupload.Uploader = function(options) {
 		multipart: true,
 		multi_selection: true,
 		file_data_name: 'file',
-		flash_swf_url: $.path + '/scripts/plupload2/js/Moxie.swf',
-		silverlight_xap_url: $.path + '/scripts/plupload2/js/Moxie.xap',
+		flash_swf_url: 'js/Moxie.swf',
+		silverlight_xap_url: 'js/Moxie.xap',
 		filters: {
 			mime_types: [],
 			prevent_duplicates: false,
@@ -12550,20 +12465,6 @@ plupload.Uploader = function(options) {
 		 */
 		init : function() {
 			var self = this;
-
-			// FOUNDRY_HACK
-			// Carry plupload events to jQuery
-			var trigger = self.trigger;
-
-			self.trigger = function(eventName) {
-
-				var result = trigger.apply(this, arguments);
-
-				$(settings.container || settings.browse_button)
-					.trigger("plupload" + eventName, [self].concat($.makeArray(arguments).slice(1)));
-
-				return result;
-			}
 
 			if (typeof(settings.preinit) == "function") {
 				settings.preinit(self);
@@ -12720,17 +12621,12 @@ plupload.Uploader = function(options) {
 		 * @param {plupload.File|mOxie.File|File|Node|Array} file File or files to add to the queue.
 		 * @param {String} [fileName] If specified, will be used as a name for the file
 		 */
-		 // FOUNDRY_HACK
-		 // Allow passing in of file-specific upload settings
-		addFile : function(file, fileName, origin) {
+		addFile : function(file, fileName) {
 			var self = this
 			, queue = []
 			, filesAdded = []
 			, ruid
 			;
-
-			// Remove filename from options property
-			options && delete options.filename;
 
 			function filterFile(file, cb) {
 				var queue = [];
@@ -12775,10 +12671,6 @@ plupload.Uploader = function(options) {
 					if (fileName) {
 						file.name = fileName;
 					}
-
-					// FOUNDRY_HACK
-					// Always have a way to track back the origin of the file.
-					file.origin = origin;
 
 					queue.push(function(cb) {
 						// run through the internal and user-defined filters, if any
@@ -12915,18 +12807,6 @@ plupload.Uploader = function(options) {
 				args.splice(0, 1, self); // replace event object with uploader instance
 				return func.apply(this, args);
 			}, 0, scope);
-		},
-
-		// FOUNDRY_HACK
-		// Expose addFileInput
-		addFileInput: function() {
-			return addFileInput.apply(this, arguments);
-		},
-
-		// FOUNDRY_HACK
-		// Expose addFileDrop
-		addFileDrop: function() {
-			return addFileDrop.apply(this, arguments);
 		},
 
 		/**
@@ -13171,118 +13051,16 @@ plupload.File = (function() {
 
 $.plupload2 = plupload;
 
-function processInlineOptions(options) {
-
-	var inlineOptions = {};
-
-	$.each(options, function(prop, val) {
-
-		prop = prop.replace(/-/g,"_");
-
-		if (/filters|headers|multipart_params|resize|mime_types/.test(prop)) {
-			val = JSON.parse(val);
-		}
-
-		if (/multipart|prevent_duplicates|unique_names/.test(prop)) {
-			val = /true|1/i.test(val);
-		}
-
-		if (/max_retries/.test(prop)) {
-			val = parseInt(val);
-		}
-
-		if (/extensions/.test(prop)) {
-			(inlineOptions.filters || (inlineOptions.filters = {}))["mime_types"] =
-				[{title: "Accepted files", extensions: val}]
-		}
-
-		if (/prevent_duplicates|max_file_size/.test(prop)) {
-			(inlineOptions.filters || (inlineOptions.filters = {}))[prop] = val;
-		} else {
-			inlineOptions[prop] = val;
-		}
-
-	});
-
-	return inlineOptions;
-}
-
-$.fn.plupload2 = function(options, autoinit) {
-
-	var container = $(this[0]);
-
-	// If there is an existing uploader, stop.
-	if (container.data("uploader")) return;
-
-	// Normalize arguments
-	var autoinit = autoinit===undefined ? true : autoinit,
-
-		defaultOptions = {
-			runtimes: "html5, flash, html4",
-			browse_button: container.find("[data-plupload-browse-button]")[0],
-			drop_element: container.find("[data-plupload-drop-element]")[0]
-		},
-
-		inlineOptions = processInlineOptions(container.htmlData("plupload", false)),
-
-		options = $.extend(defaultOptions, inlineOptions, options),
-
-		// Create uploader instance
-		uploader = new $.plupload2.Uploader(options);
-
-	// Store uploader in data
-	container.data("uploader", uploader);
-
-	// When uploader is destroyed, remove from container data.
-	uploader.bind("Destroy", function(){
-		container.removeData("uploader");
-	});
-
-	autoinit && uploader.init();
-
-	return uploader;
-}
-
-// Elements
-// data-plupload-browse-button
-// data-plupload-drop-element
-
-// Special
-// data-plupload-extensions
-
-// String
-// data-plupload-url
-// data-plupload-chunk-size
-// data-plupload-file-data-name
-// data-plupload-flash-swf-url
-// data-plupload-runtimes
-// data-plupload-silverlight-xap-url
-
-// JSON
-// data-plupload-filters
-// data-plupload-headers
-// data-plupload-multipart-params
-// data-plupload-resize
-
-// Boolean
-// data-plupload-multipart
-// data-plupload-prevent-duplicates (special)
-// data-plupload-unique-names
-
-// Integer
-// data-plupload-max-retries
-// data-plupload-max-file-size (special)
-
 }(window, $.moxie));
 
-};
+}; 
 
-exports();
-module.resolveWith(exports);
+exports(); 
+module.resolveWith(exports); 
 
 // module body: end
 
-};
+}; 
 // module factory: end
 
 FD40.module("plupload2", moduleFactory);

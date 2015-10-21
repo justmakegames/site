@@ -27,7 +27,7 @@ EasySocial.module( 'site/search/dating' , function($){
                 '{frmLongitude}' : '[data-longitude]',
 
 				"{locationLabel}" : "[data-location-label]",
-
+				"{textField}" : "[data-location-textfield]"
 			}
 		},
 		function( self ){
@@ -38,8 +38,7 @@ EasySocial.module( 'site/search/dating' , function($){
 					self.element.addController(EasySocial.Controller.Search.Map);
 
 					if (self.frmAddress().val() != '') {
-                    	self.locationLabel().html(self.frmAddress().val());
-                    	self.locationLabel().removeClass('hide');
+                    	self.textField().val(self.frmAddress().val());
 					}
 				},
 

@@ -82,6 +82,7 @@ class SocialStylesheet extends FD40_Stylesheet
 		// Default settings
 		$build = false;
 
+
 		// If we're in a development environment,
 		// always cache compile stylesheet and
 		// attached uncompressed stylesheets.
@@ -106,12 +107,13 @@ class SocialStylesheet extends FD40_Stylesheet
 
 		// Rebuild stylesheet on page load if necessary
 		if ($build) {
+
 			$task = $this->build($environment);
 
 			// This generates build log in the browser console.
 			$script = FD::script();
 			$script->set('task', $task);
-			$script->attach('themes:/admin/stylesheet/log');
+			// $script->attach('themes:/admin/stylesheet/log');
 		}
 
 		parent::attach($minified, $allowOverride);

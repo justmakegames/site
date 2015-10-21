@@ -25,11 +25,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<small>
 		<?php if( $options[ 'view' ] == 'all' ){ ?>
-			<span class="es-album-author mr-5"><i class="ies-user"></i> <?php echo JText::sprintf('COM_EASYSOCIAL_ALBUMS_CREATED_BY' , $this->html( 'html.user' , $album->user_id , true ) ); ?></span>
+			<span class="es-album-author mr-5"><i class="fa fa-user"></i> <?php echo JText::sprintf('COM_EASYSOCIAL_ALBUMS_CREATED_BY' , $this->html( 'html.user' , $album->user_id , true ) ); ?></span>
 		<?php } ?>
 
 		<?php if ($album->hasDate()) { ?>
-			<span data-album-date class="es-album-date"><i class="ies-calendar"></i> <?php echo $this->html( 'string.date' , $album->getAssignedDate() , "COM_EASYSOCIAL_ALBUMS_DATE_FORMAT",  $album->hasAssignedDate() ? false : true); ?></span>
+			<span data-album-date class="es-album-date"><i class="fa fa-calendar"></i> <?php echo $this->html( 'string.date' , $album->getAssignedDate() , "COM_EASYSOCIAL_ALBUMS_DATE_FORMAT",  $album->hasAssignedDate() ? false : true); ?></span>
 			<?php
 				$location = $album->getLocation();
 				if ($location) {

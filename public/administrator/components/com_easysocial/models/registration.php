@@ -535,6 +535,15 @@ class EasySocialModelRegistration extends EasySocialModel
 		// Allow field applications to manipulate custom fields data
 		$args       = array( &$data , &$client , &$user );
 
+		// Assign users into the EasySocial groups
+		$defaultGroups = $profile->getDefaultGroups();
+
+		if ($defaultGroups) {
+			foreach ($defaultGroups as $group) {
+				$group->createMember($user->id, true);
+			}
+		}		
+
 		// Allow fields app to make necessary changes if necessary. At this point, we wouldn't want to allow
 		// the field to stop the registration process already.
 		// @trigger onRegisterAfterSave
@@ -652,7 +661,7 @@ class EasySocialModelRegistration extends EasySocialModel
 	 */
 	public function createUser( SocialTableRegistration &$registration )
 	{
-		$config 	= FD::config();
+		$config = FD::config();
 
 		// Registrations needs to be enabled.
 		if (!$config->get('registrations.enabled')) {
@@ -685,61 +694,54 @@ class EasySocialModelRegistration extends EasySocialModel
 		$lib = FD::getInstance('Fields');
 
 		// Set the user's profile id
-		$user->profile_id 	= $registration->profile_id;
+		$user->profile_id = $registration->profile_id;
 
 		// Get the trigger handler
-		$handler	= $lib->getHandler();
+		$handler = $lib->getHandler();
 
 		// Trigger onRegisterBeforeSave
-		$errors 	= $lib->trigger( 'onRegisterBeforeSave' , SOCIAL_FIELDS_GROUP_USER , $fields , $args, array( $handler, 'beforeSave' ) );
+		$errors = $lib->trigger('onRegisterBeforeSave', SOCIAL_FIELDS_GROUP_USER, $fields, $args, array($handler, 'beforeSave'));
 
 		// We need to know the password of the user because they might need to login after registrations.
-		$data[ 'password_clear' ]	= $data[ 'password' ];
+		$data['password_clear'] = $data['password'];
 
 		// If there are any errors, throw them on screen.
-		if( is_array( $errors) )
-		{
-			if( in_array( false , $errors , true ) )
-			{
-				$this->setError( $errors );
-				return $user;
-			}
+		if (is_array($errors) && in_array(false, $errors, true)) {
+			$this->setError($errors);
+			return $user;
 		}
 
 		// Load profile type.
-		$profile        = FD::table( 'Profile' );
-		$profile->load( $registration->profile_id );
+		$profile = FD::table('Profile');
+		$profile->load($registration->profile_id);
 
 		// Get a list of user groups this profile is assigned to
-		$json 		= FD::json();
-		$groups 	= $json->decode( $profile->gid );
+		$groups = json_decode($profile->gid);
 
 		// Need to bind the groups under the `gid` column from Joomla.
-		$data[ 'gid' ]  = $groups;
+		$data['gid'] = $groups;
 
 		// Bind the posted data for the user.
-		$user->bind( $data , SOCIAL_POSTED_DATA );
+		$user->bind($data, SOCIAL_POSTED_DATA);
 
 		// Detect the profile type's registration type.
-		$type 	= $profile->getRegistrationType();
+		$type = $profile->getRegistrationType();
 
 		// We need to generate an activation code for the user.
-		if( $type == 'verify' )
-		{
-			$user->activation 	= FD::getHash( JUserHelper::genRandomPassword() );
+		if ($type == 'verify') {
+			$user->activation = FD::getHash(JUserHelper::genRandomPassword());
 		}
 
 		// If the registration type requires approval or requires verification, the user account need to be blocked first.
-		if( $type == 'approvals' || $type == 'verify')
-		{
-			$user->block 	= 1;
+		if ($type == 'approvals' || $type == 'verify') {
+			$user->block = 1;
 		}
 
 		// Get registration type and set the user's state accordingly.
-		$user->set( 'state' , constant( 'SOCIAL_REGISTER_' . strtoupper( $type ) ) );
+		$user->set('state', constant('SOCIAL_REGISTER_' . strtoupper($type)));
 
 		// Let's try to save the user now.
-		$state 		= $user->save();
+		$state = $user->save();
 
 		// If there's a problem saving the user object, set error message.
 		// Added another check because $user->save() triggers Joomla's user plugin that although sometimes throws an error, the user actually got created anyway
@@ -755,7 +757,16 @@ class EasySocialModelRegistration extends EasySocialModel
 		$profile->addUser($user->id);
 
 		// Allow field applications to manipulate custom fields data
-		$args	= array(&$data, &$user);
+		$args = array(&$data, &$user);
+
+		// Assign users into the EasySocial groups
+		$defaultGroups = $profile->getDefaultGroups();
+
+		if ($defaultGroups) {
+			foreach ($defaultGroups as $group) {
+				$group->createMember($user->id, true);
+			}
+		}
 
 		// Allow fields app to make necessary changes if necessary. At this point, we wouldn't want to allow
 		// the field to stop the registration process already.
@@ -793,15 +804,15 @@ class EasySocialModelRegistration extends EasySocialModel
 	 * @return	bool				True if success, false otherwise.
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function notifyAdmins( $data , SocialUser $user , SocialTableProfile $profile, $oauth = false )
+	public function notifyAdmins($data, SocialUser $user, SocialTableProfile $profile, $oauth = false)
 	{
 		// Get the application data.
-		$jConfig 	= FD::jConfig();
+		$jConfig = FD::jConfig();
 
 		// Generate a key for the admin's actions.
-		$key 		= md5( $user->password . $user->email . $user->name . $user->username );
+		$key = md5($user->password . $user->email . $user->name . $user->username);
 
-		$config 	= FD::config();
+		$config = FD::config();
 
 		if ($config->get('registrations.emailasusername')) {
 			$data['username']	= $user->email;
@@ -816,7 +827,7 @@ class EasySocialModelRegistration extends EasySocialModel
 								'middleName'	=> !empty( $data[ 'middle_name' ] ) ? $data[ 'middle_name' ] : '',
 								'lastName'		=> !empty( $data[ 'last_name' ] ) ? $data[ 'last_name' ] : '',
 								'name'			=> $user->getName(),
-								'avatar'		=> $user->getAvatar( SOCIAL_AVATAR_LARGE ),
+								'avatar'		=> $user->getAvatar(SOCIAL_AVATAR_LARGE),
 								'profileLink'	=> $user->getPermalink( true, true ),
 								'email'			=> $user->email,
 								'activation'	=> FRoute::controller( 'registration' , array( 'external' => true , 'task' => 'activate' , 'activation' => $user->activation ) ),
@@ -828,45 +839,47 @@ class EasySocialModelRegistration extends EasySocialModel
 
 
 		// Get the email title.
-		$title      = $profile->getModeratorEmailTitle();
+		$title = $profile->getModeratorEmailTitle($user->username);
 
 		// Get the email format.
-		$format 	= $profile->getEmailFormat();
+		$format = $profile->getEmailFormat();
 
 		// Get a list of super admins on the site.
-		$usersModel = FD::model( 'Users' );
+		$usersModel = FD::model('Users');
 
-		$admins 	= $usersModel->getSiteAdmins();
+		$admins = $usersModel->getSiteAdmins();
 
-		foreach( $admins as $admin )
-		{
+		foreach ($admins as $admin) {
+
 			if (!$admin->sendEmail) {
 				continue;
 			}
 
 			// Immediately send out emails
-			$mailer 	= FD::mailer();
+			$mailer = FD::mailer();
 
 			// Set the admin's name.
-			$params[ 'adminName' ]	= $admin->getName();
+			$params['adminName'] = $admin->getName();
 
 			// Get the email template.
-			$mailTemplate	= $mailer->getTemplate();
+			$mailTemplate = $mailer->getTemplate();
 
 			// Set recipient
-			$mailTemplate->setRecipient( $admin->getName() , $admin->email );
+			$mailTemplate->setRecipient($admin->getName(), $admin->email);
 
 			// Set title
-			$mailTemplate->setTitle( $title );
+			$mailTemplate->setTitle($title);
 
 			// Set the template
-			$mailTemplate->setTemplate($profile->getModeratorEmailTemplate('', $oauth), $params, $format);
+			$template = $profile->getModeratorEmailTemplate('', $oauth);
+
+			$mailTemplate->setTemplate($template, $params, $format);
 
 			// Set the priority. We need it to be sent out immediately since this is user registrations.
-			$mailTemplate->setPriority( SOCIAL_MAILER_PRIORITY_IMMEDIATE );
+			$mailTemplate->setPriority(SOCIAL_MAILER_PRIORITY_IMMEDIATE);
 
 			// Try to send out email to the admin now.
-			$state 		= $mailer->create( $mailTemplate );
+			$state = $mailer->create($mailTemplate);
 		}
 
 		return true;
@@ -912,8 +925,11 @@ class EasySocialModelRegistration extends EasySocialModel
 								'profileType' => $profile->get( 'title' )
 						);
 
+		// Get the user preferred language
+		$language = $user->getParam('language', '');
+
 		// Get the email title.
-		$title = $profile->getEmailTitle();
+		$title = $profile->getEmailTitle('', $language);
 
 		// Get the email format.
 		$format = $profile->getEmailFormat();
@@ -935,6 +951,9 @@ class EasySocialModelRegistration extends EasySocialModel
 
 		// Set the priority. We need it to be sent out immediately since this is user registrations.
 		$mailTemplate->setPriority(SOCIAL_MAILER_PRIORITY_IMMEDIATE);
+
+		// Set the language. We need the email to be sent out with the correct language.
+		$mailTemplate->setLanguage($language);
 
 		// Try to send out email now.
 		$state = $mailer->create($mailTemplate);
@@ -976,7 +995,7 @@ class EasySocialModelRegistration extends EasySocialModel
 						);
 
 		// Get the email title.
-		$title = JText::_('User Activation Reminder');
+		$title = JText::_('COM_EASYSOCIAL_REGISTRATION_ACTIVATION_REMINDER');
 
 		// Immediately send out emails
 		$mailer = FD::mailer();

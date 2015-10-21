@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,24 +9,13 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-// Load triggers for fields.
-FD::import( 'admin:/includes/fields/triggers' );
+// Dependencies
+ES::import('admin:/includes/fields/triggers');
+ES::import('admin:/includes/fields/handlers');
+ES::import('admin:/includes/apps/apps');
 
-// Load handlers for triggers
-FD::import( 'admin:/includes/fields/handlers' );
-
-// Load apps dependencies.
-FD::import( 'admin:/includes/apps/apps' );
-
-/**
- * Responsible to manage the field items including
- * event triggers.
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialFields
 {
 	/**
@@ -545,33 +534,29 @@ class SocialFields
 
 		static $configParams = array();
 
-		if( empty( $configParams[$appId] ) )
-		{
-			// Load json library
-			$json 	= FD::json();
+		if (empty($configParams[$appId])) {
 
-			$app	= $this->loadAppData( $appId );
+			// Load json library
+			$json = FD::json();
+
+			$app = $this->loadAppData($appId);
 			$config = $app->getManifest();
 
-			if( empty( $config ) )
-			{
+			if (empty($config)) {
 				$config = new stdClass();
 			}
 
 			// Get the default core parameters
-			$defaults	= $this->getDefaultManifest($app->group);
+			$defaults = $this->getDefaultManifest($app->group);
 
 			// Manually perform a deep array merge to carry the defaults over to the config object
-			foreach( $defaults as $name => $params )
-			{
-				if( property_exists( $config, $name ) )
-				{
-					if( is_bool( $config->$name ) )
-					{
+			foreach ($defaults as $name => $params) {
+				
+				if (property_exists($config, $name)) {
+
+					if (is_bool($config->$name)) {
 						$params = $config->$name;
-					}
-					else
-					{
+					} else {
 						$params = (object) array_merge( (array) $params, (array) $config->$name );
 					}
 				}
@@ -737,39 +722,47 @@ class SocialFields
 		return $params;
 	}
 
-	public function getConfigHtml( $appid, $fieldid = 0 )
+	/**
+	 * Retrieves the custom fields configuration html output
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getConfigHtml($id, $fieldId = 0)
 	{
-		// Get app title
-		$app = FD::table( 'app' );
-		$app->load( $appid );
+		// Load the app
+		$app = FD::table('App');
+		$app->load($id);
+
+		// App title
 		$title = $app->title;
 
 		// Get config parameters
-		$params = $this->getFieldConfigParameters( $appid, true );
+		$params = $this->getFieldConfigParameters($id, true);
 
 		// Get config values
-		$values = $this->getFieldConfigValues( $appid, $fieldid );
+		$values = $this->getFieldConfigValues($id, $fieldId);
 
-		foreach( $params as $tab => &$data )
-		{
-			foreach( $data->fields as $name => &$field )
-			{
+		foreach ($params as $tab => &$data) {
+
+			foreach ($data->fields as $name => &$field) {
+
 				// Normalize the types here
-				$this->normalizeConfigType( $field );
+				$this->normalizeConfigType($field);
 
 				// Normalize the subfield types too
-				if( isset( $field->subfields ) )
-				{
-					foreach( $field->subfields as $subname => $subfield )
-					{
-						$this->normalizeConfigType( $subfield );
+				if (isset($field->subfields)) {
+
+					foreach ($field->subfields as $subname => $subfield) {
+						$this->normalizeConfigType($subfield);
 					}
 				}
 
 				// Check the values for this name
-				if( !$values->exists( $name ) )
-				{
-					$values->set( $name, '' );
+				if (!$values->exists($name)) {
+					$values->set($name, '');
 				}
 			}
 		}
@@ -780,44 +773,38 @@ class SocialFields
 
 		$theme = FD::themes();
 
-		$theme->set( 'title', $title );
-		$theme->set( 'params', $params );
-		$theme->set( 'values', $values );
-		// $theme->set( 'tabs', array( 'basic', 'core', 'view', 'advance' ) );
+		$theme->set('title', $title);
+		$theme->set('params', $params);
+		$theme->set('values', $values);
 		$theme->set('tabs', $tabs);
 
-		return $theme->output( 'admin/profiles/form.fields.config' );
+		return $theme->output('admin/profiles/fields/config');
 	}
 
-	private function normalizeConfigType( &$field )
+	/**
+	 * Normalizes the field types that is retrieved from the config file
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	private function normalizeConfigType(&$field)
 	{
 		$type = 'boolean';
 
-		if( isset( $field->type ) )
-		{
-			switch( $field->type ) {
-				case 'input':
-				case 'text':
-					$type = 'input';
-				break;
+		if (isset($field->type)) {
 
-				case 'dropdown':
-				case 'list':
-				case 'select':
-					$type = 'dropdown';
-				break;
+			if ($field->type == 'input' || $field->type == 'text') {
+				$type = 'input';
+			}
 
-				case 'editors':
-				case 'checkbox':
-				case 'radio':
-				case 'textarea':
-				case 'choices':
-					$type = $field->type;
-				break;
+			if ($field->type == 'dropdown' || $field->type == 'list' || $field->type == 'select') {
+				$type = 'dropdown';
+			}
 
-				default:
-					$type = 'boolean';
-				break;
+			if ($field->type == 'editors' || $field->type == 'checkbox' || $field->type == 'radio' || $field->type == 'textarea' || $field->type == 'choices' || $field->type == 'article') {
+				$type = $field->type;
 			}
 		}
 
@@ -984,10 +971,7 @@ class SocialFields
 			$state 	= $stepTable->store();
 
 			// If there's a problem storing the state, we should log errors here.
-			if( !$state )
-			{
-				FD::logError( __FILE__ , __LINE__ , 'FIELDS: Unable to store step for id ' . $uid . ' with the sequence of ' . $sequence );
-
+			if (!$state) {
 				return false;
 			}
 
@@ -1052,10 +1036,7 @@ class SocialFields
 				$state 	= $fieldTable->store();
 
 				// If there's any problems storing the state, we should log errors and not proceed.
-				if( !$state )
-				{
-					FD::logError( __FILE__ , __LINE__ , 'FIELDS: Unable to store the field for the step id ' . $stepTable->id );
-
+				if (!$state) {
 					return false;
 				}
 
@@ -1105,10 +1086,7 @@ class SocialFields
 								$fieldoptionsTable->default = $choice->default;
 							}
 
-							if( !$fieldoptionsTable->store() )
-							{
-								FD::logError( __FILE__, __LINE__, 'FIELDS: Unable to store the choices for the field id ' . $fieldTable->id );
-
+							if (!$fieldoptionsTable->store()) {
 								return false;
 							}
 

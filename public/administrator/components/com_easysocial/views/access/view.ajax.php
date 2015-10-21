@@ -15,12 +15,19 @@ FD::import('admin:/views/views');
 
 class EasySocialViewAccess extends EasySocialAdminView
 {
+	/**
+	 * Post process after scanning for files
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function scanFiles($files = array())
 	{
-		$ajax 		= FD::ajax();
-		$message 	= JText::sprintf('COM_EASYSOCIAL_DISCOVER_FOUND_FILES', count($files));
+		$message = JText::sprintf('COM_EASYSOCIAL_DISCOVER_FOUND_FILES', count($files));
 
-		return $ajax->resolve($files, $message);
+		return $this->ajax->resolve($files, $message);
 	}
 
 	public function installFile($obj = null)

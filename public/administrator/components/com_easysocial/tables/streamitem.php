@@ -34,7 +34,6 @@ class SocialTableStreamItem extends SocialTable
 	public $params = null;
 	public $state = null;
 
-
 	static $_streamitems 	= array();
 
 	public function __construct( $db )

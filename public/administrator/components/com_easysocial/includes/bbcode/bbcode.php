@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,37 +9,19 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-
-/**
- * Class to manipulate images.
- *
- * @since	1.0
- */
 class SocialBBCode
 {
-
-	/**
-	 * Stores the current adapter.
-	 * @var	Object
-	 */
 	private $adapter    = null;
 
-	/**
-	 * Class constructor.
-	 *
-	 * @since	1.0
-	 * @param	string	The image driver to use.
-	 * @access	public
-	 */
 	public function __construct()
 	{
 		// For now, we'll hardcode it to use decoda.
 
-		require_once( dirname( __FILE__ ) . '/adapters/decoda/decoda.php' );
+		require_once(__DIR__ . '/adapters/decoda/decoda.php');
 
-		$this->adapter	= new BBCodeDecodaAdapter();
+		$this->adapter = new BBCodeDecodaAdapter();
 	}
 
 	/**
@@ -52,11 +34,15 @@ class SocialBBCode
 	 */
 	public static function factory()
 	{
-		$decoda 	= new self();
+		$decoda = new self();
 
 		return $decoda;
 	}
 
+	public static function getSmileys()
+	{
+			
+	}
 
 	/**
 	 * Processes a string with decoda library.
@@ -91,9 +77,9 @@ class SocialBBCode
 	 */
 	public function editor( $nameAttribute , $value = '' , $config = array() , $attributes = array() )
 	{
-		$theme 		= FD::themes();
-		$uniqueId	= uniqid();
-		$attr 		= '';
+		$theme = ES::themes();
+		$uniqueId = uniqid(rand());
+		$attr = '';
 
 		if (!empty($attributes)) {
 

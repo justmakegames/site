@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,14 +9,8 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Displays the group photos in a widget
- *
- * @since	1.2
- * @access	public
- */
 class PhotosWidgetsGroups extends SocialAppsWidgets
 {
 	public function groupAdminStart($group)
@@ -63,16 +57,24 @@ class PhotosWidgetsGroups extends SocialAppsWidgets
 	{
 		$params = $this->getParams();
 
-		if (!$params->get('widgets_album', true)) {
+		// If the app is disabled, do not continue
+		if (!$params->get('widgets_album', true) || !$group->getCategory()->getAcl()->get('photos.enabled', true) || !$group->getParams()->get('photo.albums', true)) {
 			return;
 		}
 
 		$model = FD::model('Albums');
 
+		// Determines the total number of albums to retrieve
+		$limit = $params->get('limit', 10);
+
 		// Get the list of albums from this group
-		$albums = $model->getAlbums($group->id, SOCIAL_TYPE_GROUP);
+		$albums = $model->getAlbums($group->id, SOCIAL_TYPE_GROUP, array('limit' => $limit));
 		$options = array('uid' => $group->id, 'type' => SOCIAL_TYPE_GROUP);
 
+		if (!$albums) {
+			return;
+		}
+		
 		// Get the total number of albums
 		$total = $model->getTotalAlbums($options);
 

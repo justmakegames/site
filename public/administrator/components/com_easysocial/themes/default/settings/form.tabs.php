@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="row">
+<div class="wrapper accordion">
 	<div class="tab-box tab-box-alt">
 		<div class="tabbable">
 			<ul class="nav nav-tabs nav-tabs-icons">

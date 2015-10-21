@@ -104,110 +104,131 @@ class EasySocialModelSidebar extends EasySocialModel
 		}
 
 		// If there are no items there, it should throw an error.
-		if( !$items )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'SIDEBAR: Unable to parse menu.json file.' );
+		if (!$items) {
 			return false;
 		}
 
 		// Initialize default result.
-		$result 	= array();
+		$result = array();
 
-		foreach( $items as $item )
-		{
+		foreach ($items as $item) {
+
 			// Generate a unique id.
-			$uid 	= uniqid();
+			$uid = uniqid();
 
 			// Generate a new group object for the sidebar.
-			$obj 	= clone( $item );
+			$obj = clone($item);
 
 			// Assign the unique id.
-			$obj->uid 	= $uid;
+			$obj->uid = $uid;
 
 			// Initialize the counter
 			$obj->count	= 0;
 
-
 			// Test if there's a counter key.
-			if( isset( $obj->counter ) )
-			{
-				$namespace 	= explode( '/' , $obj->counter );
-				$method 	= $namespace[ 1 ];
-				$namespace 	= $namespace[ 0 ];
-
-				$model 		= FD::model( $namespace );
-
-				$count 		= $model->$method();
-				$obj->count = $count;
+			if (isset($obj->counter)) {
+				$obj->count = $this->getCount($obj->counter);
 			}
 
-			if( !empty( $obj->childs ) )
-			{
-				$childItems 	= array();
+			if (!empty($obj->childs)) {
+				$childItems = array();
 
-				usort( $obj->childs , array( 'EasySocialModelSidebar' , 'sortItems' ) );
+				usort($obj->childs, array( 'EasySocialModelSidebar', 'sortItems'));
 
-				foreach( $obj->childs as $child )
-				{
+				foreach ($obj->childs as $child) {
+					
 					// Clone the child object.
-					$childObj 	= clone( $child );
+					$childObj = clone($child);
 
 					// Let's get the URL.
-					$url 					= array( 'index.php?option=com_easysocial' );
-					$query 					= FD::makeArray( $child->url );
+					$url = array('index.php?option=com_easysocial');
+					$query = ES::makeArray($child->url);
 
 					// Set the url into the child item so that we can determine the active submenu.
-					$childObj->url			= $child->url;
+					$childObj->url = $child->url;
 
-					if( $query )
-					{
-						foreach( $query as $queryKey => $queryValue )
-						{
-							$url[]	= $queryKey . '=' . $queryValue;
+					if ($query) {
+	
+						foreach ($query as $queryKey => $queryValue) {
+
+							if ($queryValue) {
+								$url[]	= $queryKey . '=' . $queryValue;
+							}
 
 							// If this is a call to the controller, it must have a valid token id.
-							if( $queryKey == 'controller' )
-							{
-								$url[]	= FD::token() . '=1';
+							if ($queryKey == 'controller') {
+								$url[] = ES::token() . '=1';
 							}
 						}
 					}
 
 					// Set the item link.
-					$childObj->link 	= implode( '&amp;' , $url );
+					$childObj->link = implode('&amp;', $url);
 
 					// Initialize the counter
-					$childObj->count	= 0;
+					$childObj->count = 0;
 
 					// Check if there's any sql queries to execute.
-					if( isset( $childObj->counter ) )
-					{
-						$namespace 	= explode( '/' , $childObj->counter );
-						$method 	= $namespace[ 1 ];
-						$namespace 	= $namespace[ 0 ];
-
-						$model 		= FD::model( $namespace );
-
-						$count 		= $model->$method();
-						$childObj->count 	= $count;
+					if (isset($childObj->counter)) {
+						$childObj->count = $this->getCount($childObj->counter);
 					}
 
 					// Add a unique id for the side bar for accordion purposes.
-					$childObj->uid 		= $uid;
+					$childObj->uid = $uid;
 
 					// Add the menu item to the child items.
-					$childItems[]		= $childObj;
+					$childItems[] = $childObj;
 				}
-
-				$obj->childs 	= $childItems;
+				$obj->childs = $childItems;
 			}
 
-			$result[]	= $obj;
+			$obj->views = $this->getViews($obj);
+
+			$result[] = $obj;
 		}
 
-		// @TODO: Render applications to see if they want to add any menu's here.
-
 		return $result;
+	}
+
+	/**
+	 * Given a list of sidebar structure, determine all the views
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getViews($menuItem)
+	{
+		$views = array($menuItem->view);
+
+		if (isset($menuItem->childs) && $menuItem->childs) {
+			foreach ($menuItem->childs as $childMenu) {
+				$views[] = $childMenu->url->view;
+			}
+		}
+
+		$views = array_unique($views);
+
+		return $views;
+	}
+
+	/**
+	 * Retrieves a specific count item based on the namespace
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getCount($namespace)
+	{
+		list($modelName, $method) = explode('/', $namespace);
+
+		$model = ES::model($modelName);
+		$count = $model->$method();
+
+		return $count;
 	}
 
 	public static function sortItems( $a , $b )

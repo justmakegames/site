@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <a class="btn-es btn-friends" href="javascript:void(0);" data-popbox-friends-respond data-bs-toggle="dropdown">
-	<i class="ies-loop ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_POPOVER_RESPOND' );?>
+	<i class="fa fa-refresh  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_POPOVER_RESPOND' );?>
 </a>
 <ul style="position: absolute; top:20px; left:-40px;" role="menu" class="dropdown-menu dropdown-arrow-topright" data-friends-submenu>
 	<li>

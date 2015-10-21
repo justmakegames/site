@@ -144,16 +144,16 @@ class SocialTableReport extends SocialTable
 		$custom	 	= $config->get( 'reports.notifications.emails' , '' );
 		$recipients = array();
 
-		foreach( $admins as $user )
-		{
-			$recipients[]		= $user->email;
+		foreach ($admins as $user) {
+			$recipients[] = $user->email;
 		}
 
-		if( !empty( $custom ) )
-		{
-			foreach( $custom as $email )
-			{
-				$recipients[]	= $email;
+		if (!empty($custom)) {
+
+			$custom = explode(',', $custom);
+
+			foreach ($custom as $email) {
+				$recipients[] = $email;
 			}
 		}
 

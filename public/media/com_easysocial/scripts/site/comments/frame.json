@@ -5,6 +5,7 @@
         ],
         "script": [
             "site/comments/item",
+            "uploader/uploader",
             "site/comments/control"
         ],
         "view": [

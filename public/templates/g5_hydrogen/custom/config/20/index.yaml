@@ -1,5 +1,5 @@
 name: 20
-timestamp: 1444107353
+timestamp: 1445195652
 preset:
   image: 'gantry-admin://images/layouts/default.png'
   name: default
@@ -7,6 +7,7 @@ preset:
 positions:
   header: Header
   breadcrumbs: Breadcrumbs
+  breadcrumb-right: 'Breadcrumb Right'
   home-main: 'Home Main'
   home-sidebar: 'Home Sidebar'
   sidebar-a: 'Sidebar A'

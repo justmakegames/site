@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -28,6 +28,68 @@ class EasySocialSiteView extends EasySocialView
 		// Check if there is a method isFeatureEnabled exists. If it does, we should do a check all the time.
 		if (method_exists($this, 'isFeatureEnabled')) {
 			$this->isFeatureEnabled();
+		}
+
+		// check if user is required to reset password or not.
+		if ($this->my->require_reset) {
+			$controller = $this->input->get('controller', '', 'cmd');
+			$view = $this->input->get('view', '', 'cmd');
+
+			if ($view != 'account' && $view != 'registration' && $view != 'oauth' && $controller != 'account') {
+				$url 	= FRoute::account( array( 'layout' => 'requirePasswordReset' ) , false );
+				$this->redirect($url);
+				return;
+			}
+		}
+
+		// // When the user doesn't have community access, ensure that they can only view selected views.
+		if (!$this->my->hasCommunityAccess()) {
+
+			// Get the current view
+			$view = $this->getName();
+			$layout = $this->input->get('layout', '', 'cmd');
+
+			// If this is an ajax call, we need to allow some ajax calls to go through
+			$allowedAjaxNamespaces = array('site/views/profile/showFormError');
+
+			if ($this->doc->getType() == 'ajax') {
+				$namespace = $this->input->get('namespace', '', 'default');
+
+				// If this is an ajax call, and the namespace is valid, skip checking below
+				if (in_array($namespace, $allowedAjaxNamespaces)) {
+					return;
+				}
+			}
+
+			// Define allowed views and layout
+			$allowedViews = array('profile');
+			$allowedLayouts = array('edit');
+
+			// views that we should redirect the user to profile edit page.
+			$redirectView = array('dashboard', 'profile');
+
+
+			// User should be allowed to logout from the site
+			$isLogout = (($this->input->get('controller', '', 'cmd') == 'account') && ($this->input->get('task', '', 'cmd') == 'logout')) || (($this->input->get('view', '', 'cmd') == 'login') && ($this->input->get('layout', '', 'cmd') == 'logout'));
+
+			// user should be allowed to save their profile details on the site.
+			$isProfileSaving = ($this->input->get('controller', '', 'cmd') == 'profile') && ( $this->input->get('task', '', 'cmd') == 'save');
+
+			if (in_array($view, $redirectView) && !$layout && !$isLogout && !$isProfileSaving) {
+				// we need to redirect the user to profile edit page.
+				$this->redirect(FRoute::profile(array('layout' => 'edit'), false));
+				return;
+			}
+
+			// Ensure that the restricted user is not able to view other views
+			if (!in_array($view, $allowedViews) && !$isLogout && !$isProfileSaving) {
+				return JError::raiseError(500, JText::_('COM_EASYSOCIAL_NOT_ALLOWED_TO_VIEW_SECTION'));
+			}
+
+			// Ensure that the user is only viewing the allowed layouts
+			if (!in_array($layout, $allowedLayouts) && !$isLogout && !$isProfileSaving) {
+				return JError::raiseError(500, JText::_('COM_EASYSOCIAL_NOT_ALLOWED_TO_VIEW_SECTION'));
+			}
 		}
 	}
 
@@ -107,18 +169,17 @@ class EasySocialSiteView extends EasySocialView
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function display( $tpl = null )
+	public function display($tpl = null)
 	{
-		$doc 		= JFactory::getDocument();
-		$type 		= $doc->getType();
-		$show		= JRequest::getString( 'show' );
+		$type = $this->doc->getType();
+		$show = $this->input->get('show', '', 'string');
 
 		if ($type != 'html') {
 			return parent::display($tpl);
 		}
 
 		// Include main structure here.
-		$theme 	= FD::themes();
+		$theme = FD::themes();
 
 		// Capture output.
 		ob_start();
@@ -235,7 +296,7 @@ class EasySocialSiteView extends EasySocialView
 	public function getToolbar()
 	{
 		// The current logged in user.
-		$toolbar 	= FD::toolbar();
+		$toolbar = ES::toolbar();
 
 		return $toolbar->render();
 	}

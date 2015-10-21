@@ -23,7 +23,7 @@ require_once(JPATH_ADMINISTRATOR . '/components/com_easysocial/includes/foundry.
  */
 function EasySocialBuildRoute(&$query)
 {
-    $segments   = FRoute::build($query);
+    $segments = FRoute::build($query);
 
     return $segments;
 }

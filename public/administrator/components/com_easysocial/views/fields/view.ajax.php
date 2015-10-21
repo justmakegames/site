@@ -40,8 +40,7 @@ class EasySocialViewFields extends EasySocialAdminView
 	{
 		$ajax 	= FD::ajax();
 
-		if( $field === false )
-		{
+		if ($field === false) {
 			return $ajax->reject( $this->getMessages() );
 		}
 
@@ -53,10 +52,32 @@ class EasySocialViewFields extends EasySocialAdminView
 		$theme->set( 'output', $field->output );
 		$theme->set( 'app', $app );
 
-		$html = $theme->output( 'admin/profiles/form.fields.editor.item' );
+		$html = $theme->output( 'admin/profiles/fields/editor.item' );
 
 		return $ajax->resolve( $html );
 	}
+
+
+	/**
+	 * Retrieves the custom field's page configuration
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function renderPageConfig($params, $values)
+	{
+		$theme = FD::themes();
+		$theme->set('title', JText::_('COM_EASYSOCIAL_PROFILES_FORM_PAGE_CONFIGURATION'));
+		$theme->set('params', $params);
+		$theme->set('values', $values);
+
+		$output = $theme->output('admin/profiles/fields/page.config');
+
+		return $this->ajax->resolve($params, $values, $output);
+	}
+
 
 	/**
 	 * Render's field params

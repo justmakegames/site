@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<i class="ies-link ies-small mr-5"></i>
+<i class="fa fa-link  mr-5"></i>
 <?php if( $params->get( 'linkable' ) ){ ?>
 <a href="<?php echo $this->html( 'string.escape' , $value );?>"
 	<?php echo $params->get( 'nofollow' ) ? ' rel="nofollow"' : '';?>

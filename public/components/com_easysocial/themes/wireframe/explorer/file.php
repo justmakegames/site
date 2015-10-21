@@ -12,7 +12,9 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="fd-explorer-file" data-id="<?php echo $file->id; ?>" data-preview-uri="<?php echo $file->data->previewUri; ?>">
+	<?php if ($file->canDelete) { ?>
 	<a href="javascript: void(0);" class="btn btn-danger btn-sm btn-file-remove" data-fd-explorer-delete-button><?php echo JText::_('COM_EASYSOCIAL_EXPLORER_DELETE_FILE'); ?></a>
+	<?php } ?>
 	<div class="pull-left">
 		<label class="checkbox-inline">
 			<input type="checkbox" value="<?php echo $file->id; ?>" data-fd-explorer-select>

@@ -13,21 +13,18 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div data-followers-content>
 
-	<div class="es-filterbar">
-		<div class="pull-left">
-			<?php if( $active == 'followers' ){ ?>
-			<h5 class="filterbar-title">
-				<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_FOLLOWERS_TITLE' ); ?>
-			</h5>
-			<?php } ?>
+	<div class="es-snackbar">
+		<?php if( $active == 'followers' ){ ?>
+			<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_FOLLOWERS_TITLE' ); ?>
+		<?php } ?>
 
-			<?php if( $active == 'following' ){ ?>
-			<h5 class="filterbar-title">
-				<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_FOLLOWING_TITLE' ); ?>
-			</h5>
-			<?php } ?>
+		<?php if( $active == 'following' ){ ?>
+			<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_FOLLOWING_TITLE' ); ?>
+		<?php } ?>
 
-		</div>
+		<?php if( $active == 'suggest' ){ ?>
+			<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_SUGGEST_TITLE' ); ?>
+		<?php } ?>
 	</div>
 
 	<ul class="es-item-grid es-item-grid_1col<?php echo !$users ? ' is-empty' : '';?>" data-followers-items>
@@ -46,6 +43,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 				<?php if( $active == 'following' ){ ?>
 					<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_NOT_FOLLOWING_YET' ); ?>
+				<?php } ?>
+
+				<?php if( $active == 'suggest' ){ ?>
+					<?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWERS_NO_ONE_TO_FOLLOW' ); ?>
 				<?php } ?>
 			</div>
 		</li>

@@ -151,25 +151,35 @@ class SocialFieldsUserFile extends SocialFieldItem
 		return true;
 	}
 
-	public function onEdit( &$post, &$user, $errors )
+	/**
+	 * Displays the field form when user is being edited.
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function onEdit(&$post, &$user, $errors)
 	{
 		$value = !empty( $post[$this->inputName] ) ? $post[$this->inputName] : $this->value;
 
-		$value = FD::json()->decode( $value );
+		if (is_array($value) && isset($value['data'])) {
+			$value = $value['data'];
+		}
 
-		$value = $this->prepareFiles( $value );
+		$value = json_decode($value);
+		$value = $this->prepareFiles($value);
 
-		$count = empty( $value ) ? 0 : count( $value );
+		$count = empty($value) ? 0 : count($value);
+		$limit = $this->params->get('file_limit', 0);
+		$error = $this->getError($errors);
 
-		$limit = $this->params->get( 'file_limit', 0 );
 
-		$error = $this->getError( $errors );
-
-		$this->set( 'user', $user );
-		$this->set( 'error', $error );
-		$this->set( 'value', $value );
-		$this->set( 'count', $count );
-		$this->set( 'limit', $limit );
+		$this->set('user', $user);
+		$this->set('error', $error);
+		$this->set('value', $value);
+		$this->set('count', $count);
+		$this->set('limit', $limit);
 
 		return $this->display();
 	}
@@ -370,6 +380,10 @@ class SocialFieldsUserFile extends SocialFieldItem
 
 		$value = $this->value;
 
+		if (is_array($value) && isset($value['data'])) {
+			$value = $value['data'];
+		}
+
 		$value = FD::json()->decode( $value );
 
 		$value = $this->prepareFiles( $value );
@@ -389,25 +403,31 @@ class SocialFieldsUserFile extends SocialFieldItem
 		return $this->display();
 	}
 
-	private function prepareFiles( $value )
+	/**
+	 * Prepares the data of the files
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	private function prepareFiles($value)
 	{
-		if( !is_array( $value ) )
-		{
+		if (!is_array($value)) {
 			$value = array();
 		}
 
 		$files = array();
 
-		foreach( $value as $file )
-		{
+		foreach ($value as $file) {
+
 			$table = FD::table( 'file' );
-			$state = $table->load( $file->id );
+			$state = $table->load($file->id);
 
-			if( $state )
-			{
-				$table->downloadLink = FRoute::fields( array( 'group' => $this->group, 'element' => $this->element, 'task' => 'download', 'id' => $this->field->id, 'uid' => $file->id ) );
+			if ($state) {
 
-				$table->previewLink = FRoute::fields( array( 'group' => $this->group, 'element' => $this->element, 'task' => 'preview', 'id' => $this->field->id, 'uid' => $file->id ) );
+				$table->downloadLink = FRoute::fields(array('group' => $this->group, 'element' => $this->element, 'task' => 'download', 'id' => $this->field->id, 'uid' => $file->id, 'external' => true));
+				$table->previewLink = FRoute::fields(array('group' => $this->group, 'element' => $this->element, 'task' => 'preview', 'id' => $this->field->id, 'uid' => $file->id, 'external' => true));
 
 				$files[] = $table;
 			}

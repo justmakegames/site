@@ -13,8 +13,31 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 class SocialRequest
 {
+	/**
+	 * Class constructor
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string		The registry's raw data.
+	 */
 	public function __construct()
 	{
+		$this->app = JFactory::getApplication();
+		$this->input = $this->app->input;
+	}
+
+	/**
+	 * Creates a copy of it self and return to the caller.
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	null
+	 * @return	SocialParameter
+	 *
+	 */
+	public static function factory()
+	{
+		return new self();
 	}
 
 	public function init()
@@ -22,81 +45,31 @@ class SocialRequest
 	    return $this;
 	}
 
-	public function debug()
+	public function getArray($type)
 	{
-	}
-
-	/**
-	 * Retrieves key values from the $_GET object.
-	 *
-	 * @param	string	$key	Specify the key to retrieve from $_GET request (optional)
-	 * @param	string	$default	Specify the default value if key isn't found.
-	 *
-	 * @return	mixed	$value	Returns the value from the $_GET object.
-	 **/
-	public function get( $key = '' , $value = '' )
-	{
-		if( empty( $key ) )
-		{
-			return JRequest::get( 'GET' );
+		if (FD::isJoomla31()) {
+			return $this->input->$type->getArray(array());
 		}
 
-		return JRequest::getVar( $key , $value , 'GET' );
+		return JRequest::get($type);
 	}
 
 	/**
-	 * Retrieves key values from the $_POST object.
+	 * Magic method to get an input object
 	 *
-	 * @param	string	$key	Specify the key to retrieve from $_POST request (optional)
-	 * @param	string	$default	Specify the default value if key isn't found.
+	 * @param   mixed  $name  Name of the input object to retrieve.
 	 *
-	 * @return	mixed	$value	Returns the value from the $_POST object.
-	 **/
-	public function post( $key = '' , $value = '' )
+	 * @return  JInput  The request input object
+	 *
+	 * @since   11.1
+	 */
+	public function __get($property)
 	{
-		if( empty( $key ) )
-		{
-			return JRequest::get( 'POST' );
-		}
-
-		return JRequest::getVar( $key , $value , 'POST' );
+		return $this->input->$property;
 	}
 
-	/**
-	 * Retrieves key values from the $_REQUEST object.
-	 *
-	 * @param	string	$key	Specify the key to retrieve from $_REQUEST request (optional)
-	 * @param	string	$default	Specify the default value if key isn't found.
-	 *
-	 * @return	mixed	$value	Returns the value from the $_REQUEST object.
-	 **/
-	public function request( $key = '' , $value = '' )
+	public function __call($func, $args)
 	{
-		if( empty( $key ) )
-		{
-			return JRequest::get( 'REQUEST' );
-		}
-
-		return JRequest::getVar( $key , $value , 'REQUEST' );
-	}
-
-	/**
-	 * Retrieves the current method being accessed.
-	 *
-	 * @return	string	$value	Returns the current access type.
-	 **/
-	public function method()
-	{
-		return strtolower( JRequest::getMethod() );
-	}
-
-	public function command( $key , $default = '' , $type = 'REQUEST' )
-	{
-		return JRequest::getCmd( $key , $default , $type );
-	}
-
-	public function word( $key , $default = '' , $type = 'REQUEST' )
-	{
-		return JRequest::getWord( $key , $default , $type );
+		return call_user_func_array(array($this->input, $func), $args);
 	}
 }

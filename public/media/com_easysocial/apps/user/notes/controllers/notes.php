@@ -11,7 +11,6 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-
 class NotesControllerNotes extends SocialAppsController
 {
 	/**

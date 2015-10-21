@@ -1,7 +1,7 @@
 {
 	"title"	: "COM_EASYSOCIAL_MENU_GROUP_ACCESS",
 	"link"	: "index.php?option=com_easysocial&view=access",
-	"class"	: "ies-locked-2",
+	"class"	: "fa-lock",
 	"access": "easysocial.access.access",
 	"view"	: "access",
 	"active": "layout",
@@ -9,7 +9,7 @@
 	[
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_ACCESS_INSTALL",
-			"class"	: "ies-upload",
+			"class"	: "",
 			"url"	:
 			{
 				"view"	: "access",
@@ -18,7 +18,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_ACCESS_DISCOVER",
-			"class"	: "ies-upload-2",
+			"class"	: "",
 			"url"	:
 			{
 				"view"	: "access",

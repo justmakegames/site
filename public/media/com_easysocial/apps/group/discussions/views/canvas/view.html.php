@@ -11,12 +11,6 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-/**
- * Displays the canvas view for news app
- *
- * @since	1.2
- * @access	public
- */
 class NewsViewCanvas extends SocialAppsView
 {
 	/**

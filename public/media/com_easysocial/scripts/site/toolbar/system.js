@@ -1,115 +1,85 @@
 EasySocial.module( 'site/toolbar/system' , function($){
 
-	var module 				= this;
+	var module = this;
 
 	EasySocial.require()
-	.view( 'site/notifications/system.empty' )
-	.library( 'tinyscrollbar' )
-	.done(function($){
+	.view('site/notifications/system.empty')
+	.library('tinyscrollbar')
+	.done(function($) {
 
-		EasySocial.Controller(
-			'Notifications.System',
-			{
-				defaultOptions:
-				{
-					pageTitle 	: null,
+		EasySocial.Controller('Notifications.System', {
+			
+			defaultOptions: {
+				pageTitle: null,
+				interval: 30,
 
-					// Check every 30 seconds by default.
-					interval	: 30,
+				// Elements within this container.
+				"{counter}": "[data-notificationSystem-counter]"
+			}
+		}, function(self, opts){ return{
 
-					// Elements within this container.
-					"{counter}"			: "[data-notificationSystem-counter]"
-				}
+			init: function() {
+				// Initialize the default page title
+				opts.pageTitle = $(document).attr('title');
+
+				// Start the automatic checking of new notifications.
+				self.startMonitoring();
 			},
-			function(self){ return{
 
-				init: function()
-				{
-					// Initialize the default page title
-					self.options.pageTitle 	= $(document).attr('title');
+			startMonitoring: function() {
+				var interval = self.options.interval * 1000;
 
-					// Start the automatic checking of new notifications.
-					self.startMonitoring();
-				},
+				self.options.state = setTimeout(self.check, interval);
+			},
 
-				/**
-				 * Start running checks.
-				 */
-				startMonitoring: function()
-				{
-					var interval 	= self.options.interval * 1000;
+			stopMonitoring: function() {
+				clearTimeout(self.options.state);
+			},
 
-					// Debug
-					if( EasySocial.debug )
-					{
-						// console.info( 'Start monitoring system notifications at interval of ' + self.options.interval + ' seconds.' );
-					}
+			check: function(){
 
-					self.options.state	= setTimeout( self.check , interval );
-				},
+				// Stop monitoring so that there wont be double calls at once.
+				self.stopMonitoring();
 
-				/**
-				 * Stop running any checks.
-				 */
-				stopMonitoring: function()
-				{
-					// Debug
-					if( EasySocial.debug )
-					{
-						// console.info( 'Stop monitoring system notifications.' );
-					}
+				var interval = self.options.interval * 1000;
 
-					clearTimeout( self.options.state );
-				},
+				// Needs to run in a loop since we need to keep checking for new notification items.
+				setTimeout( function(){
 
-				/**
-				 * Check for new updates
-				 */
-				check: function(){
+					EasySocial.ajax('site/controllers/notifications/getSystemCounter')
+					.done(function( total ){
 
-					// Stop monitoring so that there wont be double calls at once.
-					self.stopMonitoring();
+						if (total > 0) {
+							// When there is new notification items, we want to update the page title.
+							$(document).attr('title', self.options.pageTitle + ' (' + total + ')');
 
-					var interval 	= self.options.interval * 1000;
+							// Update toolbar item element
+							self.element.addClass( 'has-notice' );
 
-					// Needs to run in a loop since we need to keep checking for new notification items.
-					setTimeout( function(){
+							// Update the counter's count.
+							self.counter().html( total );
+						} else {
 
-						EasySocial.ajax('site/controllers/notifications/getSystemCounter')
-						.done( function( total ){
+							self.element.removeClass( 'has-notice' );
 
-							if( total > 0 )
-							{
-								// When there is new notification items, we want to update the page title.
-								$(document).attr('title', self.options.pageTitle + ' (' + total + ')');
+							// When the new notification button is clicked, we want to reset to the original title.
+							$(document).attr('title', self.options.pageTitle);
+						}
 
-								// Update toolbar item element
-								self.element.addClass( 'has-notice' );
+						// Continue monitoring.
+						self.startMonitoring();
+					});
 
-								// Update the counter's count.
-								self.counter().html( total );
-							}
-							else
-							{
-								self.element.removeClass( 'has-notice' );
+				}, interval );
 
-								// When the new notification button is clicked, we want to reset to the original title.
-								$(document).attr('title', self.options.pageTitle);
-							}
-							// Continue monitoring.
-							self.startMonitoring();
-						});
+			},
 
-					}, interval );
+			'{window} easysocial.clearSystemNotification': function() {
+				self.element.removeClass('has-notice');
+				self.counter().html(0);
+			}
 
-				},
-
-				'{window} easysocial.clearSystemNotification': function() {
-					self.element.removeClass('has-notice');
-					self.counter().html(0);
-				}
-			}}
-		);
+		}});
 
 		EasySocial.Controller('Notifications.System.Popbox', {
 			defaultOptions: {
@@ -126,8 +96,8 @@ EasySocial.module( 'site/toolbar/system' , function($){
 
 				},
 
-				"{readall} click": function()
-				{
+				"{readall} click": function() {
+
 					// Bad way of implementing this
 					$('[data-notificationSystem-counter]').parents('li').removeClass('has-notice');
 					$('[data-notificationSystem-counter]').html(0);

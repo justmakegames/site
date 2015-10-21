@@ -15,16 +15,17 @@ FD::import('admin:/tables/table');
 
 class SocialTableRegion extends SocialTable
 {
-    public $id          = null;
-    public $uid         = null;
-    public $type        = null;
-    public $name        = null;
-    public $code        = null;
-    public $parent_uid  = null;
+    public $id = null;
+    public $uid = null;
+    public $type = null;
+    public $name = null;
+    public $code = null;
+    public $parent_uid = null;
     public $parent_type = null;
-    public $state       = null;
-    public $params      = null;
-    public $ordering    = null;
+    public $state = null;
+    public $params = null;
+    public $ordering = null;
+    public $site_id = null;
 
     public function __construct(&$db)
     {

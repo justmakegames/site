@@ -140,6 +140,23 @@ class SocialTableCluster extends SocialTable
 		parent::__construct( '#__social_clusters' , 'id' , $db );
 	}
 
+    public function load( $keys = null, $reset = true )
+    {
+        if (! is_array($keys)) {
+
+            // attempt to get from cache
+            $catKey = 'cluster.'. $keys;
+
+            if (FD::cache()->exists($catKey)) {
+                $state = parent::bind(FD::cache()->get($catKey));
+                return $state;
+            }
+        }
+
+        $state = parent::load( $keys, $reset );
+        return $state;
+    }
+
 	/**
 	 * Override parent's hit behavior
 	 *

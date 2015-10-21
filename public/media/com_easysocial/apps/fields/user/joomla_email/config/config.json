@@ -55,6 +55,14 @@
 		"default"	: false
 	},
 
+	"mini_reconfirm_email":
+	{
+		"label"		: "PLG_FIELDS_JOOMLA_EMAIL_CONFIG_MINI_RECONFIRM_EMAIL",
+		"tooltip"	: "PLG_FIELDS_JOOMLA_EMAIL_CONFIG_MINI_RECONFIRM_EMAIL_DESC",
+		"type"		: "boolean",
+		"default"	: false
+	},
+
 	"visible_mini_registration": {
 		"default": true
 	},

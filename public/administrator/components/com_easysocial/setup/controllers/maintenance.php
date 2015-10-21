@@ -273,6 +273,15 @@ class EasySocialControllerMaintenance extends EasySocialSetupController
 
 		$result = $this->getResultObj(JText::_('COM_EASYSOCIAL_INSTALLATION_MAINTENANCE_UPDATED_MAINTENANCE_VERSION'), 1, JText::_( 'COM_EASYSOCIAL_INSTALLATION_STEP_SUCCESS' ));
 
+		// Purge all old version files
+		ES::purgeOldVersionScripts();
+
+		// Purge javascript resources
+		FD::purgeJavascriptResources();
+
+		// Remove installation temporary file
+		JFile::delete(JPATH_ROOT . '/tmp/easysocial.installation');
+
 		return $this->output($result);
 	}
 }

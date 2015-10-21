@@ -100,38 +100,37 @@ class ThemesHelperGrid
 	public static function userPublished( $allowed = true , $obj , $controllerName = '' )
 	{
 		// By default the key is the `state` column
-		$key			= 'block';
+		$key = 'block';
 
-		$publishTask	= 'publish';
-		$unpublishTask	= 'unpublish';
+		$publishTask = 'publish';
+		$unpublishTask = 'unpublish';
 
 		switch( $obj->$key )
 		{
 			case SOCIAL_JOOMLA_USER_UNBLOCKED:
-				$class 		= 'publish';
-				$tooltip	= JText::_( 'COM_EASYSOCIAL_GRID_TOOLTIP_UNPUBLISH_USER' );
+				$class = 'publish';
+				$tooltip = FD::_('COM_EASYSOCIAL_GRID_TOOLTIP_UNPUBLISH_USER', true);
 				break;
 
 			case SOCIAL_JOOMLA_USER_BLOCKED:
-				$class 	= 'unpublish';
-				$tooltip	= JText::_( 'COM_EASYSOCIAL_GRID_TOOLTIP_PUBLISH_USER' );
+				$class = 'unpublish';
+				$tooltip = FD::_('COM_EASYSOCIAL_GRID_TOOLTIP_PUBLISH_USER', true);
 				break;
 		}
 
-		if( !$allowed )
-		{
-			$tooltip = JText::_( 'COM_EASYSOCIAL_GRID_NOT_ALLOWED_TO_BLOCK_YOURSELF' );
+		if (!$allowed) {
+			$tooltip = JText::_('COM_EASYSOCIAL_GRID_NOT_ALLOWED_TO_BLOCK_YOURSELF');
 		}
 
-		$task			= !$obj->$key ? $unpublishTask : $publishTask;
+		$task = !$obj->$key ? $unpublishTask : $publishTask;
 
-		$theme 			= FD::get( 'Themes' );
-		$theme->set( 'allowed'	, $allowed );
-		$theme->set( 'class'	, $class );
-		$theme->set( 'task'		, $task );
-		$theme->set( 'tooltip'	, $tooltip );
+		$theme = FD::get('Themes');
+		$theme->set('allowed', $allowed);
+		$theme->set('class', $class);
+		$theme->set('task', $task);
+		$theme->set('tooltip', $tooltip);
 
-		return $theme->output( 'admin/html/grid.published' );
+		return $theme->output('admin/html/grid.published');
 	}
 
 	/**
@@ -189,6 +188,29 @@ class ThemesHelperGrid
 	}
 
 	/**
+	 * Renders the order save button in a grid
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function order($rows)
+	{
+		$count = count($rows);
+
+		if (!$rows || !$count) {
+			return '';
+		}
+
+		$theme 	= FD::themes();
+		$theme->set('total', $count);
+
+		$contents 	= $theme->output( 'admin/html/grid.order' );
+		return $contents;
+	}
+
+	/**
 	 * Renders the ordering in a grid
 	 *
 	 * @since	1.0
@@ -238,7 +260,7 @@ class ThemesHelperGrid
 	}
 
 	/**
-	 * Renders publish / unpublish icon.
+	 * Renders feature / unfeature icon.
 	 *
 	 * @since	1.0
 	 * @access	public
@@ -249,7 +271,7 @@ class ThemesHelperGrid
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public static function featured( $obj , $controllerName = '' , $key = '' , $task = '' , $allowed = true , $tooltip = array() )
+	public static function featured($obj , $controllerName = '' , $key = '' , $task = '' , $allowed = true , $tooltip = array() )
 	{
 		// If primary key is not provided, then we assume that we should use 'state' as the key property.
 		$key	= !empty( $key ) ? $key : 'default';
@@ -264,7 +286,7 @@ class ThemesHelperGrid
 
 				if( $allowed )
 				{
-					$tooltip	= isset( $tooltip[ 1 ] ) ? $tooltip[ 1 ] : JText::_( 'COM_EASYSOCIAL_GRID_TOOLTIP_UNFEATURE_ITEM' );
+					$tooltip	= isset( $tooltip[ 1 ] ) ? $tooltip[ 1 ] : FD::_('COM_EASYSOCIAL_GRID_TOOLTIP_UNFEATURE_ITEM', true);
 				}
 
 
@@ -273,7 +295,7 @@ class ThemesHelperGrid
 			default:
 				$class 		= 'default';
 
-				$tooltip	= isset( $tooltip[ 0 ] ) ? $tooltip[ 0 ] : JText::_( 'COM_EASYSOCIAL_GRID_TOOLTIP_FEATURE_ITEM' );
+				$tooltip	= isset( $tooltip[ 0 ] ) ? $tooltip[ 0 ] : FD::_('COM_EASYSOCIAL_GRID_TOOLTIP_FEATURE_ITEM', true);
 
 				break;
 		}

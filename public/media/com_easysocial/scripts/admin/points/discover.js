@@ -20,9 +20,6 @@ EasySocial.module( 'admin/points/discover' , function($) {
 					// Progress bar controller
 					progressController : null,
 
-					// Start button
-					"{startButton}"	: "[data-points-discovery-start]",
-
 					// Progress Bar
 					"{progressBar}" : ".discoverProgress",
 
@@ -34,10 +31,18 @@ EasySocial.module( 'admin/points/discover' , function($) {
 
 				return {
 
-					init: function()
-					{
+					init: function() {
 						// Initialize progress bar.
 						self.initProgressBar();
+
+						$.Joomla('submitbutton', function(task) {
+
+							if (task == 'discover') {
+								self.startDiscovering();
+							}
+
+							return;
+						});
 					},
 
 					// Resets the scan.
@@ -97,19 +102,12 @@ EasySocial.module( 'admin/points/discover' , function($) {
 
 								// Append message to the result list.
 								self.addLog( $.language( 'COM_EASYSOCIAL_SCAN_COMPLETED' ) );
-
-								// Make the scan button work again.
-								self.startButton().removeAttr( 'disabled' );
 							}
 						});
 					},
 
-					"{startButton} click" : function( element )
-					{
+					startDiscovering: function() {
 						self.reset();
-
-						// Disable start button.
-						self.startButton().attr( 'disabled' , 'disabled' );
 
 						// Discover the list of files.
 						EasySocial.ajax( 'admin/controllers/points/discoverFiles' , {})
@@ -139,9 +137,6 @@ EasySocial.module( 'admin/points/discover' , function($) {
 
 								// Append message to the result list.
 								self.addLog( $.language( 'COM_EASYSOCIAL_SCAN_COMPLETED' ) );
-
-								// Make the scan button work again.
-								self.startButton().removeAttr( 'disabled' );
 							}
 
 

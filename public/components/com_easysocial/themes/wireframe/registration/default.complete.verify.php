@@ -22,14 +22,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_COMPLETED_ACTIVATE_ACCOUNT' );?>
 	</div>
 
-	<?php if( $user ){ ?>
-	<p>
-		<?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_COMPLETED_SENT_ACTIVATION_CODE' );?> <strong><em><?php echo $user->email;?></em></strong>.
-	</p>
+	<?php if ($user) { ?>
+		<p><?php echo JText::_('COM_EASYSOCIAL_REGISTRATION_COMPLETED_SENT_ACTIVATION_CODE');?></p>
 	<?php } else { ?>
-	<p>
-		<?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_ACTIVATION_PLEASE_PROVIDE_ACTIVATION_CODE' ); ?>
-	</p>
+		<p><?php echo JText::_('COM_EASYSOCIAL_REGISTRATION_ACTIVATION_PLEASE_PROVIDE_ACTIVATION_CODE'); ?></p>
 	<?php } ?>
 
 	<form class="es-login-form es-verify-form" action="<?php echo JRoute::_( 'index.php' );?>" method="post">

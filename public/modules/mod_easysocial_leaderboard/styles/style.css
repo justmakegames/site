@@ -1,4 +1,4 @@
-body div#fd.es.mod-es-leaderboard .leader-info .username {
+div#fd.es.mod-es-leaderboard .leader-info .username {
   display: block !important;
   font-size: 13px !important;
   padding-right: 10px !important;
@@ -6,11 +6,11 @@ body div#fd.es.mod-es-leaderboard .leader-info .username {
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
 }
-body div#fd.es.mod-es-leaderboard .leader-info .points {
+div#fd.es.mod-es-leaderboard .leader-info .points {
   display: block !important;
   color: #888 !important;
 }
-body div#fd.es.mod-es-leaderboard .leader-rank {
+div#fd.es.mod-es-leaderboard .leader-rank {
   display: inline-block !important;
   float: right !important;
   background: #ccc !important;
@@ -22,32 +22,32 @@ body div#fd.es.mod-es-leaderboard .leader-rank {
   height: 32px;
   line-height: 32px !important;
 }
-body div#fd.es.mod-es-leaderboard .media .media-object {
+div#fd.es.mod-es-leaderboard .media .media-object {
   display: block !important;
   background: #fff !important;
   width: 32px !important;
   height: 32px !important;
   border-radius: 3px;
 }
-body div#fd.es.mod-es-leaderboard .media .media-object img {
+div#fd.es.mod-es-leaderboard .media .media-object img {
   width: 32px;
   height: 32px;
   line-height: 32px;
 }
-body div#fd.es.mod-es-leaderboard .es-item-list {
+div#fd.es.mod-es-leaderboard .es-item-list {
   margin: 0 0 10px !important;
   list-style: none;
 }
-body div#fd.es.mod-es-leaderboard .es-item-list > li {
+div#fd.es.mod-es-leaderboard .es-item-list > li {
   margin-bottom: 10px !important;
   padding: 10px 0 15px !important;
   border-bottom: 1px solid rgba(0,0,0,0.05) !important;
 }
-body div#fd.es.mod-es-leaderboard .es-item-list > li:before,
-body div#fd.es.mod-es-leaderboard .es-item-list > li:after {
+div#fd.es.mod-es-leaderboard .es-item-list > li:before,
+div#fd.es.mod-es-leaderboard .es-item-list > li:after {
   content: " ";
   display: table;
 }
-body div#fd.es.mod-es-leaderboard .es-item-list > li:after {
+div#fd.es.mod-es-leaderboard .es-item-list > li:after {
   clear: both;
 }

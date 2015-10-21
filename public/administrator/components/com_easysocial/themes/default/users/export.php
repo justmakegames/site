@@ -15,41 +15,39 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<div class="row">
 		<div class="col-lg-6">
-			<div class="widget-box">
-				<h3><?php echo JText::_('COM_EASYSOCIAL_EXPORT_USERS_INTO_CSV'); ?></h3>
-
-				<p><?php echo JText::_('COM_EASYSOCIAL_EXPORT_USERS_CSV_INFO');?></p>
-
-				<div class="form-group">
-					<label for="title" class="col-md-4">
-						<?php echo JText::_('COM_EASYSOCIAL_EXPORT_USERS_SELECT_PROFILE');?>
-						<i class="icon-es-help pull-right"
-							<?php echo $this->html('bootstrap.popover', JText::_('COM_EASYSOCIAL_EXPORT_USERS_SELECT_PROFILE'), JText::_('COM_EASYSOCIAL_EXPORT_USERS_SELECT_PROFILE_DESC') , 'bottom'); ?>
-						></i>
-					</label>
-					<div class="col-md-8">
-						<div class="row">
-							<div class="col-lg-5">
-								<select name="profileId" class="form-control input-sm">
-									<?php foreach ($profiles as $profile) { ?>
-										<option value="<?php echo $profile->id;?>"><?php echo $profile->get('title');?></option>
-									<?php } ?>
-								</select>
+			<div class="panel">
+				<div class="panel-head">
+					<b><?php echo JText::_('COM_EASYSOCIAL_EXPORT_USERS_INTO_CSV'); ?></b>
+					<p><?php echo JText::_('COM_EASYSOCIAL_EXPORT_USERS_CSV_INFO');?></p>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="title" class="col-md-4">
+							<?php echo JText::_('COM_EASYSOCIAL_EXPORT_USERS_SELECT_PROFILE');?>
+							<i class="fa fa-question-circle pull-right"
+								<?php echo $this->html('bootstrap.popover', JText::_('COM_EASYSOCIAL_EXPORT_USERS_SELECT_PROFILE'), JText::_('COM_EASYSOCIAL_EXPORT_USERS_SELECT_PROFILE_DESC') , 'bottom'); ?>
+							></i>
+						</label>
+						<div class="col-md-8">
+							<div class="row">
+								<div class="col-lg-5">
+									<select name="profileId" class="form-control input-sm">
+										<?php foreach ($profiles as $profile) { ?>
+											<option value="<?php echo $profile->id;?>"><?php echo $profile->get('title');?></option>
+										<?php } ?>
+									</select>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="form-group">
-					<div class="col-md-8 col-lg-offset-4">
-						<button class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYSOCIAL_EXPORT_USERS_BUTTON');?> &raquo;</button>
+					<div class="form-group">
+						<div class="col-md-8 col-lg-offset-4">
+							<button class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYSOCIAL_EXPORT_USERS_BUTTON');?> &raquo;</button>
+						</div>
 					</div>
 				</div>
-
 			</div>
-		</div>
-
-		<div class="col-lg-6">
 		</div>
 	</div>
 

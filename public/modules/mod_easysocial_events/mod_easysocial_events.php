@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,10 +9,10 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Include main engine
-$file   = JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
+$file = JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
 
 jimport('joomla.filesystem.file');
 
@@ -40,7 +40,16 @@ if (empty($events)) {
     return;
 }
 
-$my = FD::user();
+$eventIds = array();
+
+foreach($events as $event) {
+    $eventIds[] = $event->id;
+}
+
+FD::cache()->cacheClusters($eventIds);
+
+
+$my = ES::user();
 
 // Load up the module engine
 $modules = FD::modules('mod_easysocial_events');

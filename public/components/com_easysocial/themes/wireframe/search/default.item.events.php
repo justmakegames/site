@@ -29,7 +29,7 @@ $event = FD::event( $item->uid );
 				<ul class="fd-reset-list">
 					<li>
 						<span class="es-item-title">
-							<i class="<?php echo $item->icon; ?> ies-small mr-5"></i>
+							<i class="fa <?php echo $item->icon; ?>  mr-5"></i>
 							<a href="<?php echo JRoute::_( $item->link ); ?>">
 								<?php echo $item->title; ?>
 							</a>
@@ -45,20 +45,20 @@ $event = FD::event( $item->uid );
 					</li>
 					<li class="item-meta">
 						<?php if( $event->isOpen() ){ ?>
-						<span class="label label-success" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP' , true );?>" >
-							<i class="ies-earth"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EVENTS_OPEN_EVENT' ); ?>
+						<span class="label label-success" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP' , true );?>" >
+							<i class="fa fa-globe"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EVENTS_OPEN_EVENT' ); ?>
 						</span>
 						<?php } ?>
 
 						<?php if( $event->isPrivate() ){ ?>
-						<span class="label label-important" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP' , true );?>">
-							<i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT' ); ?>
+						<span class="label label-important" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP' , true );?>">
+							<i class="fa fa-lock"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT' ); ?>
 						</span>
 						<?php } ?>
 
 						<?php if( $event->isInviteOnly() ){ ?>
-						<span class="label label-warning" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP' , true );?>">
-							<i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EVENTS_INVITE_EVENT' ); ?>
+						<span class="label label-warning" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP' , true );?>">
+							<i class="fa fa-lock"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EVENTS_INVITE_EVENT' ); ?>
 						</span>
 						<?php } ?>
 					</li>

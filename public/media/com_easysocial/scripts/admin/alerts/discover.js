@@ -7,21 +7,16 @@ EasySocial.module( 'admin/alerts/discover' , function($) {
 	.language( 'COM_EASYSOCIAL_SCAN_COMPLETED' )
 	.done(function($){
 
-		EasySocial.Controller(
-			'Alerts.Discover',
-			{
+		EasySocial.Controller('Alerts.Discover', {
+
 				// A list of selectors we define
 				// and expect template makers to follow.
-				defaultOptions:
-				{
+				defaultOptions: {
 					// Controller Properties.
 					files 			: [],
 
 					// Progress bar controller
 					progressController : null,
-
-					// Start button
-					"{startButton}"	: "[data-alerts-discovery-start]",
 
 					// Progress Bar
 					"{progressBar}" : "[data-alerts-discovery-progress]",
@@ -29,20 +24,48 @@ EasySocial.module( 'admin/alerts/discover' , function($) {
 					// Logging results
 					"{results}"		: "[data-alerts-discovery-result]"
 				}
-			},
-			function(self){
+			}, function(self) {
 
 				return {
 
-					init: function()
-					{
+					init: function() {
 						// Initialize progress bar.
 						self.initProgressBar();
+
+						$.Joomla('submitbutton', function(task) {
+							if (task == 'discover') {
+								self.startDiscovering();
+							}
+						})
+					},
+
+					startDiscovering: function() {
+
+						self.reset();
+
+						// Discover the list of files.
+						EasySocial.ajax('admin/controllers/alerts/discoverFiles' , {
+						}).done(function(files, message) {
+							self.reset();
+
+							// Set the files to the properties.
+							self.options.files 	= files;
+
+							if (self.options.files.length > 0) {
+								// Begin progress.
+								self.options.progressController.begin( self.options.files.length );
+
+								// Add logging
+								self.addLog(message);
+
+								// Begin to loop through each files.
+								self.startIterating();
+							}
+						});
 					},
 
 					// Resets the scan.
-					reset: function()
-					{
+					reset: function() {
 						// Reset the logs
 						self.results().html('');
 
@@ -50,8 +73,7 @@ EasySocial.module( 'admin/alerts/discover' , function($) {
 						self.options.progressController.reset();
 					},
 
-					initProgressBar: function()
-					{
+					initProgressBar: function() {
 						// Implement progressbar
 						self.progressBar().implement( EasySocial.Controller.Progress );
 
@@ -59,13 +81,11 @@ EasySocial.module( 'admin/alerts/discover' , function($) {
 						self.options.progressController	= self.progressBar().controller();
 					},
 
-					addLog: function( message )
-					{
+					addLog: function(message) {
 						$( '<tr>' ).append( $( '<td>' ).html( message ) ).appendTo( self.results() );
 					},
 
-					startIterating: function()
-					{
+					startIterating: function() {
 						// Get the file from the shelf
 						var file 	= self.options.files.shift();
 
@@ -95,38 +115,6 @@ EasySocial.module( 'admin/alerts/discover' , function($) {
 								// Append message to the result list.
 								self.addLog( $.language( 'COM_EASYSOCIAL_SCAN_COMPLETED' ) );
 
-								// Make the scan button work again.
-								self.startButton().removeAttr( 'disabled' );
-							}
-						});
-					},
-
-					"{startButton} click" : function( element )
-					{
-						self.reset();
-
-						// Disable start button.
-						self.startButton().attr( 'disabled' , 'disabled' );
-
-						// Discover the list of files.
-						EasySocial.ajax( 'admin/controllers/alerts/discoverFiles' , {})
-						.done(function( files , message )
-						{
-							self.reset();
-
-							// Set the files to the properties.
-							self.options.files 	= files;
-
-							if( self.options.files.length > 0 )
-							{
-								// Begin progress.
-								self.options.progressController.begin( self.options.files.length );
-
-								// Add logging
-								self.addLog( message );
-
-								// Begin to loop through each files.
-								self.startIterating();
 							}
 						});
 					}

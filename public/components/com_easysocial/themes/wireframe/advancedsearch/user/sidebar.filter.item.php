@@ -23,6 +23,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-id="<?php echo $filter->id; ?>"
 		data-title="<?php echo $this->html( 'string.escape' , $filter->title ); ?>"
 	>
-		<i class="ies-list mr-5"></i> <?php echo $this->html( 'string.escape' , $filter->title ); ?>
+		<i class="fa fa-list mr-5"></i> <?php echo $this->html( 'string.escape' , $filter->title ); ?>
 	</a>
 </li>

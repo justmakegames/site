@@ -162,10 +162,6 @@ class SocialFieldsUserAvatar extends SocialFieldItem
 
 		if (!JFolder::exists($tmpAvatarPath)) {
 			$state 	= JFolder::create($tmpAvatarPath);
-
-			if (!$state) {
-				FD::logError(__FILE__, __LINE__, 'OAUTH: Unable to create avatar folder.');
-			}
 		}
 
 		$connector 	= FD::get('Connector');
@@ -177,8 +173,6 @@ class SocialFieldsUserAvatar extends SocialFieldItem
 		jimport('joomla.filesystem.file');
 
 		if (!JFile::write($tmpAvatarFile, $contents)) {
-			dump('here');
-			FD::logError(__FILE__, __LINE__, 'AVATAR: Unable to store oauth avatar to tmp folder, ' . $tmpAvatarFile);
 			return;
 		}
 
@@ -241,13 +235,6 @@ class SocialFieldsUserAvatar extends SocialFieldItem
 			$meta->store();
 		}
 
-		// Assign a badge for the user
-		$photo->assignBadge('photos.upload', $user->id);
-
-		// @points: photos.upload
-		// Assign points when user uploads a new photo
-		$photo->assignPoints('photos.upload', $user->id);
-
 		// Synchronize Indexer
 		$indexer 	= FD::get('Indexer');
 		$template	= $indexer->getTemplate();
@@ -263,8 +250,14 @@ class SocialFieldsUserAvatar extends SocialFieldItem
 
 		$indexer->index($template);
 
+		$options = array();
+
+		if ($user->state == SOCIAL_USER_STATE_PENDING) {
+			$options['addstream'] = false;
+		}
+
 		// Create the avatars now
-		$avatar->store($photo);
+		$avatar->store($photo, $options);
 
 		// Once we are done creating the avatar, delete the temporary folder.
 		$state		= JFolder::delete($tmpAvatarPath);
@@ -414,6 +407,19 @@ class SocialFieldsUserAvatar extends SocialFieldItem
 
 			if ($state) {
 				$table->delete();
+
+				if ($this->group == SOCIAL_TYPE_USER) {
+
+				    $user = FD::user($uid);
+
+				    // Prepare the dispatcher
+				    FD::apps()->load(SOCIAL_TYPE_USER);
+				    $dispatcher = FD::dispatcher();
+				    $args = array(&$user, &$table);
+
+				    // @trigger: onUserAvatarRemove
+				    $dispatcher->trigger(SOCIAL_TYPE_USER, 'onUserAvatarRemove', $args);
+				} 				
 			}
 
 			return true;
@@ -497,13 +503,6 @@ class SocialFieldsUserAvatar extends SocialFieldItem
 
 					$meta->store();
 				}
-
-				// Assign a badge for the user
-				$photo->assignBadge('photos.upload', $uid);
-
-				// @points: photos.upload
-				// Assign points when user uploads a new photo
-				$photo->assignPoints('photos.upload', $uid);
 
 				// Synchronize Indexer
 				$indexer 	= FD::get('Indexer');

@@ -27,14 +27,8 @@ class EasySocialViewBadges extends EasySocialAdminView
 	 */
 	public function display( $tpl = null )
 	{
-		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_BADGES' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-gift' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_BADGES' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_BADGES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_BADGES');
 
 		// Add Joomla buttons here
 		JToolbarHelper::publishList();
@@ -157,13 +151,8 @@ class EasySocialViewBadges extends EasySocialAdminView
 	public function csv( $tpl = null )
 	{
 		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_UPLOAD_CSV_BADGES' ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-list-2' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_UPLOAD_CSV_BADGES' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_UPLOAD_CSV_BADGES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_UPLOAD_CSV_BADGES');
 
 
 		echo parent::display( 'admin/badges/csv' );
@@ -217,13 +206,8 @@ class EasySocialViewBadges extends EasySocialAdminView
 		}
 
 		// Add heading here.
-		$this->setHeading( $badge->get( 'title' ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-crown' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_EDIT_BADGE' ) );
+		$this->setHeading($badge->get('title'));
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_EDIT_BADGE');
 
 		// Add buttons
 		JToolbarHelper::cancel( 'cancel' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_CANCEL' ) );
@@ -250,15 +234,10 @@ class EasySocialViewBadges extends EasySocialAdminView
 	public function install( $tpl = null )
 	{
 		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_INSTALL_BADGES' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_INSTALL_BADGES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_INSTALL_BADGES');
 
-		// Set page icon
-		$this->setIcon( 'ies-upload' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_INSTALL_BADGES' ) );
-
-		echo parent::display( 'admin/badges/install' );
+		echo parent::display('admin/badges/install');
 	}
 
 	/**
@@ -270,18 +249,13 @@ class EasySocialViewBadges extends EasySocialAdminView
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function discover( $tpl = null )
+	public function discover($tpl = null)
 	{
-		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_DISCOVER_BADGES' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_DISCOVER_BADGES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_DISCOVER_BADGES');
 
-		// Set page icon
-		$this->setIcon( 'ies-upload-2' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_DISCOVER_BADGES' ) );
-
-
+		JToolbarHelper::custom('discover', 'download', '', JText::_('COM_EASYSOCIAL_DISCOVER_BUTTON'), false);
+		
 		echo parent::display( 'admin/badges/discover' );
 	}
 

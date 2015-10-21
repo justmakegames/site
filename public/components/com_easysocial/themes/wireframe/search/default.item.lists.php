@@ -32,7 +32,7 @@ $listURL = ( $item->link ) ? $item->link : FRoute::friends( array( 'listid' => $
 					<li>
 						<span class="es-item-title">
 							<a href="<?php echo $listURL; ?>">
-								<?php echo FD::get( 'String' )->escape( $item->title ); ?>
+								<?php echo FD::get('String')->escape($item->title); ?>
 							</a>
 						</span>
 					</li>

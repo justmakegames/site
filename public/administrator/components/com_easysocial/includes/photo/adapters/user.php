@@ -11,22 +11,20 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-require_once( dirname( __FILE__ ) . '/abstract.php' );
+require_once(__DIR__ . '/abstract.php');
 
-/**
- * User adapter for photos
- *
- * @since	1.2
- * @access	public
- *
- */
 class SocialPhotoAdapterUser extends SocialPhotoAdapter
 {
-	private $user 	= null;
+	private $user = null;
 
-	public function __construct( SocialPhoto $lib , SocialAlbums $albumLib )
+	public function __construct(SocialPhoto $lib, SocialAlbums $albumLib)
 	{
-		$this->user 	= FD::user( $lib->uid , $albumLib );
+		// In the event the uid is invalid, we get the user id from the photo
+		if (!$lib->uid && isset($lib->data->user_id) && $lib->data->user_id) {
+			$lib->uid = $lib->data->user_id;
+		}
+
+		$this->user = FD::user($lib->uid, $albumLib);
 
 		parent::__construct( $lib , $albumLib );
 	}
@@ -34,9 +32,9 @@ class SocialPhotoAdapterUser extends SocialPhotoAdapter
 	public function heading()
 	{
 		$theme 	= FD::themes();
-		$theme->set( 'user' , $this->user );
+		$theme->set('user', $this->user);
 
-		$output = $theme->output( 'site/albums/header.user' );
+		$output = $theme->output('site/albums/header.user');
 
 		return $output;
 	}
@@ -330,7 +328,7 @@ class SocialPhotoAdapterUser extends SocialPhotoAdapter
 
 	public function exceededUploadLimit()
 	{
-		$access 	= $this->my->getAccess();
+		$access = $this->my->getAccess();
 
 		// If it is 0, it means unlimited
 		if( $access->get( 'photos.uploader.max' ) == 0 )

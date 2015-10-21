@@ -21,4 +21,21 @@ class SocialSharingTwitter extends SocialSharingVendor
 		'url'		=> 'url',
 		'summary'	=> 'text'
 	);
+
+    /**
+     * Generates the external link
+     *
+     * @since   1.3
+     * @access  public
+     * @param   string
+     * @return  
+     */
+    public function getLink()
+    {
+        $url = $this->getParam('url');
+
+        $this->link = $this->base . '?url=' . urlencode($this->getParam('url'));
+
+        return $this->link;
+    }
 }

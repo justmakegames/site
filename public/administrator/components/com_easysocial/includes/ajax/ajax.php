@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,37 +9,12 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
-* This is an extremely lightweight ajax library.
-*
-* Example:
-* <code>
-* <?php
-* $ajax = FD::get('ajax');
-*
-* $ajax->success();
-* // Returning a success callback, e.g.
-* $ajax->success(arg1, arg2, arg3);
-*
-* $ajax->fail();
-* // Returning a failed callback, e.g.
-* $ajax->fail(arg1, arg2, arg3);
-*
-* // This function replaces addScriptCall routines, e.g.
-* $ajax->script('alert("foobar")');
-* ?>
-*
-* @since	1.0
-* @author	Mark Lee <mark@stackideas.com>
-*/
-class SocialAjax
+class SocialAjax extends EasySocial
 {
-	private $commands	= array();
-	static $instance	= null;
-
-	public function __construct() {}
+	private $commands = array();
+	static $instance = null;
 
 	public function addCommand($type, &$data)
 	{
@@ -62,9 +37,8 @@ class SocialAjax
 	 */
 	public static function getInstance()
 	{
-		if( is_null( self::$instance ) )
-		{
-			self::$instance		= new self();
+		if (is_null(self::$instance)) {
+			self::$instance = new self();
 		}
 
 		return self::$instance;
@@ -88,239 +62,97 @@ class SocialAjax
 	 * @param	string		The posix path to lookup for.
 	 * @return	string		The translated path
 	 */
-	public static function resolveNamespace( $namespace )
+	public static function resolveNamespace($namespace)
 	{
-		// Split the paths.
-		$parts 		= explode( '/' , $namespace );
+		// Get the request
+		$input = JFactory::getApplication()->input;
 
-		$location	= $parts[ 0 ];
-		$config 	= FD::config();
+		$parts = explode('/', $namespace);
+
+		// Determine the location of the namespace
+		$location = $parts[0];
 
 		// Remove the location from parts.
-		array_shift( $parts );
+		array_shift($parts);
+
+		// Remove the method from the namespace
+		$method = array_pop($parts);
 
 		// Get the absolute path of the initial location
-		$path		= $location == 'admin' ? SOCIAL_ADMIN : SOCIAL_SITE;
+		$path = $location == 'admin' ? SOCIAL_ADMIN : SOCIAL_SITE;
 
-		// Get the method to be invoked.
-		$method 	= array_pop( $parts );
+		// Determine if this is a view or controller.
+		if ($location == 'site' || $location == 'admin') {
+				
+			$glued = implode('/', $parts);
 
-		if( $location == 'site' || $location == 'admin' )
-		{
-			// Determine if this is a view or controller.
-			if( $parts[0] == 'controllers' )
-			{
-				$path 	= $path . '/' . implode( '/' , $parts ) . '.php';
-			}
-			else
-			{
-				$path 	= $path . '/' . implode( '/' , $parts ) . '/view.ajax.php';
+			if ($parts[0] == 'controllers') {
+				$path = $path . '/' . $glued . '.php';
+			} else {
+				$path = $path . '/' . $glued . '/view.ajax.php';
 			}
 		}
 
-		if( $location == 'apps' )
-		{
-			$group 		= $parts[ 0 ];
-			$element 	= $parts[ 1 ];
-			$type 		= $parts[ 2 ];
-			$typeFile	= $parts[ 3 ];
+		// If the location is meant for apps, we need to determine the correct path now.
+		if ($location == 'apps') {
+
+			// Whether this is a "user", "group", "event" app.
+			$group = $parts[0];
+
+			// The element of the app.
+			$element = $parts[1];
+
+			// Whether this request is made for controllers or views
+			$type = $parts[2];
+
+			// Don't know what this is
+			$typeFile = $parts[3];
 
 			// E.g: apps:/user/tasks/views/viewName/functionName
-			if( $type == 'views' )
-			{
-				$path 	= SOCIAL_APPS . '/' . $group . '/' . $element . '/views/' . $typeFile . '/view.ajax.php';
+			if ($type == 'views') {
+				$path = SOCIAL_APPS . '/' . $group . '/' . $element . '/views/' . $typeFile . '/view.ajax.php';
 			}
 
 			// E.g: apps:/user/tasks/controllers/tasks/functionName
-			if( $type == 'controllers' )
-			{
+			if ($type == 'controllers') {
 				// Import dependencies.
-				FD::import( 'admin:/includes/apps/dependencies' );
+				ES::import('admin:/includes/apps/dependencies');
 
-				$path 	= SOCIAL_APPS . '/' . $group . '/' . $element . '/controllers/' . $typeFile . '.php';
+				$path = SOCIAL_APPS . '/' . $group . '/' . $element . '/controllers/' . $typeFile . '.php';
 			}
 		}
 
-		if( $location == 'fields' )
-		{
+		// If the location is meant for custom fields, we need to determine the correct path
+		if ($location == 'fields') {
+			
 			// This is the field group. E.g: users , groups etc.
-			$group		= $parts[ 0 ];
+			$group = $parts[0];
 
 			// This is the field element.
-			$element	= $parts[ 1 ];
+			$element = $parts[1];
 
-			$path 	= SOCIAL_FIELDS . '/' . $group . '/' . $element . '/ajax.php';
+			$path = SOCIAL_FIELDS . '/' . $group . '/' . $element . '/ajax.php';
 		}
 
 		// Get the arguments from the query string if there is any.
-		$args		= JRequest::getVar( 'args' , '' );
-
-		$ajax 		= FD::ajax();
+		$args = $input->get('args', '', 'default');
 
 		// Check that the file exists.
-		jimport( 'joomla.filesystem.file' );
-		if( !JFile::exists( $path ) )
-		{
-			$ajax->reject( JText::sprintf( 'The file %1s does not exist.' , $namespace ) );
+		jimport('joomla.filesystem.file');
+		
+		$ajax = ES::ajax();
+
+		if (!JFile::exists($path)) {
+			$ajax->reject(JText::sprintf('The file %1s does not exist.', $namespace));
 			return $ajax->send();
 		}
 
 		// Include the path.
-		include_once( $path );
+		include_once($path);
 
-		// We need to know the name of the class before we can instantiate it.
-		switch( $location )
-		{
-			case 'fields':
-
-				// This is the group
-				$group 		= $parts[ 0 ];
-
-				// We know the second segment is always the element.
-				$element	= $parts[ 1 ];
-
-				// Construct parameters
-				$config 	= array( 'group' => $group , 'element' => $element, 'field' => null, 'inputName' => SOCIAL_FIELDS_PREFIX . '0' );
-
-				// Detect if there is an id passed in.
-				$id 		= JRequest::getInt( 'id' , 0 );
-
-				// If there is an id, it should also create a copy of the field.
-				if( $id )
-				{
-					$field 	= FD::table( 'Field' );
-					$field->load( $id );
-
-					$step = FD::table( 'fieldstep' );
-					$step->load( $field->step_id );
-
-					$uid = $step->uid;
-
-					$params = FD::fields()->getFieldConfigValues( $field );
-
-					$config[ 'params' ] = $params;
-					$config[ 'uid' ] = $uid;
-					$config[ 'field' ]	= $field;
-					$config[ 'inputName' ] = SOCIAL_FIELDS_PREFIX . $field->id;
-				}
-
-				// Determine the class name
-				$class 		= 'SocialFields' . ucfirst( $group ) . ucfirst( $element );
-
-				// Let's instantiate the new object now.
-				$obj 		= new $class( $config );
-
-				// Call the ajax method
-				$obj->$method();
-
-				break;
-
-			case 'apps':
-
-				// We know the second segment is always the element.
-				$group		= $parts[ 0 ];
-				$element 	= $parts[ 1 ];
-				$type 		= $parts[ 2 ];
-
-				// If this is a view call, it should use the method.
-				$classType 	= $parts[ 3 ];
-
-				if( $type == 'controllers' )
-				{
-					// Construct the classname
-					$class 	= ucfirst( $element ) . 'Controller' . ucfirst( $classType );
-
-					// Let's instantiate the new object now.
-					$obj 		= new $class( $group , $element );
-				}
-
-				if( $type == 'views' )
-				{
-					$app 	= FD::table( 'App' );
-					$app->load( JRequest::getInt( 'id' ) );
-
-					$class 	= ucfirst( $element ) . 'View' . ucfirst( $classType );
-
-					$obj 	= new $class( $app , $classType );
-				}
-
-				// If the method doesn't exist in this object, we know something is wrong.
-				if( !method_exists( $obj, $method ) )
-				{
-					$ajax->reject( JText::sprintf( 'Method %1s does not exist' , $method ) );
-					return $ajax->send();
-				}
-
-				if( !empty( $args ) )
-				{
-					call_user_func_array( array( $obj ,$method ) , FD::json()->decode( $args ) );
-				}
-				else
-				{
-					$obj->$method();
-				}
-
-				break;
-
-			case 'site':
-			case 'admin':
-			default:
-
-				// Currently only supports access to view and controller.
-				$type 	= $parts[ 0 ];
-				$name 	= $parts[ 1 ];
-
-				if( $type == 'views' )
-				{
-					$class 	= 'EasySocialView' . preg_replace( '/[^A-Z0-9_]/i', '', $name );
-
-					// Create the new view object.
-					$obj     = new $class();
-				}
-
-				if( $type == 'controllers' )
-				{
-					$class 	= 'EasySocialController' . preg_replace( '/[^A-Z0-9_]/i', '', $name );
-
-					// Create the new view object.
-					$obj     = new $class();
-				}
-
-				if( $config->get( 'general.site.lockdown.enabled' ) && !JFactory::getUser()->id )
-				{
-					if( method_exists( $obj , 'lockdown' ) && $obj->lockdown() )
-					{
-						$ajax->reject( JText::_( 'You are not allowed here.' ) );
-						return $ajax->send();
-					}
-				}
-
-				// For controllers we need to use the standard `execute` method.
-				if( $type == 'controllers')
-				{
-					$obj->execute( $method );
-				}
-				else
-				{
-					// If the method doesn't exist in this object, we know something is wrong.
-					if( !method_exists( $obj, $method ) )
-					{
-						$ajax->reject( JText::sprintf( 'Method %1s does not exist' , $method ) );
-						return $ajax->send();
-					}
-
-					if( !empty( $args ) )
-					{
-						call_user_func_array( array( $obj ,$method ) , FD::json()->decode( $args ) );
-					}
-					else
-					{
-						$obj->$method();
-					}
-				}
-
-				break;
-		}
+		// Get the adapter to process.
+		$adapter = self::getAdapter($location);
+		$adapter->execute($namespace, $parts, $args, $method);
 
 		// Terminate the output.
 		$ajax->send();
@@ -328,6 +160,25 @@ class SocialAjax
 		return $path;
 	}
 
+	/**
+	 * Retrieves an ajax adapter so that it knows how to resolve the calls
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public static function getAdapter($location)
+	{
+		$file = __DIR__ . '/adapters/' . strtolower($location) . '.php';
+
+		require_once($file);
+
+		$className = 'SocialAjaxAdapter' . ucfirst($location);
+		$adapter = new $className();
+
+		return $adapter;
+	}
 
 	/* This will handle all ajax commands e.g. success/fail/script */
 	public function __call($method, $args)
@@ -405,28 +256,24 @@ class SocialAjax
 	 */
 	public function listen()
 	{
-		$doc	= JFactory::getDocument();
-		$ajax	= FD::getInstance( 'Ajax' );
-
 		// Do not proceed if the request is not in ajax format.
-		if( $doc->getType() != 'ajax' )
-		{
+		if ($this->doc->getType() != 'ajax') {
 			return;
 		}
 
 		// Namespace format should be POSIX format.
-		$namespace	= JRequest::getVar( 'namespace' );
+		$namespace = $this->input->get('namespace', '', 'default');
 
-		$parts 		= explode( ':/' , $namespace );
+		// Split the namespace
+		$parts = explode(':/', $namespace);
 
 		// Detect if the user passed in a protocol.
-		$hasProtocol	= count( $parts ) > 1;
+		$hasProtocol = count($parts) > 1;
 
-		if( !$hasProtocol )
-		{
-			$namespace 	= 'ajax:/' . $namespace;
+		if (!$hasProtocol) {
+			$namespace = 'ajax:/' . $namespace;
 		}
 
-		return FD::resolve( $namespace );
+		return ES::resolve($namespace);
 	}
 }

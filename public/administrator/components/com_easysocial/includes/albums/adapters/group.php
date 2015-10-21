@@ -226,11 +226,16 @@ class SocialAlbumsAdapterGroup extends SocialAlbumsAdapter
 
 	public function canCreateAlbums()
 	{
-		$my 	= FD::user();
+		// Site admin's are always allowed
+		$my = FD::user();
+
+		// Super admins are allowed to edit
+		if ($my->isSiteAdmin()){
+			return true;
+		}
 
 		// @TODO: Add additional group access checks
-		if( $this->group->isMember( $my->id ) )
-		{
+		if ($this->group->isMember($my->id) && $my->getAccess()->get('albums.create') && $this->group->getCategory()->getAcl()->get('photos.enabled', true)) {
 			return true;
 		}
 

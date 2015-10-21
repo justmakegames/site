@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     <div class="media">
         <div class="media-object pull-left">
-            <img src="<?php echo $reply->author->getAvatar(); ?>" title="<?php echo $this->html('string.escape', $reply->author->getName()); ?>" class="es-avatar" />
+            <img src="<?php echo $reply->author->getAvatar(); ?>" title="<?php echo $this->html('string.escape', $reply->author->getName()); ?>" class="es-avatar" data-popbox="module://easysocial/profile/popbox" data-user-id="<?php echo $reply->author->id; ?>" />
         </div>
 
         <div class="media-body">
@@ -49,8 +49,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 
             <div class="reply-author">
-                <a href="<?php echo $reply->author->getPermalink(); ?>"><?php echo $reply->author->getName(); ?></a>
-                <span class="label label-success label-answer-item"><i class="ies-support ies-small"></i> <?php echo JText::_('APP_EVENT_DISCUSSIONS_ACCEPTED_ANSWER'); ?></span>
+                <a href="<?php echo $reply->author->getPermalink(); ?>" data-popbox="module://easysocial/profile/popbox" data-user-id="<?php echo $reply->author->id; ?>"><?php echo $reply->author->getName(); ?></a>
+                <span class="label label-success label-answer-item"><i class="fa fa-support "></i> <?php echo JText::_('APP_EVENT_DISCUSSIONS_ACCEPTED_ANSWER'); ?></span>
             </div>
 
             <div class="reply-content" data-reply-display-content>
@@ -58,7 +58,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
 
             <form data-reply-form class="reply-form reply-content-edit">
-                <div class="alert alert-error alert-empty" style="display:none;">
+                <div class="alert alert-dismissable alert-error alert-empty" style="display:none;">
                     <button type="button" class="close" data-bs-dismiss="alert">×</button>
                     <?php echo JText::_('APP_EVENT_DISCUSSIONS_EMPTY_REPLY_ERROR'); ?>
                 </div>
@@ -72,7 +72,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             </form>
 
             <div class="reply-footer">
-                <i class="ies-clock ies-small"></i> <?php echo FD::date($reply->created)->toLapsed(); ?>
+                <i class="fa fa-clock-o "></i> <?php echo FD::date($reply->created)->toLapsed(); ?>
             </div>
         </div>
     </div>

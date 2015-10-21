@@ -1,39 +1,46 @@
 <?php
 /**
- * @package		EasyBlog
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyBlog is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyBlog
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 
-// no direct access
-defined('_JEXEC') or die('Restricted access'); ?>
+defined('_JEXEC') or die('Restricted access');
+?>
+<div class="eb-mod-item">
+	<div<?php echo ($params->get('layouttype') == 'tree')? ' style="padding-left: ' . $padding . 'px;"' : '';?>>
 
-<div class="mod-item">
-	<div<?php echo ( $params->get( 'layouttype' ) == 'tree' ) ? ' style="padding-left: ' . $padding . 'px;"' : '';?>>
- 	<?php if ($params->get('showcavatar', true)) : ?>
-		<a href="<?php echo EasyBlogRouter::_('index.php?option=com_easyblog&view=categories&layout=listings&id='.$category->id . $menuItemId );?>" class="mod-avatar">
-			<img class="avatar" src="<?php echo modEasyBlogCategoriesHelper::getAvatar($category); ?>" width="40" alt="<?php echo $category->title; ?>" />
+ 	<?php if ($showCategoryAvatar) { ?>
+		<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=categories&layout=listings&id='.$category->id);?>" class="eb-mod-media-thumb">
+			<img class="avatar" src="<?php echo modEasyBlogCategoriesHelper::getAvatar($category); ?>" width="<?php echo $width; ?>" height="<?php echo $height; ?>" alt="<?php echo $category->title; ?>" />
 		</a>
-	<?php endif; ?>
- 		<div class="mod-category-detail">
-			<div class="mod-category-name">
-				<a href="<?php echo EasyBlogRouter::_('index.php?option=com_easyblog&view=categories&layout=listings&id='.$category->id . $menuItemId );?>"><?php echo JText::_( $category->title ); ?></a>
-				<?php if( $params->get( 'showcount' , true ) ){ ?>
-				<?php echo JText::sprintf('(' . $category->cnt) . ')';?>
-				<?php } ?>
+	<?php } else { ?>
+		<i class="eb-mod-media-thumb fa fa-folder mod-muted"></i>
+	<?php } ?>
 
-				<?php if( $params->get( 'showrss' , true ) ){ ?>
-					<a class="mod-link-rss" title="Subscribe via RSS" href="<?php echo EasyBlogHelper::getHelper( 'Feeds' )->getFeedURL( 'index.php?option=com_easyblog&view=categories&id=' . $category->id, false, 'category' ); ?>">
-						<span><?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_FEEDS'); ?></span>
-					</a>
+		<div class="eb-mod-media-body">
+			<a class="eb-mod-media-title" href="<?php echo EBR::_('index.php?option=com_easyblog&view=categories&layout=listings&id='.$category->id);?>"><?php echo JText::_($category->title); ?></a>
+			<?php if ($params->get('showcount', true)) { ?>
+				<?php if ($showCategoryAvatar) { ?>
+				<div class="eb-mod-media-count mod-small mod-muted"> <?php echo JText::sprintf('MOD_EASYBLOGCATEGORIES_COUNT', $category->cnt);?></div>
+				<?php } else { ?>
+				<span class="eb-mod-media-count mod-small mod-muted"><?php echo JText::sprintf($category->cnt);?></span>
 				<?php } ?>
+			<?php } ?>
+
+			<?php if ($params->get('showrss', true)) { ?>
+			<div class="mod-small">
+				<a class="eb-brand-rss" title="<?php echo JText::_('MOD_EASYBLOGCATEGORIES_SUBSCRIBE_FEEDS'); ?>" href="<?php echo EB::feeds()->getFeedURL('index.php?option=com_easyblog&view=categories&id=' . $category->id, false, 'category'); ?>">
+					<i class="fa fa-rss-square"></i>
+					<?php echo JText::_('MOD_EASYBLOGCATEGORIES_SUBSCRIBE_FEEDS'); ?>
+				</a>
 			</div>
-		 </div>
+			<?php } ?>	
+		</div>
 	</div>
 </div>
