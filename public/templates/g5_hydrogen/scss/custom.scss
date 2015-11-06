@@ -8,8 +8,13 @@ body div#fd .label{
 	padding: 5px;
 }
 
-body div#fd.es.mod-es-dropdown-menu .es-avatar{
-	border-color: #3180c2;
+#g-header div#fd.es .es-avatar{
+        border-radius: 100%;
+        border: 1px solid #3180c2;
+}
+
+body div#fd.es.mod-es-dropdown-menu .dropdown-toggle-user-name strong{     
+	color: #fff;
 }
 
 #system-message .alert{
@@ -32,10 +37,6 @@ body div#fd.es.mod-es-dropdown-menu .es-avatar{
 body div#fd.es.mod-es-dropdown-menu .mod-bd{
 	float:right;
 	min-height: 70px;
-}
-
-body div#fd.es.mod-es-dropdown-menu .dropdown-toggle-user-name strong{
-	color: inherit;
 }
 
 .ezb-mod .avatar{
@@ -144,5 +145,3 @@ body #comment-form .inputbox{
 #ezblog-body #button-related a{
 	min-height: 37px;
 }
-
-

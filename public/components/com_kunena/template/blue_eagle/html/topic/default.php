@@ -4,7 +4,7 @@
  * @package Kunena.Template.Blue_Eagle
  * @subpackage Topic
  *
- * @copyright (C) 2008 - 2014 Kunena Team. All rights reserved.
+ * @copyright (C) 2008 - 2015 Kunena Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link http://www.kunena.org
  **/
@@ -30,7 +30,7 @@ var kunena_anonymous_name = "'.JText::_('COM_KUNENA_USERNAME_ANONYMOUS', true).'
 
 <div class="kblock">
 	<div class="kheader">
-		<h2><span><?php echo JText::_('COM_KUNENA_TOPIC') ?> <?php echo $this->escape($this->topic->subject) ?></span></h2>
+		<h1><span><?php echo JText::_('COM_KUNENA_TOPIC') ?> <?php echo $this->escape($this->topic->subject) ?></span></h1>
 		<?php $this->displayModulePosition( 'kunena_topictitle' ); ?>
 		<?php if ($this->usertopic->favorite) : ?><div class="kfavorite"></div><?php endif ?>
 		<?php if (!empty($this->keywords)) : ?><div class="kkeywords"><?php echo JText::sprintf('COM_KUNENA_TOPIC_TAGS', $this->escape($this->keywords)) ?></div><?php endif ?>

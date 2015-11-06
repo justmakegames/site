@@ -2,13 +2,13 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/templates/g5_hydrogen/gantry/theme.yaml',
-    'modified' => 1445198577,
+    'modified' => 1445417662,
     'data' => [
         'details' => [
             'name' => 'Hydrogen',
-            'version' => '5.1.5',
+            'version' => '5.1.6',
             'icon' => 'paper-plane',
-            'date' => 'September 30, 2015',
+            'date' => 'October 14, 2015',
             'author' => [
                 'name' => 'RocketTheme, LLC',
                 'email' => 'support@rockettheme.com',

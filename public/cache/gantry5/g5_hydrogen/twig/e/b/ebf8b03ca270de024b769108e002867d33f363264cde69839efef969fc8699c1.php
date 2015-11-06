@@ -47,7 +47,7 @@ class __TwigTemplate_bfc8ee3baad85332acafebcdf71d2fbe027cfdf23b62f211e75a6d72900
         echo "
     ";
         // line 12
-        if ((isset($context["joomla"]) ? $context["joomla"] : null)) {
+        if ($this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "theme", array()), "joomla", array())) {
             // line 13
             echo "        <link rel=\"stylesheet\" href=\"";
             echo twig_escape_filter($this->env, $this->env->getExtension('GantryTwig')->urlFunc("gantry-assets://css/bootstrap-gantry.css"), "html", null, true);
@@ -115,7 +115,7 @@ class __TwigTemplate_bfc8ee3baad85332acafebcdf71d2fbe027cfdf23b62f211e75a6d72900
 /* */
 /* {% block head_platform -%}*/
 /*     {{ parent() }}*/
-/*     {% if joomla %}*/
+/*     {% if gantry.theme.joomla %}*/
 /*         <link rel="stylesheet" href="{{ url('gantry-assets://css/bootstrap-gantry.css') }}" type="text/css" />*/
 /*         <link rel="stylesheet" href="{{ url('gantry-engine://css-compiled/joomla.css') }}" type="text/css" />*/
 /*         {% if gantry.page.direction == 'rtl' %}*/

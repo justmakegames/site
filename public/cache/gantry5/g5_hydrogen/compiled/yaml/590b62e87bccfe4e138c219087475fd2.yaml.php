@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/analytics.yaml',
-    'modified' => 1445198584,
+    'modified' => 1445417667,
     'data' => [
         'name' => 'Google Analytics',
         'description' => 'Configure Google Analytics.',

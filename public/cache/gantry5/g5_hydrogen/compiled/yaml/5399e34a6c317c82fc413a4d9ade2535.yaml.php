@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/position.yaml',
-    'modified' => 1445198584,
+    'modified' => 1445417667,
     'data' => [
         'name' => 'Module Position',
         'description' => 'Display a module position.',
@@ -20,6 +20,7 @@ return [
                     'type' => 'input.text',
                     'label' => 'Key',
                     'description' => 'Position name.',
+                    'pattern' => '[A-Za-z0-9-]+',
                     'overridable' => false
                 ],
                 'chrome' => [

@@ -1,0 +1,215 @@
+<root>
+  <params name="slider" label="Slider settings" doc="#Slider-Settings">
+    <param name="title" type="text" label="Name" default="Slider" style="width:400px;"/>
+    <param label="Controls" type="group">
+      <param name="controlsScroll" type="onoff" label="Mouse scroll" default="0"/>
+      <param name="controlsDrag" type="onoff" label="Mouse drag" default="1"/>
+      <param name="controlsTouch" type="radio" label="Touch" default="horizontal">
+        <option value="0">Disabled</option>
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertical</option>
+      </param>
+      <param name="controlsKeyboard" type="onoff" label="Keyboard" default="1"/>
+      <param name="controlsTilt" type="onoff" label="Tilt" default="0" class="n2-expert"/></param>
+    <param label="Show on devices" type="group" class="n2-expert">
+      <param name="desktop" type="onoff" label="Desktop" default="1"/>
+      <param name="tablet" type="onoff" label="Tablet" default="1"/>
+      <param name="mobile" type="onoff" label="Mobile" default="1"/></param>
+    <param type="group" label="Fadein" class="n2-expert">
+      <param name="fadeOnLoad" type="onoff" label="on load" default="1"/>
+      <param name="fadeOnScroll" type="onoff" label="on scroll" default="0"/></param>
+    <param type="list" label="Loading animation" name="spinner" default="simpleWhite" class="n2-expert" translateable="1">
+      <option value="0">No animation</option>
+      <option value="simpleWhite">Simple - white</option>
+      <option value="simpleDark">Simple - dark</option>
+      <option value="infiniteWhite">Infinite - white</option>
+      <option value="infiniteDark">Infinite - dark</option>
+      <option value="rectangleDark">Rectangle - dark</option>
+    </param>
+  </params>
+  <params name="slider-size" label="Slider size" doc="#Slider-Size">
+    <param type="group" label="Slider size">
+      <param name="width" type="numberautocomplete" label="Width" default="900" style="width:35px" values="1920,1400,1000,800,600,400">
+        <unit>px</unit>
+      </param>
+      <param name="height" type="numberautocomplete" label="Height" default="500" style="width:35px" values="800,600,500,400,300,200">
+        <unit>px</unit>
+      </param>
+      <param name="desktop-portrait-minimum-font-size" type="numberautocomplete" label="Min. font size" default="4" style="width:20px" class="n2-expert" values="0,4,8,12">
+        <unit>px</unit>
+      </param>
+    </param>
+    <param type="group" label="Landscape size" class="n2-expert">
+      <param name="desktop-landscape" type="onoff" label="Enabled" default="0"/>
+      <param name="desktop-landscape-width" type="numberautocomplete" label="Width" default="1440" style="width:35px" values="1440,1000,800,600,400">
+        <unit>px</unit>
+      </param>
+      <param name="desktop-landscape-height" type="numberautocomplete" label="Height" default="0" style="width:35px" values="800,600,500,400,300">
+        <unit>px</unit>
+      </param>
+      <param name="desktop-landscape-minimum-font-size" type="numberautocomplete" label="Min. font size" default="4" style="width:20px" values="0,4,8,12">
+        <unit>px</unit>
+      </param>
+    </param>
+    <param name="align" type="radio" label="Align" default="normal" class="n2-expert">
+      <option value="normal">Normal</option>
+      <option value="left">Left</option>
+      <option value="center">Center</option>
+      <option value="right">Right</option>
+    </param>
+    <param type="number" name="fontsize" label="Font size" default="16" style="width:20px" class="n2-hidden">
+      <unit>px</unit>
+    </param>
+  </params>
+  <params name="slider-size-tablet" label="Slider size - Tablet" class="n2-expert" doc="#Responsivity-Layout-views">
+    <param type="group" label="Portrait">
+      <param name="tablet-portrait" type="onoff" label="Enabled" default="0"/>
+      <param name="tablet-portrait-width" type="numberautocomplete" label="Width" default="800" style="width:35px" values="800,600,500,400">
+        <unit>px</unit>
+      </param>
+      <param name="tablet-portrait-height" type="numberautocomplete" label="Height" default="0" style="width:35px" values="0,800,600,500">
+        <unit>px</unit>
+      </param>
+      <param name="tablet-portrait-minimum-font-size" type="numberautocomplete" label="Min. font size" default="4" style="width:20px" values="0,4,8,12">
+        <unit>px</unit>
+      </param>
+    </param>
+    <param type="group" label="Landscape">
+      <param name="tablet-landscape" type="onoff" label="Enabled" default="0"/>
+      <param name="tablet-landscape-width" type="numberautocomplete" label="Width" default="1024" style="width:35px" values="1024,800,600,500">
+        <unit>px</unit>
+      </param>
+      <param name="tablet-landscape-height" type="numberautocomplete" label="Height" default="0" style="width:35px" values="0,600,500,400">
+        <unit>px</unit>
+      </param>
+      <param name="tablet-landscape-minimum-font-size" type="numberautocomplete" label="Min. font size" default="4" style="width:20px" values="0,4,8,12">
+        <unit>px</unit>
+      </param>
+    </param>
+  </params>
+  <params name="slider-size-mobile" label="Slider size - Mobile" class="n2-expert" doc="#Responsivity-Layout-views">
+    <param type="group" label="Portrait">
+      <param name="mobile-portrait" type="onoff" label="Enabled" default="0"/>
+      <param name="mobile-portrait-width" type="numberautocomplete" label="Width" default="440" style="width:35px" values="440,400,300,200">
+        <unit>px</unit>
+      </param>
+      <param name="mobile-portrait-height" type="numberautocomplete" label="Height" default="0" style="width:35px" values="0,400,300,200">
+        <unit>px</unit>
+      </param>
+      <param name="mobile-portrait-minimum-font-size" type="numberautocomplete" label="Min. font size" default="4" style="width:20px" values="0,4,8,12">
+        <unit>px</unit>
+      </param>
+    </param>
+    <param type="group" label="Landscape">
+      <param name="mobile-landscape" type="onoff" label="Enabled" default="0"/>
+      <param name="mobile-landscape-width" type="numberautocomplete" label="Width" default="740" style="width:35px" values="740,600,500,400">
+        <unit>px</unit>
+      </param>
+      <param name="mobile-landscape-height" type="numberautocomplete" label="Height" default="0" style="width:35px" values="0,400,300,200">
+        <unit>px</unit>
+      </param>
+      <param name="mobile-landscape-minimum-font-size" type="numberautocomplete" label="Min. font size" default="4" style="width:20px" values="0,4,8,12">
+        <unit>px</unit>
+      </param>
+    </param>
+  </params>
+  <params name="autoplay" label="Autoplay settings" doc="#Slider-Autoplay">
+    <param type="group" label="Autoplay">
+      <param name="autoplay" type="onoff" label="Enabled" default="0"/>
+      <param name="autoplayDuration" type="number" label="Interval" default="8000" style="width:35px;">
+        <unit>ms</unit>
+      </param>
+      <param name="autoplayStart" type="onoff" label="Autostart" default="1" class="n2-expert"/></param>
+    <param name="autoplayfinish" type="mixed" label="Finish autoplay on" default="0|*|loop|*|current" class="n2-expert">
+      <param type="number" style="width: 20px;" label="Count"/>
+      <param type="switcher" label=" ">
+        <unit value="loop">loops</unit>
+        <unit value="slide">slides</unit>
+      </param>
+      <param type="switcher" label=" ">
+        <unit value="current">last slide</unit>
+        <unit value="next">next slide</unit>
+      </param>
+    </param>
+    <param type="group" label="Stop autoplay on">
+      <param name="autoplayStopClick" type="onoff" label="Click" default="1"/>
+      <param name="autoplayStopMouse" type="list" label="Mouse" default="0" translateable="1">
+        <option value="0">Off</option>
+        <option value="enter">Enter</option>
+        <option value="leave">Leave</option>
+      </param>
+      <param name="autoplayStopMedia" type="onoff" label="Media started" default="1"/></param>
+    <param type="group" label="Resume autoplay on" class="n2-expert">
+      <param name="autoplayResumeClick" type="onoff" label="Click" default="0"/>
+      <param name="autoplayResumeMouse" type="list" label="Mouse" default="0" translateable="1">
+        <option value="0">Off</option>
+        <option value="leave">Leave</option>
+        <option value="enter">Enter</option>
+      </param>
+      <param name="autoplayResumeMedia" type="onoff" label="Media ended" default="1"/></param>
+  </params>
+  <params name="slidertype" label="Slider Type" class="n2-expert">
+    <param name="type" type="slidertype" ajaxurl="slider/renderform" label="Type" default="simple" file="slider.xml"/>
+  </params>
+  <params name="slidertypeplaceholder" label="Slider Type placeholder" id="nextend-type-panel" type="placeholder"></params>
+  <params name="widgets" label="Widgets" type="raw" hidetitle="1">
+    <param name="widgets" type="pluginmatrix" label="" group="sswidget" method="onWidgetList" default="arrow"/>
+  </params>
+  <params name="slider-responsive" label="Responsive" doc="#Slider-Responsive">
+    <param name="responsive-mode" type="sliderresponsive" ajaxurl="slider/renderform" default="auto" file="responsive.xml"/>
+  </params>
+  <params name="slider-responsive-placeholder" id="nextend-responsive-mode-panel" type="placeholder"/>
+  <params name="slides" label="Slides" class="n2-expert" doc="#Slider-Slides">
+    <param type="group" label="Randomize">
+      <param name="randomize" type="onoff" label="Randomize" default="0"/>
+      <param name="randomizeFirst" type="onoff" label="Randomize first" default="0"/>
+      <param name="variations" type="number" label="Variations" default="5" style="width:40px;"/></param>
+    <param type="number" name="maximumslidecount" label="Maximum slide count" default="20" style="width:40px;"/>
+  </params>
+  <params name="slider-layer" label="Layer animations" doc="#Slider-Layer">
+    <param type="group" label="Parallax">
+      <param type="onoff" name="parallax-enabled" label="Enabled" default="0"/>
+      <param type="onoff" name="parallax-enabled-mobile" label="Mobile" default="0" class="n2-expert"/>
+      <param type="list" name="parallax-horizontal" label="Horizontal" default="mouse">
+        <option value="0">Off</option>
+        <option value="mouse">Mouse</option>
+        <option value="mouse-invert">Mouse - invert</option>
+      </param>
+      <param type="list" name="parallax-vertical" label="Vertical" default="mouse">
+        <option value="0">Off</option>
+        <option value="mouse">Mouse</option>
+        <option value="scroll">Scroll</option>
+        <option value="mouse-invert">Mouse - invert</option>
+        <option value="scroll-invert">Scroll - invert</option>
+      </param>
+      <param type="list" name="parallax-mouse-origin" label="Mouse origin" default="enter" class="n2-expert">
+        <option value="slider">Slider center</option>
+        <option value="enter">Mouse enter position</option>
+      </param>
+    </param>
+    <param type="onoff" name="playonce" label="Play once" default="0" class="n2-expert"/>
+    <param type="onoff" name="playfirstlayer" label="Play on first load" default="1" class="n2-expert"/>
+    <param type="radio" name="layer-animation-play-in" label="Play IN on" default="end" class="n2-expert">
+      <option value="start">Main animation start</option>
+      <option value="end">Main animation end</option>
+    </param>
+    <param type="radio" name="layer-animation-play-mode" label="Layer animations" default="skippable" class="n2-expert">
+      <option value="skippable">Skippable</option>
+      <option value="forced">Forced</option>
+    </param>
+  </params>
+  <params name="slider-advanced" label="Advanced" class="n2-expert" doc="#Slider-Advanced">
+    <param type="onoff" name="blockrightclick" label="Block right click" default="0"/>
+    <param type="group" label="Image load">
+      <param name="imageload" type="radio" label="Mode" default="0">
+        <option value="0">Normal</option>
+        <option value="2">Delayed load</option>
+        <option value="1">Lazy load</option>
+      </param>
+      <param name="imageloadNeighborSlides" type="number" label="Load neighbor" default="0" style="width:15px;">
+        <unit value="slides">slides</unit>
+      </param>
+    </param>
+    <param name="maintain-session" type="onoff" label="Maintain slide session" default="0"/>
+  </params>
+</root>

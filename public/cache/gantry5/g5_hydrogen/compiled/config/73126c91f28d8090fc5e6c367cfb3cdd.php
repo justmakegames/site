@@ -1,13 +1,13 @@
 <?php
 return [
     '@class' => 'Gantry\\Component\\Config\\CompiledConfig',
-    'timestamp' => 1445415992,
-    'checksum' => '47732d93031247ca7481a49529f45d8e',
+    'timestamp' => 1445417672,
+    'checksum' => '5fc8277cf198b3371e2900e3dbf79f7e',
     'files' => [
         'templates/g5_hydrogen/custom/config/20' => [
             'index' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/index.yaml',
-                'modified' => 1445198577
+                'modified' => 1445417662
             ],
             'layout' => [
                 'file' => 'templates/g5_hydrogen/custom/config/20/layout.yaml',
@@ -49,7 +49,7 @@ return [
         'templates/g5_hydrogen/custom/config/default' => [
             'index' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/index.yaml',
-                'modified' => 1445198577
+                'modified' => 1445417662
             ],
             'particles/analytics' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/analytics.yaml',
@@ -127,11 +127,11 @@ return [
         'templates/g5_hydrogen/config/default' => [
             'page' => [
                 'file' => 'templates/g5_hydrogen/config/default/page.yaml',
-                'modified' => 1445198577
+                'modified' => 1445417662
             ],
             'particles/logo' => [
                 'file' => 'templates/g5_hydrogen/config/default/particles/logo.yaml',
-                'modified' => 1445198577
+                'modified' => 1445417662
             ]
         ]
     ],
@@ -333,7 +333,7 @@ float: right;
         ],
         'index' => [
             'name' => 20,
-            'timestamp' => 1445195652,
+            'timestamp' => 1445198577,
             'preset' => [
                 'image' => 'gantry-admin://images/layouts/default.png',
                 'name' => 'default',

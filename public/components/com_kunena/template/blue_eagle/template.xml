@@ -2,8 +2,8 @@
 <!DOCTYPE kinstall>
 <kinstall type="kunena-template" version="2.0">
 	<name>Blue Eagle</name>
-	<creationDate>2014-07-28</creationDate>
-	<version>3.0.6</version>
+	<creationDate>2015-09-28</creationDate>
+	<version>4.0.6</version>
 	<author>Kunena Team</author>
 	<authorEmail>team@kunena.org</authorEmail>
 	<authorUrl>http://www.kunena.org</authorUrl>
@@ -166,5 +166,7 @@
 		<field name="avatarSizeYPost" type="hidden" default="144" />
 		<field name="avatarSizeXProfile" type="hidden" default="200" />
 		<field name="avatarSizeYProfile" type="hidden" default="200" />
+		
+		<field name="lastPostSubjectLength" type="text" default="20" label="COM_KUNENA_TEMPLATE_LAST_POST_SUBJECT_LENGTH" description="COM_KUNENA_TEMPLATE_LAST_POST_SUBJECT_LENGTH_DESC" />
 	</config>
 </kinstall>

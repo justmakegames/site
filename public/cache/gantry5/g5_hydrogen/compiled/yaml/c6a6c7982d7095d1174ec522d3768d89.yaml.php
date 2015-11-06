@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/templates/g5_hydrogen/blueprints/page.yaml',
-    'modified' => 1445198577,
+    'modified' => 1445417662,
     'data' => [
         'name' => 'Page settings',
         'description' => 'Settings that can be applied to the page.',

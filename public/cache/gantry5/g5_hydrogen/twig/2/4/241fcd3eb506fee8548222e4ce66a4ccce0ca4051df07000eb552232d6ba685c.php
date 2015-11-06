@@ -10,12 +10,12 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
         $this->parent = false;
 
         $this->blocks = array(
-            'page_head' => array($this, 'block_page_head'),
             'content' => array($this, 'block_content'),
             'page_offcanvas' => array($this, 'block_page_offcanvas'),
             'page_layout' => array($this, 'block_page_layout'),
             'page_top' => array($this, 'block_page_top'),
             'page_bottom' => array($this, 'block_page_bottom'),
+            'page_head' => array($this, 'block_page_head'),
             'page_footer' => array($this, 'block_page_footer'),
             'page' => array($this, 'block_page'),
             'page_body' => array($this, 'block_page_body'),
@@ -26,113 +26,108 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
     {
         // line 1
         $this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "theme", array()), "setLayout", array(), "method");
-        // line 3
-        ob_start();
+        // line 2
+        $context["segments"] = $this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "theme", array()), "segments", array());
         // line 4
-        echo "    ";
-        $this->displayBlock('page_head', $context, $blocks);
-        $context["page_head"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
-        // line 9
         ob_start();
-        // line 10
+        // line 5
         echo "    ";
         if ($this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "theme", array()), "hasContent", array(), "method")) {
-            // line 11
+            // line 6
             echo "        ";
             $this->displayBlock('content', $context, $blocks);
-            // line 13
+            // line 8
             echo "    ";
         }
         $context["content"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
-        // line 16
+        // line 11
         $context["offcanvas"] = null;
-        // line 17
+        // line 12
         $context['_parent'] = $context;
-        $context['_seq'] = twig_ensure_traversable($this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "theme", array()), "segments", array()));
+        $context['_seq'] = twig_ensure_traversable((isset($context["segments"]) ? $context["segments"] : null));
         foreach ($context['_seq'] as $context["_key"] => $context["segment"]) {
             if (($this->getAttribute($context["segment"], "type", array()) == "offcanvas")) {
-                // line 18
+                // line 13
                 $context["offcanvas"] = $context["segment"];
             }
         }
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['_key'], $context['segment'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
-        // line 21
+        // line 16
         ob_start();
-        // line 22
+        // line 17
         echo "    ";
         $this->displayBlock('page_offcanvas', $context, $blocks);
         $context["page_offcanvas"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
-        // line 29
+        // line 24
         $context["page_offcanvas"] = ((trim((isset($context["page_offcanvas"]) ? $context["page_offcanvas"] : null))) ? (trim((isset($context["page_offcanvas"]) ? $context["page_offcanvas"] : null))) : (""));
-        // line 30
+        // line 25
         $context["offcanvas_position"] = (((isset($context["page_offcanvas"]) ? $context["page_offcanvas"] : null)) ? ((($this->getAttribute($this->getAttribute((isset($context["offcanvas"]) ? $context["offcanvas"] : null), "attributes", array(), "any", false, true), "position", array(), "any", true, true)) ? (_twig_default_filter($this->getAttribute($this->getAttribute((isset($context["offcanvas"]) ? $context["offcanvas"] : null), "attributes", array(), "any", false, true), "position", array()), "g-offcanvas-left")) : ("g-offcanvas-left"))) : (""));
-        // line 32
+        // line 27
         ob_start();
-        // line 33
+        // line 28
         echo "    ";
         $this->displayBlock('page_layout', $context, $blocks);
         $context["page_layout"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
+        // line 35
+        ob_start();
+        // line 36
+        echo "    ";
+        $this->displayBlock('page_top', $context, $blocks);
+        $context["page_top"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
         // line 40
         ob_start();
         // line 41
         echo "    ";
-        $this->displayBlock('page_top', $context, $blocks);
-        $context["page_top"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
-        // line 45
-        ob_start();
-        // line 46
-        echo "    ";
         $this->displayBlock('page_bottom', $context, $blocks);
         $context["page_bottom"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
-        // line 50
+        // line 47
         ob_start();
-        // line 51
+        // line 48
+        echo "    ";
+        $this->displayBlock('page_head', $context, $blocks);
+        $context["page_head"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
+        // line 53
+        ob_start();
+        // line 54
         echo "    ";
         $this->displayBlock('page_footer', $context, $blocks);
         $context["page_footer"] = ('' === $tmp = ob_get_clean()) ? '' : new Twig_Markup($tmp, $this->env->getCharset());
-        // line 56
+        // line 59
         $this->displayBlock('page', $context, $blocks);
-        // line 78
+        // line 81
         $this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "platform", array()), "finalize", array(), "method");
     }
 
-    // line 4
-    public function block_page_head($context, array $blocks = array())
-    {
-        // line 5
-        $this->loadTemplate("partials/page_head.html.twig", "@nucleus/page.html.twig", 5)->display($context);
-    }
-
-    // line 11
+    // line 6
     public function block_content($context, array $blocks = array())
     {
-        // line 12
+        // line 7
         echo "        ";
     }
 
-    // line 22
+    // line 17
     public function block_page_offcanvas($context, array $blocks = array())
     {
-        // line 23
+        // line 18
         echo "        ";
         if ((isset($context["offcanvas"]) ? $context["offcanvas"] : null)) {
-            // line 24
+            // line 19
             echo "            ";
-            $this->loadTemplate((("@nucleus/layout/" . $this->getAttribute((isset($context["offcanvas"]) ? $context["offcanvas"] : null), "type", array())) . ".html.twig"), "@nucleus/page.html.twig", 24)->display(array_merge($context, array("segment" => (isset($context["offcanvas"]) ? $context["offcanvas"] : null))));
+            $this->loadTemplate((("@nucleus/layout/" . $this->getAttribute((isset($context["offcanvas"]) ? $context["offcanvas"] : null), "type", array())) . ".html.twig"), "@nucleus/page.html.twig", 19)->display(array_merge($context, array("segment" => (isset($context["offcanvas"]) ? $context["offcanvas"] : null))));
         }
-        // line 26
+        // line 21
         echo "    ";
     }
 
-    // line 33
+    // line 28
     public function block_page_layout($context, array $blocks = array())
     {
-        // line 34
+        // line 29
         echo "    ";
         $context['_parent'] = $context;
-        $context['_seq'] = twig_ensure_traversable($this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "theme", array()), "segments", array()));
+        $context['_seq'] = twig_ensure_traversable((isset($context["segments"]) ? $context["segments"] : null));
         $context['loop'] = array(
           'parent' => $context['_parent'],
           'index0' => 0,
@@ -141,10 +136,10 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
         );
         foreach ($context['_seq'] as $context["_key"] => $context["segment"]) {
             if (($this->getAttribute($context["segment"], "type", array()) != "offcanvas")) {
-                // line 35
+                // line 30
                 echo "        ";
-                $this->loadTemplate((("@nucleus/layout/" . $this->getAttribute($context["segment"], "type", array())) . ".html.twig"), "@nucleus/page.html.twig", 35)->display(array_merge($context, array("segments" => $this->getAttribute($context["segment"], "children", array()))));
-                // line 36
+                $this->loadTemplate((("@nucleus/layout/" . $this->getAttribute($context["segment"], "type", array())) . ".html.twig"), "@nucleus/page.html.twig", 30)->display(array_merge($context, array("segments" => $this->getAttribute($context["segment"], "children", array()))));
+                // line 31
                 echo "    ";
                 ++$context['loop']['index0'];
                 ++$context['loop']['index'];
@@ -154,28 +149,35 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
         $_parent = $context['_parent'];
         unset($context['_seq'], $context['_iterated'], $context['_key'], $context['segment'], $context['_parent'], $context['loop']);
         $context = array_intersect_key($context, $_parent) + $_parent;
+        // line 32
+        echo "    ";
+    }
+
+    // line 36
+    public function block_page_top($context, array $blocks = array())
+    {
         // line 37
         echo "    ";
     }
 
     // line 41
-    public function block_page_top($context, array $blocks = array())
+    public function block_page_bottom($context, array $blocks = array())
     {
         // line 42
         echo "    ";
     }
 
-    // line 46
-    public function block_page_bottom($context, array $blocks = array())
+    // line 48
+    public function block_page_head($context, array $blocks = array())
     {
-        // line 47
-        echo "    ";
+        // line 49
+        $this->loadTemplate("partials/page_head.html.twig", "@nucleus/page.html.twig", 49)->display($context);
     }
 
-    // line 51
+    // line 54
     public function block_page_footer($context, array $blocks = array())
     {
-        // line 52
+        // line 55
         echo "        ";
         echo twig_join_filter($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "scripts", array(0 => "footer"), "method"), "
     ");
@@ -183,68 +185,68 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
     ";
     }
 
-    // line 56
+    // line 59
     public function block_page($context, array $blocks = array())
     {
-        // line 57
+        // line 60
         echo "<!DOCTYPE ";
         echo (($this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "page", array(), "any", false, true), "doctype", array(), "any", true, true)) ? (_twig_default_filter($this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "page", array(), "any", false, true), "doctype", array()), "html")) : ("html"));
         echo ">
 <html";
-        // line 58
+        // line 61
         echo $this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "page", array()), "htmlAttributes", array());
         echo ">
     ";
-        // line 59
+        // line 62
         echo (isset($context["page_head"]) ? $context["page_head"] : null);
         echo "
     ";
-        // line 60
+        // line 63
         $this->displayBlock('page_body', $context, $blocks);
-        // line 75
+        // line 78
         echo "
 </html>
 ";
     }
 
-    // line 60
+    // line 63
     public function block_page_body($context, array $blocks = array())
     {
-        // line 61
+        // line 64
         echo "<body";
         echo $this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "page", array()), "bodyAttributes", array(0 => array("class" => array(0 => (isset($context["offcanvas_position"]) ? $context["offcanvas_position"] : null), 1 => $this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "page", array()), "preset", array()), 2 => ("g-style-" . $this->getAttribute($this->getAttribute((isset($context["gantry"]) ? $context["gantry"] : null), "theme", array()), "preset", array()))))), "method");
         echo ">
         ";
-        // line 62
+        // line 65
         echo (isset($context["page_offcanvas"]) ? $context["page_offcanvas"] : null);
         echo "
         <div id=\"g-page-surround\">
             ";
-        // line 64
+        // line 67
         if (trim((isset($context["page_offcanvas"]) ? $context["page_offcanvas"] : null))) {
-            // line 65
+            // line 68
             echo "            <div class=\"g-offcanvas-hide g-offcanvas-toggle\" data-offcanvas-toggle><i class=\"fa fa-fw fa-bars\"></i></div>
             ";
         }
-        // line 67
+        // line 70
         echo "            ";
         echo (isset($context["page_top"]) ? $context["page_top"] : null);
         echo "
             ";
-        // line 68
+        // line 71
         echo (isset($context["page_layout"]) ? $context["page_layout"] : null);
         echo "
             ";
-        // line 69
+        // line 72
         echo (isset($context["page_bottom"]) ? $context["page_bottom"] : null);
         echo "
         </div>
         <script type=\"text/javascript\" src=\"";
-        // line 71
+        // line 74
         echo twig_escape_filter($this->env, $this->env->getExtension('GantryTwig')->urlFunc("gantry-assets://js/main.js"), "html", null, true);
         echo "\"></script>
         ";
-        // line 72
+        // line 75
         echo (isset($context["page_footer"]) ? $context["page_footer"] : null);
         echo "
     </body>";
@@ -262,16 +264,11 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
 
     public function getDebugInfo()
     {
-        return array (  248 => 72,  244 => 71,  239 => 69,  235 => 68,  230 => 67,  226 => 65,  224 => 64,  219 => 62,  214 => 61,  211 => 60,  205 => 75,  203 => 60,  199 => 59,  195 => 58,  190 => 57,  187 => 56,  179 => 52,  176 => 51,  172 => 47,  169 => 46,  165 => 42,  162 => 41,  158 => 37,  148 => 36,  145 => 35,  133 => 34,  130 => 33,  126 => 26,  122 => 24,  119 => 23,  116 => 22,  112 => 12,  109 => 11,  105 => 5,  102 => 4,  98 => 78,  96 => 56,  92 => 51,  90 => 50,  86 => 46,  84 => 45,  80 => 41,  78 => 40,  74 => 33,  72 => 32,  70 => 30,  68 => 29,  64 => 22,  62 => 21,  55 => 18,  50 => 17,  48 => 16,  44 => 13,  41 => 11,  38 => 10,  36 => 9,  32 => 4,  30 => 3,  28 => 1,);
+        return array (  250 => 75,  246 => 74,  241 => 72,  237 => 71,  232 => 70,  228 => 68,  226 => 67,  221 => 65,  216 => 64,  213 => 63,  207 => 78,  205 => 63,  201 => 62,  197 => 61,  192 => 60,  189 => 59,  181 => 55,  178 => 54,  174 => 49,  171 => 48,  167 => 42,  164 => 41,  160 => 37,  157 => 36,  153 => 32,  143 => 31,  140 => 30,  128 => 29,  125 => 28,  121 => 21,  117 => 19,  114 => 18,  111 => 17,  107 => 7,  104 => 6,  100 => 81,  98 => 59,  94 => 54,  92 => 53,  88 => 48,  86 => 47,  82 => 41,  80 => 40,  76 => 36,  74 => 35,  70 => 28,  68 => 27,  66 => 25,  64 => 24,  60 => 17,  58 => 16,  51 => 13,  46 => 12,  44 => 11,  40 => 8,  37 => 6,  34 => 5,  32 => 4,  30 => 2,  28 => 1,);
     }
 }
 /* {%- do gantry.theme.setLayout() -%}*/
-/* */
-/* {%- set page_head %}*/
-/*     {% block page_head -%}*/
-/*         {% include 'partials/page_head.html.twig' %}*/
-/*     {%- endblock %}*/
-/* {% endset -%}*/
+/* {%- set segments = gantry.theme.segments -%}*/
 /* */
 /* {%- set content %}*/
 /*     {% if gantry.theme.hasContent() %}*/
@@ -281,7 +278,7 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
 /* {% endset -%}*/
 /* */
 /* {%- set offcanvas = null -%}*/
-/* {%- for segment in gantry.theme.segments if segment.type == 'offcanvas' %}*/
+/* {%- for segment in segments if segment.type == 'offcanvas' %}*/
 /*     {%- set offcanvas = segment -%}*/
 /* {% endfor -%}*/
 /* */
@@ -298,7 +295,7 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
 /* */
 /* {%- set page_layout %}*/
 /*     {% block page_layout %}*/
-/*     {% for segment in gantry.theme.segments if segment.type != 'offcanvas' %}*/
+/*     {% for segment in segments if segment.type != 'offcanvas' %}*/
 /*         {% include '@nucleus/layout/' ~ segment.type ~ '.html.twig' with { 'segments': segment.children } %}*/
 /*     {% endfor %}*/
 /*     {% endblock %}*/
@@ -312,6 +309,14 @@ class __TwigTemplate_679bc441a41c639164bcdb5dcb5722cd165d90242ebc7340971b1d777d1
 /* {%- set page_bottom %}*/
 /*     {% block page_bottom %}*/
 /*     {% endblock %}*/
+/* {% endset -%}*/
+/* */
+/* {# Head and footer needs to come last because of any of the above blocks may have CSS or JavaScript in them #}*/
+/* */
+/* {%- set page_head %}*/
+/*     {% block page_head -%}*/
+/*         {% include 'partials/page_head.html.twig' %}*/
+/*     {%- endblock %}*/
 /* {% endset -%}*/
 /* */
 /* {%- set page_footer %}*/

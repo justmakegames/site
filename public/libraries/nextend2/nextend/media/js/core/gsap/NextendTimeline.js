@@ -1,0 +1,3 @@
+NextendTimeline = TimelineLite;
+
+NextendTween = TweenLite;

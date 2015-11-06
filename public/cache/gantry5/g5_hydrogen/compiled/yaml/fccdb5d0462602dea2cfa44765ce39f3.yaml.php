@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/branding.yaml',
-    'modified' => 1445198584,
+    'modified' => 1445417667,
     'data' => [
         'name' => 'Branding',
         'description' => 'Displays powered by link to Gantry Framework',

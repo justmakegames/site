@@ -19,131 +19,132 @@ body div#fd .label {
   padding: 5px;
 }
 /* line 11, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
-body div#fd.es.mod-es-dropdown-menu .es-avatar {
-  border-color: #3180c2;
+#g-header div#fd.es .es-avatar {
+  border-radius: 100%;
+  border: 1px solid #3180c2;
 }
-/* line 15, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 16, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+body div#fd.es.mod-es-dropdown-menu .dropdown-toggle-user-name strong {
+  color: #fff;
+}
+/* line 20, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 #system-message .alert {
   margin: 0 25px;
 }
-/* line 19, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 24, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .breadcrumb {
   margin-bottom: 0;
 }
-/* line 23, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 28, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .g-offcanvas-toggle {
   font-size: 2rem;
 }
-/* line 27, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 32, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .gantry-logo img {
   width: 300px;
 }
-/* line 32, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 37, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 body div#fd.es.mod-es-dropdown-menu .mod-bd {
   float: right;
   min-height: 70px;
 }
-/* line 37, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
-body div#fd.es.mod-es-dropdown-menu .dropdown-toggle-user-name strong {
-  color: inherit;
-}
-/* line 41, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 42, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .ezb-mod .avatar {
   border: 0;
 }
-/* line 45, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 46, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 #mod_showcase .showcase-readmore a.showcase-button, #mod_showcase .showcase-readmore a.showcase-button:hover {
   height: 32px;
 }
-/* line 50, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 51, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 #mod_showcase .showcase-navi a.item, #mod_showcase a.showcase-more, #mod_showcase a.showcase-more:hover {
   height: 28px;
 }
 /* Prizes */
-/* line 59, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 60, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .q2c-wrapper .thumbnail {
   padding: 10px;
 }
-/* line 63, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 64, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .q2c-wrapper .hr-condensed {
   display: none;
 }
-/* line 67, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 68, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .q2c-wrapper .form-horizontal {
   padding-top: 10px;
 }
-/* line 71, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 72, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .form-horizontal .control-group {
   clear: both;
   float: left;
   margin-right: 40px;
 }
-/* line 77, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 78, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .q2c-wrapper .form-horizontal .control-label {
   text-align: left;
   width: 80px;
   float: left;
 }
-/* line 83, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 84, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .form-horizontal .controls {
   margin-left: 100px;
 }
-/* line 87, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 88, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .q2c-wrapper .form-horizontal .qtc_controls_text {
   font-weight: bold;
   color: #3180c2;
   margin-left: 10px;
   float: left;
 }
-/* line 94, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 95, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .blog .q2c-wrapper {
   padding-bottom: 20px;
   border-bottom: 2px solid #eee;
 }
-/* line 99, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 100, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .items-row.cols-2 .item {
   padding: 10px;
   border: 1px solid #eee;
   margin-bottom: 10px;
 }
-/* line 105, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 106, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .article-info .article-info-term {
   display: none;
 }
 /* Articles */
-/* line 111, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 112, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .pull-left.item-image {
   max-width: 100%;
 }
-/* line 115, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 116, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 #eblog-wrapper #ezblog-menu {
   min-height: 32px;
 }
-/* line 119, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 120, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 #ezblog-menu.narrow .btn-eb-navbar {
   min-width: 40px;
   min-height: 32px;
 }
-/* line 124, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 125, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 #ezblog-head .component-links {
   display: none;
 }
 /* Comments */
-/* line 130, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 131, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 .comment-form .form-row .label {
   padding: 5px;
   font-size: 12px;
 }
-/* line 135, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 136, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 body #comment-form .inputbox {
   line-height: 24px;
   text-indent: 10px;
 }
-/* line 140, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 141, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 #comment-form .form-row label {
   display: inline;
 }
-/* line 144, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
+/* line 145, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/custom.scss */
 #ezblog-body #button-related a {
   min-height: 37px;
 }

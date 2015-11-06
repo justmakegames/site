@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="content" method="upgrade">
+    <name>Smart Slider 3 Content Shortcode</name>
+    <author>NEXTENDWEB</author>
+    <copyright>Copyright (C) Nextendweb.com</copyright>
+    <authorEmail>roland@nextendweb.com</authorEmail>
+    <authorUrl>http://www.nextendweb.com</authorUrl>
+    <version>3.0.0</version>
+    <description>Provides the nextend_smartslider3[$sliderid$] shortcode to articles</description>
+    <files>
+        <filename plugin="smartslider3">smartslider3.php</filename>
+    </files>
+    <config>
+    </config>
+</extension>
