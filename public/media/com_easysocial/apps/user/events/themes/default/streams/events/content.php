@@ -36,22 +36,22 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                 <a href="<?php echo $event->getPermalink();?>"><?php echo $event->getName(); ?></a>
 
                 <?php if ($event->isOpen()) { ?>
-                <span class="label label-success" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="ies-earth"></i>
+                <span class="label label-success" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-globe"></i>
                     <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
                 </span>
                 <?php } ?>
 
                 <?php if ($event->isClosed()) { ?>
-                <span class="label label-danger" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="ies-locked"></i>
+                <span class="label label-danger" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-lock"></i>
                     <?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT'); ?>
                 </span>
                 <?php } ?>
 
                 <?php if ($event->isInviteOnly()) { ?>
-                <span class="label label-warning" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="ies-locked muted"></i>
+                <span class="label label-warning" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-lock muted"></i>
                     <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
                 </span>
                 <?php } ?>
@@ -62,7 +62,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             </p>
 
             <div class="stream-apps-meta mt-5">
-                <i class="ies-calendar mr-5"></i>
+                <i class="fa fa-calendar mr-5"></i>
                 <?php echo $event->getStartEndDisplay(); ?>
             </div>
 
@@ -70,25 +70,25 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                 <li>
                     <span>
                         <a href="<?php echo FRoute::events(array('layout' => 'category' , 'id' => $event->getCategory()->getAlias()));?>">
-                            <i class="ies-database"></i> <?php echo $event->getCategory()->get('title'); ?>
+                            <i class="fa fa-database"></i> <?php echo $event->getCategory()->get('title'); ?>
                         </a>
                     </span>
                 </li>
                 <li>
                     <span>
                         <a href="<?php echo FRoute::albums(array('uid' => $event->id, 'type' => SOCIAL_TYPE_EVENT));?>">
-                            <i class="ies-picture"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_ALBUMS', $event->getTotalAlbums()), $event->getTotalAlbums()); ?>
+                            <i class="fa fa-photo"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_ALBUMS', $event->getTotalAlbums()), $event->getTotalAlbums()); ?>
                         </a>
                     </span>
                 </li>
                 <li>
                     <span>
-                        <i class="ies-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_GUESTS', $event->getTotalGoing()), $event->getTotalGoing()); ?>
+                        <i class="fa fa-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_GUESTS', $event->getTotalGoing()), $event->getTotalGoing()); ?>
                     </span>
                 </li>
                 <li>
                     <span>
-                        <i class="ies-eye"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_VIEWS', $event->hits), $event->hits); ?>
+                        <i class="fa fa-eye"></i> <?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_VIEWS', $event->hits), $event->hits); ?>
                     </span>
                 </li>
             </ul>

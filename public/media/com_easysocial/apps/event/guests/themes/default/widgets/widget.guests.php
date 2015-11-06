@@ -14,24 +14,28 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="es-widget es-widget-guests">
     <div class="es-widget-head">
         <div class="pull-left widget-title"><?php echo JText::_('APP_EVENT_GUESTS_WIDGET_GUESTS_TITLE'); ?></div>
+
+        <?php if (!empty($goingGuests) || !empty($maybeGuests) || !empty($notGoingGuests)) { ?>
+            <a class="fd-small pull-right" href="<?php echo $link; ?>"><?php echo JText::_('APP_EVENT_GUESTS_VIEW_ALL_GUESTS');?></a>
+        <?php } ?>
     </div>
     <div class="es-widget-body">
 
         <ul class="fd-nav es-widget-tab" role="tablist">
-            <li class="active"><a href="#es-going-guests" role="tab" data-toggle="tab"><?php echo JText::_('APP_EVENT_GUESTS_WIDGET_GUESTS_TAB_GOING'); ?>
+            <li class="active"><a href="#es-going-guests" role="tab" data-bs-toggle="tab"><?php echo JText::_('APP_EVENT_GUESTS_WIDGET_GUESTS_TAB_GOING'); ?>
                 <?php if ($totalGoing > 0){ ?>
                 <span class="widget-label">(<?php echo $totalGoing;?>)</span>
                 <?php } ?>
             </a></li>
             <?php if ($allowMaybe) { ?>
-            <li><a href="#es-maybe-guests" role="tab" data-toggle="tab"><?php echo JText::_('APP_EVENT_GUESTS_WIDGET_GUESTS_TAB_MAYBE'); ?>
+            <li><a href="#es-maybe-guests" role="tab" data-bs-toggle="tab"><?php echo JText::_('APP_EVENT_GUESTS_WIDGET_GUESTS_TAB_MAYBE'); ?>
                 <?php if ($totalMaybe > 0){ ?>
                 <span class="widget-label">(<?php echo $totalMaybe;?>)</span>
                 <?php } ?>
             </a></li>
             <?php } ?>
             <?php if ($allowNotGoing) { ?>
-            <li><a href="#es-notgoing-guests" role="tab" data-toggle="tab"><?php echo JText::_('APP_EVENT_GUESTS_WIDGET_GUESTS_TAB_NOTGOING'); ?>
+            <li><a href="#es-notgoing-guests" role="tab" data-bs-toggle="tab"><?php echo JText::_('APP_EVENT_GUESTS_WIDGET_GUESTS_TAB_NOTGOING'); ?>
                 <?php if ($totalNotGoing > 0){ ?>
                 <span class="widget-label">(<?php echo $totalNotGoing;?>)</span>
                 <?php } ?>
@@ -86,13 +90,5 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </ul>
             </div>
         </div>
-
-
-        <?php if (!empty($guests)) { ?>
-        <div>
-            <a class="fd-small" href="<?php echo $link; ?>"><?php echo JText::_('APP_EVENT_GUESTS_VIEW_ALL_GUESTS');?> &rarr;</a>
-        </div>
-        <?php } ?>
-
     </div>
 </div>

@@ -17,14 +17,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php echo $this->render( 'module' , 'es-conversations-between-conversation' ); ?>
 
 		<li class="conversation-item <?php echo $conversation->isread ? 'read' : 'unread';?>" data-id="<?php echo $conversation->id;?>" data-conversations-item>
-			<div class="clearfix">
+			<div class="fd-cf">
 				<div class="checkbox-column pl-5">
 					<input type="checkbox" name="conversationCheckbox" value="<?php echo $conversation->id;?>" class="item-check" data-conversationItem-checkbox />
 				</div>
 
 				<div class="content-column">
-					<div class="row">
-						<div class="col-md-12">
+					<div class="fd-cf">
 							<div class="avatar-wrap">
 								<?php foreach( $conversation->getParticipants( $this->my->id ) as $participant ){ ?>
 									<span class="es-avatar es-avatar-sm"
@@ -40,7 +39,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							</div>
 
 							<?php if( $conversation->hasAttachments() ){ ?>
-							<i class="ies-attachment ies-small pull-left mr-5 with-attachments"
+							<i class="fa fa-attachment  pull-left mr-5 with-attachments"
 								data-es-provide="tooltip"
 								data-placement="bottom"
 								data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_WITH_ATTACHMENTS' , true );?>"
@@ -54,7 +53,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<?php if( $conversation->getLastMessage( $this->my->id ) ){ ?>
 							<div class="conversation-meta fd-small mt-5">
 								<?php if( $conversation->getLastMessage($this->my->id)->created_by == $this->my->id ){ ?>
-								<i class="ies-share-2 ies-small"
+								<i class="fa fa-share-2 "
 									data-es-provide="tooltip"
 									data-placement="bottom"
 									data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATION_YOU_HAVE_REPLIED_HERE' );?>"
@@ -65,11 +64,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<?php } ?>
 							<div class="conversation-lapsed">
 								<time class="message-time fd-small mr-5" title="<?php echo FD::get( 'Date' , $conversation->lastreplied )->toLapsed();?>">
-									<i class="ies-clock-2 ies-small"></i>
-									<?php echo FD::get( 'Date' , $conversation->lastreplied )->toLapsed();?>
+									<i class="fa fa-clock-o"></i>
+									<?php echo FD::get('Date', $conversation->lastreplied)->toLapsed();?>
 								</time>
 							</div>
-						</div>
 					</div>
 				</div>
 			</div>

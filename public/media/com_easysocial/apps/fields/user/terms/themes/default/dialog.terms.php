@@ -30,7 +30,13 @@ $termText = $params->get('message', 'PLG_FIELDS_TERMS_CONDITION_MESSAGE_TERMS');
 	</bindings>
 	<title><?php echo JText::_('PLG_FIELDS_TERMS_DIALOG_TITLE'); ?></title>
 	<content>
-		<div class="form-control input-sm es-terms-field" readonly="readonly" data-field-terms-textbox><?php echo JText::_($termText); ?></div>
+		<div class="form-control input-sm es-terms-field" readonly="readonly" data-field-terms-textbox>
+			<?php if ($useArticle && $article) { ?>
+				<?php echo $article->introtext . $article->fulltext;?>
+			<?php } else { ?>
+				<?php echo JText::_($termText); ?>
+			<?php } ?>
+		</div>
 	</content>
 	<buttons>
 		<button data-cancel-button type="button" class="btn btn-sm btn-es-primary"><?php echo JText::_('COM_EASYSOCIAL_CLOSE_BUTTON'); ?></button>

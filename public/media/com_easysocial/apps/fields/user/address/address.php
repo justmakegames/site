@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,18 +11,9 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-// Include the fields library
 FD::import('admin:/includes/fields/dependencies');
-
-// Include helper file.
 FD::import('fields:/user/address/helper');
 
-/**
- * Field application for Address
- *
- * @since   1.0
- * @author  Jason Rey <jasonrey@stackideas.com>
- */
 class SocialFieldsUserAddress extends SocialFieldItem
 {
     public function getValue()
@@ -50,7 +41,6 @@ class SocialFieldsUserAddress extends SocialFieldItem
      * @param   SocialTableRegistration
      * @return  string  The html output.
      *
-     * @author  Jason Rey <jasonrey@stackideas.com>
      */
     public function onRegister(&$post, &$registration)
     {
@@ -182,7 +172,6 @@ class SocialFieldsUserAddress extends SocialFieldItem
      * @param   Array           The error data.
      * @return  string          The html string of the field
      *
-     * @author  Jason Rey <jasonrey@stackideas.com>
      */
     public function onEdit(&$post, &$user, $errors)
     {
@@ -191,8 +180,6 @@ class SocialFieldsUserAddress extends SocialFieldItem
 
         // Get the value
         $address = $this->getAddressValue($value);
-
-        // var_dump($address);exit;
 
         // Set the value.
         $this->set('value', $address);
@@ -348,9 +335,6 @@ class SocialFieldsUserAddress extends SocialFieldItem
 
             $formatted['latitude'] = isset($data[$field->id]['latitude']) ? $data[$field->id]['latitude'] : '';
             $formatted['longitude'] = isset($data[$field->id]['longitude']) ? $data[$field->id]['longitude'] : '';
-
-            //             var_dump($formatted);
-            // exit;
         }
 
         return $formatted;
@@ -378,8 +362,6 @@ class SocialFieldsUserAddress extends SocialFieldItem
         if (!$this->allowedPrivacy($user)) {
             return;
         }
-
-        // var_dump($address);
 
         $field = $this->field;
         if ($field->searchable) {
@@ -627,6 +609,7 @@ class SocialFieldsUserAddress extends SocialFieldItem
 
         if ($this->params->get('use_maps')) {
             if ($this->params->get('required_address') && (empty($address->latitude) || empty($address->longitude))) {
+                $this->setError(JText::_('PLG_FIELDS_ADDRESS_MAP_PLEASE_ENTER_LOCATION'));
                 return false;
             }
         } else {
@@ -936,7 +919,7 @@ class SocialFieldsUserAddressValue extends SocialFieldValue
 
         $value = $this->value->address;
         $icontype = 'compass';
-        $icon = '<i class="ies-small mr-5 ies-' . $icontype . '"></i>';
+        $icon = '<i class="fa fa-small mr-5 fa-' . $icontype . '"></i>';
 
         $searchUnit = $config->get('general.location.proximity.unit','mile');
         $searchText = $value;

@@ -14,7 +14,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="input-group input-group-sm">
 	<input type="text" class="form-control input-sm" name="search" value="<?php echo $this->html( 'string.escape' , $value );?>" placeholder="<?php echo JText::_( 'COM_EASYSOCIAL_SEARCH' , true );?>" data-table-grid-search-input />
 	<span class="input-group-btn">
-		<button class="btn btn-sm btn-es" data-table-grid-search><i class="ies-search ies-small"></i></button>
-		<button class="btn btn-sm btn-es" data-table-grid-search-reset><i class="ies-cancel ies-small"></i></button>
+		<button class="btn btn-sm btn-es" data-table-grid-search><i class="fa fa-search "></i></button>
+		<button class="btn btn-sm btn-es" data-table-grid-search-reset><i class="fa fa-remove "></i></button>
 	</span>
 </div>

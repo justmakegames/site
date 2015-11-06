@@ -1,7 +1,7 @@
 EasySocial.module('site/events/item', function($) {
     var module = this;
 
-    EasySocial.template('info/item', '<li data-sidebar-item><a class="ml-20" href="[%= url %]" title="[%= title %]" data-info-item data-info-index="[%= index %]"><i class="ies-info ies-small mr-5"></i> [%= title %]</a></li>');
+    EasySocial.template('info/item', '<li data-sidebar-item><a class="ml-20" href="[%= url %]" title="[%= title %]" data-info-item data-info-index="[%= index %]"><i class="fa fa-info-circle mr-5"></i> [%= title %]</a></li>');
 
     EasySocial
     .require()

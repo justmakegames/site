@@ -1,9 +1,9 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -18,7 +18,6 @@ class EasySocialViewEvents extends EasySocialSiteView
     /**
      * Checks if the event feature is enabled.
      *
-     * @author Jason Rey <jasonrey@stackideas.com>
      * @since  1.3
      * @access public
      */
@@ -37,7 +36,6 @@ class EasySocialViewEvents extends EasySocialSiteView
     /**
      * Displays the event listing main page.
      *
-     * @author Jason Rey <jasonrey@stackideas.com>
      * @since  1.3
      * @access public
      */
@@ -60,10 +58,15 @@ class EasySocialViewEvents extends EasySocialSiteView
         // Get the filter
         $filter = $this->input->get('filter', 'all', 'string');
 
-        $allowedFilter = array('all', 'featured', 'mine', 'participated', 'invited', 'going', 'pending', 'maybe', 'notgoing', 'past', 'ongoing', 'upcoming', 'date');
+        $allowedFilter = array('week1', 'week2', 'all', 'featured', 'mine', 'participated', 'invited', 'going', 'pending', 'maybe', 'notgoing', 'past', 'ongoing', 'upcoming', 'date', 'nearby');
 
         if (!in_array($filter, $allowedFilter)) {
             return JError::raiseError(404, JText::_('COM_EASYSOCIAL_EVENTS_INVALID_CATEGORY_ID'));
+        }
+
+        // Since not logged in users cannot filter by 'invited' or 'mine', they shouldn't be able to access these filters at all
+        if ($this->my->guest && ($filter == 'invited' || $filter == 'mine' || $filter == 'going' || $filter == 'maybe' || $filter == 'notgoing' || $filter == 'participated')) {
+            return $this->app->redirect(FRoute::dashboard(array(), false));
         }
 
         // Get the ordering
@@ -286,6 +289,8 @@ class EasySocialViewEvents extends EasySocialSiteView
             FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_PAST'));
 
             $options['start-before'] = FD::date()->toSql();
+            $options['ordering'] = 'created';
+            $options['direction'] = 'desc';
 
             $showPastFilter = false;
         }
@@ -571,8 +576,8 @@ class EasySocialViewEvents extends EasySocialSiteView
 
         $events = array();
 
+        // Get a list of events if this is not delayed?
         if (!$delayed) {
-            // Get a list of events
             $events = $model->getEvents($options);
         }
 
@@ -747,7 +752,7 @@ class EasySocialViewEvents extends EasySocialSiteView
         }
 
         // Ensure that the user did not exceed the number of allowed events
-        if (!$this->my->isSiteAdmin() && $this->my->getAccess()->exceeded('events.limit', $this->my->getTotalCreatedEvents(array('ongoing' => true, 'upcoming' => true)))) {
+        if (!$this->my->isSiteAdmin() && $this->my->getAccess()->intervalExceeded('events.limit', $this->my->id)) {
             $this->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_EXCEEDED_CREATE_EVENT_LIMIT'), SOCIAL_MSG_ERROR);
 
             $this->info->set($this->getMessage());
@@ -844,7 +849,7 @@ class EasySocialViewEvents extends EasySocialSiteView
             return $this->redirect(FRoute::dashboard());
         }
 
-        if (!$this->my->isSiteAdmin() && $this->my->getAccess()->exceeded('events.limit', $this->my->getTotalCreatedEvents(array('ongoing' => true, 'upcoming' => true)))) {
+        if (!$this->my->isSiteAdmin() && $this->my->getAccess()->intervalExceeded('events.limit', $this->my->id)) {
             $this->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_EXCEEDED_CREATE_EVENT_LIMIT'), SOCIAL_MSG_ERROR);
 
             $this->info->set($this->getMessage());
@@ -1146,7 +1151,7 @@ class EasySocialViewEvents extends EasySocialSiteView
                 return $this->redirect(FRoute::events());
             }
 
-            return $this->redirect($event->getPermalink());
+            return $this->redirect($event->getPermalink(false));
         }
 
         FD::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_EVENTS'), FRoute::events());
@@ -1177,7 +1182,6 @@ class EasySocialViewEvents extends EasySocialSiteView
         $string = $json->encode($data);
 
         $this->set('data', $string);
-
         $this->set('event', $event);
 
         $updateids = array();
@@ -1241,7 +1245,7 @@ class EasySocialViewEvents extends EasySocialSiteView
      * @access  public
      * @param   SocialGroup
      */
-    public function removeMember($event)
+    public function removeGuest($event)
     {
         $this->info->set($this->getMessage());
 
@@ -1303,7 +1307,7 @@ class EasySocialViewEvents extends EasySocialSiteView
         if ($event->isGroupEvent()) {
             $group = FD::group($event->getMeta('group_id'));
 
-            if (!$this->my->isSiteAdmin() && !$group->isMember()) {
+            if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$group->isMember()) {
                 FD::info()->set(false, JText::_('COM_EASYSOCIAL_GROUPS_EVENTS_NO_PERMISSION_TO_VIEW_EVENT'), SOCIAL_MSG_ERROR);
 
                 return $this->redirect($group->getPermalink());
@@ -1319,6 +1323,7 @@ class EasySocialViewEvents extends EasySocialSiteView
         $opengraph->addType( 'article' );
         $opengraph->addTitle($event->getName());
         $opengraph->addDescription($event->getDescription());
+        $opengraph->addImage($event->getAvatar());
 
         // render the meta tags here.
         $opengraph->render();
@@ -1333,7 +1338,7 @@ class EasySocialViewEvents extends EasySocialSiteView
         $this->set('guest', $guest);
         $this->set('event', $event);
 
-        if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$guest->isGuest()) {
+        if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$guest->isGuest() && (!$event->isGroupEvent() || ($event->isGroupEvent() && !$event->getGroup()->isMember()))) {
             return parent::display('site/events/restricted');
         }
 
@@ -1354,8 +1359,8 @@ class EasySocialViewEvents extends EasySocialSiteView
         $this->set('filters', $filters);
 
         // Load up the stream model
-        $streamModel = FD::model('Stream');
-        $appFilters  = $streamModel->getAppFilters(SOCIAL_TYPE_EVENT);
+        $streamModel= ES::model('Stream');
+        $appFilters = $streamModel->getAppFilters(SOCIAL_TYPE_EVENT);
 
         $this->set('appFilters', $appFilters);
 
@@ -1423,7 +1428,8 @@ class EasySocialViewEvents extends EasySocialSiteView
 
         if ($type == 'info') {
             FD::language()->loadAdmin();
-
+            FD::language()->loadSite(null, true);
+            
             $currentStep = JRequest::getInt('step', 1);
 
             $steps = FD::model('Steps')->getSteps($event->category_id, SOCIAL_TYPE_CLUSTERS, SOCIAL_EVENT_VIEW_DISPLAY);
@@ -1494,7 +1500,13 @@ class EasySocialViewEvents extends EasySocialSiteView
         // If no content then only we proceed to get the stream
         $stream = FD::stream();
 
-        $streamOptions = array('clusterId' => $event->id, 'clusterType' => $event->cluster_type);
+        //lets get the sticky posts 1st
+        $stickies = $stream->getStickies(array('clusterId' => $event->id, 'clusterType' => $event->cluster_type, 'limit' => 0));
+        if ($stickies) {
+            $stream->stickies = $stickies;
+        }
+
+        $streamOptions = array('clusterId' => $event->id, 'clusterType' => $event->cluster_type, 'nosticky' => true);
 
         // Load the story
         $story = FD::story($event->cluster_type);
@@ -1525,7 +1537,8 @@ class EasySocialViewEvents extends EasySocialSiteView
             $streamOptions['tag'] = $tags;
         }
 
-        if ($guest->isGuest()) {
+        // Only allow users with access to post into this event
+        if ($guest->isGuest() || $this->my->isSiteAdmin()) {
             $stream->story = $story;
         }
 

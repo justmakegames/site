@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form action="index.php" id="adminForm" method="post" name="adminForm" data-table-grid>
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -39,8 +39,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 	</div>
 
-	<div id="pendingUsersTable">
-		<table class="table table-striped table-es" data-pending-users>
+	<div id="pendingUsersTable" class="panel-table">
+		<table class="app-table table table-eb table-striped" data-pending-users>
 			<thead>
 				<tr>
 					<th width="5">
@@ -62,6 +62,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<th width="15%" class="center">
 						<?php echo $this->html( 'grid.sort' , 'email' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_EMAIL' ) , $ordering , $direction ); ?>
 					</th>
+					
+					<th width="5%" class="center">
+						<?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_ACCOUNT_TYPE'); ?>
+					</th>
+
 					<th width="5%" class="center">
 						<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_USERS_ID' ) , $ordering , $direction ); ?>
 					</th>
@@ -81,17 +86,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						<?php echo $this->html( 'grid.id' , $i++ , $user->id ); ?>
 					</td>
 					<td align="left">
-						<span class="pull-left mr-5">
-							<i class="icon-es-<?php echo $user->type;?>-16 mr-5 mt-5"
-								data-original-title="<?php echo $this->html( 'string.escape' , JText::sprintf( 'COM_EASYSOCIAL_USERS_USER_ACCOUNT_TYPE' , $user->type ) );?>"
-								data-es-provide="tooltip"
-							></i>
-						</span>
-
-						<span class="es-avatar es-avatar-rounded pull-left mr-15 ml-5">
-							<img src="<?php echo $user->getAvatar();?>" width="24" align="left" />
-						</span>
-
 						<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=users&layout=form&id=' . $user->id );?>" data-user-item-insertLink>
 							<?php echo $user->name;?>
 						</a>
@@ -100,13 +94,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						</div>
 					</td>
 					<td class="center">
-						<a href="javascript:void(0);" class="btn btn-sm btn-es-success" data-pending-approve>
-							<?php echo JText::_( 'COM_EASYSOCIAL_USER_APPROVE_BUTTON' ); ?>
-						</a>
+						<a href="javascript:void(0);" class="btn btn-sm btn-primary" data-pending-approve><?php echo JText::_('COM_EASYSOCIAL_USER_APPROVE_BUTTON'); ?></a>
 
-						<a href="javascript:void(0);" class="btn btn-sm btn-es-danger ml-5" data-pending-reject>
-							<?php echo JText::_( 'COM_EASYSOCIAL_USER_REJECT_BUTTON' ); ?>
-						</a>
+						<a href="javascript:void(0);" class="btn btn-sm btn-es-danger" data-pending-reject><?php echo JText::_('COM_EASYSOCIAL_USER_REJECT_BUTTON'); ?></a>
 					</td>
 					<td style="text-align: center;">
 						<a href="<?php echo JRoute::_( 'index.php?option=com_easysocial&view=profiles&layout=form&id=' . $user->getProfile()->id );?>">
@@ -119,6 +109,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<td class="center">
 						<a href="mailto:<?php echo $user->email;?>" target="_blank"><?php echo $user->email;?></a>
 					</td>
+
+					<td class="center">
+						<i class="icon-es-<?php echo $user->type;?>-16 mr-5 mt-5"
+							data-original-title="<?php echo $this->html( 'string.escape' , JText::sprintf( 'COM_EASYSOCIAL_USERS_USER_ACCOUNT_TYPE' , $user->type ) );?>"
+							data-es-provide="tooltip"
+						></i>
+					</td>
+
 					<td class="center">
 						<?php echo $user->id;?>
 					</td>
@@ -127,7 +125,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<?php } else { ?>
 				<tr class="is-empty">
-					<td colspan="7" class="center empty">
+					<td colspan="8" class="center empty">
 						<div>
 							<?php echo JText::_( 'COM_EASYSOCIAL_USERS_NO_PENDING_USERS' ); ?>
 						</div>
@@ -138,7 +136,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<tfoot>
 				<tr>
-					<td colspan="7">
+					<td colspan="8">
 						<div class="footer-pagination">
 							<?php echo $pagination->getListFooter(); ?>
 						</div>

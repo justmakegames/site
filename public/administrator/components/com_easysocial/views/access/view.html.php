@@ -25,20 +25,8 @@ class EasySocialViewAccess extends EasySocialAdminView
 	 */
 	public function display($tpl = null)
 	{
-		// Check access
-		if(!$this->authorise('easysocial.access.access'))
-		{
-			$this->redirect('index.php' , JText::_('JERROR_ALERTNOAUTHOR') , 'error');
-		}
-
-		// Set page heading
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_ACCESS'));
-
-		// Set page description
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_ACCESS'));
-
-		// Set page icon
-		$this->setIcon('ies-locked-2');
+		$this->setHeading('COM_EASYSOCIAL_HEADING_ACCESS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_ACCESS');
 
 		// Add Joomla buttons here
 		JToolbarHelper::publishList();
@@ -46,16 +34,21 @@ class EasySocialViewAccess extends EasySocialAdminView
 		JToolbarHelper::divider();
 		JToolbarHelper::deleteList();
 
-		$model 		= FD::model('accessrules' , array('initState' => true));
+		$model = FD::model('accessrules' , array('initState' => true));
 
-		$state 		= $model->getState('published');
+		// Selected filters
+		$state = $model->getState('published');
 		$extension 	= $model->getState('filter');
-		$limit 		= $model->getState('limit');
-		$ordering 	= $model->getState('ordering');
-		$direction	= $model->getState('direction');
-		$search 	= $model->getState('search');
+		$group = $model->getState('group');
+		$limit = $model->getState('limit');
+		$ordering = $model->getState('ordering');
+		$direction = $model->getState('direction');
+		$search = $model->getState('search');
 
 		$access = $model->getItems();
+
+		// Load a list of groups so that users can filter rules by groups
+		$groups = $model->getGroups();
 
 		// Load a list of extensions so that users can filter them.
 		$extensions	= $model->getExtensions();
@@ -63,6 +56,8 @@ class EasySocialViewAccess extends EasySocialAdminView
 		// Get pagination
 		$pagination = $model->getPagination();
 
+		$this->set('group', $group);
+		$this->set('groups', $groups);
 		$this->set('access', $access);
 		$this->set('ordering', $ordering);
 		$this->set('direction', $direction);
@@ -79,28 +74,18 @@ class EasySocialViewAccess extends EasySocialAdminView
 
 	public function discover($tpl = null)
 	{
-		// Add heading here.
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_DISCOVER_ACCESS'));
+		$this->setHeading('COM_EASYSOCIAL_HEADING_DISCOVER_ACCESS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_INSTALL_ACCESS');
 
-		// Set page icon
-		$this->setIcon('icon-jar jar-cloud_up');
-
-		// Add description here.
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_INSTALL_ACCESS'));
+		JToolbarHelper::custom('discover', 'download', '', JText::_('COM_EASYSOCIAL_DISCOVER_BUTTON'), false);
 
 		echo parent::display('admin/access/discover');
 	}
 
 	public function install($tpl = null)
 	{
-		// Add heading here.
-		$this->setHeading(JText::_('COM_EASYSOCIAL_HEADING_INSTALL_ACCESS'));
-
-		// Set page icon
-		$this->setIcon('icon-jar jar-imac_up');
-
-		// Add description here.
-		$this->setDescription(JText::_('COM_EASYSOCIAL_DESCRIPTION_INSTALL_ACCESS'));
+		$this->setHeading('COM_EASYSOCIAL_HEADING_INSTALL_ACCESS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_INSTALL_ACCESS');
 
 		echo parent::display('admin/access/install');
 	}

@@ -47,7 +47,6 @@ $modules = FD::modules('mod_easysocial_dropdown_menu');
 $modules->loadComponentScripts();
 $modules->loadComponentStylesheets();
 $modules->addDependency('css', 'javascript');
-$modules->loadScript('script.js');
 
 // Get menu items
 $items = array();
@@ -65,7 +64,7 @@ if ($my->guest) {
 
     // Get the logout return
     $logoutMenu = FD::config()->get( 'general.site.logout' );
-    $logoutReturn = FD::get( 'toolbar' )->getRedirectionUrl( $logoutMenu );
+    $logoutReturn = FRoute::getMenuLink($logoutMenu);
     $logoutReturn = base64_encode( $logoutReturn );
 
 }

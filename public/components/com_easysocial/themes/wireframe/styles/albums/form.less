@@ -134,13 +134,67 @@
 
 
 
-.es-album-location-form {
+.es-album-location-form,
+.es-photo-location-form { // temporary quick fix
 
 	padding: 5px;
 
-	.es-location-textbox input {
-		width: 360px;
+	.es-location-textbox {
+        border: 1px solid @esBorder;
+
+        background: #fff none repeat scroll 0 0;
+        border-radius: @borderRadius;
+        display: block;
+        height: 32px;
+        padding: 0;
+        width: 100%;
+
+        input {
+            width: 360px;    
+
+            border: 0 none !important;
+            height: 30px !important;
+            padding-left: 4px !important;
+        }
+		
 	}
+    .es-location-buttons {
+        display: inline-block;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 2;
+        width: auto;
+        .btn {
+            border-radius: 0 @borderRadius @borderRadius 0;
+            font-size: @baseFontSize;
+            width: auto;
+            height: 32px;
+            line-height: 20px;
+            display: inline-block;
+            // border-top: 0;
+            // border-right: 0;
+        }
+    }
+
+    .es-location-map { // override to display none by default
+        display: none;
+    }
+
+    .es-locations {
+        &.has-suggested {
+            .es-location-textbox {
+                border-radius: @borderRadius @borderRadius 0 0;
+            }
+            .es-location-suggestions {
+                border-radius: 0;
+                border-top: none;
+            }
+            .es-location-map {
+                display: block;
+            }
+        }
+    }
 }
 
 &.w480 {

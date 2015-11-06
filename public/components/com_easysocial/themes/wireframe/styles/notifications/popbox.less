@@ -17,8 +17,8 @@
 
 	font-family: @baseFontFamily;
 	font-size: @baseFontSize;
-	width: 380px;
-	font-size: 11px;
+	width: 420px;
+	font-size: @baseFontSize;
 	min-height: 64px;
 	//elements
 	.es-avatar {
@@ -114,6 +114,10 @@
 			position: relative;
 			padding: 5px 0 0;
 		}
+	}
+
+	.type-broadcast.is-unread > .notice-message {
+		background: #ffc !important;
 	}
 }
 

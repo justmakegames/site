@@ -411,14 +411,14 @@ class SocialString
 	 * @param	string
 	 * @return  string (in html)
 	 */
-	public function parseBBCode( $string, $options = array() )
+	public function parseBBCode($string, $options = array())
 	{
 		// Configurable option to determine if the bbcode should perform the following
-		$options	= array_merge( array( 'censor' => false , 'emoticons' => true ), $options );
+		$options = array_merge(array('censor' => false, 'emoticons' => true), $options);
 
-		$bbcode 	= FD::bbcode();
+		$bbcode = ES::bbcode();
 
-		$string 	= $bbcode->parse($string, $options);
+		$string = $bbcode->parse($string, $options);
 
 		return $string;
 	}

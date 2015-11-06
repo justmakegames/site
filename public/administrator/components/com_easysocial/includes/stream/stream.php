@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,20 +9,13 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 // Include necessary libraries here.
-require_once( dirname( __FILE__ ) . '/dependencies.php' );
-
-// Include stream data template here.
-require_once( dirname( __FILE__ ) . '/template.php' );
-
-// Include stream data template here.
-require_once( SOCIAL_LIB . '/privacy/option.php' );
-
-
-FD::import( 'admin:/includes/group/group' );
-
+require_once(__DIR__ . '/dependencies.php');
+require_once(__DIR__ . '/template.php');
+require_once(SOCIAL_LIB . '/privacy/option.php');
+FD::import('admin:/includes/group/group');
 
 class SocialStream
 {
@@ -30,7 +23,7 @@ class SocialStream
 	 * Contains a list of stream data.
 	 * @var	Array
 	 */
-	public $data 		= null;
+	public $data = null;
 
 	/*
 	 * this nextStartDate used as pagination.
@@ -108,9 +101,12 @@ class SocialStream
 	 */
 	public function __construct()
 	{
-		$this->filter 	= 'all';
-		$this->guest 	= false;
-		$this->options 	= array();
+		$this->filter = 'all';
+		$this->guest = false;
+		$this->options = array();
+
+		$app = JFactory::getApplication();
+		$this->input = $app->input;
 	}
 
 	/**
@@ -123,19 +119,22 @@ class SocialStream
 	public function delete($contextId, $contextType, $actorId = '', $verb = '')
 	{
 		// Load dispatcher.
-		$dispatcher 	= FD::dispatcher();
-
-		$args 			= array( $contextId , $contextType, $verb );
+		$dispatcher = ES::dispatcher();
+		$args = array($contextId, $contextType, $verb);
 
 		// Trigger onBeforeStreamDelete
-		$dispatcher->trigger( SOCIAL_APPS_GROUP_USER , 'onBeforeStreamDelete', $args );
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_USER, 'onBeforeStreamDelete', $args);
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_GROUP, 'onBeforeStreamDelete', $args);
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_EVENT, 'onBeforeStreamDelete', $args);
 
 		$model 	= FD::model('Stream');
 
 		$model->delete($contextId, $contextType, $actorId, $verb);
 
 		// Trigger onAfterStreamDelete
-		$dispatcher->trigger( SOCIAL_APPS_GROUP_USER , 'onAfterStreamDelete', $args );
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_USER, 'onAfterStreamDelete', $args);
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_GROUP, 'onAfterStreamDelete', $args);
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_EVENT, 'onAfterStreamDelete', $args);
 	}
 
 	/**
@@ -210,22 +209,22 @@ class SocialStream
 	 * @param	mixed						Accepts array, object or SocialStreamTemplate which represents the stream's data.
 	 * @return	SocialTableStreamItem		Returns the new stream id if success, false otherwise.
 	 */
-	public function add( SocialStreamTemplate $data )
+	public function add(SocialStreamTemplate $data)
 	{
 		// Let's try to aggregate the stream item.
 		// Get the stream model
-		$model = FD::model( 'Stream' );
+		$model = FD::model('Stream');
 
 		// Get the config obj.
-		$config 	= FD::config();
+		$config = FD::config();
 
 		// The duration between activities.
-		$duration 	= $config->get( 'stream.aggregation.duration' );
+		$duration = $config->get('stream.aggregation.duration');
 
 		// Determine which context types should be aggregated.
-		$aggregateContext 	= $config->get( 'stream.aggregation.contexts' );
-		if( count( $data->childs ) > 0 )
-		{
+		$aggregateContext = $config->get('stream.aggregation.contexts');
+
+		if (count($data->childs) > 0) {
 			// reset this flag to false whenever there are items in child property.
 			$data->isAggregate = false;
 		}
@@ -235,23 +234,24 @@ class SocialStream
 
 		// @trigger: onPrepareComments
 		$dispatcher = FD::dispatcher();
-		$args 		= array( &$data );
+		$args = array(&$data);
 
-		$eventGroup = ( $data->cluster_type ) ? $data->cluster_type : SOCIAL_APPS_GROUP_USER;
-
-		$dispatcher->trigger( $eventGroup , 'onBeforeStreamSave' , $args );
+		// Determines what group of apps should we trigger
+		$eventGroup = $data->cluster_type ? $data->cluster_type : SOCIAL_APPS_GROUP_USER;
+		$dispatcher->trigger($eventGroup, 'onBeforeStreamSave', $args);
 
 		// Get the unique id if necessary.
 		$uid = $model->updateStream($data);
 
 		if (count($data->childs) > 0) {
 			foreach ($data->childs as $contextId) {
+
 				// Load the stream item table
-				$item 	= FD::table( 'StreamItem' );
-				$item->bind( $data );
+				$item = FD::table('StreamItem');
+				$item->bind($data);
 
 				//override contextId
-				$item->context_id 	= $contextId;
+				$item->context_id = $contextId;
 
 				// Set the uid for the item.
 				$item->uid 	= $uid;
@@ -306,10 +306,22 @@ class SocialStream
 	 * we need to work accordingly based on the context passed in.
 	 */
 
-	public function updateModified( $streamId )
+	public function updateModified( $streamId, $user_id = '', $user_action = '')
 	{
 		$model = FD::model( 'Stream' );
-		$state = $model->updateModified( $streamId );
+		$state = $model->updateModified( $streamId, $user_id, $user_action );
+
+		return $state;
+	}
+
+
+	/**
+	 * Update stream.last_action and last_userid.
+	 *
+	 */
+	public function revertLastAction($streamId, $user_id = '', $user_action = '') {
+		$model = FD::model( 'Stream' );
+		$state = $model->revertLastAction( $streamId, $user_id, $user_action );
 
 		return $state;
 	}
@@ -470,7 +482,7 @@ class SocialStream
 			$uid = $row->id;
 
 			// Get the last updated time
-			$lastupdate		= $row->modified;
+			$lastupdate = $row->modified;
 
 			// Determines if this is a cluster
 			$isCluster      = ($row->cluster_id) ? true : false;
@@ -492,6 +504,9 @@ class SocialStream
 			if (isset($row->isNew)) {
 				$streamItem->isNew = $row->isNew;
 			}
+
+			// Set the state
+			$streamItem->state = $row->state;
 
 			// Set the actors (Aggregated actors )
 			$streamItem->actors = $aggregatedData->actors;
@@ -577,6 +592,12 @@ class SocialStream
 				$streamItem->bookmarked = true;
 			}
 
+			// Determines if this stream item has been bookmarked by the viewer
+			$streamItem->sticky = false;
+			if ($row->sticky) {
+				$streamItem->sticky = true;
+			}
+
 			// @TODO: Since our stream has a unique favi on for each item. We need to get it here.
 			// Each application is responsible to override this favicon, or stream wil use the context type.
 			$streamItem->favicon	= $row->context_type;
@@ -584,7 +605,7 @@ class SocialStream
 
 			$streamDateDisplay = $templateConfig->get('stream_datestyle');
 
-			$streamItem->friendlyDate	= $streamItem->lapsed;
+			$streamItem->friendlyDate = $streamItem->lapsed;
 
 			if ($streamDateDisplay == 'datetime') {
 				$streamItem->friendlyDate	= $streamItem->created->toFormat($templateConfig->get('stream_dateformat_format', 'Y-m-d H:i'));
@@ -697,6 +718,17 @@ class SocialStream
 				$streamItem->deleteable	= true;
 			}
 
+			// determine if we should show the 'last action by' text or not.
+			// @TODO: rules: only users who are friend of the last_action_user_id should see.
+			$streamItem->lastaction = '';
+			if ($row->last_userid && $row->last_action && FD::user()->id && FD::user()->id != $row->last_userid) {
+				$streamItem->lastaction = JText::sprintf('COM_EASYSOCIAL_STREAM_LASTACTION_' . $row->last_action, FD::themes()->html( 'html.user' , $row->last_userid ));
+			}
+
+
+			// Only polls app can determines if the stream item can edit or not the poll item.
+			$streamItem->editablepoll	= false;
+
 			// streams actions.
 			$streamItem->comments 	= ( $defaultEvent == 'onPrepareStream' ) ? true : false;
 			$streamItem->likes 		= ( $defaultEvent == 'onPrepareStream' ) ? true : false;
@@ -752,10 +784,21 @@ class SocialStream
 
 			if ($streamItem->display != SOCIAL_STREAM_DISPLAY_MINI) {
 
+				$canComment = true;
 				// comments
 				if (isset( $streamItem->comments ) && $streamItem->comments) {
 					if (!$streamItem->comments instanceof SocialCommentBlock) {
 						$streamItem->comments	= FD::comments( $streamItem->contextId , $streamItem->context , $streamItem->verb, $itemGroup , array( 'url' => FRoute::stream( array( 'layout' => 'item', 'id' => $streamItem->uid ) ) ), $streamItem->uid );
+					}
+
+					// for comments, we need to check against the actor privacy and see if the current viewer allow to
+					// post comments on their stream items or not.
+					if (!$isCluster) {
+						$privacyObj = FD::privacy( $activeUser->id );
+
+						if (! $privacyObj->validate( 'story.post.comment', $streamItem->actor->id, SOCIAL_TYPE_USER)) {
+							$canComment = false;
+						}
 					}
 				}
 
@@ -770,9 +813,10 @@ class SocialStream
 				}
 
 				// If comments is meant to be disabled, hide it.
-				if ( $streamItem->comments && ( ( isset($streamItem->commentForm) && !$streamItem->commentForm) || !$commentForm )  ) {
+				if ( $streamItem->comments && ( ( isset($streamItem->commentForm) && !$streamItem->commentForm) || !$commentForm || !$canComment )  ) {
 					$streamItem->comments->setOption('hideForm', true);
 				}
+
 
 				//likes
 				if (isset($streamItem->likes) && $streamItem->likes) {
@@ -808,8 +852,7 @@ class SocialStream
 				if ($config->get('stream.sharing.enabled')) {
 
 					if ( !isset($streamItem->sharing) || (isset($streamItem->sharing) && $streamItem->sharing !== false && !$streamItem->sharing instanceof SocialSharing)) {
-
-						$sharing = FD::get( 'Sharing', array( 'url' => FRoute::stream( array( 'layout' => 'item', 'id' => $streamItem->uid, 'external' => true, 'xhtml' => true ) ), 'display' => 'dialog', 'text' => JText::_( 'COM_EASYSOCIAL_STREAM_SOCIAL' ) , 'css' => 'fd-small' ) );
+						$sharing = FD::get( 'Sharing', array( 'url' => FRoute::stream(array('layout' => 'item', 'id' => $streamItem->uid, 'external' => true), true), 'display' => 'dialog', 'text' => JText::_( 'COM_EASYSOCIAL_STREAM_SOCIAL' ) , 'css' => 'fd-small' ) );
 						$streamItem->sharing = $sharing;
 					}
 				}
@@ -947,13 +990,13 @@ class SocialStream
 						case SOCIAL_TYPE_EVENT:
 							$event = new SocialEvent();
 							$event->bind($object);
-							
+
 							$url = FRoute::events(array('layout' => 'item', 'id' => $event->getAlias(), 'tag' => $alias));
 							break;
 
 						default:
 							FRoute::dashboard(array('layout' => 'hashtag' , 'tag' => $alias));
-							break;							
+							break;
 					}
 
 				} else {
@@ -1099,21 +1142,46 @@ class SocialStream
 	 * @param	int		The stream item's id.
 	 * @since	1.0
 	 */
-	public function getItem( $streamId, $isNew = false )
+	public function getItem($streamId, $clusterId = '', $clusterType = '', $loadModerated = false)
 	{
+		// Get the current viewer
 		$viewer = FD::user()->id;
 
-		$model 				= FD::model( 'Stream' );
-		$result 			= $model->getStreamData( array( 'streamId' => $streamId , 'context' => 'all', 'ignoreUser' => true, 'viewer' => $viewer ) );
+		// Load up the stream model
+		$model = FD::model('Stream');
 
-		if(! $result) {
+		// Default options
+		$options = array(
+							'streamId' => $streamId,
+							'context' => 'all',
+							'ignoreUser' => true,
+							'viewer' => $viewer
+						);
+
+		// If configured to retrieve moderated items, we should explicitly let the model know about this
+		if ($loadModerated) {
+			$options['moderated'] = true;
+		}
+
+		// Retrieve data based on the type
+		if ($clusterId && $clusterType) {
+
+			$options['clusterId'] = $clusterId;
+			$options['clusterType'] = $clusterType;
+
+			$result = $model->getClusterStreamData($options);
+		} else {
+			$result = $model->getStreamData($options);
+		}
+
+		if (!$result) {
 			return false;
 		}
 
 		$result[0]->isNew = true;
 
-		$this->data 		= $this->format( $result );
-		$this->singleItem	= true;
+		$this->data = $this->format($result);
+		$this->singleItem = true;
 
 		return $this->data;
 	}
@@ -1369,6 +1437,94 @@ class SocialStream
 		return $params;
 	}
 
+	public function getStickies($options = array())
+	{
+		$results     = null;
+
+		if (! ES::config()->get('stream.pin.enabled')) {
+			return array();
+		}
+
+		// lets process default values
+		$type = 'sticky';
+		$userId = isset( $options['userId'] ) 	? $options['userId'] : null;
+		$viewerId = isset( $options['viewerId'] )   ? $options['viewerId'] : null;
+
+		// If viewer is null, we assume the caller wants to fetch from the current user's perspective.
+		if (is_null($viewerId)) {
+			$viewerId 	= FD::user()->id;
+		}
+
+		// Ensure that the user id's are in an array form.
+		$user = FD::user();
+		$userId = ( empty( $userId ) ) ? $user->id : $userId;
+		$userId	= FD::makeArray($userId);
+
+
+		// Cluster stream items
+		$clusterId = isset($options['clusterId']) ? $options['clusterId'] : null;
+		$clusterType = isset($options['clusterType']) ? $options['clusterType'] : null;
+		$clusterCategory = isset($options['clusterCategory']) ? $options['clusterCategory'] : null;
+		$context = SOCIAL_STREAM_CONTEXT_TYPE_ALL;
+
+
+
+		$limit = isset($options['limit']) ? $options['limit'] : 0;
+
+		$configs	= array(
+								'userid' 		=> $userId,
+								'viewer' 		=> $viewerId,
+								'context' 		=> $context,
+								'issticky'		=> true,
+								'clusterId' 	=> $clusterId,
+								'clusterType' 	=> $clusterType,
+								'clusterCategory' => $clusterCategory,
+								'limit'			=> $limit
+							);
+
+		$model	= FD::model('Stream');
+
+
+		//trigger onBeforeGetStream
+		$this->triggerBeforeGetStream($configs);
+
+		// var_dump($configs);exit;
+
+		// Bind the context to the object
+		$tmpContext = $configs['context'];
+
+		if (is_array($configs['context'])) {
+			$tmpContext = (count($configs['context']) > 1) ? implode( '|', $configs['context'] ) : $configs['context'][0];
+		}
+
+		$this->currentContext = $tmpContext;
+
+		// since we allow options override, we need to perform checking only after the triggering
+		$isCluster = ( $configs['clusterId'] || $configs['clusterType'] || $configs['clusterCategory'] ) ? true : false ;
+		$this->isCluster = $isCluster;
+
+		// $isCluster = ($clusterId || $clusterType || $clusterCategory) ? true : false ;
+
+		if ($isCluster) {
+			$results = $model->getClusterStreamData($configs);
+		} else {
+			$results = $model->getStreamData($configs);
+		}
+
+		// var_dump($results);exit;
+
+		// If there's nothing, just return a boolean value.
+		if (!$results) {
+			return array();
+		}
+
+		// $this->uids = $model->getUids();
+
+		// now we are safe to run the format function.
+		$data  = $this->format($results , $context, $viewerId, true, 'onPrepareStream', array());
+		return $data;
+	}
+
 	/**
 	 * Retrieves a list of stream item.
 	 *
@@ -1381,7 +1537,8 @@ class SocialStream
 	{
 		$users = array();
 
-		// lets process default values
+		// Lets process default values
+		$actorId = isset( $options['actorId'] ) 	? $options['actorId'] : null;
 		$userId = isset( $options['userId'] ) 	? $options['userId'] : null;
 		$listId = isset( $options['listId'] ) 	? $options['listId'] : null;
 		$profileId = isset($options['profileId']) ? $options['profileId'] : null;
@@ -1394,7 +1551,8 @@ class SocialStream
 		$guest = isset( $options['guest'] )   ? $options['guest'] : false;
 		$tag = isset( $options[ 'tag' ] ) ? $options[ 'tag' ] : false;
 		$ignoreUser = isset( $options[ 'ignoreUser' ] ) ? $options[ 'ignoreUser' ] : false ;
-
+		$onlyModerated = isset($options['onlyModerated']) ? $options['onlyModerated'] : false;
+		$noSticky = isset( $options[ 'nosticky' ] ) ? $options[ 'nosticky' ] : false ;
 
 		// Cluster stream items
 		$clusterId = isset($options['clusterId']) ? $options['clusterId'] : null;
@@ -1441,33 +1599,42 @@ class SocialStream
 			$isBookmark 	= true;
 		}
 
+		$isSticky = false;
+		$userStickyOnly = false;
+		if ($type == 'sticky') {
+			$this->filter 	= 'sticky';
+
+			// reset the type to user and update the isSticky flag.
+			$type 		= SOCIAL_TYPE_USER;
+			$isSticky 	= true;
+			$userStickyOnly = true;
+		}
+
 		if ($listId) {
-			$this->filter 	= 'list';
+			$this->filter = 'list';
 		}
 
 		if ($guest) {
-			$this->filter 	= 'everyone';
+			$this->filter = 'everyone';
 		}
 
-		if( $tag && !is_array( $tag ) )
-		{
-			$tag = array( $tag );
-		}
+		// Ensure that the tag is an array
+		$tag = FD::makeArray($tag);
 
-		if( $tag )
-		{
-			$this->filter 	= 'custom';
+		if ($tag) {
+			$this->filter = 'custom';
 		}
 
 		// Get stream model to fetch those records.
-		$model	= FD::model('Stream');
-		$data	= array();
+		$model = FD::model('Stream');
+		$data = array();
 
 		//$this->data		= $this->format( $result , $context, $viewerId );
 		$keepSearching = true;
 		$tryLimit      = 2;
 
 		$options	= array(
+								'actorid' 		=> $actorId,
 								'userid' 		=> $userId,
 								'list' 			=> $listId,
 								'profileId' 	=> $profileId,
@@ -1478,6 +1645,9 @@ class SocialStream
 								'viewer' 		=> $viewerId,
 								'isfollow' 		=> $isFollow,
 								'isbookmark'	=> $isBookmark,
+								'issticky'		=> $isSticky,
+								'nosticky'		=> $noSticky,
+								'userstickyonly' => $userStickyOnly,
 								'direction' 	=> $direction,
 								'guest' 		=> $guest,
 								'tag'			=> $tag,
@@ -1486,26 +1656,25 @@ class SocialStream
 								'clusterType' 	=> $clusterType,
 								'clusterCategory' => $clusterCategory,
 								'startlimit'	=> $startlimit,
-								'limit'			=> $limit
+								'limit'			=> $limit,
+								'onlyModerated' => $onlyModerated
 							);
 
+// var_dump($options);exit;
 
 		//trigger onBeforeGetStream
 		$this->triggerBeforeGetStream($options);
 
 		// Bind the context to the object
-		$tmpContext = '';
+		$tmpContext = $options['context'];
 
 		if (is_array($options['context'])) {
 			$tmpContext = (count($options['context']) > 1) ? implode( '|', $options['context'] ) : $options['context'][0];
-		} else {
-			$tmpContext = $options['context'];
 		}
 
-		$this->currentContext 	= $tmpContext;
+		$this->currentContext = $tmpContext;
 
 		// since we allow options override, we need to perform checking only after the triggering
-
 		$isCluster = ( $options['clusterId'] || $options['clusterType'] || $options['clusterCategory'] ) ? true : false ;
 		$this->isCluster = $isCluster;
 
@@ -1513,13 +1682,12 @@ class SocialStream
 
 		$this->startlimit = $startlimit;
 
-		$result     = null;
-
+		$result = null;
 
 		if ($isCluster) {
-			$result 	= $model->getClusterStreamData($options);
+			$result = $model->getClusterStreamData($options);
 		} else {
-			$result		= $model->getStreamData($options);
+			$result = $model->getStreamData($options);
 		}
 
 		// If there's nothing, just return a boolean value.
@@ -1553,7 +1721,7 @@ class SocialStream
 		// now we are safe to run the format function.
 
 		$requireSearch  = $this->format($result , $context, $viewerId, true, 'onPrepareStream', $displayOptions);
-		$this->data 	= $requireSearch;
+		$this->data = $requireSearch;
 
 		// triggering onAfterGetStream
 		$this->triggerAfterGetStream( $this->data );
@@ -1660,18 +1828,35 @@ class SocialStream
 			$theme->set('story', $this->story);
 		}
 
+		//stickies posts
+		if (isset($this->stickies) && $this->stickies) {
+			$theme->set('stickies', $this->stickies);
+		}
+
 		if ($config->get('stream.pagination.style') == 'page') {
 			$theme->set( 'pagination', $this->getPagination() );
 		}
+
+		// Determines if we should display the translations.
+		$my = ES::user();
+		$language = $my->getLanguage();
+		$siteLanguage = JFactory::getLanguage();
+		$showTranslations = false;
+
+		if (($language != $siteLanguage->getTag()) || $config->get('stream.translations.explicit')) {
+			$showTranslations = true;
+		}
+
+		$theme->set('showTranslations', $showTranslations);
 
 		if ($loadmore) {
 			if ($this->data && is_array($this->data)) {
 				foreach ($this->data as $stream) {
 
 					if ($contentOnly) {
-						$output .= $theme->loadTemplate( 'site/stream/default.item.content' , array( 'stream' => $stream ) );
+						$output .= $theme->loadTemplate('site/stream/default.item.content', array('stream' => $stream, 'showTranslations' => $showTranslations));
 					} else {
-						$output .= $theme->loadTemplate( 'site/stream/default.item' , array( 'stream' => $stream ) );
+						$output .= $theme->loadTemplate('site/stream/default.item', array('stream' => $stream, 'showTranslations' => $showTranslations));
 					}
 
 				}
@@ -1681,45 +1866,44 @@ class SocialStream
 			if ($this->singleItem) {
 
 				if (empty( $this->data ) || count( $this->data ) == 0 || $this->data === true) {
-					$output .= $theme->output( 'site/stream/default.unavailable' );
+					$output .= $theme->output('site/stream/default.unavailable');
 
 					return $output;
 				}
 
 
-				$theme->set( 'stream' , $this->data[ 0 ] );
+				$theme->set('stream', $this->data[0]);
 
 				if ($contentOnly) {
-					$output 	= $theme->output('site/stream/default.item.content');
+					$output = $theme->output('site/stream/default.item.content');
 				} else {
-					$output 	= $theme->output('site/stream/default.item');
+					$output = $theme->output('site/stream/default.item');
 				}
 
 			} else {
+
 				// Define empty messages here
-				$empty 		= ( $customEmptyMsg ) ? $customEmptyMsg : JText::_( 'COM_EASYSOCIAL_STREAM_NO_STREAM_ITEM' );
+				$empty = $customEmptyMsg ? $customEmptyMsg : JText::_('COM_EASYSOCIAL_STREAM_NO_STREAM_ITEM');
 
-				if( $this->filter == 'follow' )
-				{
-					$empty 	= ( $customEmptyMsg ) ? $customEmptyMsg : JText::_( 'COM_EASYSOCIAL_STREAM_NO_STREAM_ITEM_FROM_FOLLOWING' );
+				if ($this->filter == 'follow') {
+					$empty = $customEmptyMsg ? $customEmptyMsg : JText::_('COM_EASYSOCIAL_STREAM_NO_STREAM_ITEM_FROM_FOLLOWING');
 				}
 
-				if( $this->filter == 'list' )
-				{
-					$empty	= ( $customEmptyMsg ) ? $customEmptyMsg : JText::_( 'COM_EASYSOCIAL_STREAM_NO_STREAM_ITEM_FROM_LIST' );
+				if ($this->filter == 'list') {
+					$empty = $customEmptyMsg ? $customEmptyMsg : JText::_('COM_EASYSOCIAL_STREAM_NO_STREAM_ITEM_FROM_LIST');
 				}
 
-				$theme->set( 'empty'	, $empty );
-				$theme->set( 'streams' , $this->data );
-				$theme->set( 'nextdate' , $this->nextdate );
-				$theme->set( 'enddate' , $this->enddate );
 
-				$theme->set( 'guest' , $isGuest );
-				$theme->set( 'nextlimit', $this->startlimit );
 
-				$theme->set( 'iscluster', $this->isCluster );
+				$theme->set('empty', $empty);
+				$theme->set('streams', $this->data);
+				$theme->set('nextdate', $this->nextdate);
+				$theme->set('enddate', $this->enddate);
+				$theme->set('guest', $isGuest);
+				$theme->set('nextlimit', $this->startlimit);
+				$theme->set('iscluster', $this->isCluster);
 
-				$output 	= $theme->output( 'site/stream/default' );
+				$output = $theme->output('site/stream/default');
 			}
 		}
 
@@ -1829,23 +2013,20 @@ class SocialStream
 		// By default return true.
 		$result 	= true;
 
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'STREAMS: No applications loaded.' );
+		if (!$state) {
+			return false;
 		}
-		else
-		{
-			// Only go through dispatcher when there is some apps loaded, otherwise it's pointless.
-			$dispatcher		= FD::dispatcher();
 
-			// Pass arguments by reference.
-			$args 			= array( &$item );
+		// Only go through dispatcher when there is some apps loaded, otherwise it's pointless.
+		$dispatcher		= FD::dispatcher();
 
-			// @trigger: onPrepareStream for the specific context
-			$dispatcher->trigger( SOCIAL_APPS_GROUP_USER , 'onPrepareStreamActions' , $args , $item->context );
+		// Pass arguments by reference.
+		$args 			= array( &$item );
 
-			// @TODO: Check each actions and ensure that they are instance of ISocialStreamAction
-		}
+		// @trigger: onPrepareStream for the specific context
+		$dispatcher->trigger( SOCIAL_APPS_GROUP_USER , 'onPrepareStreamActions' , $args , $item->context );
+
+		// @TODO: Check each actions and ensure that they are instance of ISocialStreamAction
 
 		return true;
 	}
@@ -1859,7 +2040,7 @@ class SocialStream
 	private function onPrepareStream( SocialStreamItem &$item, $includePrivacy = true )
 	{
 		// Get apps library.
-		$result = $this->onPrepareEvent( 'onPrepareStream', $item, $includePrivacy );
+		$result = $this->onPrepareEvent('onPrepareStream', $item, $includePrivacy);
 		return $result;
 	}
 
@@ -1876,49 +2057,54 @@ class SocialStream
 		return $result;
 	}
 
-
-	private function onPrepareEvent( $eventName, SocialStreamItem &$item, $includePrivacy = true )
+	/**
+	 * Prepares the stream by rendering apps
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function onPrepareEvent($eventName, SocialStreamItem &$item, $includePrivacy = true)
 	{
-		$view  = JRequest::getCmd( 'view', '' );
+		$view = $this->input->get('view', '', 'cmd');
 
 		// Get apps library.
-		$apps 	= FD::getInstance( 'Apps' );
+		$apps = ES::apps();
 
 		// Determine the app group
-		$group 	= SOCIAL_APPS_GROUP_USER;
+		$group = SOCIAL_APPS_GROUP_USER;
 
 		// If it is in the group view we should render the apps based on the appropriate group
 		if ($view && ($view == 'groups' || $view == 'events' || $view == 'stream') && $item->cluster_type) {
-			$group	= $item->cluster_type;
+			$group = $item->cluster_type;
 		}
 
 		// Try to load user apps
-		$state 	= $apps->load( $group );
+		$state = $apps->load($group);
 
 		// By default return true.
-		$result 	= true;
+		$result = true;
 
 		if (!$state) {
 			return $result;
 		}
 
 		// Only go through dispatcher when there is some apps loaded, otherwise it's pointless.
-		$dispatcher		= FD::dispatcher();
+		$dispatcher = ES::dispatcher();
 
 		// Pass arguments by reference.
-		$args 			= array( &$item, $includePrivacy );
+		$args = array(&$item, $includePrivacy);
 
 		// @trigger: onPrepareStream for the specific context
-		$result 		= $dispatcher->trigger( $group , $eventName , $args , $item->context );
-
+		$result = $dispatcher->trigger($group, $eventName, $args, $item->context);
 
 		return $result;
 	}
 
 	private function triggerAfterGetStream( &$items )
 	{
-		if(! $items )
-		{
+		if (!$items) {
 			return;
 		}
 
@@ -1936,10 +2122,7 @@ class SocialStream
 		// By default return true.
 		$result 	= true;
 
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'STREAMS: No applications loaded.' );
-
+		if (!$state) {
 			return $result;
 		}
 
@@ -1983,9 +2166,7 @@ class SocialStream
 		// By default return true.
 		$result 	= true;
 
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'STREAMS: No applications loaded.' );
+		if (!$state) {
 			return false;
 		}
 
@@ -1994,6 +2175,7 @@ class SocialStream
 
 		// Pass arguments by reference.
 		$args 			= array( &$options, $view );
+
 		$dispatcher->trigger( $group , 'onBeforeGetStream' , $args );
 	}
 

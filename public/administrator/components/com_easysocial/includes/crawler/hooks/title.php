@@ -19,10 +19,9 @@ class SocialCrawlerTitle
 	 * @params	string $contents	The html contents that needs to be parsed.
 	 * @return	boolean				True on success false otherwise.
 	 */
-	public function process( $parser , &$contents )
+	public function process($parser, &$contents)
 	{
-		foreach( $parser->find( 'title' ) as $title )
-		{
+		foreach ($parser->find('title') as $title) {
 			return $title->innertext;
 		}
 	}

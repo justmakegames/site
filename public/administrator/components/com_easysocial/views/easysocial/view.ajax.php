@@ -41,6 +41,41 @@ class EasySocialViewEasySocial extends EasySocialAdminView
 	}
 
 	/**
+	 * Retrieves metadata about EasySocial
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getMetaData()
+	{
+		// Get the current version.
+		$local = ES::getLocalVersion();
+		$latest = ES::getOnlineVersion();
+		$outdated = (version_compare($local, $latest)) === -1;
+
+		$model = ES::model('News');
+		$news = $model->getNews();
+
+		if ($news->apps) {
+			foreach ($news->apps as &$appItem) {
+				$date = ES::date($appItem->updated);
+
+				$appItem->lapsed = $date->toLapsed();
+				$appItem->day = $date->format('d');
+				$appItem->month = $date->format('M');
+			}
+		}
+
+		$theme = FD::themes();
+		$theme->set('items', $news->apps);
+		$appNews = $theme->output('admin/news/apps');
+
+		return $this->ajax->resolve($appNews, $local, $latest, $outdated);
+	}
+
+	/**
 	 * Retrieves a list of countries
 	 *
 	 * @since	1.2
@@ -68,44 +103,6 @@ class EasySocialViewEasySocial extends EasySocialAdminView
 	}
 
 	/**
-	 * Main method to display the dashboard view.
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @return	null
-	 *
-	 * @author	Mark Lee <mark@stackideas.com>
-	 */
-	public function versionChecks( $localVersion , $onlineVersion )
-	{
-		$ajax 	= FD::ajax();
-
-		$state 	= version_compare( $localVersion , $onlineVersion );
-
-		$theme 	= FD::themes();
-
-		$theme->set( 'localVersion'		, $localVersion );
-		$theme->set( 'onlineVersion' 	, $onlineVersion );
-
-		$contents 	= '';
-
-		$outdated 	= $state === -1;
-
-		// Requires updating
-		if( $outdated )
-		{
-			$contents 	= $theme->output( 'admin/easysocial/version.outdated' );
-		}
-		else
-		{
-			// Version up to date
-			$contents 	= $theme->output( 'admin/easysocial/version.latest' );
-		}
-
-		return $ajax->resolve( $contents , $outdated , $localVersion , $onlineVersion );
-	}
-
-	/**
 	 * Confirmation to purge cache
 	 *
 	 * @since	1.0
@@ -113,12 +110,9 @@ class EasySocialViewEasySocial extends EasySocialAdminView
 	 */
 	public function confirmPurgeCache()
 	{
-		$ajax 	= FD::ajax();
+		$theme = ES::themes();
+		$contents = $theme->output('admin/easysocial/dialog.purge.cache');
 
-		$theme 	= FD::themes();
-
-		$contents 	= $theme->output( 'admin/easysocial/dialog.purge.cache' );
-
-		$ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 }

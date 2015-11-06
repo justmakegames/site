@@ -191,7 +191,7 @@ EasySocial.module('site/events/browser', function($) {
                     // If no location, then we need to resolve a location first
 
                     // Show a detecting location
-                    self.content().html('<div class="es-detecting-location"><i class="ies-earth es-muted"></i> ' + $.language('COM_EASYSOCIAL_EVENTS_DETECTING_LOCATION') + ' <i class="icon-loader"></i></div>');
+                    self.content().html('<div class="es-detecting-location"><i class="fa fa-globe es-muted"></i> ' + $.language('COM_EASYSOCIAL_EVENTS_DETECTING_LOCATION') + ' <i class="icon-loader"></i></div>');
 
                     // Show the image of "detecting location"
 

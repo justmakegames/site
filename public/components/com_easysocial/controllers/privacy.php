@@ -81,28 +81,40 @@ class EasySocialControllerPrivacy extends EasySocialController
 		$pid		= JRequest::getVar( 'pid' );
 		$customIds 	= JRequest::getVar( 'custom', '' );
 		$streamid 	= JRequest::getVar( 'streamid', '' );
+		$userid 	= JRequest::getVar( 'userid', '' );
+		$pitemid 	= JRequest::getVar( 'pitemid', '' );
+
 
 		$view 	= FD::view( 'Privacy', false );
 
 		// If id is invalid, throw an error.
-		if( !$uid )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'Privacy Log: Unable to update privacy on item because id provided is invalid.' );
-
+		if (!$uid) {
 			$view->setError( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_ID' ) );
 			return $view->call( __FUNCTION__ );
 		}
 
+		// we need to check if userid is belong to this privacy item or not.
+		$oUserId = $my->id;
+
+		if($userid && $userid != $my->id) {
+			if ($streamid) {
+				$streamTbl = FD::table('Stream');
+				$streamTbl->load($streamid);
+
+				$oUserId = $streamTbl->actor_id;
+			} else if ($pitemid) {
+				$pItemTbl = FD::table('PrivacyItems');
+				$pItemTbl->load($pitemid);
+
+				$oUserId = $pItemTbl->user_id;
+			}
+		}
+
 		$model = FD::model( 'Privacy' );
-		$state = $model->update( $my->id, $pid, $uid, $utype, $value, $customIds );
+		$state = $model->update( $oUserId, $pid, $uid, $utype, $value, $customIds );
 
 		// If there's an error, log this down.
-		if( !$state )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'Privacy Log: Unable to update privacy on item because model returned the error, ' . $model->getError() );
-
+		if (!$state) {
 			$view->setError( $model->getError() );
 
 			return $view->call( __FUNCTION__ );

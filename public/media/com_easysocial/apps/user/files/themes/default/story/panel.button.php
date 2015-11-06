@@ -11,8 +11,9 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<i class="ies-folder-3" 
+<i class="fa fa-folder" 
     data-story-attachment-icon 
     data-es-provide="tooltip" 
     data-placement="top" 
-    data-original-title="<?php echo JText::_('APP_USER_FILES_PANEL_TOOLTIP', true);?>"></i>
+    data-original-title="<?php echo FD::_('APP_USER_FILES_PANEL_TOOLTIP', true);?>"></i>
+<span><?php echo FD::_('COM_EASYSOCIAL_STORY_FILES', true);?></span>

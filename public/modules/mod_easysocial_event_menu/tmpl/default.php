@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                     <?php if ($params->get('show_edit', true)){ ?>
                     <div class="user-edit">
-                        <a href="<?php echo $event->getPermalink(true, false, 'edit');?>"><i class="ies-pencil"></i></a>
+                        <a href="<?php echo $event->getPermalink(true, false, 'edit');?>"><i class="fa fa-pencil"></i></a>
                     </div>
                     <?php } ?>
                 </div>

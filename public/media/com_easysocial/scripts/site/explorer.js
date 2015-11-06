@@ -20,7 +20,7 @@ EasySocial.module("site/explorer", function($) {
 		EVENT_FILE_USE = "fileUse",
 		EVENT_SERVICE_REQUEST = "serviceRequest";
 
-	$.template("explorer/folder", '<div class="fd-explorer-folder" data-id="[%== data.id %]">[%== data.name %]<a href="javascript: void(0);" class="fd-folder-remove-button" data-fd-explorer-delete-folder-button><i class="ies-cancel-2"></i></a></div>');
+	$.template("explorer/folder", '<div class="fd-explorer-folder" data-id="[%== data.id %]">[%== data.name %]<a href="javascript: void(0);" class="fd-folder-remove-button" data-fd-explorer-delete-folder-button><i class="fa fa-remove"></i></a></div>');
 
 	$.template("explorer/fileGroup", '<div class="fd-explorer-file-group" data-folder="[%== data.id %]" data-plupload-dropsite></div>');
 

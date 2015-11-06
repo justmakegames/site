@@ -89,7 +89,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				</div>
 
 				<?php if( $this->config->get( 'registrations.enabled' ) ){ ?>
-					<?php if ($this->template->get('dashboard_mini_registration', true)) { ?>
+					<?php if ($this->config->get('registrations.mini.enabled', false)) { ?>
 						<div class="col-md-6 register-column">
 							<form method="post" action="<?php echo JRoute::_( 'index.php' );?>" data-registermini-form>
 								<div class="register-wrap <?php echo empty( $fields ) ? ' is-empty' : '';?>">
@@ -129,12 +129,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 								<div>
 									<a class="btn btn-es-primary btn-large btn-block" href="<?php echo FRoute::registration();?>"><?php echo JText::_( 'COM_EASYSOCIAL_LOGIN_REGISTER_NOW_BUTTON' );?></a>
-
-
-									<?php if( $this->config->get( 'oauth.facebook.registration.enabled' ) && $this->config->get( 'registrations.enabled' )
-											&& $this->config->get( 'oauth.facebook.secret' )
-											&& $this->config->get( 'oauth.facebook.app' )
-										){ ?>
+									
+									<?php if( $this->config->get( 'oauth.facebook.registration.enabled' ) && $this->config->get( 'registrations.enabled' ) ){ ?>
 										<div class="text-center es-signin-social">
 											<p class="line">
 												<strong><?php echo JText::_( 'COM_EASYSOCIAL_OR_REGISTER_WITH_YOUR_SOCIAL_IDENTITY' );?></strong>

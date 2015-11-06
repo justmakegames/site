@@ -65,7 +65,7 @@ EasySocial.module('admin/regions/init', function($) {
             },
 
             statuses: ['label-danger', 'label-success', 'label-warning'],
-            icons: ['ies-warning-2', 'ies-checkmark', 'ies-wrench-3'],
+            icons: ['fa-exclamation-triangle', 'fa-check', 'fa-wrench'],
 
             '{self} updateStatus': function(el, ev, state) {
                 var status = self.status(),

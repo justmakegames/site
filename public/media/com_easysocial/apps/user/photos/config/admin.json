@@ -31,6 +31,14 @@
 				"name"		: "uploadPhotos",
 				"type"		: "boolean",
 				"default"	: true
+			},
+			{
+				"label": "APP_PHOTOS_USER_STREAM_MAX_CHARACTERS",
+				"tooltip": "APP_PHOTOS_USER_STREAM_MAX_CHARACTERS_DESC",
+				"name": "stream_max_chars",
+				"class": "input-mini center",
+				"type": "text",
+				"default": "250"
 			}
 		]
 	},
@@ -53,6 +61,14 @@
 				"type"		: "boolean",
 				"default"	: true
 			},
+			{
+				"label"		: "APP_USER_PHOTOS_SETTINGS_WIDGETS_PHOTOS_LISTING_TOTAL",
+				"tooltip"	: "APP_USER_PHOTOS_SETTINGS_WIDGETS_PHOTOS_LISTING_TOTAL_DESC",
+				"name"		: "photo_widget_listing_total",
+				"type"		: "text",
+				"default"	: 20,
+				"class"		: "input-mini text-center"
+			},			
 			{
 				"label"		: "APP_USER_PHOTOS_SETTINGS_WIDGETS_PROFILE_ORDERING",
 				"tooltip"	: "APP_USER_PHOTOS_SETTINGS_WIDGETS_PROFILE_ORDERING_DESC",

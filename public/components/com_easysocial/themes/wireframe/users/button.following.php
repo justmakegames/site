@@ -11,4 +11,4 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<a href="javascript:void(0);" class="btn btn-es-primary btn-sm"><i class="ies-checkmark ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWING_BUTTON' ); ?></a>
+<a href="javascript:void(0);" class="btn btn-es-primary btn-sm"><i class="fa fa-check  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_FOLLOWING_BUTTON' ); ?></a>

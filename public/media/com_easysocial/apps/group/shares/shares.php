@@ -105,7 +105,7 @@ class SocialGroupAppShares extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#e74c3c';
-		$obj->icon 		= 'ies-refresh';
+		$obj->icon 		= 'fa fa-refresh';
 		$obj->label 	= 'APP_GROUP_REPOST_STREAM_TITLE';
 
 		return $obj;
@@ -276,7 +276,7 @@ class SocialGroupAppShares extends SocialAppItem
 		}
 
 		// Decorate the stream item
-		$item->fonticon 	= 'ies-refresh';
+		$item->fonticon 	= 'fa-refresh';
 		$item->color 		= '#e74c3c';
 		$item->label 		= JText::_('APP_GROUP_REPOST_STREAM_TITLE');
 		$item->title 		= $helper->getTitle();

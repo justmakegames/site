@@ -26,25 +26,19 @@ class EasySocialControllerEasySocial extends EasySocialController
 	public function sync()
 	{
 		// FD::checkToken();
+		$affected = FD::syncDB();
 
-		$affected	= FD::syncDB();
-
-		$view 		= $this->getCurrentView();
-
-		if( !$affected )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_NO_COLUMNS_TO_UPDATE' ) );
-		}
-		else
-		{
-			$view->setMessage( JText::sprintf( 'COM_EASYSOCIAL_UPDATED_COLUMNS' , $affected ) );
+		if (!$affected) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_NO_COLUMNS_TO_UPDATE'));
+		} else {
+			$this->view->setMessage(JText::sprintf('COM_EASYSOCIAL_UPDATED_COLUMNS', $affected));
 		}
 
-		return $view->call( __FUNCTION__ );
+		return $this->view->call( __FUNCTION__ );
 	}
 
 	/**
-	 *
+	 * Retrieves a list of unique countries
 	 *
 	 * @since	1.2
 	 * @access	public
@@ -56,40 +50,12 @@ class EasySocialControllerEasySocial extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		// Get the current view
-		$view 		= $this->getCurrentView();
-
-		$model 		= FD::model( 'Users' );
+		$model = FD::model('Users');
 
 		// Get a list of countries
-		$countries 		= $model->getUniqueCountries();
+		$countries = $model->getUniqueCountries();
 
-		return $view->call( __FUNCTION__ , $countries );
-	}
-
-	/**
-	 * Checks with the server for the current and latest version from the server.
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function versionChecks()
-	{
-		// Check for request forgeries
-		FD::checkToken();
-
-		// Get the current view
-		$view 		= $this->getCurrentView();
-
-		// Get the current version.
-		$localVersion	= FD::getLocalVersion();
-
-		// Get the latest version online.
-		$onlineVersion 	= FD::getOnlineVersion();
-
-		return $view->call( __FUNCTION__ , $localVersion , $onlineVersion );
+		return $this->view->call(__FUNCTION__, $countries);
 	}
 
 	/**
@@ -105,26 +71,19 @@ class EasySocialControllerEasySocial extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		// Get the current view
-		$view 	= $this->getCurrentView();
+		// Determines if we should purge all javascripts.
+		$purgeScripts = $this->input->get('script-cache', false, 'bool');
 
-		$purgeJS	= JRequest::getBool( 'script-cache' );
-
-		if( $purgeJS )
-		{
-			// Clear javascript files
-			$configuration	= FD::getInstance( 'Configuration' );
-			$configuration->purge();
-
-			$compiler = FD::getInstance( 'Compiler' );
-			$compiler->purgeResources();
+		// Clear javascript files
+		if ($purgeScripts) {
+			FD::purgeJavascriptResources();
 		}
 
-		$purgeLess	= JRequest::getBool( 'stylesheet-cache' );
+		// Determines if we should purge the cached less stylesheets
+		$purgeCssCache = $this->input->get('stylesheet-cache', false, 'bool');
 
-		if( $purgeLess )
-		{
-			// Compile site themes
+		if ($purgeCssCache) {
+
 			$templates = JFolder::folders(EASYSOCIAL_SITE_THEMES);
 
 			foreach ($templates as $template) {
@@ -144,10 +103,10 @@ class EasySocialControllerEasySocial extends EasySocialController
 			}
 		}
 
-		$message 	= JText::sprintf( 'COM_EASYSOCIAL_CACHE_PURGED_FROM_SITE' );
+		$message = JText::sprintf('COM_EASYSOCIAL_CACHE_PURGED_FROM_SITE');
 
-		$view->setMessage( $message , SOCIAL_MSG_SUCCESS );
+		$this->view->setMessage($message, SOCIAL_MSG_SUCCESS);
 
-		return $view->call( __FUNCTION__ );
+		return $this->view->call(__FUNCTION__);
 	}
 }

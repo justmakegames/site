@@ -13,8 +13,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="app-members app-groups" data-group-members data-id="<?php echo $group->id;?>">
 
-	<div class="es-filterbar">
-		<div class="h5 pull-left filterbar-title"><?php echo JText::_( 'APP_GROUP_MEMBERS_SUBTITLE' ); ?></div>
+	<div class="es-filterbar row-table">
+		<div class="col-cell filterbar-title"><?php echo JText::_( 'APP_GROUP_MEMBERS_SUBTITLE' ); ?></div>
 	</div>
 
 	<div class="app-contents-wrap">

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 FD::import( 'site:/views/views' );
 
@@ -25,28 +25,35 @@ class EasySocialViewSharing extends EasySocialSiteView
 	 */
 	public function shareDialog()
 	{
-		$ajax		= FD::ajax();
+		$url = $this->input->get('url', '', 'default');
+		$title = $this->input->get('title', '', 'default');
+		$summary = $this->input->get('summary', '', 'default');
 
-		$url		= JRequest::getVar( 'url' );
-		$title		= JRequest::getVar( 'title' );
-		$summary	= JRequest::getVar( 'summary' );
+		// Load up the sharing library
+		$options = array('url' => $url, 'title' => $title, 'summary' => $summary);
+		$sharing = FD::sharing($options);
 
-		$sharing	= FD::get( 'Sharing' , array( 'url' => $url, 'title' => $title, 'summary' => $summary ) );
-		$contents	= $sharing->getContents();
+		// Get the contents
+		$contents = $sharing->getContents();
 
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
-	public function send( $state, $msg = '' )
+	/**
+	 * 
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function send($state, $msg = '')
 	{
-		if( $state )
-		{
-			FD::ajax()->resolve();
+		if ($state) {
+			return $this->ajax->resolve();
 		}
-		else
-		{
-			FD::ajax()->reject( $msg );
-		}
+
+		return $this->ajax->reject($msg);
 
 		return true;
 	}

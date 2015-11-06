@@ -27,14 +27,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					data-placement="top"
 					data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_AVATAR_SET_DEFAULT_AVATAR' , true );?>"
 					data-avatar-default
-				><i class="ies-star ies-small"></i> </a>
+				><i class="fa fa-star "></i> </a>
 
 				<a href="javascript:void(0);" class="btn btn-default btn-xs btn-delete"
 					data-es-provide="tooltip"
 					data-placement="top"
 					data-avatar-delete
 					data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_AVATAR_DELETE_AVATAR' , true );?>" >
-					<i class="ies-remove ies-small"></i>
+					<i class="fa fa-remove "></i>
 				</a>
 
 				<?php if( $avatar->getState() == SOCIAL_STATE_DEFAULT ) { ?>

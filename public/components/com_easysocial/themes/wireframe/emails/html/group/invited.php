@@ -37,12 +37,19 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <a href="<?php echo $groupLink;?>" style="text-decoration:none;"><?php echo $groupName;?></a>
         </h1>
 
-        <table align="center" width="96px" border="0" cellpadding="0" cellspacing="0">
-        <tbody><tr>
-        <td width="96" height="96" style="border-collapse:collapse;"><span style="display:block;border:1px solid #f5f5f5;width:96px;height:96px;padding:3px;border-radius:50%;background:#fff;">
-            <img src="<?php echo $groupAvatar;?>" alt="" style="width:96px;height: 96px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff; "/>
-        </span></td></tr>
-        </tbody></table>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
+        <tr>
+        <td align="center">
+            <table align="center" width="96px" border="0" cellpadding="0" cellspacing="0">
+            <tbody><tr>
+            <td width="96" height="96" style="border-collapse:collapse;"><span style="display:block;border:1px solid #f5f5f5;width:96px;height:96px;padding:3px;border-radius:50%;background:#fff;">
+                <img src="<?php echo $groupAvatar;?>" alt="" style="width:96px;height: 96px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff; "/>
+            </span></td></tr>
+            </tbody>
+            </table>
+        </td>
+        </tr>
+        </table>
 
         <a href="<?php echo $acceptLink;?>" style="
         display:inline-block;
@@ -56,7 +63,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         background-image: linear-gradient(to bottom, #91C2EA, #6D9CCA);
         background-repeat: repeat-x;
         border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
         border-style: solid;
         border-width: 1px;
         box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);

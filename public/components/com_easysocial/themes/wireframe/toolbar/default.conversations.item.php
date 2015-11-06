@@ -39,7 +39,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <?php } else { ?>
 	<li class="requestItem empty center">
 		<div class="mt-20 pt-20 small">
-			<i class="ies-mail-3 ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_CONVERSATIONS_NO_CONVERSATIONS_YET' ); ?>
+			<i class="fa fa-envelope mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_CONVERSATIONS_NO_CONVERSATIONS_YET' ); ?>
 		</div>
 	</li>
 <?php } ?>

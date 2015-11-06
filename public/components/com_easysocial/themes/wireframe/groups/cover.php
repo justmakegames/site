@@ -50,7 +50,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
                 <div class="dropdown_ es-cover-menu" data-cover-menu>
                     <a href="javascript:void(0);" data-bs-toggle="dropdown" class="dropdown-toggle_ es-flyout-button">
-                        <i class="ies-cog-2"></i><?php echo JText::_( 'COM_EASYSOCIAL_PHOTOS_EDIT_COVER' );?></span>
+                        <i class="fa fa-cog"></i><?php echo JText::_( 'COM_EASYSOCIAL_PHOTOS_EDIT_COVER' );?></span>
                     </a>
                     <ul class="dropdown-menu es-cover-dropdown-menu">
                         <li data-cover-upload-button>
@@ -71,11 +71,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
                 <a href="javascript:void(0);"
                    class="es-cover-done-button es-flyout-button"
-                   data-cover-done-button><i class="ies-checkmark"></i><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_COVER_DONE"); ?></a>
+                   data-cover-done-button><i class="fa fa-check"></i><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_COVER_DONE"); ?></a>
 
                 <a href="javascript:void(0);"
                    class="es-cover-cancel-button es-flyout-button"
-                   data-cover-cancel-button><i class="ies-cancel-2"></i><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_COVER_CANCEL"); ?></a>
+                   data-cover-cancel-button><i class="fa fa-remove"></i><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_COVER_CANCEL"); ?></a>
             </div>
             <?php } ?>
 

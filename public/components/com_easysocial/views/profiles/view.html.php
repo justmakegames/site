@@ -37,7 +37,14 @@ class EasySocialViewProfiles extends EasySocialSiteView
 		}
 
 		$model 	= FD::model('Profiles');
-		$randomMembers = $model->getMembers($profile->id, array('randomize' => true, 'limit' => 20));
+
+		$randomMembers = array();
+
+		// If user does not have community access, we should not display the random members
+		if ($profile->community_access) {
+			$randomMembers = $model->getMembers($profile->id, array('randomize' => true, 'limit' => 20));
+		}
+
 		$totalUsers = $profile->getMembersCount();
 
 		// Get statistics of user registration for this profile type

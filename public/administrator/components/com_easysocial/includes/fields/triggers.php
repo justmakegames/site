@@ -165,11 +165,7 @@ class SocialFieldTriggers
 
 
 			// If file doesn't exist, ignore this
-			if( !JFile::exists( $filePath ) )
-			{
-				// @TODO: Log error when the file of the field does not exist.
-				FD::logError( __FILE__ , __LINE__ , 'FIELDS: file ' . $filePath . ' not found' );
-
+			if( !JFile::exists( $filePath ) ) {
 				$this->loaded[ $element ]	= false;
 				continue;
 			}
@@ -181,11 +177,7 @@ class SocialFieldTriggers
 			$className 	= 'SocialFields' . ucfirst( $fieldGroup ) . ucfirst( $field->element );
 
 			// If the class doesn't exist in this context, skip the whole loading.
-			if( !class_exists( $className ) )
-			{
-				// Log error when the class does not exist.
-				FD::logError( __FILE__ , __LINE__ , 'FIELDS: Field element class not found, ' . $className );
-
+			if( !class_exists( $className ) ) {
 				$this->loaded[ $element ]	= false;
 				continue;
 			}
@@ -197,11 +189,7 @@ class SocialFieldTriggers
 			$fieldObj 	= new $className( $config );
 
 			// If the class is not part of our package, skip this.
-			if( !( $fieldObj instanceof SocialFieldItem ) )
-			{
-				// Log error when the class does not exist.
-				FD::logError( __FILE__ , __LINE__ , 'FIELDS: Field element class ' . $className . ' not a descendent of SocialFieldItem');
-
+			if( !( $fieldObj instanceof SocialFieldItem ) ) {
 				// @TODO: Log error when class is not part of the package.
 				$this->loaded[ $field->element ]	= false;
 				continue;
@@ -252,20 +240,17 @@ class SocialFieldTriggers
 	private function onEvent($fieldGroup, &$fields, &$data = array(), $callback = null)
 	{
 		// If there is no event assigned, then don't proceed
-		if (empty($this->event))
-		{
+		if (empty($this->event)) {
 			return false;
 		}
 
 		// If no fields are given, then don't proceed
-		if (!$fields)
-		{
+		if (!$fields) {
 			return false;
 		}
 
 		// Init the user if no target user is provided
-		if (empty($this->user))
-		{
+		if (empty($this->user)) {
 			$this->user = FD::user();
 		}
 
@@ -275,19 +260,18 @@ class SocialFieldTriggers
 
 		$result = array();
 
-		foreach ($fields as &$field)
-		{
-			if (empty($this->loaded[$field->element]))
-			{
+		foreach ($fields as &$field) {
+			
+			if (empty($this->loaded[$field->element])) {
 				// Show error if this app is not found
 				// This is causing more issues than expected. Hence we only show the error in onSample will do.
 				// FD::info()->set(false, JText::sprintf('COM_EASYSOCIAL_FIELDS_INVALID_APP_FOR_FIELD', $field->id), SOCIAL_MSG_ERROR);
 				continue;
 			}
 
-			$fieldApp	= $this->loaded[$field->element];
+			$fieldApp = $this->loaded[$field->element];
 
-			$params		= $lib->getFieldConfigValues( $field );
+			$params = $lib->getFieldConfigValues($field);
 
 			// Manually check for parameters enforcemnet
 			foreach ($this->params as $key => $val) {
@@ -305,25 +289,22 @@ class SocialFieldTriggers
 				'unique_key'	=> $field->unique_key
 			);
 
-			if (isset($field->profile_id))
-			{
+			if (isset($field->profile_id)) {
 				$properties['profileId'] = $field->profile_id;
 			}
 
-			if (isset($field->data))
-			{
+			if (isset($field->data)) {
 				$properties['value'] = $field->data;
 			}
 
 			$fieldApp->init($properties);
 
-			$handler	= $callback;
+			$handler = $callback;
 
 			$arguments	= array($this->event, &$fieldApp, &$data, &$result);
 
 			// If callback is not callable, then we fallback to internal handler class with the event name as the method
-			if (!is_callable($handler))
-			{
+			if (!is_callable($handler)) {
 				// Remove the first parameter, event, from the arguments
 				array_shift($arguments);
 				$handler = array($this->handler, $this->event);

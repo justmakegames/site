@@ -25,25 +25,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-title="<?php echo $this->html( 'string.escape' , $filter->title ); ?>"
 		data-es-group-app-filter
 		class="data-dashboardfeeds-item"
-	>
-		<span class="es-app-filter">
-			<?php if( $filter->image ){ ?>
-				<img src="<?php echo $filter->image;?>" alt="<?php echo JText::sprintf( 'COM_EASYSOCIAL_STREAM_FILTERS_FILTER_TYPE' , $filter->title );?>" width="16" class="mr-5" />
-			<?php } ?>
-
-			<?php if( $filter->favicon ){ ?>
-				<span class="es-app-favicon" style="border: 1px solid <?php echo $filter->favicon->color;?>;background:<?php echo $filter->favicon->color;?>">
-					<span>
-						<i class="<?php echo $filter->favicon->icon;?>"></i>
-					</span>
-				</span>
-			<?php } ?>
-
-			<?php if( $filter->icon ){ ?>
-				<i class="<?php echo $filter->icon;?>"></i>
-			<?php } ?>
-
-			<span class="filter-title"><?php echo $filter->title;?></span>
-		</span>
-	</a>
+	><?php echo $filter->title;?></a>
 </li>

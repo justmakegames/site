@@ -21,12 +21,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php echo $text; ?>
 
 	<?php if( str_ireplace( '.' , '' , $column ) == $currentOrdering ){ ?>
-		<?php if( $direction == 'asc' ){ ?>
-		<i class="ies-arrow-up ies-small"></i>
+		<?php if ($direction == 'asc') { ?>
+		<i class="fa fa-caret-up"></i>
 		<?php } ?>
 
-		<?php if( $direction == 'desc' ){ ?>
-		<i class="ies-arrow-down ies-small"></i>
+		<?php if ($direction == 'desc') { ?>
+		<i class="fa fa-caret-down"></i>
 		<?php } ?>
 	<?php } ?>
 </a>

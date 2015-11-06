@@ -12,5 +12,5 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <a href="javascript:void(0);" class="btn btn-es-warning btn-sm" data-bs-toggle="dropdown" data-users-friends-button>
-	<i class="ies-loop ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PENDING_APPROVAL' ); ?>
+	<i class="fa fa-refresh  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PENDING_APPROVAL' ); ?>
 </a>

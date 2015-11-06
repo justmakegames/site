@@ -16,7 +16,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		class="form-control input-sm"
 		name="<?php echo $inputName; ?>"
 		data-field-textarea-input
-		placeholder="<?php echo $params->get( 'placeholder' ); ?>"
+		placeholder="<?php echo JText::_( $params->get( 'placeholder' ), true ); ?>"
 		value="<?php echo $value; ?>"
 		<?php if( $field->isRequired() ) { ?>
 		data-check-required

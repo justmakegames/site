@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 
 <?php if (!empty($exceeded)) { ?>
-<div class="alert fade in alert-warning">
+<div class="alert alert-dismissable fade in alert-warning">
     <button data-story-attachment-clear-button class="close" type="button">×</button>
     <strong><?php echo JText::_('COM_EASYSOCIAL_PHOTOS_EXCEEDED'); ?></strong><br/><?php echo $exceeded ?>
 </div>
@@ -23,8 +23,8 @@ defined('_JEXEC') or die('Unauthorized Access');
     <div data-album-content class="es-album-content">
         <div data-album-upload-button class="es-album-upload-button">
             <span>
-                <b class="add-hint"><i class="ies-plus"></i><?php echo JText::_("COM_EASYSOCIAL_STORY_ADD_PHOTO"); ?></b>
-                <b class="drop-hint"><i class="ies-upload-5"></i><?php echo JText::_("COM_EASYSOCIAL_STORY_DROP_PHOTO"); ?></b>
+                <b class="add-hint"><i class="fa fa-plus"></i><?php echo JText::_("COM_EASYSOCIAL_STORY_ADD_PHOTO"); ?></b>
+                <b class="drop-hint"><i class="fa fa-upload"></i><?php echo JText::_("COM_EASYSOCIAL_STORY_DROP_PHOTO"); ?></b>
             </span>
         </div>
         <div data-photo-item-group class="es-photo-item-group">

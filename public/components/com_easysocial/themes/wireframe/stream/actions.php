@@ -55,16 +55,15 @@ $isGuest = ( FD::user()->id == 0 ) ? true : false;
 		</li>
 		<?php } ?>
 
-		<?php if( isset( $sharing ) && $sharing && $this->config->get( 'stream.sharing.enabled' ) ) { ?>
+		<?php if (isset($sharing) && $sharing && $this->config->get('stream.sharing.enabled')) { ?>
 		<li class="action-title-social streamAction"
 			data-key="social"
-			data-streamItem-actions
-		>
+			data-streamItem-actions>
 			<?php echo $sharing->getHTML(); ?>
 		</li>
 		<?php } ?>
 
-		<?php if( $privacy ){ ?>
+		<?php if ($privacy) { ?>
 		<li>
 			<?php echo $privacy; ?>
 		</li>

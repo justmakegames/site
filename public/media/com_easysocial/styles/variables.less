@@ -3,8 +3,8 @@
 \*------------------------------------*/
 
 // Wrapper
-@Foundry: ~"body div#fd";
-@EasySocial: ~"body div#fd.es";
+@Foundry: ~"div#fd";
+@EasySocial: ~"div#fd.es";
 
 //
 // Variables
@@ -146,42 +146,48 @@
 // -------------------------
 @btnEsTextShadow: 0 1px 1px rgba(0,0,0,.1);
 
-@btnEsPrimaryBackground: #6d9cca;
-@btnEsPrimaryBackgroundHighlight: #6d9cca;
+@btnEsPrimaryBackgroundHighlight: #3E85C3;
+@btnEsPrimaryBackground: #4E7FA8;
+@btnEsPrimaryBorder: #507BA3;
 
-@btnEsWarningBackground: #fde59d;
-@btnEsWarningBackgroundHighlight: #f4bb30;
+@btnEsWarningBackgroundHighlight: #FF8323;
+@btnEsWarningBackground: #FF7103;
+@btnEsWarningBorder: #DE7220;
 
-@btnEsSuccessBackground: #bcd669;
-@btnEsSuccessBackgroundHighlight: #97bb41;
+@btnEsSuccessBackgroundHighlight: #52BC57;
+@btnEsSuccessBackground: #4CB150;
+@btnEsSuccessBorder: #4FA753;
 
-@btnEsDangerBackground: #be1f23;
-@btnEsDangerBackgroundHighlight: #a6170f;
+@btnEsDangerBackgroundHighlight: #F14F4C;
+@btnEsDangerBackground: #E83C38;
+@btnEsDangerBorder: #C8503B;
 
-@btnEsInfoBackground: #69B6F1;
-@btnEsInfoBackgroundHighlight: #469DE0;
+@btnEsInfoBackgroundHighlight: #28B6F6;
+@btnEsInfoBackground: #028AD4;
+@btnEsInfoBorder: #018AD1;
 
-@btnEsInverseBackground: #797979;
-@btnEsInverseBackgroundHighlight: #585858;
+@btnEsInverseBackgroundHighlight: #78909C;
+@btnEsInverseBackground: darken(#78909C, 2%);
+@btnEsInverseBorder: #78909C;
 
 
 // Alert
 // ----------------
 
-@warningEsText:            	#785a02;
-@warningEsBackground: 		#ffeca7;
+@warningEsText:            	#fff;
+@warningEsBackground: 		@btnEsWarningBackground;
 @warningEsBorder:           darken(spin(@warningEsBackground, -1), 12%);
 
-@successEsText:             #2f611c;
-@successEsBackground: 		#b0cc5b;
+@successEsText:             #fff;
+@successEsBackground: 		@btnEsSuccessBackground;
 @successEsBorder:           darken(spin(@successEsBackground, -10), 5%);
 
 @errorEsText:               #fff;
-@errorEsBackground: 		#de614f;
+@errorEsBackground: 		@btnEsDangerBackground;
 @errorEsBorder:             darken(spin(@errorEsBackground, -10), 3%);
 
-@infoEsText:                #2b4c6b;
-@infoEsBackground: 			#adddf1;
+@infoEsText:                #fff;
+@infoEsBackground: 			@btnEsInfoBackground;
 @infoEsBorder:              darken(spin(@infoEsBackground, -10), 7%);
 
 // Forms
@@ -257,7 +263,8 @@
 
 // Dialog
 @esDialogColor: #595959;
-@esDialogTitleColor: #666;
+@esDialogTitleColor: #333;
+@esDialogCloseColor: #bbb;
 
 // Datepicker
 @esDatePickerBackground: #fff;
@@ -284,3 +291,13 @@
 @esExplorerFolderBackground: #3F4552;
 @esExplorerFolderColor: @white;
 @esExplorerFolderTextShadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+
+// Location
+@esLocationBackground: @esBackground;
+@esLocationColor: @esColor;
+@esLocationBorder: @esBorder;
+@esLocationSuggestionsBorder: darken(@esBackground, 20%); //ccc
+@esLocationSuggestionsActiveBackground: #E7EDF3;
+@esLocationTextboxBorder: @esLocationSuggestionsBorder;
+@esLocationImagePath: '@{media_uri}/images/map-bg.png';
+

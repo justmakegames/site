@@ -34,6 +34,9 @@ class EasySocialViewSearch extends EasySocialSiteView
 		// Get the search type
 		$type = $this->input->get('type', '', 'cmd');
 
+		// Get the search filter types
+		$filters = $this->input->get('filtertypes', array(), 'array');
+
 		// Load up the model
 		$indexerModel = FD::model('Indexer');
 
@@ -62,12 +65,13 @@ class EasySocialViewSearch extends EasySocialSiteView
 
 			jimport('joomla.application.component.model');
 
-			$lib = JPATH_ROOT . '/components/com_finder/models/search.php';
-
-			require_once($lib);
+			$searchlib = JPATH_ROOT . '/components/com_finder/models/search.php';
+			require_once($searchlib);
 
 			if ($type) {
 				JRequest::setVar('t', $type);
+			} else if ($filters) {
+				JRequest::setVar('t', $filters);
 			}
 
 			// Load up finder's model
@@ -80,9 +84,44 @@ class EasySocialViewSearch extends EasySocialSiteView
 
 			// When there is no terms match, check if smart search suggested any terms or not. if yes, lets use it.
 			if (!$query->terms) {
-				
-				if (isset($query->included) && count($query->included) > 0) {
-					$suggestion = '';
+
+				// before we can include this file, we need to supress the notice error of this key FINDER_PATH_INDEXER due to the way this key defined in /com_finder/models/search.php
+				$suggestlib = JPATH_ROOT . '/components/com_finder/models/suggestions.php';
+				@require_once($suggestlib);
+
+				$suggestion = '';
+				$suggestionModel = new FinderModelSuggestions();
+				$suggestedItems = $suggestionModel->getItems();
+
+				if ($suggestedItems) {
+					// we need to get the shortest terms to search
+					$curLength = JString::strlen($suggestedItems[0]);
+					$suggestion = $suggestedItems[0];
+
+					for($i = 1; $i < count($suggestedItems); $i++) {
+						$iLen = JString::strlen($suggestedItems[$i]);
+
+						if ($iLen < $curLength) {
+							$curLength = $iLen;
+							$suggestion = $suggestedItems[$i];
+						}
+					}
+
+					if ($suggestion) {
+						$app = JFactory::getApplication();
+						$input = $app->input;
+						$input->request->set('q', $suggestion);
+
+						// Load up the new model
+						$finderModel = new FinderModelSearch();
+						$state = $finderModel->getState();
+
+						// this line need to be here. so that the indexer can get the correct value
+						$query = $finderModel->getQuery();
+					}
+				}
+
+				if (!$suggestion && isset($query->included) && count($query->included) > 0) {
 
 					foreach($query->included as $item) {
 						if (isset($item->suggestion) && !empty($item->suggestion)) {
@@ -136,7 +175,14 @@ class EasySocialViewSearch extends EasySocialSiteView
 
 			// get types
 			$types	= $searchAdapter->getTaxonomyTypes();
+			$filterTypes = $types;
+		} else {
+			$filterTypes	= $searchAdapter->getTaxonomyTypes();
 		}
+
+		// merge the filters into filterTypes
+		$searchAdapter->validateFilters($filterTypes, $filters);
+
 
 		// Set the page title
 		FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_SEARCH'));
@@ -150,7 +196,8 @@ class EasySocialViewSearch extends EasySocialSiteView
 		$this->set('total', $count);
 		$this->set('totalcount', $count);
 		$this->set('next_limit', $next_limit);
-
+		$this->set('filterTypes', $filterTypes);
+		$this->set('filters', $filters);
 
 		echo parent::display('site/search/default');
 	}
@@ -175,6 +222,8 @@ class EasySocialViewSearch extends EasySocialSiteView
 		// Get current logged in user.
 		$my 			= FD::user();
 
+		$config = FD::config();
+
 		// What is this? - this is advanced search filter id.
 		$fid 			= JRequest::getInt( 'fid', 0 );
 
@@ -189,6 +238,7 @@ class EasySocialViewSearch extends EasySocialSiteView
 		// Get values from posted data
 		$match 		= JRequest::getVar( 'matchType', 'all' );
 		$avatarOnly	= JRequest::getInt( 'avatarOnly', 0 );
+		$sort 		= JRequest::getVar( 'sort', $config->get('users.advancedsearch.sorting', 'default') );
 
 		// Get values from posted data
 		$values 				= array();
@@ -198,6 +248,7 @@ class EasySocialViewSearch extends EasySocialSiteView
 		$values[ 'conditions' ] = JRequest::getVar( 'conditions' );
 		$values[ 'match' ] 		= $match;
 		$values[ 'avatarOnly' ] = $avatarOnly;
+		$values[ 'sort' ] = $sort;
 
 		// echo '<pre>';print_r( $values );echo '</pre>';exit;
 
@@ -248,9 +299,12 @@ class EasySocialViewSearch extends EasySocialSiteView
 
 			$values['match'] 			= isset( $dataFilter->matchType ) ? $dataFilter->matchType : 'all';
 			$values['avatarOnly']		= isset( $dataFilter->avatarOnly ) ? true : false;
+			$values[ 'sort' ] 			= isset( $dataFilter->sort ) ? $dataFilter->sort : $config->get('users.advancedsearch.sorting', 'default');
+
 
 			$match 		= $values['match'];
 			$avatarOnly	= $values['avatarOnly'];
+			$sort		= $values['sort'];
 
 		}
 
@@ -275,6 +329,7 @@ class EasySocialViewSearch extends EasySocialSiteView
 		$this->set( 'criteriaHTML'	, $criteriaHTML );
 		$this->set( 'match'			, $match );
 		$this->set( 'avatarOnly'	, $avatarOnly );
+		$this->set( 'sort'	, $sort );
 		$this->set( 'results'		, $results );
 		$this->set( 'total'			, $total );
 		$this->set( 'nextlimit'		, $nextlimit );

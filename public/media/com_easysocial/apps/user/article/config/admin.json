@@ -37,7 +37,7 @@
                 "tooltip"   : "APP_USER_ARTICLE_SETTINGS_CONTENT_LENGTH_DESC",
                 "name"      : "stream_content_length",
                 "type"      : "limit",
-                "default"   : 0
+                "default"   : 250
             }
         ]
     },

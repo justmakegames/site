@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -128,14 +128,17 @@ class EasySocialViewPoints extends EasySocialSiteView
 		$privacy 	= $my->getPrivacy();
 
 		// Let's test if the current viewer is allowed to view this profile.
-		if( $my->id != $user->id )
-		{
-			if( !$privacy->validate( 'profiles.view' , $user->id , SOCIAL_TYPE_USER ) )
-			{
-				$this->set( 'user' , $user );
-				parent::display( 'site/profile/restricted' );
-				return;
-			}
+		if ($my->id != $user->id && !$privacy->validate('profiles.view', $user->id, SOCIAL_TYPE_USER)) {
+			$facebook = ES::oauth('facebook');
+			$return = base64_encode($user->getPermalink());
+
+			$this->set('return', $return);
+			$this->set('facebook', $facebook);
+			$this->set('user', $user);
+
+			parent::display('site/profile/restricted');
+
+			return;
 		}
 
 

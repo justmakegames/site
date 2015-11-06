@@ -6,14 +6,13 @@
 **/
 @import "config";
 
-@{EasySocial}
-{
+@{EasySocial} {
 	// EasySocial Events Modules
 	&.mod-es-events {
-		ul {
+		.es-events-list {
 			list-style: none;
 
-			li {
+			> li {
 				margin-bottom: 10px;
 				list-style: none;
 
@@ -23,18 +22,12 @@
 
 				.es-event-avatar {
 					float: right;
+
 					+ .es-event-object {
-						margin-right: 30px;
+						margin-right: 35px;
 					}
 				}
 				
-				.es-avatar {
-					width: 32px;
-					height: 32px;
-					border: 1px solid #d7d7d7;
-					padding: 3px;
-				}
-
 				.event-title {
 					font-size: 14px;
 					display: inline-block;
@@ -42,13 +35,13 @@
 
 				.es-event-meta {
 					font-size: 10px;
-					color: #666;
+					color: @esColor;
 
 					span {
 						margin-right: 5px;
 
 						+span {
-							border-left: 1px dotted #d7d7d7;
+							border-left: 1px dotted @esBorder;
 							padding-left: 8px;
 						}
 					}
@@ -56,7 +49,7 @@
 
 				+li {
 					padding-top: 10px;
-					border-top: 1px dotted #d7d7d7;
+					border-top: 1px dotted @esBorder;
 				}
 			}
 		}

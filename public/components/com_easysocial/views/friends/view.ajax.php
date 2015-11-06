@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		Social
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @package		EasySocial
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -71,15 +71,13 @@ class EasySocialViewFriends extends EasySocialSiteView
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function exceeded( $friend = null )
+	public function exceeded($friend = null)
 	{
-		$ajax 	= FD::ajax();
+		$theme = FD::themes();
 
-		$theme 	= FD::themes();
+		$contents = $theme->output('site/friends/dialog.exceeded');
 
-		$contents 	= $theme->output( 'site/friends/dialog.exceeded' );
-
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
 	/**
@@ -91,6 +89,10 @@ class EasySocialViewFriends extends EasySocialSiteView
 	public function usersRequest( $friend = null )
 	{
 		$ajax 	= FD::ajax();
+
+		if ($this->hasErrors()) {
+			return $ajax->reject($this->getMessage());
+		}
 
 		$theme 	= FD::themes();
 
@@ -127,33 +129,29 @@ class EasySocialViewFriends extends EasySocialSiteView
 	public function assignList()
 	{
 		// Only registered users allowed here
-		FD::requireLogin();
-
-		$ajax 	= FD::ajax();
+		ES::requireLogin();
 
 		// Get the target id.
-		$id 	= JRequest::getInt( 'id' );
+		$id = $this->input->get('id', 0, 'int');
 
-		if( !$id )
-		{
-			// Throw error here.
-			return $ajax->reject();
+		if (!$id) {
+			return $this->ajax->reject();
 		}
 
-		$list 	= FD::table( 'List' );
-		$list->load( $id );
+		$list = ES::table('List');
+		$list->load($id);
 
 		// Get a list of users that are already in this list.
-		$users 	= $list->getMembers();
-		$users	= FD::json()->encode( $users );
+		$users = $list->getMembers();
+		$users = json_encode($users);
 
-		$theme 	= FD::themes();
-		$theme->set( 'list' 	, $list );
-		$theme->set( 'users'	, $users );
+		$theme = ES::themes();
+		$theme->set('list', $list);
+		$theme->set('users', $users);
 
-		$contents	= $theme->output( 'site/friends/dialog.list.assign' );
+		$contents = $theme->output('site/friends/dialog.list.assign');
 
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
 	/**

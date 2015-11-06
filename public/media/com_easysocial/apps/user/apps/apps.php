@@ -73,7 +73,7 @@ class SocialUserAppApps extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#553982';
-		$obj->icon 		= 'ies-cube';
+		$obj->icon 		= 'fa fa-cube';
 		$obj->label 	= 'APP_USER_APPS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -126,8 +126,8 @@ class SocialUserAppApps extends SocialAppItem
 
 		// Define a color for the context
 		$item->color	= '#553982';
-		$item->fonticon = 'ies-cube';
-		$item->label	= JText::_( 'APP_USER_APPS_STREAM_TOOLTIP' );
+		$item->fonticon = 'fa fa-cube';
+		$item->label	= FD::_( 'APP_USER_APPS_STREAM_TOOLTIP', true );
 		$item->display	= SOCIAL_STREAM_DISPLAY_FULL;
 
 		// Get user's privacy.

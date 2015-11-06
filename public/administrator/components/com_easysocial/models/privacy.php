@@ -283,6 +283,42 @@ class EasySocialModelPrivacy extends EasySocialModel
 		return true;
 	}
 
+	public function preloadUserPrivacy($userIds)
+	{
+		$db = FD::db();
+
+		$type = SOCIAL_PRIVACY_TYPE_USER;
+
+		// Render items that are stored in the database.
+		$query = 'select a.' . $db->nameQuote('type') . ', a.' . $db->nameQuote('rule') . ', b.' . $db->nameQuote('value') . ',';
+		$query .= ' a.' . $db->nameQuote('id') . ', b.' . $db->nameQuote('id') . ' as ' . $db->nameQuote('mapid') . ', b.' . $db->nameQuote('uid');
+		$query .= ' from ' . $db->nameQuote('#__social_privacy') . ' as a';
+		$query .= '	inner join ' . $db->nameQuote('#__social_privacy_map') . ' as b on a.' . $db->nameQuote('id') . ' = b.' . $db->nameQuote('privacy_id');
+		$query .= ' where b.' . $db->nameQuote('uid') . ' IN (' . implode(",", $userIds) . ')';
+		$query .= ' and b.' . $db->nameQuote('utype') . ' = ' . $db->Quote($type);
+		$query .= ' and a.' . $db->nameQuote('state') . ' = ' . $db->Quote(SOCIAL_STATE_PUBLISHED);
+		$query .= ' order by a.' . $db->nameQuote('type');
+
+		$db->setQuery($query);
+
+		$results = $db->loadObjectList();
+
+		$items = array();
+
+		// prefill default array.
+		foreach($userIds as $uid) {
+			$items[$uid] = array();
+		}
+
+		if ($results) {
+			foreach($results as $item) {
+				$items[$item->uid][] = $item;
+			}
+		}
+
+		return $items;
+	}
+
 	/**
 	 * Responsible to retrieve the data for a privacy item.
 	 *
@@ -294,35 +330,53 @@ class EasySocialModelPrivacy extends EasySocialModel
 	 */
 	public function getData( $id , $type = SOCIAL_PRIVACY_TYPE_USER )
 	{
-		$db				= FD::db();
+		static $_cache = array();
 
-		$item			= array();
+		$cacheIdx = $id . $type;
+
+		if (isset($_cache[$cacheIdx])) {
+			return $_cache[$cacheIdx];
+		}
+
+
+		$db = FD::db();
+
+		$item = array();
 
 		// Render default acl items from manifest file.
-		// $defaultItems = $this->renderManifest( $component );
+		$defaultItems = $this->getDefaultPrivacy($id, $type);
+		$loadDB = true;
 
-		$defaultItems    = $this->getDefaultPrivacy( $id, $type );
+		$result = array();
 
-		// Render items that are stored in the database.
-		$query = 'select a.' . $db->nameQuote( 'type' ) . ', a.' . $db->nameQuote( 'rule' ) . ', b.' . $db->nameQuote( 'value' ) . ',';
-		$query .= ' a.' . $db->nameQuote( 'id' ) . ', b.' . $db->nameQuote( 'id' ) . ' as ' . $db->nameQuote( 'mapid' );
-		$query .= ' from ' . $db->nameQuote( '#__social_privacy' ) . ' as a';
-		$query .= '	inner join ' . $db->nameQuote( '#__social_privacy_map' ) . ' as b on a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'privacy_id' );
-		$query .= ' where b.' . $db->nameQuote( 'uid' ) . ' = ' . $db->Quote( $id );
-		$query .= ' and b.' . $db->nameQuote( 'utype' ) . ' = ' . $db->Quote( $type );
-		$query .= ' and a.' . $db->nameQuote( 'state' ) . ' = ' . $db->Quote( SOCIAL_STATE_PUBLISHED );
-		$query .= ' order by a.' . $db->nameQuote( 'type' );
+		if ($type == SOCIAL_PRIVACY_TYPE_USER) {
+			if (FD::cache()->exists('user.privacy.' . $id)) {
+				$loadDB = false;
+				$result = FD::cache()->get('user.privacy.' . $id);
+			}
+		}
 
+		if ($loadDB) {
+			// Render items that are stored in the database.
+			$query = 'select a.' . $db->nameQuote('type') . ', a.' . $db->nameQuote('rule') . ', b.' . $db->nameQuote('value') . ',';
+			$query .= ' a.' . $db->nameQuote('id') . ', b.' . $db->nameQuote('id') . ' as ' . $db->nameQuote('mapid');
+			$query .= ' from ' . $db->nameQuote('#__social_privacy') . ' as a';
+			$query .= '	inner join ' . $db->nameQuote('#__social_privacy_map') . ' as b on a.' . $db->nameQuote('id') . ' = b.' . $db->nameQuote('privacy_id');
+			$query .= ' where b.' . $db->nameQuote('uid') . ' = ' . $db->Quote($id);
+			$query .= ' and b.' . $db->nameQuote('utype') . ' = ' . $db->Quote($type);
+			$query .= ' and a.' . $db->nameQuote('state') . ' = ' . $db->Quote(SOCIAL_STATE_PUBLISHED);
+			$query .= ' order by a.' . $db->nameQuote('type');
 
-		// echo $query;
+			// echo $query;exit;
 
-		$db->setQuery( $query );
+			$db->setQuery($query);
 
-		$result		= $db->loadObjectList();
+			$result = $db->loadObjectList();
+		}
 
 		// If there's nothing stored into the database, we just return the default values.
-		if( !$result )
-		{
+		if (!$result) {
+			$_cache[$cacheIdx] = $defaultItems;
 			return $defaultItems;
 		}
 
@@ -374,6 +428,7 @@ class EasySocialModelPrivacy extends EasySocialModel
 			$defaultItems[ $group ][ $obj->rule ] = $obj;
 		}
 
+		$_cache[$cacheIdx] = $defaultItems;
 
 		return $defaultItems;
 	}
@@ -382,6 +437,8 @@ class EasySocialModelPrivacy extends EasySocialModel
 
 	public function getDefaultPrivacy( $id , $type = SOCIAL_PRIVACY_TYPE_USER )
 	{
+		static $_cache = array();
+
 		$db = FD::db();
 		$sql = $db->sql();
 
@@ -393,18 +450,28 @@ class EasySocialModelPrivacy extends EasySocialModel
 			$user 		= FD::user( $id );
 			$profile_id = $user->get( 'profile_id' );
 
-			$query = 'select a.`id`, a.`type`, a.`rule`, a.`options`, b.`value`';
-			$query .= ' from ' . $db->nameQuote( '#__social_privacy' ) . ' as a';
-			$query .= '	inner join ' . $db->nameQuote( '#__social_privacy_map' ) . ' as b on a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'privacy_id' );
-			$query .= ' where b.' . $db->nameQuote( 'uid' ) . ' = ' . $db->Quote( $profile_id );
-			$query .= ' and b.' . $db->nameQuote( 'utype' ) . ' = ' . $db->Quote( SOCIAL_PRIVACY_TYPE_PROFILES );
-			$query .= ' and a.' . $db->nameQuote( 'state' ) . ' = ' . $db->Quote( SOCIAL_STATE_PUBLISHED );
-			$query .= ' order by a.' . $db->nameQuote( 'type' );
+			$result = array();
+			if (isset($_cache[$profile_id])) {
 
-			$sql->raw( $query );
+				$result =  $_cache[$profile_id];
 
-			$db->setQuery( $sql );
-			$result = $db->loadObjectList();
+			} else {
+
+				$query = 'select a.`id`, a.`type`, a.`rule`, a.`options`, b.`value`';
+				$query .= ' from ' . $db->nameQuote( '#__social_privacy' ) . ' as a';
+				$query .= '	inner join ' . $db->nameQuote( '#__social_privacy_map' ) . ' as b on a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'privacy_id' );
+				$query .= ' where b.' . $db->nameQuote( 'uid' ) . ' = ' . $db->Quote( $profile_id );
+				$query .= ' and b.' . $db->nameQuote( 'utype' ) . ' = ' . $db->Quote( SOCIAL_PRIVACY_TYPE_PROFILES );
+				$query .= ' and a.' . $db->nameQuote( 'state' ) . ' = ' . $db->Quote( SOCIAL_STATE_PUBLISHED );
+				$query .= ' order by a.' . $db->nameQuote( 'type' );
+
+				$sql->raw( $query );
+
+				$db->setQuery( $sql );
+				$result = $db->loadObjectList();
+
+				$_cache[$profile_id] = $result;
+			}
 		}
 
 		if( ! $result )
@@ -442,8 +509,6 @@ class EasySocialModelPrivacy extends EasySocialModel
 
 			$items[ $item->type ][ $item->rule ]	= $obj;
 		}
-
-
 
 		// Sort the items
 		krsort($items);
@@ -680,6 +745,23 @@ class EasySocialModelPrivacy extends EasySocialModel
 		return $result;
 	}
 
+	public function getItem($uid , $type)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = "select * from `#__social_privacy_items`";
+		$query .= " where `uid` = " . $db->Quote($uid);
+		$query .= " and `type` = " . $db->Quote($type);
+		$sql->raw($query);
+
+		$db->setQuery($sql);
+		$result = $db->loadObject();
+
+		return $result;
+	}
+
+
 	/**
 	 * Retrieves the privacy object
 	 *
@@ -737,7 +819,8 @@ class EasySocialModelPrivacy extends EasySocialModel
 					}
 
 					// var_dump( $ownerId );
-					// echo $query;exit;
+					// echo $query;
+					// echo '<br /><br />';
 
 
 					$db->setQuery( $query );
@@ -796,18 +879,19 @@ class EasySocialModelPrivacy extends EasySocialModel
 			}
 		}
 
+
+		// This is where we define whether the privacy item is editable or not.
 		$my = FD::user();
 
 		$result->editable = false;
 
-		if($result->user_id && $result->user_id == $my->id )
-		{
+		if ($result->user_id && $result->user_id == $my->id) {
 			$result->editable = true;
 		}
 
-		$cached[ $index ]	= $result;
+		$cached[$index]	= $result;
 
-		return $cached[ $index ];
+		return $cached[$index];
 	}
 
 	/**
@@ -826,6 +910,8 @@ class EasySocialModelPrivacy extends EasySocialModel
 		$index		= $command . $userId;
 
 		$data 		= explode( '.' , $command );
+		$isFieldCommand = ($data[0] == 'field') ? true : false;
+
 		$element 	= array_shift( $data );
 		$rule 		= implode( '.', $data);
 
@@ -839,7 +925,7 @@ class EasySocialModelPrivacy extends EasySocialModel
 		// If owner id is provided, try to get the owner's privacy object
 		if( $userId )
 		{
-			$userPrivacy 	= $this->getPrivacyUserDefaultValues( $userId );
+			$userPrivacy 	= $this->getPrivacyUserDefaultValues( $userId, $isFieldCommand );
 
 			if( $userPrivacy )
 			{
@@ -855,7 +941,6 @@ class EasySocialModelPrivacy extends EasySocialModel
 		}
 
 		$systemPrivacy	= $this->getPrivacySystemDefaultValues();
-
 
 		// If the default value is still null, try to search for default values from our own table
 		if( !$default )
@@ -903,7 +988,7 @@ class EasySocialModelPrivacy extends EasySocialModel
 
 		$db 		= FD::db();
 		$sql 		= $db->sql();
-// var_dump( 'called' );
+
 		// Try to get the privacy from the master table
 		$query 		= array();
 		$query[]	= 'SELECT a.' . $db->nameQuote( 'type' ) . ', a.' . $db->nameQuote( 'rule' ) . ', a.' . $db->nameQuote( 'id' ) . ', a.' . $db->nameQuote( 'value' ) . ' AS ' . $db->nameQuote( 'default' ) . ', a.' . $db->nameQuote( 'options' );
@@ -922,13 +1007,14 @@ class EasySocialModelPrivacy extends EasySocialModel
 		return $system;
 	}
 
-	public function getPrivacyUserDefaultValues( $userId )
+	public function getPrivacyUserDefaultValues( $userId, $isFieldCommand = false )
 	{
 		static $users 	= array();
 
-		if( isset( $users[ $userId ] ) )
-		{
-			return $users[ $userId ];
+		$indexKey = $userId . '-' . $isFieldCommand;
+
+		if (isset( $users[ $indexKey ] )) {
+			return $users[ $indexKey ];
 		}
 
 		$db 	= FD::db();
@@ -941,6 +1027,11 @@ class EasySocialModelPrivacy extends EasySocialModel
 		$query .= ' where b.' . $db->nameQuote( 'uid' ) . ' = ' . $db->Quote( $userId );
 		$query .= ' and b.' . $db->nameQuote( 'utype' ) . ' = ' . $db->Quote( SOCIAL_PRIVACY_TYPE_USER );
 		$query .= ' and a.' . $db->nameQuote( 'state' ) . ' = ' . $db->Quote( SOCIAL_STATE_PUBLISHED );
+		if ($isFieldCommand) {
+			$query .= ' and a.' . $db->nameQuote( 'type' ) . ' = ' . $db->Quote( 'field' );
+		} else {
+			$query .= ' and a.' . $db->nameQuote( 'type' ) . ' != ' . $db->Quote( 'field' );
+		}
 
 		$db->setQuery( $query );
 
@@ -960,15 +1051,14 @@ class EasySocialModelPrivacy extends EasySocialModel
 			$query .= ' and b.' . $db->nameQuote( 'utype' ) . ' = ' . $db->Quote( SOCIAL_PRIVACY_TYPE_PROFILES );
 			$query .= ' and a.' . $db->nameQuote( 'state' ) . ' = ' . $db->Quote( SOCIAL_STATE_PUBLISHED );
 
-
 			$db->setQuery( $query );
 
 			$result = $db->loadObjectList();
 		}
 
-		$users[ $userId ]	= $result;
+		$users[ $indexKey ]	= $result;
 
-		return $users[ $userId ];
+		return $users[ $indexKey ];
 	}
 
 	/**
@@ -1241,7 +1331,12 @@ class EasySocialModelPrivacy extends EasySocialModel
 					$privacy->value 		= $privLib->toValue( $default );
 					$privacy->options 		= $optionString;
 
-					$privacy->store();
+					$addState = $privacy->store();
+
+					if ($addState) {
+						// now we need to add this new privacy rule into all the profile types.
+						$this->addRuleProfileTypes($privacy->id, $privacy->value);
+					}
 
 					$result[] = $type . '.' . $command;
 
@@ -1250,6 +1345,20 @@ class EasySocialModelPrivacy extends EasySocialModel
 		}
 
 		return $result;
+	}
+
+	private function addRuleProfileTypes($privacyId, $default) {
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = "insert into `#__social_privacy_map` (`privacy_id`, `uid`, `utype`, `value`)";
+		$query .= " select '$privacyId', `id`, 'profiles', '$default' from `#__social_profiles` where `id` not in (";
+		$query .= " 	select distinct `uid` from `#__social_privacy_map` where `utype` = 'profiles' and `privacy_id` = $privacyId)";
+		$sql->raw($query);
+
+		$db->setQuery($sql);
+		$db->query();
+
 	}
 
 	public function setStreamPrivacyItemBatch( $data )
@@ -1449,13 +1558,19 @@ class EasySocialModelPrivacy extends EasySocialModel
 
 		$query = array();
 
+		// this $privacyTable is the sql to retrieve the privacy value from profile if exists, and if no, then it will return from privacy master.
+		$privacyTable = "select pi.`id`, pi.type, pi.rule, ifnull(pim.`value`, pi.value) as `value`";
+		$privacyTable .= " from `#__social_privacy` as pi";
+		$privacyTable .= " left join `#__social_privacy_map` as pim on pi.`id` = pim.`privacy_id` and pim.`utype` = 'profiles' and pim.`uid` = '$profileId'";
+		$privacyTable .= " where pi.`type` = 'field'";
+
 		$query[] = "INSERT INTO `#__social_privacy_items` (`privacy_id`, `user_id`, `uid`, `type`, `value`)";
 		$query[] = "SELECT `d`.`id` AS `privacy_id`, '$userId' AS `user_id`, `a`.`id` AS `uid`, `d`.`type`, `d`.`value` FROM `#__social_fields` AS `a`";
 		$query[] = "LEFT JOIN `#__social_fields_steps` AS `b`";
 		$query[] = "ON `b`.`id` = `a`.`step_id`";
 		$query[] = "LEFT JOIN `#__social_apps` AS `c`";
 		$query[] = "ON `c`.`id` = `a`.`app_id`";
-		$query[] = "LEFT JOIN `#__social_privacy` AS `d`";
+		$query[] = "LEFT JOIN (" . $privacyTable . ") AS `d`";
 		$query[] = "ON `d`.`rule` = `c`.`element`";
 		$query[] = "WHERE `d`.`type` = 'field'";
 		$query[] = "AND `b`.`type` = 'profiles'";
@@ -1472,26 +1587,26 @@ class EasySocialModelPrivacy extends EasySocialModel
 	public function createFieldPrivacyMapsForUser($userId)
 	{
 		/*
-
 		insert into jos_social_privacy_map (privacy_id, uid, utype, value)
-		select a.id as privacy_id, '620' as uid, 'user' as utype, a.value from jos_social_privacy as a
-		where a.type = 'field'
-		and a.id not in (select b.privacy_id from jos_social_privacy_map as b where b.uid = '620' and b.utype = 'user')
-		;
-
+		select pi.`id` as `privacy_id`, '10399' AS `uid`, 'user' AS `utype`, ifnull(pim.`value`, pi.value) as `value`
+		from jos_social_privacy as pi
+				left join jos_social_privacy_map as pim on pi.`id` = pim.`privacy_id` and pim.`utype` = 'profiles' and pim.`uid` = (select profile_id from jos_social_profiles_maps where user_id = 10399)
+		where pi.`type` = 'field'
+		AND `pi`.`id` NOT IN (SELECT `b`.`privacy_id` FROM `jos_social_privacy_map` AS `b` WHERE `b`.`uid` = '10399' AND `b`.`utype` = 'user');
 		*/
 
 		$db = FD::db();
 		$sql = $db->sql();
 
-		$query = array();
+		$query = "INSERT INTO `#__social_privacy_map` (`privacy_id`, `uid`, `utype`, `value`)";
+		$query .= " select pi.`id` as `privacy_id`, '$userId' AS `uid`, 'user' AS `utype`, ifnull(pim.`value`, pi.value) as `value`";
+		$query .= " from #__social_privacy as pi";
+		$query .= "		left join #__social_privacy_map as pim on pi.`id` = pim.`privacy_id`";
+		$query .= "						and pim.`utype` = 'profiles' and pim.`uid` = (select prm.`profile_id` from `#__social_profiles_maps` as prm where prm.`user_id` = '$userId')";
+		$query .= " where pi.`type` = 'field'";
+		$query .= " AND pi.`id` NOT IN (SELECT b.`privacy_id` FROM `#__social_privacy_map` AS `b` WHERE `b`.`uid` = '$userId' AND `b`.`utype` = 'user')";
 
-		$query[] = "INSERT INTO `#__social_privacy_map` (`privacy_id`, `uid`, `utype`, `value`)";
-		$query[] = "SELECT `a`.`id` AS `privacy_id`, '$userId' AS `uid`, 'user' AS `utype`, `a`.`value` FROM `#__social_privacy` AS `a`";
-		$query[] = "WHERE `a`.`type` = 'field'";
-		$query[] = "AND `a`.`id` NOT IN (SELECT `b`.`privacy_id` FROM `#__social_privacy_map` AS `b` WHERE `b`.`uid` = '$userId' AND `b`.`utype` = 'user')";
-
-		$sql->raw(implode(' ', $query));
+		$sql->raw($query);
 
 		$db->setQuery($sql);
 

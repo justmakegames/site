@@ -9,4 +9,26 @@ EasySocial.require()
 		{
 			component: "joomla"
 		});
+
+
+    // Handle submit button.
+    $.Joomla( 'submitbutton' , function( action )
+    {
+        if (action == 'purgeJoomlaHistory') {
+            EasySocial.dialog(
+            {
+                content     : EasySocial.ajax( 'admin/views/migrators/confirmPurge', {"type": "joomla"} ),
+                bindings    :
+                {
+                    "{submitButton} click" : function()
+                    {
+                        Joomla.submitform( [action ] );
+                    }
+                }
+            });
+            return false;
+        }
+
+        $.Joomla( 'submitform' , [ action ] );
+    });
 });

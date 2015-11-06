@@ -22,7 +22,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<li class="pagination" style="border-top: 0px;" data-activity-pagination data-startlimit="<?php echo $nextlimit; ?>" >
 			<div>
 				<?php if( $nextlimit ){ ?>
-					<a class="btn btn-es-primary btn-stream-updates" href="javascript:void(0);"><i class="ies-refresh"></i>	<?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_LOG_LOAD_PREVIOUS_STREAM_ITEMS' ); ?></a>
+					<a class="btn btn-es-primary btn-stream-updates" href="javascript:void(0);"><i class="fa fa-refresh"></i>	<?php echo JText::_( 'COM_EASYSOCIAL_ACTIVITY_LOG_LOAD_PREVIOUS_STREAM_ITEMS' ); ?></a>
 				<?php } ?>
 			</div>
 		</li>

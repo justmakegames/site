@@ -26,7 +26,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-content="<?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_SELECT_GROUP_CATEGORY_DESC' , true );?>">
 
 							<a href="<?php echo FRoute::groups( array( 'layout' => 'create' ) );?>">
-								<i class="ies-checkmark"></i>
+								<i class="fa fa-check"></i>
 								<span class="step-number">0</span>
 							</a>
 						</li>
@@ -56,7 +56,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-es-provide="popover">
 
 							<a href="<?php echo $link;?>">
-								<i class="ies-checkmark"></i>
+								<i class="fa fa-check"></i>
 								<span class="step-number"><?php echo $counter; ?></span>
 							</a>
 						</li>
@@ -73,7 +73,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							>
 
 							<a href="javascript:void(0);">
-								<i class="ies-flag"></i>
+								<i class="fa fa-flag"></i>
 							</a>
 						</li>
 					</ul>

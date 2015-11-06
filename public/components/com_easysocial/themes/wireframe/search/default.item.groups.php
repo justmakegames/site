@@ -28,7 +28,7 @@ $img 	= ( $item->image ) ? $item->image : '';
 				<ul class="fd-reset-list">
 					<li>
 						<span class="es-item-title">
-							<i class="<?php echo $item->icon; ?> ies-small mr-5"></i>
+							<i class="fa <?php echo $item->icon; ?> mr-5"></i>
 							<a href="<?php echo JRoute::_( $item->link ); ?>">
 								<?php echo $item->title; ?>
 							</a>
@@ -39,20 +39,20 @@ $img 	= ( $item->image ) ? $item->image : '';
 							$group = FD::group( $item->uid );
 						?>
 						<?php if( $group->isOpen() ){ ?>
-						<span class="label label-success" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_OPEN_GROUP_TOOLTIP' , true );?>" >
-							<i class="ies-earth"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?>
+						<span class="label label-success" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_GROUPS_OPEN_GROUP_TOOLTIP' , true );?>" >
+							<i class="fa fa-globe"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?>
 						</span>
 						<?php } ?>
 
 						<?php if( $group->isClosed() ){ ?>
-						<span class="label label-important" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_CLOSED_GROUP_TOOLTIP' , true );?>">
-							<i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?>
+						<span class="label label-important" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_GROUPS_CLOSED_GROUP_TOOLTIP' , true );?>">
+							<i class="fa fa-lock"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?>
 						</span>
 						<?php } ?>
 
 						<?php if( $group->isInviteOnly() ){ ?>
-						<span class="label label-warning" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_INVITE_GROUP_TOOLTIP' , true );?>">
-							<i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_INVITE_GROUP' ); ?>
+						<span class="label label-warning" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_GROUPS_INVITE_GROUP_TOOLTIP' , true );?>">
+							<i class="fa fa-lock"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_INVITE_GROUP' ); ?>
 						</span>
 						<?php } ?>
 					</li>

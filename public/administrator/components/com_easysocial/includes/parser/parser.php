@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,51 +9,24 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Parser class to fix compatibility issues
- * between Joomla 1.5, 1.6 and 2.5
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
+jimport('joomla.filesystem.file');
+
 class SocialParser
 {
-	/**
-	 * This is the Joomla helper object.
-	 * @var SocialParserJoomla15|SocialParserJoomla25
-	 */
-	private $helper		= null;
+	private $helper = null;
 
-	// private $xmlElement = null;
-	// private $data       = null;
-
-	/**
-	 * Class constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	null
-	 */
 	public function __construct()
 	{
-		// Determine the code name
-		$name		= FD::getInstance( 'Version' )->getCodename();
+		$name = ES::version()->getCodename();
+		$file = __DIR__ . '/helpers/' . strtolower($name) . '.php';
 
-		$file 		= dirname( __FILE__ ) . '/helpers/' . strtolower( $name ) . '.php';
+		require_once($file);
 
-		// If helper is not exist, we need to prevent any fatal errors.
-		if( !JFile::exists( $file ) )
-		{
-			return;
-		}
+		$className = 'SocialParser' . ucfirst($name);
 
-		require_once( $file );
-
-		$className 		= 'SocialParser' . ucfirst( $name );
-
-		$this->helper	= new $className();
+		$this->helper = new $className();
 	}
 
 	/**
@@ -80,22 +53,18 @@ class SocialParser
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function load( $item )
+	public function load($item)
 	{
-		$contents		= $item;
+		$contents = $item;
 
-		if( is_file( $item ) )
-		{
-			jimport( 'joomla.filesystem.file' );
-
-			$contents 	= JFile::read( $item );
+		if (is_file($item)) {
+			$contents = JFile::read($item);
 		}
 
 		// Call the helper to load the items.
-		$state	= $this->helper->load( $contents );
+		$state	= $this->helper->load($contents);
 
-		if( !$state )
-		{
+		if (!$state) {
 			return false;
 		}
 

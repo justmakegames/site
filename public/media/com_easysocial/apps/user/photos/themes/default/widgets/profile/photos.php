@@ -16,25 +16,32 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<div class="pull-left widget-title">
 			<?php echo JText::_( 'APP_PHOTOS_PROFILE_WIDGET_TITLE_PHOTOS' ); ?>
 		</div>
-		<?php if( $params->get( 'showcount' ) ){ ?>
-		<span class="widget-label">( <?php echo $total;?> )</span>
+		<?php if ($params->get('showcount')) { ?>
+		<span class="widget-label">(<?php echo $total;?>)</span>
+		<?php } ?>
+
+		<?php if (!empty($photos)) { ?>
+			<a class="fd-small pull-right" href="<?php echo FRoute::albums( array( 'uid' => $user->getAlias() , 'type' => SOCIAL_TYPE_USER ) );?>"><?php echo JText::_('APP_PHOTOS_PROFILE_WIDGET_VIEW_ALL');?></a>
 		<?php } ?>
 	</div>
 	<div class="es-widget-body">
 		<ul class="widget-list-grid">
 			<?php if( $photos ){ ?>
-				<?php foreach( $photos as $photo ){ ?>
-					<li data-es-photo-group="album:<?php echo $photo->album_id; ?>">
-						<a href="<?php echo FRoute::photos( array( 'id' => $photo->getAlias() , 'layout' => 'item' , 'uid' => $user->getAlias() , 'type' => SOCIAL_TYPE_USER ) );?>"
-							data-es-provide="tooltip"
-							data-original-title="<?php echo $photo->get( 'title' );?>"
-							data-placement="bottom"
-							data-es-photo="<?php echo $photo->id; ?>"
-							class="es-avatar "
-						>
-							<img src="<?php echo $photo->getSource('square');?>" alt="<?php echo $this->html( 'string.escape' , $photo->get('title' ) );?>" />
-						</a>
-					</li>
+				<?php for ($i = 0; $i < $limit; $i++) { ?>
+					<?php if (!empty($photos[$i])) { ?>
+						<?php $photo = $photos[$i]; ?>
+							<li data-es-photo-group="album:<?php echo $photo->album_id; ?>">
+								<a href="<?php echo FRoute::photos( array( 'id' => $photo->getAlias() , 'layout' => 'item' , 'uid' => $user->getAlias() , 'type' => SOCIAL_TYPE_USER ) );?>"
+									data-es-provide="tooltip"
+									data-original-title="<?php echo $photo->get( 'title' );?>"
+									data-placement="bottom"
+									data-es-photo="<?php echo $photo->id; ?>"
+									class="es-avatar "
+								>
+									<img src="<?php echo $photo->getSource('square');?>" alt="<?php echo $this->html( 'string.escape' , $photo->get('title' ) );?>" />
+								</a>
+							</li>
+					<?php } ?>
 				<?php } ?>
 			<?php } else { ?>
 			<li>
@@ -44,11 +51,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</li>
 			<?php } ?>
 		</ul>
-
-		<?php if( !empty( $photos ) ){ ?>
-		<div>
-			<a class="fd-small" href="<?php echo FRoute::albums( array( 'uid' => $user->getAlias() , 'type' => SOCIAL_TYPE_USER ) );?>"><?php echo JText::_( 'APP_PHOTOS_PROFILE_WIDGET_VIEW_ALL' );?></a>
-		</div>
-		<?php } ?>
 	</div>
 </div>

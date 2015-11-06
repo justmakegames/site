@@ -38,6 +38,11 @@ class EasySocialModelLeaderboard extends EasySocialModel
 
 		$query		= array();
 		$query[]	= 'SELECT a.' . $db->nameQuote( 'id' ) . ', SUM( d.' . $db->nameQuote( 'points' ) . ') AS ' . $db->nameQuote( 'points' ) . ' FROM ' . $db->nameQuote( '#__users' ) . ' AS a';
+
+		// exclude esad users
+		$query[] = 'INNER JOIN `#__social_profiles_maps` as upm on a.`id` = upm.`user_id`';
+		$query[] = 'INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
+
 		$query[]	= 'LEFT JOIN ' . $db->nameQuote( '#__social_users' ) . ' AS b';
 		$query[]	= 'ON a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'user_id' );
 
@@ -230,6 +235,12 @@ class EasySocialModelLeaderboard extends EasySocialModel
 
 		$query		= array();
 		$query[]	= 'SELECT DISTINCT( a.`id` ) FROM ' . $db->nameQuote( '#__users' ) . ' AS a';
+
+		// exclude esad users
+		$query[] = 'INNER JOIN `#__social_profiles_maps` as upm on a.`id` = upm.`user_id`';
+		$query[] = 'INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
+
+
 		$query[]	= 'LEFT JOIN ' . $db->nameQuote( '#__social_users' ) . ' AS b';
 		$query[]	= 'ON a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'user_id' );
 

@@ -121,7 +121,7 @@ class SocialProfiler
 	<section style="border: 1px solid #e6e6e6;margin-top: 20px;position:fixed;right: 0;bottom: 0;overflow:hidden;z-index: 9999;background:rgba(255,255,255,0.8)" data-profiler-box>
 	<div class="row-fluid" style="background: #fff; border-bottom: 1px solid #eee;">
 		<h6 class="pull-left" style="margin: 5px;">Debug information</h6>
-		<a href="javascript:void(0);" data-profiler-expand class="pull-right" style="font-size: 14px; padding-right: 5px; padding-top: 5px;"><i class="ies-new-tab"></i></a>
+		<a href="javascript:void(0);" data-profiler-expand class="pull-right" style="font-size: 14px; padding-right: 5px; padding-top: 5px;"><i class="fa fa-new-tab"></i></a>
 	</div>
 	<div style="padding: 5px;">
 		Total SQL queries executed by: <strong style="<?php echo count($this->queries) > 80 ? 'color:red;' : '';?>"><?php echo count($this->queries); ?></strong><br />

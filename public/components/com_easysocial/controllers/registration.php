@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-FD::import( 'site:/controllers/controller' );
+FD::import('site:/controllers/controller');
 
 class EasySocialControllerRegistration extends EasySocialController
 {
@@ -23,16 +23,13 @@ class EasySocialControllerRegistration extends EasySocialController
 	 */
 	public function activate()
 	{
-		// Get current view.
-		$view = $this->getCurrentView();
-
 		// Get the id from the request
 		$id = $this->input->get('userid', 0, 'int');
 		$currentUser = FD::user($id);
 
 		// If user is already logged in, redirect to the dashboard.
 		if ($this->my->isLoggedIn()) {
-			return $view->call(__FUNCTION__, $currentUser);
+			return $this->view->call(__FUNCTION__, $currentUser);
 		}
 
 		// Get the token
@@ -40,8 +37,8 @@ class EasySocialControllerRegistration extends EasySocialController
 
 		// If token is empty, warn the user.
 		if (empty($token) || strlen($token) !== 32) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATION_ACTIVATION_TOKEN_INVALID'), SOCIAL_MSG_ERROR);
-			return $view->call(__FUNCTION__ , $currentUser);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATION_ACTIVATION_TOKEN_INVALID'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__ , $currentUser);
 		}
 
 		// Try to activate the user based on the token.
@@ -49,15 +46,10 @@ class EasySocialControllerRegistration extends EasySocialController
 		$user = $model->activate($token);
 
 		if ($user === false) {
-			$view->setMessage($model->getError(), SOCIAL_MSG_ERROR);
+			$this->view->setMessage($model->getError(), SOCIAL_MSG_ERROR);
 
-			return $view->call(__FUNCTION__, $currentUser);
+			return $this->view->call(__FUNCTION__, $currentUser);
 		}
-
-		// @points: user.register
-		// Assign points when user registers on the site.
-		$points = Foundry::points();
-		$points->assign('user.registration', 'com_easysocial', $user->id);
 
 		// @badge: registration.create
 		// Assign badge for the person that initiated the friend request.
@@ -94,8 +86,8 @@ class EasySocialControllerRegistration extends EasySocialController
 			$stream->add($streamTemplate);
 		}
 
-		$view->setMessage(JText::_( 'COM_EASYSOCIAL_REGISTRATION_ACTIVATION_COMPLETED_SUCCESS'), SOCIAL_MSG_SUCCESS);
-		return $view->call(__FUNCTION__, $user);
+		$this->view->setMessage(JText::_( 'COM_EASYSOCIAL_REGISTRATION_ACTIVATION_COMPLETED_SUCCESS'), SOCIAL_MSG_SUCCESS);
+		return $this->view->call(__FUNCTION__, $user);
 	}
 
 	/**
@@ -108,12 +100,10 @@ class EasySocialControllerRegistration extends EasySocialController
 	 */
 	public function selectType()
 	{
-		$view = $this->getCurrentView();
-
-		// @task: Ensure that registrations is enabled.
+		// Ensure that registrations is enabled.
 		if (!$this->config->get('registrations.enabled')) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_ERROR_REGISTRATION_DISABLED', SOCIAL_MSG_ERROR));
-			return $view->call(__FUNCTION__);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_ERROR_REGISTRATION_DISABLED', SOCIAL_MSG_ERROR));
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Get the profile id
@@ -121,9 +111,19 @@ class EasySocialControllerRegistration extends EasySocialController
 
 		// If there's no profile id selected, throw an error.
 		if (!$id) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_ERROR_REGISTRATION_EMPTY_PROFILE_ID'), SOCIAL_MSG_ERROR);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_ERROR_REGISTRATION_EMPTY_PROFILE_ID'), SOCIAL_MSG_ERROR);
 
-			return $view->call(__FUNCTION__);
+			return $this->view->call(__FUNCTION__);
+		}
+
+		// We need to ensure that the user can really select such profile type during registrations
+		$profile = ES::table('Profile');
+		$profile->load($id);
+
+		if (!$profile->allowsRegistration()) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_ERROR_REGISTRATION_EMPTY_PROFILE_ID'), SOCIAL_MSG_ERROR);
+
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// @task: Let's set some info about the profile into the session.
@@ -151,7 +151,7 @@ class EasySocialControllerRegistration extends EasySocialController
 			return $this->quickRegister();
 		}
 
-		return $view->call( __FUNCTION__ );
+		return $this->view->call( __FUNCTION__ );
 	}
 
 	/**
@@ -167,25 +167,21 @@ class EasySocialControllerRegistration extends EasySocialController
 		// Check for request forgeries.
 		FD::checkToken();
 
-		// Get the current view
-		$view = $this->getCurrentView();
-
 		// Registrations must be enabled.
 		if (!$this->config->get('registrations.enabled')) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATIONS_DISABLED'), SOCIAL_MSG_ERROR);
-			return $view->call(__FUNCTION__);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATIONS_DISABLED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Retrieve all file objects if needed
 		$files = JRequest::get('FILES');
 		$post = JRequest::get( 'POST' );
-		$token = FD::token();
 
 		// Get current user's info
 		$session = JFactory::getSession();
 
 		// Get necessary info about the current registration process.
-		$registration = FD::table( 'Registration' );
+		$registration = FD::table('Registration');
 		$state = $registration->load($session->getId());
 
 		// There are cases where the registration page is not loaded through display function in view.html.php due to cache, then the session is not created in registration table
@@ -207,93 +203,89 @@ class EasySocialControllerRegistration extends EasySocialController
 		$sequence = $profile->getSequenceFromIndex($registration->get('step'), SOCIAL_PROFILES_VIEW_REGISTRATION);
 
 		// Load the current step.
-		$step 		= FD::table( 'FieldStep' );
-		$step->loadBySequence( $profile->id , SOCIAL_TYPE_PROFILES , $sequence );
+		$step = FD::table('FieldStep');
+		$step->loadBySequence($profile->id, SOCIAL_TYPE_PROFILES, $sequence);
 
 		// Merge the post values
-		$registry 	= FD::get( 'Registry' );
-		$registry->load( $registration->values );
+		$registry = FD::registry($registration->values);
 
 		// Load registration model
-		$registrationModel	= FD::model( 'Registration' );
+		$registrationModel = FD::model('Registration');
 
 		// Get all published fields apps that are available in the current form to perform validations
-		$fieldsModel 		= FD::model( 'Fields' );
-		$fields				= $fieldsModel->getCustomFields( array( 'step_id' => $step->id, 'visible' => SOCIAL_PROFILES_VIEW_REGISTRATION ) );
+		$fieldsModel = FD::model('Fields');
+		$options = array('step_id' => $step->id, 'visible' => SOCIAL_PROFILES_VIEW_REGISTRATION);
+		$fields = $fieldsModel->getCustomFields($options);
 
-		// Load json library.
-		$json 	= FD::json();
+		// Process all $_POST variables and normalize the data
+		$token = FD::token();
 
-		// Process $_POST vars
 		foreach ($post as $key => $value) {
 
 			if ($key != $token) {
+				
 				if (is_array($value)) {
-					$value  = $json->encode($value);
+					$value = json_encode($value);
 				}
+
 				$registry->set($key, $value);
 			}
 		}
 
 		// Convert the values into an array.
-		$data		= $registry->toArray();
+		$data = $registry->toArray();
+		$args = array(&$data, &$registration);
 
-		$args       = array(&$data, &$registration);
-
-		// Perform field validations here. Validation should only trigger apps that are loaded on the form
-		// @trigger onRegisterValidate
+		// Load up our fields library
 		$fieldsLib	= FD::fields();
 
 		// Get the trigger handler
 		$handler = $fieldsLib->getHandler();
 
-		// Get error messages
-		$errors  = $fieldsLib->trigger( 'onRegisterValidate' , SOCIAL_FIELDS_GROUP_USER , $fields , $args, array( $handler, 'validate' ) );
+		// Allow custom fields to perform their on validation
+		// @trigger onRegisterValidate
+		$errors = $fieldsLib->trigger('onRegisterValidate', SOCIAL_FIELDS_GROUP_USER, $fields , $args, array($handler, 'validate'));
 
 		// The values needs to be stored in a JSON notation.
-		$registration->values   = $json->encode($data);
-
-		// Store registration into the temporary table.
+		$registration->values = json_encode($data);
 		$registration->store();
 
 		// Get the current step (before saving)
-		$currentStep    = $registration->get( 'step' );
-
 		// Add the current step into the accessible list
-		$registration->addStepAccess( $currentStep );
+		$currentStep = $registration->step;
+		$registration->addStepAccess($currentStep);
 
 		// Bind any errors into the registration object
-		$registration->setErrors( $errors );
+		$registration->setErrors($errors);
 
 		// Saving was intercepted by one of the field applications.
 		if (is_array($errors) && count($errors) > 0) {
-			// @rule: If there are any errors on the current step, remove access to future steps to avoid any bypass
+			
+			// If there are any errors on the current step, remove access to future steps to avoid any bypass
 			$registration->removeAccess($currentStep);
 
-			// @rule: Reset steps to the current step
+			// Reset steps to the current step
 			$registration->step = $currentStep;
 			$registration->store();
 
-			$view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATION_SOME_ERRORS_IN_THE_REGISTRATION_FORM') , SOCIAL_MSG_ERROR);
+			$this->view->setMessage('COM_EASYSOCIAL_REGISTRATION_SOME_ERRORS_IN_THE_REGISTRATION_FORM', SOCIAL_MSG_ERROR);
 
-			return $view->call('saveStep', $registration, $currentStep);
+			return $this->view->call('saveStep', $registration, $currentStep);
 		}
 
 		// Determine whether the next step is completed. It has to be before updating the registration table's step
 		// Otherwise, the step doesn't exist in the site.
-
-		// Determine if this is the last step.
-		$completed = $step->isFinalStep( SOCIAL_PROFILES_VIEW_REGISTRATION );
+		$completed = $step->isFinalStep(SOCIAL_PROFILES_VIEW_REGISTRATION);
 
 		// Update creation date
-		$registration->created = FD::date()->toMySQL();
+		$registration->created = JFactory::getDate()->toSql();
 
-		// Since user has already came through this step, add the step access
-		$nextSequence = $step->getNextSequence( SOCIAL_PROFILES_VIEW_REGISTRATION );
+		// Get the next step the user should go through
+		$nextSequence = $step->getNextSequence(SOCIAL_PROFILES_VIEW_REGISTRATION);
 
 		if ($nextSequence !== false) {
 			$nextIndex = $profile->getIndexFromSequence($nextSequence, SOCIAL_PROFILES_VIEW_REGISTRATION);
-			$registration->addStepAccess( $nextIndex );
+			$registration->addStepAccess($nextIndex);
 			$registration->step = $nextIndex;
 		}
 
@@ -304,30 +296,30 @@ class EasySocialControllerRegistration extends EasySocialController
 		if ($completed) {
 
 			// Create user object.
-			$user 	= $registrationModel->createUser($registration);
+			$user = $registrationModel->createUser($registration);
 
 			// If there's no id, we know that there's some errors.
 			if (empty($user->id)) {
-				$errors 		= $registrationModel->getError();
+				$errors = $registrationModel->getError();
 
-				$view->setMessage( $errors , SOCIAL_MSG_ERROR );
+				$this->view->setMessage($errors, SOCIAL_MSG_ERROR);
 
-				return $view->call('saveStep', $registration , $currentStep);
+				return $this->view->call('saveStep', $registration, $currentStep);
 			}
 
 			// Get the registration data
-			$registrationData 	= FD::registry($registration->values);
+			$registrationData = FD::registry($registration->values);
 
 			// Clear existing registration objects once the creation is completed.
 			$registration->delete();
 
 			// Clear cache as soon as the user registers on the site.
-			$cache 		= JFactory::getCache();
+			$cache = JFactory::getCache();
 			$cache->clean('page');
 			$cache->clean('_system');
 
 			// Force unset on the user first to reload the user object
-			SocialUser::$userInstances[$user->id] = null;
+			$user->removeFromCache();
 
 			// Get the current registered user data.
 			$my = FD::user($user->id);
@@ -352,20 +344,20 @@ class EasySocialControllerRegistration extends EasySocialController
 			$my->password_clear	= $user->password_clear;
 
 			// Convert the data into an array of result.
-			$mailerData		= FD::registry( $registration->values )->toArray();
+			$mailerData = FD::registry( $registration->values )->toArray();
 
 			// Send notification to admin if necessary.
 			if ($profile->getParams()->get('email.moderators', true)) {
-				$registrationModel->notifyAdmins( $mailerData , $my , $profile, false );
+				$registrationModel->notifyAdmins($mailerData, $my, $profile, false);
 			}
 
 			// If everything goes through fine, we need to send notification emails out now.
-			$registrationModel->notify($mailerData, $my, $profile);
+			if ($profile->getParams()->get('email.users', true)) {
+				$registrationModel->notify($mailerData, $my, $profile);
+			}
 
 			// We need to log the user in after they have successfully registered.
 			if ($profile->getRegistrationType() == 'auto') {
-
-
 				// @points: user.register
 				// Assign points when user registers on the site.
 				$points = FD::points();
@@ -399,23 +391,20 @@ class EasySocialControllerRegistration extends EasySocialController
 					$stream->add( $streamTemplate );
 				}
 
-				$app 			= JFactory::getApplication();
-
-				$credentials	= array( 'username' => $my->username , 'password' => $my->password_clear );
-
-				// Try to log the user in
-				$app->login($credentials);
+				// Try to log the user into the site
+				$credentials = array('username' => $my->username, 'password' => $my->password_clear);
+				$this->app->login($credentials);
 			}
 
-			// add new registered user into indexer
+			// Synchronize with Joomla's finder
 			$my->syncIndex();
 
 
 			// Store the user's custom fields data now.
-			return $view->complete($user, $profile);
+			return $this->view->complete($user, $profile);
 		}
 
-		return $view->saveStep($registration, $currentStep, $completed);
+		return $this->view->saveStep($registration, $currentStep, $completed);
 	}
 
 	/**
@@ -441,7 +430,7 @@ class EasySocialControllerRegistration extends EasySocialController
 		// Check if the client is valid.
 		if( !$clientType || !in_array( $clientType , $allowedClients ) )
 		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_OAUTH_INVALID_CLIENT' ) , SOCIAL_MSG_ERROR );
+			$this->view->setMessage( JText::_( 'COM_EASYSOCIAL_OAUTH_INVALID_CLIENT' ) , SOCIAL_MSG_ERROR );
 			return $view->call( __FUNCTION__ );
 		}
 
@@ -539,7 +528,7 @@ class EasySocialControllerRegistration extends EasySocialController
 
 
 		// Create the user account in Joomla
-		$user 		= $model->createOauthUser( $accessToken , $meta , $client , $import , $sync );
+		$user = $model->createOauthUser( $accessToken , $meta , $client , $import , $sync );
 
 		// If there's a problem creating user, throw message.
 		if( !$user )
@@ -908,9 +897,6 @@ class EasySocialControllerRegistration extends EasySocialController
 	 */
 	public function quickRegister()
 	{
-		// Get the current view
-		$view = $this->getCurrentView();
-
 		// Get current user's session
 		$session = JFactory::getSession();
 
@@ -929,13 +915,12 @@ class EasySocialControllerRegistration extends EasySocialController
 		$profileId = $registration->profile_id;
 
 		if (empty($profileId)) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATIONS_MODULE_PROFILE_TYPE_REQUIRED' ), SOCIAL_MSG_ERROR);
-			return $view->call('selectProfile');
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATIONS_MODULE_PROFILE_TYPE_REQUIRED' ), SOCIAL_MSG_ERROR);
+			return $this->view->call('selectProfile');
 		}
 
+		// Convert the params data into an array so we can manipulate this as an array.
 		$data = $params->toArray();
-
-		// Trigger onRegisterValidate first
 
 		// Get the fields
 		$fieldsModel = FD::model('Fields');
@@ -949,21 +934,21 @@ class EasySocialControllerRegistration extends EasySocialController
 		$args = array(&$data, &$registration);
 
 		// Get error messages
-		$errors = $fieldsLib->trigger('onRegisterMiniValidate', SOCIAL_FIELDS_GROUP_USER , $fields , $args );
+		$errors = $fieldsLib->trigger('onRegisterMiniValidate', SOCIAL_FIELDS_GROUP_USER, $fields, $args);
 
 		$registration->setErrors($errors);
 
 		// The values needs to be stored in a JSON notation.
-		$registration->values   = FD::json()->encode( $data );
+		$registration->values = json_encode($data);
 
 		// Store registration into the temporary table.
 		$registration->store();
 
 		// Saving was intercepted by one of the field applications.
 		if (is_array($errors) && count($errors) > 0) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATION_FORM_ERROR_PROCEED_WITH_REGISTRATION'), SOCIAL_MSG_ERROR);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATION_FORM_ERROR_PROCEED_WITH_REGISTRATION'), SOCIAL_MSG_ERROR);
 
-			return $view->call(__FUNCTION__);
+			return $this->view->call(__FUNCTION__);
 		}
 
 		// Load up the registration model
@@ -971,8 +956,8 @@ class EasySocialControllerRegistration extends EasySocialController
 		$user = $model->createUser($registration);
 
 		if (!$user) {
-			$view->setMessage($model->getError(), SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ );
+			$this->view->setMessage($model->getError(), SOCIAL_MSG_ERROR );
+			return $this->view->call( __FUNCTION__ );
 		}
 
 		// Redirection will be dependent on the profile type's registration behavior.
@@ -1044,11 +1029,11 @@ class EasySocialControllerRegistration extends EasySocialController
 
 			// TODO: Trigger the apps to check if fields are complete
 			// If not complete then we call view to redirect this user to the edit profile page
-			// $view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATIONS_COMPLETE_REGISTRATION'), SOCIAL_MSG_INFO);
+			// $this->view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATIONS_COMPLETE_REGISTRATION'), SOCIAL_MSG_INFO);
 		}
 
 		// Store the user's custom fields data now.
-		return $view->complete( $my , $profile );
+		return $this->view->complete( $my , $profile );
 	}
 
 	/**
@@ -1070,85 +1055,77 @@ class EasySocialControllerRegistration extends EasySocialController
 		$registration = FD::table('Registration');
 		$registration->load($session->getId());
 
-		// Get a new registry object
-		$registry = FD::get('Registry');
+		// Create a new object to store the params
+		$params = new stdClass();
 
+		// If registration values was previously set
 		if (!empty($registration->values)) {
-			$registry->load($registration->values);
+			$params = json_decode($registration->values);
 		}
-
-		// Load json library
-		$json = FD::json();
-
-		// Get the token string
-		$token = FD::token();
 
 		// Get post values
 		$post = JRequest::get('POST');
 
 		// Keys to exclude
-		$exclude = array($token, 'option', 'controller', 'task');
+		$exclude = array(FD::token(), 'option', 'controller', 'task');
 
-		// Process $_POST vars
+		// Go through each of the post vars
 		foreach ($post as $key => $value) {
 
 			if (!in_array($key, $exclude)) {
 
 				if (is_array($value)) {
-					$value  = $json->encode( $value );
+					$value = json_encode($value);
 				}
-
-				$registry->set($key, $value);
+				
+				$params->$key = $value;
 			}
 		}
 
-		$profileModel = FD::model('Profiles');
-		$totalProfiles = $profileModel->getTotalProfiles();
+		// Determines the mini registration mode
+		$mode = $this->config->get('registrations.mini.mode', 'quick');
 
-		$minimode = $this->config->get('registrations.mini.mode', 'quick');
-		$miniprofile = $this->config->get('registrations.mini.profile', 'default');
+		// Determines the profile?
+		$defaultProfile = $this->config->get('registrations.mini.profile', 'default');
 
 		// Might be coming from module, in which we have to respect module settings
 		if (isset($post['modRegisterType']) && isset($post['modRegisterProfile'])) {
-			$minimode = $post['modRegisterType'];
-			$miniprofile = $post['modRegisterProfile'];
+			$mode = $post['modRegisterType'];
+			$defaultProfile = $post['modRegisterProfile'];
 		}
 
-		$profileId = $miniprofile;
+		// Get the default profile id that we should use.
+		$profileModel = FD::model('Profiles');
 
 		// If selected profile is default, then we check how many profiles are there
-		if ($miniprofile === 'default') {
-
-			// If only 1 profile is found, then we assign it directly
-			// if ($totalProfiles == 1) {
-			// 	$profileId = $profileModel->getDefaultProfile()->id;
-			// }
+		if ($defaultProfile === 'default') {
 
 			// We no longer allow the ability for user to select profile
 			// This is because the rendered field might be different from user selected profile
 			// Under that case, the mapping of the fields will be off and unable to validate/store accordingly
 			// EG. Profile 1 has a password field with id 3, while Profile 2 has a password field id 5, if the rendered field is 3, but user selected profile 2, validation will fail because of field mismatch
 			// Hence if the settings is set to default profile, then we always use default profile
-			$profileId = $profileModel->getDefaultProfile()->id;
-
+			$defaultProfile = $profileModel->getDefaultProfile()->id;
 		}
 
 		// Set the profile id directly
-		if (!empty($profileId)) {
+		if (!empty($defaultProfile)) {
 
-			$registration->profile_id = $profileId;
-			$registry->set('profile_id', $profileId);
+			$registration->profile_id = $defaultProfile;
+
+			// Set the profile id in the params
+			$params->profile_id = $defaultProfile;
 
 			// Directly set the registration step as 1
 			$registration->step = 1;
 			$registration->addStepAccess(1);
 		}
 
-		$registration->values = $registry->toString();
+		// Convert the 
+		$registration->values = json_encode($params);
 
-		$state = $registration->store();
-
-		$view = $this->getCurrentView();
+		// Store the registration
+		$registration->store();
 
 		// Decide what to do here based on the configuration
 		// FULL -> Registration page, registration page then decides if there is 1 or more profile to choose
@@ -1156,20 +1133,21 @@ class EasySocialControllerRegistration extends EasySocialController
 		// QUICK && no profile id -> Registration page with parameter quick=1
 
 		// If mode is set to full, then we redirect to registration page
-		if ($minimode === 'full') {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATIONS_COMPLETE_REGISTRATION'), SOCIAL_MSG_INFO);
+		if ($mode === 'full') {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_REGISTRATIONS_COMPLETE_REGISTRATION'), SOCIAL_MSG_INFO);
 
-			return $view->call('fullRegister', $profileId);
+			return $this->view->call('fullRegister', $defaultProfile);
 		}
 
-		if ($minimode === 'quick') {
-			if (empty($profileId)) {
-				return $view->call('selectProfile');
-			} else {
-				return $this->quickRegister();
-			}
+		// If this is quick mode, we need to check whether there's a default profile
+		if ($mode == 'quick' && !$defaultProfile) {
+			return $this->view->call('selectProfile');
 		}
 
-		return $view->call(__FUNCTION__);
+		if ($mode == 'quick') {
+			return $this->quickRegister();
+		}
+
+		return $this->view->call(__FUNCTION__);
 	}
 }

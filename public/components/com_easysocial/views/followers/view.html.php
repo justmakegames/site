@@ -111,18 +111,25 @@ class EasySocialViewFollowers extends EasySocialSiteView
 			$title 		= JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_FOLLOWING' );
 		}
 
+		if( $active == 'suggest' )
+		{
+			$users		= $model->getSuggestions( $user->id , $options );
+			$title 		= JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_PEOPLE_TO_FOLLOW' );
+		}
+
 		// Get the pagination
 		$pagination 	= $model->getPagination();
 
 		$filterFollowers 	= FRoute::followers( array() , false );
 		$filterFollowing 	= FRoute::followers( array( 'filter' => 'following' ) , false );
+		$filterSuggest 	= FRoute::followers( array( 'filter' => 'suggest' ) , false );
 
 		if( !$user->isViewer() )
 		{
 			$title 	= $user->getName() . ' - ' . $title;
 
 			$filterFollowers	= FRoute::followers( array( 'userid' => $user->getAlias() ) , false );
-			$filterFollowing 	= FRoute::followers( array( 'userid' => $user->getAlias() , 'filter' => 'following' ) , false );
+			$filterSuggest 	= FRoute::followers( array( 'userid' => $user->getAlias() , 'filter' => 'suggest' ) , false );
 		}
 
 		FD::page()->title( $title );
@@ -131,16 +138,24 @@ class EasySocialViewFollowers extends EasySocialSiteView
 		FD::page()->breadcrumb( $title );
 
 		// Get total followers and following
-		$totalFollowers 	= $model->getTotalFollowers( $user->id );
-		$totalFollowing 	= $model->getTotalFollowing( $user->id );
+		$totalFollowers = $model->getTotalFollowers($user->id);
+		$totalFollowing = $model->getTotalFollowing($user->id);
+		$totalSuggest = $model->getTotalSuggestions($user->id);
+
+		// var_dump($totalSuggest);
 
 		$this->set( 'pagination' , $pagination );
 		$this->set( 'user' , $user );
 		$this->set( 'active' , $active );
+
 		$this->set( 'filterFollowers'	, $filterFollowers );
 		$this->Set( 'filterFollowing'	, $filterFollowing );
+		$this->Set( 'filterSuggest'	, $filterSuggest );
+
 		$this->set( 'totalFollowers'	, $totalFollowers );
 		$this->set( 'totalFollowing'	, $totalFollowing );
+		$this->set( 'totalSuggest'	, $totalSuggest );
+
 		$this->set( 'currentUser'		, $user );
 		$this->set( 'users'		, $users );
 		$this->set( 'privacy'	, $privacy );

@@ -4,7 +4,7 @@ EasySocial.module('site/comments/frame', function($) {
 	EasySocial
 		.require()
 		.library('mentions')
-		.script('site/comments/item')
+		.script('site/comments/item', 'uploader/uploader')
 		.view(
 			"site/friends/suggest.item",
 			"site/friends/suggest.hint.search",
@@ -20,34 +20,24 @@ EasySocial.module('site/comments/frame', function($) {
 		)
 		.done(function() {
 
-			/**
-			 *	Parent comments controller
-			 */
 			EasySocial.Controller('Comments', {
 				defaultOptions: {
-					'group'				: 'user',
-					'element'			: 'stream',
-					'verb'				: 'null',
-					'uid'				: 0,
 
-					'enterkey'			: 'submit',
+					'group': 'user',
+					'element': 'stream',
+					'verb': 'null',
+					'uid': 0,
+					'enterkey': 'submit',
+					'url': '',
+					'streamid': '',
 
-					'url'				: '',
-
-					'streamid' 			: '',
-
-					'{actionContent}'	: '[data-action-contents-comments]',
-					'{actionLink}'		: '[data-stream-action-comments]',
-
-					'{stat}'			: '[data-comments-stat]',
-
-					'{load}'			: '[data-comments-load]',
-
-					'{list}'			: '[data-comments-list]',
-
-					'{item}'			: '[data-comments-item]',
-
-					'{form}'			: '[data-comments-form]'
+					'{actionContent}': '[data-action-contents-comments]',
+					'{actionLink}': '[data-stream-action-comments]',
+					'{stat}': '[data-comments-stat]',
+					'{load}': '[data-comments-load]',
+					'{list}': '[data-comments-list]',
+					'{item}': '[data-comments-item]',
+					'{form}': '[data-comments-form]'
 				}
 			}, function(self) { return {
 
@@ -330,13 +320,9 @@ EasySocial.module('site/comments/frame', function($) {
 				}
 			} });
 
-			/**
-			 *	Load more controller
-			 */
 			EasySocial.Controller('Comments.Load', {
 				defaultOptions: {
 					'{load}'		: '[data-comments-load]',
-
 					'{loadMore}'	: '[data-comments-load-loadMore]'
 				}
 			}, function(self) { return {
@@ -405,29 +391,197 @@ EasySocial.module('site/comments/frame', function($) {
 			/**
 			 *	Form controller
 			 */
-			EasySocial.Controller('Comments.Form',
-			{
-				defaultOptions:
-				{
-					'{editorHeader}'	: '[data-comment-form-header]',
-					'{editorArea}'		: '[data-comment-form-editor-area]',
-					'{input}'			: '[data-comments-form-input]',
-					'{submit}'			: '[data-comments-form-submit]',
-					'{status}'			: '[data-comments-form-status]',
-					view:
-					{
+			EasySocial.Controller('Comments.Form', {
+				
+				defaultOptions: {
+					'{editorHeader}': '[data-comment-form-header]',
+					'{editorArea}': '[data-comment-form-editor-area]',
+					'{input}': '[data-comments-form-input]',
+					'{submit}': '[data-comments-form-submit]',
+					'{status}': '[data-comments-form-status]',
+					
+					// Smileys
+					"{smileyLink}": "[data-comment-smileys]",
+					"{smileyItem}": "[data-comment-smiley-item]",
+
+					// Attachments
+					"{attachmentQueue}": "[data-comment-attachment-queue]",
+					"{attachmentProgress}": "[data-comment-attachment-progress-bar]",
+					"{attachmentBackground}": "[data-comment-attachment-background]",
+					"{attachmentRemove}": "[data-comment-attachment-remove]",
+					"{attachmentItem}": "[data-comment-attachment-item]",
+
+					"{attachmentDelete}": "[data-comment-attachment-delete]",
+
+					"{uploaderForm}": "[data-uploader-form]",
+					"{itemTemplate}": "[data-comment-attachment-template]",
+
+					attachmentIds:[],
+
+					view: {
 						suggestItem: "site/friends/suggest.item",
 						tagSuggestItem: "site/hashtags/suggest.item"
 					}
 				}
-			}, function(self) { return {
-				init: function()
-				{
+			}, function(self, opts, base, parent) { return {
+
+				init: function() {
+
+					// Assign the parent
+					parent = self.parent;
+
+					// Apply the mentions on the comment form
 					self.setMentionsLayout();
+
+					// Implement attachments on the comment form.
+					if (parent.options.attachments) {
+						self.implementAttachments();
+					}
+
 				},
 
-				'{input} keypress': function(el, event)
-				{
+				attachmentTemplate: null,
+
+				getAttachmentTemplate: function() {
+
+					if (!self.attachmentTemplate) {
+						self.attachmentTemplate = self.itemTemplate().detach();
+					}
+
+					var tpl = $(self.attachmentTemplate).clone().html();
+
+					return $(tpl);
+				},
+				
+				implementAttachments: function() {
+
+					// Implement uploader controller
+					self.editorArea().implement(EasySocial.Controller.Uploader, {
+						'temporaryUpload': true,
+						'query': 'type=comments',
+						'type': 'comments',
+						extensionsAllowed: 'jpg,png,gif'
+					});
+
+				},
+
+				"{smileyItem} click": function(smileyItem, event) {
+
+					var value = smileyItem.data('comment-smiley-value');
+					var isEditing = smileyItem.parents('[data-comments-item-editframe]').length > 0;
+					var currentInput = self.input();
+
+					if (isEditing) {
+						currentInput = smileyItem.parents('[data-comments-item-editframe]').find('[data-comments-item-edit-input]');
+					}
+						
+					var currentValue = currentInput.val();
+					currentValue += " " + value;
+
+					// Update the comment form with the smiley
+					currentInput.val(currentValue);
+				},
+
+				"{smileyLink} click": function(smileyLink, event) {
+
+					if (smileyLink.hasClass('active')) {
+						smileyLink.removeClass('active');
+
+						return;
+					}
+
+					smileyLink.addClass('active');
+				},
+
+				"{attachmentDelete} click": function(deleteLink, event) {
+
+					var attachmentId = deleteLink.data('id');
+					
+					EasySocial.dialog({
+						content: EasySocial.ajax('site/views/comments/confirmDeleteCommentAttachment', {
+										"id": attachmentId
+									}),
+						bindings: {
+							"{deleteButton} click": function() {
+
+								// Perform an ajax call to the server
+								EasySocial.ajax('site/controllers/comments/deleteAttachment', {
+									"id": attachmentId
+								})
+								.done(function() {
+									// Remove the dom from the page
+									var item = deleteLink.parents(self.attachmentItem.selector);
+									item.remove();
+
+									EasySocial.dialog().close();
+								});
+							}
+						}
+					});
+
+				},
+
+				"{attachmentRemove} click": function(removeLink, event) {
+					var item = removeLink.parents(self.attachmentItem.selector);
+
+					// Remove the item from the attachment ids
+					opts.attachmentIds = $.without(opts.attachmentIds, item.data('id'));
+
+					// Remove the item
+					item.remove();
+
+					if (self.attachmentItem().length < 1) {
+						self.attachmentQueue().removeClass('has-attachments');
+					}
+				},
+
+				// When a new item is added, we want to display
+				"{uploaderForm} FilesAdded": function(el, event, uploader, files) {
+
+					$.each(files, function(index, file) {
+						// Get the attachment template
+						var item = self.getAttachmentTemplate();
+
+						// Set the queue to use has-attachments class
+						self.attachmentQueue()
+							.addClass('has-attachments');
+
+						// Insert the item into the queue
+						item.attr('id', file.id)
+							.addClass('is-uploading')
+							.prependTo(self.attachmentQueue());
+					});
+				},
+
+				// When the file is uploaded, we need to remove the uploading state
+				"{uploaderForm} FileUploaded": function(el, event, uploader, file, response) {
+
+					var item = $('#' + file.id);
+
+					// Add preview
+					self.attachmentBackground.inside(item)
+						.css('background-image', 'url(' + response.preview + ')');
+
+					// Remove the is-uploading state on the upload item
+					item.removeClass('is-uploading');
+
+					// Push the id
+					item.data('id', response.id);
+
+					opts.attachmentIds.push(response.id);
+				},
+
+				// When item is being uploaded
+				"{uploaderForm} UploadProgress" : function(el, event, uploader, file) {
+
+					var item = $('#' + file.id);
+					var progress = self.attachmentProgress.inside(item);
+
+					progress.css('width', file.percent + '%');
+				},
+
+				'{input} keypress': function(el, event) {
+
 					if (event.keyCode == 13) {
 						if(self.parent.options.enterkey === 'submit' && !(event.shiftKey || event.altKey || event.ctrlKey || event.metaKey)) {
 							self.submitComment();
@@ -439,15 +593,13 @@ EasySocial.module('site/comments/frame', function($) {
 					}
 				},
 
-				'{submit} click': function(el, event)
-				{
+				'{submit} click': function(el, event) {
 					if (el.enabled()) {
 						self.submitComment();
 					}
 				},
 
-				setMentionsLayout: function()
-				{
+				setMentionsLayout: function() {
 					var loader = $.Deferred();
 
 					var editor		= self.editorArea(),
@@ -462,31 +614,26 @@ EasySocial.module('site/comments/frame', function($) {
 					var header = self.editorHeader();
 
 					editor
-						.mentions(
-						{
-							triggers:
-							{
-							    "@":
-							    {
-									type			: "entity",
-									wrap			: false,
-									stop			: "",
-									allowSpace		: true,
-									finalize		: true,
-									query:
-									{
+						.mentions({
+							triggers: {
+							    
+							    "@": {
+									type: "entity",
+									wrap: false,
+									stop: "",
+									allowSpace: true,
+									finalize: true,
+									query: {
 										loadingHint	: true,
 										searchHint	: $.View("easysocial/site/friends/suggest.hint.search"),
 										emptyHint	: $.View("easysocial/site/friends/suggest.hint.empty"),
 
-										data: function( keyword )
-										{
+										data: function(keyword) {
 
 											var task = $.Deferred();
 
 											EasySocial.ajax( "site/controllers/friends/suggest" , { search: keyword })
-											.done(function(items)
-											{
+											.done(function(items) {
 												if (!$.isArray(items)) task.reject();
 
 												var items = $.map(items, function(item)
@@ -513,8 +660,7 @@ EasySocial.module('site/comments/frame', function($) {
 										}
 								    }
 								},
-								"#":
-								{
+								"#": {
 								    type: "hashtag",
 								    wrap: true,
 								    stop: " #",
@@ -553,23 +699,18 @@ EasySocial.module('site/comments/frame', function($) {
 								    }
 								}
 							},
-							plugin:
-							{
-								autocomplete:
-								{
-									id			: "fd",
-									component	: "es",
-									position	:
-									{
+							plugin: {
+								autocomplete: {
+									id: "fd",
+									component: "es",
+									position: {
 										my: 'left top',
 										at: 'left bottom',
 										of: header,
 										collision: 'none'
 									},
-									size:
-									{
-										width: function()
-										{
+									size: {
+										width: function() {
 											return header.width();
 										}
 									}
@@ -578,13 +719,11 @@ EasySocial.module('site/comments/frame', function($) {
 						});
 				},
 
-				submitComment: function()
-				{
+				submitComment: function() {
 					var comment = self.input().val();
 
 					// If comment value is empty, then don't proceed
-					if($.trim(comment) == '')
-					{
+					if ($.trim(comment) == '') {
 						return false;
 					}
 
@@ -603,33 +742,32 @@ EasySocial.module('site/comments/frame', function($) {
 							// Enable the submit button
 							self.submit().enabled(true);
 
-							var editor		= self.editorArea(),
-								mentions	= editor.controller("mentions");
+							var editor = self.editorArea();
+							var mentions = editor.controller("mentions");
 
 							// Reset the mentions upon saving.
 							mentions && mentions.reset();
 
-							// update the stream exclude id if applicable
-							if( self.parent.options.streamid != '' )
-							{
-								self.updateStreamExcludeIds( self.parent.options.streamid );
+							// Update the stream exclude id if applicable
+							if (self.parent.options.streamid != '') {
+								self.updateStreamExcludeIds(self.parent.options.streamid);
 							}
-						})
-						.fail(function(msg) {
+
+						}).fail(function(msg) {
 							self.parent.trigger('newCommentSaveError', [msg.message]);
 						});
 				},
 
-				save: function()
-				{
+				save: function() {
 					var mentions = self.editorArea().controller("mentions");
 
 					var data = {
-						url			: self.parent.options.url,
-						mentions	: mentions ? mentions.toArray() : []
+						url: self.parent.options.url,
+						mentions: mentions ? mentions.toArray() : []
 					};
 
 					data.mentions = $.map(data.mentions, function(mention){
+
 						if (mention.type==="hashtag" && $.isPlainObject(mention.value)) {
 							mention.value = mention.value.title.slice(1);
 						}
@@ -643,27 +781,24 @@ EasySocial.module('site/comments/frame', function($) {
 						verb: self.parent.options.verb,
 						streamid: self.parent.options.streamid,
 						input: self.input().val(),
+						attachmentIds: opts.attachmentIds,
 						data: data
 					});
 				},
 
-				updateStreamExcludeIds: function( id )
-				{
+				updateStreamExcludeIds: function(id) {
 					// ids = self.element.data('excludeids' );
 					ids = $('[data-streams-wrapper]').data( 'excludeids' );
 
 					newIds = '';
-					if( ids != '' && ids != undefined )
-					{
+
+					if (ids != '' && ids != undefined) {
 						newIds = ids + ',' + id;
-					}
-					else
-					{
+					} else {
 						newIds = id;
 					}
 
-					// self.element.data('excludeids', newIds );
-					$('[data-streams-wrapper]').data( 'excludeids', newIds );
+					$('[data-streams-wrapper]').data('excludeids', newIds);
 				},
 
 				disableForm: function() {
@@ -674,8 +809,7 @@ EasySocial.module('site/comments/frame', function($) {
 					self.submit().disabled(true);
 				},
 
-				enableForm: function()
-				{
+				enableForm: function() {
 					// Enable and reset input
 					self.input().removeAttr('disabled');
 
@@ -683,8 +817,7 @@ EasySocial.module('site/comments/frame', function($) {
 					self.submit().enabled(true);
 				},
 
-				'{parent} newCommentSaving': function()
-				{
+				'{parent} newCommentSaving': function() {
 					// Show the status as it could be hidden by other actions
 					self.status().show();
 
@@ -717,6 +850,15 @@ EasySocial.module('site/comments/frame', function($) {
 
 					// Enable comment form
 					self.enableForm();
+
+					// Reset the attachments
+					opts.attachmentIds = [];
+
+					// Get all the attachment items in the queue
+					var attachmentItems = self.attachmentItem.inside(self.attachmentQueue.selector);
+					attachmentItems.remove();
+					
+					self.attachmentQueue().removeClass('has-attachments');
 
 					// Reset comment input
 					self.input().val('');

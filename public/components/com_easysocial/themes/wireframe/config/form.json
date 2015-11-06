@@ -3,13 +3,6 @@
         "title": "COM_EASYSOCIAL_THEMES_WIREFRAME_SECTION_STREAM",
         "fields": [
             {
-                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_STREAM_USE_ICONS",
-                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_STREAM_USE_ICONS_DESC",
-                "name": "stream_icon",
-                "type": "boolean",
-                "default": true
-            },
-            {
                 "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_DATE_DISPLAY_STYLE",
                 "name": "stream_datestyle",
                 "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_DETERMINES_THE_DATE_DISPLAY_STYLE_IN_FRONTEND_TOOLTIP",
@@ -102,9 +95,9 @@
                 "default": true
             },
             {
-                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_DASHBOARD_MINI_REGISTRATION",
-                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_DASHBOARD_MINI_REGISTRATION_DESC",
-                "name": "dashboard_mini_registration",
+                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_DASHBOARD_SHOW_APP_BROWSE",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_DASHBOARD_SHOW_APP_BROWSE_DESC",
+                "name": "dashboard_apps_browse",
                 "type": "boolean",
                 "default": true
             }
@@ -208,6 +201,20 @@
                 "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_DETERMINES_IF_THE_YOUR_PROFILE_SUBMENU_ITEM_SHOULD_BE_VISIBLE_OR_NOT__TOOLTIP",
                 "type": "boolean",
                 "default": "true"
+            },
+            {
+                "label": "COM_EASYSOCIAL_TOOLBAR_SHOW_BROWSE_USERS",
+                "tooltip": "COM_EASYSOCIAL_TOOLBAR_SHOW_BROWSE_USERS_DESC",
+                "name": "show_browse_users",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "label"     : "COM_EASYSOCIAL_TOOLBAR_SHOW_ADVANCED_SEARCH",
+                "tooltip"   : "COM_EASYSOCIAL_TOOLBAR_SHOW_ADVANCED_SEARCH_DESC",
+                "name"      : "show_advanced_search",
+                "type"      : "boolean",
+                "default"   : true
             }
         ]
     },
@@ -335,6 +342,36 @@
                 "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_IF_ENABLED__REPORT_LINK_WILL_BE_DISPLAYED_IN_THE_USERS_PROFILE__TOOLTIP",
                 "type": "boolean",
                 "default": true
+            },
+
+            {
+                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_DISPLAY_LASTLOGIN",
+                "name": "profile_lastlogin",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_IF_ENABLED_USERS_LASTLOGIN_WILL_BE_DISPLAYED_IN_THEIR_PROFILE__TOOLTIP",
+                "type": "boolean",
+                "default": true
+            },
+
+            {
+                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_DISPLAY_JOINDATE",
+                "name": "profile_joindate",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_IF_ENABLED_USERS_JOINDATE_WILL_BE_DISPLAYED_IN_THEIR_PROFILE__TOOLTIP",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_PROFILE_SHOW_APP_FILTERS",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_PROFILE_SHOW_APP_FILTERS_DESC",
+                "name": "profile_feeds_apps",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_DASHBOARD_SHOW_APP_BROWSE",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_DASHBOARD_SHOW_APP_BROWSE_DESC",
+                "name": "profile_apps_browse",
+                "type": "boolean",
+                "default": true
             }
         ]
     },
@@ -362,6 +399,20 @@
                 "increment": "5",
                 "max": "100",
                 "default": "10"
+            },
+            {
+                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_DISPLAY_LASTLOGIN",
+                "name": "users_lastlogin",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_IF_ENABLED_USERS_LASTLOGIN_WILL_BE_DISPLAYED_IN_USER_LISTING__TOOLTIP",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_DISPLAY_JOINDATE",
+                "name": "users_joindate",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_IF_ENABLED_USERS_JOINDATE_WILL_BE_DISPLAYED_IN_USER_LISTING__TOOLTIP",
+                "type": "boolean",
+                "default": true
             }
         ]
     },
@@ -370,7 +421,7 @@
         "fields": [
             {
                 "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_USERS_PER_PAGE",
-                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_SPECIFY_THE_NUMBER_OF_USERS_TO_DISPLAY_PER_PAGE_IN_THE_FRIEND'S_LISTINGS_TOOLTIP",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_SPECIFY_THE_NUMBER_OF_USERS_TO_DISPLAY_PER_PAGE_IN_THE_FRIENDS_LISTINGS_TOOLTIP",
                 "name": "friendslimit",
                 "type": "pagination",
                 "start": "5",
@@ -552,6 +603,21 @@
                 "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_RESULTS_PER_PAGE",
                 "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_FIELD_SPECIFY_THE_NUMBER_OF_SEARCH_RESULTS_TO_DISPLAY_PER_PAGE_IN_SEARCH_PAGE_TOOLTIP",
                 "name": "search_limit",
+                "type": "pagination",
+                "start": "5",
+                "increment": "5",
+                "max": "100",
+                "default": "10"
+            }
+        ]
+    },
+    {
+        "title": "COM_EASYSOCIAL_THEMES_WIREFRAME_VIDEOS",
+        "fields": [
+            {
+                "label": "COM_EASYSOCIAL_THEMES_WIREFRAME_VIDEOS_RESULTS_PER_PAGE",
+                "tooltip": "COM_EASYSOCIAL_THEMES_WIREFRAME_VIDEOS_RESULTS_PER_PAGE_TOOLTIP",
+                "name": "videos_limit",
                 "type": "pagination",
                 "start": "5",
                 "increment": "5",

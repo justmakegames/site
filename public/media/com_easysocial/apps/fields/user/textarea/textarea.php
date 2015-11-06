@@ -14,12 +14,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 // Include the fields library
 FD::import( 'admin:/includes/fields/dependencies' );
 
-/**
- * Field application for Textarea
- *
- * @since	1.0
- * @author	Jason Rey <jasonrey@stackideas.com>
- */
 class SocialFieldsUserTextarea extends SocialFieldItem
 {
 	/**

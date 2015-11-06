@@ -260,10 +260,7 @@ class EasySocialControllerApps extends EasySocialController
 		// Get the current view
 		$view 	= $this->getCurrentView();
 
-		if( !$app->load( $id ) )
-		{
-			FD::logError( __FILE__, __LINE__, 'Apps: invalid appid: $id provided' );
-
+		if (!$app->load($id)) {
 			$view->setMessage( JText::_( 'COM_EASYSOCIAL_APPS_UNINSTALL_ERROR_OCCURED' ) , SOCIAL_MSG_ERROR );
 
 			return $view->call( __FUNCTION__, false );
@@ -272,10 +269,7 @@ class EasySocialControllerApps extends EasySocialController
 		// Try to uninstall the app.
 		$result = $app->uninstallUserApp();
 
-		if( !$result )
-		{
-			FD::logError( __FILE__, __LINE__, 'Error occured during uninstallation' );
-
+		if (!$result) {
 			$view->setMessage( JText::_( 'COM_EASYSOCIAL_APPS_UNINSTALL_ERROR_OCCURED' ) , SOCIAL_MSG_ERROR );
 			return $view->call( __FUNCTION__, false );
 		}

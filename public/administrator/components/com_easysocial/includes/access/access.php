@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,52 +9,40 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Access object.
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialAccess
 {
 	/**
 	 * The unique id that is associated with the access rules.
 	 * @var	int
 	 */
-	private $uid 	= null;
+	private $uid = null;
 
 	/**
 	 * The unique type that is associated with the access rules.
 	 * @var	string
 	 */
-	private $type 	= null;
+	private $type = null;
 
 	/**
 	 * The Registry that stores the user access.
 	 * @var Array
 	 */
-	private $access	= null;
+	public $access = null;
 
 	/**
 	 * Cache the default values so that it only load once.
 	 * @var string
 	 */
-	private $default 	= null;
+	public $default = null;
 
-	/**
-	 * Class Constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 */
-	public function __construct( $id = null, $type = SOCIAL_TYPE_USER )
+	public function __construct($id = null, $type = SOCIAL_TYPE_USER)
 	{
 		$this->loadAccess($id, $type);
 	}
 
-	private function loadAccess( $id = null, $type = SOCIAL_TYPE_USER )
+	private function loadAccess($id = null, $type = SOCIAL_TYPE_USER)
 	{
 		// This is to prevent unnecessary multiple loading per user id
 		static $loadedAccess = array();
@@ -130,12 +118,12 @@ class SocialAccess
 	 * @param	string
 	 * @return
 	 */
-	public function getDefaultValues( $type )
+	public function getDefaultValues($type)
 	{
 		static $defaults = array();
 
-		if ( empty( $defaults[$type] ) )
-		{
+		if (empty($defaults[$type])) {
+
 			$model = FD::model('accessrules');
 
 			// Convert the type to group type
@@ -145,10 +133,10 @@ class SocialAccess
 				$group	= SOCIAL_TYPE_GROUP;
 			}
 
-			$options 	= array('group' => $group, 'state' => SOCIAL_STATE_PUBLISHED);
-			$rules		= $model->getAllRules($options);
+			$options = array('group' => $group, 'state' => SOCIAL_STATE_PUBLISHED);
+			$rules = $model->getAllRules($options);
 
-			$registry 	= FD::registry();
+			$registry = FD::registry();
 
 			if (!empty($rules)) {
 				foreach ($rules as $rule) {
@@ -157,11 +145,11 @@ class SocialAccess
 						$rule->default = true;
 					}
 
-					$registry->set($rule->name, $rule->default, true);
+					$registry->set($rule->name, $rule->default);
 				}
 			}
 
-			$defaults[$type]	= $registry;
+			$defaults[$type] = $registry;
 		}
 
 		$this->default = $defaults[$type];
@@ -192,16 +180,18 @@ class SocialAccess
 	 * @param	string
 	 * @return
 	 */
-	public function get( $rule )
+	public function get($rule)
 	{
-		if( !$this->access )
-		{
+		if (!$this->access) {
 			return false;
 		}
 
+		// Get the default rule
+		$default = $this->default->get($rule);
+
 		// If rule is not found in access, then fallback to default
 		// If rule is not found in default, then return null
-		return $this->access->get( $rule, $this->default->get( $rule ) );
+		return $this->access->get($rule, $default);
 	}
 
 	/**
@@ -212,16 +202,15 @@ class SocialAccess
 	 * @param	string
 	 * @return
 	 */
-	public function allowed( $rule , $default = true )
+	public function allowed($rule, $default = true)
 	{
-		if( !$this->access )
-		{
+		if (!$this->access) {
 			return false;
 		}
 
 		// If rule is not found in access, then fallback to default
 		// If rule is not found in default, then fallback to the provided default value
-		return $this->access->get( $rule , $this->default->get( $rule, $default ) );
+		return $this->access->get($rule , $this->default->get($rule, $default));
 	}
 
 	/**
@@ -234,12 +223,11 @@ class SocialAccess
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function exceeded( $rule , $usage , $default = true )
+	public function exceeded($rule , $usage , $default = true)
 	{
 		// If rule is not found in access, then fallback to default
 		// If rule is not found in default, then fallback to the provided default value
-		$limit 		= (int) $this->access->get( $rule , $this->default->get( $rule, $default ) );
-
+		$limit = (int) $this->access->get($rule, $this->default->get($rule, $default));
 
 		// If limit is 0, we know it should be unlimited
 		if ($limit == 0) {
@@ -250,4 +238,78 @@ class SocialAccess
 
 		return $exceeded;
 	}
+
+
+	public function intervalExceeded($rule , $userId)
+	{
+		// If rule is not found in access, then fallback to default
+		// If rule is not found in default, then fallback to the provided default value
+		$limit = $this->access->get( $rule , $this->default->get($rule) );
+
+		$value = 0;
+		$interval = 0;
+
+		if (is_object($limit)) {
+			$value = $limit->value;
+			$interval = $limit->interval;
+		} else {
+			// backward compatibility
+			$value = $limit;
+		}
+
+		// If limit is 0, we know it should be unlimited
+		if ($value == 0) {
+			return false;
+		}
+
+		// we need to get usage here.
+		$model = FD::model('AccessLogs');
+		$usage = $model->getUsage($rule, $userId, $interval);
+
+		$exceeded	= $usage >= $value;
+
+		return $exceeded;
+	}
+
+	public function log($rule, $userId, $uid, $utype) {
+
+		$log = FD::table('AccessLogs');
+
+		$log->rule = $rule;
+		$log->user_id = $userId;
+		$log->uid = $uid;
+		$log->utype = $utype;
+		$log->created = FD::date()->toMySQL();
+
+		$state = $log->store();
+		return $state;
+	}
+
+	public function removeLog($rule, $userId, $uid, $utype) {
+
+		$log = FD::table('AccessLogs');
+		$state = $log->load(array('rule'=>$rule, 'user_id' => $userId, 'uid' => $uid, 'utype' => $utype));
+
+		if ($state) {
+			$state = $log->delete();
+		}
+
+		return $state;
+	}
+
+	public function switchLogAuthor($rule, $userId, $uid, $utype, $newUserId) {
+
+		$log = FD::table('AccessLogs');
+		$state = $log->load(array('rule'=>$rule, 'user_id' => $userId, 'uid' => $uid, 'utype' => $utype));
+
+		if ($state) {
+			$log->user_id = $newUserId;
+			$state = $log->store();
+		}
+
+		return $state;
+	}
+
+
+
 }

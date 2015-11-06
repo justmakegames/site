@@ -118,10 +118,7 @@ class SocialTableAvatar extends SocialTable
 		$avatarsPath 	= JPATH_ROOT . '/' . FD::cleanPath( $config->get( 'avatars.storage.container' ) );
 
 		// Test if the avatars path folder exists. If it doesn't we need to create it.
-		if( !FD::makeFolder( $avatarsPath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Unable to create the path ' . $avatarsPath );
-
+		if (!FD::makeFolder($avatarsPath)) {
 			$this->setError( JText::_( 'Errors when creating default container for avatar' ) );
 			return false;
 		}
@@ -131,10 +128,7 @@ class SocialTableAvatar extends SocialTable
 		$storagePath 	= $avatarsPath . '/' . FD::cleanPath( $typePath );
 
 		// Ensure storage path exists.
-		if( !FD::makeFolder( $storagePath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Unable to create the path ' . $storagePath );
-
+		if (!FD::makeFolder($storagePath)) {
 			$this->setError( JText::_( 'Errors when creating path for avatar' ) );
 			return false;
 		}
@@ -144,10 +138,7 @@ class SocialTableAvatar extends SocialTable
 		$storagePath 	= $storagePath . '/' . $idPath;
 
 		// Ensure storage path exists.
-		if( !FD::makeFolder( $storagePath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Unable to create the path ' . $storagePath );
-
+		if (!FD::makeFolder($storagePath)) {
 			$this->setError( JText::_( 'Errors when creating default path for avatar' ) );
 			return false;
 		}
@@ -157,9 +148,7 @@ class SocialTableAvatar extends SocialTable
 		$image->load( $file[ 'tmp_name' ] );
 
 		// Test if the image is really a valid image.
-		if( !$image->isValid() )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Image uploaded ' . $file[ 'name' ] . ' is invalid' );
+		if (!$image->isValid()) {
 			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_AVATARS_FILE_NOT_IMAGE' ) );
 			return false;
 		}
@@ -170,9 +159,7 @@ class SocialTableAvatar extends SocialTable
 		// Let's create the avatar.
 		$sizes 		= $avatar->create( $storagePath );
 
-		if( $sizes === false )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Error creating avatars at ' . $storagePath );
+		if ($sizes === false) {
 			$this->setError( JText::_( 'Sorry, there was some errors when creating the avatars.' ) );
 			return false;
 		}
@@ -213,10 +200,7 @@ class SocialTableAvatar extends SocialTable
 		$avatarsPath 	= JPATH_ROOT . '/' . FD::cleanPath( $config->get( 'avatars.storage.container' ) );
 
 		// Test if the avatars path folder exists. If it doesn't we need to create it.
-		if( !FD::makeFolder( $avatarsPath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'AVATARS: Unable to create the path ' . $avatarsPath );
-
+		if (!FD::makeFolder($avatarsPath)) {
 			$this->setError( JText::_( 'Errors when creating default container for avatar' ) );
 			return false;
 		}
@@ -380,12 +364,11 @@ class SocialTableAvatar extends SocialTable
 	 */
 	public function getSource( $size = SOCIAL_AVATAR_MEDIUM , $absolute = true )
 	{
-		$config 	= FD::config();
+		$config = FD::config();
 
 		// If avatar_id is not empty, means this is this from the default avatars
-		if( !empty( $this->avatar_id ) )
-		{
-			$default = FD::table( 'defaultavatar' );
+		if (!empty($this->avatar_id)) {
+			$default = FD::table('defaultavatar');
 			$default->load( $this->avatar_id );
 
 			return $default->getSource( $size, $absolute );

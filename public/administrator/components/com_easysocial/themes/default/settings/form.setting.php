@@ -15,7 +15,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<label class="col-md-5" for="page_title">
 		<?php echo $label; ?>
 		<?php if( !empty( $help ) ) { ?>
-		<i class="icon-es-help pull-right"
+		<i class="fa fa-question-circle pull-right"
 			<?php echo $help; ?>
 		></i>
 		<?php } ?>

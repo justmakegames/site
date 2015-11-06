@@ -1,0 +1,423 @@
+body{
+	background: #eee;
+}
+
+#rt-mainbody-surround>.rt-container{
+	background: #fff;
+	margin-top: 15px;
+}
+
+#rt-header .menu-block{
+	margin: 15px 25px 0 25px
+}
+
+div.kheader{
+	height: 42px;
+}
+
+#rt-top .gf-menu{
+	float: right;
+	margin: 0 10px;
+}
+
+#rt-top .rt-grid-4 .rt-block{
+	margin: 0;
+	padding: 0;
+	margin-left: 25px;
+}
+
+/* Mobile Menu */
+@media only screen and (max-width: 767px){
+	#rt-top .rt-grid-4 .rt-block{
+		margin-top: 30px;
+	}
+
+	#rt-top .rt-grid-8 .menu-block{
+		margin: 15px;
+	}
+
+	#rt-top .gf-menu{
+		margin: 0;
+	}
+
+	#rt-top .gf-menu-device-container{
+		margin: 15px;
+	}
+
+}
+
+#rt-top{
+	padding: 10px 0;
+}
+
+#rt-top .rt-grid-8 .menu-block{
+	margin: 0;
+}
+
+#rt-top .rt-block .custom{
+	height: 44px;
+	line-height: 44px;
+}
+
+#rt-top .gf-menu .item{
+	font-weight: bold;
+	letter-spacing: 1px;
+}
+
+/* Easy Social Easy Blog */
+
+.ezb-mod .avatar{
+	border: 0 !important;
+}
+
+#ezblog-head .component-links{
+	display: none;
+}
+
+#eblog-wrapper img.avatar{
+	border: 0;
+}
+
+#eblog-wrapper.home #ezblog-head{
+	display: none;
+}
+
+.comment-content .form-row.mbm label{
+	display: inline;
+}
+
+.comment-content label.label{
+	padding: 4px 8px;
+}
+
+.comment-content label[for="subscribe-to-blog"]{
+	line-height: 14px;
+	margin-bottom: 10px;
+}
+
+body div#fd.es.popbox.popbox-toolbar .arrow{
+	display: none;	
+}
+
+#rt-sidebar-a .module-content .mod-es-dropdown-menu{
+	float: right;
+}
+
+#rt-sidebar-a .        <header id="rt-top-surround">
+				<div id="rt-top">
+			<div class="rt-container">
+				<div class="rt-grid-4 rt-alpha">
+               <div class="rt-block ">
+           	<div class="module-surround">
+	           		                	<div class="module-content">
+	                		
+
+<div class="custom">
+	<p><a href="/"><img src="/images/jmg_logo.png" alt=""></a></p></div>
+	                	</div>
+                	</div>
+           </div>
+	
+</div>
+<div class="rt-grid-8 rt-omega">
+    	<div class="rt-block menu-block">
+		<div class="gf-menu-device-wrapper" style="margin: 15px; position: static; overflow: hidden; display: inherit;"><div style="margin: 0px; overflow: hidden;" class="gf-menu-device-container"><ul class="gf-menu l1 ">
+                    <li class="item101">
+
+            <a class="item" href="/">
+                Home            </a>
+
+             
+        </li>
+                            <li class="item283 active last">
+
+            <a class="item" href="/articles">
+                Articles            </a>
+
+             
+        </li>
+                            <li class="item119">
+
+            <a class="item" href="/community">
+                Community            </a>
+
+             
+        </li>
+                            <li class="item163">
+
+            <a class="item" href="/discussion">
+                Discussion            </a>
+
+             
+        </li>
+                            <li class="item323">
+
+            <a class="item" href="/prizes">
+                Prizes            </a>
+
+             
+        </li>
+            </ul></div></div>
+		<div class="clear"></div>
+	</div>
+	
+</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+					</header>
+	
+	 		<div id="rt-drawer">
+			<div class="rt-container">
+           		           		<div class="clear"></div>
+			</div>
+       </div>
+   			<div id="rt-breadcrumbs">
+		<div class="rt-container">
+			<div class="rt-grid-12 rt-alpha rt-omega">
+               <div class="rt-block ">
+           	<div class="module-surround">
+	           		                	<div class="module-content">
+	                		
+<ul itemscope="" itemtype="http://schema.org/BreadcrumbList" class="breadcrumb">
+			<li class="active">
+			You are here: &nbsp;
+		</li>
+	
+				<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+									<a itemprop="item" href="/" class="pathway">
+						<span itemprop="name">
+							Home						</span>
+					</a>
+				
+									<span class="divider">
+						<img src="/media/system/images/arrow.png" alt="">					</span>
+								<meta itemprop="position" content="1">
+			</li>
+					<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+									<a itemprop="item" href="/articles/latest" class="pathway">
+						<span itemprop="name">
+							Articles						</span>
+					</a>
+				
+									<span class="divider">
+						<img src="/media/system/images/arrow.png" alt="">					</span>
+								<meta itemprop="position" content="2">
+			</li>
+					<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+									<a itemprop="item" href="/articles/categories" class="pathway">
+						<span itemprop="name">
+							Categories						</span>
+					</a>
+				
+									<span class="divider">
+						<img src="/media/system/images/arrow.png" alt="">					</span>
+								<meta itemprop="position" content="3">
+			</li>
+					<li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" class="active">
+				<span itemprop="name">
+					Tutorials				</span>
+				<meta itemprop="position" content="4">
+			</li>
+		</ul>
+	                	</div>
+                	</div>
+           </div>
+	
+</div>
+	   		<div class="clear"></div>				   
+		</div>
+	</div>
+	
+	<div id="rt-mainbody-surround">
+		<div class="rt-container">			
+			    			          
+<div id="rt-main" class="mb8-sa4">
+                <div class="rt-container">
+                    <div class="rt-grid-8 ">
+                                                						<div class="rt-block">
+	                        <div id="rt-mainbody">
+								<div class="component-content">
+	                            	<div id="eblog-wrapper" class="eblog-default eblog-site  eblog-bootstrap w768 w600 w320">
+	
+	<script type="text/javascript">
+EasyBlog.require()
+.script('layout/responsive')
+.done(function($){
+
+	$('#ezblog-head #ezblog-search').bind('focus', function(){
+		$(this).animate({ width: '170'} );
+	});
+
+	$('#ezblog-head #ezblog-search').bind( 'blur' , function(){
+		$(this).animate({ width: '120'});
+	});
+
+	$('#ezblog-menu').responsive({at: 540, switchTo: 'narrow'});
+	$('.eb-nav-collapse').responsive({at: 560, switchTo: 'nav-hide'});
+	$('.btn-eb-navbar').click(function() {
+		$('.eb-nav-collapse').toggleClass("nav-show");
+		return false;
+	});
+
+});
+</script>
+<div id="ezblog-head">
+	<div class="in clearfix">
+
+				<div class="component-links float-r">
+			
+						<a href="/articles?format=feed&amp;type=rss" title="Subscribe via RSS" class="link-rss">
+				<span>Subscribe via RSS</span>
+			</a>
+					</div>
+				
+		
+		
+
+				<div id="ezblog-menu" class="clearfix narrow">
+			<a href="javascript:void(0);" class="btn-eb-navbar"></a>
+			<div style="" class="eb-nav-collapse nav-hide">
+				<ul class="blog-navi  reset-ul float-li clearfix">
+										<li class="toolbar-item toolbar-latest item">
+						<a href="/articles"><span>Home</span></a>
+						<div class="tips">
+							<i></i>
+							<b>Home</b>
+							This is where you can find all the blog posts throughout the site.						</div>
+					</li>
+					
+										<li class="toolbar-item toolbar-categories item-active">
+						<a href="/articles/categories"><span>Categories</span></a>
+						<div class="tips">
+							<i></i>
+							<b>Categories</b>
+							Displays a list of categories from this blog.						</div>
+					</li>
+					
+										<li class="toolbar-item toolbar-tags item">
+						<a href="/articles/tags"><span>Tags</span></a>
+						<div class="tips">
+							<i></i>
+							<b>Tags</b>
+							Displays a list of tags that have been used in the blog.						</div>
+					</li>
+					
+																	<li class="toolbar-item toolbar-blogger item">
+							<a href="/articles/blogger"><span>Bloggers</span></a>
+							<div class="tips">
+								<i></i>
+								<b>Bloggers</b>
+								Search for your favorite blogger from this site.							</div>
+						</li>
+						
+												<li class="toolbar-item toolbar-teamblog item">
+							<a href="/articles/teamblog"><span>Team Blogs</span></a>
+							<div class="tips">
+								<i></i>
+								<b>Team Blogs</b>
+								Find your favorite team blogs here.							</div>
+						</li>
+											
+					
+										<li class="toolbar-item toolbar-search item">
+						<form method="get" action="/articles/search/parsequery">
+							<input id="ezblog-search" name="query" class="input text" alt="query" autocomplete="off" type="text">
+							<button class="submit-search" type="submit">Search</button>
+
+
+							
+						</form>
+					</li>
+					
+
+															<li class="toolbar-item user-access float-r">
+						<a href="javascript:void(0);" onclick="eblog.login.toggle()"><span>Login</span></a>
+						<div class="tips">
+							<i></i>
+							<b>Login</b>
+							Login form						</div>
+						<div class="user-form pabs" style="display: none;" id="easyblog-login-form">
+							<div class="clearfix">
+								<form action="/articles" method="post">
+									<label for="username" class="float-l width-full rip">
+										<span class="trait">Username</span>
+																						<a href="/community/registration" class="float-r">Register</a>
+																					<input id="username" name="username" class="input text" alt="username" tabindex="31" type="text">
+									</label>
+									<label for="passwd" class="float-l width-full rip">
+										<span class="trait">Password</span>
+										<a href="/community/profile/lostpassword" class="float-r">Forgot Password?</a>
+																					<input id="passwd" class="input text" name="password" tabindex="32" type="password">
+																			</label>
+									<div class="mts float-l width-full">
+																				<label for="remember" class="remember float-l">
+											<input id="remember" name="remember" value="yes" alt="Remember Me" class="rip" tabindex="33" type="checkbox">
+											<span>Remember me</span>
+										</label>
+																				<button class="button submit float-r" type="submit" tabindex="34">Login</button>
+									</div>
+
+																		<input value="com_users" name="option" type="hidden">
+									<input value="user.login" name="task" type="hidden">
+									<input name="return" value="L2FydGljbGVzL2NhdGVnb3JpZXMvdHV0b3JpYWxz" type="hidden">
+																		<input name="902878739eb5d0886b9a585b2a5c947d" value="1" type="hidden">								</form>
+							</div>
+						</div>
+					</li>
+					rt-block{
+	overflow: hidden;
+}
+
+body div#fd.es .es-toolbar .fd-nav>li>a [class^="ies-"],
+body div#fd.es .es-toolbar .fd-nav>li>a [class*=" ies-"]{
+	color: #fff;
+}
+
+body div#fd.es.mod-es-groups ul li .es-avatar{
+	border: none !important;
+	width: 40px !important;
+	height: 40px !important;
+}
+
+body div#fd.es.mod-es-groups-categories ul li .es-category-meta{
+	display: none;
+}
+
+.center.mt-20{
+	display: none;
+}
+
+.klatest-items .knewchar{
+	display: none;
+}
+
+/* Product Prizes */
+
+
+.q2c_pin_wrapper .thumbnail{
+	padding: 0 10px;
+}
+
+.q2c_pin_wrapper .thumbnail .caption{
+	padding: 10px;
+	font-weight: bold;
+}
+
+.q2c_pin_wrapper .thumbnail .caption a{
+	font-size: 110%;
+}
+
+.q2c-wrapper .thumbnails > li.prodImg_wrapper{
+	float: left; margin-right: 10px;
+}
+
+.q2c-wrapper .caption .hr-condensed{
+	display: none;
+}
+
+.q2c-wrapper .caption .form-horizontal{
+	margin-top: 10px;
+	padding-bottom: 20px;
+	border-bottom: 2px solid #eee;
+}

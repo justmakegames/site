@@ -9,7 +9,7 @@ var task = <?php echo $task->toJSON(); ?>,
 	};
 
 $.each(task.details, function(i, detail){
-	// console[method[detail.type]](detail.message);
+	console[method[detail.type]](detail.message);
 });
 
 if (task.failed) {
@@ -17,9 +17,9 @@ if (task.failed) {
 	console.info("If you are using Solo, just do 'solo syncProjectFiles easysocial --clear'.");
 }
 
-// console.log("Total time: " + (Math.round(task.time_total * 1000) / 1000) + "s");
-// console.log("Peak memory usage: " + (task.mem_peak/1048576).toFixed(2) + "mb");
-// console.log("View complete log: ", task);
+console.log("Total time: " + (Math.round(task.time_total * 1000) / 1000) + "s");
+console.log("Peak memory usage: " + (task.mem_peak/1048576).toFixed(2) + "mb");
+console.log("View complete log: ", task);
 
 
 } catch(e) {};

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Include the fields library
-FD::import( 'admin:/includes/fields/dependencies' );
+FD::import('admin:/includes/fields/dependencies');
 
 /**
  * Field application for Birthday
@@ -36,13 +36,12 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 * @param	SocialTableRegistration
 	 * @return	string	The html output.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
 	public function onSample()
 	{
-		$captcha 	= $this->getRecaptcha();
+		$captcha = $this->getRecaptcha();
 
-		$this->set( 'captcha'	, $captcha );
+		$this->set('captcha', $captcha);
 
 		return $this->display();
 	}
@@ -56,12 +55,11 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 */
 	private function isCaptchaConfigured()
 	{
-		$params 	= $this->field->getApp()->getParams();
-		$private 	= $params->get( 'private' );
-		$public 	= $params->get( 'public' );
+		$params = $this->field->getApp()->getParams();
+		$private = $params->get( 'private' );
+		$public = $params->get( 'public' );
 
-		if( !empty( $private ) && !empty( $public ) )
-		{
+		if (!empty($private) && !empty($public)) {
 			return true;
 		}
 
@@ -78,18 +76,17 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 */
 	public function getRecaptcha()
 	{
-		$app		= $this->field->getApp();
-		$params 	= $app->getParams();
+		$app = $this->field->getApp();
+		$params = $app->getParams();
 
-		$options 	= array(
+		$options = array(
 							'public'	=> $params->get('public'),
-							'private'	=> $params->get('private'),
-							'ssl' 		=> $params->get('ssl'),
+							'secret'	=> $params->get('private'),
 							'theme'		=> $params->get('theme'),
 							'language'  => $params->get('language')
 						);
 
-		$captcha	= FD::get( 'Captcha' , 'Recaptcha' , $options );
+		$captcha = FD::get('Captcha', 'Recaptcha', $options);
 
 		return $captcha;
 	}
@@ -102,9 +99,9 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 * @param	string
 	 * @return
 	 */
-	public function hasValidated( &$post )
+	public function hasValidated(&$post)
 	{
-		$validated	= isset( $post[ $this->inputName ] ) ? $post[ $this->inputName ] : false;
+		$validated = isset($post[$this->inputName]) ? $post[$this->inputName] : false;
 
 		return $validated;
 	}
@@ -118,35 +115,32 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 * @param	SocialTableRegistration
 	 * @return	string	The html output.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
-	public function onEdit( &$post, &$user, $errors )
+	public function onEdit(&$post, &$user, $errors)
 	{
 		// Check if recaptcha has been configured
-		if( !$this->isCaptchaConfigured() )
-		{
+		if (!$this->isCaptchaConfigured()) {
 			return;
 		}
 
 		// The key for this element.
-		$key 	= SOCIAL_FIELDS_PREFIX . $this->field->id;
+		$key = SOCIAL_FIELDS_PREFIX . $this->field->id;
 
-		if( $this->hasValidated( $post ) )
-		{
+		// If user has already validated, skip this
+		if ($this->hasValidated($post)) {
 			return;
 		}
 
 		// Check for errors
-		$error = $this->getError( $errors );
+		$error = $this->getError($errors);
 
 		// Get the captcha library.
-		$captcha 	= $this->getRecaptcha();
+		$captcha = $this->getRecaptcha();
 
 		// Output to the template
-		$this->set( 'captcha'	, $captcha );
-		$this->set( 'error'		, $error );
+		$this->set('captcha', $captcha);
+		$this->set('error', $error);
 
-		// Display the output.
 		return $this->display();
 	}
 
@@ -158,30 +152,26 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 * @param	array
 	 * @param	SocialTableRegistration
 	 * @return	string	The html output.
-	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
-	public function onRegister( &$post , &$registration )
+	public function onRegister(&$post, &$registration)
 	{
 		// Check if recaptcha has been configured
-		if( !$this->isCaptchaConfigured() )
-		{
+		if (!$this->isCaptchaConfigured()) {
 			return;
 		}
 
-		if( $this->hasValidated( $post ) )
-		{
+		// If the user previously already validated with the captcha field, skip this
+		if ($this->hasValidated($post)) {
 			return;
 		}
 
 		// Check for errors
-		$error		= $registration->getErrors( $this->inputName );
-		$captcha	= $this->getRecaptcha();
+		$error = $registration->getErrors($this->inputName);
+		$captcha = $this->getRecaptcha();
 
-		$this->set( 'error'		, $error );
-		$this->set( 'captcha'	, $captcha );
+		$this->set('error', $error);
+		$this->set('captcha', $captcha);
 
-		// Display the output.
 		return $this->display();
 	}
 
@@ -194,11 +184,10 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 * @param	SocialTableRegistration		The registration ORM table.
 	 * @return	bool	Determines if the system should proceed or throw errors.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
-	public function onRegisterValidate( &$post, &$registration )
+	public function onRegisterValidate(&$post, &$registration)
 	{
-		return $this->validateCaptcha( $post );
+		return $this->validateCaptcha($post);
 	}
 
 	/**
@@ -210,13 +199,10 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 * @param	SocialTableRegistration		The registration ORM table.
 	 * @return	bool	Determines if the system should proceed or throw errors.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
-	public function onEditValidate( &$post )
+	public function onEditValidate(&$post)
 	{
-		$state 	= $this->validateCaptcha( $post );
-
-		return $state;
+		return $this->validateCaptcha($post);
 	}
 
 	/**
@@ -227,32 +213,28 @@ class SocialFieldsUserRecaptcha extends SocialFieldItem
 	 * @param	string
 	 * @return
 	 */
-	public function validateCaptcha( &$post )
+	public function validateCaptcha(&$post)
 	{
-		if( !$this->field->isRequired() || $this->hasValidated( $post ) )
-		{
+		// If user has already validated or this field isn't required, skip this altogether.
+		if (!$this->field->isRequired() || $this->hasValidated($post)) {
 			return true;
 		}
 
-		$challenge 	= JRequest::getVar( 'recaptcha_challenge_field' , '' );
-		$response 	= JRequest::getVar( 'recaptcha_response_field' , '' );
+		$response = $this->input->get('g-recaptcha-response');
 
-		if( empty( $response ) )
-		{
-			return $this->setError( JText::_( 'PLG_FIELDS_RECAPTCHA_VALIDATION_PLEASE_ENTER_CAPTCHA_RESPONSE' ) );
+		if (!$response) {
+			return $this->setError(JText::_('PLG_FIELDS_RECAPTCHA_VALIDATION_PLEASE_ENTER_CAPTCHA_RESPONSE'));
 		}
 
-		$captcha 	= $this->getRecaptcha();
-		$state 		= $captcha->checkAnswer( $challenge , $response );
+		$captcha = $this->getRecaptcha();
+		$state = $captcha->checkAnswer($_SERVER['REMOTE_ADDR'], $response);
 
-		if( !$state )
-		{
-			return $this->setError( JText::_( 'PLG_FIELDS_RECAPTCHA_VALIDATION_INVALID_RESPONSE' ) );
+		if (!$state) {
+			return $this->setError(JText::_('PLG_FIELDS_RECAPTCHA_VALIDATION_INVALID_RESPONSE'));
 		}
-
 
 		// Set a valid response to the registration object.
-		$post[ $this->inputName ]	= true;
+		$post[$this->inputName] = true;
 
 		return true;
 	}

@@ -75,6 +75,11 @@ class BirthdayFieldWidgetsProfile
 			return false;
 		}
 
+		if (is_array($value) && isset($value['date']) && !$value['date']) {
+			// empty value. just return empty string.
+			return false;
+		}
+
 		$data = new SocialFieldsUserDateTimeObject($value);
 
 		$date = null;
@@ -104,13 +109,13 @@ class BirthdayFieldWidgetsProfile
 			$allowYear = $privacyLib->validate( 'field.birthday', $field->id, 'year', $user->id );
 			$format = $allowYear ? 'j F Y' : 'j F';
 
-			$birthday = FD::date( $date, false )->toFormat( $format );
+			$birthday = FD::date( $date, false )->format( $format );
 			$theme->set( 'value', $birthday );
 		}
 
         // linkage to advanced search page.
         if ($allowYear && $field->searchable) {
-            $date = $data->toFormat('Y-m-d');
+            $date = $data->format('Y-m-d');
 
             $params = array( 'layout' => 'advanced' );
             $params['criterias[]'] = $field->unique_key . '|' . $field->element;

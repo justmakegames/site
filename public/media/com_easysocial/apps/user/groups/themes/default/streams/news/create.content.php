@@ -19,7 +19,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                     <div class="discussion-title"><a href="<?php echo $news->getPermalink();?>"><?php echo $news->title; ?></a></div>
 
                     <div class="discussion-meta fd-small">
-                        <i class="ies-calendar"></i>&nbsp; <?php echo JText::sprintf('APP_USER_GROUPS_NEWS_POSTED_ON_META' , FD::date($news->created)->format(JText::_('DATE_FORMAT_LC1'))); ?>
+                        <i class="fa fa-calendar"></i>&nbsp; <?php echo JText::sprintf('APP_USER_GROUPS_NEWS_POSTED_ON_META' , FD::date($news->created)->format(JText::_('DATE_FORMAT_LC1'))); ?>
                     </div>
                 </div>
             </div>

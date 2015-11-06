@@ -90,7 +90,7 @@ class FD40_FoundryBaseConfiguration {
 	{
 		$data = $this->toArray();
 		$data["modified"] = filemtime($this->file);
-		$data["foundry_version"] = "4.0.34";
+		$data["foundry_version"] = "4.0.39";
 
 		return $data;
 	}

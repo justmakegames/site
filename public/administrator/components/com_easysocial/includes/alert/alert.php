@@ -29,8 +29,7 @@ class SocialAlert
 
 	public static function getInstance()
 	{
-		if( is_null( self::$instance ) )
-		{
+		if (is_null(self::$instance)) {
 			self::$instance		= new self();
 		}
 
@@ -204,7 +203,6 @@ class SocialAlertRegistry
 		// If no type set, then return false
 		if( empty( $this->element ) )
 		{
-			FD::logError( __FILE__, __LINE__, 'SocialAlert: No type set yet.' );
 			return false;
 		}
 
@@ -226,9 +224,7 @@ class SocialAlertRegistry
 
 		$result = $table->store();
 
-		if( !$result )
-		{
-			FD::logError( __FILE__, __LINE__, 'SocialAlert: Unable to store rule.' );
+		if (!$result) {
 			return false;
 		}
 
@@ -252,9 +248,7 @@ class SocialAlertRegistry
 	public function registerUser( $user_id = null )
 	{
 		// If no element set, then return false
-		if( empty( $this->element ) )
-		{
-			FD::logError( __FILE__, __LINE__, 'SocialAlert: No element set yet.' );
+		if (empty($this->element)) {
 			return false;
 		}
 
@@ -305,9 +299,7 @@ class SocialAlertRegistry
 
 			$rule	= $table->load(array('element' => $this->element, 'rule' => $rulename, 'published' => SOCIAL_STATE_PUBLISHED));
 
-			if( !$rule )
-			{
-				FD::logError( __FILE__, __LINE__, 'No such rule.' );
+			if (!$rule) {
 				return false;
 			}
 
@@ -317,10 +309,9 @@ class SocialAlertRegistry
 		return $this;
 	}
 
-	public function getRule( $rulename )
+	public function getRule($rulename)
 	{
-		if( !$this->loadRule( $rulename ) )
-		{
+		if (!$this->loadRule($rulename)) {
 			return false;
 		}
 

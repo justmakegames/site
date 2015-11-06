@@ -117,7 +117,7 @@ class SocialConsumerFacebook extends SocialFacebook implements ISocialOAuth
 		$permissions	= FD::makeArray( $oauthTable->permissions );
 		$permissions[]	= $permission;
 
-		if( $permission == 'publish_stream' )
+		if( $permission == 'publish_actions' )
 		{
 			$oauthTable->push 		= true;
 		}
@@ -157,7 +157,7 @@ class SocialConsumerFacebook extends SocialFacebook implements ISocialOAuth
 
 		$permissions 	= array_values( $permissions );
 
-		if( $scope == 'publish_stream' )
+		if( $scope == 'publish_actions' )
 		{
 			$oauthTable->push 		= false;
 		}
@@ -606,7 +606,6 @@ class SocialConsumerFacebook extends SocialFacebook implements ISocialOAuth
 		$config = FD::config();
 		if( $config->get( 'oauth.facebook.push' ) )
 		{
-			$permissions[] = 'publish_stream';
 			$permissions[] = 'publish_actions';
 		}
 
@@ -707,15 +706,10 @@ class SocialConsumerFacebook extends SocialFacebook implements ISocialOAuth
 
 			$doc 		= JFactory::getDocument();
 			$buttons	= '';
-
+			
 			if ($doc->getType() == 'ajax') {
-
-				$providers 	= JFBCFactory::getAllProviders();
-				$params 	= array('buttonSize' => 'icon_text_button');
-
-				foreach ($providers as $provider) {
-					$buttons 	.= $provider->loginButton($params);
-				}
+                $params = array('image'=> 'icon.png');
+                $buttons = JFBCFactory::getLoginButtons($params);
 			}
 
 			$theme 	= FD::themes();

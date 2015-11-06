@@ -26,20 +26,8 @@ class EasySocialViewPoints extends EasySocialAdminView
 	 */
 	public function display( $tpl = null )
 	{
-		// Check access
-		if( !$this->authorise( 'easysocial.access.points' ) )
-		{
-			$this->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-		}
-
-		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_POINTS' ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-starburst' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_POINTS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_POINTS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_POINTS');
 
 		// Add Joomla buttons here
 		JToolbarHelper::publishList();
@@ -191,16 +179,11 @@ class EasySocialViewPoints extends EasySocialAdminView
 	public function csv( $tpl = null )
 	{
 		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_UPLOAD_CSV_POINTS' ) );
-
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-page_blue_grid_up' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_UPLOAD_CSV_POINTS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_UPLOAD_CSV_POINTS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_UPLOAD_CSV_POINTS');
 
 
-		echo parent::display( 'admin/points/csv' );
+		echo parent::display('admin/points/csv');
 	}
 
 	/**
@@ -230,15 +213,10 @@ class EasySocialViewPoints extends EasySocialAdminView
 	public function install( $tpl = null )
 	{
 		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_INSTALL_POINTS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_INSTALL_POINTS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_INSTALL_POINTS');
 
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-imac_up' );
-
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_INSTALL_POINTS' ) );
-
-		echo parent::display( 'admin/points/install' );
+		echo parent::display('admin/points/install');
 	}
 
 	/**
@@ -252,17 +230,12 @@ class EasySocialViewPoints extends EasySocialAdminView
 	 */
 	public function discover( $tpl = null )
 	{
-		// Add heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_DISCOVER_POINTS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_DISCOVER_POINTS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_INSTALL_POINTS');
 
-		// Set page icon
-		$this->setIcon( 'icon-jar jar-cloud_up' );
+		JToolbarHelper::custom('discover', 'download', '', JText::_('COM_EASYSOCIAL_DISCOVER_BUTTON'), false);
 
-		// Add description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_INSTALL_POINTS' ) );
-
-
-		echo parent::display( 'admin/points/discover' );
+		echo parent::display('admin/points/discover');
 	}
 
 	/**

@@ -29,16 +29,16 @@ class MembersViewGroups extends SocialAppsView
 	 * @access	public
 	 * @param	int		The user id that is currently being viewed.
 	 */
-	public function display( $groupId = null , $docType = null )
+	public function display($groupId = null, $docType = null)
 	{
-		$group 		= FD::group( $groupId );
+		$group = FD::group($groupId);
 
-		$model		= FD::model( 'Groups' );
-		$users		= $model->getMembers( $group->id );
+		$model = FD::model('Groups');
+		$users = $model->getMembers($group->id);
 		$pagination	= $model->getPagination();
 
-		$this->set( 'group'	, $group );
-		$this->set( 'users'	, $users );
+		$this->set('group', $group);
+		$this->set('users', $users);
 
 		echo parent::display( 'groups/default' );
 	}

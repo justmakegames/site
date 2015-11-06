@@ -13,7 +13,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if (!empty($fields)) { ?>
     <?php $empty = true; ?>
-    <div class="pl-20">
         <table class="table table-striped profile-data-table">
             <tbody>
                 <?php foreach ($fields as $field) { ?>
@@ -24,7 +23,6 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php } ?>
             </tbody>
         </table>
-    </div>
 
     <?php if ($empty){ ?>
     <div class="empty center">

@@ -11,57 +11,59 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="widget-box" data-custom-fields-map style="display: none;">
+<div class="panel" data-custom-fields-map style="display: none;">
+	<div class="panel-head">
+		<b><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_BIND_CUSTOM_FIELDS' );?></b>
+		<p class="mb-20"><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_BIND_CUSTOM_FIELDS_DESC' ); ?></p>
+	</div>
 
-	<h3><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_BIND_CUSTOM_FIELDS' );?></h3>
-	<p class="mb-20"><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_BIND_CUSTOM_FIELDS_DESC' ); ?></p>
-
-	<table class="table table-bordered table-hover">
-		<thead>
-		<tr>
-			<td>
-				<?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_CB_FIELDS' ); ?>
-			</td>
-			<td>
-				<?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_EASYSOCIAL_FIELDS' ); ?>
-			</td>
-		</tr>
-		</thead>
-
-		<tbody>
-			<?php foreach( $cbFields as $cbField ){ ?>
-			<tr data-row-item>
+	<div class="panel-body">
+		<table class="table table-bordered table-hover">
+			<thead>
+			<tr>
 				<td>
-					<div>
-						<?php
-
-							$cbTitle = JText::_( $cbField->title );
-							$cbTitle = str_replace( '_UE_', '', $cbTitle );
-							echo $cbTitle;
-						?>
-					</div>
-					<div>
-						<span class="label label-warning"><?php echo ucfirst( $cbField->type );?></span>
-					</div>
+					<?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_CB_FIELDS' ); ?>
 				</td>
 				<td>
-					<select name="field_<?php echo $cbField->fieldid;?>" data-field-item autocomplete="off" class="form-control input-sm">
-						<option value=""><?php echo JText::_( 'COM_EASYSOCIAL_FILTER_SELECT_CUSTOM_FIELD' ); ?></option>
-						<?php foreach( $fields as $field ){ ?>
-						<option value="<?php echo $field->id;?>"<?php echo $cbField->map_id == $field->id ? ' selected="selected"' : '';?>>
-							<?php echo $field->get( 'title' );?> <?php echo JText::_( 'Field' );?>
-						</option>
-						<?php } ?>
-					</select>
+					<?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_EASYSOCIAL_FIELDS' ); ?>
 				</td>
 			</tr>
-			<?php } ?>
-		</tbody>
+			</thead>
 
-	</table>
+			<tbody>
+				<?php foreach( $cbFields as $cbField ){ ?>
+				<tr data-row-item>
+					<td>
+						<div>
+							<?php
 
-	<div class="clearfix form-actions">
-		<a href="<?php echo JRoute::_( 'index.php?option=com_easysocial&view=migrators&layout=jomsocial' ); ?>" class="btn btn-large btn-es-danger pull-left"><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATOR_CANCEL' );?></a>
-		<a href="javascript:void(0);" class="btn btn-large btn-es-primary pull-right" data-start-migration><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATOR_NEXT' );?></a>
+								$cbTitle = JText::_( $cbField->title );
+								$cbTitle = str_replace( '_UE_', '', $cbTitle );
+								echo $cbTitle;
+							?>
+						</div>
+						<div>
+							<span class="label label-warning"><?php echo ucfirst( $cbField->type );?></span>
+						</div>
+					</td>
+					<td>
+						<select name="field_<?php echo $cbField->fieldid;?>" data-field-item autocomplete="off" class="form-control input-sm">
+							<option value=""><?php echo JText::_( 'COM_EASYSOCIAL_FILTER_SELECT_CUSTOM_FIELD' ); ?></option>
+							<?php foreach( $fields as $field ){ ?>
+							<option value="<?php echo $field->id;?>"<?php echo $cbField->map_id == $field->id ? ' selected="selected"' : '';?>>
+								<?php echo $field->get( 'title' );?> <?php echo JText::_( 'Field' );?>
+							</option>
+							<?php } ?>
+						</select>
+					</td>
+				</tr>
+				<?php } ?>
+			</tbody>
+		</table>
+
+		<div class="clearfix form-actions">
+			<a href="<?php echo JRoute::_( 'index.php?option=com_easysocial&view=migrators&layout=jomsocial' ); ?>" class="btn btn-large btn-es-danger pull-left"><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATOR_CANCEL' );?></a>
+			<a href="javascript:void(0);" class="btn btn-large btn-es-primary pull-right" data-start-migration><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATOR_NEXT' );?></a>
+		</div>
 	</div>
 </div>

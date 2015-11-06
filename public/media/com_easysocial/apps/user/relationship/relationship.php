@@ -33,7 +33,7 @@ class SocialUserAppRelationship extends SocialAppItem
     {
         $obj            = new stdClass();
         $obj->color     = '#DC554F';
-        $obj->icon      = 'ies-heart';
+        $obj->icon      = 'fa fa-heart';
         $obj->label     = 'APP_USER_RELATIONSHIP_STREAM_TOOLTIP';
 
         return $obj;
@@ -79,6 +79,15 @@ class SocialUserAppRelationship extends SocialAppItem
             return;
         }
 
+        // Get the actor
+        $actor          = $stream->actor;
+
+        // check if the actor is ESAD profile or not, if yes, we skip the rendering.
+        if (! $actor->hasCommunityAccess()) {
+            $stream->title = '';
+            return;
+        }
+
         $my = FD::user();
         $privacy = FD::privacy($my->id);
 
@@ -87,8 +96,8 @@ class SocialUserAppRelationship extends SocialAppItem
         }
 
         $stream->color = '#DC554F';
-        $stream->fonticon = 'ies-heart';
-        $stream->label = JText::_('APP_USER_RELATIONSHIP_STREAM_TOOLTIP');
+        $stream->fonticon = 'fa fa-heart';
+        $stream->label = FD::_('APP_USER_RELATIONSHIP_STREAM_TOOLTIP', true);
         $stream->display = SOCIAL_STREAM_DISPLAY_FULL;
 
         $registry = FD::registry($stream->params);

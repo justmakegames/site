@@ -31,7 +31,7 @@ class SocialFieldsEventConfigAllowMaybe extends SocialFieldItem
     public function onRegister(&$post, &$session)
     {
         // Get any previously submitted data
-        $value = isset($post['allowmaybe']) ? (bool) $post['allowmaybe'] : true;
+        $value = isset($post['allowmaybe']) ? (bool) $post['allowmaybe'] : $this->params->get('default', true);
 
         // Detect if there's any errors
         $error = $session->getErrors($this->inputName);
@@ -55,7 +55,7 @@ class SocialFieldsEventConfigAllowMaybe extends SocialFieldItem
      */
     public function onEdit(&$post, &$cluster, $errors)
     {
-        $value = isset($post['allowmaybe']) ? (bool) $post['allowmaybe'] : $cluster->getParams()->get('allowmaybe', true);
+        $value = isset($post['allowmaybe']) ? (bool) $post['allowmaybe'] : $cluster->getParams()->get('allowmaybe', $this->params->get('default', true));
         $error = $this->getError($errors);
 
         $this->set('error', $error);
@@ -112,7 +112,7 @@ class SocialFieldsEventConfigAllowMaybe extends SocialFieldItem
     public function beforeSave(&$post, &$cluster)
     {
         // Get the posted value
-        $value = isset($post['allowmaybe']) ? (bool) $post['allowmaybe'] : true;
+        $value = isset($post['allowmaybe']) ? (bool) $post['allowmaybe'] : $this->params->get('default', true);
 
         $registry = $cluster->getParams();
         $registry->set('allowmaybe', $value);

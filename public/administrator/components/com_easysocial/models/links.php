@@ -64,4 +64,50 @@ class EasySocialModelLinks extends EasySocialModel
 
 		return $db->Query();
 	}
+
+	/**
+	 * Retrieves a list of cached images
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getCachedImages($options = array())
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$sql->select('#__social_links_images');
+
+		if (isset($options['storage'])) {
+			$sql->where('storage', $options['storage']);	
+		}
+
+		if (isset($options['exclusion']) && !empty($options['exclusion'])) {
+			$sql->where('id', $options['exclusion'], 'NOT IN');
+		}
+
+		if (isset($options['limit'])) {
+			$sql->limit($options['limit']);
+		}
+
+		$db->setQuery($sql);
+		$result = $db->loadObjectList();
+
+		if (!$result) {
+			return $result;
+		}
+
+		$images = array();
+
+		foreach ($result as $row) {
+			$linkImage = FD::table('LinkImage');
+			$linkImage->bind($row);
+
+			$images[] = $linkImage;
+		}
+				
+		return $images;
+	}
 }

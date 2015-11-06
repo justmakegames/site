@@ -31,9 +31,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                     <div class="discussion-meta fd-small">
                         <?php if ($files) { ?>
-                            <i class="ies-attachment" data-original-title="<?php echo JText::_('APP_USER_EVENTS_DISCUSSIONS_CONTAIN_ATTACHMENTS', true); ?>" data-es-provide="tooltip"></i>&nbsp;
+                            <i class="fa fa-attachment" data-original-title="<?php echo JText::_('APP_USER_EVENTS_DISCUSSIONS_CONTAIN_ATTACHMENTS', true); ?>" data-es-provide="tooltip"></i>&nbsp;
                         <?php } ?>
-                        <i class="ies-calendar"></i>&nbsp; <?php echo JText::sprintf('APP_USER_EVENTS_DISCUSSIONS_CONTENT_POSTED_ON_META' , FD::date($discussion->created)->format(JText::_('DATE_FORMAT_LC1'))); ?>
+                        <i class="fa fa-calendar"></i>&nbsp; <?php echo JText::sprintf('APP_USER_EVENTS_DISCUSSIONS_CONTENT_POSTED_ON_META' , FD::date($discussion->created)->format(JText::_('DATE_FORMAT_LC1'))); ?>
                     </div>
                 </div>
             </div>

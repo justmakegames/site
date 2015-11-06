@@ -33,7 +33,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					data-id="0"
 					data-title="<?php echo JText::_('COM_EASYSOCIAL_ADVANCED_SEARCH_NEW_SEARCH'); ?>"
 				>
-					<i class="ies-search mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_NEW_SEARCH' );?>
+					<i class="fa fa-search mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADVANCED_SEARCH_NEW_SEARCH' );?>
 					<div class="label label-notification pull-right mr-20"></div>
 				</a>
 			</li>

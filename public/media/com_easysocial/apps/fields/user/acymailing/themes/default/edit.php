@@ -19,7 +19,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php if( !isset( $options['check'] ) || $options['check'] !== false ) { ?>data-check<?php } ?>
 >
 	<div class="col-sm-3">&nbsp;</div>
-	<div class="col-sm-8 data" data-content>
+	<div class="col-xs-12 col-sm-8 data" data-content>
 		<label class="checkbox" for="<?php echo $inputName;?>">
 			<input type="checkbox" name="<?php echo $inputName;?>" id="<?php echo $inputName;?>" value="<?php echo $lists;?>" <?php echo $value ? ' checked="checked"' :'';?>/>
 			<?php echo JText::_($params->get( 'title', JText::_('PLG_FIELDS_MAILCHIMP_SUBSCRIBE_TO_NEWSLETTER')) ); ?>

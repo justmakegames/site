@@ -52,6 +52,8 @@ class plgUserEasySocial extends JPlugin
 			return;
 		}
 
+		// var_dump($user);exit;
+
 		if( isset( $user[ 'status' ] ) && $user['status'] && $user['type'] == 'Joomla' )
 		{
 			//successful logged in.
@@ -60,6 +62,20 @@ class plgUserEasySocial extends JPlugin
 			if ($id = intval(JUserHelper::getUserId( $user['username'] )))
 			{
 				$my->load($id);
+
+				// we need to check if this user being blocked or not.
+				if ($my->block == 1) {
+
+					// lets check if we need to release this user automatically or not.
+					$userModel = ES::model('Users');
+					$bannedUsers = $userModel->getExpiredBannedUsers($my->id);
+
+					if ($bannedUsers) {
+						$esUser = ES::user($my->id);
+						$esUser->unblock();
+						$userModel->updateBlockInterval($bannedUsers, '0');
+					}
+				}
 			}
 
 			$config		= Foundry::config();
@@ -130,12 +146,8 @@ class plgUserEasySocial extends JPlugin
 	 * @param	string
 	 * @return
 	 */
-	public function onUserBeforeDelete($user, $success, $msg)
+	public function onUserBeforeDelete($user)
 	{
-		if (!$success) {
-			return false;
-		}
-
 		// Include main file.
 		jimport('joomla.filesystem.file');
 
@@ -149,8 +161,8 @@ class plgUserEasySocial extends JPlugin
 		require_once($path);
 
 		// Check if Foundry exists
-		if (!Foundry::exists()) {
-			Foundry::language()->loadSite();
+		if (!FD::exists()) {
+			FD::language()->loadSite();
 			echo JText::_('COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING');
 			return;
 		}

@@ -32,33 +32,39 @@ class EasySocialViewUsers extends EasySocialSiteView
 		$model = FD::model('Users');
 		$my = FD::user();
 
-		$config = FD::config();
-		$admin = $config->get( 'users.listings.admin' ) ? true : false;
+		$admin = $this->config->get('users.listings.admin') ? true : false;
 		$options = array('includeAdmin' => $admin, 'exclusion' => $my->id);
 
-		$limit 		= FD::themes()->getConfig()->get( 'userslimit' );
-		$options[ 'limit' ]	= $limit;
+		$limit = FD::themes()->getConfig()->get( 'userslimit' );
+		$options['limit']	= $limit;
 
 		$fid = 0;
 		$filter = $this->input->get('filter', 'all', 'word');
-		$sort   = $this->input->get('sort', $config->get('users.listings.sorting'), 'word');
+		$sort = $this->input->get('sort', $this->config->get('users.listings.sorting'), 'word');
 
 		// Do not display profile by default
-		$profile    = false;
+		$profile = false;
 
 		// Default title
 		$title 	= JText::_('COM_EASYSOCIAL_PAGE_TITLE_USERS');
 
 		// Set the sorting options
 		if ($sort == 'alphabetical') {
-			$options[ 'ordering' ]	= 'a.name';
-			$options[ 'direction' ]	= 'ASC';
+			$nameField = $this->config->get('users.displayName') == 'username' ? 'a.username' : 'a.name';
+
+			$options['ordering'] = $nameField;
+			$options['direction'] = 'ASC';
 		} else if($sort == 'latest') {
 			$options[ 'ordering' ]	= 'a.id';
+			$options[ 'direction' ]	= 'DESC';
+		} elseif($sort == 'lastlogin') {
+			$options[ 'ordering' ]	= 'a.lastvisitDate';
 			$options[ 'direction' ]	= 'DESC';
 		}
 
 		$searchFilter = '';
+		$displayOptions = '';
+
 		if ($filter == 'search') {
 
 			// search filter id
@@ -70,6 +76,11 @@ class EasySocialViewUsers extends EasySocialSiteView
 			// Retrieve the users
 			$result		= $model->getUsersByFilter($fid, $options);
 			$pagination	= $model->getPagination();
+
+			$displayOptions = $model->getDisplayOptions();
+
+			// var_dump($displayOptions);exit;
+
 
 			// let reset the page title here
 			$title = $searchFilter->get('title');
@@ -227,7 +238,7 @@ class EasySocialViewUsers extends EasySocialSiteView
 
 		// Retrieve a list of profile types on the site
 		$profilesModel = FD::model('Profiles');
-		$profiles = $profilesModel->getProfiles(array('state' => SOCIAL_STATE_PUBLISHED, 'includeAdmin' => $admin));
+		$profiles = $profilesModel->getProfiles(array('state' => SOCIAL_STATE_PUBLISHED, 'includeAdmin' => $admin, 'excludeESAD' => true));
 
 		if ( $filter != 'profiletype' && $filter != 'search') {
 			// Define those query strings here
@@ -262,6 +273,7 @@ class EasySocialViewUsers extends EasySocialSiteView
 		$this->set('fid', $fid);
 		$this->set('searchFilters', $searchFilters);
 		$this->set('searchFilter', $searchFilter);
+		$this->set('displayOptions', $displayOptions);
 
 		echo parent::display( 'site/users/default' );
 	}
@@ -283,7 +295,7 @@ class EasySocialViewUsers extends EasySocialSiteView
 		$model 	= FD::model('Users');
 		$my 	= FD::user();
 
-		$config 	= FD::config();
+		$config = FD::config();
 		$admin 		= $config->get( 'users.listings.admin' ) ? true : false;
 		$options	= array('includeAdmin' => $admin );
 
@@ -420,6 +432,8 @@ class EasySocialViewUsers extends EasySocialSiteView
 			}
 		}
 
+		// $displayOptions = '';
+		$displayOptions = $model->getDisplayOptions();
 
 		// Set the page title
 		FD::page()->title($title);
@@ -442,6 +456,8 @@ class EasySocialViewUsers extends EasySocialSiteView
 		$this->set('fid', '');
 		$this->set('searchFilters', '');
 		$this->set('searchFilter', '');
+		$this->set('displayOptions', $displayOptions);
+
 
 		echo parent::display( 'site/users/default' );
 

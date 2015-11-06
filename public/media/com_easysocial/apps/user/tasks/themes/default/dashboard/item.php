@@ -11,10 +11,10 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<li class="taskItem all<?php echo $task->state == 0 ? ' is-unresolved' : ' is-resolved';?>" data-tasks-item data-id="<?php echo $task->id;?>">
+<li class="taskItem all<?php echo $task->state == 2 ? ' is-resolved' : ' is-unresolved';?>" data-tasks-item data-id="<?php echo $task->id;?>">
 	<div class="clearfix">
 		<div class="pull-left">
-			<input type="checkbox" class="mr-10" id="task-<?php echo $task->id;?>" data-tasks-item-checkbox <?php echo $task->state == 1 ? 'checked="checked" ' : '';?>/>
+			<input type="checkbox" class="mr-10" id="task-<?php echo $task->id;?>" data-tasks-item-checkbox <?php echo $task->state == 2 ? 'checked="checked" ' : '';?>/>
 
 			<span class="task-title"><?php echo $task->get( 'title' ); ?></span>
 
@@ -35,7 +35,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<span class="label label-success"><?php echo JText::_( 'APP_USER_TASKS_RESOLVED' ); ?></span>
 
 			<span class="task-time">
-				<i class="ies-clock ies-small"></i> <?php echo FD::date( $task->created )->toLapsed(); ?>
+				<i class="fa fa-clock-o "></i> <?php echo FD::date( $task->created )->toLapsed(); ?>
 			</span>
 
 		</div>

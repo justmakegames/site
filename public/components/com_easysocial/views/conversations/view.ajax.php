@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		Social
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @package		EasySocial
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -75,14 +75,11 @@ class EasySocialViewConversations extends EasySocialSiteView
 	 */
 	public function deleteAttachment()
 	{
-		$ajax 	= FD::ajax();
-
-		if( $this->hasErrors() )
-		{
-			return $ajax->reject( $this->getMessage() );
+		if ($this->hasErrors()) {
+			return $this->ajax->reject( $this->getMessage() );
 		}
 
-		return $ajax->resolve();
+		return $this->ajax->resolve();
 	}
 
 	/**
@@ -94,65 +91,57 @@ class EasySocialViewConversations extends EasySocialSiteView
 	public function composer()
 	{
 		// User needs to be logged in.
-		FD::requireLogin();
-
-		$ajax 		= FD::ajax();
+		ES::requireLogin();
 
 		// We need to know if the user wants to send to a list or a user id
-		$id 		= JRequest::getInt( 'id' );
-		$listId 	= JRequest::getInt( 'listId' );
-		$type 		= 'user';
-		$my 		= FD::user();
-		$theme 		= FD::themes();
+		$id = $this->input->get('id', 0, 'int');
+		$listId = $this->input->get('listId', 0, 'int');
+		$type = 'user';
 
-		if( $id )
-		{
-			$recipient	= FD::user( $id );
+		$theme = ES::themes();
+
+		if ($id) {
+
+			$recipient = ES::user($id);
 
 			// Check if the recipient allows the sender to send message
-			$privacy 	= $my->getPrivacy();
+			$privacy = $this->my->getPrivacy();
 
-			if (!$privacy->validate('profiles.post.message', $id, SOCIAL_TYPE_USER )) {
-				$contents 	= $theme->output('site/conversations/dialog.disallowed');
+			if (!$privacy->validate('profiles.post.message', $id, SOCIAL_TYPE_USER)) {
+				$contents = $theme->output('site/conversations/dialog.disallowed');
 
-				return $ajax->resolve($contents);
+				return $this->ajax->resolve($contents);
 			}
 
-			$recipients = array( $recipient );
-			$theme->set( 'recipient' , $recipient );
-		}
-		else
-		{
-			$type 		= 'list';
-			$list 		= FD::table( 'List' );
-			$list->load( $listId );
+			$recipients = array($recipient);
+			$theme->set('recipient', $recipient);
+		} else {
 
-			if( !$list->id || !$listId )
-			{
-				return $ajax->reject( JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_ERROR_INVALID_LIST_ID' ) );
+			$type = 'list';
+			$list = ES::table('List');
+			$list->load($listId);
+
+			if (!$list->id || !$listId) {
+				return $this->ajax->reject(JText::_('COM_EASYSOCIAL_CONVERSATIONS_ERROR_INVALID_LIST_ID'));
 			}
-
-			$my 		= FD::user();
 
 			// Check if the user really has access to send to this list.
-			if( $list->user_id != $my->id )
-			{
-				return $ajax->reject( JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_ERROR_NO_ACCESS' ) );
+			if ($list->user_id != $this->my->id) {
+				return $this->ajax->reject(JText::_('COM_EASYSOCIAL_CONVERSATIONS_ERROR_NO_ACCESS'));
 			}
 
-			$users 		= $list->getMembers();
+			$users = $list->getMembers();
+			$recipients = ES::user($users);
 
-			$recipients = FD::user( $users );
-
-			$theme->set( 'list' , $list );
+			$theme->set('list', $list);
 		}
 
-		$theme->set( 'type'		  , $type );
-		$theme->set( 'recipients' , $recipients );
+		$theme->set('type', $type);
+		$theme->set('recipients', $recipients);
 
-		$contents 	= $theme->output( 'site/conversations/dialog.compose' );
+		$contents = $theme->output('site/conversations/dialog.compose');
 
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
 	/**

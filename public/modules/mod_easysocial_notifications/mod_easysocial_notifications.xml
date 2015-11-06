@@ -2,12 +2,12 @@
 <extension version="3.1" type="module" client="site" method="upgrade">
 	<name>EasySocial Notifications</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>26th November 2014</creationDate>
+	<creationDate>19th October 2015</creationDate>
 	<copyright>Copyright (C) 2009 - 2013 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>1.3.13</version>
+	<version>1.4.3</version>
 	<description><![CDATA[MOD_EASYSOCIAL_NOTIFICATIONS_DESC]]></description>
 	<files>
 		<folder>scripts</folder>
@@ -59,6 +59,7 @@
 					<option value="flip none">flip horizontal</option>
 					<option value="none flip">flip vertical</option>
 				</field>
+                <field name="popbox_offset" class="input-mini text-center" type="text" default="10" label="MOD_EASYSOCIAL_NOTIFICATIONS_POPBOX_OFFSET" description="MOD_EASYSOCIAL_NOTIFICATIONS_POPBOX_OFFSET_DESC" />
 			</fieldset>
 			<fieldset name="advanced">
 				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />

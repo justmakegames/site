@@ -16,12 +16,12 @@ defined('_JEXEC') or die('Unauthorized Access');
         <img data-avatar-image src="<?php echo $event->getAvatar(SOCIAL_AVATAR_SQUARE);?>" alt="<?php echo $this->html('string.escape' , $event->getName());?>">
     </a>
 
-    <?php if ($event->isAdmin()) { ?>
+    <?php if ($event->isAdmin() || $this->my->isSiteAdmin()) { ?>
     <div class="es-flyout-content">
         <div class="dropdown_ es-avatar-menu" data-avatar-menu>
             <a href="javascript:void(0);"
                class="es-flyout-button dropdown-toggle_"
-               data-bs-toggle="dropdown"><i class="ies-cog-2"></i> <?php echo JText::_('COM_EASYSOCIAL_PHOTOS_EDIT_AVATAR');?></a>
+               data-bs-toggle="dropdown"><i class="fa fa-cog"></i> <?php echo JText::_('COM_EASYSOCIAL_PHOTOS_EDIT_AVATAR');?></a>
             <ul class="dropdown-menu">
                 <li data-avatar-upload-button>
                     <a href="javascript:void(0);"><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_UPLOAD_AVATAR"); ?></a>
@@ -29,7 +29,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <li data-avatar-select-button>
                     <a href="javascript:void(0);"><?php echo JText::_('COM_EASYSOCIAL_PHOTOS_SELECT_AVATAR'); ?></a>
                 </li>
-                <?php if ($event->hasAvatar() && $event->isAdmin()) { ?>
+                <?php if ($event->hasAvatar() && ($event->isAdmin() || $this->my->isSiteAdmin())) { ?>
                 <li class="divider"></li>
                 <li data-avatar-remove-button>
                     <a href="<?php echo FRoute::_('index.php?option=com_easysocial&id=' . $event->id . '&controller=events&task=removeAvatar' , true , '' , null , true);?>"><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_REMOVE_AVATAR"); ?></a>

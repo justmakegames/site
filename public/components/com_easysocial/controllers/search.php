@@ -15,6 +15,47 @@ FD::import( 'site:/controllers/controller' );
 
 class EasySocialControllerSearch extends EasySocialController
 {
+
+
+	/**
+	 * Search within EasySocial.
+	 *
+	 * @since	1.4
+	 * @access	public
+	 */
+	public function query()
+	{
+		// Check for request forgeries!
+		FD::checkToken();
+
+		// Get the query
+		$query = $this->input->get('q', '', 'default');
+
+		// Get the search type
+		$type = $this->input->get('type', '', 'cmd');
+
+		// Get the search filter types
+		$filters = $this->input->get('filtertypes', array(), 'array');
+
+		$options = array('q' => urlencode($query));
+
+		if ($type) {
+			$options['type'] = $type;
+		}
+
+
+		if ($filters) {
+			for($i = 0; $i < count($filters); $i++) {
+				$options['filtertypes[' . $i . ']'] = $filters[$i];
+			}
+		}
+
+		$url 	= FRoute::search($options, false);
+
+		$this->app->redirect($url);
+	}
+
+
 	/**
 	 * get activity logs.
 	 *
@@ -35,12 +76,22 @@ class EasySocialControllerSearch extends EasySocialController
 		$my 			= FD::user();
 
 		// 7:EasyBlog
-		$type 			= JRequest::getInt( 'type', 0 );
-		$keywords 		= JRequest::getVar( 'q', '' );
-		$next_limit 	= JRequest::getVar( 'next_limit', '' );
-		$last_type 		= JRequest::getVar( 'last_type', '' );
-		$isloadmore 	= JRequest::getVar( 'loadmore', false );
-		$ismini 		= JRequest::getVar( 'mini', false );
+		// $type 			= JRequest::getInt( 'type', 0 );
+		// $keywords 		= JRequest::getVar( 'q', '' );
+		// $next_limit 	= JRequest::getVar( 'next_limit', '' );
+		// $last_type 		= JRequest::getVar( 'last_type', '' );
+		// $isloadmore 	= JRequest::getVar( 'isloadmore', false );
+		// $ismini 		= JRequest::getVar( 'mini', false );
+
+
+		$keywords = $this->input->get('q', '', 'default');
+		$next_limit = $this->input->get('next_limit', '', 'default');
+		$last_type = $this->input->get('last_type', '', 'default');
+		$isloadmore = $this->input->get('loadmore', false, 'bool');
+		$ismini = $this->input->get('mini', false, 'bool');
+
+		$filters = $this->input->get('filtertypes', array(), 'array');
+
 
 		$highlight = $ismini ? false : true;
 
@@ -76,12 +127,47 @@ class EasySocialControllerSearch extends EasySocialController
 
 			$query = $jModel->getQuery(); // this line need to be here. so that the indexer can get the correct value
 
-			if (!$query->terms)
-			{
+			if (!$query->terms) {
 				// if there is no terms match. lets check if smart search suggested any terms or not. if yes, lets use it.
 
-				if (isset($query->included) && count($query->included) > 0) {
-					$suggestion = '';
+				// before we can include this file, we need to supress the notice error of this key FINDER_PATH_INDEXER due to the way this key defined in /com_finder/models/search.php
+				$suggestlib = JPATH_ROOT . '/components/com_finder/models/suggestions.php';
+				@require_once($suggestlib);
+
+				$suggestion = '';
+				$suggestionModel = new FinderModelSuggestions();
+				$suggestedItems = $suggestionModel->getItems();
+
+				if ($suggestedItems) {
+					// we need to get the shortest terms to search
+					$curLength = JString::strlen($suggestedItems[0]);
+					$suggestion = $suggestedItems[0];
+
+					for($i = 1; $i < count($suggestedItems); $i++) {
+						$iLen = JString::strlen($suggestedItems[$i]);
+
+						if ($iLen < $curLength) {
+							$curLength = $iLen;
+							$suggestion = $suggestedItems[$i];
+						}
+					}
+
+					if ($suggestion) {
+
+						$app = JFactory::getApplication();
+						$input = $app->input;
+						$input->request->set('q', $suggestion);
+
+						// Load up the new model
+						$jModel = new FinderModelSearch();
+						$state = $jModel->getState();
+
+						// this line need to be here. so that the indexer can get the correct value
+						$query = $jModel->getQuery();
+					}
+				}
+
+				if (!$suggestion && isset($query->included) && count($query->included) > 0) {
 
 					foreach($query->included as $item) {
 						if (isset($item->suggestion) && !empty($item->suggestion)) {
@@ -90,15 +176,16 @@ class EasySocialControllerSearch extends EasySocialController
 					}
 
 					if ($suggestion) {
-						//reset the query string.
 						$app = JFactory::getApplication();
 						$input = $app->input;
 						$input->request->set('q', $suggestion);
 
-						//refresh
+						// Load up the new model
 						$jModel = new FinderModelSearch();
 						$state = $jModel->getState();
-						$query = $jModel->getQuery(); // this line need to be here. so that the indexer can get the correct value
+
+						// this line need to be here. so that the indexer can get the correct value
+						$query = $jModel->getQuery();
 					}
 				}
 			}
@@ -107,13 +194,23 @@ class EasySocialControllerSearch extends EasySocialController
 			$state->{'list.start'} = $next_limit;
 			$state->{'list.limit'} = $limit;
 
-			if( $type )
-			{
-				// 7:EasyBlog
-				$typeAlias = JRequest::getVar('type','');
-				$typeAlias = explode(':', $typeAlias);
-				$typeAlias = $typeAlias[1];
-				$typeArr['Type'] = array( $typeAlias => $type );
+			if ($filters) {
+				$typeArr = array();
+
+				foreach($filters as $filter) {
+
+					// 7-EasyBlog
+					$typeAlias = explode('-', $filter);
+					$typeAlias = $typeAlias[1];
+
+					$typeArr['Type'][$typeAlias] = (int) $filter;
+
+
+					//debug code here.
+					//17258-EasySocial.Photos
+					//17268-EasySocial.Videos
+					// $typeArr['Type'] = array( 'EasySocial.Photos' => '17258', 'EasySocial.Videos' => '17268' );
+				}
 
 				$query->filters = $typeArr;
 			}
@@ -145,7 +242,7 @@ class EasySocialControllerSearch extends EasySocialController
 
 		}
 
-		return $view->call( __FUNCTION__, $data, $last_type, $next_limit, $isloadmore, $ismini, $count );
+		return $view->call( __FUNCTION__, $data, $last_type, $next_limit, $isloadmore, $ismini, $count, $filters );
 
 	}
 
@@ -239,6 +336,8 @@ class EasySocialControllerSearch extends EasySocialController
 		FD::requireLogin();
 		$showNew = false;
 
+		$config = FD::config();
+
 		$view 	= FD::view( 'Search' , false );
 		$fid 	= JRequest::getVar( 'fid', '' );
 		$fname  = '';
@@ -246,6 +345,7 @@ class EasySocialControllerSearch extends EasySocialController
 		$data['criteria'] 			= '';
 		$data['match']				= 'all';
 		$data['avatarOnly']			= 0;
+		$data['sort']				= $config->get('users.advancedsearch.sorting', 'default');
 		$data['total'] 				= 0;
 		$data['results']			= null;
 		$data['nextlimit']			= null;
@@ -254,6 +354,8 @@ class EasySocialControllerSearch extends EasySocialController
 		// this is doing new search
 		$options = array();
 		$options[ 'showPlus' ] 	= true;
+
+		$displayOptions = array();
 
 		if( $fid )
 		{
@@ -299,17 +401,17 @@ class EasySocialControllerSearch extends EasySocialController
 			// perform search
 			$values['match'] 			= isset( $dataFilter->matchType ) ? $dataFilter->matchType : 'all';
 			$values['avatarOnly']		= isset( $dataFilter->avatarOnly ) ? true : false;
+			$values['sort']				= isset( $dataFilter->sort ) ? $dataFilter->sort : $config->get('users.advancedsearch.sorting', 'default');
+
 
 			$results 	= null;
 			$total 		= 0;
 			$nextlimit 	= null;
 
-			// echo '<pre>';print_r( $values );echo '</pre>';exit;
-
 			if( $values['criterias'] )
 			{
 				$results = $library->search( $values );
-
+				$displayOptions = $library->getDisplayOptions();
 				$total 		= $library->getTotal();
 				$nextlimit 	= $library->getNextLimit();
 			}
@@ -324,6 +426,7 @@ class EasySocialControllerSearch extends EasySocialController
 			$data['criteria'] 		= $criteriaHTML;
 			$data['match']			= $values['match'];
 			$data['avatarOnly']		= $values['avatarOnly'];
+			$data['sort']			= $values['sort'];
 			$data['total'] 			= $total;
 			$data['results']		= $results;
 			$data['nextlimit']		= $nextlimit;
@@ -332,6 +435,8 @@ class EasySocialControllerSearch extends EasySocialController
 		{
 			$showNew = true;
 		}
+
+		$data['displayOptions']	= $displayOptions;
 
 		if($showNew) {
 			$criteriaHTML 		= $library->getCriteriaHTML( $options );
@@ -357,6 +462,7 @@ class EasySocialControllerSearch extends EasySocialController
 
 		// Get the current view
 		$view 	= $this->getCurrentView();
+		$config = FD::config();
 
 		// Get the data from request
 		$data 			= JRequest::getVar( 'data', '' );
@@ -379,6 +485,7 @@ class EasySocialControllerSearch extends EasySocialController
 		// perform search
 		$values['match'] 		= $filter->matchType;
 		$values['avatarOnly']	= isset($filter->avatarOnly) ? true : false;
+		$values['sort']			= isset($filter->sort) ? $filter->sort : $config->get('users.advancedsearch.sorting', 'default');
 		$values['nextlimit'] 	= $nextlimit;
 
 		$results 	= null;

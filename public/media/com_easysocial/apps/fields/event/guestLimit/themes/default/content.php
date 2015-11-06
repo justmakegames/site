@@ -11,6 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div>
-    <input type="text" class="form-control input-sm" name="guestlimit" value="<?php echo $value; ?>"/>
-</div>
+    <div class="input-group guest-limit">
+        <input type="text" class="form-control input-sm text-center" name="guestlimit" value="<?php echo $value; ?>"/>
+        <span class="input-group-addon"><?php echo JText::_('COM_EASYSOCIAL_GUESTS');?></span>
+    </div>

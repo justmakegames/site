@@ -16,7 +16,7 @@
 			width: 60px;
 		}
 
-        .es-story-location-autocomplete {
+        .es-location-autocomplete {
             z-index: 25;
         }
 	}
@@ -60,6 +60,26 @@
             .es-control-input {
                 input {
                     width: 100%;
+                }
+            }
+            .mod-search-distance {
+                &__location-label-input-group {
+                    // width: 100%;
+                    input {
+                        // border-radius: 3px;
+                    }
+                }
+                &__location-label-input-group-btn {
+                    // display: block;
+
+                    // width: 100%;
+                    // margin-top: 15px;
+                    .btn {
+                        // border-radius: 3px;
+                    }
+                }
+                &__location-detect-text {
+                    display: none;
                 }
             }
         } //w480

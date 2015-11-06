@@ -86,6 +86,30 @@
 		"default": true
 	},
 
+	"singlename_placeholder": {
+		"label": "PLG_FIELDS_JOOMLA_FULLNAME_SINGLENAME_PLACEHOLDER",
+		"tooltip": "PLG_FIELDS_JOOMLA_FULLNAME_SINGLENAME_PLACEHOLDER_DESC",
+		"type": "text"
+	},
+
+	"firstname_placeholder": {
+		"label": "PLG_FIELDS_JOOMLA_FULLNAME_FIRSTNAME_PLACEHOLDER",
+		"tooltip": "PLG_FIELDS_JOOMLA_FULLNAME_FIRSTNAME_PLACEHOLDER_DESC",
+		"type": "text"
+	},
+
+	"middlename_placeholder": {
+		"label": "PLG_FIELDS_JOOMLA_FULLNAME_MIDDLENAME_PLACEHOLDER",
+		"tooltip": "PLG_FIELDS_JOOMLA_FULLNAME_MIDDLENAME_PLACEHOLDER_DESC",
+		"type": "text"
+	},
+
+	"lastname_placeholder": {
+		"label": "PLG_FIELDS_JOOMLA_FULLNAME_LASTNAME_PLACEHOLDER",
+		"tooltip": "PLG_FIELDS_JOOMLA_FULLNAME_LASTNAME_PLACEHOLDER_DESC",
+		"type": "text"
+	},
+
 	"username_fallback": {
 		"label": "FIELDS_USER_JOOMLA_FULLNAME_USERNAME_FALLBACK",
 		"tooltip": "FIELDS_USER_JOOMLA_FULLNAME_USERNAME_FALLBACK_DESC",

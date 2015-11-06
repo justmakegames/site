@@ -14,7 +14,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <li class="toolbarItem<?php echo $requests > 0 ? ' has-notice' : '';?>"
 	data-popbox="module://easysocial/friends/popbox"
 	data-popbox-toggle="click"
-	data-popbox-position="bottom-left"
+	data-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-right' : 'bottom-left';?>"
 	data-popbox-collision="none"
 	data-notifications-friends>
 	<a href="javascript:void(0);" class="loadRequestsButton"
@@ -23,7 +23,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-es-provide="tooltip"
 		data-notifications-friends
 	>
-		<i class="ies-users"></i>
+		<i class="fa fa-users"></i>
 		<span class="visible-phone"><?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_FRIEND_REQUESTS' );?></span>
 		<span class="label label-notification" data-notificationFriends-counter><?php if( $requests > 0 ){ ?><?php echo $requests; ?><?php } ?></span>
 	</a>

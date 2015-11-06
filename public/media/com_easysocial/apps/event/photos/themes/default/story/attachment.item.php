@@ -29,5 +29,5 @@ defined('_JEXEC') or die('Unauthorized Access');
         </a>
     </div>
     <div data-photo-remove-button
-         class="es-photo-remove-button"><i class="ies-remove"></i> <?php echo JText::_("COM_EASYSOCIAL_STORY_PHOTO_REMOVE"); ?></div>
+         class="es-photo-remove-button"><i class="fa fa-remove"></i> <?php echo JText::_("COM_EASYSOCIAL_STORY_PHOTO_REMOVE"); ?></div>
 </div>

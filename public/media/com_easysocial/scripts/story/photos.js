@@ -3,13 +3,10 @@ EasySocial.module("story/photos", function($){
 	var module = this;
 
 	EasySocial.require()
-		.script(
-			"albums/uploader"
-		)
-		.done(function(){
+		.script("albums/uploader")
+		.done(function() {
 
-			EasySocial.Controller("Story.Photos",
-				{
+			EasySocial.Controller("Story.Photos", {
 					defaultOptions: {
 
 						"{albumView}"     : "[data-album-view]",
@@ -185,7 +182,9 @@ EasySocial.module("story/photos", function($){
 
 					"{story} save": function(element, event, save) {
 
-						if (!self.hasItems()) return;
+						if (!self.hasItems()) {
+							return;
+						}
 
 						self.uploadingPhoto = save.addTask("uploadingPhoto");
 						self.save();

@@ -38,13 +38,33 @@ $modules->loadComponentScripts();
 $modules->loadComponentStylesheets();
 $modules->addDependency('css');
 
-// Get the layout to use
+// Get the params from module
 $layout = $params->get('layout', 'default');
 $suffix = $params->get('suffix', '');
+$userId = (int) $params->get('userid', 0);
+$albumId = (int) $params->get('albumid', 0);
 
-$options = array('ordering' => 'random', 'limit' => $params->get('limit', 20));
+$options = array('ordering' => $params->get('ordering', 'created'), 'limit' => $params->get('limit', 20));
+
+if ($userId) {
+    $options['uid'] = $userId;
+}
+
+if ($albumId) {
+    $options['album_id'] = $albumId;
+}
 
 $model = FD::model('Photos');
 $photos = $model->getPhotos($options);
+
+if ($photos) {
+
+    $ids = array();
+    foreach($photos as $photo) {
+        $ids[] = $photo->id;
+    }
+
+    FD::cache()->cachePhotos($ids);
+}
 
 require(JModuleHelper::getLayoutPath('mod_easysocial_photos', $layout));

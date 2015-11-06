@@ -11,12 +11,6 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-/**
- * Widgets for group
- *
- * @since	1.0
- * @access	public
- */
 class MembersWidgetsGroups extends SocialAppsWidgets
 {
 	/**
@@ -27,40 +21,51 @@ class MembersWidgetsGroups extends SocialAppsWidgets
 	 * @param	string
 	 * @return
 	 */
-	public function afterCategory( $group )
+	public function afterCategory($group)
 	{
-		$app 		= $this->getApp();
-		$permalink 	= FRoute::groups( array('layout'=> 'item', 'id' => $group->getAlias(), 'appId' => $app->getAlias() ));
+		$app = $this->getApp();
+		$permalink = FRoute::groups( array('layout'=> 'item', 'id' => $group->getAlias(), 'appId' => $app->getAlias() ));
 
-		$theme 		= FD::themes();
+		$theme = FD::themes();
 		$theme->set('permalink', $permalink);
 		$theme->set('group', $group);
 
 		echo $theme->output('themes:/apps/group/members/widgets/header');
 	}
 
+	/**
+	 * Renders the sidebar widget for group members
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function sidebarBottom($groupId)
 	{
+		if (!$this->app->getParams()->get('show_members', true)) {
+			return;
+		}
+
+		$theme = FD::themes();
+
+		$params = $this->app->getParams();
+		$limit = (int) $params->get('limit', 10);
+
+		// Load up the group
 		$group = FD::group($groupId);
 
-		if ($this->app->getParams()->get('show_members', true)) {
-			$theme = FD::themes();
+		$options = array('state' => SOCIAL_STATE_PUBLISHED, 'limit' => $limit);
 
-			$members = FD::model('Groups')->getMembers($group->id, array(
-				'state' => SOCIAL_STATE_PUBLISHED
-			));
+		$model = FD::model('Groups');
+		$members = $model->getMembers($group->id, $options);
 
-			$theme->set('members', $members);
+		$link = FRoute::groups(array('id' => $group->getAlias(),'appId' => $this->app->getAlias(),'layout' => 'item'));
 
-			$link = FRoute::groups(array(
-				'id' => $group->getAlias(),
-				'appId' => $this->app->getAlias(),
-				'layout' => 'item'
-			));
+		$theme->set('group', $group);
+		$theme->set('members', $members);
+		$theme->set('link', $link);
 
-			$theme->set('link', $link);
-
-			echo $theme->output('themes:/apps/group/members/widgets/widget.members');
-		}
+		echo $theme->output('themes:/apps/group/members/widgets/widget.members');
 	}
 }

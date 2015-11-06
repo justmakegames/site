@@ -13,15 +13,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form action="index.php" method="post" name="adminForm" class="esForm" id="adminForm" data-table-grid>
 
-	<div class="filter-bar form-inline<?php echo $callback ? ' mt-20' : '';?>">
+	<div class="app-filter filter-bar form-inline<?php echo $callback ? ' mt-20' : '';?>">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
 	</div>
 
-	<div id="profilesTable" data-profiles>
-
-		<table class="table table-striped table-es table-hover">
+	<div id="profilesTable" class="panel-table" data-profiles>
+		<table class="app-table table table-eb table-striped">
 			<thead>
 				<tr>
 					<?php if( !$callback ){ ?>
@@ -84,15 +83,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 								<div class="media-body">
 									<?php if( $group->isOpen() ){ ?>
-									<span class="label label-success"><i class="ies-earth"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?></span>
+									<span class="label label-success"><i class="fa fa-globe"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?></span>
 									<?php } ?>
 
 									<?php if( $group->isClosed() ){ ?>
-									<span class="label label-danger"><i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?></span>
+									<span class="label label-danger"><i class="fa fa-lock"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?></span>
 									<?php } ?>
 
 									<?php if( $group->isInviteOnly() ){ ?>
-									<span class="label label-danger"><i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_INVITE_GROUP' ); ?></span>
+									<span class="label label-danger"><i class="fa fa-lock"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_INVITE_GROUP' ); ?></span>
 									<?php } ?>
 
 									<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=groups&layout=form&id=' . $group->id );?>" data-group-insert data-id="<?php echo $group->id;?>"><?php echo $group->getName(); ?></a>
@@ -150,9 +149,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					</td>
 				</tr>
 			</tfoot>
-
 		</table>
-
 	</div>
 
 	<?php echo JHTML::_( 'form.token' ); ?>

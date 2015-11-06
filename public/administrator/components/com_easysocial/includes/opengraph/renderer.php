@@ -44,6 +44,20 @@ class OpengraphRenderer
 		self::add( 'og:description' , $content );
 	}
 
+	public static function video($videos)
+	{
+		if (!$videos || empty($videos)) {
+			return;
+		}
+
+		foreach ($videos as $video) {
+			self::add('og:video:url', $video->url);
+			self::add('og:video:type', $video->type);
+			self::add('og:video:width', $video->width);
+			self::add('og:video:height', $video->height);
+		}
+	}
+
 	public static function image( $images )
 	{
 		if( !$images || empty( $images ) )

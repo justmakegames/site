@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <?php } else { ?>
                     <a href="<?php echo $assets->get('link'); ?>" class="stream-preview-image" target="_blank"<?php if ($params->get('stream_link_nofollow', false)) { ?> rel="nofollow"<?php } ?>>
-                        <img src="<?php echo $assets->get('image'); ?>" />
+                        <img src="<?php echo $image;?>" alt="<?php echo $this->html('string.escape', $assets->get('title'));?>" />
                     </a>
                 <?php } ?>
             <?php } ?>

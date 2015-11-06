@@ -19,9 +19,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<?php if( $params->get( 'show_image' , true ) ){ ?>
 				<div class="media-object pull-left">
 					<span class="es-avatar es-avatar-sm">
-						<a href="<?php echo EasyBlogRouter::_( 'index.php?option=com_easyblog&view=entry&id=' . $post->id );?>" title="<?php echo $modules->html( 'string.escape' , $post->title );?>">
-						<?php if( $post->getImage() ){ ?>
-								<img src="<?php echo $post->getImage()->getSource( 'frontpage' );?>" />
+						<a href="<?php echo $post->getPermalink();?>" title="<?php echo $modules->html( 'string.escape' , $post->title );?>">
+						<?php if ($post->hasImage()) { ?>
+								<img src="<?php echo $post->getImage('medium');?>" />
 						<?php } else { ?>
 							<img src="<?php echo rtrim( JURI::root() , '/' );?>/modules/mod_easysocial_easyblog_posts/styles/default.png" />
 						<?php } ?>
@@ -32,12 +32,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 				<div class="media-body">
 					<div class="es-mod-title">
-						<a href="<?php echo EasyBlogRouter::_( 'index.php?option=com_easyblog&view=entry&id=' . $post->id );?>"><?php echo $post->title;?></a>
+						<a href="<?php echo $post->getPermalink();?>"><?php echo $post->title;?></a>
 					</div>
 
-					<?php if( $params->get( 'show_category' , true ) ){ ?>
+					<?php if ($params->get('show_category', true)) { ?>
 					<div class="es-mod-desp">
-						<a href="<?php echo EasyBlogRouter::_( 'index.php?option=com_easyblog&view=categories&layout=listings&id=' . $post->category_id );?>"><?php echo JText::_( $post->category ); ?></a>
+						<a href="<?php echo $post->getPrimaryCategory()->getPermalink();?>"><?php echo JText::_($post->getPrimaryCategory()->title); ?></a>
 					</div>
 					<?php } ?>
 

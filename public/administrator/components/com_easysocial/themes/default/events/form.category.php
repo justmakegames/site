@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                     <?php if($category->id){ ?>
                     <div id="fields" class="tab-pane<?php echo $activeTab == 'fields' ? ' active in' : '';?>">
-                        <?php echo $this->includeTemplate('admin/profiles/form.fields', array('id' => $category->id)); ?>
+                        <?php echo $this->includeTemplate('admin/profiles/form.fields', array('id' => $category->id, 'formType' => 'CLUSTER')); ?>
                     </div>
 
                     <div id="access" class="tab-pane<?php echo $activeTab == 'access' ? ' active in' : '';?>">

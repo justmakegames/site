@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,9 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="es-events-item page-item" data-event-item data-id="<?php echo $event->id;?>">
+<div class="es-profile es-events-item page-item" data-event-item data-id="<?php echo $event->id;?>">
 
     <?php if (!empty($group)) { ?>
         <div class="mb-10">
@@ -23,12 +23,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     <div class="es-container">
         <a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-            <i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE');?>
+            <i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE');?>
         </a>
 
         <div class="es-sidebar" data-sidebar>
 
-            <?php echo $this->render('module', 'es-events-sidebar-top'); ?>
+            <?php echo $this->render('module', 'es-events-item-sidebar-top' , 'site/dashboard/sidebar.module.wrapper'); ?>
 
             <?php echo $this->render('widgets', SOCIAL_TYPE_EVENT, 'events', 'sidebarTop', array('uid' => $event->id, 'event' => $event)); ?>
 
@@ -44,7 +44,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <ul class="widget-list fd-nav fd-nav-stacked" data-filter-stream-list>
                         <li data-sidebar-item>
                             <a href="<?php echo FRoute::events(array('layout' => 'item', 'id' => $event->getAlias(), 'type' => 'info')); ?>" data-info <?php if (!empty($infoSteps)) { ?>data-loaded="1"<?php } ?>>
-                                <i class="ies-briefcase-2 mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SIDEBAR_INFO'); ?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SIDEBAR_INFO'); ?>
                             </a>
                         </li>
 
@@ -71,7 +71,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_SIDEBAR_MOST_RECENT_ITEMS'); ?>"
                                 class="<?php echo empty($contents) ? 'active' : '';?>"
                             >
-                                <i class="ies-earth ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SIDEBAR_MOST_RECENT_ITEMS'); ?>
+                                <i class="fa fa-globe mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SIDEBAR_MOST_RECENT_ITEMS'); ?>
                                 <div class="label label-notification pull-right mr-20" data-stream-counter-<?php echo SOCIAL_TYPE_EVENT; ?>>0</div>
                             </a>
                         </li>
@@ -88,7 +88,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                         <?php if ($guest->isGuest()) { ?>
                         <li class="<?php if ($type == 'filterForm' && empty($filterId)) { ?>active<?php } ?>" data-sidebar-item>
-                            <a href="<?php echo FRoute::events(array('layout' => 'item', 'id' => $event->getAlias(), 'type' => 'filterForm'));?>" data-filter-add><i class="ies-plus ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SIDEBAR_ADD_FILTER'); ?></a>
+                            <a href="<?php echo FRoute::events(array('layout' => 'item', 'id' => $event->getAlias(), 'type' => 'filterForm'));?>" data-filter-add>
+                                <i class="fa fa-plus mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_SIDEBAR_ADD_FILTER'); ?>
+                            </a>
                         </li>
                         <?php } ?>
 
@@ -103,7 +105,8 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 <?php $i++; ?>
                             <?php } ?>
 
-                            <?php if ($this->template->get('events_feeds_apps_total') > 0 && count($appFilters) > $this->template->get('events_feeds_apps_total')) { ?>
+
+                            <?php if ($this->template->get('events_feeds_apps_total') > 0 && count($appFilters) > ((int) $this->template->get('events_feeds_apps_total'))) { ?>
                             <li>
                                 <a href="javascript:void(0);" class="filter-more" data-filter-showall><?php echo JText::_('COM_EASYSOCIAL_DASHBOARD_SIDEBAR_SHOW_MORE_FILTERS'); ?></a>
                             </li>
@@ -121,7 +124,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 data-tag="<?php echo $hashtag ?>"
                             >
                                 <a href="javascript:void(0);">
-                                    <i class="ies-tag mr-5"></i> <?php echo '#' . $hashtag; ?>
+                                    <i class="fa fa-tag mr-5"></i> <?php echo '#' . $hashtag; ?>
                                 </a>
                             </li>
                         <?php } ?>
@@ -159,7 +162,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <?php echo $this->render('widgets', SOCIAL_TYPE_EVENT, 'events', 'sidebarBottom', array('uid' => $event->id, 'event' => $event)); ?>
 
-            <?php echo $this->render('module', 'es-events-sidebar-bottom'); ?>
+            <?php echo $this->render('module', 'es-events-item-sidebar-bottom' , 'site/dashboard/sidebar.module.wrapper'); ?>
         </div>
 
         <div class="es-content">
@@ -170,30 +173,33 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php if (!empty($contents)) { ?>
                     <?php echo $contents; ?>
                 <?php } else { ?>
-                <?php if (!empty($hashtag)) { ?>
-                <div class="es-streams">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <a href="javascript:void(0);"
-                               class="fd-small mt-10 pull-right"
-                               data-hashtag-filter-save
-                               data-tag="<?php echo $hashtag; ?>"
-                            ><i class="icon-es-create"></i> <?php echo JText::_('COM_EASYSOCIAL_STREAM_SAVE_FILTER');?></a>
+                    <?php if (!empty($hashtag)) { ?>
+                    <div class="es-streams">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="javascript:void(0);"
+                                   class="fd-small mt-10 pull-right"
+                                   data-hashtag-filter-save
+                                   data-tag="<?php echo $hashtag; ?>"
+                                ><i class="icon-es-create"></i> <?php echo JText::_('COM_EASYSOCIAL_STREAM_SAVE_FILTER');?></a>
 
-                            <h3 class="pull-left">
-                                <a href="<?php echo FRoute::events(array('layout' => 'item' , 'id' => $event->getAlias(), 'tag' => $hashtagAlias));?>">#<?php echo $hashtag; ?></a>
-                            </h3>
+                                <h3 class="pull-left">
+                                    <a href="<?php echo FRoute::events(array('layout' => 'item' , 'id' => $event->getAlias(), 'tag' => $hashtagAlias));?>">#<?php echo $hashtag; ?></a>
+                                </h3>
+                            </div>
                         </div>
+                        <p class="fd-small">
+                            <?php echo JText::sprintf('COM_EASYSOCIAL_STREAM_HASHTAG_CURRENTLY_FILTERING' , '<a href="' . FRoute::events(array('layout' => 'item' , 'id' => $event->getAlias(), 'tag' => $hashtagAlias)) . '">#' . $hashtag . '</a>'); ?>
+                        </p>
                     </div>
-                    <p class="fd-small">
-                        <?php echo JText::sprintf('COM_EASYSOCIAL_STREAM_HASHTAG_CURRENTLY_FILTERING' , '<a href="' . FRoute::events(array('layout' => 'item' , 'id' => $event->getAlias(), 'tag' => $hashtagAlias)) . '">#' . $hashtag . '</a>'); ?>
-                    </p>
-                </div>
-                <hr />
-                <?php } ?>
+                    <hr />
+                    <?php } ?>
 
-                <?php echo $stream->html(); ?>
+                    <?php echo $this->includeTemplate('site/events/item.feeds'); ?>
 
+                    <?php if ($this->my->guest) { ?>
+                        <?php echo $this->includeTemplate('site/dashboard/default.stream.login'); ?>
+                    <?php } ?>
                 <?php } ?>
             </div>
 

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,11 +9,11 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'admin:/includes/apps/apps' );
+ES::import('admin:/includes/apps/apps');
 
-require_once( dirname( __FILE__ ) . '/helper.php' );
+require_once(__DIR__ . '/helper.php');
 
 class SocialUserAppLinks extends SocialAppItem
 {
@@ -195,18 +195,18 @@ class SocialUserAppLinks extends SocialAppItem
 		}
 
 		// Get the link information from the request
-		$link 		= JRequest::getVar( 'links_url' , '' );
-		$title 		= JRequest::getVar( 'links_title' , '' );
-		$content 	= JRequest::getVar( 'links_description' , '' );
-		$image 		= JRequest::getVar( 'links_image' , '' );
-		$video 		= JRequest::getVar( 'links_video' , '' );
+		$link = $this->input->get('links_url', '', 'default');
+		$title = $this->input->get('links_title', '', 'default');
+		$content = $this->input->get('links_description', '', 'default');
+		$image = $this->input->get('links_image', '', 'default');
+		$video = $this->input->get('links_video', '', 'default');
 
 		// If there's no data, we don't need to store in the assets table.
 		if (empty($title) && empty($content) && empty($image)) {
 			return;
 		}
 
-		$registry	= FD::registry();
+		$registry = FD::registry();
 		$registry->set('title', $title);
 		$registry->set('content', $content);
 		$registry->set('image', $image );
@@ -257,7 +257,7 @@ class SocialUserAppLinks extends SocialAppItem
 	{
 		$obj = new stdClass();
 		$obj->color = '#5580BE';
-		$obj->icon = 'ies-link';
+		$obj->icon = 'fa-link';
 		$obj->label = 'APP_USER_GROUPS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -300,14 +300,19 @@ class SocialUserAppLinks extends SocialAppItem
 			if (!$cluster->canViewItem()) {
 				return;
 			}
+
+			// Do not show social share button in private/invite group
+			if (!$cluster->isOpen()) {
+				$stream->sharing = false;
+			}			
 		}
 
 		//get links object, in this case, is the stream_item
 		$uid = $stream->uid;
 
 		$stream->color = '#5580BE';
-		$stream->fonticon = 'ies-link';
-		$stream->label = JText::_( 'APP_USER_LINKS_STREAM_TOOLTIP' );
+		$stream->fonticon = 'fa fa-link';
+		$stream->label = FD::_( 'APP_USER_LINKS_STREAM_TOOLTIP', true );
 
 		// Apply likes on the stream
 		$stream->setLikes($streamGroup, $stream->uid);
@@ -339,6 +344,9 @@ class SocialUserAppLinks extends SocialAppItem
 			return;
 		}
 
+		// Get app params
+		$params = $this->getParams();
+
 		$assets = $assets[0];
 
 		// Retrieve the link that is stored.
@@ -348,15 +356,13 @@ class SocialUserAppLinks extends SocialAppItem
 		$link = FD::table('Link');
 		$link->load(array('hash' => $hash));
 
-		$linkObj = FD::json()->decode($link->data);
+		// Get the link data
+		$linkObj = json_decode($link->data);
 
 		// Determine if there's any embedded object
 		$oembed = isset($linkObj->oembed) ? $linkObj->oembed : '';
 
 		$uri = JURI::getInstance();
-
-		// Get app params
-		$params = $this->getParams();
 
 		// Get the image file
 		$image = $assets->get('image');
@@ -373,8 +379,17 @@ class SocialUserAppLinks extends SocialAppItem
 		// Dirty way of checking 
 		// If the image is cached, we need to get the correct path
 		if ($assets->get('cached')) {
-			$fileName = basename($image);
-			$image = rtrim(JURI::root(), '/') . '/' . $cachePath . '/' . $fileName;
+
+			// First we try to load the image from the image link table
+			$linkImage = FD::table('LinkImage');
+			$exists = $linkImage->load(array('internal_url' => $image));
+
+			if ($exists) {
+				$image = $linkImage->getUrl();
+			} else {
+				$fileName = basename($image);
+				$image = rtrim(JURI::root(), '/') . '/' . $cachePath . '/' . $fileName;
+			}
 		}
 
 		// If necessary, feed in our own proxy to avoid http over https issues.
@@ -415,15 +430,15 @@ class SocialUserAppLinks extends SocialAppItem
 		if ($stream->cluster_id) {
 
 			if ($stream->cluster_type == SOCIAL_APPS_GROUP_GROUP) {
-				$stream->label = JText::_('APP_USER_LINKS_GROUPS_STREAM_TOOLTIP');
+				$stream->label = FD::_('APP_USER_LINKS_GROUPS_STREAM_TOOLTIP', true);
 				$stream->color = '#303229';
-				$stream->fonticon = 'ies-users';
+				$stream->fonticon = 'fa fa-users';
 			}
 
 			if ($stream->cluster_type == SOCIAL_APPS_GROUP_EVENT) {
 				$stream->color = '#f06050';
-				$stream->fonticon = 'ies-calendar';
-				$stream->label = JText::_('APP_USER_EVENTS_STREAM_TOOLTIP');
+				$stream->fonticon = 'fa fa-calendar';
+				$stream->label = FD::_('APP_USER_EVENTS_STREAM_TOOLTIP', true);
 			}
 
 			$this->set('cluster', $cluster);
@@ -446,7 +461,13 @@ class SocialUserAppLinks extends SocialAppItem
 		if ($content) {
 			$stream->opengraph->addDescription($content);	
 		} else {
-			$stream->opengraph->addDescription($stream->title);
+
+			// If the content is empty, try to get the stream content
+			if ($stream->content) {
+				$stream->opengraph->addDescription($stream->content);
+			} else {
+				$stream->opengraph->addDescription($stream->title);
+			}
 		}
 
 		// Include privacy checking or not
@@ -518,28 +539,30 @@ class SocialUserAppLinks extends SocialAppItem
 	 * @param	string
 	 * @return
 	 */
-	public function onPrepareStoryPanel( $story )
+	public function onPrepareStoryPanel($story)
 	{
-		$params 	= $this->getParams();
+		$params = $this->getParams();
 
 		// Determine if we should attach ourselves here.
-		if( !$params->get( 'story_links' , true ) )
-		{
+		if (!$params->get('story_links', true)) {
 			return;
 		}
 
 		// Create plugin object
-		$plugin		= $story->createPlugin( 'links' , 'panel');
+		$plugin = $story->createPlugin('links', 'panel');
 
 		// We need to attach the button to the story panel
-		$theme 		= FD::themes();
+		$theme = ES::themes();
 
-		$plugin->button->html 	= $theme->output('themes:/apps/user/links/story/panel.button');
-		$plugin->content->html 	= $theme->output( 'themes:/apps/user/links/story/panel.content' );
+        $button = $theme->output('site/links/story/button');
+        $form = $theme->output('site/links/story/form');
 
-		// Attachment script
-		$script				= FD::get('Script');
-		$plugin->script		= $script->output('apps:/user/links/story');
+		// Attach the scripts
+		$script = ES::script();
+		$scriptFile = $script->output('site/links/story/plugin');
+
+		$plugin->setHtml($button, $form);
+		$plugin->setScript($scriptFile);
 
 		return $plugin;
 	}

@@ -35,7 +35,12 @@ EasySocial.module('site/dashboard/feeds', function($){
 							"{dashboard}"	: self.parent
 						});
 
-						feed.appendTo(self.element);
+						// feed.appendTo(self.element);
+						if ($(self.element).find('.widget-filter-group').length > 0) {
+							feed.insertBefore($(self.element).find('.widget-filter-group'));
+						} else {
+							feed.appendTo(self.element);
+						}
 					}
 				}
 			});
@@ -72,7 +77,7 @@ EasySocial.module('site/dashboard/feeds', function($){
 
 					// clear the new feed notification counter.
 					var key = '[data-stream-counter-';
-					
+
 					if (type == 'list') {
 						key = key + type + '-' + id;
 					} else {
@@ -80,11 +85,21 @@ EasySocial.module('site/dashboard/feeds', function($){
 					}
 
 					key = key + ']';
-					
+
 					$(key).html( '0' );
 
 					// clear new feed counter
 					self.element.removeClass('has-notice');
+
+			        var appendTitle = $.joomla.appendTitle;
+
+			        if (appendTitle==="before") {
+			            title = $.joomla.sitename + ((title) ? " - " + title : "");
+			        }
+
+			        if (appendTitle==="after") {
+			            title = ((title) ? title + " - " : "") + $.joomla.sitename;
+			        }
 
 					// If this is an embedded layout, we need to play around with the push state.
 					History.pushState( {state:1} , title , url );
@@ -101,7 +116,7 @@ EasySocial.module('site/dashboard/feeds', function($){
 						"view"  : 'dashboard',
 					})
 					.done(function(contents, count) {
-						
+
 						self.dashboard.updateHeading(title, desc);
 
 						if (count == 0) {

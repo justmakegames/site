@@ -28,24 +28,24 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		}
 	}
 	</bindings>
-	<title><?php echo JText::_( 'COM_EASYSOCIAL_BADGES_DELETE_USER_BADGE_DIALOG_TITLE' ); ?></title>
+	<title><?php echo JText::_('COM_EASYSOCIAL_BADGES_DELETE_USER_BADGE_DIALOG_TITLE'); ?></title>
 	<content>
 	<div class="row">
 		<form name="assignBadge" method="post" action="index.php" data-delete-form>
-			<p><?php echo JText::_( 'COM_EASYSOCIAL_BADGES_DELETE_USER_BADGE_MESSAGE' ); ?></p>
+			<p><?php echo JText::_('COM_EASYSOCIAL_BADGES_DELETE_USER_BADGE_MESSAGE'); ?></p>
 
 			<input type="hidden" name="option" value="com_easysocial" />
 			<input type="hidden" name="controller" value="users" />
 			<input type="hidden" name="task" value="removeBadge" />
 			<input type="hidden" name="id" value="<?php echo $id;?>" />
 			<input type="hidden" name="userid" value="<?php echo $userid;?>" />
-			<?php echo $this->html( 'form.token' ); ?>
+			<?php echo $this->html('form.token'); ?>
 
 		</form>
 	</div>
 	</content>
 	<buttons>
 		<button data-cancel-button type="button" class="btn btn-es"><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON'); ?></button>
-		<button data-delete-button type="button" class="btn btn-es-danger"><?php echo JText::_( 'COM_EASYSOCIAL_DELETE_USER_BADGE_BUTTON' ); ?></button>
+		<button data-delete-button type="button" class="btn btn-es-danger"><?php echo JText::_('COM_EASYSOCIAL_DELETE_USER_BADGE_BUTTON'); ?></button>
 	</buttons>
 </dialog>

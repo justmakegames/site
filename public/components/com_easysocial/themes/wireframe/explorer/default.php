@@ -21,13 +21,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<div class="fd-explorer-header">
 		<div class="fd-explorer-sidebar-action pull-left">
-			<button class="btn btn-es btn-sm" data-fd-explorer-button="addFolder"><i class="ies-plus"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_ADD_FOLDER' );?></button>
+			<button class="btn btn-es btn-sm" data-fd-explorer-button="addFolder"><i class="fa fa-plus"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_ADD_FOLDER' );?></button>
 		</div>
 		<div class="fd-explorer-browser-action">
 
 			<?php if( !isset( $options[ 'allowUpload' ] ) || $options[ 'allowUpload' ] ){ ?>
 				<button class="btn btn-es btn-sm fd-explorer-upload-button" data-plupload-upload-button>
-					<i class="ies-upload"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_UPLOAD' );?>
+					<i class="fa fa-upload"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_UPLOAD' );?>
 				</button>
 
 				<?php if( isset( $options[ 'uploadLimit' ] ) ){ ?>
@@ -37,12 +37,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<?php } ?>
 			<?php } ?>
 
-			<button class="btn btn-danger btn-sm pull-right close-button"><i class="ies-cancel-2"></i></button>
+			<button class="btn btn-danger btn-sm pull-right close-button"><i class="fa fa-remove"></i></button>
 			<button class="btn btn-success btn-sm pull-right insert-button mr-5" data-fd-explorer-button="useFile">
-				<i class="ies-checkmark"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_INSERT' );?>
+				<i class="fa fa-check"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_INSERT' );?>
 			</button>
 			<button class="btn btn-primary btn-sm pull-right preview-button" data-fd-explorer-button="previewFile">
-				<i class="ies-eye"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_PREVIEW' );?>
+				<i class="fa fa-eye"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_PREVIEW' );?>
 			</button>
 			<i class="es-loading-indicator fd-small"></i>
 		</div>
@@ -68,7 +68,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</div>
 	<div class="fd-explorer-titlebar">
 		<div class="fd-explorer-titlebar-side">
-			<i class="ies-folder-2"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_FOLDERS' );?>
+			<i class="fa fa-folder-2"></i> <?php echo JText::_( 'COM_EASYSOCIAL_EXPLORER_FOLDERS' );?>
 		</div>
 
 		<div class="fd-explorer-titlebar-content">

@@ -11,4 +11,4 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<?php echo $this->html('html.user', $actor); ?> <i class="ies-arrow-right"></i> <?php echo $this->html('html.event', $event);
+<?php echo $this->html('html.user', $actor); ?> <i class="fa fa-caret-right"></i> <?php echo $this->html('html.event', $event);

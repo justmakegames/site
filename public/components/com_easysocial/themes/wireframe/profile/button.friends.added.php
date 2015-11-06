@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<a href="javascript:void(0);" class="btn btn-clean btn-block btn-sm"
+<a href="javascript:void(0);" class="btn btn-clean btn-sm"
 	data-profileFriends-button
 	data-profileFriends-pending
 	data-id="<?php echo $friend->id;?>"

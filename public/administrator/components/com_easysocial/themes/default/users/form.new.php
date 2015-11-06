@@ -13,10 +13,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form name="adminForm" id="adminForm" class="profileForm" method="post" enctype="multipart/form-data" data-user-form>
 
-<div class="filter-bar form-inline">
+<div class="app-filter filter-bar form-inline">
 	<div class="form-group">
 		<label for="profileType">
-			<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_USER_SELECT_PROFILE_TYPE' );?>" data-content="<?php echo JText::_( 'COM_EASYSOCIAL_USER_SELECT_PROFILE_TYPE_DESC' );?>" data-es-provide="popover" class="icon-es-help pull-right" data-original-title=""></i>
+			<i data-placement="bottom" data-title="<?php echo JText::_( 'COM_EASYSOCIAL_USER_SELECT_PROFILE_TYPE' );?>" data-content="<?php echo JText::_( 'COM_EASYSOCIAL_USER_SELECT_PROFILE_TYPE_DESC' );?>" data-es-provide="popover" class="fa fa-question-circle pull-right" data-original-title=""></i>
 			<?php echo JText::_('COM_EASYSOCIAL_USER_SELECT_PROFILE_TYPE_FOR_NEW_USER'); ?>
 		</label>
 	</div>

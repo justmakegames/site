@@ -17,11 +17,14 @@ FD::import( 'admin:/includes/model' );
 
 class EasySocialModelUsers extends EasySocialModel
 {
-	private $data			= null;
+	private $data = null;
+	private $displayOptions = null;
+	public static $loadedUsers = array();
 
 	public function __construct( $config = array() )
 	{
-		parent::__construct( 'users' , $config );
+		$this->displayOptions = array();
+		parent::__construct('users', $config);
 	}
 
 	/**
@@ -337,6 +340,45 @@ class EasySocialModelUsers extends EasySocialModel
 		return $lastLogin;
 	}
 
+	public function preloadUsers($ids)
+	{
+		$db 	= FD::db();
+		$sql	= $db->sql();
+
+		$query = "select * from `#__social_users`";
+		$query .= " where `user_id` IN (" . implode(",", $ids) . ")";
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+
+		$results = $db->loadObjectList();
+
+		return $results;
+	}
+
+	public function preloadIsOnline($ids)
+	{
+		$db 	= FD::db();
+		$sql	= $db->sql();
+
+		$query = "select `session_id`, `userid` from `#__session`";
+		$query .= " where `userid` IN (" . implode(",", $ids) . ")";
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+
+		$results = $db->loadObjectList();
+
+		$onlineUsers = array();
+		if ($results) {
+			foreach($results as $item) {
+				$onlineUsers[$item->userid] = 1;
+			}
+		}
+
+		return $onlineUsers;
+	}
+
 	/**
 	 * Determines if the user exists in #__social_users
 	 *
@@ -350,13 +392,18 @@ class EasySocialModelUsers extends EasySocialModel
 		$db 	= FD::db();
 		$sql	= $db->sql();
 
-		$sql->select( '#__social_users' );
-		$sql->column( 'COUNT(1)' , 'count' );
-		$sql->where( 'user_id' , $id );
+		if (FD::cache()->exists('user.meta.'.$id)) {
+			$value = FD::cache()->get('user.meta.'.$id);
+			$exists = ($value) ? true : false;
+		} else {
+			$sql->select( '#__social_users' );
+			$sql->column( 'COUNT(1)' , 'count' );
+			$sql->where( 'user_id' , $id );
 
-		$db->setQuery( $sql );
+			$db->setQuery( $sql );
 
-		$exists	= $db->loadResult() > 0 ? true : false;
+			$exists	= $db->loadResult() > 0 ? true : false;
+		}
 
 		return $exists;
 	}
@@ -531,6 +578,87 @@ class EasySocialModelUsers extends EasySocialModel
 		return $result;
 	}
 
+	/**
+	 * Retrieves the "about" information of a user.
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getAbout($user)
+	{
+		// Load admin language files
+		FD::language()->loadAdmin();
+
+		// Get a list of steps
+		$model = FD::model('Steps');
+		$steps = $model->getSteps($user->profile_id, SOCIAL_TYPE_PROFILES, SOCIAL_PROFILES_VIEW_DISPLAY);
+
+		// Load up the fields library
+		$fieldsLib = FD::fields();
+		$fieldsModel = FD::model('Fields');
+
+		// Initial step
+		$index = 1;
+
+		foreach ($steps as $step) {
+
+			// Get a list of fields from the current tab
+			$options = array('step_id' => $step->id, 'data' => true, 'dataId' => $user->id, 'dataType' => SOCIAL_TYPE_USER, 'visible' => SOCIAL_PROFILES_VIEW_DISPLAY);
+			$step->fields = $fieldsModel->getCustomFields($options);
+
+			// Trigger each fields available on the step
+			if (!empty($step->fields)) {
+				$args = array($user);
+
+				$fieldsLib->trigger('onDisplay', SOCIAL_FIELDS_GROUP_USER, $step->fields, $args);
+			}
+
+			// By default hide the step
+			$step->hide = true;
+
+			// As long as one of the field in the step has an output, then this step shouldn't be hidden
+			// If step has been marked false, then no point marking it as false again
+			// We don't break from the loop here because there is other checking going on
+			foreach ($step->fields as $field) {
+
+				// We do not want to consider "header" field as a valid output
+				if ($field->element == 'header') {
+					continue;
+				}
+
+				// Ensure that the field has an output
+				if (!empty($field->output) && $step->hide === true) {
+					$step->hide = false;
+				}
+			}
+
+			// Default step url
+			$step->url = FRoute::profile(array('id' => $user->getAlias(), 'layout' => 'about'), false);
+
+			if ($index !== 1) {
+				$step->url = FRoute::profile(array('id' => $user->getAlias(), 'layout' => 'about', 'step' => $index), false);
+			}
+
+			$step->title = $step->get('title');
+			$step->active = !$step->hide && $index == 1;
+
+			if ($step->active) {
+				$theme = FD::themes();
+
+				$theme->set('fields', $step->fields);
+
+				$step->html = $theme->output('site/profile/default.info');
+			}
+
+			$step->index = $index;
+
+			$index++;
+		}
+
+		return $steps;
+	}
 
 	/**
 	 * Retrieves a list of apps for the user's dashboard.
@@ -608,12 +736,10 @@ class EasySocialModelUsers extends EasySocialModel
 	 * @param	Array 	$ids	An array of ids.
 	 * @return
 	 */
-	public function getUsersMeta( $ids = array() )
+	public function getUsersMeta($ids = array())
 	{
-		static $const = array();
-
 		$loaded = array();
-		$new    = array();
+		$new = array();
 
 		if (!empty($ids)) {
 
@@ -621,25 +747,32 @@ class EasySocialModelUsers extends EasySocialModel
 
 				if (is_numeric($id)) {
 
-					if (isset($const[$id])) {
-						$loaded[]	= $const[$id];
+					if (isset(self::$loadedUsers[$id])) {
+						$loaded[] = self::$loadedUsers[$id];
 					} else {
-						$new[]	= $id;
+						$new[] = $id;
 					}
 				}
 			}
 		}
 
-		if( $new )
-		{
-			foreach( $new as $id )
-			{
-				$const[ $id ] = false;
+		// Only fetch for new items that isn't stored on the cache
+		if ($new) {
+
+			foreach ($new as $id) {
+				self::$loadedUsers[$id] = false;
 			}
 
-			$db		= FD::db();
-			$sql 	= $db->sql();
+			$db = FD::db();
+			$sql = $db->sql();
 
+			// set the SQL_BIG_SELECTS here to avoid possible MAX_JOIN_SIZE error.
+			$query = "SET SQL_BIG_SELECTS=1";
+			$sql->raw($query);
+			$db->setQuery($sql);
+			$db->query();
+
+			$sql->clear();
 			$sql->select( '#__users' , 'a' );
 			$sql->column( 'a.*' );
 			$sql->column( 'b.small' );
@@ -655,6 +788,10 @@ class EasySocialModelUsers extends EasySocialModel
 			$sql->column( 'e.alias' );
 			$sql->column( 'e.completed_fields' );
 			$sql->column( 'e.permalink' );
+			$sql->column( 'e.reminder_sent' );
+			$sql->column( 'e.require_reset' );
+			$sql->column( 'e.block_period' );
+			$sql->column( 'e.block_date' );
 			$sql->column( 'f.id' , 'cover_id' );
 			$sql->column( 'f.uid' , 'cover_uid' );
 			$sql->column( 'f.type' , 'cover_type' );
@@ -678,29 +815,28 @@ class EasySocialModelUsers extends EasySocialModel
 			$sql->join( '#__social_points_history' , 'g' );
 			$sql->on( 'g.user_id' , 'a.id' );
 
-			if( count( $new ) > 1 )
-			{
+			if (count($new) > 1) {
 				$sql->where( 'a.id' , $new , 'IN' );
-			}
-			else
-			{
+			} else {
 				$sql->where( 'a.id' , $new[0]);
 			}
 
 			// to compatible with aggregation function the 'ONLY_FULL_GROUP_BY' standard.
 			$sql->group( 'a.id' );
 
-			// Debugging mode
-			//echo $sql->debug();
 
 			$db->setQuery($sql);
 
-			$users	= $db->loadObjectList();
+			$users = $db->loadObjectList();
 
 			if ($users) {
+
+				// cache user metas
+				FD::cache()->cacheUsersMeta($users);
+
 				foreach ($users as $user) {
-					$loaded[] 	= $user;
-					$const[$user->id] = $user;
+					$loaded[] = $user;
+					self::$loadedUsers[$user->id] = $user;
 				}
 			}
 		}
@@ -826,6 +962,14 @@ class EasySocialModelUsers extends EasySocialModel
 		$sql->column( 'b.id' );
 		$sql->join( '#__users' , 'b' , 'INNER' );
 		$sql->on( 'a.userid' , 'b.id' );
+
+		// exclude esad users
+		$sql->innerjoin('#__social_profiles_maps', 'upm');
+		$sql->on('b.id', 'upm.user_id');
+
+		$sql->innerjoin('#__social_profiles', 'up');
+		$sql->on('upm.profile_id', 'up.id');
+		$sql->on('up.community_access', '1');
 
 		if (FD::config()->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    $sql->leftjoin( '#__social_block_users' , 'bus');
@@ -1205,7 +1349,7 @@ class EasySocialModelUsers extends EasySocialModel
 		static $loaded 	= array();
 
 		if (!isset($loaded[$permalink])) {
-			$config 	= FD::config();
+			$config = FD::config();
 
 			// Get the user form permalink field
 			$id = $this->getUserFromPermalink($permalink);
@@ -1217,9 +1361,17 @@ class EasySocialModelUsers extends EasySocialModel
 				return $loaded[$permalink];
 			}
 
+			// Try to get the user id from the alias column
+			$id = $this->getUserFromAlias($permalink);
+
+			if ($id) {
+				$loaded[$permalink] = $id;
+
+				return $loaded[$permalink];
+			}
+
 			// We need to know which column should we be checking against.
 			if ($config->get('users.aliasName' ) == 'realname') {
-				$id = $permalink;
 
 				if (strpos($permalink , ':') !== false) {
 					$parts = explode(':', $permalink , 2);
@@ -1357,12 +1509,19 @@ class EasySocialModelUsers extends EasySocialModel
 		$sql->where( 'LOWER(`permalink`)' , $variant , '=' , 'OR' );
 		$sql->where( 'LOWER(`permalink`)' , $underscore , '=' , 'OR' );
 
+		// There are instances where the _ is converted into -
+		$sql->where('LOWER(`permalink`)', str_ireplace('-', '_', $permalink), '=', 'OR');
 
 		$db->setQuery( $sql );
 
 		$id 	= (int) $db->loadResult();
 
 		return $id;
+	}
+
+	public function getDisplayOptions()
+	{
+		return $this->displayOptions;
 	}
 
 	public function getUsersByFilter($fid, $settings = array(), $options = array())
@@ -1412,6 +1571,12 @@ class EasySocialModelUsers extends EasySocialModel
 
 		$options['match'] 			= isset( $dataFilter->matchType ) ? $dataFilter->matchType : 'all';
 		$options['avatarOnly']		= isset( $dataFilter->avatarOnly ) ? true : false;
+
+		//setup displayOptions
+		$library 	= FD::get( 'AdvancedSearch' );
+		$library->setDisplayOptions($options);
+
+		$this->displayOptions = $library->getDisplayOptions();
 
 		$sModel = FD::model('search');
 
@@ -1466,8 +1631,14 @@ class EasySocialModelUsers extends EasySocialModel
 
 		$sql 	= $db->sql();
 
+		// Get current user logged in user
+		$my = FD::user();
+
 		// Determines if there's filter by profile id.
 		$profile 	= isset( $options[ 'profile' ] ) ? $options[ 'profile' ] : '';
+
+		$ignoreESAD = isset($options['ignoreESAD']) ? $options['ignoreESAD'] : false;
+
 
 		$sql->select( '#__users' , 'a' );
 		$sql->column( 'a.id' );
@@ -1475,6 +1646,17 @@ class EasySocialModelUsers extends EasySocialModel
 		$sql->column( 'd.points' , 'points' , 'sum' );
 		$sql->join( '#__social_users' , 'b' , 'INNER' );
 		$sql->on( 'a.id' , 'b.user_id' );
+
+		// exclude esad users
+		if (!$ignoreESAD && !(FD::config()->get('users.listings.esadadmin') && $my->isSiteAdmin())) {
+			$sql->innerjoin('#__social_profiles_maps', 'upm');
+			$sql->on('a.id', 'upm.user_id');
+
+			$sql->innerjoin('#__social_profiles', 'up');
+			$sql->on('upm.profile_id', 'up.id');
+			$sql->on('up.community_access', '1');
+		}
+
 
 		// Join with the points table to retrieve user's points
 		$sql->join( '#__social_points_history' , 'd' );
@@ -1486,7 +1668,7 @@ class EasySocialModelUsers extends EasySocialModel
 			$sql->on( 'e.user_id' , 'a.id' );
 		}
 
-		$excludeBlocked 	= isset($options[ 'excludeblocked' ] ) ? $options[ 'excludeblocked' ] : 0;
+		$excludeBlocked = isset($options[ 'excludeblocked' ] ) ? $options[ 'excludeblocked' ] : 0;
 
 		if (FD::config()->get('users.blocking.enabled') && $excludeBlocked && !JFactory::getUser()->guest) {
 		    $sql->leftjoin( '#__social_block_users' , 'bus');
@@ -1588,6 +1770,16 @@ class EasySocialModelUsers extends EasySocialModel
 			$sql->where( 'a.id' , implode( ',' , $exclusions ) , 'NOT IN' );
 		}
 
+		// Determines if we have an inclusion list.
+		$inclusion = isset($options['inclusion'])? $options['inclusion'] : '';
+
+		if ($inclusion) {
+
+			// Ensure that it's in an array
+			$inclusion = FD::makeArray($inclusion);
+			$sql->where('a.id', $inclusion, 'IN');
+		}
+
 		// Determines if we need to order the items by column.
 		$ordering 	= isset($options[ 'ordering' ] ) ? $options[ 'ordering' ] : '';
 
@@ -1648,6 +1840,12 @@ class EasySocialModelUsers extends EasySocialModel
 	{
 		$db		= FD::db();
 
+		$onlineKey = 'user.online.' . $id;
+
+		if (FD::cache()->exists($onlineKey)) {
+			return FD::cache()->get($onlineKey);
+		}
+
 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__session' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'userid' ) . '=' . $db->Quote( $id );
 
@@ -1666,7 +1864,7 @@ class EasySocialModelUsers extends EasySocialModel
 	 * @param	string
 	 * @return
 	 */
-	public function delete( $id )
+	public function delete($id)
 	{
 		// Delete profile mapping
 		$this->deleteProfile( $id );
@@ -1694,6 +1892,9 @@ class EasySocialModelUsers extends EasySocialModel
 
 		// Delete user friends from the site
 		$this->deleteFriends($id);
+
+		// Conversations should also be deleted from the site.
+		$this->deleteConversations($id);
 
 		return true;
 	}
@@ -1899,11 +2100,12 @@ class EasySocialModelUsers extends EasySocialModel
 	 * @param	string
 	 * @return
 	 */
-	public function deleteConversations( $userId )
+	public function deleteConversations($userId)
 	{
-		// Delete conversations
+		// Get a list of conversations the user is participating in
+		$model = FD::model('Conversations');
 
-		// Delete conversation participants
+		return $model->deleteConversationsInvolvingUser($userId);
 	}
 
 	/**
@@ -2275,8 +2477,7 @@ class EasySocialModelUsers extends EasySocialModel
 		}
 
 		// Ensure that the user account is not blocked
-		if( $obj->block )
-		{
+		if ($user->block) {
 			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_USER_BLOCKED' ) );
 			return false;
 		}
@@ -2295,6 +2496,10 @@ class EasySocialModelUsers extends EasySocialModel
 		// Set the clear password
 		$user->password_clear	= $password2;
 
+		if (isset($user->requireReset)) {
+			$user->requireReset	= 0;
+		}
+
 		// Save the user to the database.
 		if( !$user->save( true ) )
 		{
@@ -2302,12 +2507,74 @@ class EasySocialModelUsers extends EasySocialModel
 			return false;
 		}
 
+		// we need to reset require_reset from social_users table.
+		$userModel = FD::model('Users');
+		$userModel->updateUserPasswordResetFlag($user->id, '0');
+
 		// Flush the user data from the session.
 		$app->setUserState('com_users.reset.token', null);
 		$app->setUserState('com_users.reset.user', null);
 
 		return true;
 	}
+
+	/**
+	 * Resets the user's password
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string	The password
+	 * @param	string	The reconfirm password
+	 * @return
+	 */
+	public function resetRequirePassword( $password , $password2 )
+	{
+		// Get the token and user id from the confirmation process.
+		$app		= JFactory::getApplication();
+
+		// Retrieve the user object
+		$user = JFactory::getUser();
+
+		// Ensure that the user account is not blocked
+		if ($user->block) {
+			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_USER_BLOCKED' ) );
+			return false;
+		}
+
+		// Generates the new password hash
+		$salt 		= JUserHelper::genRandomPassword( 32 );
+		$crypted	= JUserHelper::getCryptedPassword( $password , $salt );
+		$password	= $crypted . ':' . $salt;
+
+		// Update user's object
+		$user->password 	= $password;
+
+		// Set the clear password
+		$user->password_clear	= $password2;
+
+		// if (JUserHelper::verifyPassword($user->password_clear, $user->password)) {
+		// 	$this->setError(JText::_('JLIB_USER_ERROR_CANNOT_REUSE_PASSWORD'));
+		// 	return false;
+		// }
+
+		if (isset($user->requireReset)) {
+			$user->requireReset	= 0;
+		}
+
+		// Save the user to the database.
+		if( !$user->save( true ) )
+		{
+			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_SAVE_ERROR' ) );
+			return false;
+		}
+
+		// we need to reset require_reset from social_users table.
+		$userModel = FD::model('Users');
+		$userModel->updateUserPasswordResetFlag($user->id, '0');
+
+		return true;
+	}
+
 
 	/**
 	 * Remind password
@@ -2778,4 +3045,221 @@ class EasySocialModelUsers extends EasySocialModel
 
 		return $db->query();
 	}
+
+	/**
+	 * get inactive users based on specify duration.
+	 *
+	 * @author Sam
+	 * @since  1.4
+	 * @access public
+	 * @param  integer	duration (in days)
+	 * @return array 	array of user ids
+	 */
+	public function getInactiveUsers($duration, $limit = 20)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$now    = FD::date();
+
+		$query = "select a.`id`, a.`name`, a.`email` from `#__users` as a";
+		$query .= " inner join `#__social_users` as b on a.`id` = b.`user_id`";
+		$query .= " where a.`block` = 0";
+		$query .= " and a.`lastvisitDate` != " . $db->Quote('00-00-00 00:00:00');
+		$query .= " and date_add( a.`lastvisitDate`, INTERVAL $duration DAY ) <= " . $db->Quote($now->toMySQL());
+		$query .= " and b.`reminder_sent` = 0";
+		$query .= " limit $limit";
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+
+		$results = $db->loadObjectList();
+
+		return $results;
+	}
+
+	public function updateReminderSentFlag($userId, $flag)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = 'update `#__social_users` set `reminder_sent` = ' . $db->Quote($flag);
+		$query .= ' where user_id = ' . $db->Quote($userId);
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+		$db->query();
+
+		return true;
+	}
+
+
+	public function updateJoomlaUserPasswordResetFlag($userId, $jFlag, $esFlag)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		// Joomla user
+		$query = 'update `#__users` set `requireReset` = ' . $db->Quote($jFlag);
+		$query .= ' where `id` = ' . $db->Quote($userId);
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+		$db->query();
+
+		// EasySocial User
+		$this->updateUserPasswordResetFlag($userId, $esFlag);
+
+		return true;
+	}
+
+	public function updateUserPasswordResetFlag($userId, $esFlag)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		// EasySocial user
+		$query = 'update `#__social_users` set `require_reset` = ' . $db->Quote($esFlag);
+		$query .= ' where `user_id` = ' . $db->Quote($userId);
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+		$db->query();
+
+		return true;
+	}
+
+	/**
+	 * send reminder to inactive user.
+	 *
+	 * @author Sam
+	 * @since  1.4
+	 * @access public
+	 * @param  array	array of users
+	 * @return int number of users processed
+	 */
+	public function updateBlockInterval($users, $period)
+	{
+		$db = ES::db();
+		$sql = $db->sql();
+
+		if (! $users) {
+			return false;
+		}
+
+		if (! is_array($users)) {
+			$users = array($users);
+		}
+
+		$date = ES::date();
+
+		$query = "update `#__social_users` set `block_period` = " . $db->Quote($period);
+		if ($period == '0') {
+			// clear the date
+			$query .= ", `block_date` = " . $db->Quote('00-00-00 00:00:00');
+		} else {
+			$query .= ", `block_date` = " . $db->Quote($date->toMySQL());
+		}
+
+		if (count($users) > 1) {
+			$query .= " where `user_id` IN (" . implode(',', $users) . ")";
+		} else {
+			$query .= " where `user_id` = " . $db->Quote($users[0]);
+		}
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+
+		$state = $db->query();
+
+		return $state;
+	}
+
+	public function getExpiredBannedUsers($userId = '')
+	{
+		$db = ES::db();
+		$sql = $db->sql();
+
+		$now = ES::date();
+
+		$query = "select `user_id` from `#__social_users`";
+		$query .= " where `state` = " . $db->Quote(SOCIAL_USER_STATE_DISABLED);
+		$query .= " and `block_period` > 0";
+		$query .= " and DATE_ADD(`block_date`, INTERVAL `block_period` MINUTE) <= " . $db->Quote($now->toMySQL());
+		if ($userId) {
+			$query .= " and `user_id` = " . $db->Quote($userId);
+		}
+
+		// echo $query;exit;
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+
+		$users = $db->loadColumn();
+
+		return $users;
+	}
+
+
+	/**
+	 * send reminder to inactive user.
+	 *
+	 * @author Sam
+	 * @since  1.4
+	 * @access public
+	 * @param  array	array of users
+	 * @return int number of users processed
+	 */
+	public function sendReminder($users)
+	{
+		$count = 0;
+		$jConfig 	= FD::jConfig();
+		$config = FD::config();
+
+		if ($users) {
+
+			// Push arguments to template variables so users can use these arguments
+			$params 	= array(
+								'loginLink'	=> FRoute::login(array() , false),
+								'duration'	=> $config->get('users.reminder.duration', '30'),
+								'siteName'	=> $jConfig->getValue('sitename')
+							);
+
+			foreach ($users as $user) {
+
+				// Immediately send out emails
+				$mailer 	= FD::mailer();
+
+				// Set the user's name.
+				$params[ 'recipientName' ]	= $user->name;
+
+				// Get the email template.
+				$mailTemplate	= $mailer->getTemplate();
+
+				// Set recipient
+				$mailTemplate->setRecipient($user->name, $user->email);
+
+				// Set title
+				$title = JText::sprintf('COM_EASYSOCIAL_EMAILS_INACTIVE_REMINDER_SUBJECT', $user->name);
+				$mailTemplate->setTitle($title);
+
+				// Set the template
+				$mailTemplate->setTemplate('site/user/remind.inactive', $params);
+
+				// Try to send out email to the admin now.
+				$state 		= $mailer->create($mailTemplate);
+
+				if ($state) {
+					// need to update the reminder_sent flag
+					$this->updateReminderSentFlag($user->id, '1');
+
+					$count++;
+				}
+
+			}
+		}
+
+		return $count;
+	}
+
 }

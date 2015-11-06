@@ -12,31 +12,36 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Determine how is the user's current id being set.
-if( isset( $userid ) )
-{
-	$title[]	= getUserAlias( $userid );
+if (isset($userid)) {
+	$title[] = getUserAlias($userid);
 
 	shRemoveFromGETVarsList( 'userid' );
 }
 
 // Add the view to the list of titles
-if( isset( $view ) )
-{
-	addView( $title , $view );
+if (isset($view)) {
+	addView($title, $view);
 }
 
 if (isset($type)) {
-	$title[]	= $type;
+
+	$title[] = $type;
 
 	if (isset($uid)) {
 
-		if ($type == 'group') {
-			$alias 	= getGroupAlias($uid);
-		} else {
-			$alias 	= getUserAlias($uid);
+		if ($type == SOCIAL_TYPE_USER) {
+			$alias = getUserAlias($uid);
 		}
 
-		$title[]	= $alias;
+		if ($type == SOCIAL_TYPE_GROUP) {
+			$alias = getGroupAlias($uid);
+		} 
+
+		if ($type == SOCIAL_TYPE_EVENT) {
+			$alias = getEventAlias($uid);
+		}
+
+		$title[] = $alias;
 
 		shRemoveFromGETVarsList('uid');
 	}
@@ -44,14 +49,15 @@ if (isset($type)) {
 }
 
 // For photos, we need to get the beautiful title
-if( isset( $id ) )
-{
-	$album 	= FD::table( 'Album' );
-	$album->load( (int) $id );
+if (isset($id)) {
+	$id = (int) $id;
+
+	$album = ES::table('Album');
+	$album->load($id);
 
 	$albumTitle = $album->core ? JText::_($album->title) : $album->title;
-	$title[]	= JFilterOutput::stringURLSafe($albumTitle);
+	$title[] = JFilterOutput::stringURLSafe($albumTitle);
 
-	shRemoveFromGETVarsList( 'id' );
-	shRemoveFromGETVarsList( 'layout' );
+	shRemoveFromGETVarsList('id');
+	shRemoveFromGETVarsList('layout');
 }

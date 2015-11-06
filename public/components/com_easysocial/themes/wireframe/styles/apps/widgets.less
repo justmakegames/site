@@ -30,11 +30,21 @@
 					.group-meta {
 						>a {
 							color: @esColor;
-							font-size: 10px;
+							font-size: @fontSizeSmall;
 						}
 					}
 				}
 			}
 		}
 	}
+}
+
+.widget-video-preview {
+	width: 80px;
+}
+.widget-video-title {
+	.text-overflow();
+}
+.widget-video-time {
+	color: @esColor;
 }

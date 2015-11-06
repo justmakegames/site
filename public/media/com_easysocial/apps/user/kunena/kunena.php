@@ -33,16 +33,19 @@ class SocialUserAppKunena extends SocialAppItem
 	{
 		$file = JPATH_ADMINISTRATOR . '/components/com_kunena/api.php';
 
-		if( !JFile::exists( $file ) )
-		{
+		if (!JFile::exists($file)) {
 			return false;
 		}
 
 		// Load Kunena's api file
-		require_once( $file );
+		require_once($file);
 
+		// Load Kunena's js file
+		$doc = JFactory::getDocument();
+		$doc->addScript(rtrim(JURI::root(), '/') . '/media/kunena/js/default.js');
+		
 		// Load Kunena's language
-		KunenaFactory::loadLanguage( 'com_kunena.libraries' , 'admin' );
+		KunenaFactory::loadLanguage('com_kunena.libraries', 'admin');
 
 		return true;
 	}
@@ -145,7 +148,7 @@ class SocialUserAppKunena extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#6f90b5';
-		$obj->icon 		= 'ies-comments-2';
+		$obj->icon 		= 'fa fa-comments';
 		$obj->label 	= 'APP_USER_KUNENA_STREAM_TITLE';
 
 		return $obj;
@@ -208,7 +211,7 @@ class SocialUserAppKunena extends SocialAppItem
 		// Decorate the stream
 		$item->display 		= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 		= '#6f90b5';
-		$item->fonticon		= 'ies-comments-2';
+		$item->fonticon		= 'fa-comments';
 		$item->label 		= JText::_( 'APP_USER_KUNENA_STREAM_TITLE' );
 
 		// Get app params
@@ -276,12 +279,12 @@ class SocialUserAppKunena extends SocialAppItem
 
 		JFactory::getLanguage()->load( 'com_kunena' , JPATH_ROOT );
 
-		$parent 	= $this->createParent( $topic->first_post_id );
+		$parent = $this->createParent($topic->first_post_id);
 
-		$params 		= $this->getParams();
-		$contentLength	= $params->get('stream_content_length' , 0);
+		$params = $this->getParams();
+		$contentLength = $params->get('stream_content_length' , 0);
 
-		$topic->message 	= KunenaHtmlParser::parseBBCode( $topic->first_post_message , $parent , $contentLength );
+		$topic->message = KunenaHtmlParser::parseBBCode($topic->first_post_message, $parent, $contentLength);
 		$topic->message = $this->formatContent($topic->message);
 
 		$this->set( 'actor'	, $actor );
@@ -463,12 +466,26 @@ class SocialUserAppKunena extends SocialAppItem
 
 	}
 
+	/**
+	 * Format's kunena contents
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function formatContent($content)
 	{
 		$base = JURI::base(true).'/';
-		$protocols	= '[a-zA-Z0-9]+:'; //To check for all unknown protocals (a protocol must contain at least one alpahnumeric fillowed by :
-		$regex		= '#(src|href|poster)="(?!/|'.$protocols.'|\#|\')([^"]*)"#m';
+
+		// To check for all unknown protocals (a protocol must contain at least one alpahnumeric fillowed by :
+		$protocols = '[a-zA-Z0-9]+:';
+
+		// Pattern to match links
+		$regex = '#(src|href|poster)="(?!/|'.$protocols.'|\#|\')([^"]*)"#m';
+		
 		$content = preg_replace($regex, "$1=\"$base\$2\"", $content);
+		
 		return $content;
 	}
 

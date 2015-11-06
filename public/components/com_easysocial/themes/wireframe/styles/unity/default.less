@@ -320,29 +320,33 @@
 
 
 // QUICK PATCH FOR DASHBOARD LOGIN.
-.row-table
-{
+.row-table {
 	display: table;
 	width: 100%;
 }
-.col-cell
-{
+.col-cell {
 	display: table-cell;
 	vertical-align: top;
+	float: none;
+
+	&.cell-mid {
+		vertical-align: middle;
+	}
 }
-.cell-half
-{
+.cell-half {
 	width: 50%;
 }
-.panel-go
-{
-	.col-cell
-	{
+
+.cell-tight {
+	width: 1%;
+	white-space: nowrap;
+}
+.panel-go {
+	.col-cell {
 		vertical-align: middle;
 		padding: 30px 50px;
 
-		+.col-cell
-		{
+		+.col-cell {
 			border-left: 1px solid #eee;
 		}
 	}

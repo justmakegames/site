@@ -20,15 +20,15 @@ defined('_JEXEC') or die('Unauthorized Access');
  */
 class SocialInstallerApps extends JObject
 {
-	const RECURSIVE_SEARCH		= true;
-	const RETRIEVE_FULL_PATH	= true;
+	const RECURSIVE_SEARCH = true;
+	const RETRIEVE_FULL_PATH = true;
 
 	// Error messages
-	const XML_NOT_FOUND			= 100;
-	const XML_NOT_VALID			= 200;
+	const XML_NOT_FOUND = 100;
+	const XML_NOT_VALID = 200;
 
-	private $allowed			= array('fields' , 'widgets' , 'apps');
-	private	$dom				= null;
+	private $allowed = array('fields' , 'widgets' , 'apps');
+	private	$dom = null;
 
 	/**
 	 * Class constructor.
@@ -136,19 +136,19 @@ class SocialInstallerApps extends JObject
 	public function install()
 	{
 		// Get the element from the installer.
-		$element 		= $this->installer->element;
+		$element = $this->installer->element;
 
 		// Get the group from the installer.
-		$group 			= $this->installer->group;
+		$group = $this->installer->group;
 
 		// Get the destination path.
-		$destination	= SOCIAL_APPS . '/' . $group . '/' . $element;
+		$destination = SOCIAL_APPS . '/' . $group . '/' . $element;
 
 		// Create the destination folder if it doesn't exist.
-		$state 			= $this->installer->createFolder($destination);
+		$this->installer->createFolder($destination);
 
 		// Copy packaged files into the destination folder.
-		$state 			= $this->installer->copyContents($destination , $element);
+		$state = $this->installer->copyContents($destination, $element);
 
 		// Copy manifest file into destination folder.
 		$manifestFile 	= $destination . '/' . $element . '.xml';

@@ -48,7 +48,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         background-image: linear-gradient(to bottom, #91C2EA, #6D9CCA);
         background-repeat: repeat-x;
         border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
         border-style: solid;
         border-width: 1px;
         box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);

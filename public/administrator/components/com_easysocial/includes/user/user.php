@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,71 +9,49 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'admin:/tables/table' );
-FD::import( 'admin:/includes/indexer/indexer' );
+// Dependencies
+ES::import('admin:/tables/table');
+ES::import('admin:/includes/indexer/indexer');
 
-/**
- * This class allows caller to fetch a user object easily.
- * Brief example of use:
- *
- * <code>
- * // Loading of the current logged in user.
- * $user	= FD::get( 'User' )
- *
- * // Shorthand loading
- * $user 	= FD::user();
- *
- * // Loading of a user based on the id.
- * $user	= FD::get( 'User' , 42 );
- *
- * // Loading of multiple users based on an array of id's.
- * $users	= FD::get( 'User' , array( 42 , 43 , 44 ) );
- *
- * </code>
- *
- * @since	1.0
- * @access	public
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialUser extends JUser
 {
 	/**
 	 * The user's unique id.
 	 * @var int
 	 */
-	public $id 			= null;
+	public $id = null;
 
 	/**
 	 * The user's name which is stored in `#__users` table.
 	 * @var string
 	 */
-	public $name		= null;
+	public $name = null;
 
 	/**
 	 * The user's username which is stored in `#__users` table.
 	 * @var string
 	 */
-	public $username	= null;
+	public $username = null;
 
 	/**
 	 * The user's email which is stored in `#__users` table.
 	 * @var string
 	 */
-	public $email 		= null;
+	public $email = null;
 
 	/**
 	 * The user's password which is a md5 hash which is stored in `#__users` table.
 	 * @var string
 	 */
-	public $password 	= null;
+	public $password = null;
 
 	/**
 	 * The user's type which is stored in `#__users` table. (Only for Joomla 1.5)
 	 * @var string
 	 */
-	public $usertype 	= null;
+	public $usertype = null;
 
 	/**
 	 * The user's published status which is stored in `#__users` table.
@@ -197,6 +175,14 @@ class SocialUser extends JUser
 	 */
 	public $password_clear   = null;
 
+	public $reminder_sent = null;
+
+	public $require_reset = null;
+
+	public $block_period = null;
+
+	public $block_date = null;
+
 
 	// Default avatar sizes
 	public $avatarSizes	= array( 'small' , 'medium' , 'large' , 'square' );
@@ -266,17 +252,10 @@ class SocialUser extends JUser
 	 */
 	public $completed_fields = 0;
 
-	/**
-	 * Class Constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @author	Mark Lee <mark@stackideas.com>
-	 */
-	public function __construct( $params = array() , $debug = false )
+	public function __construct($params = array(), $debug = false)
 	{
 		// Get the path to the helper file.
-		$file = dirname( __FILE__ ) . '/helpers/joomla.php';
+		$file = __DIR__ . '/helpers/joomla.php';
 
 		require_once($file);
 
@@ -307,16 +286,20 @@ class SocialUser extends JUser
 	public function block()
 	{
 		// Set juser data first
-		$this->block 	= SOCIAL_JOOMLA_USER_BLOCKED;
+		$this->block = SOCIAL_JOOMLA_USER_BLOCKED;
 
 		// Set our own state data
-		$this->state 	= SOCIAL_USER_STATE_DISABLED;
+		$this->state = SOCIAL_USER_STATE_DISABLED;
 
-		// onBeforeBlock
+		// Save the user after updating their blocked state
+		$state = $this->save();
 
-		$state 	= $this->save();
+		// After blocking a user, synchronize with finder
+		$this->syncIndex();
 
-		// onAfterBlock
+		// Log the user out
+		$app = JFactory::getApplication();
+		$app->logout($this->id, array('clientid' => 0));
 
 		return $state;
 	}
@@ -332,16 +315,21 @@ class SocialUser extends JUser
 	public function unblock()
 	{
 		// Set juser data first
-		$this->block 	= SOCIAL_JOOMLA_USER_UNBLOCKED;
+		$this->block = SOCIAL_JOOMLA_USER_UNBLOCKED;
 
 		// Set our own state data
-		$this->state 	= SOCIAL_USER_STATE_ENABLED;
+		$this->state = SOCIAL_USER_STATE_ENABLED;
+
+		// When user is unbanned, we also want to remove any block_period from the table
+		$this->block_period = 0;
+		$this->block_date = '0000-00-00 00:00:00';
 
 		// onBeforeUnblock
 
-		$state 		= $this->save();
+		$state = $this->save();
 
-		// onAfterUnblock
+		// After unblocking a user, we need to sync the index again
+		$this->syncIndex();
 
 		return $state;
 	}
@@ -450,7 +438,7 @@ class SocialUser extends JUser
 	 */
 	public static function factory($ids = null, $debug = false)
 	{
-		$items	= self::loadUsers($ids, $debug);
+		$items = self::loadUsers($ids, $debug);
 
 		return $items;
 	}
@@ -586,6 +574,23 @@ class SocialUser extends JUser
 	}
 
 	/**
+	 * Removes a user item from the cache
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function removeFromCache()
+	{
+		// Remove from user's storage cache
+		unset(SocialUserStorage::$users[$this->id]);
+
+		// Remove it from the model's cache too
+		unset(EasySocialModelUsers::$loadedUsers[$this->id]);
+	}
+
+	/**
 	 * Loads a given user id or an array of id's.
 	 *
 	 * Example:
@@ -615,95 +620,94 @@ class SocialUser extends JUser
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public static function loadUsers( $ids = null , $debug = false )
+	public static function loadUsers($ids = null, $debug = false)
 	{
 		// Determine if the argument is an array.
-		$argumentIsArray	= is_array($ids);
+		$argumentIsArray = is_array($ids);
 
 		// If it is null or 0, the caller wants to retrieve the current logged in user.
 		if (is_null($ids) || (is_string($ids) && $ids == '')) {
-			$ids 	= array(JFactory::getUser()->id);
+			$ids = array(JFactory::getUser()->id);
 		}
 
 		// Ensure that id's are always an array
-		$ids 	= FD::makeArray($ids);
+		$ids = FD::makeArray($ids);
 
 		// Reset the index of ids so we don't load multiple times from the same user.
-		$ids 	= array_values($ids);
+		$ids = array_values($ids);
 
 		// Always create the guest objects first.
 		self::createGuestObject();
 
 		// Total needs to be computed here before entering iteration as it might be affected by unset.
-		$total		= count($ids);
+		$total = count($ids);
 
 		// Placeholder for items that are already loaded.
-		$loaded		= array();
+		$loaded = array();
 
 		// @task: We need to only load user's that aren't loaded yet.
-		for( $i = 0; $i < $total; $i++) {
-			if( empty( $ids ) )
-			{
+		for ($i = 0; $i < $total; $i++) {
+
+			if (empty($ids)) {
 				break;
 			}
 
-			if(! isset( $ids[ $i ] ) && empty( $ids[ $i ] ) )
-			{
+			if (!isset($ids[$i]) && empty($ids[$i])) {
 				continue;
 			}
 
-			$id		= $ids[ $i ];
+			$id = $ids[$i];
 
 			// If id is null, we know we want the current user.
-			if( is_null( $id ) )
-			{
-				$ids[ $i ] 	= JFactory::getUser()->id;
+			if (is_null($id)) {
+				$ids[$i] = JFactory::getUser()->id;
 			}
 
 			// The parsed id's could be an object from the database query.
-			if( is_object( $id ) && isset( $id->id ) ) {
-				$id			= $id->id;
+			if (is_object($id) && isset($id->id)) {
+				$id = $id->id;
 
 				// Replace the current value with the proper value.
-				$ids[ $i ]	= $id;
+				$ids[$i] = $id;
 			}
 
 			if (isset(SocialUserStorage::$users[$id])) {
-				$loaded[]	= $id;
+				$loaded[] = $id;
 				unset($ids[$i]);
 			}
 
 		}
 
-		// @task: Reset the ids after it was previously unset.
-		$ids	= array_values( $ids );
+		// Reset the ids after it was previously unset.
+		$ids = array_values($ids);
 
 		// Place holder for result items.
 		$result	= array();
 
 		foreach ($loaded as $id) {
-			$result[]	= SocialUserStorage::$users[$id];
+			$result[] = SocialUserStorage::$users[$id];
 		}
 
 		if (!empty($ids)) {
-			// @task: Now, get the user data.
-			$model 	= FD::model( 'Users' );
 
-			$users	= $model->getUsersMeta($ids);
+			// Retrieve user's data
+			$model = FD::model('Users');
+			$users = $model->getUsersMeta($ids);
 
+			// Iterate through the users list and add them into the static property.
 			if ($users) {
-				// @task: Iterate through the users list and add them into the static property.
+
 				foreach ($users as $user) {
 					// Get the user's cover photo
-					$user->cover	= self::getCoverObject( $user );
+					$user->cover = self::getCoverObject($user);
 
 					// Detect if the user has an avatar.
-					$user->defaultAvatar 	= false;
+					$user->defaultAvatar = false;
 
 					if ($user->avatar_id) {
-						$defaultAvatar			= FD::table( 'DefaultAvatar' );
-						$defaultAvatar->load( $user->avatar_id );
-						$user->defaultAvatar 	= $defaultAvatar;
+						$defaultAvatar = FD::table('DefaultAvatar');
+						$defaultAvatar->load($user->avatar_id);
+						$user->defaultAvatar = $defaultAvatar;
 					}
 
 					// Try to load the user from `#__social_users`
@@ -719,29 +723,26 @@ class SocialUser extends JUser
 					// SocialUserStorage::$badges[$user->id]	= FD::model('Badges')->getBadges($user->id);
 
 					// Create an object of itself and store in the static object.
-					$obj 		= new SocialUser($user);
+					$obj = new SocialUser($user);
 
 
-					SocialUserStorage::$users[$user->id]	= $obj;
+					SocialUserStorage::$users[$user->id] = $obj;
 
-					$result[]	= SocialUserStorage::$users[$user->id];
+					$result[] = SocialUserStorage::$users[$user->id];
 				}
-			}
-			else
-			{
-				foreach( $ids as $id )
-				{
-					// Since there are no such users, we just use the guest object.
-					SocialUserStorage::$users[$id]	= SocialUserStorage::$users[0];
+			} else {
 
-					$result[]	= SocialUserStorage::$users[$id];
+				foreach ($ids as $id) {
+					// Since there are no such users, we just use the guest object.
+					SocialUserStorage::$users[$id] = SocialUserStorage::$users[0];
+
+					$result[] = SocialUserStorage::$users[$id];
 				}
 			}
 		}
 
 		// If the argument passed in is not an array, just return the proper value.
-		if( !$argumentIsArray && count( $result ) == 1 )
-		{
+		if (!$argumentIsArray && count($result) == 1) {
 			return $result[0];
 		}
 
@@ -886,6 +887,76 @@ class SocialUser extends JUser
 		return ( $isSiteAdmin ) ? true : false ;
 	}
 
+
+	/**
+	 * determine if the current user can delete a specific user or not
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	EasySocialUser $user
+	 *
+	 * @return	boolean 		True if success, false otherwise.
+	 */
+	public function canDeleteUser($user)
+	{
+		if (! $this->isSiteAdmin()) {
+			return false;
+		}
+
+		$isUserSuper = $this->authorise('core.admin');
+		$isTargetSuper = $user->authorise('core.admin');
+
+		$isUserAdmin = !$isUserSuper && $this->authorise('core.manage');
+		$isTargetAdmin = !$isTargetSuper && $user->authorise('core.manage');
+
+		// if currrent user is a superadmin and target user also a super admin, we dont allow to delete.
+		if ($isUserSuper && $isTargetSuper) {
+			return false;
+		}
+
+		// if current user is a standard admin and the target is either super or admin, we dont allow to delete target.
+		if ($isUserAdmin && ($isTargetSuper || $isTargetAdmin)) {
+			return false;
+		}
+
+		return true;
+	}
+
+
+	/**
+	 * determine if the current user can ban a specific user or not
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	EasySocialUser $user
+	 *
+	 * @return	boolean 		True if success, false otherwise.
+	 */
+	public function canBanUser($user)
+	{
+		if (! $this->isSiteAdmin()) {
+			return false;
+		}
+
+		$isUserSuper = $this->authorise('core.admin');
+		$isTargetSuper = $user->authorise('core.admin');
+
+		$isUserAdmin = !$isUserSuper && $this->authorise('core.manage');
+		$isTargetAdmin = !$isTargetSuper && $user->authorise('core.manage');
+
+		// if currrent user is a superadmin and target user also a super admin, we dont allow to ban.
+		if ($isUserSuper && $isTargetSuper) {
+			return false;
+		}
+
+		// if current user is a standard admin and the target is a superadmin, we dont allow to ban target.
+		if ($isUserAdmin && $isTargetSuper) {
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Determines if the current user is followed by the target id
 	 *
@@ -999,6 +1070,35 @@ class SocialUser extends JUser
 		return false;
 	}
 
+	/**
+	 * Determines if the user has access to the community area
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function hasCommunityAccess()
+	{
+		static $items = array();
+
+		if (!isset($items[$this->id])) {
+			$profile = $this->getProfile();
+
+			$items[$this->id] = (bool) $profile->community_access;
+		}
+
+		return $items[$this->id];
+	}
+
+	/**
+	 * Determines if the user has an avatar
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function hasAvatar()
 	{
 		return !empty($this->avatar_id) || !empty($this->photo_id);
@@ -1015,48 +1115,42 @@ class SocialUser extends JUser
 	 */
 	public function getAvatar( $size = SOCIAL_AVATAR_MEDIUM )
 	{
-		$config 	= FD::config();
+		$config = FD::config();
 
 		// If avatar id is being set, we need to get the avatar source
-		if( $this->defaultAvatar )
-		{
-			$default =  $this->defaultAvatar->getSource( $size );
+		if ($this->defaultAvatar) {
+			$default = $this->defaultAvatar->getSource($size);
 
 			return $default;
 		}
 
 		// If the avatar size that is being requested is invalid, return default avatar.
-		$default 	= $this->getDefaultAvatar( $size );
+		$default = $this->getDefaultAvatar($size);
 
-		if( !$this->avatars[ $size ] || empty( $this->avatars[ $size ] ) )
-		{
+		if (!$this->avatars[$size] || empty($this->avatars[$size])) {
 			return $default;
 		}
 
 		// Get the path to the avatar storage.
-		$avatarLocation 		= FD::cleanPath( $config->get( 'avatars.storage.container' ) );
-		$usersAvatarLocation	= FD::cleanPath( $config->get( 'avatars.storage.user' ) );
+		$avatarLocation = FD::cleanPath($config->get('avatars.storage.container'));
+		$usersAvatarLocation = FD::cleanPath($config->get('avatars.storage.user'));
 
 		// Build the path now.
-		$path 			= $avatarLocation . '/' . $usersAvatarLocation . '/' . $this->id . '/' . $this->avatars[ $size ];
+		$path = $avatarLocation . '/' . $usersAvatarLocation . '/' . $this->id . '/' . $this->avatars[ $size ];
 
-		if( $this->avatarStorage == SOCIAL_STORAGE_JOOMLA )
-		{
+		if ($this->avatarStorage == SOCIAL_STORAGE_JOOMLA) {
 			// Build final storage path.
-			$absolutePath 	= JPATH_ROOT . '/' . $path;
+			$absolutePath = JPATH_ROOT . '/' . $path;
 
 			// Detect if this file really exists.
-			if( !JFile::exists( $absolutePath ) )
-			{
+			if (!JFile::exists($absolutePath)) {
 				return $default;
 			}
 
-			$uri 	= rtrim( JURI::root() , '/' ) . '/' . $path;
-		}
-		else
-		{
-			$storage 	= FD::storage( $this->avatarStorage );
-			$uri 		= $storage->getPermalink( $path );
+			$uri = rtrim( JURI::root() , '/' ) . '/' . $path;
+		} else {
+			$storage = FD::storage($this->avatarStorage);
+			$uri = $storage->getPermalink($path);
 		}
 
 	    return $uri;
@@ -1463,12 +1557,14 @@ class SocialUser extends JUser
 	 * @param	string
 	 * @return
 	 */
-	public function getAlias( $withId = true )
+	public function getAlias($withId = true, $forceId = false)
 	{
-		$config 	= FD::config();
+		$config = ES::config();
 
 		// Default permalink to use.
-		$name 		= $config->get( 'users.aliasName' ) == 'realname' ? $this->name : $this->username;
+		$name = $config->get('users.aliasName') == 'realname' ? $this->name : $this->username;
+
+		$withId = ($withId || $forceId) ? true : $withId;
 
 		// If sef is not enabled or running SH404, just return the ID-USERNAME prefix.
 		jimport( 'joomla.filesystem.file' );
@@ -1486,7 +1582,7 @@ class SocialUser extends JUser
 		// Check if the permalink is set
 		if( $this->permalink && !empty( $this->permalink ) )
 		{
-			$name 	= $this->permalink;
+			$name 	= ($forceId ? $this->id . ':' : '') . $this->permalink;
 
 			if($mijoSef) {
 				return ($withId ? $this->id . ':' : '') . JFilterOutput::stringURLSafe( $name );
@@ -1520,23 +1616,34 @@ class SocialUser extends JUser
 	 *
 	 * @return	string	The url for the person
 	 */
-	public function getPermalink( $xhtml = true , $external = false, $sef = true )
+	public function getPermalink($xhtml = true, $external = false, $sef = true)
 	{
+		$my = ES::user();
+
 		// If user is blocked, just use a dummy link
-		if ($this->isBlock()) {
+		if (!$my->isSiteAdmin() && ($this->isBlock() || !$this->hasCommunityAccess())) {
 			return 'javascript:void(0);';
 		}
 
-		$options	= array( 'id' => $this->getAlias() );
+		// When simple urls are enabled, we just hardcode the url
+		$config = ES::config();
+		$jConfig = ES::jConfig();
 
-		if( $external )
-		{
-			$options[ 'external' ]	= true;
+		if (!ES::isSh404Installed() && $config->get('users.simpleUrl') && $jConfig->getValue('sef') && $sef && $this->alias) {
+			$url = rtrim(JURI::root(), '/') . '/' . $this->getAlias(false);
+
+			return $url;
+		}
+
+		$options = array('id' => $this->getAlias());
+
+		if ($external) {
+			$options['external'] = true;
 		}
 
 		$options['sef'] = $sef;
 
-		$url 	= FRoute::profile( $options , $xhtml );
+		$url = FRoute::profile($options , $xhtml);
 
 		return $url;
 	}
@@ -1754,6 +1861,42 @@ class SocialUser extends JUser
 		}
 
 		return $total[ $this->id ];
+	}
+
+	/**
+	 * Retrieves the total number of videos the user has
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getTotalVideos($daily = false, $includeUnpublished = false)
+	{
+		static $total 	= array();
+
+		$sid = $this->id . (int) $daily . (int) $includeUnpublished;
+
+		if (!isset($total[$sid])) {
+
+			$model = ES::model('Videos');
+			$options = array('uid' => $this->id, 'type' => SOCIAL_TYPE_USER);
+
+			if ($includeUnpublished) {
+				$options['state'] = 'all';
+			}
+
+			if ($daily) {
+				$today = ES::date()->toMySQL();
+				$date = explode(' ', $today);
+
+				$options['day'] = $date[0];
+			}
+
+			$total[$sid] = $model->getTotalVideos($options);
+		}
+
+		return $total[$sid];
 	}
 
 	/**
@@ -2080,6 +2223,28 @@ class SocialUser extends JUser
 	}
 
 	/**
+	 * Returns the total number of friend request a user made.
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	null
+	 * @return	int 		The total number of requests.
+	 */
+	public function getTotalFriendRequestsSent()
+	{
+		static $results 	= array();
+
+		if (!isset($results[$this->id])) {
+			$model = FD::model('Friends');
+			$total = $model->getTotalRequestSent($this->id);
+
+			$results[$this->id] = $total;
+		}
+
+		return $results[$this->id];
+	}
+
+	/**
 	 * Loads the user's session
 	 *
 	 * @since	1.0
@@ -2183,6 +2348,10 @@ class SocialUser extends JUser
 		if ($state) {
 			$model = FD::model('Users');
 			$model->delete($this->id);
+
+	        JPluginHelper::importPlugin('finder');
+	        $dispatcher = JDispatcher::getInstance();
+	        $dispatcher->trigger( 'onFinderAfterDelete', array( 'easysocial.users' , $this ) );
 		}
 
 		return $state;
@@ -2233,17 +2402,16 @@ class SocialUser extends JUser
 		// In order to make sure that getProperties() gets the correct properties (especially password), SocialUser::bind no longer binds to the to parent class.
 		// This is partly because, JUser::bind encrypts password, and calling parent::bind will cause SocialUser->password to no longer have the original clear password, and calling getProperties from here will get you the encrypted password to rebind again.
 		if ($isNew) {
-			$user 	= new JUser();
+			$user = new JUser();
 		} else {
-			$user 	= JFactory::getUser($this->id);
+			$user = JFactory::getUser($this->id);
 		}
 
 		// We only want to bind data that JUser needs
-		$vars 	= get_object_vars($user);
-		$data 	= array();
+		$vars = get_object_vars($user);
+		$data = array();
 
 		foreach ($vars as $key => $val) {
-
 			if (isset($this->$key)) {
 				$data[$key]	= $this->$key;
 			}
@@ -2269,7 +2437,7 @@ class SocialUser extends JUser
 		// Once the #__users table is updated, we need to update ours as well.
 		if ($state) {
 
-			$userTable	= FD::table('Users');
+			$userTable = FD::table('Users');
 			$userTable->loadByUser( $this->id );
 
 			$userTable->user_id	= $this->id;
@@ -2278,6 +2446,7 @@ class SocialUser extends JUser
 			$userTable->alias	= $this->alias;
 			$userTable->auth	= $this->auth;
 			$userTable->completed_fields = $this->completed_fields;
+			$userTable->require_reset = $this->require_reset;
 
 			$state = $userTable->store();
 
@@ -2343,18 +2512,17 @@ class SocialUser extends JUser
 	 */
 	public function approve( $sendEmail = true )
 	{
-
-		// check if the user already approved or not.
+		// Check if the user already approved or not.
 		if ($this->block == 0 && $this->state == SOCIAL_USER_STATE_ENABLED) {
 			//already approved.
 			return true;
 		}
 
 		// Update the JUser object.
-		$this->block 	= 0;
+		$this->block = 0;
 
 		// Update the current state property.
-		$this->state 	= SOCIAL_USER_STATE_ENABLED;
+		$this->state = SOCIAL_USER_STATE_ENABLED;
 
 		// If set to admin approve, user should be activated regardless of whether user activates or not.
 		$this->activation = 0;
@@ -2364,39 +2532,38 @@ class SocialUser extends JUser
 
 		// Activity logging.
 		// Announce to the world when a new user registered on the site.
-		$config 			= FD::config();
+		$config = FD::config();
 
 		// Get the application params
-		$app 	= FD::table( 'App' );
-		$app->load( array( 'element' => 'profiles' , 'group' => SOCIAL_TYPE_USER ) );
+		$app = FD::table('App');
+		$options = array('element' => 'profiles', 'group' => SOCIAL_TYPE_USER);
+
+		$app->load($options);
 		$params = $app->getParams();
 
 		// If not allowed, we will not want to proceed here.
-		if( $params->get( 'stream_register' , true ) )
-		{
-			// Get the stream library.
-			$stream				= FD::stream();
+		if ($params->get('stream_register', true)) {
+
+			$stream = FD::stream();
 
 			// Get stream template
-			$streamTemplate		= $stream->getTemplate();
+			$streamTemplate = $stream->getTemplate();
 
 			// Set the actors.
-			$streamTemplate->setActor( $this->id , SOCIAL_TYPE_USER );
+			$streamTemplate->setActor($this->id, SOCIAL_TYPE_USER);
 
 			// Set the context for the stream.
-			$streamTemplate->setContext( $this->id , SOCIAL_TYPE_PROFILES );
+			$streamTemplate->setContext($this->id, SOCIAL_TYPE_PROFILES);
 
 			// Set the verb for this action as this is some sort of identifier.
-			$streamTemplate->setVerb( 'register' );
+			$streamTemplate->setVerb('register');
 
 			$streamTemplate->setSiteWide();
 
-
-			$streamTemplate->setAccess( 'core.view' );
-
+			$streamTemplate->setAccess('core.view');
 
 			// Add the stream item.
-			$stream->add( $streamTemplate );
+			$stream->add($streamTemplate);
 		}
 
 		// add user into com_finder index
@@ -2404,58 +2571,54 @@ class SocialUser extends JUser
 
 		// @points: user.register
 		// Assign points when user registers on the site.
-		$points = Foundry::points();
+		$points = FD::points();
 		$points->assign('user.registration', 'com_easysocial', $this->id);
 
 		// @badge: registration.create
 		// Assign badge for the person that initiated the friend request.
-		$badge 	= FD::badges();
+		$badge = FD::badges();
 		$badge->log( 'com_easysocial' , 'registration.create' , $this->id , JText::_( 'COM_EASYSOCIAL_REGISTRATION_BADGE_REGISTERED' ) );
 
 		// If we need to send email to the user, we need to process this here.
-		if( $sendEmail )
-		{
+		if ($sendEmail) {
+
 			// Get the application data.
-			$jConfig 	= FD::jConfig();
+			$jConfig = FD::jConfig();
 
 			// Get the current profile this user has registered on.
-			$profile 	= $this->getProfile();
+			$profile = $this->getProfile();
 
 			// Push arguments to template variables so users can use these arguments
-			$params 	= array(
-									'site'			=> $jConfig->getValue( 'sitename' ),
-									'username'		=> $this->username,
-									'name'			=> $this->getName(),
-									'avatar'		=> $this->getAvatar( SOCIAL_AVATAR_LARGE ),
-									'email'			=> $this->email,
-									'profileType'	=> $profile->get( 'title' )
+			$params = array(
+							'site' => $jConfig->getValue( 'sitename' ),
+							'username' => $this->username,
+							'name' => $this->getName(),
+							'avatar' => $this->getAvatar( SOCIAL_AVATAR_LARGE ),
+							'email' => $this->email,
+							'profileType' => $profile->get('title'),
+							'manageAlerts' => false
 							);
 
-			JFactory::getLanguage()->load( 'com_easysocial' , JPATH_ROOT );
+			JFactory::getLanguage()->load('com_easysocial', JPATH_ROOT);
 
 			// Get the email title.
-			$title      = JText::_( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_APPLICATION_APPROVED' );
+			$title = JText::_('COM_EASYSOCIAL_EMAILS_REGISTRATION_APPLICATION_APPROVED');
 
 			// Immediately send out emails
-			$mailer 	= FD::mailer();
+			$mailer = FD::mailer();
 
-			// Get the email template.
-			$mailTemplate	= $mailer->getTemplate();
+			$mailTemplate = $mailer->getTemplate();
 
-			// Set recipient
-			$mailTemplate->setRecipient( $this->getName() , $this->email );
-
-			// Set title
-			$mailTemplate->setTitle( $title );
-
-			// Set the contents
-			$mailTemplate->setTemplate( 'site/registration/approved' , $params );
+			$mailTemplate->setTitle($title);
+			$mailTemplate->setRecipient($this->getName(), $this->email);
+			$mailTemplate->setTemplate('site/registration/approved', $params);
+			$mailTemplate->setLanguage($this->getLanguage());
 
 			// Set the priority. We need it to be sent out immediately since this is user registrations.
-			$mailTemplate->setPriority( SOCIAL_MAILER_PRIORITY_IMMEDIATE );
+			$mailTemplate->setPriority(SOCIAL_MAILER_PRIORITY_IMMEDIATE);
 
 			// Try to send out email now.
-			$mailer->create( $mailTemplate );
+			$mailer->create($mailTemplate);
 		}
 
 		return true;
@@ -2549,18 +2712,11 @@ class SocialUser extends JUser
 	 *
 	 * @return 	bool	True if success false otherwise.
 	 */
-	public function bind( &$data , $post = false )
+	public function bind(&$data, $post = false)
 	{
 		// Request the helper to bind specific additional details
-		$this->helper->bind( $this , $data );
+		$this->helper->bind($this, $data);
 
-
-		// Request the parent to bind the data for us.
-		// parent::bind( $data );
-
-		// No longer use JUser to bind, as the bind should happen in SocialUser::save instead
-		// We set the properties into this class instead so that SocialUser::save can get the correct properties
-		// See SocialUser::save on why we bind there instead.
 		$this->setProperties($data);
 	}
 
@@ -2587,13 +2743,11 @@ class SocialUser extends JUser
 	 * @access	public
 	 * @param	Array	An array of data that is being posted.
 	 * @return	bool	True on success, false otherwise.
-	 *
-	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function bindCustomFields( $data )
+	public function bindCustomFields($data)
 	{
 		// Get the registration model.
-		$model = FD::model('Fields');
+		$model = ES::model('Fields');
 
 		// Get the field id's that this profile is allowed to store data on.
 		$fields	= $model->getStorableFields($this->profile_id, SOCIAL_TYPE_PROFILES);
@@ -2605,6 +2759,7 @@ class SocialUser extends JUser
 
 		// Let's go through all the storable fields and store them.
 		foreach ($fields as $fieldId) {
+
 			$key = SOCIAL_FIELDS_PREFIX . $fieldId;
 
 			if (!isset($data[$key])) {
@@ -2615,7 +2770,7 @@ class SocialUser extends JUser
 			$value = isset($data[$key]) ? $data[$key] : '';
 
 			// Test if field really exists to avoid any unwanted input
-			$field = FD::table('Field');
+			$field = ES::table('Field');
 
 			// If field doesn't exist, just skip this.
 			if (!$field->load($fieldId)) {
@@ -2702,87 +2857,23 @@ class SocialUser extends JUser
 		return $state;
 	}
 
+	/**
+	 * Sync's the user record with Joomla smart search
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function syncIndex()
 	{
+		// Determines if this is a new account
 		$isNew = $this->isNew();
 
+		// Trigger our own finder plugin
         JPluginHelper::importPlugin('finder');
         $dispatcher = JDispatcher::getInstance();
-        $dispatcher->trigger( 'onFinderAfterSave', array( 'easysocial.users' , &$this, $isNew ) );
-
-	}
-
-
-
-	public function syncIndexOLD()
-	{
-		$config = FD::config();
-
-		$indexer = FD::get( 'Indexer' );
-
-		$idxTemplate = $indexer->getTemplate();
-
-		// should get the story, and customfields.
-		$contentSnapshot	= array();
-		$contentSnapshot[] 	= $this->getName( $config->get( 'users.indexer.name' ) );
-
-		if( $config->get( 'users.indexer.email' ) )
-		{
-			$contentSnapshot[] 	= $this->email;
-		}
-
-		// get customfields.
-		$fieldsLib		= FD::fields();
-		$fieldModel  	= FD::model( 'Fields' );
-		$fieldsResult 	= array();
-
-		$options = array();
-		$options['data'] 		= true;
-		$options['dataId'] 		= $this->id;
-		$options['dataType'] 	= SOCIAL_TYPE_USER;
-		$options['searchable'] 	= 1;
-
-		//todo: get customfields.
-		$fields = $fieldModel->getCustomFields( $options );
-
-		if( count( $fields ) > 0 )
-		{
-			//foreach( $fields as $item )
-			foreach( $fields as $field )
-			{
-
-				//var_dump( $field );
-
-				$userFieldData = isset( $field->data ) ? $field->data : '';
-
-				$args 			= array( $userFieldData );
-				$f 				= array( &$field );
-				$dataResult 	= $fieldsLib->trigger( 'onIndexer' , SOCIAL_FIELDS_GROUP_USER , $f , $args );
-
-				if( $dataResult !== false && count( $dataResult ) > 0 )
-					$fieldsResult[]  	= $dataResult[0];
-			}
-
-			if( $fieldsResult )
-			{
-				$customFieldsContent 	= implode( ' ', $fieldsResult );
-				$contentSnapshot[] 		= $customFieldsContent;
-			}
-		}
-
-		$content = implode( ' ', $contentSnapshot );
-		$idxTemplate->setContent( $this->getName( $config->get( 'users.indexer.name' ) ), $content );
-
-		//$url = FRoute::_( 'index.php?option=com_easysocial&view=profile&id=' . $this->id );
-		$url = '';
-
-		$idxTemplate->setSource($this->id, SOCIAL_INDEXER_TYPE_USERS, $this->id, $url);
-
-		$date = FD::date();
-		$idxTemplate->setLastUpdate( $date->toMySQL() );
-
-		$state = $indexer->index( $idxTemplate );
-		return $state;
+        $dispatcher->trigger('onFinderAfterSave', array('easysocial.users', &$this, $isNew));
 	}
 
 	/**
@@ -2798,12 +2889,15 @@ class SocialUser extends JUser
 		$access 	= $this->getAccess();
 		$limit 		= $access->get('friends.limit');
 
+		//TODO: Should get this in one query only.
+		$total = $this->getTotalFriends() + $this->getTotalFriendRequestsSent();
+
 		// Site admin should never be bound to this rule.
 		if ($this->isSiteAdmin()) {
 			return false;
 		}
 
-		if ($limit != 0 && $access->exceeded('friends.limit', $this->getTotalFriends())) {
+		if ($limit != 0 && $access->exceeded('friends.limit', $total)) {
 			return true;
 		}
 

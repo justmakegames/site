@@ -12,5 +12,5 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <a href="javascript:void(0);" class="btn btn-es-primary btn-sm" data-bs-toggle="dropdown" data-users-friends-button>
-	<i class="ies-checkmark ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS' ); ?>
+	<i class="fa fa-check  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS' ); ?>
 </a>

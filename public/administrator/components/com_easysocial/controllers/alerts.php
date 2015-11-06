@@ -160,13 +160,7 @@ class EasySocialControllerAlerts extends EasySocialController
 
 		// Get the current path that we should be searching for.
 		$file 		= JRequest::getVar( 'file' , '' );
-
-		// Log errors when invalid data is passed in.
-		if( empty( $file ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'ALERTS: Invalid file path given to scan.' );
-		}
-
+		
 		// Retrieve the points model to scan for the path
 		$model 	= FD::model( 'Alert' );
 
@@ -221,4 +215,10 @@ class EasySocialControllerAlerts extends EasySocialController
 
 		return $view->call(__FUNCTION__);
 	}
+
+	public function unpublish()
+	{
+		//make Joomla 2.5 work.
+		$this->publish();
+	}	
 }

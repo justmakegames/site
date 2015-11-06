@@ -26,7 +26,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<?php if (isset($oembed->html)) { ?>
 
 					<?php if (!isset($oembed->thumbnail)) { ?>
-						<div class="video-container">
+						<div class="<?php echo !isset($oembed->thumbnail) || !$oembed->thumbnail ?  '' : 'video-container'; ?>">
 						<?php echo $oembed->html; ?>
 						</div>
 					<?php } else { ?>

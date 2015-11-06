@@ -11,11 +11,11 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<a href="javascript:void(0);" class="btn btn-clean btn-block btn-sm"
+<a href="javascript:void(0);" class="btn btn-clean btn-sm"
 	data-profileFriends-button
 	data-profileFriends-add
 	data-bs-toggle="dropdown"
 >
-	<i class="ies-user-add  mr-5"></i>
+	<i class="fa fa-user-plus  mr-5"></i>
 	<span><?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_ADD_AS_FRIEND' );?></span>
 </a>

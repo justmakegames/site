@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <a href=""><?php echo $calendar->header;?></a>
                             <div class="event-details">
                                 <div class="event-details-title">
-                                    <i class="ies-calendar"></i>
+                                    <i class="fa fa-calendar"></i>
                                     <a
                                         href="<?php echo FRoute::events(array('filter' => 'date', 'date' => $calendar->year . '-' . $calendar->month));?>"
                                         title="<?php echo JText::sprintf('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_DATE', FD::date($calendar->year . '-' . $calendar->month . '-01')->format(JText::_('COM_EASYSOCIAL_DATE_MY', true))); ?>"
@@ -92,7 +92,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 <?php if (!empty($days[$dayNumber])) { ?>
                                 <div class="event-details">
                                     <div class="event-details-title">
-                                        <i class="ies-calendar"></i>
+                                        <i class="fa fa-calendar"></i>
                                         <a
                                             href="<?php echo FRoute::events(array('filter' => 'date', 'date' => $calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded));?>"
                                             title="<?php echo JText::sprintf('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_DATE', FD::date($calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded)->format(JText::_('COM_EASYSOCIAL_DATE_DMY'))); ?>"

@@ -16,10 +16,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<a href="<?php echo $user->getPermalink();?>"><?php echo $user->getName();?></a>
 	</div>
 	<div class="profile-desp">
-		<?php if( $user->getLastVisitDate() == '0000-00-00 00:00:00' ){ ?>
-			<?php echo JText::_( 'COM_EASYSOCIAL_USER_NEVER_LOGGED_IN' ); ?>
-		<?php } else { ?>
-			<?php echo JText::_( 'COM_EASYSOCIAL_LAST_LOGGED_IN' ); ?> <?php echo $user->getLastVisitDate( 'lapsed' );?>
+		<?php if($this->template->get('profile_lastlogin', true )) { ?>
+			<?php if($user->getLastVisitDate() == '0000-00-00 00:00:00') { ?>
+				<?php echo JText::_('COM_EASYSOCIAL_USER_NEVER_LOGGED_IN');?>
+			<?php } else { ?>
+				<?php echo JText::_('COM_EASYSOCIAL_LAST_LOGGED_IN');?> <?php echo $user->getLastVisitDate('lapsed'); ?>
+			<?php } ?>
 		<?php } ?>
 	</div>
 	<input type="hidden" data-user-id="<?php echo $user->id; ?>" />
@@ -31,8 +33,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <a class="es-avatar es-avatar-md popbox-avatar" href="<?php echo $user->getPermalink();?>">
 	<img alt="<?php echo $this->html( 'string.escape' , $user->getName() );?>" src="<?php echo $user->getAvatar( SOCIAL_AVATAR_MEDIUM ); ?>" />
 </a>
-<?php echo $this->loadTemplate( 'site/utilities/user.online.state' , array( 'online' => $user->isOnline() , 'size' => 'mini' ) ); ?>
 
+<?php if ($user->hasCommunityAccess()) { ?>
+<?php echo $this->loadTemplate( 'site/utilities/user.online.state' , array( 'online' => $user->isOnline() , 'size' => 'mini' ) ); ?>
 <div class="popbox-info">
 	<ul class="fd-reset-list popbox-items">
 		<li>
@@ -74,11 +77,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php } ?>
 	</ul>
 </div>
+<?php } ?>
 
 <div class="popbox-footer">
-	<?php if( !$user->isViewer() ){ ?>
+	<?php if ($user->hasCommunityAccess() && !$user->isViewer() && !$user->isBlockedBy($this->my->id)) { ?>
 	<div class="pull-right">
-		<?php if( $user->getFriend( $this->my->id )->state == SOCIAL_FRIENDS_STATE_FRIENDS ){ ?>
+		<?php if ($user->getFriend($this->my->id)->state == SOCIAL_FRIENDS_STATE_FRIENDS) { ?>
 			<div class="btn-group btn-group-friends">
 				<?php echo $this->loadTemplate( 'site/profile/popbox.button.friends' , array( 'user' => $user ) ); ?>
 			</div>
@@ -100,7 +104,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<?php if ($this->config->get('conversations.enabled') && $this->access->allowed('conversations.create')) { ?>
 		<div class="btn-group btn-group-message">
-			<a class="btn-es btn-message" href="javascript:void(0);" data-popbox-message><i class="ies-mail-3 ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_MESSAGE' ); ?></a>
+			<a class="btn-es btn-message" href="javascript:void(0);" data-popbox-message><i class="fa fa-envelope  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_MESSAGE' ); ?></a>
 		</div>
 		<?php } ?>
 	</div>

@@ -2,14 +2,13 @@
     "title"  : "COM_EASYSOCIAL_MENU_GROUP_REGIONS",
     "link"   : "index.php?option=com_easysocial&view=regions",
     "access" : "easysocial.access.regions",
-    "class"  : "ies-earth",
+    "class"  : "fa-globe",
     "view"   : "regions",
     "active" : "layout",
     "childs" :
     [
         {
             "title" : "COM_EASYSOCIAL_MENU_ITEM_REGIONS_COUNTRIES",
-            "class" : "ies-earth",
             "url"   :
             {
                 "view"  : "regions",
@@ -19,7 +18,6 @@
         },
         {
             "title" : "COM_EASYSOCIAL_MENU_ITEM_REGIONS_STATES",
-            "class" : "ies-earth",
             "url"   :
             {
                 "view"  : "regions",

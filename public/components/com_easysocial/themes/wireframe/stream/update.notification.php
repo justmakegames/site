@@ -17,4 +17,4 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	data-uid="<?php echo $uid; ?>"
 	data-since="<?php echo $currentdate; ?>"
 	class="btn btn-es-primary btn-stream-updates mb-20"
-><i class="ies-refresh ies-small mr-5"></i> <?php echo JText::sprintf( 'COM_EASYSOCIAL_STREAM_NEW_UPDATES' ); ?></a>
+><i class="fa fa-refresh  mr-5"></i> <?php echo JText::sprintf( 'COM_EASYSOCIAL_STREAM_NEW_UPDATES' ); ?></a>

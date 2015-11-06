@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div id="fd" class="es mod-es-dating-search module-social<?php echo $suffix;?>" data-mod-dating-search>
+<div id="fd" class="es mod-es-dating-search module-social<?php echo $suffix;?> es-responsive" data-mod-dating-search>
 <form method="get" action="<?php echo JRoute::_('index.php'); ?>" name="frmSearch" class="form-horizontal es-dating-search-form es-responsive">
 	<?php if ($params->get('searchname', 1) && $config->get('users.displayName') == 'realname' && isset($modFields['joomla_fullname'])) {
 		$field = $modFields['joomla_fullname']; ?>
@@ -104,25 +104,17 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<?php if ($params->get('searchdistance', 1) && isset($modFields['address'])) {
 		$field = $modFields['address']; ?>
-	<div data-mod-dating-search-item class="form-group form-group-sm">
+	<div data-mod-dating-search-item class="form-group form-group-sm mod-search-distance">
 		<label class="control-label col-sm-3"><?php echo JText::_('MOD_EASYSOCIAL_DATING_SEARCH_DISTANCE_WITHIN_' . $searchUnit); ?>:</label>
         <div class="col-sm-9">
-            <div class="input-group input-group-sm">
-                <input class="form-control input-sm" type="text"
+            <div>
+                <input class="form-control input-sm" type="number"
                        placeholder="<?php echo JText::_('MOD_EASYSOCIAL_DATING_SEARCH_DISTANCE_ENTER_VALUE');?>"
                        value="<?php echo (isset($modUserData[$field->element]['distance'])) ? $modUserData[$field->element]['distance'] : ''?>"
                        name="frmDistance"
                        data-distance />
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" data-location-detect>
-                        <i class="ies-power" data-loaction-icon></i><?php echo JText::_('MOD_EASYSOCIAL_DATING_SEARCH_DETECT_LOCATION'); ?>
-                    </button>
-                </span>
             </div>
-            <div class="es-story-location-autocomplete" data-location-autocomplete>
-                <div class="es-story-location-suggestions" data-location-suggestions>
-                </div>
-            </div>
+
 
             <input class="form-control input-sm" type="hidden" value="<?php echo $field->unique_key;?>|<?php echo $field->element;?>" name="criterias[]" data-criterias />
             <input class="form-control input-sm" type="hidden" value="distance" name="datakeys[]" data-datakeys />
@@ -136,12 +128,32 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <?php $tmpCondition = isset($modUserData[$field->element]['condition']) ? $modUserData[$field->element]['condition'] : ''; ?>
             <input data-condition type="hidden" class="form-control input-sm" name="conditions[]" value="<?php echo $modules->html('string.escape', $tmpCondition);?>" />
 
-            <span data-location-label class="help-block fd-small text-note hide"></span>
+
+            <div data-location-label class=" mt-10 full-width">
+
+                <div class="input-group input-group-sm mod-search-distance__location-label-input-group">
+                    <input type="text" class="form-control input-sm" placeholder="<?php echo JText::_('MOD_EASYSOCIAL_DATING_SEARCH_DISTANCE_ENTER_LOCATION'); ?>"
+                           autocomplete="off" data-location-textfield  value=""/>
+                    <span class="input-group-btn mod-search-distance__location-label-input-group-btn">
+                        <button class="btn btn-default" type="button" data-location-detect>
+                            <i class="fa fa-flash" data-loaction-icon></i> <span class="mod-search-distance__location-detect-text"><?php echo JText::_('MOD_EASYSOCIAL_DATING_SEARCH_DETECT_LOCATION'); ?></span>
+                        </button>
+                    </span>
+                </div>
+                <div class="es-location-autocomplete has-shadow is-sticky" data-location-autocomplete>
+                    <b><b></b></b>
+                    <div class="es-location-suggestions" data-location-suggestions>
+                    </div>
+                </div>
+            </div>
         </div>
+
+
+
 	</div>
 	<?php } ?>
 
-	<div class="pt-10 pr-10 mb-10 fd-cf">
+	<div class="mb-10 fd-cf">
 		<button class="btn btn-es-primary pull-right" type="submit" data-advsearch-button><?php echo JText::_( 'MOD_EASYSOCIAL_DATING_SEARCH_SEARCH_BUTTON' );?></button>
 	</div>
 

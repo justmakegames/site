@@ -3,8 +3,11 @@
 \*------------------------------------*/
 //specific hack for TEMPLATE
 
-/*= Joomla 3.0 admin template hack
+/*= Joomla 3.* admin template hack
 ================================================== */
+
+
+
 // Toolbar icons for Joomla 3.0
 .icon-addusers:before,
 .icon-switchprofile:before,
@@ -28,6 +31,10 @@ body.com_easysocial {
 	margin-left: 5px;
 	}
 
+    // Joomla 3.4 #3907
+    .subhead-collapse {
+        margin-bottom: 0;
+    }
 
 }
 body.com_easysocial .container-main {
@@ -195,4 +202,15 @@ body #fd.es .footer-pagination {
 // Enforce tooltip z-index #2726
 body #tooltip {
 	z-index: 999999;
+}
+
+
+div#fd .row-sm {
+    margin-left: -10px;
+    margin-right: -10px;
+
+    > div {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 }

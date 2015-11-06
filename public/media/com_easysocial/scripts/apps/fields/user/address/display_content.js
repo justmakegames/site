@@ -47,6 +47,8 @@ EasySocial.module('apps/fields/user/address/display_content', function($) {
                             ]
                         });
 
+                    var url = url.replace(/http\:|https\:/, '');
+                    
                     // When map is loaded, fade in.
                     $.Image.get(url)
                         .done(function(){

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,12 +11,6 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-/**
- * Profile view for Notes app.
- *
- * @since	1.0
- * @access	public
- */
 class FollowersWidgetsProfile extends SocialAppsWidgets
 {
 	/**
@@ -27,22 +21,20 @@ class FollowersWidgetsProfile extends SocialAppsWidgets
 	 * @param	string
 	 * @return
 	 */
-	public function sidebarBottom( $user )
+	public function sidebarBottom($user)
 	{
 		// Get application params
-		$appParams 	= $this->getParams();
+		$appParams = $this->getParams();
 
 		// Get the user params
-		$params 	= $this->getUserParams( $user->id );
+		$params = $this->getUserParams($user->id);
 
-		if( $appParams->get( 'widget_followers' , true ) )
-		{
-			echo $this->getFollowers( $user , $params );
+		if ($appParams->get('widget_followers', true)) {
+			echo $this->getFollowers($user, $params);
 		}
 
-		if( $appParams->get( 'widget_following' , true ) )
-		{
-			echo $this->getFollowing( $user , $params );
+		if ($appParams->get('widget_following', true)) {
+			echo $this->getFollowing($user, $params);
 		}
 	}
 
@@ -56,14 +48,14 @@ class FollowersWidgetsProfile extends SocialAppsWidgets
 	 */
 	public function getFollowers( $user , &$params )
 	{
-		$appParams 	= $this->app->getParams();
+		$appParams = $this->app->getParams();
 
 		if( !$params->get( 'show_profile_followers' , $appParams->get( 'show_profile_followers' , true ) ) )
 		{
 			return;
 		}
 
-		$my		= FD::user();
+		$my	= FD::user();
 		if( $my->id != $user->id )
 		{
 			$privacy = $my->getPrivacy();
@@ -74,18 +66,20 @@ class FollowersWidgetsProfile extends SocialAppsWidgets
 			}
 		}
 
-		$model 		= FD::model( 'Followers' );
+		$model = FD::model( 'Followers' );
 
-		$users 		= $model->getFollowers( $user->id );
-		$total 		= $model->getTotalFollowers( $user->id );
+		$users = $model->getFollowers( $user->id );
+		$total = $model->getTotalFollowers( $user->id );
+		$limit = $params->get('limit', $appParams->get('follower_widget_profile_total', 20));
 
 		$theme 		= FD::themes();
 
-		$theme->set( 'activeUser'	, $user );
-		$theme->set( 'total'		, $total );
-		$theme->set( 'users' 		, $users );
+		$theme->set('activeUser', $user);
+		$theme->set('total', $total);
+		$theme->set('users', $users);
+		$theme->set('limit', $limit);
 
-		return $theme->output( 'themes:/apps/user/followers/widgets/profile/followers' );
+		return $theme->output('themes:/apps/user/followers/widgets/profile/followers');
 	}
 
 	/**
@@ -98,13 +92,13 @@ class FollowersWidgetsProfile extends SocialAppsWidgets
 	 */
 	public function getFollowing( $user , &$params )
 	{
-		$appParams 	= $this->app->getParams();
+		$appParams = $this->app->getParams();
 
 		if( !$params->get( 'show_profile_following' , $appParams->get( 'show_profile_following' , true ) ) )
 		{
 			return;
 		}
-		$my		= FD::user();
+		$my	= FD::user();
 
 		if( $my->id != $user->id )
 		{
@@ -116,16 +110,18 @@ class FollowersWidgetsProfile extends SocialAppsWidgets
 			}
 		}
 
-		$model 		= FD::model( 'Followers' );
+		$model = FD::model( 'Followers' );
 
-		$users 		= $model->getFollowing( $user->id );
-		$total 		= $model->getTotalFollowing( $user->id );
+		$users = $model->getFollowing($user->id);
+		$total = $model->getTotalFollowing($user->id);
+		$limit = $params->get('limit', $appParams->get('following_widget_profile_total', 20));
 
-		$theme 		= FD::themes();
+		$theme = FD::themes();
 
-		$theme->set( 'activeUser'	, $user );
-		$theme->set( 'total'		, $total );
-		$theme->set( 'users' , $users );
+		$theme->set('activeUser', $user);
+		$theme->set('total', $total);
+		$theme->set('users', $users);
+		$theme->set('limit', $limit);
 
 		return $theme->output( 'themes:/apps/user/followers/widgets/profile/following' );
 	}

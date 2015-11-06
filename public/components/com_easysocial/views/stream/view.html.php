@@ -26,32 +26,43 @@ class EasySocialViewStream extends EasySocialSiteView
 	public function item()
 	{
 		// Check for user profile completeness
-		FD::checkCompleteProfile();
+		ES::checkCompleteProfile();
 
 		// Get the stream id from the request
-		$id 	= JRequest::getInt( 'id' );
+		$id = $this->input->get('id', 0, 'int');
 
 		if (!$id) {
 			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_STREAM_INVALID_STREAM_ID'));
 		}
 
-		// Get the current logged in user.
-		$user		= FD::user();
+		// Load the stream table data first
+		$streamTable = FD::table('Stream');
+		$loadState = $streamTable->load($id);
+
+		// If we are unable to find the record, just throw an error
+		if (!$loadState) {
+			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_STREAM_INVALID_STREAM_ID'));
+		}
 
 		// Retrieve stream
-		$streamLib 	= FD::stream();
-		$stream		= $streamLib->getItem($id);
+		$streamLib = FD::stream();
+		$stream = $streamLib->getItem($id, $streamTable->cluster_id, $streamTable->cluster_type);
 
 		if ($stream === false) {
-			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_STREAM_CONTENT_NOT_AVAILABLE'));
+			// this could be due to permission issue if the stream belong to group / event
+			if ($streamTable->cluster_id && $streamTable->cluster_type) {
+				$template 	= 'site/stream/restricted.' . $streamTable->cluster_type;
+				$this->set('streamTable' , $streamTable );
+				parent::display($template);
+				return;
+			} else {
+				// stream from user group.
+				return JError::raiseError(404, JText::_('COM_EASYSOCIAL_STREAM_CONTENT_NOT_AVAILABLE'));
+			}
 		}
 
 		// If the user is not allowed to view this stream, display the appropriate message
 		if ($stream === true || count($stream) <= 0) {
-
-			$streamTable 	= FD::table('Stream');
-			$streamTable->load($id);
-
 			$type 		= $streamTable->cluster_type ? $streamTable->cluster_type : SOCIAL_TYPE_USER;
 			$template 	= 'site/stream/restricted.' . $type;
 
@@ -63,16 +74,17 @@ class EasySocialViewStream extends EasySocialSiteView
 		}
 
 		// Get the first stream item
-		$stream 	= $stream[0];
+		$stream = $stream[0];
 
 		// Strip off any html tags from the title
-		$title		= strip_tags($stream->title);
+		$title = strip_tags($stream->title);
+		$title = trim($title);
 
 		// Set the page title
-		FD::page()->title( $title );
+		FD::page()->title($title);
 
 		// Append opengraph tags
-		$image 		= $streamLib->getContentImage($stream);
+		$image = $streamLib->getContentImage($stream);
 
 		if ($image) {
 			$stream->opengraph->addImage($image);
@@ -84,7 +96,7 @@ class EasySocialViewStream extends EasySocialSiteView
 		// Append additional opengraph details
 		$stream->opengraph->addUrl($permalink);
 		$stream->opengraph->addType( 'article' );
-		$stream->opengraph->addTitle(trim($title));
+		$stream->opengraph->addTitle($title);
 
 		// render the meta tags here.
 		$stream->opengraph->render();
@@ -92,15 +104,25 @@ class EasySocialViewStream extends EasySocialSiteView
 		// Get stream actions
 		$actions = '';
 
+		// Determines if we should display actions
 		if ($stream->display == SOCIAL_STREAM_DISPLAY_FULL) {
-			$actions 	= $streamLib->getActions($stream);
+			$actions = $streamLib->getActions($stream);
 		}
 
-		$this->set( 'actions' , $actions );
-		$this->set( 'user' 	, $user );
-		$this->set( 'stream', $stream );
+		// Determines if we should display the translations.
+		$language = $this->my->getLanguage();
+		$siteLanguage = JFactory::getLanguage();
+		$showTranslations = false;
 
-		parent::display( 'site/stream/item' );
+		if (($language != $siteLanguage->getTag()) || $this->config->get('stream.translations.explicit')) {
+			$showTranslations = true;
+		}
+
+		$this->set('showTranslations', $showTranslations);
+		$this->set('actions', $actions);
+		$this->set('stream', $stream);
+
+		parent::display('site/stream/item');
 
 		return;
 	}

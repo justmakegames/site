@@ -83,6 +83,37 @@ class plgFinderEasySocialUsers extends FinderIndexerAdapter
 	}
 
 	/**
+	 * Delete a url from the cache
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function deleteFromCache($id)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = array();
+		$query[] = 'SELECT ' . $db->qn('link_id') . ' FROM ' . $db->qn('#__finder_links');
+		$query[] = 'WHERE ' . $db->qn('url') . ' LIKE ' . $db->Quote('%option=com_easysocial&view=profile&id=' . $id . '%');
+
+		$query = implode(' ', $query);
+		$db->setQuery($query);
+
+		$item = $db->loadResult();
+
+		if (FD::isJoomla30()) {
+			$state = $this->indexer->remove($item);
+		} else {
+			$state = FinderIndexer::remove($item);
+		}
+
+		return $state;
+	}
+
+	/**
 	 * Method to remove the link information for items that have been deleted.
 	 *
 	 * @param   string  $context  The context of the action being performed.
@@ -95,41 +126,14 @@ class plgFinderEasySocialUsers extends FinderIndexerAdapter
 	 */
 	public function onFinderAfterDelete($context, $table)
 	{
-		if ($context == 'easysocial.users')
-		{
-			$id = $table->id;
-
-			$db = FD::db();
-			$sql = $db->sql();
-
-			$query = "select `link_id` from `#__finder_links` where `url` like '%option=com_easysocial&view=profile&id=$id%'";
-			$sql->raw($query);
-			$db->setQuery($sql);
-			$item = $db->loadResult();
-
-			if ($item) {
-				// Index the item.
-				if( FD::isJoomla30() )
-				{
-					$this->indexer->remove($item);
-				}
-				else
-				{
-					FinderIndexer::remove( $item );
-				}
-			}
-
-			return true;
-
-		}
-		elseif ($context == 'com_finder.index')
-		{
+		if ($context == 'easysocial.users') {
+			return $this->deleteFromCache($table->id);
+		} elseif ($context == 'com_finder.index') {
 			$id = $table->link_id;
-		}
-		else
-		{
+		} else {
 			return true;
 		}
+
 		// Remove the items.
 		return $this->remove($id);
 	}
@@ -148,15 +152,16 @@ class plgFinderEasySocialUsers extends FinderIndexerAdapter
 	 */
 	public function onFinderAfterSave($context, $row, $isNew)
 	{
-		// We only want to handle articles here
-		if ($context == 'easysocial.users'
-			&& $row
-			&& $row->id
-			&& $row->state == 1
-			&& $row->block == 0) {
+		// We only want to handle easysocial users
+		if ($context == 'easysocial.users' && $row && $row->id && $row->state == 1 && $row->block == 0) {
 
 			// Reindex the item
 			$this->reindex($row->id);
+		}
+
+		// If user is blocked, we want to remove them from the cache.
+		if ($context == 'easysocial.users' && $row && $row->id && $row->block) {
+			return $this->deleteFromCache($row->id);
 		}
 
 		return true;
@@ -208,6 +213,12 @@ class plgFinderEasySocialUsers extends FinderIndexerAdapter
 		}
 
 		$user = FD::user( $item->user_id );
+
+		// check if the user's profile has the community access or not. if not, set access = 3 so that only admin can search.
+		if (! $user->hasCommunityAccess()) {
+			$access = 3;
+		}
+
 		$userAlias 	= $user->getAlias( false );
 
 		$contentSnapshot	= array();
@@ -279,7 +290,7 @@ class plgFinderEasySocialUsers extends FinderIndexerAdapter
 		// $item->url		= 'index.php?option=com_easysocial&view=profile&id=' . $userAlias;
 		$item->url		= 'index.php?option=com_easysocial&view=profile&id=' . $user->id;
 
-		$item->route 	= $user->getPermalink();
+		$item->route 	= $user->getPermalink(true, false, false);
 		$item->route 	= $this->removeAdminSegment($item->route);
 		$item->path 	= FinderIndexerHelper::getContentPath($item->route);
 

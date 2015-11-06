@@ -7,5 +7,5 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<i class="ies-users ies-small"></i> <?php echo $list->title; ?>
+<i class="fa fa-users "></i> <?php echo $list->title; ?>
 <input type="hidden" name="<?php echo $inputName;?>" value="<?php echo $list->id;?>" />

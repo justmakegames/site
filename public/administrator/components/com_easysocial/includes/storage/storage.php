@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,34 +9,30 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-jimport( 'joomla.filesystem.file' );
+jimport('joomla.filesystem.file');
 
 class SocialStorage
 {
-	private $adapter	= null;
+	private $adapter = null;
 
-	public function __construct( $storage = '' )
+	public function __construct($storage = 'joomla')
 	{
-		if( empty( $storage ) )
-		{
-			$storage 	= 'joomla';
-		}
-
 		// Always lowercase the storage name
-		$storage 	= strtolower( $storage );
+		$storage = strtolower($storage);
 
-		$path 		= dirname( __FILE__ ) . '/adapters/' . $storage . '/' . $storage . '.php';
+		$file = __DIR__ . '/adapters/' . $storage . '/' . $storage . '.php';
+		require_once($file);
 
-		require_once( $path );
-		$class			= 'SocialStorage' . ucfirst( $storage );
-		$this->adapter	= new $class();
+		$className = 'SocialStorage' . ucfirst($storage);
+		
+		$this->adapter = new $className();
 	}
 
-	public function factory( $storage = 'joomla' )
+	public function factory($storage = 'joomla')
 	{
-		return new self( $storage );
+		return new self($storage);
 	}
 
 	/**
@@ -48,18 +44,17 @@ class SocialStorage
 	 * @param	mixed	Arguments
 	 * @return
 	 */
-	public function __call( $method , $args )
+	public function __call($method, $args)
 	{
-		$refArray	= array();
+		$refArray = array();
 
-		if( $args )
-		{
-			foreach( $args as &$arg )
-			{
+		if ($args) {
+			foreach ($args as &$arg) {
 				$refArray[]	=& $arg;
 			}
 		}
-		return call_user_func_array( array( $this->adapter , $method ) , $refArray );
+
+		return call_user_func_array(array($this->adapter, $method), $refArray);
 	}
 }
 

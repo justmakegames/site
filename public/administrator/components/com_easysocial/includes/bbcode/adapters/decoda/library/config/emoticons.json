@@ -1,7 +1,6 @@
 {
 	"angry":	["&gt;:("],
 	"cool":		["8)"],
-	"ecstatic":	["8D"],
 	"happy":	[":)"],
 	"heart":	["&lt;3"],
 	"kiss":		[":3"],
@@ -18,9 +17,6 @@
 	"blush": 	[":$"],
 	"think":	[ "(think)" ],
 	"lol":		[":D", "(lol)"],
-	"money": 	["(cash)"],
-	"eek":		["(eek)"],
-	"sleep":	["(sleepy)"],
-	"kitty":	["(kitty)", "(meow)"],
+	"sleep": [":z", "(sleepy)"],
 	"nerd":		["(nerd)" ]
 }

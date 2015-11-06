@@ -15,16 +15,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<div class="btn-group btn-group-xs">
 		<?php if( $lib->featureable() ){ ?>
-		<div data-photo-feature-button class="btn btn-es btn-media<?php echo $photo->featured ? ' btn-es-primary' : '';?>">
-			<a href="javascript: void(0);"><i class="ies-star"></i></a>
+		<div data-photo-feature-button class="btn btn-es btn-default<?php echo $photo->featured ? ' btn-es-primary' : '';?>">
+			<a href="javascript: void(0);"><i class="fa fa-star"></i></a>
 		</div>
 		<?php } ?>
-		<div class="es-media-item-menu-item btn btn-media btn-es dropdown_" data-item-actions-menu>
+		<div class="es-media-item-menu-item btn btn-default btn-es dropdown_" data-item-actions-menu>
 			<a href="javascript: void(0);" data-bs-toggle="dropdown">
-				<i class="ies-menu"></i>
+				<i class="fa fa-cog"></i>
 			</a>
 			<ul class="dropdown-menu">
-
 				<?php if( $lib->editable() ){ ?>
 				<li data-photo-edit-button>
 					<a href="<?php echo $photo->getEditPermalink();?>" title="<?php echo $lib->getPageTitle('item');?>"><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_EDIT_PHOTO"); ?></a>
@@ -37,16 +36,18 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 				<?php if( $lib->shareable() ){ ?>
 				<li data-photo-share-button>
-					<?php echo FD::get( 'Sharing' , array( 'url' => $photo->getPermalink( true , true ) , 'text' => JText::_( 'COM_EASYSOCIAL_SHARE_PHOTO' ) ) )->getHTML(); ?>
+					<?php echo FD::get('Sharing', array('url' => $photo->getPermalink(true, true), 'text' => JText::_('COM_EASYSOCIAL_SHARE_PHOTO')))->html(true, false); ?>
 				</li>
 				<li class="divider"></li>
 				<?php } ?>
 
+				<?php if ($this->config->get('photos.original')) { ?>
 				<li data-photo-original-button>
 					<a href="<?php echo $photo->getSource( 'original' );?>" target="_blank">
 						<?php echo JText::_( 'COM_EASYSOCIAL_PHOTOS_VIEW_ORIGINAL' );?>
 					</a>
 				</li>
+				<?php } ?>
 
 				<?php if( $lib->downloadable() ){ ?>
 				<li data-photo-download-button>
@@ -98,7 +99,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<div class="btn-group btn-group-xs">
 		<?php if( $lib->shareable() ){ ?>
 		<div class="btn btn-media btn-es" data-photo-share-button>
-			<?php echo FD::get( 'Sharing' , array( 'url' => $photo->getPermalink( true , true ) , 'text' => JText::_( 'COM_EASYSOCIAL_PHOTOS_SHARE' ) ) )->getHTML(true); ?>
+			<?php echo FD::get( 'Sharing' , array( 'url' => $photo->getPermalink( true , true ) , 'text' => JText::_( 'COM_EASYSOCIAL_PHOTOS_SHARE' ) ) )->html(true, false); ?>
 		</div>
 		<?php } ?>
 

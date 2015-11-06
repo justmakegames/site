@@ -17,7 +17,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php echo $captcha->getHTML();?>
 
 		<div class="mt-5">
-			<input type="text" name="<?php echo $inputName;?>" value="" class="full-width" data-check-required />
+			<input type="text" name="mollom_<?php echo $inputName;?>" value="" class="full-width" data-check-required />
 		</div>
 	</div>
 	<?php } else {

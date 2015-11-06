@@ -31,6 +31,34 @@ class SocialGroupAppGroups extends SocialAppItem
 		parent::__construct();
 	}
 
+	public function onBeforeStorySave($template, $stream)
+	{
+		if (!$template->cluster_id || !$template->cluster_type) {
+			return;
+		}
+
+		if ($template->cluster_type != SOCIAL_TYPE_GROUP) {
+			return;
+		}
+
+		$group = FD::group($template->cluster_id);
+		$params = $group->getParams();
+		$moderate = (bool) $params->get('stream_moderation', false);
+
+		// If not configured to moderate, skip this altogether
+		if (!$moderate) {
+			return;
+		}
+
+		// If the current user is a site admin or group admin or group owner, we shouldn't moderate anything
+		if ($group->isAdmin() || $group->isOwner() || $this->my->isSiteAdmin()) {
+			return;
+		}
+
+		// When the script reaches here, we're assuming that the group wants to moderate stream items.		
+		$template->setState(SOCIAL_STREAM_STATE_MODERATE);
+	}
+
 	/**
 	 * Responsible to return the favicon object
 	 *
@@ -43,7 +71,7 @@ class SocialGroupAppGroups extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#303229';
-		$obj->icon 		= 'ies-users';
+		$obj->icon 		= 'fa fa-users';
 		$obj->label 	= 'APP_GROUP_GROUPS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -139,6 +167,10 @@ class SocialGroupAppGroups extends SocialAppItem
 				$item->commentForm	= false;
 			}
 
+			// Only show Social sharing in public group
+			if (!$group->isOpen()) {
+				$item->sharing = false;
+			}			
 		}
 
 		// We only want to process related items
@@ -159,8 +191,8 @@ class SocialGroupAppGroups extends SocialAppItem
 		$item->display = SOCIAL_STREAM_DISPLAY_MINI;
 
 		$item->color = '#303229';
-		$item->fonticon = 'ies-users';
-		$item->label = JText::_('APP_GROUP_GROUPS_STREAM_TOOLTIP');
+		$item->fonticon = 'fa fa-users';
+		$item->label = FD::_('APP_GROUP_GROUPS_STREAM_TOOLTIP', true);
 
 		$appParams = $this->getParams();
 

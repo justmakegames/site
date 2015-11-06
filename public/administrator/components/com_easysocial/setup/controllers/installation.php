@@ -54,20 +54,19 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 		// Include foundry framework
 		$this->foundry();
 
-		$results			= array();
+		$results = array();
 
 		// Create the default custom profile first.
-		$results[]			= $this->createCustomProfile();
+		$results[] = $this->createCustomProfile();
 
-		$result 			= new stdClass();
-		$result->state		= true;
-		$result->message	= '';
+		$result = new stdClass();
+		$result->state = true;
+		$result->message = '';
 
-		foreach( $results as $obj )
-		{
+		foreach ($results as $obj) {
 			$class 	= $obj->state ? 'success' : 'error';
 
-			$result->message 	.= '<div class="text-' . $class . '">' . $obj->message . '</div>';
+			$result->message .= '<div class="text-' . $class . '">' . $obj->message . '</div>';
 		}
 
 
@@ -174,6 +173,57 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 	}
 
 	/**
+	 * Creates default video categories
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @return
+	 */
+	public function installDefaultVideoCategories()
+	{
+		$this->foundry();
+
+		$db = FD::db();
+		$sql = $db->sql();
+
+        // Check if there are any video categories already exists on the site
+        $sql->select('#__social_videos_categories');
+        $sql->column('COUNT(1)');
+
+        $db->setQuery($sql);
+        $total = $db->loadResult();
+
+		// There are categories already, we shouldn't be doing anything here.
+		if ($total) {
+			$result = $this->getResultObj(JText::_('COM_EASYSOCIAL_INSTALLATION_ERROR_CREATE_DEFAULT_VIDEO_CATEGORIES_EXISTS'), true);
+
+			return $this->output($result);
+		}
+
+        $categories = array('General', 'Music', 'Sports', 'News', 'Gaming', 'Movies', 'Documentary', 'Fashion', 'Travel', 'Technology');
+        $i = 0;
+
+		foreach ($categories as $categoryKey) {
+			$results[] = $this->createVideoCategory($categoryKey, $i);
+            $i++;
+
+		}
+
+		$result = new stdClass();
+		$result->state = true;
+		$result->message = '';
+
+		foreach ($results as $obj) {
+			$class = $obj->state ? 'success' : 'error';
+
+			$result->message .= '<div class="text-' . $class . '">' . $obj->message . '</div>';
+		}
+
+		return $this->output($result);
+	}
+
+
+	/**
 	 * Synchronizes database tables
 	 *
 	 * @since	1.2
@@ -196,8 +246,7 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 		$affected	= FD::syncDB( $previous );
 
 		// If the previous version is empty, we can skip this altogether as we know this is a fresh installation
-		if( !empty( $affected ) )
-		{
+		if( !empty( $affected ) ) {
 			// Get list of folders from previous version installed to this version.
 			$result 	= $this->getResultObj( JText::sprintf( 'COM_EASYSOCIAL_INSTALLATION_MAINTENANCE_DB_SYNCED' , $version ) , 1 , JText::_( 'COM_EASYSOCIAL_INSTALLATION_STEP_SUCCESS' ) );
 		}
@@ -266,6 +315,37 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 
 		return $result;
 	}
+
+
+	public function createVideoCategory($categoryTitle, $i = 0)
+	{
+		$key = strtoupper($categoryTitle);
+		$title = JText::_('COM_EASYSOCIAL_INSTALLATION_DEFAULT_VIDEO_CATEGORY_' . $key);
+		$desc = JText::_('COM_EASYSOCIAL_INSTALLATION_DEFAULT_VIDEO_CATEGORY_' . $key . '_DESC');
+
+        $category = ES::table('VideoCategory');
+        $category->title = ucfirst($title);
+        $category->alias = strtolower($title);
+        $category->description = $desc;
+
+        if ($i == 0) {
+            $category->default = true;
+        }
+
+        // Get the current user's id
+        $category->user_id = ES::user()->id;
+
+        $category->state = true;
+        $category->store();
+
+
+		$result = new stdClass();
+		$result->state = true;
+		$result->message = JText::sprintf('COM_EASYSOCIAL_INSTALLATION_CREATE_VIDEO_CATEGORY_SUCCESS', $title);
+
+		return $result;
+	}
+
 
 	/**
 	 * Creates the default custom profile
@@ -376,46 +456,54 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 	 * @param	string
 	 * @return
 	 */
-	public function installField( $path )
+	public function installField($path)
 	{
 		// Include core library
-		require_once( JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php' );
+		require_once(JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php');
 
 		// Retrieve the installer library.
-		$installer	= FD::get( 'Installer' );
+		$installer = FD::get('Installer');
 
 		// Get the element
-		$element 	= basename( $path );
+		$element = basename($path);
 
 		// Try to load the installation from path.
-		$state 		= $installer->load( $path );
+		$state = $installer->load($path);
+
+		// Try to load and see if the previous field apps already has a record
+		$oldField = FD::table('App');
+		$fieldExists = $oldField->load(array('type' => SOCIAL_APPS_TYPE_FIELDS , 'element' => $element));
 
 		// If there's an error, we need to log it down.
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'APPS: Unable to install apps from directory ' . $path . ' because of the error ' . $installer->getError() );
+		if (!$state) {
 
-			$result 	= $this->getResultObj( JText::sprintf( 'COM_EASYSOCIAL_INSTALLATION_FIELD_ERROR_LOADING_FIELD' , ucfirst( $element ) ) , false );
+			$result = $this->getResultObj(JText::sprintf( 'COM_EASYSOCIAL_INSTALLATION_FIELD_ERROR_LOADING_FIELD', ucfirst($element)), false);
 
 			return $result;
 		}
 
 		// Let's try to install it now.
-		$app 	= $installer->install();
+		$app = $installer->install();
 
 		// If there's an error installing, log this down.
-		if( $app === false )
-		{
-			$result 	= $this->getResultObj( JText::sprintf( 'COM_EASYSOCIAL_INSTALLATION_FIELD_ERROR_INSTALLING_FIELD' , ucfirst( $element ) ) , false );
+		if ($app === false) {
+
+			$result = $this->getResultObj(JText::sprintf('COM_EASYSOCIAL_INSTALLATION_FIELD_ERROR_INSTALLING_FIELD', ucfirst($element)), false);
 
 			return $result;
 		}
 
-		// Ensure that the app is published
-		$app->state 	= SOCIAL_STATE_PUBLISHED;
+		// If the field apps already exist, use the previous title.
+		if ($fieldExists) {
+			$app->title = $oldField->title;
+			$app->alias = $oldField->alias;
+		}
+
+		// Ensure that the field apps is published
+		$app->state	= $fieldExists ? $oldField->state : SOCIAL_STATE_PUBLISHED;
 		$app->store();
 
-		$result 	= $this->getResultObj( JText::sprintf( 'COM_EASYSOCIAL_INSTALLATION_FIELD_SUCCESS_INSTALLING_FIELD' , ucfirst( $element ) ) , true );
+		$result = $this->getResultObj(JText::sprintf('COM_EASYSOCIAL_INSTALLATION_FIELD_SUCCESS_INSTALLING_FIELD', ucfirst($element)), true);
 
 		return $result;
 	}
@@ -646,40 +734,40 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 	 */
 	public function installPost()
 	{
-		$results	= array();
+		$results = array();
 
-		$apiKey 	= JRequest::getVar( 'apikey' , '' );
+		// Get the user's current api key
+		$apiKey = JRequest::getVar('apikey', '');
 
-		$this->updateConfig( 'general.key' , $apiKey );
+		// Only update the api key when it is not empty.
+		if ($apiKey) {
+			$this->updateConfig('general.key', $apiKey);
+		}
 
 		// Setup site menu.
-		$results[]	= $this->createMenu( 'site' );
+		$results[] = $this->createMenu('site');
 
-		$result 			= new stdClass();
-		$result->state		= true;
-		$result->message	= '';
+		$result = new stdClass();
+		$result->state = true;
+		$result->message = '';
 
-		foreach( $results as $obj )
-		{
-			$class 	= $obj->state ? 'success' : 'error';
+		foreach ($results as $obj) {
+			$class = $obj->state ? 'success' : 'error';
 
-			$result->message 	.= '<div class="text-' . $class . '">' . $obj->message . '</div>';
+			$result->message .= '<div class="text-' . $class . '">' . $obj->message . '</div>';
 		}
 
 		// Cleanup temporary files from the tmp folder
-		$tmp 		= dirname( dirname( __FILE__ ) ) . '/tmp';
-		$folders	= JFolder::folders( $tmp , '.' , false , true );
+		$tmp = dirname(dirname(__FILE__)) . '/tmp';
+		$folders = JFolder::folders($tmp, '.', false, true);
 
-		if( $folders )
-		{
-			foreach( $folders as $folder )
-			{
-				// Try to delete the folder
-				@JFolder::delete( $folder );
+		if ($folders) {
+			foreach ($folders as $folder) {
+				@JFolder::delete($folder);
 			}
 		}
 
-		$this->output( $result );
+		return $this->output($result);
 	}
 
 	/**
@@ -871,76 +959,84 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 	 */
 	public function installPlugins()
 	{
-		if( $this->isDevelopment() )
-		{
-			return $this->output( $this->getResultObj( 'ok' , true )  );
+		if ($this->isDevelopment()) {
+			return $this->output($this->getResultObj('ok', true) );
 		}
 
 		// We need the foundry library here
 		$this->foundry();
 
 		// Get the path to the current installer archive
-		$tmpPath 		= JRequest::getVar( 'path' );
+		$tmpPath = JRequest::getVar('path');
 
 		// Path to the archive
-		$archivePath 	= $tmpPath . '/plugins.zip';
+		$archivePath = $tmpPath . '/plugins.zip';
 
 		// Where should the archive be extrated to
-		$path 			= $tmpPath . '/plugins';
+		$path = $tmpPath . '/plugins';
 
-		$state 			= JArchive::extract( $archivePath , $path );
+		$state = JArchive::extract($archivePath, $path);
 
-		if( !$state )
-		{
-			return $this->output( $this->getResultObj( JText::_( 'COM_EASYSOCIAL_INSTALLATION_ERROR_EXTRACT_PLUGINS' ) , false ) );
+		if (!$state) {
+			return $this->output($this->getResultObj(JText::_('COM_EASYSOCIAL_INSTALLATION_ERROR_EXTRACT_PLUGINS'), false));
 		}
 
 		// Get a list of apps we should install.
-		$groups 	= JFolder::folders( $path , '.' , false , true );
+		$groups = JFolder::folders($path, '.', false, true);
 
 		// Get Joomla's installer instance
 		$installer = JInstaller::getInstance();
 
-		$result 			= new stdClass();
-		$result->state		= true;
-		$result->message	= '';
+		$result = new stdClass();
+		$result->state = true;
+		$result->message = '';
 
-		foreach( $groups as $group )
-		{
+		foreach ($groups as $group) {
+
 			// Now we find the plugin info
-			$plugins 	= JFolder::folders( $group , '.' , false , true );
-			$groupName 	= basename( $group );
-			$groupName 	= ucfirst( $groupName );
+			$plugins = JFolder::folders( $group , '.' , false , true );
+			$groupName = basename($group);
+			$groupName = ucfirst($groupName);
 
-			foreach( $plugins as $pluginPath )
-			{
-				$pluginName = basename( $pluginPath );
-				$pluginName = ucfirst( $pluginName );
+			foreach ($plugins as $pluginPath) {
+
+				$pluginName = basename($pluginPath);
+				$pluginName = ucfirst($pluginName);
+
+				// We need to try to load the plugin first to determine if it really exists
+				$plugin = JTable::getInstance('extension');
+				$options = array('folder' => strtolower($groupName), 'element' => strtolower($pluginName));
+				$exists = $plugin->load($options);
 
 				// Allow overwriting existing plugins
-				$installer->setOverwrite( true );
-				$state 		= $installer->install( $pluginPath );
+				$installer->setOverwrite(true);
+				$state = $installer->install($pluginPath);
+
+				if (!$exists) {
+					$plugin->load($options);
+				}
+
 
 				// Load the plugin and ensure that it's published
-				if( $state )
-				{
-					$plugin 	= JTable::getInstance( 'extension' );
-					$plugin->load( array( 'folder' => strtolower( $groupName ) , 'element' => strtolower( $pluginName ) ) );
+				if ($state) {
 
-					$plugin->state 		= true;
-					$plugin->enabled	= true;
+					// If the plugin was previously disabled, do not turn this on.
+					if (($exists && $plugin->enabled) || !$exists) {
+						$plugin->state = true;
+						$plugin->enabled = true;
+					}
+
 					$plugin->store();
 				}
 
-				$message 	= $state ? JText::sprintf( 'COM_EASYSOCIAL_INSTALLATION_SUCCESS_PLUGIN' , $groupName , $pluginName ) : JText::sprintf( 'COM_EASYSOCIAL_INSTALLATION_ERROR_PLUGIN' , $groupName , $pluginName );
+				$message = $state ? JText::sprintf('COM_EASYSOCIAL_INSTALLATION_SUCCESS_PLUGIN', $groupName, $pluginName) : JText::sprintf('COM_EASYSOCIAL_INSTALLATION_ERROR_PLUGIN', $groupName, $pluginName);
+				$class = $state ? 'success' : 'error';
 
-				$class 		= $state ? 'success' : 'error';
-
-				$result->message 	.= '<div class="text-' . $class . '">' . $message . '</div>';
+				$result->message .= '<div class="text-' . $class . '">' . $message . '</div>';
 			}
 		}
 
-		return $this->output( $result );
+		return $this->output($result);
 	}
 
 	/**
@@ -1605,22 +1701,21 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 	public function download()
 	{
 		// Check the api key from the request
-		$apiKey 	= JRequest::getVar( 'apikey' , '' );
-		$license	= JRequest::getVar( 'license' , '' );
+		$apiKey = JRequest::getVar( 'apikey' , '' );
+		$license = JRequest::getVar( 'license' , '' );
 
 		// If the user is updating, we always need to get the latest version.
-		$update 	= JRequest::getBool( 'update' , false );
+		$update = JRequest::getBool('update', false);
 
 		// Get information about the current release.
-		$info 		= $this->getInfo( $update );
+		$info = $this->getInfo($update);
 
-		if( !$info )
-		{
-			$result 			= new stdClass();
-			$result->state 		= false;
-			$result->message	= JText::_( 'COM_EASYSOCIAL_INSTALLATION_ERROR_REQUEST_INFO' );
+		if (!$info) {
+			$result = new stdClass();
+			$result->state = false;
+			$result->message = JText::_('COM_EASYSOCIAL_INSTALLATION_ERROR_REQUEST_INFO');
 
-			$this->output( $result );
+			$this->output($result);
 			exit;
 		}
 
@@ -1670,19 +1765,21 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 		}
 
 		// Try to extract the files
-		$state 		= JArchive::extract( $storage , $tmp );
+		$state = JArchive::extract( $storage , $tmp );
 
-		if( !$state )
-		{
-			$result 			= new stdClass();
-			$result->state		= false;
-			$result->message	= JText::_( 'COM_EASYSOCIAL_INSTALLATION_ERROR_EXTRACT_ERRORS' );
+		if (!$state) {
+			$result = new stdClass();
+			$result->state = false;
+			$result->message = JText::_( 'COM_EASYSOCIAL_INSTALLATION_ERROR_EXTRACT_ERRORS' );
 
-			$this->output( $result );
+			$this->output($result);
 			exit;
 		}
 
-		$result 	= new stdClass();
+		// After installation is completed, cleanup all zip files from the site
+		$this->cleanupZipFiles(dirname($storage));
+
+		$result = new stdClass();
 
 		$result->message	= JText::_( 'COM_EASYSOCIAL_INSTALLATION_ARCHIVE_DOWNLOADED_SUCCESS' );
 		$result->state 		= $state;
@@ -1691,6 +1788,27 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 		header('Content-type: text/x-json; UTF-8');
 		echo json_encode( $result );
 		exit;
+	}
+
+	/**
+	 * Allows cleanup of installation files
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function cleanupZipFiles($path)
+	{
+		$zipFiles = JFolder::files($path, '.zip', false, true);
+
+		if ($zipFiles) {
+			foreach ($zipFiles as $file) {
+				@JFile::delete($file);
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -1704,60 +1822,60 @@ class EasySocialControllerInstallation extends EasySocialSetupController
 	public function extract()
 	{
 		// Check the api key from the request
-		$apiKey 	= JRequest::getVar( 'apikey' , '' );
+		$apiKey = JRequest::getVar('apikey', '');
 
 		// Get the package
-		$package 	= JRequest::getVar( 'package' , '' );
+		$package = JRequest::getVar('package', '');
 
-		// Get information about the current release.
-		$info 		= $this->getInfo();
-
-		$storage 	= ES_PACKAGES . '/' . $package;
-		$exists 	= JFile::exists( $storage );
+		// Construct the storage path
+		$storage = ES_PACKAGES . '/' . $package;
+		$exists = JFile::exists($storage);
 
 		// Test if package really exists
-		if( !$exists )
-		{
-			$result 			= new stdClass();
-			$result->state 		= false;
-			$result->message	= JText::_( 'COM_EASYSOCIAL_INSTALLATION_ERROR_PACKAGE_DOESNT_EXIST' );
+		if (!$exists) {
+			$result = new stdClass();
+			$result->state = false;
+			$result->message = JText::_('COM_EASYSOCIAL_INSTALLATION_ERROR_PACKAGE_DOESNT_EXIST');
 
-			$this->output( $result );
+			$this->output($result);
 			exit;
 		}
 
-		// Extract files here.
-		$tmp 		= ES_TMP . '/com_easysocial_v' . $info->version;
+		// Get the folder name
+		$folderName = basename($storage);
+		$folderName = str_ireplace('.zip', '', $folderName);
 
-		if( JFolder::exists( $tmp ) )
-		{
-			JFolder::delete( $tmp );
+		// Extract files here.
+		$tmp = ES_TMP . '/' . $folderName;
+
+		// Ensure that there is no such folders exists on the site
+		if (JFolder::exists($tmp)) {
+			JFolder::delete($tmp);
 		}
 
 		// Try to extract the files
-		$state 		= JArchive::extract( $storage , $tmp );
+		$state = JArchive::extract($storage, $tmp);
 
-		// Regardless of the extraction state, delete the zip file.
-		@JFile::delete( $storage );
+		// Regardless of the extraction state, delete the zip file otherwise anyone can download the zip file.
+		@JFile::delete($storage);
 
-		if( !$state )
-		{
-			$result 			= new stdClass();
-			$result->state		= false;
-			$result->message	= JText::_( 'COM_EASYSOCIAL_INSTALLATION_ERROR_EXTRACT_ERRORS' );
+		if (!$state) {
+			$result = new stdClass();
+			$result->state = false;
+			$result->message = JText::_('COM_EASYSOCIAL_INSTALLATION_ERROR_EXTRACT_ERRORS');
 
-			$this->output( $result );
+			$this->output($result);
 			exit;
 		}
 
-		$result 	= new stdClass();
+		$result = new stdClass();
 
-		$result->message	= JText::_( 'COM_EASYSOCIAL_INSTALLATION_EXTRACT_SUCCESS' );
-		$result->state 		= $state;
-		$result->path 		= $tmp;
+		$result->message = JText::_( 'COM_EASYSOCIAL_INSTALLATION_EXTRACT_SUCCESS' );
+		$result->state = $state;
+		$result->path = $tmp;
 
 		header('Content-type: text/x-json; UTF-8');
-		echo json_encode( $result );
+		echo json_encode($result);
 		exit;
 	}
 

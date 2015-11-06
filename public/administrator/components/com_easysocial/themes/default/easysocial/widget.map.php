@@ -11,17 +11,21 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="widget-box">
-	<h3><?php echo JText::_( 'COM_EASYSOCIAL_WIDGET_MEMBER_LOCATION' );?></h3>
+<div class="panel">
+	<div class="panel-head">
+		<b><?php echo JText::_( 'COM_EASYSOCIAL_WIDGET_MEMBER_LOCATION' );?></b>
+	</div>
 
-	<div class="accordion-body in">
-		<div class="wbody wbody-padding">
+	<div class="panel-body">
+		<div class="accordion-body in">
+			<div class="wbody wbody-padding">
 
-			<div id="user-locations" style="display:block;width:100%;height: 350px;background:#b1cfff;border:1px solid #d7d7d7;"></div>
+				<div id="user-locations" style="display:block;width:100%;height: 350px;background:#b1cfff;border:1px solid #d7d7d7;"></div>
 
-			<div class="mt-20" data-map-table-wrapper>
-				<div class="center">
-					<em><?php echo JText::_( 'COM_EASYSOCIAL_WIDGET_LOADING_DATA' ); ?></em>
+				<div class="mt-20" data-map-table-wrapper>
+					<div class="center">
+						<em><?php echo JText::_( 'COM_EASYSOCIAL_WIDGET_LOADING_DATA' ); ?></em>
+					</div>
 				</div>
 			</div>
 		</div>

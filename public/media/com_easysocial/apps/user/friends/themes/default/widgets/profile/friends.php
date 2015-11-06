@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,9 +14,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="es-widget">
 	<div class="es-widget-head">
 		<div class="pull-left widget-title">
-			<?php echo JText::_( 'APP_FRIENDS_USER_FRIENDS' ); ?>
+			<?php echo JText::_('APP_FRIENDS_USER_FRIENDS'); ?>
 		</div>
-		<span class="widget-label">( <?php echo $total; ?> )</span>
+		<span class="widget-label">(<?php echo $total; ?>)</span>
+
+		<?php if ($friends) { ?>
+			<a href="<?php echo FRoute::friends( array( 'userid' => $activeUser->getAlias() ) );?>" class="fd-small pull-right"><?php echo JText::_('APP_FRIENDS_VIEW_ALL');?></a>
+		<?php } ?>
+
 	</div>
 	<div class="es-widget-body">
 		<ul class="widget-list-grid">
@@ -37,11 +42,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				</li>
 			<?php } ?>
 		</ul>
-
-		<?php if( $total > 0 ){ ?>
-		<div>
-			<a href="<?php echo FRoute::friends( array( 'userid' => $activeUser->getAlias() ) );?>" class="fd-small"><?php echo JText::_( 'APP_FRIENDS_VIEW_ALL' );?></a>
-		</div>
-		<?php } ?>
 	</div>
 </div>

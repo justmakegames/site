@@ -50,7 +50,7 @@ EasySocial.module('admin/maintenance/maintenance', function($) {
                 var status = row.find('[data-status]'),
                     icon = row.find('[data-icon]'),
                     statuses = ['label-danger', 'label-success', 'label-warning'],
-                    icons = ['ies-warning-2', 'ies-checkmark', 'ies-wrench-3'];
+                    icons = ['fa-exclamation-triangle', 'fa-check', 'fa-wrench'];
 
                 for (i = 0; i < 3; i++) {
                     status.toggleClass(statuses[i], state == i);

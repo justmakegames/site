@@ -4,7 +4,7 @@
  * @package Kunena.Template.Blue_Eagle
  * @subpackage Topic
  *
- * @copyright (C) 2008 - 2014 Kunena Team. All rights reserved.
+ * @copyright (C) 2008 - 2015 Kunena Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link http://www.kunena.org
  **/
@@ -65,6 +65,11 @@ if ($this->message->modified_time) {
 <?php if($this->messageButtons->get('thankyou')): ?>
 <div class="kpost-thankyou">
 	<?php echo $this->messageButtons->get('thankyou'); ?>
+</div>
+<?php endif; ?>
+<?php if($this->messageButtons->get('unthankyou')): ?>
+<div class="kpost-unthankyou">
+	<?php echo $this->messageButtons->get('unthankyou'); ?>
 </div>
 <?php endif; ?>
 <?php if(!empty($this->thankyou)): ?>

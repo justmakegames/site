@@ -89,7 +89,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 		var o = this.options;
 
 		// among others, prevent a drag on a resizable-handle
-		if (this.helper || o.disabled || $(event.target).closest(".ui-resizable-handle").length > 0) {
+		if (this.helper || o.disabled || $(event.target)._closest(".ui-resizable-handle").length > 0) {
 			return false;
 		}
 
@@ -295,7 +295,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 
 	_getHandle: function(event) {
 		return this.options.handle ?
-			!!$( event.target ).closest( this.element.find( this.options.handle ) ).length :
+			!!$( event.target )._closest( this.element.find( this.options.handle ) ).length :
 			true;
 	},
 

@@ -192,6 +192,22 @@ class EasySocialModelEvents extends EasySocialModel
             $q[] = "AND `a`.`featured` = " . $db->q((int) $options['featured']);
         }
 
+        // Inclusion
+        if (isset($options['inclusion']) && !empty($options['inclusion'])) {
+            $includeEvent = array();
+            $inclusions = $options['inclusion'];
+
+            foreach ($inclusions as $inclusion) {
+                if ($inclusion !== '') {
+                    $includeEvent[] = $inclusion;
+                }
+            }
+
+            if (!empty($includeEvent)) {
+                $q[] = "AND `a`.`id` IN (" . implode(',', $db->q($includeEvent)) . ")";
+            }
+        }
+
         // Filter by creator
         if (isset($options['creator_uid'])) {
             $q[] = "AND `a`.`creator_uid` = " . $db->q($options['creator_uid']);
@@ -647,10 +663,19 @@ class EasySocialModelEvents extends EasySocialModel
         $db  = FD::db();
         $sql = $db->sql();
 
-        $sql->select('#__social_clusters_nodes');
+        $sql->select('#__social_clusters_nodes', 'a');
         $sql->column('COUNT(1)');
-        $sql->where('cluster_id', $id);
-        $sql->where('state', SOCIAL_EVENT_GUEST_GOING);
+
+        // exclude esad users
+        $sql->innerjoin('#__social_profiles_maps', 'upm');
+        $sql->on('a.uid', 'upm.user_id');
+
+        $sql->innerjoin('#__social_profiles', 'up');
+        $sql->on('upm.profile_id', 'up.id');
+        $sql->on('up.community_access', '1');
+
+        $sql->where('a.cluster_id', $id);
+        $sql->where('a.state', SOCIAL_EVENT_GUEST_GOING);
 
         $db->setQuery($sql);
         $total = $db->loadResult();
@@ -703,8 +728,22 @@ class EasySocialModelEvents extends EasySocialModel
                 $sql->isnull('bus.id');
             }
 
+            // We should not fetch banned users
+            $sql->innerjoin('#__users', 'u');
+            $sql->on('a.uid', 'u.id');
+
+            // exclude esad users
+            $sql->innerjoin('#__social_profiles_maps', 'upm');
+            $sql->on('u.id', 'upm.user_id');
+
+            $sql->innerjoin('#__social_profiles', 'up');
+            $sql->on('upm.profile_id', 'up.id');
+            $sql->on('up.community_access', '1');
 
             $sql->where('a.cluster_id', $id);
+
+            // When the user isn't blocked
+            $sql->where('u.block', 0);
 
             if (isset($options['state'])) {
                 $sql->where('a.state', $options['state']);
@@ -739,6 +778,8 @@ class EasySocialModelEvents extends EasySocialModel
 
                 $sql->limit($limitstart, $options['limit']);
             }
+
+            // echo $sql;
 
             $db->setQuery($sql);
 
@@ -895,6 +936,7 @@ class EasySocialModelEvents extends EasySocialModel
             $transferMode = isset($data['member_transfer']) ? $data['member_transfer'] : 'invite';
 
             if (!empty($transferMode) && $transferMode != 'none') {
+
                 $nodeState = SOCIAL_EVENT_GUEST_INVITED;
 
                 if ($transferMode == 'attend') {
@@ -917,10 +959,70 @@ class EasySocialModelEvents extends EasySocialModel
                 $userId = $my->id;
                 $now = FD::date()->toSql();
 
-                $query = "INSERT INTO `#__social_clusters_nodes` (`cluster_id`, `uid`, `type`, `created`, `state`, `owner`, `admin`, `invited_by`) SELECT '$eventId' AS `cluster_id`, `uid`, `type`, '$now' AS `created`, '$nodeState' AS `state`, '0' AS `owner`, `admin`, '$userId' AS `invited_by` FROM `#__social_clusters_nodes` WHERE `cluster_id` = '$groupId' AND `state` = '" . SOCIAL_GROUPS_MEMBER_PUBLISHED . "' AND `type` = '" . SOCIAL_TYPE_USER . "' AND `uid` NOT IN (SELECT `uid` FROM `#__social_clusters_nodes` WHERE `cluster_id` = '$eventId' AND `type` = '" . SOCIAL_TYPE_USER . "')";
+                //check this event is it create from group
+                $reg = FD::registry();
+                $reg->load($session->values);
+
+                $groupId = $reg->get('group_id');
+
+                $app = JFactory::getApplication();
+
+                // Get the member transfer type value
+                $memberTransferType = $app->input->get('member_transfer', '', 'default');
+
+                if ($memberTransferType == 'invite') {
+
+                    if (!empty($groupId)) {
+
+                        // Notify invited or going users
+                        $model = FD::model('Groups');
+                        $options = array('exclude' => $my->id, 'state' => SOCIAL_GROUPS_MEMBER_PUBLISHED);
+                        $targets = $model->getMembers($groupId , $options);
+                       // var_dump($targets);exit;
+
+                        if (!empty($targets)) {
+                            $emailOptions = (object) array(
+                                'title' => 'COM_EASYSOCIAL_EMAILS_EVENT_GUEST_INVITED_SUBJECT',
+                                'template' => 'site/event/guest.invited',
+                                'event' => $event->getName(),
+                                'eventName' => $event->getName(),
+                                'eventAvatar' => $event->getAvatar(),
+                                'eventLink' => $event->getPermalink(false, true),
+                                'invitorName' => $my->getName(),
+                                'invitorLink' => $my->getPermalink(false, true),
+                                'invitorAvatar' => $my->getAvatar()
+                            );
+
+                            $systemOptions = (object) array(
+                                'uid' => $event->id,
+                                'actor_id' => $my->id,
+                                'target_id' => $event->id,
+                                'context_type' => 'events',
+                                'type' => 'events',
+                                'url' => $event->getPermalink(true, false, 'item', false),
+                                'eventId' => $event->id
+                            );
+
+                            FD::notify('events.guest.invited', $targets, $emailOptions, $systemOptions);
+                        }
+                    }
+                }
 
                 $db = FD::db();
                 $sql = $db->sql();
+
+                $query = "INSERT INTO `#__social_clusters_nodes` (`cluster_id`, `uid`, `type`, `created`, `state`, `owner`, `admin`, `invited_by`)";
+                $query .= " SELECT '$eventId' AS `cluster_id`, a.`uid`, `type`, '$now' AS `created`, '$nodeState' AS `state`, '0' AS `owner`, a.`admin`, '$userId' AS `invited_by`";
+                $query .= " FROM `#__social_clusters_nodes` as a";
+
+                //exclude esad users
+                $query .= " INNER JOIN `#__social_profiles_maps` as upm on a.`uid` = upm.`user_id`";
+                $query .= " INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1";
+
+                $query .= " WHERE a.`cluster_id` = '$groupId' AND a.`state` = " . $db->Quote(SOCIAL_GROUPS_MEMBER_PUBLISHED);
+                $query .= " AND a.`type` = " . $db->Quote(SOCIAL_TYPE_USER);
+                $query .= " AND a.`uid` NOT IN (SELECT b.`uid` FROM `#__social_clusters_nodes` as b WHERE b.`cluster_id` = '$eventId' AND b.`type` = '" . SOCIAL_TYPE_USER . "')";
+
                 $sql->raw($query);
                 $db->setQuery($sql);
                 $db->query();
@@ -965,7 +1067,7 @@ class EasySocialModelEvents extends EasySocialModel
             'creatorLink' => $event->getCreator()->getPermalink(false, true),
             'categoryTitle' => $event->getCategory()->get('title'),
             'avatar' => $event->getAvatar(SOCIAL_AVATAR_LARGE),
-            'permalink' => $event->getPermalink(true, true),
+            'permalink' => JURI::root() . 'administrator/index.php?option=com_easysocial&view=events&layout=pending',
             'alerts' => false
         );
 
@@ -1054,6 +1156,15 @@ class EasySocialModelEvents extends EasySocialModel
         $sql->on(')');
         $sql->on(')');
         $sql->on('b.state', SOCIAL_STATE_PUBLISHED);
+
+        // exclude esad users
+        $sql->innerjoin('#__social_profiles_maps', 'upm');
+        $sql->on('a.uid', 'upm.user_id');
+
+        $sql->innerjoin('#__social_profiles', 'up');
+        $sql->on('upm.profile_id', 'up.id');
+        $sql->on('up.community_access', '1');
+
         $sql->where('a.cluster_id', $eventId);
 
         if (isset($options['published'])) {
@@ -1088,6 +1199,15 @@ class EasySocialModelEvents extends EasySocialModel
         $sql->innerjoin('#__social_clusters_nodes', 'c');
         $sql->on('c.uid', 'b.id');
         $sql->on('c.type', SOCIAL_TYPE_USER);
+
+        // exclude esad users
+        $sql->innerjoin('#__social_profiles_maps', 'upm');
+        $sql->on('c.uid', 'upm.user_id');
+
+        $sql->innerjoin('#__social_profiles', 'up');
+        $sql->on('upm.profile_id', 'up.id');
+        $sql->on('up.community_access', '1');
+
         $sql->where('a.time', $online, '>=');
         $sql->where('b.block', 0);
         $sql->where('c.cluster_id', $eventId);
@@ -1568,6 +1688,181 @@ class EasySocialModelEvents extends EasySocialModel
             $event->save();
         }
 
+        $dispatcher  = FD::dispatcher();
+        $my = FD::user();
+
+        // @trigger: onEventAfterSave
+        // Put the recurring events in the calendar
+        $triggerArgs = array(&$event, &$my, true);
+        $dispatcher->trigger(SOCIAL_TYPE_USER, 'onEventAfterSave' , $triggerArgs);
+
         return $event;
+    }
+
+    public function getUpcomingReminder()
+    {
+        $db = ES::db();
+        $sql = $db->sql();
+
+        $now    = ES::date();
+
+        $query = "select a.`cluster_id` as `event_id`, a.`start`, a.`end`, a.`all_day`, c.`uid` as `user_id`";
+        $query .= ", b.`title`, b.`alias`, b.`description`, b.`address`";
+        $query .= ", u.`name` as `user_name`, u.`email` as `user_email`";
+        $query .= " from `#__social_events_meta` as a";
+        $query .= " inner join `#__social_clusters` as b on a.cluster_id = b.id";
+        $query .= " inner join `#__social_clusters_nodes` as c on a.cluster_id = c.cluster_id";
+        $query .= " inner join `#__users` as u on c.`uid` = u.`id`";
+        $query .= " where b.state = 1";
+        $query .= " and c.`type` = 'user'";
+        $query .= " and c.`state` = 1";
+        $query .= " and c.`reminder_sent` = 0";
+        $query .= " and a.`reminder` > 0";
+        $query .= " and a.`start` <= date_add(" . $db->Quote($now->toMySQL()) . ", INTERVAL a.`reminder` DAY)";
+
+        $sql->raw($query);
+        $db->setQuery($sql);
+
+        $results = $db->loadObjectList();
+
+        // we need to group the events by users
+        $items = array();
+
+        if ($results) {
+
+            $events = array();
+            $users = array();
+
+            foreach($results as $item) {
+
+                if (! isset($events[$item->event_id])) {
+
+                    $event = new stdClass();
+
+                    $alias = $item->event_id . ':' . JFilterOutput::stringURLSafe($item->alias);
+
+                    $event->id = $item->event_id;
+                    $event->title = $item->title;
+                    $event->permalik = $alias;
+                    $event->description = $item->description;
+                    $event->address = $item->address;
+                    $event->start = $item->start;
+                    $event->end = $item->end;
+                    $event->all_day = $item->all_day;
+
+                    $events[$item->event_id] = $event;
+                }
+
+                if (! isset($users[$item->user_id])) {
+                    $user = new stdClass();
+                    $user->id = $item->user_id;
+                    $user->name = $item->user_name;
+                    $user->email = $item->user_email;
+
+                    $users[$item->user_id] = $user;
+                }
+
+                $items[$item->user_id]['user'] = $users[$item->user_id];
+                $items[$item->user_id]['events'][] = $events[$item->event_id];
+            }
+        }
+
+        return $items;
+    }
+
+    public function sendUpcomingReminder($items)
+    {
+        $count = 0;
+        $jConfig    = FD::jConfig();
+        $config = FD::config();
+
+        if ($items) {
+
+            // Push arguments to template variables so users can use these arguments
+            $params     = array(
+                                'siteName'  => $jConfig->getValue('sitename'),
+                                'loginLink' => FRoute::login(array() , false)
+                            );
+
+
+            foreach ($items as $data)  {
+
+                $user = $data['user'];
+                $events = $data['events'];
+
+                // Set the user's name.
+                $params['recipientName']  = $user->name;
+
+                // $params[ 'events' ]  = $events;
+
+                $ids = array();
+                foreach($events as $event) {
+                    $ids[] = $event->id;
+                }
+
+                $theme = ES::themes();
+                $theme->set( 'events', $events );
+                $eventHtml = $theme->output( 'site/emails/html/event/upcoming.reminder.event' );
+
+                $params['events']  = $eventHtml;
+                $params['eventCount'] = count($events);
+
+                $mailer     = FD::mailer();
+
+                // Get the email template.
+                $mailTemplate   = $mailer->getTemplate();
+
+                // Set recipient
+                $mailTemplate->setRecipient($user->name, $user->email);
+
+                // Set title
+                $title = JText::sprintf('COM_EASYSOCIAL_EMAILS_UPCOMING_EVENT_REMINDER_SUBJECT', $user->name);
+                $mailTemplate->setTitle($title);
+
+                // Set the template
+                $mailTemplate->setTemplate('site/event/upcoming.reminder', $params);
+
+                // Try to send out email to the admin now.
+                $state      = $mailer->create($mailTemplate);
+
+                if ($state) {
+
+                    $ids = array();
+
+                    foreach($events as $event) {
+                        $ids[] = $event->id;
+                    }
+
+                    // need to update the reminder_sent flag
+                    $this->updateReminderSentFlag($user->id, $ids, '1');
+
+                    $count++;
+                }
+
+            }
+        }
+
+        return $count;
+    }
+
+    public function updateReminderSentFlag($userId, $eventIds, $flag)
+    {
+        $db = FD::db();
+        $sql = $db->sql();
+
+        $query = 'update `#__social_clusters_nodes` set `reminder_sent` = ' . $db->Quote($flag);
+        $query .= ' where `type` = ' . $db->Quote('user');
+        $query .= ' and `uid` = ' . $db->Quote($userId);
+        if (count($eventIds) > 1) {
+            $query .= ' and cluster_id IN (' . implode(',', $eventIds) . ')';
+        } else {
+            $query .= ' and cluster_id = ' . $eventIds[0];
+        }
+
+        $sql->raw($query);
+        $db->setQuery($sql);
+        $db->query();
+
+        return true;
     }
 }

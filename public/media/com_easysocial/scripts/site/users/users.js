@@ -202,35 +202,29 @@ EasySocial.module( 'site/users/users' , function($){
 				}
 			});
 
-		EasySocial.Controller(
-		'Users.Item',
-		{
-			defaultOptions:
-			{
-				id 					: null,
-				"{followUser}"		: "[data-es-followers-follow]",
-				"{addFriend}"		: "[data-users-add-friend]",
-				"{friendsButton}" 	: "[data-users-friends-button]",
-				"{compose}"			: "[data-users-friends-compose]",
-				"{unfriend}"		: "[data-users-friends-unfriend]",
+		EasySocial.Controller('Users.Item', {
+			
+			defaultOptions: {
+				id: null,
+				"{followUser}": "[data-es-followers-follow]",
+				"{addFriend}": "[data-users-add-friend]",
+				"{friendsButton}": "[data-users-friends-button]",
+				"{compose}": "[data-users-friends-compose]",
+				"{unfriend}": "[data-users-friends-unfriend]",
 
-				view :
-				{
-					followingButton		: 'site/users/button.following'
+				view: {
+					followingButton: 'site/users/button.following'
 				}
 			}
-		},
-		function( self )
-		{
+		}, function(self) {
+
 			return {
 
-				init: function()
-				{
-					self.options.id 	= self.element.data( 'id' );
+				init: function() {
+					self.options.id = self.element.data('id');
 				},
 
-				"{followUser} following": function(el, event)
-				{
+				"{followUser} following": function(el, event) {
 					// Hide the previous popbox
 					$(el).popbox('hide');
 
@@ -238,31 +232,29 @@ EasySocial.module( 'site/users/users' , function($){
 					$(el).replaceWith( self.view.followingButton() );
 				},
 
-				"{addFriend} click" : function( el , event )
-				{
+				"{addFriend} click": function(addButton, event) {
+					
 					// Add a loading state to the button
-					$( el ).addClass( 'btn-loading' );
+					$(addButton).addClass( 'btn-loading' );
 
 					// Append loading state on the button
-					EasySocial.ajax( 'site/controllers/friends/request' ,
-					{
-						"viewCallback"	: "usersRequest",
-						"id"		: self.options.id
+					EasySocial.ajax( 'site/controllers/friends/request' , {
+						"viewCallback": "usersRequest",
+						"id": self.options.id
 					})
-					.done(function( pendingButton )
-					{
+					.done(function(pendingButton) {
 						// Replace the button
-						$( el ).replaceWith( pendingButton );
+						$(addButton).replaceWith(pendingButton);
 
 						// Remove the loading state from the button
-						$( el ).removeClass( 'btn-loading' );
+						$(addButton).removeClass('btn-loading');
 					})
-					.fail(function( obj )
-					{
-						EasySocial.dialog(
-						{
-							content 	: EasySocial.ajax( 'site/views/friends/exceeded' )
+					.fail(function(obj) {
+						EasySocial.dialog({
+							content: obj.message
 						});
+
+						$(addButton).removeClass('btn-loading');
 					})
 				}
 

@@ -60,10 +60,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 				<button class="btn btn-es-primary btn-block mb-20" type="button" data-registermini-submit><?php echo JText::_( 'MOD_EASYSOCIAL_REGISTER_REGISTER_NOW_BUTTON' );?> &rarr;</button>
 
-				<?php if( $params->get('social', true) && $config->get( 'oauth.facebook.registration.enabled' ) && $config->get( 'registrations.enabled' )
-						&& $config->get( 'oauth.facebook.secret' )
-						&& $config->get( 'oauth.facebook.app' )
-					){ ?>
+				<?php if( $params->get('social', true) && $config->get('oauth.facebook.registration.enabled') && $config->get('registrations.enabled')
+							&& (
+								($config->get('oauth.facebook.secret') && $config->get( 'oauth.facebook.app' ))
+								|| ($config->get('oauth.facebook.jfbconnect.enabled'))
+							)
+						){ ?>
 					<hr />
 					<div class="text-center mb-10">
 						<p class="line">

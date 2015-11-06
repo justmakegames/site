@@ -407,15 +407,14 @@ class SocialTableConversation extends SocialTable
 	 * @param
 	 * @param	boolean	True on success, false otherwise
 	 */
-	public function delete( $userId = null )
+	public function delete($userId = null)
 	{
 		// Delete all message map for this particular node
-		$model 	= FD::model( 'Conversations' );
-		$state 	= $model->delete( $this->id , $userId );
+		$model = FD::model('Conversations');
+		$state = $model->delete($this->id, $userId);
 
-		if( !$state )
-		{
-			$this->setError( $model->getError() );
+		if (!$state) {
+			$this->setError($model->getError());
 		}
 
 		return $state;

@@ -5,7 +5,7 @@
 		"label"		: "PLG_FIELDS_FILE_CONFIG_ALLOWED_EXTENSIONS",
 		"tooltip"	: "PLG_FIELDS_FILE_CONFIG_ALLOWED_EXTENSIONS_DESC",
 		"type"		: "text",
-		"default"	: "jpg,png,jpeg"
+		"default"	: "jpg,png,jpeg,JPG,PNG,JPEG"
 	},
 
 

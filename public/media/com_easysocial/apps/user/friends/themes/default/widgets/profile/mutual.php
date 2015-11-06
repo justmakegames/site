@@ -17,6 +17,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php echo JText::_( 'APP_FRIENDS_MUTUAL_FRIENDS' ); ?>
 		</div>
 		<span class="widget-label">( <?php echo $total; ?> )</span>
+
+		<?php if( $total > 0 ) { ?>
+			<a href="<?php echo FRoute::friends( array( 'userid' => $user->getAlias() , 'filter' => 'mutual' ) );?>" class="fd-small pull-right"><?php echo JText::_( 'APP_FRIENDS_WIDGET_PROFILE_VIEW_ALL' );?></a>
+		<?php } ?>
 	</div>
 	<div class="es-widget-body">
 		<ul class="widget-list-grid">
@@ -40,10 +44,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				</li>
 			<?php } ?>
 		</ul>
-		<?php if( $total > 0 ) { ?>
-		<div>
-			<a href="<?php echo FRoute::friends( array( 'userid' => $user->getAlias() , 'filter' => 'mutual' ) );?>" class="fd-small"><?php echo JText::_( 'APP_FRIENDS_WIDGET_PROFILE_VIEW_ALL' );?></a>
-		</div>
-		<?php } ?>
 	</div>
 </div>

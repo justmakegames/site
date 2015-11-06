@@ -68,7 +68,7 @@ class SocialEventAppPhotos extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#F8829C';
-        $obj->icon = 'ies-picture';
+        $obj->icon = 'fa-image';
         $obj->label = 'APP_EVENT_PHOTOS_STREAM_TOOLTIP';
 
         return $obj;
@@ -128,9 +128,9 @@ class SocialEventAppPhotos extends SocialAppItem
 
         // Decorate the stream
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
-        $item->fonticon = 'ies-picture';
+        $item->fonticon = 'fa fa-image';
         $item->color = '#F8829C';
-        $item->label = JText::_('APP_EVENT_PHOTOS_STREAM_TOOLTIP');
+        $item->label = FD::_('APP_EVENT_PHOTOS_STREAM_TOOLTIP', true);
 
         // Get the app params.
         $params = $this->getParams();
@@ -204,7 +204,15 @@ class SocialEventAppPhotos extends SocialAppItem
         if (count($item->contextIds) > 1) {
 
             $photos = $this->getPhotoObject($item);
-            $photo = isset($photos[0]) ? $photos[0] : false;
+            $photo = false;
+
+            if ($photos instanceof SocialTablePhoto) {
+                $photo = $photos;
+            }
+
+            if (is_array($photos)) {
+                $photo = $photos[0];
+            }
 
             // If we can't get anything, skip this
             if (!$photo) {
@@ -487,14 +495,14 @@ class SocialEventAppPhotos extends SocialAppItem
      */
     public function onPrepareStoryPanel($story)
     {
-        $config = FD::config();
-
-        if (!$config->get('photos.enabled')) {
+        if (!$this->config->get('photos.enabled')) {
             return;
         }
 
-        $event = FD::event($story->cluster);
+        // Load up the event object
+        $event = ES::event($story->cluster);
 
+        // Get the event params
         $params = $event->getParams();
 
         if (!$params->get('photo.albums', true)) {
@@ -507,8 +515,8 @@ class SocialEventAppPhotos extends SocialAppItem
         // Create the story plugin
         $plugin = $story->createPlugin("photos", "panel");
 
-
-        $theme = FD::get('Themes');
+        // Load up the themes
+        $theme = ES::get('Themes');
 
         // check max photos upload here.
         if ($access->exceeded('photos.max', $event->getTotalPhotos())) {
@@ -520,13 +528,20 @@ class SocialEventAppPhotos extends SocialAppItem
             $theme->set('exceeded', JText::sprintf('COM_EASYSOCIAL_PHOTOS_EXCEEDED_DAILY_MAX_UPLOAD', $access->get('photos.uploader.maxdaily')));
         }
 
-        $plugin->button->html = $theme->output('themes:/apps/group/photos/story/panel.button');
-        $plugin->content->html = $theme->output('themes:/apps/group/photos/story/panel.content');
+        $button = $theme->output('site/photos/story/button');
+        $form = $theme->output('site/photos/story/form');
 
-        $script = FD::get('Script');
-        $script->set('event', $event);
-        $script->set('maxFileSize', $access->get('photos.maxsize', 5) . 'M');
-        $plugin->script = $script->output('apps:/event/photos/story');
+        // Attach the script files
+        $script = ES::script();
+        $maxSize = $access->get('photos.maxsize', 5);
+        
+        $script->set('type', SOCIAL_TYPE_EVENT);
+        $script->set('uid', $event->id);
+        $script->set('maxFileSize', $maxSize . 'M');
+        $scriptFile = $script->output('site/photos/story/plugin');
+
+        $plugin->setHtml($button, $form);
+        $plugin->setScript($scriptFile);
 
         return $plugin;
     }
@@ -687,7 +702,7 @@ class SocialEventAppPhotos extends SocialAppItem
                 $photo->load($likes->uid);
 
                 $systemOptions['context_ids'] = $photo->id;
-                $systemOptions['url'] = $photo->getPermalink(false, false, false);
+                $systemOptions['url'] = $photo->getPermalink(false, false, 'item', false);
                 $emailOptions['permalink'] = $photo->getPermalink(true, true);
 
                 $element = 'photos';

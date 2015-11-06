@@ -1,7 +1,8 @@
 [
     {
         "script": [
-            "site/profile/header"
+            "site/profile/header",
+            "site/profile/feeds"
         ],
         "library": [
             "history"

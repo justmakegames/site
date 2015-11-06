@@ -11,17 +11,29 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-// We need the router
-require_once( JPATH_ROOT . '/components/com_k2/helpers/route.php' );
+jimport('joomla.filesystem.file');
 
-/**
- * Profile view for k2 app
- *
- * @since	1.0
- * @access	public
- */
 class K2ViewProfile extends SocialAppsView
 {
+	/**
+	 * Checks if K2 exists on the site 
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function exists()
+	{
+		$k2File = JPATH_ROOT . '/components/com_k2/helpers/route.php';
+
+		if (JFile::exists($k2File)) {
+			return false;
+		}
+
+		require_once($k2File);
+	}
+
 	/**
 	 * Displays the application output in the canvas.
 	 *
@@ -32,22 +44,23 @@ class K2ViewProfile extends SocialAppsView
 	public function display( $userId = null , $docType = null )
 	{
 		// Get the app params
-		$params		= $this->app->getParams();
+		$params = $this->app->getParams();
 
 		// Get the blog model
-		$total 		= (int) $params->get( 'total' , $params->get( 'total' , 5 ) );
+		$total = (int) $params->get( 'total' , $params->get( 'total' , 5 ) );
 
 		// Retrieve a list of k2 items
-		$model 		= $this->getModel( 'Items' );
-		$items 		= $model->getItems( $userId , $total );
-		$user 		= FD::user( $userId );
+		$model = $this->getModel( 'Items' );
+		$items = $model->getItems( $userId , $total );
 
-		$this->format( $items , $params );
+		$user = ES::user($userId);
 
-		$this->set( 'user'	, $user );
-		$this->set( 'items'	, $items );
+		$this->format($items ,$params);
 
-		echo parent::display( 'profile/default' );
+		$this->set('user', $user);
+		$this->set('items', $items);
+
+		echo parent::display('profile/default');
 	}
 
 	private function format( &$items , $params )

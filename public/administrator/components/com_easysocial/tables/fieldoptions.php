@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,37 +9,36 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'admin:/tables/table' );
+// Dependencies
+ES::import('admin:/tables/table');
 
 class SocialTableFieldOptions extends SocialTable
 {
-	public $id			= null;
-	public $parent_id	= null;
-	public $key			= null;
-	public $ordering	= null;
-	public $title		= null;
-	public $value		= null;
-	public $default		= null;
+	public $id = null;
+	public $parent_id = null;
+	public $key = null;
+	public $ordering = null;
+	public $title = null;
+	public $value = null;
+	public $default = null;
 
 	public function __construct(& $db )
 	{
 		parent::__construct( '#__social_fields_options' , 'id' , $db );
 	}
 
-	public function store( $updateNulls = false )
+	public function store($updateNulls = false)
 	{
-		if( empty( $this->value ) && !empty( $this->title ) )
-		{
-			$this->value = JString::strtolower( JString::str_ireplace( ' ', '', $this->title ) );
+		if (empty($this->value) && !empty($this->title)) {
+			$this->value = JString::strtolower(JString::str_ireplace(' ', '', $this->title));
 		}
 
-		if( empty( $this->title ) && !empty( $this->value ) )
-		{
-			$this->title = JString::ucfirst( $this->value );
+		if (empty($this->title) && !empty($this->value)) {
+			$this->title = JString::ucfirst($this->value);
 		}
 
-		return parent::store( $updateNulls );
+		return parent::store($updateNulls);
 	}
 }

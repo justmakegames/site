@@ -132,11 +132,7 @@ class SocialTableDefaultCover extends SocialTable
 		// Let's test if the file exists.
 		$exists 		= JFile::exists( $storagePath );
 
-		if( !$exists )
-		{
-			// Return the default avatar.
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_COVERS: Unable to load the cover from ' . $storagePath );
-
+		if (!$exists) {
 			$this->setError( JText::_( 'Cover file cannot be found' ) );
 			return false;
 		}
@@ -196,10 +192,7 @@ class SocialTableDefaultCover extends SocialTable
 		$coversPath = JPATH_ROOT . '/' . FD::cleanPath( $config->get( 'covers.storage.container' ) );
 
 		// Test if the avatars path folder exists. If it doesn't we need to create it.
-		if( !FD::makeFolder( $coversPath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_COVERS: Unable to create the path ' . $coversPath );
-
+		if (!FD::makeFolder($coversPath)) {
 			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_COVERS_UNABLE_TO_CREATE_CONTAINER_FOLDER' ) );
 			return false;
 		}
@@ -208,10 +201,7 @@ class SocialTableDefaultCover extends SocialTable
 		$defaultsPath 	= $coversPath . '/' . FD::cleanPath( $config->get( 'covers.storage.default' ) );
 
 		// Ensure that the defaults path exist
-		if( !FD::makeFolder( $defaultsPath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_COVERS: Unable to create the path ' . $defaultsPath );
-
+		if (!FD::makeFolder($defaultsPath)) {
 			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_COVERS_UNABLE_TO_CREATE_DEFAULT_FOLDER' ) );
 			return false;
 		}
@@ -222,10 +212,7 @@ class SocialTableDefaultCover extends SocialTable
 
 
 		// Ensure storage path exists.
-		if( !FD::makeFolder( $storagePath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_COVERS: Unable to create the path ' . $storagePath );
-
+		if (!FD::makeFolder($storagePath)) {
 			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_COVERS_UNABLE_TO_CREATE_DEFAULT_FOLDER' ) );
 			return false;
 		}
@@ -235,10 +222,7 @@ class SocialTableDefaultCover extends SocialTable
 		$storagePath 	= $storagePath . '/' . $idPath;
 
 		// Ensure storage path exists.
-		if( !FD::makeFolder( $storagePath ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_COVERS: Unable to create the path ' . $storagePath );
-
+		if( !FD::makeFolder( $storagePath ) ) {
 			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_COVERS_UNABLE_TO_CREATE_DEFAULT_FOLDER' ) );
 			return false;
 		}
@@ -248,9 +232,7 @@ class SocialTableDefaultCover extends SocialTable
 		$image->load( $file[ 'tmp_name' ] );
 
 		// Test if the image is really a valid image.
-		if( !$image->isValid() )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_COVERS: Image uploaded ' . $file[ 'name' ] . ' is invalid' );
+		if (!$image->isValid()) {
 			$this->setError( JText::_( 'COM_EASYSOCIAL_PROFILES_DEFAULT_AVATARS_FILE_NOT_IMAGE' ) );
 			return false;
 		}
@@ -262,9 +244,7 @@ class SocialTableDefaultCover extends SocialTable
 		$sizes	= $cover->create( $storagePath );
 
 		// Test if the server returned an error.
-		if( $sizes === false )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'DEFAULT_COVERS: Error creating covers at ' . $storagePath );
+		if ($sizes === false) {
 			$this->setError( JText::_( 'Sorry, there was some errors when creating the covers.' ) );
 			return false;
 		}

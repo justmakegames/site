@@ -11,10 +11,18 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="stream-files">
-	<a class="file-download" href="<?php echo $file->getDownloadURI();?>" target="_blank">
-		<i class="ies-download-3"></i>
-		<b><?php echo $file->name; ?></b>
-		<span class="fd-small">(<?php echo $file->getSize( 'kb' );?> <?php echo JText::_( 'COM_EASYSOCIAL_UNIT_KILOBYTES' );?>)</span>
-	</a>
+<?php if ($content) { ?>
+<div class="mb-15">
+<?php echo $content;?> 
 </div>
+<?php }?>
+
+<?php foreach ($files as $file) { ?>
+<div class="stream-files multiple-files">
+    <a class="file-download" href="<?php echo $file->getDownloadURI('profile', 'downloadFile');?>" target="_blank">
+        <i class="fa fa-download"></i>
+        <b><?php echo $file->name; ?></b>
+        <span class="fd-small">(<?php echo $file->getSize( 'kb' );?> <?php echo JText::_( 'COM_EASYSOCIAL_UNIT_KILOBYTES' );?>)</span>
+    </a>
+</div>
+<?php } ?>

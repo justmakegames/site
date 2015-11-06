@@ -15,21 +15,21 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     <?php if ($showWarningMessages && $changed && $type != 'none') { ?>
     <p class="mb-10">
-        <i class="ies-notification-2"></i> <?php echo JText::_('FIELD_EVENT_RECURRING_EVENTS_WILL_BE_RECREATED'); ?>
+        <i class="fa fa-notification-2"></i> <?php echo JText::_('FIELD_EVENT_RECURRING_EVENTS_WILL_BE_RECREATED'); ?>
     </p>
     <?php } ?>
 
     <?php if ($showWarningMessages && $hasChildren && $type == 'none') { ?>
     <p>
-        <i class="ies-notification-2"></i> <?php echo JText::_('FIELD_EVENT_RECURRING_EVENTS_WILL_BE_DELETED'); ?>
+        <i class="fa fa-notification-2"></i> <?php echo JText::_('FIELD_EVENT_RECURRING_EVENTS_WILL_BE_DELETED'); ?>
     </p>
     <?php } ?>
 
     <?php if ($type != 'none') { ?>
     <div>
-        <a href="javascript:void(0);" class="mr-5" data-recurring-schedule-toggle><i class="ies-calendar mr-5"></i> <?php echo JText::_('FIELD_EVENT_RECURRING_EVENTS_SHOW_SCHEDULE'); ?></a>
+        <a href="javascript:void(0);" class="mr-5" data-recurring-schedule-toggle><i class="fa fa-calendar mr-5"></i> <?php echo JText::_('FIELD_EVENT_RECURRING_EVENTS_SHOW_SCHEDULE'); ?></a>
         <?php if ($hasChildren) { ?>
-        | <a href="javascript:void(0);" class="ml-5" data-recurring-delete><i class="ies-refresh mr-5"></i> <?php echo JText::_('FIELD_EVENT_RECURRING_EVENTS_CLEAR_EVENTS'); ?></a>
+        | <a href="javascript:void(0);" class="ml-5" data-recurring-delete><i class="fa fa-refresh mr-5"></i> <?php echo JText::_('FIELD_EVENT_RECURRING_EVENTS_CLEAR_EVENTS'); ?></a>
         <?php } ?>
     </div>
 

@@ -40,6 +40,14 @@ class SocialFieldsUserCover extends SocialFieldItem
 	{
 		$defaultCover = SOCIAL_JOOMLA_URI . FD::config()->get('covers.default.' . $this->group . '.' . SOCIAL_COVER_DEFAULT);
 
+		// If there is a cover override in the template, use it instead.
+		$app = JFactory::getApplication();
+		$overridePath = JPATH_ROOT . '/templates/' . $app->getTemplate() . '/html/com_easysocial/covers/user/default.jpg';
+
+		if (JFile::exists($overridePath)) {
+			$defaultCover = rtrim(JURI::root(), '/') . '/templates/' . $app->getTemplate() . '/html/com_easysocial/covers/user/default.jpg';
+		}
+
 		$value = $defaultCover;
 
 		$this->set('value', $value);
@@ -136,13 +144,11 @@ class SocialFieldsUserCover extends SocialFieldItem
 		jimport('joomla.filesystem.file');
 
 		if (!JFile::write($tmpFile, $contents)) {
-			FD::logError(__FILE__, __LINE__, 'AVATAR: Unable to store oauth cover to tmp folder, ' . $tmpPath);
 			return;
 		}
 
 		// Ensure that the image is valid.
 		if (!SocialFieldsUserCoverHelper::isValid($tmpFile)) {
-			FD::logError(__FILE__, __LINE__, 'AVATAR: Invalid image provided for cover ' . $tmpFile);
 			return;
 		}
 

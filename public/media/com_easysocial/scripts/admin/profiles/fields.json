@@ -9,11 +9,11 @@
             "field"
         ],
         "view": [
-            "admin/profiles/form.fields.editorItem",
-            "admin/profiles/form.fields.stepItem",
-            "admin/profiles/form.fields.editorPage",
-            "admin/profiles/form.fields.config",
-            "admin/profiles/dialog.move.field"
+            "admin/profiles/fields/editor.item",
+            "admin/profiles/fields/step.item",
+            "admin/profiles/fields/editor.page",
+            "admin/profiles/fields/config",
+            "admin/profiles/fields/dialog.move"
         ],
         "language": [
             "COM_EASYSOCIAL_PROFILES_FORM_FIELDS_ITEM_CONFIG_LOADING",

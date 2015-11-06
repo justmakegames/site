@@ -23,31 +23,23 @@ class EasySocialViewProfiles extends EasySocialAdminView
 	 * @access	public
 	 * @param	null
 	 * @return	null
-	 *
-	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function display( $tpl = null )
+	public function display($tpl = null)
 	{
 		// Add Joomla buttons here.
-		$this->addButtons( __FUNCTION__ );
+		$this->addButtons(__FUNCTION__);
 
-		// Set the structure heading here.
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_PROFILE_TYPES' ) );
-
-		// Set page icon.
-		$this->setIcon( 'ies-vcard' );
-
-		// Set the structure description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_PROFILES' ) );
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_PROFILE_TYPES');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_PROFILES');
 
 		// Gets a list of profiles from the system.
-		$model 		= FD::model( 'Profiles' , array( 'initState' => true ));
+		$model = FD::model( 'Profiles' , array( 'initState' => true ));
 
 		// perform some maintenance actions here
 		$model->deleteOrphanItems();
 
 		// Get the search query from post
-		$search		= JRequest::getVar( 'search' , $model->getState( 'search' ) );
+		$search = $this->input->get('search', $model->getState('search'), 'default');
 
 		// Get the current ordering.
 		$ordering 	= JRequest::getWord( 'ordering' , $model->getState( 'ordering' ) );
@@ -87,88 +79,76 @@ class EasySocialViewProfiles extends EasySocialAdminView
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function form( $profile = '' )
+	public function form($profile = '')
 	{
 		// Get the profile id from the request.
-		$id 		= JRequest::getInt( 'id' );
+		$id = $this->input->get('id', 0, 'int');
 
 		// Add Joomla buttons here.
-		$this->addButtons( __FUNCTION__ );
+		$this->addButtons(__FUNCTION__);
 
 		// Test if id is provided by the query string
 		if (!$profile) {
-			$profile    = FD::table( 'Profile' );
+			$profile = FD::table('Profile');
 
 			if ($id) {
-				$state 		= $profile->load( $id );
+				$state = $profile->load($id);
 
 				if (!$state) {
+					$this->info->set($this->getMessage());
 
-					$this->setMessage(JText::_( 'COM_EASYSOCIAL_PROFILES_INVALID_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
-
-					FD::info()->set( $this->getMessage() );
-
-					return $this->redirect( 'index.php?option=com_easysocial&view=profiles' );
+					return $this->redirect('index.php?option=com_easysocial&view=profiles');
 				}
 			}
 		}
 
-		// Apply the heading
+		// Set the structure heading here.
+		$this->setHeading('COM_EASYSOCIAL_TOOLBAR_TITLE_NEW_PROFILE_TYPE');
+
+		// If this is an edited profile, display the profile title.
 		if (!empty($id)) {
-			// Set additional pathway here.
-			$this->setHeading( JText::sprintf( 'COM_EASYSOCIAL_TOOLBAR_TITLE_EDIT_PROFILE_TYPE' , $profile->get( 'title' ) ) );
-		} else {
-			// Set the structure heading here.
-			$this->setHeading( JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_NEW_PROFILE_TYPE' ) );
+			$this->setHeading($profile->get('title'));
 		}
 
-		// Set page icon.
-		$this->setIcon( 'ies-vcard' );
-
-		// Set the structure description here.
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_PROFILES_FORM' ) );
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_PROFILES_FORM');
 
 		// Default Values
-		$defaultAvatars 	= array();
+		$defaultAvatars = array();
 
 		// load frontend language so that the custom fields languages display properly.
 		FD::language()->loadSite();
 
-
 		// Only process the rest of the blocks of this is not a new item.
 		if ($id) {
-			// Get a list of users in this profile.
-			$profilesModel 	= FD::model( 'Profiles' );
 
-			// Get default avatars for this profile type.
-			$avatarsModel 	= FD::model( 'Avatars' );
-			$defaultAvatars = $avatarsModel->getDefaultAvatars( $profile->id );
+			// Get the default avatars for this profile
+			$avatarsModel = ES::model('Avatars');
+			$defaultAvatars = $avatarsModel->getDefaultAvatars($profile->id);
 
 			// Get a list of available field apps
-			$appsModel		= FD::model( 'Apps' );
-			$defaultApps	= $appsModel->getApps(array('type' => SOCIAL_APPS_TYPE_FIELDS, 'group' => SOCIAL_FIELDS_GROUP_USER, 'state' => SOCIAL_STATE_PUBLISHED));
+			$appsModel = ES::model('Apps');
+			$defaultFields = $appsModel->getApps(array('type' => SOCIAL_APPS_TYPE_FIELDS, 'group' => SOCIAL_FIELDS_GROUP_USER, 'state' => SOCIAL_STATE_PUBLISHED));
 
 			// Get a list of workflows for this profile type.
-			$stepsModel		= FD::model( 'Steps' );
-			$steps			= $stepsModel->getSteps( $profile->id, SOCIAL_TYPE_PROFILES );
+			$stepsModel = ES::model('Steps');
+			$steps = $stepsModel->getSteps($profile->id, SOCIAL_TYPE_PROFILES);
 
-			// Get a list of fields based on the id
-			$fieldsModel	= FD::model( 'Fields' );
-			$fields			= $fieldsModel->getCustomFields( array( 'profile_id' => $profile->id, 'state' => 'all' ) );
-
-			$data = array();
+			// Get a list of fields for this profile
+			$fieldsModel = ES::model('Fields');
+			$fields = $fieldsModel->getCustomFields(array('profile_id' => $profile->id, 'state' => 'all'));
 
 			// @field.triggers: onSample
+			$data = array();
 			$lib = FD::fields();
-			$lib->trigger( 'onSample' , SOCIAL_FIELDS_GROUP_USER , $fields , $data, array( $lib->getHandler(), 'getOutput' ) );
+			$lib->trigger('onSample', SOCIAL_FIELDS_GROUP_USER, $fields, $data, array($lib->getHandler(), 'getOutput'));
 
 			// Create a temporary storage
-			$tmpFields 	= array();
+			$tmpFields = array();
 
 			// Group the fields to each workflow properly
 			if ($steps) {
-
 				foreach ($steps as $step) {
+
 					$step->fields = array();
 
 					if (!empty($fields)) {
@@ -179,7 +159,7 @@ class EasySocialViewProfiles extends EasySocialAdminView
 								$step->fields[] = $field;
 							}
 
-							$tmpFields[ $field->app_id ]	= $field;
+							$tmpFields[$field->app_id] = $field;
 						}
 					}
 				}
@@ -193,8 +173,8 @@ class EasySocialViewProfiles extends EasySocialAdminView
 			$usedUniqueAppsCount = 0;
 
 			// hide the apps if it is a core app and it is used in the field
-			if ($defaultApps) {
-				foreach ($defaultApps as $app) {
+			if ($defaultFields) {
+				foreach ($defaultFields as $app) {
 					$app->hidden = false;
 
 					// If app is core, increase the coreAppsCount counter
@@ -216,16 +196,16 @@ class EasySocialViewProfiles extends EasySocialAdminView
 					}
 
 					// Test if this app is NOT core and unique and has already been assigned
-                    // This is because core apps are definitely unique, so we do not want to include core apps here
-                    if (isset($tmpFields[$app->id]) && !$app->core && $app->unique) {
-                        $usedUniqueAppsCount++;
+	                // This is because core apps are definitely unique, so we do not want to include core apps here
+	                if (isset($tmpFields[$app->id]) && !$app->core && $app->unique) {
+	                    $usedUniqueAppsCount++;
 
-                        $app->hidden = true;
-                    }
+	                    $app->hidden = true;
+	                }
 				}
 			}
 
-			unset( $tmpFields );
+			unset($tmpFields);
 
 			// We need to know if there are any core apps remain
 			$coreAppsRemain = $usedCoreAppsCount < $coreAppsCount;
@@ -234,79 +214,81 @@ class EasySocialViewProfiles extends EasySocialAdminView
 			$uniqueAppsRemain = $usedUniqueAppsCount < $uniqueAppsCount;
 
 			// Render the access form.
-			$accessModel 	= FD::model( 'Access' );
-			$accessForm		= $accessModel->getForm( $id , SOCIAL_TYPE_PROFILES , 'access' , '' , false );
+			$accessModel = FD::model('Access');
+			$accessForm = $accessModel->getForm($id, SOCIAL_TYPE_PROFILES, 'access', '', false);
 
-			$this->set( 'accessForm'	, $accessForm );
+			// Get the total number of members in this profile type
+			$membersCount = $profile->getMembersCount();
 
-			// Set the flag of coreAppsRemain
-			$this->set( 'coreAppsRemain', $coreAppsRemain);
+			// Get a list of user apps installed on the site
+			$apps = $appsModel->getApps(array('type' => SOCIAL_APPS_TYPE_APPS, 'group' => SOCIAL_FIELDS_GROUP_USER, 'state' => SOCIAL_STATE_PUBLISHED));
 
-			// Set the flag of uniqueAppsRemain
+			$this->set('selectedApps', $profile->getDefaultApps());
+			$this->set('apps', $apps);
+			$this->set('accessForm', $accessForm);
+			$this->set('coreAppsRemain', $coreAppsRemain);
 			$this->set('uniqueAppsRemain', $uniqueAppsRemain);
-
-			// Set the default apps to the template.
-			$this->set( 'defaultApps'	, $defaultApps );
-
-			// Set the steps for the template.
-			$this->set( 'steps'			, $steps );
-
-			// Set the fields to the template
-			$this->set( 'fields'		, $fields );
-
-			// Set the field group to the template
-			$this->set( 'fieldGroup'	, SOCIAL_FIELDS_GROUP_USER );
-
-			// Get the total number of users in the current profile.
-			$membersCount	= $profile->getMembersCount();
-
-			// Set member's count to the template.
-			$this->set( 'membersCount'	, $membersCount );
+			$this->set('defaultFields', $defaultFields);
+			$this->set('steps', $steps);
+			$this->set('fields', $fields);
+			$this->set('fieldGroup', SOCIAL_FIELDS_GROUP_USER);
+			$this->set('membersCount', $membersCount);
 		}
 
 		// Get a list of themes.
-		$themesModel	= FD::model( 'Themes' );
-		$themes 		= $themesModel->getThemes();
+		$themesModel = FD::model('Themes');
+		$themes = $themesModel->getThemes();
 
 		// Get profile parameters
-		$params 		= $profile->getParams();
+		$params = $profile->getParams();
 
 		// Get default privacy
-		$privacy	= FD::get( 'Privacy' , $profile->id , SOCIAL_PRIVACY_TYPE_PROFILES );
+		$privacy = FD::privacy($profile->id, SOCIAL_PRIVACY_TYPE_PROFILES);
 
 		// We need to hide the guest user group that is defined in com_users options.
 		// Public group should also be hidden.
-		if( FD::getInstance( 'Version' )->getVersion() == '1.5' )
-		{
-			$guestGroup		= array( 0 , 'Guest' );
-		}
-		else
-		{
-			$userOptions 	= JComponentHelper::getComponent( 'com_users' )->params;
-
-			$defaultRegistrationGroup 	= $userOptions->get( 'new_usertype' );
-			$guestGroup		= array( 1 , $userOptions->get( 'guest_usergroup' ) );
-		}
+		$userOptions = JComponentHelper::getComponent('com_users')->params;
+		$defaultRegistrationGroup = $userOptions->get('new_usertype');
+		$guestGroup = array(1, $userOptions->get('guest_usergroup'));
 
 		// Set the default registration group for new items
-		if( !$id )
-		{
-			$profile->gid 	= $defaultRegistrationGroup;
+		if (!$id) {
+			$profile->gid = $defaultRegistrationGroup;
 		}
 
 		// Get the active tab
-		$activeTab 	= JRequest::getWord( 'activeTab' , 'settings' );
+		$activeTab = $this->input->get('activeTab', 'settings', 'word');
 
-		$this->set( 'activeTab'		, $activeTab );
-		$this->set( 'defaultAvatars', $defaultAvatars );
-		$this->set( 'guestGroup'	, $guestGroup );
-		$this->set( 'id'			, $id );
-		$this->set( 'themes'		, $themes );
-		$this->set( 'param'			, $params );
-		$this->set( 'profile' 		, $profile );
-		$this->set( 'privacy'		, $privacy );
+		// Get a list of default groups
+		$defaultGroups = $profile->getDefaultGroups();
 
-		echo parent::display( 'admin/profiles/default.form' );
+		// Exclude groups from being suggested
+		$excludeGroups = array();
+
+		if ($defaultGroups) {
+			foreach ($defaultGroups as $group) {
+				$excludeGroups[] = (int) $group->id;
+			}
+		}
+
+
+		$this->set('excludeGroups', $excludeGroups);
+		$this->set('defaultGroups', $defaultGroups);
+		$this->set('activeTab', $activeTab);
+		$this->set('defaultAvatars', $defaultAvatars);
+		$this->set('guestGroup', $guestGroup);
+		$this->set('id', $id);
+		$this->set('themes', $themes);
+		$this->set('param', $params);
+		$this->set('profile', $profile);
+		$this->set('privacy', $privacy);
+
+		echo parent::display('admin/profiles/default.form');
+	}
+
+	private function groupFields(&$steps)
+	{
+
 	}
 
 	/**
@@ -319,31 +301,45 @@ class EasySocialViewProfiles extends EasySocialAdminView
 	 */
 	public function getUsers()
 	{
-		// @task: Obtain the profile id from query string.
-		$id			= JRequest::getInt( 'profile_id' );
-
-		// @task: Obtain search from query string
-		$search		= JRequest::getVar( 'search' );
+		$id = $this->input->get('profile_id', 0, 'int');
+		$search = $this->input->get('search', '', 'default');
 
 		// @task: Get the profiles model.
-		$model		= FD::get( 'Model' , 'Profiles' );
-
-		// @task: Get the users that are already part of this profile so that we can exclude them.
-		$exclusion	= $model->getMembers( $id );
+		$model = FD::model('Profiles');
+		$exclusion	= $model->getMembers($id);
 
 		// @task: Now, we need to get the final result of users.
-		$userModel	= FD::get( 'Model' , 'User' );
-		$users		= $userModel->getItems( array( 'exclusion' => array( 'a.id' => $exclusion ) ) );
+		$userModel = FD::model('User');
+		$users = $userModel->getItems( array( 'exclusion' => array( 'a.id' => $exclusion ) ) );
 		$pagination	= $userModel->getPagination();
 
-		// @task: Initialize the user objects.
-		$users		= FD::user( $users );
+		// Initialize the user objects.
+		$users = FD::user($users);
 
 		$this->set( 'search'	, $search );
 		$this->set( 'pagination', $pagination );
 		$this->set( 'users'		, $users );
 
 		parent::display( 'admin.profiles.users' );
+	}
+
+	/**
+	 * Post processing for updating ordering.
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	null
+	 * @return	null
+	 */
+	public function saveorder()
+	{
+		// Get info object.
+		$info 	= FD::info();
+
+		// Set message
+		$info->set( $this->getMessage() );
+
+		$this->redirect( 'index.php?option=com_easysocial&view=profiles' );
 	}
 
 
@@ -496,23 +492,19 @@ class EasySocialViewProfiles extends EasySocialAdminView
 				JToolbarHelper::apply( 'apply' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE' ) , false , false );
 				JToolbarHelper::save( 'save' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_CLOSE' ) );
 
-				if( FD::getInstance( 'Version' )->getVersion() >= '1.6' )
-				{
+				if (FD::getInstance('Version')->getVersion() >= '1.6') {
 					JToolbarHelper::save2new( 'savenew' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_NEW' ) );
-				}
-				else
-				{
+				} else {
 					JToolbarHelper::save( 'savenew' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_NEW' ) );
 				}
 
-				if( $id )
-				{
-					JToolbarHelper::save2copy( 'savecopy' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AS_COPY' ) );
+				if ($id) {
+					JToolbarHelper::save2copy('savecopy', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AS_COPY'));
 				}
 
 
 				JToolbarHelper::divider();
-				JToolbarHelper::cancel( 'cancel' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_CANCEL' ) );
+				JToolbarHelper::cancel('cancel', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_CANCEL'));
 			break;
 
 			case 'display':

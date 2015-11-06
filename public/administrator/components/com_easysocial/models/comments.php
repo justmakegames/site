@@ -1,10 +1,9 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* @author		Jason Rey <jasonrey@stackideas.com>
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -158,9 +157,7 @@ class EasySocialModelComments extends EasySocialModel
 			$comments	= $db->loadObjectList();
 		}
 
-		if( $comments === false )
-		{
-			FD::logError( __FILE__, __LINE__, 'Unable to get comments' );
+		if ($comments === false) {
 			return false;
 		}
 

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-EasySocial.require().script('apps/fields/event/startend/content').done(function($) {
+EasySocial
+.require()
+.script('apps/fields/event/startend/content').done(function($) {
     $('[data-field-<?php echo $field->id; ?>]').addController('EasySocial.Controller.Field.Event.Startend', {
         requiredEnd: <?php echo $params->get('require_enddate') ? 1 : 0; ?>,
         dateFormat: '<?php echo $dateFormat; ?>',

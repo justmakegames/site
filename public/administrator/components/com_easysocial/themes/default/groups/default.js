@@ -6,18 +6,27 @@ EasySocial.require()
 	$( '[data-table-grid]' ).implement( EasySocial.Controller.Grid );
 
 	<?php if( $this->tmpl != 'component' ){ ?>
-	$.Joomla( 'submitbutton' , function( task )
-	{
+	$.Joomla('submitbutton', function(task) {
+
 		var selected = new Array;
 
-		$( '[data-table-grid]' ).find( 'input[name=cid\\[\\]]:checked' ).each( function( i , el  ){
-			selected.push( $( el ).val() );
+		$('[data-table-grid]').find('input[name=cid\\[\\]]:checked').each(function(i, el) {
+			var val = $(el).val();
+			selected.push(val);
 		});
 
-		if( task == 'create' )
-		{
-			EasySocial.dialog(
-			{
+		if (task == 'makeFeatured' || task == 'removeFeatured') {
+
+			$('[data-table-grid-task]').val(task);
+
+			$('[data-table-grid]').submit();
+
+			return false;
+		}
+
+		if (task == 'create') {
+			
+			EasySocial.dialog({
 				content 	: EasySocial.ajax( 'admin/views/groups/createDialog' , {} ),
 				bindings	:
 				{

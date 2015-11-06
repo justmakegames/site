@@ -15,6 +15,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <?php echo JText::sprintf('APP_USER_FILES_USER_SHARED_FILES' . $plurality, $this->html('html.user', $actor->id), $total);?>
 <?php } else { ?>
 <?php echo $this->html('html.user', $actor->id, true); ?>
-<i class="ies-arrow-right"></i>
+<i class="fa fa-caret-right"></i>
 <?php echo $this->html('html.user', $target, true); ?>
 <?php } ?>

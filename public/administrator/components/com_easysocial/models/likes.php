@@ -476,7 +476,7 @@ class EasySocialModelLikes extends EasySocialModel
 	 * @param	int		The user's id.
 	 * @return
 	 */
-	public function hasLiked( $id , $type , $userId, $useStreamId = false )
+	public function hasLiked($id , $type , $userId, $useStreamId = false)
 	{
 		$likes = null;
 
@@ -524,10 +524,7 @@ class EasySocialModelLikes extends EasySocialModel
 		$state 		= $likes->store();
 
 		// If there's an error storing, log this down.
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'LIKES: Unable to like item because of the error ' . $likes->getError() );
-
+		if (!$state) {
 			// Set the error to the model.
 			$this->setError( $table->getError() );
 		}
@@ -568,10 +565,7 @@ class EasySocialModelLikes extends EasySocialModel
 
 		$state 	= $likes->delete();
 
-		if( !$state )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'LIKES: Unable to delete item because of the error ' . $likes->getError() );
-
+		if (!$state) {
 			// Set the error to the model.
 			$this->setError( $table->getError() );
 		}

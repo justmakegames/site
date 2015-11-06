@@ -348,6 +348,35 @@ class SocialTablePhoto extends SocialTable
     }
 
     /**
+     * Normalizes all meta value by ensuring that it's using the latest format
+     *
+     */
+    public function normalizeMetaValue(&$meta)
+    {
+        // Fixed legacy value when the data contains JPATH_ROOT values
+        $meta->value = str_ireplace(JPATH_ROOT, '', $meta->value);
+
+        // Get the filename from the path
+        $fileName = basename($meta->value);
+
+        // Here we need to test if there is more than 3 segments of /path/album_id/photo_id/filename
+        $parts = explode('/', $meta->value);
+
+        if (count($parts) > 3) {
+            $meta->value = '/' . $this->album_id . '/' . $this->id . '/' . $fileName;
+
+            // If there is more than 3 segments in the path, we need to update the record
+            if (count($parts) > 3) {
+
+                $table = FD::table('PhotoMeta');
+                $table->bind($meta);
+                $table->value = $meta->value;
+                $table->store();
+            }
+        }
+    }
+
+    /**
      * Deletes the photos generated for this photo
      *
      * @since   1.0
@@ -357,25 +386,30 @@ class SocialTablePhoto extends SocialTable
      */
     public function deletePhotos($types)
     {
-        $files  = array();
+        $files = array();
 
-        foreach( $types as $type )
-        {
-            $meta   = FD::table( 'PhotoMeta' );
-            $meta->load( array( 'photo_id' => $this->id , 'group' => SOCIAL_PHOTOS_META_PATH , 'property' => $type ) );
+        $config = FD::config();
 
-            if( $type != 'stock' )
-            {
-                $files[]    = str_ireplace( JPATH_ROOT , '' , $meta->value );
+        // Get the photo storage container
+        $container = FD::cleanPath($config->get('photos.storage.container'));
+
+        foreach ($types as $type) {
+            $meta = FD::table('PhotoMeta');
+            $meta->load(array('photo_id' => $this->id, 'group' => SOCIAL_PHOTOS_META_PATH, 'property' => $type));
+
+            $this->normalizeMetaValue($meta);
+
+            if ($type != 'stock') {
+
+                $files[] = $container . $meta->value;
             }
-
 
             $meta->delete();
         }
 
         // Since remote storages doesn't store the "stock" photo, we need to manually delete it
-        $storage    = FD::storage( $this->storage );
-        $storage->delete( $files );
+        $storage = FD::storage($this->storage);
+        $storage->delete($files);
 
         return true;
     }
@@ -553,15 +587,21 @@ class SocialTablePhoto extends SocialTable
             // Assign a badge for the user
             $this->assignBadge( 'photos.upload' , $this->uid );
 
-            // Store the meta for the angle of the photo to be 0 by default.
-            $meta   = FD::table( 'PhotoMeta' );
+            $exif = FD::get('Exif');
 
-            $meta->photo_id     = $this->id;
-            $meta->group        = SOCIAL_PHOTOS_META_EXIF;
-            $meta->property     = 'angle';
-            $meta->value        = 0;
+            // Detect the photo caption and title if exif is available.
+            if($exif->isAvailable())
+            {
+                // Store the meta for the angle of the photo to be 0 by default.
+                $meta = FD::table('PhotoMeta');
 
-            $meta->store();
+                $meta->photo_id = $this->id;
+                $meta->group = SOCIAL_PHOTOS_META_EXIF;
+                $meta->property = 'angle';
+                $meta->value = 0;
+
+                $meta->store();
+            }
         }
 
         JPluginHelper::importPlugin('finder');
@@ -1112,18 +1152,22 @@ class SocialTablePhoto extends SocialTable
             }
 
             if ($album->core == SOCIAL_ALBUM_STORY_ALBUM) {
+
+                $layout   = JRequest::getVar('layout', '');
+
+                $type   = SOCIAL_TYPE_PHOTO;
                 $verb   = 'upload';
-                $type   = SOCIAL_TYPE_STREAM;
 
                 // We need to test if this photo contains single stream item or aggregated
                 $model      = FD::model('Stream');
                 $aggregated = $model->isAggregated($this->id, 'photos');
 
-                if (!$aggregated) {
-                    $type   = SOCIAL_TYPE_PHOTO;
+                if ($aggregated && $layout != 'item') {
                     $verb   = 'upload';
+                    $type   = SOCIAL_TYPE_STREAM;
                 }
             }
+
 
             $likes[ $this->id ] = FD::get( 'Likes' )->getCount($id , $type, $verb, $group);
         }
@@ -1163,16 +1207,19 @@ class SocialTablePhoto extends SocialTable
             }
 
             if ($album->core == SOCIAL_ALBUM_STORY_ALBUM) {
-                $verb      = 'upload';
-                $context   = SOCIAL_TYPE_STREAM;
+
+                $layout   = JRequest::getVar('layout', '');
+
+                $type   = SOCIAL_TYPE_PHOTO;
+                $verb   = 'upload';
 
                 // We need to test if this photo contains single stream item or aggregated
                 $model      = FD::model('Stream');
                 $aggregated = $model->isAggregated($this->id, 'photos');
 
-                if (!$aggregated) {
-                    $context   = SOCIAL_TYPE_PHOTO;
-                    $verb      = 'upload';
+                if ($aggregated && $layout != 'item') {
+                    $verb   = 'upload';
+                    $type   = SOCIAL_TYPE_STREAM;
                 }
             }
 
@@ -1220,27 +1267,37 @@ class SocialTablePhoto extends SocialTable
     {
         static $paths   = array();
 
-        if( !isset( $paths[ $this->id ] ) )
-        {
-            $model      = FD::model( 'Photos' );
-            $metas      = $model->getMeta($this->id, SOCIAL_PHOTOS_META_PATH);
-            $obj        = new stdClass();
+        $config = FD::config();
+
+        // Get the photo storage container
+        $container = FD::cleanPath($config->get('photos.storage.container'));
+
+        if (!isset($paths[$this->id])) {
+            $model = FD::model('Photos');
+
+            // Retrieve information about the photo
+            $metas = $model->getMeta($this->id, SOCIAL_PHOTOS_META_PATH);
+
+            $result = new stdClass();
+
+            if (!$metas) {
+                $paths[$this->id] = false;
+
+                return $paths[$this->id];
+            }
 
             foreach ($metas as $meta) {
 
-                // @legacy
-                // Fix legacy values which stores the JPATH_ROOT in the value
-                $value  = $meta->value;
-                $value  = str_ireplace(JPATH_ROOT, '', $meta->value);
+                $this->normalizeMetaValue($meta);
 
-                // We need to prefix the site root since file stored is relative to the site.
-                $obj->{$meta->property} = JPATH_ROOT . $value;
+
+                $result->{$meta->property} = JPATH_ROOT . '/' . $container . $meta->value;
             }
 
-            $paths[ $this->id ] = $obj;
+            $paths[$this->id] = $result;
         }
 
-        return $paths[ $this->id ]->{$type};
+        return $paths[$this->id]->{$type};
     }
 
     /**
@@ -1793,7 +1850,7 @@ class SocialTablePhoto extends SocialTable
 
         // Detect the photo caption and title if exif is available.
         if ($exif->isAvailable() && $image->hasExifSupport()) {
-           
+
             // Load the image
             $exif->load($file['tmp_name']);
 
@@ -1802,7 +1859,7 @@ class SocialTablePhoto extends SocialTable
 
             // Get the caption from the exif library
             $caption = $exif->getCaption();
-            
+
             // Get the creation date from the exif library
             $createdAlias = $exif->getCreationDate();
 
@@ -1839,7 +1896,7 @@ class SocialTablePhoto extends SocialTable
 
         // Detect location for the photo
         if ($exif->isAvailable() && $image->hasExifSupport()) {
-           
+
             // Load the file
             $exif->load($file['tmp_name']);
 
@@ -1848,7 +1905,7 @@ class SocialTablePhoto extends SocialTable
 
             // Once we have the coordinates, we need to reverse geocode it to get the address.
             if ($locationCoordinates) {
-                
+
                 $my = FD::user();
                 $geocode = FD::get( 'GeoCode' );
                 $address = $geocode->reverse( $locationCoordinates->latitude , $locationCoordinates->longitude );

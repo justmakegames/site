@@ -5,8 +5,8 @@
 var moduleFactory = function($) {
 // module body: start
 
-var module = this; 
-var exports = function() { 
+var module = this;
+var exports = function() {
 
 /**
  * jquery.mentions.
@@ -23,14 +23,14 @@ var exports = function() {
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
- * 
+ *
  * Trigger configuration:
- * 
+ *
  * type
  *   Name for the trigger type.
- * 
+ *
  * wrap
- *   Whether or not hitting a trigger key before existing 
+ *   Whether or not hitting a trigger key before existing
  *   characters will wrap these characters into the block
  *   marker until a stop character is found. Space will
  *   always be a stop character whether or not it is
@@ -43,7 +43,7 @@ var exports = function() {
  *   If true, hitting on a space in a block marker
  *   will not end the block marker until a consecutive
  *   space is pressed. (default: false)
- * 
+ *
  * query
  *   Accepts a url string, an array of objects or
  *   a function that returns a deferred object that
@@ -95,17 +95,25 @@ var exports = function() {
 // TODO: Put this elsewhere
 $.fn.caret = function(start, end) {
 
-    if (this.length == 0) return;
-    if (typeof start == 'number')
-    {
+    if (this.length == 0) {
+        return;
+    }
+
+    if (typeof start == 'number') {
+
         end = (typeof end == 'number') ? end : start;
-        return this.each(function ()
-        {
-            if (this.setSelectionRange)
-            {
-                this.setSelectionRange(start, end);
-            } else if (this.createTextRange)
-            {
+
+        return this.each(function() {
+
+            if (this.setSelectionRange) {
+                var obj = this;
+
+                // window.setTimout is a walkaround to address the chrome bug.
+                window.setTimeout(function() {
+                    obj.setSelectionRange(start, end);
+                }, 0);
+
+            } else if (this.createTextRange) {
                 var range = this.createTextRange();
                 range.collapse(true);
                 range.moveEnd('character', end);
@@ -113,8 +121,8 @@ $.fn.caret = function(start, end) {
                 try { range.select(); } catch (ex) { }
             }
         });
-    } else
-    {
+
+    } else {
         if (this[0].setSelectionRange)
         {
             start = this[0].selectionStart;
@@ -2167,7 +2175,7 @@ $.template("mentions/inspector", '<div class="mentions-inspector" data-mentions-
         <input type="text" data-mentions-trigger-buffer/>
         <hr/>
     </fieldset>
-    <hr/> 
+    <hr/>
     <fieldset>
         <b>Marker</b>
         <hr/>
@@ -2234,7 +2242,7 @@ $.Controller("Mentions.Inspector",
 
         "{triggerKey}" : "[data-mentions-trigger-key]",
         "{triggerType}" : "[data-mentions-trigger-type]",
-        "{triggerBuffer}" : "[data-mentions-trigger-buffer]"        
+        "{triggerBuffer}" : "[data-mentions-trigger-buffer]"
     }
 },
 function(self){ return {
@@ -2320,7 +2328,7 @@ function(self){ return {
         if (block) {
             self.blockText().val(marker.text.nodeValue);
             self.blockHtml().val($(block).clone().toHTML());
-            // TODO: Retrieve block type & value 
+            // TODO: Retrieve block type & value
         } else {
             self.blockText().val('');
             self.blockHtml().val('');
@@ -2334,14 +2342,14 @@ function(self){ return {
 
 }});
 
-}; 
+};
 
-exports(); 
-module.resolveWith(exports); 
+exports();
+module.resolveWith(exports);
 
 // module body: end
 
-}; 
+};
 // module factory: end
 
 FD40.module("mentions", moduleFactory);

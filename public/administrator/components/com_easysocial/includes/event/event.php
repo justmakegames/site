@@ -233,6 +233,9 @@ class SocialEvent extends SocialCluster
         // Deduct points when a group is deleted
         FD::points()->assign('events.remove', 'com_easysocial', $this->getCreator()->id);
 
+        // remove the access log for this action
+        FD::access()->removeLog('events.limit', $this->getCreator()->id, $this->id, SOCIAL_TYPE_EVENT);
+
         // Set the arguments
         $args = array(&$this);
 
@@ -670,6 +673,19 @@ class SocialEvent extends SocialCluster
     }
 
     /**
+     * Returns the SocialDate object of the event timezone.
+     *
+     * @author  Nik Faris <nikfaris@stackideas.com>
+     * @since   1.4
+     * @access  public
+     * @return  SocialDate The SocialDate object of the event timezone.
+     */
+    public function getEventTimezone()
+    {
+        return $this->meta->getTimezone();
+    }
+
+    /**
      * Check if this event has an end date.
      *
      * @author Jason Rey <jasonrey@stackideas.com>
@@ -1069,6 +1085,39 @@ class SocialEvent extends SocialCluster
         // If there is nothing to send, just skip this altogether
         if (!$targets) {
             return;
+        }
+
+        if ($action == 'video.create') {
+            $actor = ES::user($data['userId']);
+
+            $params = new stdClass();
+            $params->actor = $actor->getName();
+            $params->userName = $actor->getName();
+            $params->userLink = $actor->getPermalink(false, true);
+            $params->groupName = $this->getName();
+            $params->groupAvatar = $this->getAvatar();
+            $params->groupLink = $this->getPermalink(false, true);
+            $params->videoTitle = $data['title'];
+            $params->videoDescription = $data['description'];
+            $params->videoLink = $data['permalink'];
+
+            $options = new stdClass();
+            $options->title = 'COM_EASYSOCIAL_EMAILS_GROUP_VIDEO_CREATED_SUBJECT';
+            $options->template = 'site/event/video.create';
+            $options->params = $params;
+
+            // Set the system alerts
+            $system = new stdClass();
+            $system->uid = $this->id;
+            $system->title = '';
+            $system->actor_id = $actor->id;
+            $system->context_ids = $data['id'];
+            $system->context_type = 'events';
+            $system->type = SOCIAL_TYPE_EVENT;
+            $system->url = $params->videoLink;
+            $system->image = $this->getAvatar();
+
+            ES::notify('events.video.create', $targets, $options, $system);
         }
 
         if ($action == 'task.completed')
@@ -1591,6 +1640,19 @@ class SocialEvent extends SocialCluster
     }
 
     /**
+     * Checks if this event is an all day event.
+     *
+     * @author Jason Rey <jasonrey@stackideas.com>
+     * @since  1.3.7
+     * @access public
+     * @return boolean   True if this event is an all day event.
+     */
+    public function getReminder()
+    {
+        return $this->meta->getReminder();
+    }
+
+    /**
      * As the logic is getting more complicated, we move it here so that it does not cloud the theme files.
      *
      * @author Jason Rey <jasonrey@stackideas.com>
@@ -1605,6 +1667,7 @@ class SocialEvent extends SocialCluster
 
         $start = $this->getEventStart();
         $end = $this->getEventEnd();
+        $timezone = $this->getEventTimezone();
 
         $startString = $start->toSql(true);
         $endString = $end->toSql(true);
@@ -1630,6 +1693,11 @@ class SocialEvent extends SocialCluster
             'enddate' => true,
             'endtime' => true
         );
+
+        // If there is a timezone set for this event, display it
+        if ($timezone) {
+            $default['timezone'] = true;
+        }
 
         // If start and end is the same, means there is no end, then we do not want to show end by default
         if ($startString == $endString) {
@@ -1686,6 +1754,10 @@ class SocialEvent extends SocialCluster
             }
 
             $output .= $end->format($endFormat, true);
+        }
+
+        if (isset($options['timezone']) && $options['timezone']) {
+            $output .= ' - ' . $timezone;
         }
 
         return $output;
@@ -1746,5 +1818,51 @@ class SocialEvent extends SocialCluster
             'state' => SOCIAL_STATE_PUBLISHED,
             'parent_id' => $this->id
         ));
+    }
+
+    /**
+     * display a rsvp button. used in module and widget.
+     *
+     * @author Sam <sam@stackideas.com>
+     * @since  1.4
+     * @access public
+     * @return string
+     */
+    public function showRsvpButton($usePopbox = false)
+    {
+        // if over already, dont show button.
+        if ($this->isOver()) {
+            return '';
+        }
+
+        $guest = $this->getGuest();
+
+        $defaultBtn = ' btn-default';
+        $defaultBtnLabel = JText::_('COM_EASYSOCIAL_EVENTS_RSVP_TO_THIS_EVENT');
+
+        if ($guest->isGoing()) {
+            $defaultBtn = ' btn-es-success';
+            $defaultBtnLabel = JText::_('COM_EASYSOCIAL_EVENTS_GUEST_GOING');
+        } else if ($guest->isMaybe()) {
+            $defaultBtn = ' btn-es-info';
+            $defaultBtnLabel = JText::_('COM_EASYSOCIAL_EVENTS_GUEST_MAYBE');
+        } else if ($guest->isNotGoing()) {
+            $defaultBtn = ' btn-es-danger';
+            $defaultBtnLabel = JText::_('COM_EASYSOCIAL_EVENTS_GUEST_NOTGOING');
+        }
+
+        $theme = ES::themes();
+        $theme->set('event', $this);
+        $theme->set('guest', $guest);
+        $theme->set('defaultBtn', $defaultBtn);
+        $theme->set('defaultBtnLabel', $defaultBtnLabel);
+
+        $filename = 'site/events/rsvp.button';
+        if ($usePopbox) {
+            $filename .= '.popbox';
+        }
+
+        $output = $theme->output($filename);
+        return $output;
     }
 }

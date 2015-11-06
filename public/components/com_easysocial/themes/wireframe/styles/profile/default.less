@@ -37,7 +37,7 @@
 			a {
 				color: @esHeaderContentColor;
 				span {
-					font-size: 11px;
+					font-size: @baseFontSize;
 				}
 			}
 
@@ -60,7 +60,7 @@
 
 	.user-meta{
 		margin-bottom: 8px;
-		font-size: 11px;
+		font-size: @baseFontSize;
 	}
 }
 //Profile
@@ -120,7 +120,7 @@
 		}
 
         .control-label {
-            font-size: 11px;
+            font-size: @baseFontSize;
         }
 	}
 
@@ -132,7 +132,7 @@
 
 	// User's information
 	.es-header-info{
-		font-size: 11px;
+		font-size: @baseFontSize;
 		padding-bottom: 10px;
 	}
 
@@ -140,7 +140,7 @@
 		.fd-nav{
 			> li {
 				> a{
-					font-size: 11px;
+					font-size: @baseFontSize;
 
 					> i {
 						margin-right: 5px;
@@ -151,7 +151,7 @@
 	}
 	.dropdown-friends{
 		width: 200px;
-		font-size: 11px;
+		font-size: @baseFontSize;
 
 		li {
 
@@ -329,6 +329,16 @@
     margin: 5px 0;
     padding: 5px 10px;
     border-radius: 3px;
+}
+
+.es-user-banned {
+	border-radius: 3px;
+
+	b {
+		display: block;
+		font-size: 110%;
+		margin: 0 0 3px;
+	}
 }
 
 // Responsive

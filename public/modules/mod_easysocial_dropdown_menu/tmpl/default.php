@@ -6,6 +6,7 @@
 * @author 		Stack Ideas Sdn Bhd
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+$useSSL = $params->get('use_secure_url', false) ? 1 : 0;
 ?>
 <div id="fd" class="es mod-es-dropdown-menu module-dropdown-menu<?php echo $suffix;?>">
 	<div class="mod-bd">
@@ -21,8 +22,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                 data-popbox-target=".mod-popbox-dropdown"
                 data-popbox-position="<?php echo $params->get('popbox_position', 'bottom'); ?>"
                 data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>"
+                data-popbox-offset="<?php echo $params->get('popbox_offset', 10); ?>"
             >
-				<i class="ies-locked ies-small"></i>&nbsp; <?php echo JText::_('MOD_EASYSOCIAL_DROPDOWN_MENU_SIGN_IN');?>
+				<i class="fa fa-lock"></i>&nbsp; <?php echo JText::_('MOD_EASYSOCIAL_DROPDOWN_MENU_SIGN_IN');?>
 			</a>
 
 			<?php if (
@@ -37,7 +39,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				)
 			) { ?>
 			<a href="<?php echo FRoute::registration(); ?>" class="btn btn-es-primary btn-sm">
-				<i class="ies-earth ies-small"></i>&nbsp; <?php echo JText::_('MOD_EASYSOCIAL_DROPDOWN_MENU_REGISTER'); ?>
+				<i class="fa fa-globe "></i>&nbsp; <?php echo JText::_('MOD_EASYSOCIAL_DROPDOWN_MENU_REGISTER'); ?>
 			</a>
 			<?php } ?>
 
@@ -45,7 +47,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                 data-module-dropdown-login class="mod-popbox-dropdown"
                 >
 				<div class="popbox-dropdown-menu dropdown-menu-login loginDropDown" style="display: block;">
-					<form name="loginbox" id="loginbox" action="<?php echo JRoute::_('index.php');?>" method="post">
+					<form name="loginbox" id="loginbox" action="<?php echo JRoute::_('index.php', true, $useSSL);?>" method="post">
 
 						<ul class="fd-reset-list">
 							<li class="pb-0">
@@ -100,16 +102,16 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 											)
 										) { ?>
 										<li>
-											<i class="ies-plus-2"></i>  <a href="<?php echo FRoute::registration();?>" class="pull-" tabindex="106"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_CREATE_NEW_ACCOUNT' );?></a>
+											<i class="fa fa-plus-2"></i>  <a href="<?php echo FRoute::registration();?>" class="pull-" tabindex="106"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_CREATE_NEW_ACCOUNT' );?></a>
 										</li>
 										<?php } ?>
 										<?php if (!$config->get('registrations.emailasusername')) { ?>
 										<li>
-											<i class="ies-help"></i>  <a href="<?php echo FRoute::account( array( 'layout' => 'forgetUsername' ) );?>" class="pull-" tabindex="107"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_FORGOT_USERNAME' );?></a>
+											<i class="fa fa-help"></i>  <a href="<?php echo FRoute::account( array( 'layout' => 'forgetUsername' ) );?>" class="pull-" tabindex="107"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_FORGOT_USERNAME' );?></a>
 										</li>
 										<?php } ?>
 										<li>
-											<i class="ies-help"></i>  <a href="<?php echo FRoute::account( array( 'layout' => 'forgetPassword' ) );?>" class="pull-" tabindex="108"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_FORGOT_PASSWORD' );?></a>
+											<i class="fa fa-help"></i>  <a href="<?php echo FRoute::account( array( 'layout' => 'forgetPassword' ) );?>" class="pull-" tabindex="108"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_FORGOT_PASSWORD' );?></a>
 										</li>
 									</ul>
 								</div>
@@ -141,6 +143,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                 data-popbox-target=".mod-popbox-dropdown"
                 data-popbox-position="<?php echo $params->get('popbox_position', 'bottom'); ?>"
                 data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>"
+                data-popbox-offset="<?php echo $params->get('popbox_offset', 10); ?>"
             >
 				<span class="es-avatar">
 					<img src="<?php echo $my->getAvatar();?>" alt="<?php echo $modules->html( 'string.escape' , $my->getName() );?>" />

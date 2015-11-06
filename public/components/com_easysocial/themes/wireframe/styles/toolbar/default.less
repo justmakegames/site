@@ -13,9 +13,12 @@
 @searchbarWidth: 240px;
 
 .es-toolbar {
-	margin-bottom: 5px;
+	margin-bottom: 0;
 	position: relative;
+	min-height: 35px;
 	z-index: 20;	//issues #1280 tried to reduce from 600
+	border: 0;
+	
 	.clearfix();
 
 	*:focus {
@@ -26,6 +29,10 @@
 	}
 	.apps-icon {
 		vertical-align: top;
+	}
+
+	+ .alert {
+		margin: 15px 0;
 	}
 
 	.es-toolbar-avatar {
@@ -45,7 +52,7 @@
 		}
 	}
 
-	.nav-collapse > .fd-nav {
+	.es-toolbar-wrap > .fd-nav {
 		float: left;
 
 		> li {
@@ -79,7 +86,7 @@
 	}
 	.label-notification {
 		position: absolute;
-		top: 7px;
+		top: 2px;
 		right: 1px;
 	}
 	.loginLink {
@@ -98,7 +105,7 @@
 		white-space: nowrap;
 		line-height: 15px;
 		color: white;
-		font-size: 11px;
+		font-size: @baseFontSize;
 		margin-left: 8px;
 		text-shadow: none;
 	}
@@ -114,7 +121,8 @@
 
 	// Custom dropdown menu for toolbar
 	// ----------------
-	.nav-collapse {
+	.es-toolbar-wrap {
+        overflow: visible;
 		.fd-nav > li > a {
 			margin: 0;
 		}
@@ -131,7 +139,7 @@
 			}
 		}
 		.dropdown-menu {
-			// .nav-collapse .nav > li > a:hover,
+			// .es-toolbar-wrap .nav > li > a:hover,
 			border-radius: 0 0 3px 3px;
 			margin-top: 0px;
 			padding-bottom: 0;
@@ -159,7 +167,7 @@
 			label {
 				font-size: 12px;
 				&.fd-small {
-					font-size: 11px;
+					font-size: @baseFontSize;
 				}
 			}
 			label {
@@ -184,7 +192,7 @@
 					margin-top: 10px;
 					a{
 						display: inline;
-						font-size: 11px;
+						font-size: @baseFontSize;
 						margin: 0 10px;
 						color: @esToolbarActionsColor;
 						line-height: 20px;
@@ -202,7 +210,7 @@
 					.es-action {
 						a {
 							text-decoration: none;
-							[class^="ies-"] {
+							.fa {
 								color: @esToolbarActionsIconColor;
 							}
 						}
@@ -278,7 +286,7 @@
 
 				}
 				.object-title {
-					font-size: 11px;
+					font-size: @baseFontSize;
 					.object-text {
 
 					}
@@ -364,7 +372,7 @@
 					.btn {
 						// display: inline-block;
 						padding: 2px 5px;
-						font-size: 11px;
+						font-size: @baseFontSize;
 						font-weight: bold;
 						&:hover {
 							text-decoration: none;
@@ -484,7 +492,7 @@
 		}
 
 		> li {
-			line-height: 20px;
+			line-height: 8px;
 			position: relative;
 			overflow: visible;
 			> a {
@@ -492,8 +500,7 @@
 				height: 34px;
 				line-height: 0px;
 				overflow: hidden;
-				[class^="ies-"],
-				[class*=" ies-"] {
+				.fa {
 					vertical-align: top;
 					position: relative;
 					width: 20px;
@@ -505,12 +512,10 @@
 				}
 				.ies-locked {
 					font-size: 12px;
-					color: #fff;
+					color: @esToolbarColor;
 				}
 				&:hover {
-					[class^="ies-"],
-					[class*=" ies-"] {
-					}
+					
 				}
 				&.to_login {
 					padding: 12px 35px 8px 0;
@@ -539,9 +544,8 @@
 			}
 
 			&.has-notice {
-				[class^="ies-"],
-				[class*=" ies-"] {
-					color: #fff;
+				.fa {
+					color: @esToolbarColor;
 				}
 			}
 
@@ -610,11 +614,11 @@
 
 		}
 
-		.ies-search {
+		.fa-search {
 			position: absolute;
 			top: 10px;
 			left: 16px;
-			color: #fff;
+			color: @esToolbarColor;
 			z-index: 2;
 		}
 		+ .fd-nav {
@@ -624,14 +628,150 @@
 
 	//Responsive Control
 	&.wide {
-		.nav-collapse.collapse {
-			height: auto !important;
-			overflow: visible !important;
-			display: block !important;
-		}
+
 	}//wide
 
 }//es-toolbar
+
+.es-navbar-search-filter {
+
+	position: absolute;
+	top: -1px;
+	right: 0;
+	height: 34px;
+	line-height: 34px;
+
+	> a {
+		color: #fff;
+		text-align: center;
+		display: inline-block;
+		height: 35px;
+		line-height: 34px;
+		padding: 0 10px;
+		font-size: @fontSizeSmall;
+		.opacity(.75);
+
+		> .fa {
+			line-height: inherit;
+		}
+	}
+
+	&:hover {
+		> a {
+			.opacity(1);
+		}
+	}
+
+	&.open > .es-navbar-dropdown {
+	}
+}
+
+.es-navbar-dropdown {
+	background: #fff;
+	border: 1px solid #ccc;
+	border-radius: 0 0 3px 3px !important;
+	min-width: 241px;
+
+    border: 1px solid rgba(0,0,0,0.2);
+    border-top: 0;
+    -webkit-box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+
+    position: absolute;
+    right: -1px !important;
+    top: 100% !important;
+    margin-top: 1px !important;
+    padding-bottom: 5px !important;
+
+    &:before,
+    &:after {
+    	content: '';
+    	display: block;
+    	position: absolute;
+    }
+
+    &:before {
+    	background: @esNavbarSearchBackground;
+    	width: 3px !important;
+    	height: 3px !important;
+    	right: -1px !important;
+    	top: -3px !important;
+    }
+
+    &:after {
+    	border-left: 5px solid transparent;
+    	border-right: 5px solid transparent;
+    	border-bottom: 5px solid #fff;
+
+    	right: 10px !important;
+    	top: -5px !important;
+    }
+
+    > li {
+    	float: left;
+    	width: 50%;
+
+    	&.es-navbar-dropdown-head {
+    		width: 100%;
+    	}
+    }
+
+    .es-checkbox {
+    	padding: 0;
+
+    	> label {
+    		padding: 8px !important;
+    		padding-left: 40px !important;
+
+    		&:before,
+	    	&:after {
+	    		margin-left: 15px;
+	    		margin-top: 8px;
+	    	}
+    	}
+    }
+}
+
+.es-navbar-dropdown-head {
+	.es-filter-header {
+		padding: 15px;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.es-filter-helper {
+		padding: 5px 15px;
+		color: @link-color;
+
+		.col-cell {
+			cursor: pointer;
+			vertical-align: middle;
+			position: relative;
+			padding: 0 9px 0 0;
+
+			+ .col-cell {
+				padding: 0 0 0 10px;
+
+				&:before {
+					background: #ddd;
+					content: '';
+					display: block;
+					width: 1px;
+					height: 12px;
+
+					position: absolute;
+					left: 0;
+					top: 50%;
+					margin-top: -6px;
+				}
+			}
+		}
+	}
+}
+
+.es-dropdown-right {
+	left: auto;
+	right: 0;
+}
 
 
 &.view-login {
@@ -692,7 +832,7 @@
 		}
 
 		//spacing for navbar search field
-		.nav-collapse {
+		.es-toolbar-wrap {
 			//when main navigation displayed
 			> .fd-nav + .fd-navbar-search {
 				margin: 14px 0 10px;
@@ -705,6 +845,7 @@
 			padding: 0 10px;
 			width: 100%;
 			border-radius: @borderRadius;
+			top: 5px;
 			.search-query {
 				width: 100%;
 				// height: 34px;
@@ -713,6 +854,9 @@
 				left: 16px;
 				top: 11px;
 			}
+		}
+		.es-navbar-search-filter {
+			top: 38px;
 		}
 
 		.toolbar-user-name {
@@ -728,7 +872,7 @@
 
 		}
 		// Realign dropdown menu width and position
-		.nav-collapse {
+		.es-toolbar-wrap {
 			.dropdown-menu {
 				&.dropdown-menu-friends {
 					left: -48px;
@@ -874,3 +1018,4 @@
 		}
 	}
 }//scrollbar-wrap
+

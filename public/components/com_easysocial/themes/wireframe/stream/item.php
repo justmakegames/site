@@ -34,7 +34,10 @@ if( $streamDateDisplay == 'datetime' )
 <div class="es-container">
 	<div class="es-streams" data-streams>
 		<ul data-stream-list class="es-stream-list fd-reset-list">
-			<li class="type-<?php echo $stream->favicon; ?> streamItem<?php echo $stream->display == SOCIAL_STREAM_DISPLAY_FULL ? ' es-stream-full' : ' es-stream-mini';?> stream-context-<?php echo $stream->context; ?><?php echo $stream->bookmarked ? ' is-bookmarked' : '';?>"
+			<li class="type-<?php echo $stream->favicon; ?>
+				streamItem<?php echo $stream->display == SOCIAL_STREAM_DISPLAY_FULL ? ' es-stream-full' : ' es-stream-mini';?>
+				stream-context-<?php echo $stream->context; ?>
+				<?php echo $stream->bookmarked ? ' is-bookmarked' : '';?>"
 				data-id="<?php echo $stream->uid;?>"
 				data-ishidden="0"
 				data-streamItem
@@ -42,32 +45,10 @@ if( $streamDateDisplay == 'datetime' )
 			>
 				<div class="es-stream" data-stream-item >
 
-					<?php if( $this->template->get( 'stream_icon' , true ) ){ ?>
-						<?php if( isset( $stream->fonticon ) && $stream->fonticon ){ ?>
-							<span class="stream-icon pull-right ml-5" style="<?php echo $stream->color ? 'border: 1px solid ' . $stream->color . ';background:' . $stream->color : '';?>"
-								data-original-title="<?php echo $stream->label;?>"
-								data-es-provide="tooltip"
-								data-placement="left">
-								<span>
-									<i class="<?php echo $stream->fonticon;?>"></i>
-								</span>
-							</span>
-						<?php } ?>
-
-						<?php if( $stream->icon ){ ?>
-							<span class="stream-icon">
-								<?php echo $stream->icon;?>
-							</span>
-						<?php } ?>
-
-					<?php } else { ?>
-						<span class="label es-stream-type pull-right"<?php echo !empty( $stream->color ) ? 'style="background:' . $stream->color . '" ' : '';?>><?php echo $stream->label;?></span>
-					<?php } ?>
-
 					<?php if( FD::user()->id != 0 && ( $this->access->allowed( 'stream.hide' ) || $this->access->allowed( 'reports.submit' ) || ( $this->access->allowed( 'stream.delete', false ) || FD::user()->isSiteAdmin() ) ) ){ ?>
 					<div class="es-stream-control btn-group pull-right">
 						<a class="btn-control" href="javascript:void(0);" data-bs-toggle="dropdown">
-							<i class="ies-arrow-down"></i>
+							<i class="fa fa-caret-down"></i>
 						</a>
 						<ul class="dropdown-menu fd-reset-list">
 
@@ -79,6 +60,12 @@ if( $streamDateDisplay == 'datetime' )
 								<a href="javascript:void(0);"><?php echo JText::_('COM_EASYSOCIAL_STREAM_REMOVE_BOOKMARK');?></a>
 							</li>
 							<li class="divider">
+							</li>
+							<?php } ?>
+
+							<?php if ($stream->editablepoll) { ?>
+							<li data-stream-polls-edit>
+								<a href="javascript:void(0);"><?php echo JText::_('COM_EASYSOCIAL_STREAM_EDIT_POLLS');?></a>
 							</li>
 							<?php } ?>
 
@@ -124,7 +111,7 @@ if( $streamDateDisplay == 'datetime' )
 
 									<?php if ($this->config->get('stream.bookmarks.enabled')) { ?>
 									<span class="bookmark pull-left mr-5" data-es-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_BOOKMARK_YOU_HAVE_BOOKMARKED_THIS_STREAM');?>">
-										<i class="ies-star" pull-right></i>
+										<i class="fa fa-star" pull-right></i>
 									</span>
 									<?php } ?>
 
@@ -132,7 +119,11 @@ if( $streamDateDisplay == 'datetime' )
 										<?php echo $stream->title; ?>
 									</div>
 									<div class="es-stream-meta-footer">
-
+										<span class="text-muted">
+											<?php echo $stream->label;?>
+											<b>&middot;</b>
+										</span>
+										
 										<?php if ($this->config->get('stream.timestamp.enabled')) { ?>
 										<time>
 											<a href="<?php echo FRoute::stream( array( 'id' => $stream->uid , 'layout' => 'item' ) ); ?>"><?php echo $stream->friendlyDate; ?></a>
@@ -145,10 +136,21 @@ if( $streamDateDisplay == 'datetime' )
 
 		 				<?php if( $stream->display == SOCIAL_STREAM_DISPLAY_FULL ) { ?>
 
-							<div class="es-stream-content">
+							<div class="es-stream-content" data-stream-content>
 								<?php echo $stream->content; ?>
 								<?php echo $stream->meta; ?>
 							</div>
+
+							<?php if ($showTranslations && $this->config->get('stream.translations.bing') && $this->config->get('stream.translations.bingid') && $this->config->get('stream.translations.bingsecret')) { ?>
+							<div class="es-stream-translations">
+								<span class="translate-loader" data-stream-translate-loader><i class="fd-loading"></i></span>
+								<a href="javascript:void(0);" class="translate-link" data-stream-translate><?php echo JText::_('COM_EASYSOCIAL_STREAM_SEE_TRANSLATION');?></a>
+							</div>
+							<?php } ?>
+							
+							<?php if ($stream->editable || $stream->editablepoll) { ?>
+							<div class="es-stream-editor" data-stream-editor></div>
+							<?php } ?>
 
 							<?php if( isset( $stream->preview ) && !empty( $stream->preview ) ){ ?>
 							<div class="es-stream-preview">

@@ -35,19 +35,26 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_FORGET_USERNAME_DESC' , $site ); ?>:
         </p>
 
-        <table align="center" width="96px" border="0" cellpadding="0" cellspacing="0">
-        <tbody><tr>
-        <td width="96" height="96" style="border-collapse:collapse;"><span style="display:block;border:1px solid #f5f5f5;width:96px;height:96px;padding:3px;border-radius:50%;background:#fff;">
-            <img src="<?php echo $avatar;?>" alt="" style="width:96px;height: 96px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff; "/>
-        </span></td></tr>
-        </tbody></table>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
+        <tr>
+        <td align="center">
 
-        <table align="center" width="380" style="margin-top:-10px" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td style="color:#888;border-top: 1px solid #ebebeb;padding: 15px 20px; background-color:#f8f9fb;font-size:13px;text-align:center">
-                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_USERNAME' ); ?>: <?php echo $username;?>
-                </td>
-            </tr>
+            <table align="center" width="96px" border="0" cellpadding="0" cellspacing="0">
+            <tbody><tr>
+            <td width="96" height="96" style="border-collapse:collapse;"><span style="display:block;border:1px solid #f5f5f5;width:96px;height:96px;padding:3px;border-radius:50%;background:#fff;">
+                <img src="<?php echo $avatar;?>" alt="" style="width:96px;height: 96px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff; "/>
+            </span></td></tr>
+            </tbody></table>
+
+            <table align="center" width="380" style="margin-top:-10px" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td style="color:#888;border-top: 1px solid #ebebeb;padding: 15px 20px; background-color:#f8f9fb;font-size:13px;text-align:center">
+                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_USERNAME' ); ?>: <?php echo $username;?>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        </tr>
         </table>
 
         <a style="

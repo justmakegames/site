@@ -42,8 +42,17 @@ class JFormFieldEasySocial_User extends JFormField
 		$title = JText::_('COM_EASYSOCIAL_JFIELD_SELECT_USER');
 
 		if ($this->value) {
-			$model = FD::model('Users');
-			$id = (int) $model->getUserIdFromAlias($this->value);
+
+			$id = (int) $this->value;
+
+			if (! $id) {
+				$model = FD::model('Users');
+				$id = (int) $model->getUserIdFromAlias($this->value);
+
+				if ($id) {
+					$this->value = $id . ':' . $this->value;
+				}
+			}
 
 			$user = FD::user($id);
 			$title = $user->getName();

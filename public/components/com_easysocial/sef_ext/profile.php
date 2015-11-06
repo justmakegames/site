@@ -12,24 +12,25 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Determine how is the user's current id being set.
-if( isset( $id ) )
-{
-    $userAlias = getUserAlias( $id );
+// /view/profile/alias
+if (isset($id)) {
+
+    $userAlias = getUserAlias($id);
 
     $title[] = JFilterOutput::stringURLSafe($userAlias);
 
-    shRemoveFromGETVarsList( 'id' );
-    shRemoveFromGETVarsList( 'layout' );
-    shRemoveFromGETVarsList( 'view' );
+    shRemoveFromGETVarsList('id');
+    shRemoveFromGETVarsList('layout');
+    shRemoveFromGETVarsList('view');
 }
 
 
-if( !isset( $id ) && isset( $view ) )
-{
-    addView( $title , $view );
+// /view
+if (!isset($id) && isset($view)) {
+    addView($title, $view);
 }
 
-if( isset( $layout ) )
-{
-    addLayout( $title , $view , $layout );
+// /view/layout
+if (isset($layout)) {
+    addLayout($title, $view, $layout);
 }

@@ -18,7 +18,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="es-dashboard" data-dashboard>
 	<div class="es-container">
 		<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-			<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+			<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 		</a>
 		<div class="es-sidebar" data-sidebar data-dashboard-sidebar>
 
@@ -41,7 +41,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-title="<?php echo $this->html( 'string.escape' , $this->my->getName() ) . ' - ' . JText::_( 'COM_EASYSOCIAL_DASHBOARD_FEED_DASHBOARD_EVERYONE' , true ); ?>"
 						>
 							<a href="<?php echo FRoute::dashboard( array( 'type' => 'everyone' ) ); ?>">
-								<i class="ies-earth mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_NEWSFEEDS_EVERYONE' );?>
+								<i class="fa fa-globe mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_NEWSFEEDS_EVERYONE' );?>
 								<div class="label label-notification pull-right mr-20" data-stream-counter-everyone>0</div>
 							</a>
 						</li>
@@ -62,14 +62,18 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php echo $this->render('module', 'es-dashboard-before-contents'); ?>
 
 			<div data-dashboard-real-content>
-				<div class="es-filterbar fd-cf">
-					<div class="filterbar-title h5 pull-left"><?php echo JText::_('COM_EASYSOCIAL_RECENT_UPDATES');?></div>
+				<div class="es-snackbar">
+					<div class="row-table">
+						<div class="col-cell"><?php echo JText::_('COM_EASYSOCIAL_RECENT_UPDATES');?></div>
 
-					<?php if ($this->config->get('stream.rss.enabled', true)) { ?>
-					<a href="<?php echo $rssLink;?>" class="fd-small pull-right subscribe-rss btn-subscribe-rss" target="_blank">
-						<i class="ies-feed-2"></i>&nbsp; <?php echo JText::_('COM_EASYSOCIAL_SUBSCRIBE_VIA_RSS');?>
-					</a>
-					<?php } ?>
+						<?php if ($this->config->get('stream.rss.enabled', true)) { ?>
+						<div class="col-cell">
+							<a href="<?php echo $rssLink;?>" class="fd-small pull-right subscribe-rss btn-subscribe-rss" target="_blank">
+								<i class="fa fa-rss-square"></i>&nbsp; <?php echo JText::_('COM_EASYSOCIAL_SUBSCRIBE_VIA_RSS');?>
+							</a>
+						</div>
+						<?php } ?>
+					</div>
 				</div>
 
 				<?php if ($hashtag) { ?>

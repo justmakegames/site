@@ -60,13 +60,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<span class="progress-state text-info"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INITIALIZING' );?></span>
 	<div class="notes"></div>
 </li>
-<li class="pending" data-progress-storedfunction>
-	<b class="split__title">
-		<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INITIALIZING_STOREDFUNCTION' );?>
-	</b>
-	<span class="progress-state text-info"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INITIALIZING' );?></span>
-	<div class="notes"></div>
-</li>
 <li class="pending" data-progress-userapps>
 	<b class="split__title">
 		<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INITIALIZING_USER_APPS' );?>
@@ -168,6 +161,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <li class="pending" data-progress-eventcategories>
 	<b class="split__title">
 		<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INITIALIZING_EVENT_CATEGORIES' );?>
+	</b>
+	<span class="progress-state text-info"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INITIALIZING' );?></span>
+	<div style="text-align:left;margin-left: 0;" class="notes"></div>
+</li>
+<li class="pending" data-progress-videocategories>
+	<b class="split__title">
+		<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INITIALIZING_VIDEO_CATEGORIES' );?>
 	</b>
 	<span class="progress-state text-info"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_INITIALIZING' );?></span>
 	<div style="text-align:left;margin-left: 0;" class="notes"></div>

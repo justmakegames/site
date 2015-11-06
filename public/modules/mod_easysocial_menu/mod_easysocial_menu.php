@@ -51,12 +51,16 @@ $layout = $params->get( 'layout' , 'default' );
 $suffix = $params->get( 'suffix' , '' );
 
 // Determines if EasyBlog exists
-$eblogFile = JPATH_ROOT . '/components/com_easyblog/easyblog.php';
-$eblogExists = JFile::exists( $eblogFile );
+$eblogFile = JPATH_ROOT . '/administrator/components/com_easyblog/includes/easyblog.php';
+$eblogExists = JFile::exists($eblogFile);
+
+if ($eblogExists) {
+    require_once($eblogFile);
+}
 
 // Get the logout return value
 $logoutMenu = FD::config()->get( 'general.site.logout' );
-$logoutReturn = FD::get( 'toolbar' )->getRedirectionUrl( $logoutMenu );
+$logoutReturn = FRoute::getMenuLink($logoutMenu);
 $logoutReturn = base64_encode( $logoutReturn );
 
 require(JModuleHelper::getLayoutPath('mod_easysocial_menu', $layout));

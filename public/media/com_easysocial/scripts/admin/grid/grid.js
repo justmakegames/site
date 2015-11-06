@@ -9,14 +9,15 @@ EasySocial.module( 'admin/grid/grid' , function($) {
 		EasySocial.Controller(
 			'Grid',
 			{
-				defaultOptions : 
+				defaultOptions :
 				{
 					"{sortColumns}"		: "[data-table-grid-sort]",
 					"{ordering}"		: "[data-table-grid-ordering]",
+					"{saveorder}"		: "[data-table-grid-saveorder]",
 					"{direction}"		: "[data-table-grid-direction]",
 
 					"{task}"			: "[data-table-grid-task]",
-					
+
 					"{searchInput}"		: "[data-table-grid-search-input]",
 					"{search}"			: "[data-table-grid-search]",
 					"{resetSearch}"		: "[data-table-grid-search-reset]",
@@ -58,6 +59,15 @@ EasySocial.module( 'admin/grid/grid' , function($) {
 						self.submitForm();
 					},
 
+					"{saveorder} click" : function()
+					{
+						self.setTask('saveorder');
+
+						// check all checkbox.
+						self.checkAll().click();
+						self.submitForm();
+					},
+
 					"{resetSearch} click" : function()
 					{
 						self.searchInput().val( '' );
@@ -95,13 +105,13 @@ EasySocial.module( 'admin/grid/grid' , function($) {
 
 						if( $( checkbox ).prop( 'checked' ) == true )
 						{
-							$( checkbox ).prop( 'checked' , false );	
+							$( checkbox ).prop( 'checked' , false );
 						}
 						else
 						{
 							$( checkbox ).prop( 'checked' , true );
 						}
-						
+
 					},
 					selectRow: function( row )
 					{
@@ -140,7 +150,7 @@ EasySocial.module( 'admin/grid/grid' , function($) {
 				}
 			}
 		);
-			
+
 		module.resolve();
 	});
 

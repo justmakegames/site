@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		Social
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @package		EasySocial
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -23,24 +23,51 @@ class EasySocialViewStory extends EasySocialSiteView
 	 * @param	string
 	 * @return
 	 */
-	public function create($streamTable = '')
+	public function create($streamItemTable = '', $clusterId = '', $clusterType = '')
 	{
-		// Only logged in users allowed here
-		FD::requireLogin();
-
-		$ajax 		= FD::ajax();
-
-		if( $this->hasErrors() )
-		{
-			return $ajax->reject( $this->getMessage() );
+		if ($this->hasErrors()) {
+			return $this->ajax->reject($this->getMessage());
 		}
 
-		$stream 	= FD::stream();
-		$stream->getItem( $streamTable->uid, true );
+		$stream = FD::stream();
+		$stream->getItem($streamItemTable->uid, $clusterId, $clusterType, true);
 
-		$output 	= $stream->html();
+		$output = $stream->html();
 
-		return $ajax->resolve( $output, $streamTable->uid );
+		// If app explicitly wants to hide the stream item, do not display anything here.
+		if (isset($streamItemTable->hidden) && $streamItemTable->hidden) {
+			$output = '';
+		}
+
+		return $this->ajax->resolve($output, $streamItemTable->uid);
+	}
+
+	/**
+	 * Post processes after a user submits a simple story.
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function simpleCreate($streamItemTable = '')
+	{
+
+		if ($this->hasErrors()) {
+			return $this->ajax->reject($this->getMessage());
+		}
+
+		$stream = FD::stream();
+		$stream->getItem($streamItemTable->uid, '', '', true);
+
+		$output = $stream->html();
+
+		// If app explicitly wants to hide the stream item, do not display anything here.
+		if (isset($streamItemTable->hidden) && $streamItemTable->hidden) {
+			$output = '';
+		}
+
+		return $this->ajax->resolve($output, $streamItemTable->uid);
 	}
 
 	/**

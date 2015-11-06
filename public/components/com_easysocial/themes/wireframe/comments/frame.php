@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -47,18 +47,34 @@ defined('_JEXEC') or die('Unauthorized Access');
     <?php if (!$hideForm && $this->access->allowed('comments.add') && $this->my->id) { ?>
     <div class="es-comments-form" data-comments-form>
         <div class="es-avatar es-avatar-sm" data-comments-item-avatar>
-            <img src="<?php echo $my->getAvatar(); ?>" width="64" height="64" />
+            <img src="<?php echo $this->my->getAvatar(); ?>" width="64" height="64" />
         </div>
         <div class="es-form" data-comment-form-header>
             <div data-comment-form-editor-area>
-                <div class="mentions">
-                    <div data-mentions-overlay data-default=""></div>
-                    <textarea class="form-control input-sm" row="1" name="message" autocomplete="off"
-                        data-mentions-textarea
-                        data-default=""
-                        data-initial="0"
-                        data-comments-form-input
-                        placeholder="<?php echo JText::_('COM_EASYSOCIAL_COMMENTS_FORM_PLACEHOLDER' , true);?>"></textarea>
+                <div data-uploader-form>
+                    <div class="mentions">
+                        <div data-mentions-overlay data-default=""></div>
+                        <textarea class="form-control input-sm" row="1" name="message" autocomplete="off"
+                            data-mentions-textarea
+                            data-default=""
+                            data-initial="0"
+                            data-comments-form-input
+                            placeholder="<?php echo JText::_('COM_EASYSOCIAL_COMMENTS_FORM_PLACEHOLDER' , true);?>"></textarea>
+
+                        <b class="es-form-attach">
+                            <?php if ($this->config->get('comments.attachments')) { ?>
+                                <label class="es-input-photo fa fa-camera" for="input-file" data-uploader-browse>&nbsp;</label>
+                            <?php } ?>
+
+                            <?php if ($this->config->get('comments.smileys')) { ?>
+                                <label class="es-input-smiley fa fa-smile-o" data-comment-smileys>
+                                    <?php echo ES::smileys()->html();?>
+                                </label>
+                            <?php } ?>
+                        </b>
+                    </div>
+
+                    <div class="attachments clearfix" data-comment-attachment-queue></div>
                 </div>
             </div>
         </div>
@@ -71,5 +87,18 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     </div>
     <?php } ?>
+
+    <div class="hide" data-comment-attachment-template>
+        <div class="figure" data-comment-attachment-item>
+            <div class="attachment" data-comment-attachment-background>
+                <div class="upload-progress">
+                    <div class="progress progress-striped active">
+                        <div class="upload-progress-bar bar progress-bar-info" style="width: 0%;" data-comment-attachment-progress-bar></div>
+                    </div>
+                </div>
+                <a href="javascript:void(0);" class="attachment-cancel fa fa-times" data-comment-attachment-remove></a> 
+            </div>
+        </div>
+    </div>
 
 </div>

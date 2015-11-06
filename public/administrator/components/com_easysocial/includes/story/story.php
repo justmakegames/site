@@ -175,11 +175,11 @@ class SocialStory
 
 				if ($mention->utype == 'user') {
 					$user 		= FD::user($mention->uid);
-					$replace 	= '<span data-value="user:' . $mention->uid . '" data-type="entity">' . $user->getName() . '</span>';
+					$replace 	= '<span>' . $user->getName() . '</span>';
 				}
 
 				if ($mention->utype == 'hashtag') {
-					$replace 	= '<span data-value="' . $mention->title . '" data-type="hashtag">' . "#" . $mention->title . '</span>';
+					$replace 	= '<span>' . "#" . $mention->title . '</span>';
 				}
 
 				$tmp[$i]		= $replace;
@@ -303,7 +303,14 @@ class SocialStory
 		$privacyCustom = isset($args['privacyCustom']) ? $args['privacyCustom'] : null;
 
 		if (!$privacyRule) {
-			$privacyRule	= ( $contextType == 'photos' ) ? 'photos.view' : 'story.view';
+			$privacyRule	= 'story.view';
+			if ($contextType == 'photos') {
+				$privacyRule = 'photos.view';
+			} else if ($contextType == 'polls') {
+				$privacyRule = 'polls.view';
+			} else if ($contextType == 'videos') {
+				$privacyRule = 'videos.view';
+			}
 		}
 
 		if ($privacyValue && is_string($privacyValue) ) {
@@ -313,7 +320,6 @@ class SocialStory
 		if($privacyCustom) {
 			$privacyCustom = explode( ',', $privacyCustom );
 		}
-
 
 		// Set this stream to be public
 		$template->setAccess( $privacyRule, $privacyValue, $privacyCustom );
@@ -422,7 +428,7 @@ class SocialStory
 
 		// Cache the image if necessary
 		$links = FD::links();
-		$uri = $links->cache($image);
+		$fileName = $links->cache($image);
 
 		$registry = FD::registry();
 		$registry->set('title', $title);
@@ -432,9 +438,9 @@ class SocialStory
 		$registry->set('cached', false);
 
 		// Image link should only be modified when the file exists
-		if ($uri !== false) {
+		if ($fileName !== false) {
 			$registry->set('cached', true);
-			$registry->set('image', $uri);
+			$registry->set('image', $fileName);
 		}
 
 		// Store the link object into the assets table

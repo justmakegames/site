@@ -11,20 +11,19 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-
-class SocialAppsAbstract
+class SocialAppsAbstract extends EasySocial
 {
 	/**
 	 * The current logged in user.
 	 * @var SocialUser
 	 */
 	public $my = null;
-	
+
 	/**
 	 * The app's group.
 	 * @var string
 	 */
-	public $group 	= null;
+	public $group = null;
 
 	/**
 	 * The app's element name.
@@ -34,15 +33,7 @@ class SocialAppsAbstract
 
 	public function __construct()
 	{
-		// Load the current viewer
-		$this->my = FD::user();
-
-		// Load EasySocial's config
-		$this->config = FD::config();
-
-		// Get the app input
-		$app = JFactory::getApplication();
-		$this->input = $app->input;
+		parent::__construct();
 	}
 
 	/**
@@ -97,12 +88,6 @@ class SocialAppsAbstract
 	}
 }
 
-/**
- * All apps should always inherit from the SocialAppItem class
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 abstract class SocialAppItem extends SocialAppsAbstract
 {
 	protected $theme = null;
@@ -119,7 +104,7 @@ abstract class SocialAppItem extends SocialAppsAbstract
 		$this->my = FD::user();
 
 		if (!empty($options)) {
-			
+
 			if (isset($options['group'])) {
 				$this->group = $options['group'];
 			}
@@ -130,7 +115,7 @@ abstract class SocialAppItem extends SocialAppsAbstract
 		}
 
 		// Initialize the theme object for the current app.
-		$this->theme = FD::themes();
+		$this->theme = ES::themes();
 
 		$this->paths = array(
 								'models'	=> SOCIAL_APPS . '/' . $this->group . '/' . $this->element . '/models',
@@ -152,12 +137,11 @@ abstract class SocialAppItem extends SocialAppsAbstract
 	 */
 	public function hasStreamFilter()
 	{
-		$params 	= $this->getApp()->getParams();
+		$params = $this->getApp()->getParams();
 
-		$filter 	= $params->get( 'stream_filter' , true );
+		$filter = $params->get('stream_filter', true);
 
-		if( $filter )
-		{
+		if ($filter) {
 			return true;
 		}
 
@@ -217,12 +201,17 @@ abstract class SocialAppItem extends SocialAppsAbstract
 	 * @param	string
 	 * @return
 	 */
-	public function display( $file )
+	public function display($file)
 	{
 		// Since this is a field item, we always want to prefix with the standard POSIX format.
-		$namespace 	= 'themes:/apps/' . $this->group . '/' . $this->element . '/' . $file;
+		$namespace = 'themes:/apps/' . $this->group . '/' . $this->element . '/' . $file;
 
-		return $this->theme->output( $namespace );
+		// If there is a "protocol" such as site:/ or admin:/, we should just use it's own namespace
+		if (stristr($file, ':/') !== false) {
+			$namespace = $file;
+		}
+
+		return $this->theme->output($namespace);
 	}
 
 	/**
@@ -342,7 +331,7 @@ class SocialAppsController extends SocialAppsAbstract
 
 	public function __construct( $appGroup , $appElement )
 	{
-		$this->input = JFactory::getApplication()->input;
+		$this->input = FD::request();
 		$this->element 	= $appElement;
 		$this->group 	= $appGroup;
 
@@ -476,7 +465,7 @@ class SocialAppsView
 
 		// Allow themes to be available to the caller.
 		$this->theme = FD::themes();
-		$this->input = JFactory::getApplication()->input;
+		$this->input = FD::request();
 		// Allow app to be available in the theme.
 		$this->set( 'app'	, $app );
 	}

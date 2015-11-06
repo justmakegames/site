@@ -15,7 +15,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php echo JText::_('APP_USER_PHOTOS_ACTIVITY_LOG_SHARED_PHOTO_OWN_TIMELINE');?>
 <?php } else { ?>
 	<?php echo $this->html('html.user', $actor->id);?>
-	<i class="ies-arrow-right"></i>
+	<i class="fa fa-caret-right"></i>
 	<?php echo $this->html('html.user', $target->id);?>
 <?php } ?>
 

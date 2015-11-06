@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <input type="text" class="form-control" placeholder="<?php echo JText::_('FIELDS_EVENT_STARTEND_START_DATETIME'); ?>" data-picker />
                 <input type="hidden" name="startDatetime" value="<?php echo $startDatetime; ?>" data-datetime />
                 <span class="input-group-addon" data-picker-toggle>
-                    <i class="ies-calendar-2"></i>
+                    <i class="fa fa-calendar"></i>
                 </span>
 
             </div>
@@ -29,7 +29,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <input type="text" class="form-control" placeholder="<?php echo JText::_('FIELDS_EVENT_STARTEND_END_DATETIME' . (!$params->get('require_end') ? '_OPTIONAL' : '')); ?>" data-picker />
                 <input type="hidden" name="endDatetime" value="<?php echo $endDatetime; ?>" data-datetime />
                 <span class="input-group-addon" data-picker-toggle>
-                    <i class="ies-calendar-2"></i>
+                    <i class="fa fa-calendar"></i>
                 </span>
             </div>
         </div>

@@ -16,6 +16,7 @@ EasySocial.module( 'site/followers/followers' , function($){
 					"{filter}"	: "[data-followers-filter]",
 					"{items}"	: "[data-followers-item]",
 					"{followingCounter}" : "[data-following-count]",
+					'{suggestionCounter}' : "[data-suggest-count]",
 					view :
 					{
 						loader 				: "site/loading/small"
@@ -47,9 +48,22 @@ EasySocial.module( 'site/followers/followers' , function($){
 						self.followingCounter().html( updated );
 					},
 
+					updateSuggestionCounter: function( value )
+					{
+						var current 	= self.suggestionCounter().html(),
+							updated		= parseInt( current ) + value;
+
+						self.suggestionCounter().html( updated );
+					},
+
 					updateContents : function( contents )
 					{
 						self.content().replaceWith( contents );
+					},
+
+					updatePagination : function( pagination )
+					{
+						$('[data-followers-pagination]').html( pagination );
 					},
 
 					"{filter} click" : function(filter, event) {
@@ -61,7 +75,7 @@ EasySocial.module( 'site/followers/followers' , function($){
 
 						// Remove active class on all filters
 						self.filter().removeClass("active");
-						
+
 						// Add active class to current filter
 						filter.addClass("active");
 
@@ -73,8 +87,10 @@ EasySocial.module( 'site/followers/followers' , function($){
 								id: id,
 								type: type
 							})
-							.done(function(contents){
+							.done(function(contents, pagination){
+
 								self.updateContents(contents);
+								self.updatePagination(pagination);
 								self.initItemController();
 							});
 					}
@@ -84,9 +100,10 @@ EasySocial.module( 'site/followers/followers' , function($){
 			EasySocial.Controller(
 				'Followers.Item',
 				{
-					defaultOptions : 
+					defaultOptions :
 					{
 						"{unfollowButton}"	: "[data-followers-item-unfollow]",
+						"{followButton}"	: "[data-followers-item-follow]",
 						"{composer}"		: "[data-followers-item-compose]"
 					}
 				},
@@ -134,6 +151,28 @@ EasySocial.module( 'site/followers/followers' , function($){
 									}
 								}
 							});
+						},
+
+						"{followButton} click" : function()
+						{
+							EasySocial.ajax( 'site/controllers/followers/follow' , { "id" : self.options.id} )
+							.done(function(content)
+							{
+								// Update the suggestion counter
+								self.parent.updateSuggestionCounter(-1);
+
+								//update following counter
+								self.parent.updateFollowingCounter(1);
+
+								// Remove this item
+								self.element.html(content);
+
+							})
+				            .fail(function(messageObject) {
+				                EasySocial.dialog({
+				                    content: messageObject.message
+				                });
+				            });
 						}
 					}
 				});

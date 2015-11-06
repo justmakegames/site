@@ -12,16 +12,16 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if ($params->get('use_maps')) { ?>
-<div class="es-story-locations" data-location-base>
-    <div class="es-story-location-help">
+<div class="es-locations" data-location-base>
+    <div class="es-location-help">
         <a href="http://maps.google.com/?q=<?php echo $value->toString(); ?>" target="_blank"><?php echo JText::_('FIELDS_USER_ADDRESS_VIEW_IN_GOOGLE_MAPS'); ?></a>
     </div>
-    <div class="es-story-location-map" data-location-map data-latitude="<?php echo FD::string()->escape($value->latitude); ?>" data-longitude="<?php echo FD::string()->escape($value->longitude); ?>">
+    <div class="es-location-map" data-location-map data-latitude="<?php echo FD::string()->escape($value->latitude); ?>" data-longitude="<?php echo FD::string()->escape($value->longitude); ?>">
 
         <div>
-            <img class="es-story-location-map-image" data-location-map-image />
-            <div class="es-story-location-map-actions">
-                <button class="btn btn-es es-story-location-detect-button" type="button" data-location-detect><i class="ies-power"></i> <?php echo JText::_('COM_EASYSOCIAL_DETECT_MY_LOCATION', true); ?></button>
+            <img class="es-location-map-image" data-location-map-image />
+            <div class="es-location-map-actions">
+                <button class="btn btn-es es-location-detect-button" type="button" data-location-detect><i class="fa fa-flash"></i> <?php echo JText::_('COM_EASYSOCIAL_DETECT_MY_LOCATION', true); ?></button>
             </div>
         </div>
     </div>

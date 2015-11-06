@@ -17,11 +17,10 @@ EasySocial.require()
 		"site/friends/api",
 		"site/popbox/popbox",
 		"site/conversations/api",
+		"site/groups/api",
 		"site/followers/api",
 		"site/stream/video",
 		"oauth/facebook"
 	)
-	.library(
-		"history"
-	)
+	.library("history")
 	.done();

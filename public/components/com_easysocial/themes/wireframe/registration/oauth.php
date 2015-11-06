@@ -25,7 +25,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<h5 class="es-title"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_OAUTH_NEW_USERS' ); ?></h5>
 		<hr />
 		<p class="es-desp small"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_OAUTH_NEW_USERS_DESC' ); ?></p>
-		<a class="btn btn-es-primary mt-10" href="<?php echo $createUrl;?>"><?php echo JText::_( 'COM_EASYSOCIAL_CREATE_ACCOUNT_BUTTON' ); ?> <i class="ies-arrow-right-2 ies-small"></i></a>
+		<a class="btn btn-es-primary mt-10" href="<?php echo $createUrl;?>"><?php echo JText::_( 'COM_EASYSOCIAL_CREATE_ACCOUNT_BUTTON' ); ?> <i class="fa fa-arrow-right"></i></a>
 	</div>
 	<div class="col-md-6">
 		<div class="pl-15">
@@ -53,7 +53,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<?php } ?>
 
 				<div class="text-right">
-					<button class="btn btn-es-primary mt-10"><?php echo JText::_( 'COM_EASYSOCIAL_LINK_ACCOUNT_BUTTON' ); ?> <i class="ies-arrow-right-2 ies-small"></i></button>
+					<button class="btn btn-es-primary mt-10"><?php echo JText::_( 'COM_EASYSOCIAL_LINK_ACCOUNT_BUTTON' ); ?> <i class="fa fa-arrow-right"></i></button>
 				</div>
 
 				<?php echo $this->html( 'form.itemid' ); ?>

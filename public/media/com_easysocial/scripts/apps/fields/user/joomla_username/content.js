@@ -26,10 +26,6 @@ EasySocial.module('apps/fields/user/joomla_username/content', function($) {
                 self.delayedCheck();
             },
 
-            '{input} blur': function() {
-                self.delayedCheck();
-            },
-
             '{input} keyup': function() {
                 self.delayedCheck();
             },

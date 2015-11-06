@@ -24,29 +24,33 @@ class SocialGroupAppStoryHookNotificationLikes
     public function execute(&$item)
     {
         // Get likes participants
-        $model      = FD::model('Likes');
-        $users      = $model->getLikerIds($item->uid, $item->context_type);
+        $model = FD::model('Likes');
+        $users = $model->getLikerIds($item->uid, $item->context_type);
 
         // Include the actor of the stream item as the recipient
-        $users      = array_merge(array($item->actor_id), $users);
+        $users = array_merge(array($item->actor_id), $users);
 
         // Ensure that the values are unique
-        $users      = array_unique($users);
-        $users      = array_values($users);
+        $users = array_unique($users);
+        $users = array_values($users);
 
         // Exclude myself from the list of users.
-        $index      = array_search( FD::user()->id , $users );
+        $my = FD::user();
+        $index = array_search($my->id, $users);
 
-        if( $index !== false )
-        {
-            unset( $users[ $index ] );
+        if ($index !== false) {
 
-            $users  = array_values( $users );
+            unset($users[$index]);
+
+            $users = array_values($users);
+        }
+
+        if (!$users) {
+            return false;
         }
 
         // Convert the names to stream-ish
         $names  = FD::string()->namesToNotifications($users);
-
 
         // When someone likes on the photo that you have uploaded in a group
         if ($item->context_type == 'photos.group.share') {

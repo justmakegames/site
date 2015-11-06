@@ -112,6 +112,11 @@ class FeedsControllerFeeds extends SocialAppsController
 		// Initialize the parser.
 		$parser = @JFactory::getFeedParser($rss->url);
 
+		// If that is invalid feed url
+		if ($parser === false) {
+			return $ajax->resolve();
+		}		
+
 		$rss->parser = $parser;
 		$rss->total = @$parser->get_item_quantity();
 		$rss->items = @$parser->get_items();

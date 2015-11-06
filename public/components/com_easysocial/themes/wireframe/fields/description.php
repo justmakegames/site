@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <!-- Tooltip note -->
-<div class="col-sm-8 col-sm-offset-3">
+<div class="col-xs-12 col-sm-8 col-sm-offset-3">
 	<div class="help-block fd-small text-note">
 		<strong><?php echo JText::_( 'COM_EASYSOCIAL_NOTE' );?>:</strong> <?php echo JText::_( $params->get( 'description' ) ); ?>
 	</div>

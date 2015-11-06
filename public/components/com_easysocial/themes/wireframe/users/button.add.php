@@ -12,5 +12,5 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <a href="javascript:void(0);" class="btn btn-es btn-sm" data-users-add-friend data-id="<?php echo $user->id;?>">
-	<i class="ies-user-add ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADD_FRIEND_BUTTON' );?>
+	<i class="fa fa-user-plus  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ADD_FRIEND_BUTTON' );?>
 </a>

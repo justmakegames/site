@@ -11,18 +11,10 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-// Include the fields library
-FD::import( 'admin:/includes/fields/dependencies' );
+// Include dependencies from our libraries
+ES::import('admin:/includes/fields/dependencies');
+ES::import('fields:/user/joomla_username/helper');
 
-// Include helper file.
-FD::import( 'fields:/user/joomla_username/helper' );
-
-/**
- * Processes ajax calls for the Joomla_Username field.
- *
- * @since	1.0
- * @author	Jason Rey <jasonrey@stackideas.com>
- */
 class SocialFieldsUserTerms extends SocialFieldItem
 {
 	/**
@@ -36,21 +28,31 @@ class SocialFieldsUserTerms extends SocialFieldItem
 	public function getTerms()
 	{
 		// Render the ajax lib.
-		$ajax = FD::ajax();
+		$ajax = ES::ajax();
 
 		// Load the field
-		$id   = $this->input->get('id', 0, 'int');
+		$id = $this->input->get('id', 0, 'int');
 		$this->field = FD::table('Field');
 		$this->field->load($id);
 
 		// Get the field params
 		$params = $this->getParams();
 
+		// Should we retrieve from the article?
+		$useArticle = $params->get('article', false);
+		$articleId = $params->get('article_id');
+		$article = false;
 
-		$theme = FD::themes();
+		if ($useArticle && $articleId) {
+			$article = JTable::getInstance('Content');
+			$article->load($articleId);
+		}
 
+		$theme = ES::themes();
 		$theme->set('params', $params);
-
+		$theme->set('useArticle', $useArticle);
+		$theme->set('article', $article);
+		
 		$output = $theme->output('fields/user/terms/dialog.terms');
 
 		return $ajax->resolve($output);

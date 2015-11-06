@@ -34,7 +34,7 @@ $objectLink = $item->link;
             <img class="app-icon-small mr-5" src="<?php echo $objectImg; ?>" />
         </span>
         <span class="search-result-name">
-            <i class="<?php echo $item->icon; ?> ies-small mr-5"></i>
+            <i class="fa <?php echo $item->icon; ?>  mr-5"></i>
             <?php echo $objectName; ?>
         </span>
     </a>

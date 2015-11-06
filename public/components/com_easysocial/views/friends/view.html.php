@@ -62,6 +62,17 @@ class EasySocialViewFriends extends EasySocialSiteView
 			return;
 		}
 
+		// lets check if this user is a ESAD user or not
+		if (! $user->hasCommunityAccess()) {
+
+			$template 	= 'site/friends/restricted';
+			$this->set('user' , $user );
+
+			parent::display($template);
+			return;
+		}
+
+
 		// Get the list of friends this user has.
 		$model = FD::model('Friends');
 		$limit = FD::themes()->getConfig()->get('friendslimit', 20);
@@ -335,7 +346,7 @@ class EasySocialViewFriends extends EasySocialSiteView
 		if ($this->hasErrors()) {
 			return $this->redirect(FRoute::friends(array('layout' => 'invite'), false));
 		}
-		
+
 		return $this->redirect(FRoute::friends(array('filter' => 'invites'), false));
 	}
 

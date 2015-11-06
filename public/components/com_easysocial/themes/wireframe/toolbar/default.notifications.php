@@ -14,8 +14,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <li class="toolbarItem<?php echo $newNotifications > 0 ? ' has-notice' : '';?>"
 	data-popbox="module://easysocial/notifications/popbox"
 	data-popbox-toggle="click"
-	data-popbox-position="bottom-left"
+    data-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-right' : 'bottom-left';?>"
 	data-popbox-collision="none"
+	data-autoread="<?php echo $this->config->get('notifications.system.autoread');?>"
 	data-user-id="<?php echo $this->my->id;?>"
 	data-notifications-system
 	>
@@ -25,7 +26,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		data-placement="top"
 		data-es-provide="tooltip"
 	>
-		<i class="ies-earth "></i>
+		<i class="fa fa-globe"></i>
 		<span class="visible-phone"><?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_NOTIFICATIONS' );?></span>
 		<span class="label label-notification" data-notificationSystem-counter><?php echo $newNotifications > 0 ? $newNotifications : '';?></span>
 	</a>

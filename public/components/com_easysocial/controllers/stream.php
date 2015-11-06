@@ -15,7 +15,14 @@ FD::import( 'site:/controllers/controller' );
 
 class EasySocialControllerStream extends EasySocialController
 {
-
+	/**
+	 * Deletes a stream filter
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function deleteFilter()
 	{
 		// Check for request forgeries.
@@ -57,6 +64,36 @@ class EasySocialControllerStream extends EasySocialController
 		return $view->call( __FUNCTION__ );
 	}
 
+	/**
+	 * Allows caller to publish a stream item on the site
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function publish()
+	{
+		// Check for request forgeries
+		FD::checkToken();
+
+		// Get the stream id
+		$id = $this->input->get('id', 0, 'int');
+
+		// Load up the stream
+		$stream = FD::table('Stream');
+		$stream->load($id);
+
+		// Ensure that the user is allowed
+		if ($stream->cluster_type && $stream->cluster_id) {
+
+			// @TODO: Check for access
+			$stream->publish();
+		}
+
+		return $this->view->call(__FUNCTION__, $stream);
+	}
+
 	// this method is called from the dialog to quickly add new filter based on the viewing hashtag.
 	public function addFilter()
 	{
@@ -93,6 +130,97 @@ class EasySocialControllerStream extends EasySocialController
 		$view->setMessage( JText::_( 'COM_EASYSOCIAL_STREAM_FILTER_SAVED' ) , SOCIAL_MSG_SUCCESS );
 
 		return $view->call( __FUNCTION__, $filter );
+	}
+
+	/**
+	 * Allows caller to bookmark a stream item
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function addSticky()
+	{
+		// Check for request forgeries
+		FD::checkToken();
+
+		// Only allowed login users to bookmark items
+		FD::requireLogin();
+
+		// Get the stream object
+		$id     = $this->input->get('id', 0, 'int');
+		$stream = FD::table('Stream');
+		$stream->load($id);
+
+		//TODO: Validation on the item so that prevent unauthorized attempts.
+
+
+
+		// Get the current view
+		$view = $this->getCurrentView();
+
+		$sticky = FD::table('StreamSticky');
+
+		// Check if this item has already been bookmarked
+		$state = $sticky->load(array('stream_id' => $stream->id));
+
+		// Stream item has already been bookmarked before
+		if ($state) {
+
+			$view->setMessage(JText::_('COM_EASYSOCIAL_STREAM_ITEM_PINNED_BEFORE'), SOCIAL_MSG_ERROR);
+			return $view->call(__FUNCTION__, false);
+		}
+
+		$sticky->stream_id = $stream->id;
+
+		// Try to save the sticky
+		$sticky->store();
+
+		return $view->call(__FUNCTION__, $sticky);
+	}
+
+	/**
+	 * Allows caller to remove a bookmark for the stream
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function removeSticky()
+	{
+		// Check for request forgeries
+		FD::checkToken();
+
+		// Only allowed login users to bookmark items
+		FD::requireLogin();
+
+		// Get the stream object
+		$id = $this->input->get('id', 0, 'int');
+		$stream = FD::table('Stream');
+		$stream->load($id);
+
+		//TODO: Validation on the item so that prevent unauthorized attempts.
+
+		// Get the current view
+		$view = $this->getCurrentView();
+
+		$sticky = FD::table('StreamSticky');
+
+		// Check if this item has already been bookmarked
+		$state = $sticky->load(array('stream_id' => $stream->id));
+
+		// Stream item has already been bookmarked before
+		if (!$state) {
+			$view->setMessage(JText::_('COM_EASYSOCIAL_STREAM_STICKY_INVALID_ID_PROVIDED'), SOCIAL_MSG_ERROR);
+			return $view->call(__FUNCTION__, $sticky);
+		}
+
+		// Delete the sticky
+		$sticky->delete();
+
+		return $view->call(__FUNCTION__, $sticky);
 	}
 
 	/**
@@ -386,6 +514,12 @@ class EasySocialControllerStream extends EasySocialController
 		$uid 		= JRequest::getVar( 'id', '');
 		$exclude 	= JRequest::getVar( 'exclude', '' );
 
+		if ($type == 'module') {
+			// lets overwrite the data so that we can get the updates.
+			$type = 'everyone';
+			$source = 'dashboard';
+		}
+
 		// next start date
 		$currentdate 	= JRequest::getVar( 'currentdate' , '' );
 
@@ -451,15 +585,17 @@ class EasySocialControllerStream extends EasySocialController
 	public function loadmore()
 	{
 		// Check for request forgeries.
-		FD::checkToken();
+		ES::checkToken();
 
-		$isCluster 	= JRequest::getWord( 'iscluster' , false );
+		// Determines if this is a cluster view
+		$isCluster = $this->input->get('iscluster', false, 'word');
+
 		// Get the type of the stream to load.
-		$type 	= JRequest::getWord( 'type' , 'me' );
+		$type = $this->input->get('type', 'me', 'word');
 
 		// In order to access the dashboard apps, user must be logged in.
-		if (! $isCluster) {
-			FD::requireLogin();
+		if (!$isCluster) {
+			ES::requireLogin();
 		}
 
 		// Get the current view.
@@ -472,6 +608,8 @@ class EasySocialControllerStream extends EasySocialController
 
 		// Get the stream
 		$stream	= FD::stream();
+
+		$my = FD::user();
 
 		if( !$type )
 		{
@@ -569,6 +707,16 @@ class EasySocialControllerStream extends EasySocialController
 						);
 		}
 
+		if ($type == 'sticky') {
+			$stream->get(
+							array(
+								'userId' 	=> $my->id,
+								'type' 		=> 'sticky',
+								'startlimit' => $startlimit
+								)
+						);
+		}
+
 		if( $type == 'appFilter' )
 		{
 			$stream->get(
@@ -608,15 +756,21 @@ class EasySocialControllerStream extends EasySocialController
 		if( $type == 'me' )
 		{
 			$uid = JRequest::getVar( 'id', '');
-			$stream->get(
-							array(
+
+			$streamOptions = array(
 								'userId' 	=> $uid,
 								'context' 	=> SOCIAL_STREAM_CONTEXT_TYPE_ALL,
 								'type' 		=> SOCIAL_TYPE_USER,
 								'startlimit' => $startlimit
-								)
-						);
+								);
 
+			$page = JRequest::getVar( 'view', '');
+
+			if ($page == 'profile') {
+				$streamOptions['nosticky'] = true;
+			}
+
+			$stream->get($streamOptions);
 		}
 
 		//event category
@@ -660,6 +814,7 @@ class EasySocialControllerStream extends EasySocialController
 							'clusterId' 	=> $clusterId,
 							'clusterType' 	=> $type,
 							'tag'			=> $tags,
+							'nosticky' => true,
 							'startlimit' => $startlimit
 							 );
 
@@ -709,11 +864,7 @@ class EasySocialControllerStream extends EasySocialController
 		$view 	= FD::view( 'Stream' , false );
 
 		// If id is invalid, throw an error.
-		if( !$context )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'STREAM: Unable to hide stream because app provided is invalid or not found.' );
-
+		if (!$context) {
 			$view->setError( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_APP' ) );
 			return $view->call( __FUNCTION__ );
 		}
@@ -722,11 +873,7 @@ class EasySocialControllerStream extends EasySocialController
 		$my 	= FD::user();
 
 		// The user needs to be at least logged in to perform this action.
-		if( !$my->id )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'STREAM: Unable to hide app\'s feeds because user is not logged in.' );
-
+		if (!$my->id) {
 			$view->setError( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_APP' ) );
 			return $view->call( __FUNCTION__ );
 		}
@@ -736,11 +883,7 @@ class EasySocialControllerStream extends EasySocialController
 		$state	= $model->hideapp( $context , $my->id );
 
 		// If there's an error, log this down.
-		if( !$state )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'STREAM: Unable to hide stream because model returned the error, ' . $model->getError() );
-
+		if (!$state) {
 			$view->setError( $model->getError() );
 
 			return $view->call( __FUNCTION__ );
@@ -772,24 +915,16 @@ class EasySocialControllerStream extends EasySocialController
 		$view 	= FD::view( 'Stream' , false );
 
 		// If id is invalid, throw an error.
-		if( !$actorId )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'STREAM: Unable to hide stream because actorId provided is invalid or not found.' );
-
+		if (!$actorId) {
 			$view->setError( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_ACTOR' ) );
 			return $view->call( __FUNCTION__ );
 		}
 
 		// Get the current logged in user.
-		$my 	= FD::user();
+		$my = ES::user();
 
 		// The user needs to be at least logged in to perform this action.
-		if( !$my->id )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'STREAM: Unable to hide app\'s feeds because user is not logged in.' );
-
+		if (!$my->id) {
 			$view->setError( JText::_( 'COM_EASYSOCIAL_STREAM_HIDE_ACTOR_ERROR_USER_NOT_LOGIN' ) );
 			return $view->call( __FUNCTION__ );
 		}
@@ -799,11 +934,7 @@ class EasySocialControllerStream extends EasySocialController
 		$state	= $model->hideactor( $actorId , $my->id );
 
 		// If there's an error, log this down.
-		if( !$state )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'STREAM: Unable to hide stream because model returned the error, ' . $model->getError() );
-
+		if (!$state) {
 			$view->setError( $model->getError() );
 
 			return $view->call( __FUNCTION__ );
@@ -834,10 +965,7 @@ class EasySocialControllerStream extends EasySocialController
 		// Get the view.
 		$view 	= FD::view( 'Stream' , false );
 
-		if( empty( $actorId ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'STREAM: Unable to unhide stream because actor Id provided is invalid or not found.' );
-
+		if (empty($actorId)) {
 			$view->setErrors( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_ACTOR' ) );
 
 			return $view->call( __FUNCTION__ );
@@ -879,10 +1007,7 @@ class EasySocialControllerStream extends EasySocialController
 		// Get the view.
 		$view 	= FD::view( 'Stream' , false );
 
-		if( empty( $context ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'STREAM: Unable to unhide stream because app provided is invalid or not found.' );
-
+		if (empty($context)) {
 			$view->setErrors( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_APP' ) );
 
 			return $view->call( __FUNCTION__ );
@@ -1086,5 +1211,37 @@ class EasySocialControllerStream extends EasySocialController
 		}
 
 		return $view->call( __FUNCTION__ );
+	}
+
+	/**
+	 * Allows caller to translate a wall of text
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function translate()
+	{
+		// Check for request forgeries here.
+		ES::checkToken();
+
+		// Get the contents to translate
+		$contents = $this->input->get('contents', '', 'raw');
+
+		// The target language should always be the language the user is using
+		$lang = JFactory::getLanguage();
+		$defaultLanguage = $lang->getTag();
+		$defaultLanguage = explode('-', $defaultLanguage);
+		$defaultLanguage = $defaultLanguage[0];
+
+		$params = new JRegistry($this->my->params);
+		$targetLanguage = $params->get('language', $defaultLanguage);
+
+		$translations = ES::translations();
+
+		$output = $translations->translate($contents, $targetLanguage);
+
+		return $this->view->call(__FUNCTION__, $output);
 	}
 }

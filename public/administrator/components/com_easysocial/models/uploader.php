@@ -33,7 +33,7 @@ class EasySocialModelUploader extends EasySocialModel
 	 * @param	string
 	 * @return	string	The path to the uploaded item.
 	 */
-	public function upload( $file , $hash , $userId )
+	public function upload($file, $hash, $userId)
 	{
 		// Check if file exists on the server
 		if( !isset( $file[ 'tmp_name' ] ) || empty( $file ) )

@@ -75,7 +75,7 @@ class SocialUserAppNotes extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#552E54';
-		$obj->icon 		= 'ies-notebook';
+		$obj->icon 		= 'fa fa-book';
 		$obj->label 	= 'APP_USER_NOTES_STREAM_TOOLTIP';
 
 		return $obj;
@@ -135,8 +135,8 @@ class SocialUserAppNotes extends SocialAppItem
 
 		// Decorate the stream
 		$item->color 		= '#552E54';
-		$item->fonticon 	= 'ies-notebook';
-		$item->label 		= JText::_( 'APP_USER_NOTES_STREAM_TOOLTIP' );
+		$item->fonticon 	= 'fa-book';
+		$item->label 		= FD::_( 'APP_USER_NOTES_STREAM_TOOLTIP', true );
 		$item->display		= SOCIAL_STREAM_DISPLAY_FULL;
 
 		// Apply comments on the stream

@@ -253,7 +253,7 @@ class SocialAlbumsAdapterEvent extends SocialAlbumsAdapter
 		}
 
 		// If they are a member of the event, they are allowed to.
-		if ($this->event->isMember($this->my->id)) {
+		if ($this->event->isMember($this->my->id) && $this->my->getAccess()->get('albums.create') && $this->event->getCategory()->getAcl()->get('photos.enabled', true)) {			
 			return true;
 		}
 

@@ -1,5 +1,5 @@
 EasySocial.require()
-.script( 'admin/profiles/fields' )
+.script('admin/profiles/fields')
 .done(function($){
 
 	$('.profileFieldForm').addController('EasySocial.Controller.Fields', {

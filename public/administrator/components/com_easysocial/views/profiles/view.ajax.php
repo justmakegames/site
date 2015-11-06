@@ -40,6 +40,22 @@ class EasySocialViewProfiles extends EasySocialAdminView
 	}
 
 	/**
+	 * Confirmation to delete a profile avatar
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function confirmRemoveProfileAvatar()
+	{
+		$theme = ES::themes();
+		$output = $theme->output('admin/profiles/dialog.delete.profile.avatar');
+		
+		return $this->ajax->resolve($output);
+	}
+
+	/**
 	 * Displays a dialog confirmation before deleting a default avatar
 	 *
 	 * @since	1.0
@@ -80,6 +96,38 @@ class EasySocialViewProfiles extends EasySocialAdminView
 		return $ajax->resolve( $output );
 	}
 
+	/**
+	 * Retrieves the group template
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getGroupTemplate()
+	{
+		$ids = $this->input->get('groups', array(), 'array');
+
+		if (!$ids) {
+			return $this->ajax->reject();
+		}
+
+		$groups = array();
+
+		foreach ($ids as $id) {
+			$group = ES::group($id);
+
+			$groups[] = $group;
+		}
+
+		$theme = ES::themes();
+		$theme->set('groups', $groups);
+	
+		$html = $theme->output('admin/profiles/form.groups.item');
+
+		return $this->ajax->resolve($html);
+	}
+
 	public function insertMember( $user )
 	{
 		$ajax = FD::ajax();
@@ -110,11 +158,6 @@ class EasySocialViewProfiles extends EasySocialAdminView
 	public function getFieldValues( $values )
 	{
 		FD::ajax()->resolve( $values );
-	}
-
-	public function getPageConfig( $params, $values, $html )
-	{
-		FD::ajax()->resolve( $params, $values, $html );
 	}
 
 	public function deleteField( $state )

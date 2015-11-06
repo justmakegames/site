@@ -223,6 +223,7 @@ class EasySocialModelSearch extends EasySocialModel
 	    }
 
 	    $match = isset( $options[ 'match' ] ) ? $options[ 'match' ] : 'all';
+	    $sort = isset( $options[ 'sort' ] ) ? $options[ 'sort' ] : 'default';
 	    $query = $this->buildAdvSearch( $match, $options );
 
 	    if (! $query) {
@@ -246,6 +247,13 @@ class EasySocialModelSearch extends EasySocialModel
 			// no need further processing
 			return array();
 		}
+
+		// query sorting
+		if ($sort != 'default') {
+			$query .= ' ORDER BY ' . $db->nameQuote('u.' . $sort) . ' DESC';
+		}
+
+		// echo $query;exit;
 
 		// this mainQuery shouldnt contain the limit for later use in data filling.
 		$mainQuery = $query;
@@ -426,13 +434,15 @@ class EasySocialModelSearch extends EasySocialModel
 		$query = 'select u.`id`';
 		$query .= ' from `#__users` as u';
 		$query .= ' inner join ' . $fieldTable . ' ON xf.uid = u.id';
+
+		// exclude esad users
+		$query .= ' INNER JOIN `#__social_profiles_maps` as upm on u.`id` = upm.`user_id`';
+		$query .= ' INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
+
+
 		if( $avatarOnly )
 		{
 			$query .= ' inner join `#__social_albums` as c on u.id = c.uid and c.`type` = ' . $db->Quote( SOCIAL_TYPE_USER ) . ' and c.`core` = ' . $db->Quote( '1' ) ;
-		}
-
-		if ($useProfileId) {
-			$query .= ' inner join `#__social_profiles_maps` as pm on u.`id` = pm.`user_id`' ;
 		}
 
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
@@ -450,7 +460,7 @@ class EasySocialModelSearch extends EasySocialModel
 		}
 
 		if ($useProfileId) {
-			$query .= ' and pm.`profile_id` = ' . $db->Quote($useProfileId) ;
+			$query .= ' and upm.`profile_id` = ' . $db->Quote($useProfileId) ;
 		}
 
 		// echo $query;exit;
@@ -500,6 +510,14 @@ class EasySocialModelSearch extends EasySocialModel
 			} else if ($fieldType == 'joomla_username') {
 
 				$query = $this->buildUsernameSQL($criteria, $operator, $condition, $datakey);
+				if ($query) {
+					$queries[] = $query;
+				}
+
+			} else if ($fieldType == 'joomla_lastlogin' || $fieldType == 'joomla_joindate') {
+
+				$query = $this->buildJoomlaDatesSQL($criteria, $operator, $condition, $datakey);
+
 				if ($query) {
 					$queries[] = $query;
 				}
@@ -785,6 +803,13 @@ class EasySocialModelSearch extends EasySocialModel
 					$queries[] = $aQuery;
 				}
 
+			} else if ($fieldType == 'joomla_lastlogin' || $fieldType == 'joomla_joindate') {
+
+				$aQuery = $this->buildJoomlaDatesSQL($criteria, $operator, $condition, $datakey);
+				if ($aQuery) {
+					$queries[] = $aQuery;
+				}
+
 			} else {
 
 				// need to check here if this is a birthday age or not.
@@ -878,6 +903,77 @@ class EasySocialModelSearch extends EasySocialModel
 		return $query;
 	}
 
+	private function buildJoomlaDatesSQL($criteria, $operator, $condition, $datakey)
+	{
+		$db = FD::db();
+
+		$field  	= explode( '|', $criteria );
+
+		$fieldCode 	= $field[0];
+		$fieldType 	= $field[1];
+
+		$column = ($fieldType == 'joomla_lastlogin') ? 'a.lastvisitDate': 'a.registerDate';
+
+
+		$query = 'select a.`id` as `uid`';
+		$query .= ' FROM `#__users` as a';
+		$query .= ' where a.`block` = 0';
+
+
+		$tzOffset = FD::date()->getOffset();
+
+		if ($operator != 'between') {
+			// we need to use jdate or else the offset will be messed up.
+			$inputDate = new JDate($condition, $tzOffset);
+			$condition = $inputDate->toSql();
+		}
+
+		$cond = '';
+		switch( $operator )
+		{
+			case 'notequal':
+				$cond .= ' and ' . $db->nameQuote($column) . ' != ' . $db->Quote( $condition );
+				break;
+
+			case 'greater':
+				$cond .= ' and ' . $db->nameQuote($column) . ' > ' . $db->Quote( $condition );
+				break;
+
+			case 'greaterequal':
+				$cond .= ' and ' . $db->nameQuote($column) . ' >= ' . $db->Quote( $condition );
+				break;
+
+			case 'less':
+				$cond .= ' and ' . $db->nameQuote($column) . ' < ' . $db->Quote( $condition );
+				break;
+
+			case 'lessequal':
+				$cond .= ' and ' . $db->nameQuote($column) . ' <= ' . $db->Quote( $condition );
+				break;
+
+			case 'between':
+				$dates = explode( '|', $condition );
+
+				$inputDate1 = new JDate($dates[0], $tzOffset);
+				$dates[0] = $inputDate1->toSql();
+
+				$inputDate2 = new JDate($dates[1], $tzOffset);
+				$dates[1] = $inputDate2->toSql();
+
+				$cond .= ' and (' . $db->nameQuote($column) . ' >= ' . $db->Quote( $dates[0] ) . ' and ' . $db->nameQuote($column) . ' <= ' . $db->Quote( $dates[1] ) . ')';
+				break;
+
+			case 'equal':
+			default:
+				$cond .= ' and ' . $db->nameQuote($column) . ' = ' . $db->Quote( $condition );
+				break;
+		}
+
+		$query .= $cond;
+
+		return $query;
+	}
+
 	private function buildAddressDistanceSQL($criteria, $operator, $condition, $datakey)
 	{
 		$db = FD::db();
@@ -899,6 +995,21 @@ class EasySocialModelSearch extends EasySocialModel
 
 		$mylat = isset($conditions[1]) && $conditions[1] ? $conditions[1] : '';
 		$mylon = isset($conditions[2]) && $conditions[2] ? $conditions[2] : '';
+
+		if (!$mylat && !$mylon) {
+			// lets get the lat and lon from current logged in user address
+			$my = FD::user();
+			$address = $my->getFieldValue('ADDRESS');
+			$mylat = $address->value->latitude;
+			$mylon = $address->value->longitude;
+
+			// var_dump($address->value->latitude, $address->value->longitude);
+		}
+
+		// $mylat = '3.2287897';
+		// $mylon = '101.6402272';
+
+		// var_dump($mylat, $mylon);
 
 
 		if ($distance && $mylat && $mylon) {

@@ -27,15 +27,51 @@ class EasySocialControllerProfiles extends EasySocialController
 		parent::__construct();
 
 		// Map the alias methods here.
-		$this->registerTask( 'unpublish', 'togglePublish' );
-		$this->registerTask( 'publish'	, 'togglePublish' );
+		$this->registerTask('unpublish', 'togglePublish' );
+		$this->registerTask('publish'	, 'togglePublish' );
 
-		$this->registerTask( 'form', 'form' );
+		$this->registerTask('form', 'form' );
 
-		$this->registerTask( 'save'		, 'store' );
-		$this->registerTask( 'savenew' 	, 'store' );
-		$this->registerTask( 'apply'    , 'store' );
-		$this->registerTask( 'savecopy'	, 'store' );
+		$this->registerTask('save', 'store');
+		$this->registerTask('savenew', 'store');
+		$this->registerTask('apply', 'store');
+		$this->registerTask('savecopy', 'store');
+	}
+
+	/**
+	 * Method to update profile type the ordering
+	 *
+	 * @param   null    All parameters are from HTTP $_POST
+	 * @return  JSON    JSON encoded string.
+	 */
+	public function saveorder()
+	{
+		// Check for request forgeries.
+		FD::checkToken();
+
+		$cid = $this->input->get('cid', array(), 'array');
+		$ordering = $this->input->get('order', array(), 'array');
+
+		$view 	= $this->getCurrentView();
+
+		if (!$cid) {
+			$view->setMessage(JText::_('COM_EASYSOCIAL_PROFILES_ORDERING_NO_ITEMS'), SOCIAL_MSG_ERROR );
+			return $view->call(__FUNCTION__);
+		}
+
+		$model = FD::model('Profiles');
+
+		for($i = 0; $i < count($cid); $i++) {
+
+			$id = $cid[$i];
+			$order = $ordering[$i];
+
+			$model->updateOrdering($id, $order);
+		}
+
+		$view->setMessage(JText::_('COM_EASYSOCIAL_PROFILES_ORDERING_UPDATED'), SOCIAL_MSG_SUCCESS);
+
+		return $view->call(__FUNCTION__);
 	}
 
 	/**
@@ -146,7 +182,6 @@ class EasySocialControllerProfiles extends EasySocialController
 		return $view->call( __FUNCTION__ );
 	}
 
-
 	/**
 	 * Saves a new or existing profile.
 	 *
@@ -159,26 +194,24 @@ class EasySocialControllerProfiles extends EasySocialController
 	public function store()
 	{
 		// Check for request forgeries!
-		FD::checkToken();
+		ES::checkToken();
 
-		$pid        = JRequest::getInt( 'id' );
-		$cid        = JRequest::getInt( 'cid', 0 );
-		$post       = JRequest::get( 'POST' );
+		$pid = $this->input->get('id', 0, 'int');
+		$cid = $this->input->get('cid', 0, 'int');
+		$post = $this->input->getArray('post');
 
-		$isNew	    = ( empty( $pid ) ) ? true : false;
+		// Determines if this is a new profile type
+		$isNew = !$pid ? true : false;
 
-		$task		= $this->getTask();
-
-		$isCopy 	= $task == 'savecopy' ? true : false;
+		// Get the current task
+		$task = $this->getTask();
+		$isCopy = $task == 'savecopy' ? true : false;
 
 		// Load the profile type.
-		$profile    = FD::table( 'Profile' );
-
-		// echo '<pre>';print_r( $post );echo '</pre>';exit;
+		$profile = ES::table('Profile');
 
 		if ($cid && $isCopy) {
-			// lets create new profile
-			$profile->load( $cid );
+			$profile->load($cid);
 
 			//reset the pid
 			$post['id'] = $cid;
@@ -189,76 +222,70 @@ class EasySocialControllerProfiles extends EasySocialController
 		// Bind the posted data.
 		$profile->bind($post);
 
-		// Get the view.
-		$view		= $this->getCurrentView();
-
 		// Get the current task since we need to know what to do after the storing is successful.
-		$view->task 	= $task;
+		$this->view->task = $task;
 
 		// Bind the user group's that are associated with the profile.
-		$gid 			= JRequest::getVar( 'gid' );
+		$gid = $this->input->get('gid', '', 'default');
 
 		// This is a minimum requirement to create a profile.
-		if( !$gid )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_ERROR_SELECT_GROUP' ) , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ , $profile );
+		if (!$gid) {
+			$this->view->setMessage('COM_EASYSOCIAL_PROFILES_FORM_ERROR_SELECT_GROUP', SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__, $profile);
 		}
 
 		// Bind user groups for this profile.
-		$profile->bindUserGroups( $gid );
+		$profile->bindUserGroups($gid);
 
 		// Validate the profile field.
-		$valid      = $profile->validate();
+		$valid = $profile->validate();
 
 		// If there's errors, just show the error.
 		if ($valid !== true) {
-			$view->setMessage($profile->getError() , SOCIAL_MSG_ERROR);
-			return $view->call( __FUNCTION__ , $profile );
+			$this->view->setMessage($profile->getError() , SOCIAL_MSG_ERROR);
+			return $this->view->call( __FUNCTION__ , $profile );
 		}
 
 		// Try to store the profile.
 		if (!$profile->store()) {
-			$view->setMessage($profile->getError() , SOCIAL_MSG_ERROR);
-			return $view->store($profile);
+			$this->view->setMessage($profile->getError() , SOCIAL_MSG_ERROR);
+			return $this->view->store($profile);
 		}
 
 		// Bind the access
-		$profile->bindAccess( $post[ 'access' ] );
+		$profile->bindAccess($post['access']);
 
 		// If this profile is default, we need to ensure that the rest of the profiles are not default any longer.
-		if( $profile->default )
-		{
+		if ($profile->default) {
 			$profile->makeDefault();
 		}
 
 		// Store the avatar for this profile.
-		$file 	= JRequest::getVar( 'avatar' , '' , 'FILES' );
+		$file = $this->input->files->get('avatar', '');
 
 		// Try to upload the profile's avatar if required
-		if( !empty( $file[ 'tmp_name' ] ) )
-		{
-			$profile->uploadAvatar( $file );
+		if (!empty($file['tmp_name'])) {
+			$profile->uploadAvatar($file);
 		}
 
 		// Get fields data separately as we need allowraw here
-		$postfields = JRequest::getVar( 'fields', $default = null, $hash = 'POST', $type = 'none', $mask = JREQUEST_ALLOWRAW );
+		$postfields = JRequest::getVar('fields', $default = null, $hash = 'POST', $type = 'none', $mask = JREQUEST_ALLOWRAW );
 
 		// Set the fields for this profile type.
-		if( !empty( $postfields ) )
-		{
+		if (!empty($postfields)) {
 			$fieldsData = FD::json()->decode($postfields);
 
 			$fieldsLib = FD::fields();
-			$fieldsLib->saveFields( $profile->id, SOCIAL_TYPE_PROFILES, $fieldsData, array( 'copy' => $task === 'savecopy' ) );
+			$fieldsLib->saveFields($profile->id, SOCIAL_TYPE_PROFILES, $fieldsData, array( 'copy' => $task === 'savecopy' ) );
 
 			// After saving fields, we have to reset all the user's completed fields count in this profile
-			FD::model('Users')->resetCompletedFieldsByProfileId($profile->id);
+			$usersModel = ES::model('Users');
+			$usersModel->resetCompletedFieldsByProfileId($profile->id);
 		}
 
 		// Set the privacy for this profile type
-		if( isset( $post[ 'privacy'] ) )
-		{
+		if (isset($post['privacy'])) {
+
 			$privacyLib = FD::privacy();
 			$resetMap 	= $privacyLib->getResetMap( 'all' );
 
@@ -314,19 +341,31 @@ class EasySocialControllerProfiles extends EasySocialController
 			$privacyModel->updatePrivacy( $profile->id , $data, SOCIAL_PRIVACY_TYPE_PROFILES );
 		}
 
-		if( $isCopy && $pid )
-		{
-			$profile->copyAvatar( $pid );
+
+		// default apps assignment.
+		if (!$isNew && isset($post['apps']) && $post['apps'] && is_array($post['apps'])) {
+			$profile->assignUsersApps($post['apps']);
 		}
 
-		$message = ( $isNew ) ? JText::_( 'COM_EASYSOCIAL_PROFILES_PROFILE_CREATED_SUCCESSFULLY' ) : JText::_( 'COM_EASYSOCIAL_PROFILES_PROFILE_UPDATED_SUCCESSFULLY' );
-		$message = ( $isCopy ) ? JText::_( 'COM_EASYSOCIAL_PROFILES_PROFILE_COPIED_SUCCESSFULLY' ) : $message;
+		// If this is a save as copy
+		if ($isCopy && $pid) {
+			$profile->copyAvatar($pid);
+		}
 
+		$message = 'COM_EASYSOCIAL_PROFILES_PROFILE_CREATED_SUCCESSFULLY';
+
+		if (!$isNew) {
+			$message = 'COM_EASYSOCIAL_PROFILES_PROFILE_UPDATED_SUCCESSFULLY';
+		}
+
+		if ($isCopy) {
+			$message = 'COM_EASYSOCIAL_PROFILES_PROFILE_COPIED_SUCCESSFULLY';
+		}
 
 		// Set message.
-		$view->setMessage( $message , SOCIAL_MSG_SUCCESS );
+		$this->view->setMessage($message, SOCIAL_MSG_SUCCESS);
 
-		return $view->call( __FUNCTION__ , $profile );
+		return $this->view->call(__FUNCTION__, $profile);
 	}
 
 	/**
@@ -652,97 +691,6 @@ class EasySocialControllerProfiles extends EasySocialController
 		}
 
 		FD::view( 'Profiles' )->call( __FUNCTION__, $values );
-	}
-
-	/**
-	 * Retrieves the profile page configuration
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function getPageConfig()
-	{
-		// Check for request forgeries.
-		FD::checkToken();
-
-		$path		= SOCIAL_CONFIG_DEFAULTS . '/fields.header.json';
-		$raw		= JFile::read( $path );
-
-		$params		= FD::json()->decode( $raw );
-
-		foreach( $params as $name => &$fields )
-		{
-			// Only try to JText the label field if it exists.
-			if( isset( $fields->label ) )
-			{
-				$fields->label	= JText::_( $fields->label );
-			}
-
-			// Only try to JText the tooltip field if it exists.
-			if( isset( $fields->tooltip ) )
-			{
-				$fields->tooltip	= JText::_( $fields->tooltip );
-			}
-
-			// Only try to JText the default value if default exist and it is a string
-			// if( isset( $fields->default ) && is_string( $fields->default ) )
-			// {
-			// 	$fields->default = JText::_( $fields->default );
-			// }
-
-			// If there are options set, we need to jtext them as well.
-			if( isset( $fields->option ) )
-			{
-				$fields->option 	= FD::makeArray( $fields->option );
-
-				foreach( $fields->option as &$option )
-				{
-					$option->label 	= JText::_( $option->label );
-				}
-			}
-		}
-
-
-		$pageid = JRequest::getInt( 'pageid', 0 );
-
-		$table = FD::table( 'FieldStep' );
-
-		if( !empty( $pageid ) )
-		{
-			$table->load( $pageid );
-
-			// if( isset( $table->title ) )
-			// {
-			// 	$table->title = JText::_( $table->title );
-			// }
-
-			// if( isset( $table->description ) )
-			// {
-			// 	$table->description = JText::_( $table->description );
-			// }
-		}
-		else
-		{
-			foreach( $params as $name => &$field )
-			{
-				$table->$name = $field->default;
-			}
-		}
-
-		// Convert table into registry format
-		$values = FD::registry( $table );
-
-		$theme = FD::themes();
-		$theme->set( 'title', JText::_( 'COM_EASYSOCIAL_PROFILES_FORM_PAGE_CONFIGURATION' ) );
-		$theme->set( 'params', $params );
-		$theme->set( 'values', $values );
-
-
-		$html = $theme->output( 'admin/profiles/form.fields.pageConfig' );
-
-		FD::view( 'Profiles' )->call( __FUNCTION__, $params, $table, $html );
 	}
 
 	/**

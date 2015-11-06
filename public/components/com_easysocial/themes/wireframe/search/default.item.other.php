@@ -28,13 +28,11 @@ $img 	= ( $item->image ) ? $item->image : '';
 				<ul class="fd-reset-list">
 					<li>
 						<span class="es-item-title">
-							<i class="<?php echo $item->icon; ?> ies-small mr-5"></i>
-							<a href="<?php echo JRoute::_( $item->link ); ?>">
-								<?php echo $item->title; ?>
-							</a>
+							<i class="fa <?php echo $item->icon; ?> mr-5"></i> <a href="<?php echo JRoute::_($item->link); ?>"><?php echo $item->title; ?></a>
 						</span>
 					</li>
-					<?php if( $item->content ) { ?>
+
+					<?php if ($item->content) { ?>
 					<li class="item-meta">
 						<?php echo $item->content; ?>
 					</li>

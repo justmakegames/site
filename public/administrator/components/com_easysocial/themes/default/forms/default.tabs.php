@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <?php if( $forms ){ ?>
-<div class="tab-box tab-box-alt<?php echo $sidebarTabs ? ' tab-box-sidenav' : '';?>">
+<div class="tab-box<?php echo $sidebarTabs ? ' tab-box-sidenav' : ' tab-box-alt';?>">
 	<div class="tabbable">
 		<ul class="nav nav-tabs nav-tabs-icons<?php echo $sidebarTabs ? ' nav-tabs-side' : '';?>">
 			<?php $i = 0; ?>

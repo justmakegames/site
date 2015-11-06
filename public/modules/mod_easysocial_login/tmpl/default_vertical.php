@@ -26,13 +26,16 @@ $useSSL = $params->get('use_secure_url', false) ? 1 : 0;
 					<input type="text" class="form-control input-xs" name="secretkey" placeholder="<?php echo JText::_('MOD_EASYSOCIAL_LOGIN_TWOFACTOR_SECRET_PLACEHOLDER', true);?>" />
 					<?php } ?>
 
-					<?php if( $params->get( 'show_remember_me' , true ) ){ ?>
-					<div class="checkbox">
-						<label for="remember-me">
-							<input type="checkbox" id="remember-me" name="remember" value="yes" /> <?php echo JText::_( 'MOD_EASYSOCIAL_LOGIN_KEEP_ME_LOGGED_IN' );?>
-						</label>
+					<?php if ($params->get('show_remember_me' , true)) { ?>
+					<div class="remember<?php echo $params->get('remember_me_style') == 'hidden' || $params->get('remember_me_style') == 'hidden_checked' ? ' hide' : '';?>">
+						<div class="checkbox">
+							<label for="remember-me">
+								<input type="checkbox" id="remember-me" name="remember" value="yes"
+									<?php echo $params->get('remember_me_style', 'visible_checked') == 'visible_checked' || $params->get('remember_me_style', 'visible_checked') == 'hidden_checked' ? 'checked="checked"' : '';?>/> <?php echo JText::_('MOD_EASYSOCIAL_LOGIN_KEEP_ME_LOGGED_IN');?>
+							</label>
+						</div>
 					</div>
-					<?php } ?>
+					<?php } ?>	
 
 					<button type="submit" class="btn btn-block btn-es-primary btn-login"><?php echo JText::_( 'MOD_EASYSOCIAL_LOGIN_SUBMIT' );?></button>
 
@@ -94,7 +97,7 @@ $useSSL = $params->get('use_secure_url', false) ? 1 : 0;
 		<input type="hidden" name="option" value="com_easysocial" />
 		<input type="hidden" name="controller" value="account" />
 		<input type="hidden" name="task" value="logout" />
-		<input type="hidden" name="return" value="<?php echo base64_encode(FD::toolbar()->getRedirectionUrl(FD::config()->get('general.site.logout'))); ?>" />
+		<input type="hidden" name="return" value="<?php echo base64_encode(FRoute::getMenuLink(FD::config()->get('general.site.logout'))); ?>" />
 		<?php echo $modules->html( 'form.token' ); ?>
 	</form>
 </div>

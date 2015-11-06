@@ -11,7 +11,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<div class="es-container">
 		<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-			<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+			<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 		</a>
 		<div class="es-sidebar" data-sidebar data-ftiler-sidebar>
 			<?php echo $this->includeTemplate( 'site/stream/sidebar.filters' ); ?>

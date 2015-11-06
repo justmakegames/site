@@ -29,28 +29,29 @@ font-size-adjust: none;
     position: relative;
     z-index: 1;
 
+    .es-sidebar,
+    .es-content {
+    	padding-top: 15px;
+    	display: table-cell;
+		vertical-align: top;
+		position: relative;
+    }
+
 	.es-sidebar {
 		width: 220px;
-		padding-top: 3px;
-		position: relative;
 		border-right: 1px solid @esBorder;
-		display: table-cell;
-		vertical-align: top;
+		
 
 		.btn-close-sidebar {
 			display: none;
 		}
+
+		+ .es-content {
+			padding-left: 20px;
+		}
 	}
 	.es-content {
-		// TODO: uncomment when dark themes ready
-		// .getContrast(@esBackground);
-		position: relative;
-		margin-left: 0;
 		height: 100%;
-		left: 0;
-		// min-height: 420px; //not works for display table-cell
-		display: table-cell; // for overflow hidden issue have to use table-cell
-		vertical-align: top;
 
 		> .loading-indicator {
 			height: 100px;
@@ -157,5 +158,18 @@ font-size-adjust: none;
 				// top: 380px;
 			}
 		}
+	}
+}
+
+.es-photo-camera,
+.es-photo-camera-preview {
+	background: #b3b3b3;
+	border-radius: 2px;
+	padding: 62px 0;
+	text-align: center;
+
+	* {
+		display: inline-block;
+		vertical-align: top;
 	}
 }

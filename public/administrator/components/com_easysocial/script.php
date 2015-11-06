@@ -203,6 +203,20 @@ class com_EasySocialInstallerScript
 	 */
 	public function preflight()
 	{
+		// During the preflight, we need to create a new installer file in the temporary folder
+		$file = JPATH_ROOT . '/tmp/easysocial.installation';
+
+		// Determines if the installation is a new installation or old installation.
+		$obj = new stdClass();
+		$obj->new = false;
+		$obj->step = 1;
+		$obj->status = 'installing';
+
+		$contents = json_encode($obj);
+
+		if (!JFile::exists($file)) {
+			JFile::write($file, $contents);
+		}
 	}
 
 	/**

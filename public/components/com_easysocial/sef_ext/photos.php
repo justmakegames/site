@@ -25,22 +25,49 @@ if( isset( $view ) )
 	addView( $title , $view );
 }
 
+// Determine which type does the photo belong to
+if (isset($type)) {
+
+	$title[] = JString::ucwords(JText::_('COM_EASYSOCIAL_SH404_PHOTOS_TYPE_' . strtoupper($type)));
+	
+	if (isset($uid)) {
+
+		if ($type == SOCIAL_TYPE_USER) {
+			$alias = getUserAlias($uid);
+		}
+
+		if ($type == SOCIAL_TYPE_GROUP) {
+			$alias = getGroupAlias($uid);
+		} 
+
+		if ($type == SOCIAL_TYPE_EVENT) {
+			$alias = getEventAlias($uid);
+		}
+
+		$title[] = $alias;
+
+		shRemoveFromGETVarsList('uid');
+	}
+	shRemoveFromGETVarsList('type');
+}
 
 // For photos, we need to get the beautiful title
-if( isset( $id ) )
-{
-	$photo 	= FD::table( 'Photo' );
-	$photo->load( (int) $id );
+if (isset($id)) {
+	$photo 	= FD::table('Photo');
+	$photo->load((int) $id);
 
 	// Remove known extensions from title
 	$extensions = array( 'jpg' , 'png' , 'gif' );
 
 	$fragment	= JFilterOutput::stringURLSafe( JString::str_ireplace( $extensions , '' , $photo->title ) );
 
-	$fragment	= uniqueUrl( $title , $fragment );
+	$fragment	= uniqueUrl( $title , $id.'-'.$fragment );
 
-	$title[]	= $fragment;
+	if (isset($layout)) {
+		addLayout($title, $view, $layout);
+	}
 
-	shRemoveFromGETVarsList( 'id' );
-	shRemoveFromGETVarsList( 'layout' );
+	$title[] = $fragment;
+
+	shRemoveFromGETVarsList( 'id' ); 
 }

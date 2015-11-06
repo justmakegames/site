@@ -79,11 +79,17 @@ class SocialEventAppPhotosHookNotificationLikes
             $item->image = $photo->getSource();
             $item->content = '';
 
+            $event = FD::event($photo->uid);
 
             // We need to determine if the user is the owner
             if ($photo->user_id == $item->target_id && $item->target_type == SOCIAL_TYPE_USER) {
                 $langString = FD::string()->computeNoun('APP_EVENT_PHOTOS_NOTIFICATIONS_LIKES_YOUR_PROFILE_COVER', count($users));
-                $item->title = JText::sprintf($langString, $names);
+
+                if (count($users) == 1) {
+                    $item->title = JText::sprintf($langString, $names, $event->getName());
+                } else {
+                    $item->title = JText::sprintf($langString, $names);
+                }
 
                 return;
             }

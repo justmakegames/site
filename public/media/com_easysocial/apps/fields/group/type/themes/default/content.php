@@ -13,32 +13,32 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="controls-description mb-15">
 	<label class="radio" for="group_type_public">
-		<input type="radio" checked="checked" value="1" id="group_type_public" name="group_type"<?php echo isset($node) && $node->isOpen() ? ' checked="checked"' : '';?>/>
-		<i class="ies-earth"></i> <?php echo JText::_( 'PLG_FIELDS_GROUP_TYPE_PUBLIC' ); ?>
+		<input type="radio" checked="checked" value="1" id="group_type_public" name="group_type"<?php echo $value == 1 ? 'checked="checked"' : '';?>/>
+		<i class="fa fa-globe"></i> <?php echo JText::_('PLG_FIELDS_GROUP_TYPE_PUBLIC');?>
 	</label>
 	<div class="help-block fd-small mt-5">
-		<?php echo JText::_( 'PLG_FIELDS_GROUP_TYPE_PUBLIC_DESC' );?>
+		<?php echo JText::_('PLG_FIELDS_GROUP_TYPE_PUBLIC_DESC');?>
 	</div>
 </div>
 
 <div class="controls-description mb-15">
 	<label class="radio" for="group_type_private">
-		<input type="radio" value="2" id="group_type_private" name="group_type"<?php echo isset($node) && $node->isClosed() ? ' checked="checked"' : '';?> />
-		<i class="ies-user-2"></i> <?php echo JText::_( 'PLG_FIELDS_GROUP_TYPE_PRIVATE' ); ?>
+		<input type="radio" value="2" id="group_type_private" name="group_type"<?php echo $value == 2 ? 'checked="checked"' : '';?>/>
+		<i class="fa fa-user"></i> <?php echo JText::_('PLG_FIELDS_GROUP_TYPE_PRIVATE');?>
 	</label>
 
 	<div class="help-block fd-small mt-5">
-		<?php echo JText::_( 'PLG_FIELDS_GROUP_TYPE_PRIVATE_DESC' );?>
+		<?php echo JText::_('PLG_FIELDS_GROUP_TYPE_PRIVATE_DESC');?>
 	</div>
 </div>
 
 <div class="controls-description mb-15">
 	<label class="radio" for="group_type_invite">
-		<input type="radio" value="3" id="group_type_invite" name="group_type"<?php echo isset($node) && $node->isInviteOnly() ? ' checked="checked"' : '';?> />
-		<i class="ies-locked"></i> <?php echo JText::_( 'PLG_FIELDS_GROUP_TYPE_INVITE_ONLY' ); ?>
+		<input type="radio" value="3" id="group_type_invite" name="group_type"<?php echo $value == 3 ? 'checked="checked"' : '';?>/>
+		<i class="fa fa-lock"></i> <?php echo JText::_('PLG_FIELDS_GROUP_TYPE_INVITE_ONLY');?>
 	</label>
 
 	<div class="help-block fd-small mt-5">
-		<?php echo JText::_( 'PLG_FIELDS_GROUP_TYPE_INVITE_ONLY_DESC' );?>
+		<?php echo JText::_('PLG_FIELDS_GROUP_TYPE_INVITE_ONLY_DESC');?>
 	</div>
 </div>

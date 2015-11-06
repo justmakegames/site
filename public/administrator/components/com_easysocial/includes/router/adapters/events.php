@@ -129,6 +129,11 @@ class SocialRouterEvents extends SocialRouterAdapter
                     $vars['filter'] = 'all';
                 break;
 
+                // site.com/menu/events/nearby
+                case $this->translate('events_filter_nearby'):
+                    $vars['filter'] = 'nearby';
+                break;
+
                 // site.com/menu/events/featured
                 case $this->translate('events_filter_featured'):
                     $vars['filter'] = 'featured';

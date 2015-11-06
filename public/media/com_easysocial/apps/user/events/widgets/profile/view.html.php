@@ -44,7 +44,8 @@ class EventsWidgetsProfile extends SocialAppsWidgets
             'ordering' => 'start',
             'type' => array(SOCIAL_EVENT_TYPE_PUBLIC, SOCIAL_EVENT_TYPE_PRIVATE),
             'limit' => $limit,
-            'start-after' => $now
+            'ongoing' => true, 
+            'upcoming' => true
         ));
 
         $createdTotal = $model->getTotalEvents(array(
@@ -52,17 +53,19 @@ class EventsWidgetsProfile extends SocialAppsWidgets
             'creator_type' => SOCIAL_TYPE_USER,
             'state' => SOCIAL_STATE_PUBLISHED,
             'type' => array(SOCIAL_EVENT_TYPE_PUBLIC, SOCIAL_EVENT_TYPE_PRIVATE),
-            'start-after' => $now
+            'ongoing' => true, 
+            'upcoming' => true
         ));
 
         $attendingEvents = $model->getEvents(array(
             'guestuid' => $user->id,
             'gueststate' => SOCIAL_EVENT_GUEST_GOING,
             'state' => SOCIAL_STATE_PUBLISHED,
+            'ongoing' => true, 
+            'upcoming' => true,
             'ordering' => 'start',
             'type' => array(SOCIAL_EVENT_TYPE_PUBLIC, SOCIAL_EVENT_TYPE_PRIVATE),
             'limit' => $limit,
-            'start-after' => $now
         ));
 
         $attendingTotal = $model->getTotalEvents(array(
@@ -70,12 +73,17 @@ class EventsWidgetsProfile extends SocialAppsWidgets
             'gueststate' => SOCIAL_EVENT_GUEST_GOING,
             'state' => SOCIAL_STATE_PUBLISHED,
             'type' => array(SOCIAL_EVENT_TYPE_PUBLIC, SOCIAL_EVENT_TYPE_PRIVATE),
-            'start-after' => $now
+            'ongoing' => true, 
+            'upcoming' => true
         ));
 
         $allowCreate = $user->isSiteAdmin() || $user->getAccess()->get('events.create');
 
+        $total = $createdTotal + $attendingTotal;
+
         $theme = FD::themes();
+        $theme->set('user', $user);
+        $theme->set('total', $total);
         $theme->set('createdEvents', $createdEvents);
         $theme->set('createdTotal', $createdTotal);
         $theme->set('attendingEvents', $attendingEvents);

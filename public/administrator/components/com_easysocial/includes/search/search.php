@@ -58,18 +58,20 @@ class SocialSearch
 		$user = JFactory::getUser();
 		$groups = implode(',', $user->getAuthorisedViewLevels());
 
-		$query = "select * from `#__finder_taxonomy`";
-		$query .= " where `access` IN ( $groups )";
-		$query .= " and `state` = 1";
-		$query .= " and parent_id = ( select id from `#__finder_taxonomy` where title = 'Type' )";
+		$query = "select distinct a.* from `#__finder_taxonomy` as a";
+		$query .= " 	inner join `#__finder_taxonomy_map` as b on a.`id` = b.`node_id`";
+		$query .= " 	inner join `#__finder_links` as c on c.`link_id` = b.`link_id`";
+		$query .= " where a.`access` IN ( $groups )";
+		$query .= " and a.`state` = 1";
+		$query .= " and a.`parent_id` = ( select id from `#__finder_taxonomy` where title = 'Type' )";
 		if( $type )
 		{
-			$query .= " and `title` = '$type'";
+			$query .= " and a.`title` = '$type'";
+		} else {
+			$query .= " and a.`title` IN ( select title from `#__finder_types` )";
 		}
-		else
-		{
-			$query .= " and `title` IN ( select title from `#__finder_types` )";
-		}
+
+		// echo $query;
 
 		$sql->raw( $query );
 
@@ -77,15 +79,14 @@ class SocialSearch
 
 		$results = $db->loadObjectList();
 
-		if( $results ) {
-			for( $i = 0; $i < count($results); $i++ ) {
+		if ($results) {
+			for ($i = 0; $i < count($results); $i++) {
 				$row =& $results[$i];
 
 				$row->displayTitle = $row->title;
 				$row->icon = $this->getIcon( $row->title );
 
-				switch ( $row->title )
-				{
+				switch ($row->title) {
 					case 'EasySocial.Albums':
 							$row->displayTitle = JText::_( 'COM_EASYSOCIAL_SEARCH_TYPE_ALBUMS' );
 							break;
@@ -101,6 +102,9 @@ class SocialSearch
 					case 'EasySocial.Events':
 							$row->displayTitle = JText::_( 'COM_EASYSOCIAL_SEARCH_TYPE_EVENTS' );
 							break;
+					case 'EasySocial.Videos':
+							$row->displayTitle = JText::_( 'COM_EASYSOCIAL_SEARCH_TYPE_VIDEOS' );
+							break;
 					case 'EasyBlog':
 							$row->displayTitle = JText::_( 'COM_EASYSOCIAL_SEARCH_TYPE_BLOG' );
 							break;
@@ -111,7 +115,6 @@ class SocialSearch
 						$row->displayTitle 	= JText::_($row->displayTitle);
 						break;
 				}
-
 			}
 		}
 
@@ -163,6 +166,7 @@ class SocialSearch
 		$config = FD::config();
 		$data = array();
 		$userBlockedYou = array();
+		$my = FD::user();
 
 		if ($config->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 			//get all users who blocked the current logged in user.
@@ -218,6 +222,10 @@ class SocialSearch
 							$creatorColumn = 'creator_uid';
 							$objAdapter = FD::event($row->id);
 							break;
+					case 'EasySocial.Videos':
+							$group = 'videos';
+							$creatorColumn = 'user_id';
+							break;
 					default:
 						$group = $itemType[0]->title;
 						break;
@@ -262,6 +270,14 @@ class SocialSearch
 				if ($config->get('users.blocking.enabled') && $userBlockedYou && !JFactory::getUser()->guest) {
 					if ($checkBlockedUserId && in_array($checkBlockedUserId, $userBlockedYou)) {
 						// lets skip this item.
+						continue;
+					}
+				}
+
+				// Depend on the setting if allow admin search ESAD users so the ESAD result will be appear.
+				if ($itemType[0]->title == 'EasySocial.Users' && $obj->uid) {
+					$user = FD::user($obj->uid);
+					if (!(FD::config()->get('users.listings.esadadmin') && $my->isSiteAdmin()) && !$user->hasCommunityAccess()) {
 						continue;
 					}
 				}
@@ -336,35 +352,59 @@ class SocialSearch
 		switch ( $type )
 		{
 			case 'EasyDiscuss':
-				$icon = 'ies-copy';
+				$icon = 'fa-copy';
 				break;
 			case 'EasyBlog':
-				$icon = 'ies-notebook';
+				$icon = 'fa-book';
 				break;
 			case 'EasySocial.Albums':
-				$icon = 'ies-pictures';
+				$icon = 'fa-photo';
 				break;
 			case 'EasySocial.Photos':
-				$icon = 'ies-picture';
+				$icon = 'fa-photo';
 				break;
 			case 'EasySocial.Users':
-				$icon = 'ies-user';
+				$icon = 'fa-user';
 				break;
 			case 'EasySocial.Groups':
-				$icon = 'ies-users';
+				$icon = 'fa-users';
 				break;
 			case 'EasySocial.Events':
-				$icon = 'ies-calendar';
+				$icon = 'fa-calendar';
+				break;
+			case 'EasySocial.Videos':
+				$icon = 'fa-youtube-play';
 				break;
 			case 'Article':
-				$icon = 'ies-list-2';
+				$icon = 'fa-list';
 				break;
 			default:
-				$icon = 'ies-file';
+				$icon = 'fa-file';
 				break;
 		}
 
 		return $icon;
+	}
+
+	public function validateFilters($filterTypes, $filters = array())
+	{
+		// lets give default checked value for each filterTypes.
+		for($i = 0; $i < count($filterTypes); $i++) {
+			$item =& $filterTypes[$i];
+			$item->checked = false;
+		}
+
+		if ($filters) {
+			foreach($filters as $filter) {
+				//need to check against each of the filter types
+				foreach($filterTypes as $filterType) {
+					if ($filterType->id == (int) $filter) {
+						$filterType->checked = true;
+						break;
+					}
+				}
+			}
+		}
 	}
 
 }

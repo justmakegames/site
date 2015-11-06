@@ -13,6 +13,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div data-es-photo-group="album:<?php echo $photo->album_id;?>">
 	<a class="es-photo-small pull-left" <?php echo $this->my->getPrivacy()->validate('photos.view', $photo->id, SOCIAL_TYPE_PHOTO, $photo->user_id) ? 'data-es-photo="' . $photo->id . '"' : ''; ?> href="<?php echo $photo->getPermalink(); ?>">
-		<img src="<?php echo $photo->getSource('square'); ?>" class="es-stream-content-avatar" />
+		<img src="<?php echo $photo->getSource('thumbnail'); ?>" class="es-stream-content-avatar" />
 	</a>
 </div>

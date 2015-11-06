@@ -41,14 +41,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         <div class="es-category-meta">
             <ul class="fd-reset-list category-stats pull-left">
                 <li>
-                    <i class="ies-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_COUNT' , $totalGroups ) , $totalGroups ); ?>
+                    <i class="fa fa-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_COUNT' , $totalGroups ) , $totalGroups ); ?>
                 </li>
                 <li>
-                    <i class="ies-pictures"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_ALBUMS' , $totalAlbums ) , $totalAlbums ); ?>
+                    <i class="fa fa-photo"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_ALBUMS' , $totalAlbums ) , $totalAlbums ); ?>
                 </li>
             </ul>
 
-            <?php if( $this->access->allowed( 'groups.create' , true ) && !$this->access->exceeded( 'groups.limit' , $this->my->getTotalGroups() ) ){ ?>
+            <?php if( $this->access->allowed( 'groups.create' , true ) && !$this->access->intervalExceeded('groups.limit', $this->my->id) ){ ?>
             <a href="<?php echo FRoute::groups( array( 'controller' => 'groups' , 'task' => 'selectCategory' , 'category_id' => $category->id ) );?>" class="btn btn-es-primary pull-right">
                 <?php echo JText::_( 'COM_EASYSOCIAL_CREATE_GROUP_BUTTON' ); ?> &rarr;
             </a>
@@ -84,7 +84,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                                 <div class="media-body">
                                     <a href="<?php echo FRoute::groups( array( 'layout' => 'item' , 'id' => $group->getAlias() ) );?>"><?php echo $group->getName(); ?></a>
                                     <div class="fd-small fd-nav-meta">
-                                        <i class="ies-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_MEMBERS' , $group->getTotalMembers() ) , $group->getTotalMembers() );?>
+                                        <i class="fa fa-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_MEMBERS' , $group->getTotalMembers() ) , $group->getTotalMembers() );?>
                                     </div>
                                 </div>
                             </div>

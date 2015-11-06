@@ -27,25 +27,23 @@ class PhotosWidgetsProfile extends SocialAppsWidgets
 	 * @param	string
 	 * @return
 	 */
-	public function sidebarBottom( $user )
+	public function sidebarBottom($user)
 	{
 		// Get the user params
-		$params 	= $this->getParams();
+		$params = $this->getParams();
 
-		$config 	= FD::config();
+		$config = FD::config();
 
-		if( !$config->get( 'photos.enabled' ) )
-		{
+		if (!$config->get('photos.enabled')) {
 			return;
 		}
 
 		// User might not want to show this app in their profile.
-		if( !$params->get( 'showphotos' ) )
-		{
+		if (!$params->get('showphotos')) {
 			return;
 		}
 
-		echo $this->getPhotos( $user , $params );
+		echo $this->getPhotos($user, $params);
 	}
 
 
@@ -57,20 +55,26 @@ class PhotosWidgetsProfile extends SocialAppsWidgets
 	 * @param	string
 	 * @return
 	 */
-	public function getPhotos( $user , $params )
+	public function getPhotos($user, $params)
 	{
 		// Get photos model
-		$model 		= FD::model( 'Photos' );
-		$options 	= array( 'uid' => $user->id , 'type' => SOCIAL_TYPE_USER );
-		$photos 	= $model->getPhotos( $options );
+		$model = FD::model('Photos');
 
-		$total		= $model->getTotalPhotos( $options );
+		// Get the photo limit from the app setting
+		$limit = $params->get('photo_widget_listing_total', 20);
 
-		$this->set( 'params'	, $params );
-		$this->set( 'total'		, $total );
-		$this->set( 'user'		, $user );
-		$this->set( 'photos'	, $photos );
+		// limit <- get from the getPhotos function 
+		$options = array('uid' => $user->id, 'type' => SOCIAL_TYPE_USER, 'limit' => $limit);
+		$photos = $model->getPhotos($options);
 
-		return parent::display( 'widgets/profile/photos' );
+		$total = $model->getTotalPhotos($options);
+
+		$this->set('params', $params);
+		$this->set('total', $total);
+		$this->set('limit', $limit);
+		$this->set('user', $user);
+		$this->set('photos', $photos);
+
+		return parent::display('widgets/profile/photos');
 	}
 }

@@ -1,82 +1,60 @@
 
 var es =
 {
-	ajaxUrl 		: "<?php echo JURI::root();?>administrator/index.php?option=com_easysocial&ajax=1",
-	installation	:
-	{
-		path 		: null,
+	ajaxUrl: "<?php echo JURI::root();?>administrator/index.php?option=com_easysocial&ajax=1",
+	installation: {
+		path: null,
+		ajaxCall: function(task, properties, callback) {
 
-		ajaxCall	: function( task , properties , callback )
-		{
-			var prop 	= {
-								"apikey"	: "<?php echo JRequest::getVar( 'apikey' , '' );?>",
-								"path"		: es.installation.path
+			var prop = $.extend({
+									"apikey": "<?php echo JRequest::getVar('apikey' , '');?>",
+									"path": es.installation.path
+								}, properties);
 
-						};
-
-			var prop 	= $.extend( {
-										"apikey"	: "<?php echo JRequest::getVar( 'apikey' , '' );?>",
-										"path"		: es.installation.path
-									} , properties );
-
-
-			// console.log( prop );
-
-			$.ajax(
-			{
-				type 	: "POST",
-				url 	: es.ajaxUrl + "&controller=installation&task=" + task ,
-				data 	: prop
-			})
-			.done(function( result )
-			{
-				callback.apply( this , [result] );
+			$.ajax({
+				type: "POST",
+				url: es.ajaxUrl + "&controller=installation&task=" + task ,
+				data: prop
+			}).done(function(result) {
+				callback.apply(this, [result]);
 			});
 		},
 
-		showRetry: function( step )
-		{
-			$( '[data-installation-retry]' ).data( 'retry-step' , step ).show();
-			$( '[data-installation-loading]' ).hide();
+		showRetry: function(step) {
+			$('[data-installation-retry]').data('retry-step', step).show();
+			$('[data-installation-loading]').hide();
 		},
 
-		extract: function( packageName )
-		{
-			es.installation.ajaxCall( 'extract' ,
-			{
-				"package"	: packageName
-			},
-			function( result )
-			{
-				es.installation.update( 'data-progress-extract' , result , '10%' );
+		extract: function(packageName) {
+			es.installation.ajaxCall('extract', {
+				"package": packageName
+			}, function(result) {
 
-				if( !result.state )
-				{
+				es.installation.update('data-progress-extract', result, '10%');
+
+				if (!result.state) {
 					return false;
 				}
 
-				es.installation.path 	= result.path;
+				es.installation.path = result.path;
 
 				es.installation.runSQL();
 			});
 		},
 
-		download	: function()
-		{
-			es.installation.ajaxCall( 'download' , {} , function( result ){
+		download: function() {
+			es.installation.ajaxCall('download', {}, function(result){
 
 				// Set the progress
 				es.installation.update( 'data-progress-download' , result , '10%');
 
-				if( !result.state )
-				{
-					es.installation.showRetry( 'download' );
+				if (!result.state) {
+					es.installation.showRetry('download');
 					return false;
 				}
 
 				// Set the installation path
-				es.installation.path 	= result.path;
-
+				es.installation.path = result.path;
 				es.installation.runSQL();
 			});
 		},
@@ -509,6 +487,26 @@ var es =
 					return false;
 				}
 
+				es.installation.installVideoCategories();
+			});
+		},
+
+		installVideoCategories : function()
+		{
+			// Install the admin stuffs
+			es.installation.setActive( 'data-progress-videocategories' );
+
+			es.installation.ajaxCall( 'installDefaultVideoCategories' , {} , function( result )
+			{
+				// Set the progress
+				es.installation.update( 'data-progress-videocategories' , result , '94%');
+
+				if( !result.state )
+				{
+					es.installation.showRetry( 'installDefaultVideoCategories' );
+					return false;
+				}
+
 				es.installation.installAlerts();
 			});
 		},
@@ -745,11 +743,11 @@ var es =
 
 		complete: function()
 		{
-			$( '[data-installation-loading]' ).hide();
-			$( '[data-installation-submit]' ).show();
+			$('[data-installation-loading]').hide();
+			$('[data-installation-submit]').show();
 
-			$( '[data-installation-submit]' ).bind( 'click' , function(){
-				$( '[data-installation-form]' ).submit();
+			$('[data-installation-submit]').on('click', function() {
+				$('[data-installation-form]').submit();
 			});
 		}
 	}

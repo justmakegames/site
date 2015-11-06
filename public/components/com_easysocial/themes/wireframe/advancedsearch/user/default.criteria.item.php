@@ -17,7 +17,7 @@ $showMinus = isset( $showminus ) ? $showminus : true;
 	<div class="form-plus-minus">
 		<?php if( $showMinus || $isTemplate ) { ?>
 		<a href="javascript:void(0);" data-criteria-remove-button>
-			<i class="ies-minus-2"></i>
+			<i class="fa fa-minus-2"></i>
 		</a>
 		<?php } ?>
 	</div>
@@ -49,6 +49,24 @@ $showMinus = isset( $showminus ) ? $showminus : true;
 
 	</div>
 
+    <div data-location-label class="form-group hide mt-10 full-width">
+        <div class="input-group input-group-sm">
+            <input type="text" class="input-sm form-control" placeholder="<?php echo JText::_('COM_EASYSOCIAL_ADVANCED_DISTANCE_ENTER_LOCATION'); ?>"
+                   autocomplete="off" data-location-textfield  value=""/>
+
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" data-location-detect>
+                    <i class="fa fa-flash" data-loaction-icon></i><?php echo JText::_('COM_EASYSOCIAL_ADVANCED_SEARCH_DETECT_LOCATION'); ?>
+                </button>
+            </span>
+        </div>
+        <div class="es-location-autocomplete has-shadow is-sticky" data-location-autocomplete>
+            <b><b></b></b>
+            <div class="es-location-suggestions" data-location-suggestions>
+            </div>
+        </div>
+    </div>
+
     <span data-criteria-notice class="help-block fd-small text-note hide"></span>
-    <span data-location-label class="help-block fd-small text-note hide"></span>
+
 </div>

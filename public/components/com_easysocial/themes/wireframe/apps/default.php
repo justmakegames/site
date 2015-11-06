@@ -13,13 +13,17 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="es-container" data-apps>
 	<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-		<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+		<i class="fa fa-grid-view  mr-5"></i> 
+		<?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 	</a>
+
 	<div class="es-sidebar" data-sidebar>
 		<?php echo $this->render( 'module' , 'es-apps-sidebar-top' ); ?>
 
 		<div class="es-widget es-widget-borderless">
-			<div class="es-widget-head"><?php echo JText::_( 'COM_EASYSOCIAL_APPS' );?></div>
+			<div class="es-widget-head">
+				<?php echo JText::_( 'COM_EASYSOCIAL_APPS' );?>
+			</div>
 
 			<div class="es-widget-body">
 				<ul class="fd-nav fd-nav-stacked">
@@ -40,9 +44,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<?php echo JText::_( 'COM_EASYSOCIAL_APPS_YOUR_APPS' );?>
 						</a>
 					</li>
-
 				</ul>
-
 			</div>
 		</div>
 
@@ -50,24 +52,21 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</div>
 
 	<div class="es-content">
-
 		<?php echo $this->render( 'module' , 'es-apps-before-contents' ); ?>
 
-		<div class="pl-10 pt-10">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="pull-left">
+		<div class="es-filterbar row-table mb-15">
+			<div class="col-cell cell-mid">
+				<?php if( $filter == 'mine' ){ ?>
+				<b data-page-apps-title><?php echo JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_YOUR_APPS' ); ?></b>
+				<?php } else { ?>
+				<b data-page-apps-title><?php echo JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_BROWSE_APPS' ); ?></b>
+				<?php }?>
+			</div>
 
-						<?php if( $filter == 'mine' ){ ?>
-						<h5 data-page-apps-title><?php echo JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_YOUR_APPS' ); ?></h5>
-						<?php } else { ?>
-						<h5 data-page-apps-title><?php echo JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_BROWSE_APPS' ); ?></h5>
-						<?php }?>
-					</div>
-
-					<?php if( $this->template->get( 'apps_sorting' ) ){ ?>
+			<?php if( $this->template->get( 'apps_sorting' ) ){ ?>
+				<div class="col-cell">
 					<div class="btn-group btn-group-view-apps pull-right" data-apps-sorting style="<?php echo $filter == 'mine' ? 'display: none;' : '';?>">
-						<a class="btn btn-es alphabetical<?php echo $sort == 'alphabetical' ? ' active' : '';?>"
+						<a class="btn btn-es btn-sm alphabetical<?php echo $sort == 'alphabetical' ? ' active' : '';?>"
 							data-apps-sort
 							data-apps-sort-type="alphabetical"
 							data-apps-sort-group="user"
@@ -76,9 +75,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-placement="bottom"
 							data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_APPS_SORT_ALPHABETICALLY' , true );?>"
 						>
-							<i class="ies-bars ies-small"></i>
+							<i class="fa fa-sort-alpha-asc"></i>
+							Alphabetically
 						</a>
-						<a class="btn btn-es recent<?php echo $sort == 'recent' ? ' active' : '';?>"
+						<a class="btn btn-es btn-sm recent<?php echo $sort == 'recent' ? ' active' : '';?>"
 							data-apps-sort
 							data-apps-sort-type="recent"
 							data-apps-sort-group="user"
@@ -87,9 +87,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-placement="bottom"
 							data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_APPS_SORT_RECENT_ADDED' , true );?>"
 						>
-							<i class="ies-upload-2 ies-small"></i>
+							<i class="fa fa-upload "></i>
+							Latest
 						</a>
-						<a class="btn btn-es trending<?php echo $sort == 'trending' ? ' active' : '';?>"
+						<a class="btn btn-es btn-sm trending<?php echo $sort == 'trending' ? ' active' : '';?>"
 							data-apps-sort
 							data-apps-sort-type="trending"
 							data-apps-sort-group="user"
@@ -98,27 +99,24 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-placement="bottom"
 							data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_APPS_SORT_TRENDING_APPS' , true );?>"
 						>
-							<i class="ies-fire ies-small"></i>
+							<i class="fa fa-fire "></i>
+							Popular
 						</a>
 					</div>
-					<?php } ?>
 				</div>
-			</div>
+			<?php } ?>
+		</div>
 
-			<hr />
-
-			<ul class="fd-reset-list es-apps-grid mt-10<?php if( !$apps ){ echo " is-empty"; } ?>" data-apps-listing>
-				<?php if( $apps ){ ?>
-					<?php foreach( $apps as $app ){ ?>
-						<?php echo $this->loadTemplate( 'site/apps/default.item' , array( 'app' => $app ) ); ?>
-					<?php } ?>
-				<?php } else { ?>
-					<?php echo $this->loadTemplate( 'site/apps/default.empty' ); ?>
+		<div class="es-apps-listing<?php if( !$apps ){ echo " is-empty"; } ?>" data-apps-listing>
+			<?php if( $apps ){ ?>
+				<?php foreach( $apps as $app ){ ?>
+					<?php echo $this->loadTemplate( 'site/apps/default.item' , array( 'app' => $app ) ); ?>
 				<?php } ?>
-			</ul>
+			<?php } else { ?>
+				<?php echo $this->loadTemplate( 'site/apps/default.empty' ); ?>
+			<?php } ?>
 		</div>
 
 		<?php echo $this->render( 'module' , 'es-apps-after-contents' ); ?>
-
 	</div>
 </div>

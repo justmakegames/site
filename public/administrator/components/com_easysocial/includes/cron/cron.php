@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,31 +9,21 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Responsible to process cron services
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- *
- */
 class SocialCron
 {
-	private $status 	= null;
-	private $output 	= array();
+	private $status = null;
+	private $output = array();
 
-	/**
-	 * Factory method
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function factory()
+	public function __construct()
 	{
-		$obj 	= new self();
+		// constructor
+	}
+
+	public static function factory()
+	{
+		$obj = new self();
 
 		return $obj;
 	}
@@ -48,13 +38,13 @@ class SocialCron
 	 */
 	public function dispatchEmails()
 	{
-		$path 	= dirname(__FILE__) . '/hooks/email.php';
+		$path = dirname(__FILE__) . '/hooks/email.php';
 
 		require_once($path);
 
 		$states = array();
 
-		$hook 	= new SocialCronHooksEmail();
+		$hook = new SocialCronHooksEmail();
 		$hook->execute($states);
 	}
 
@@ -117,17 +107,24 @@ class SocialCron
 		$this->render();
 	}
 
+	/**
+	 * Retrieves a list of hooks for cron services
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function hook(&$state)
 	{
-		$path 	= dirname(__FILE__) . '/hooks';
-		$files	= JFolder::files($path);
+		$path = __DIR__ . '/hooks';
+		$files = JFolder::files($path, '.', false, false, array('.svn', 'CVS', '.DS_Store', '__MACOSX', 'index.html'));
 
 		if (!$files) {
 			return;
 		}
 
-		foreach($files as $file)
-		{
+		foreach ($files as $file) {
 			require_once($path . '/' . $file);
 
 			$className 	= 'SocialCronHooks' . str_ireplace('.php', '', $file);
@@ -147,7 +144,7 @@ class SocialCron
 	 */
 	public function setStatus( $status )
 	{
-		$this->status 	= $status;
+		$this->status = $status;
 	}
 
 	/**

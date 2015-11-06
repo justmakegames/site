@@ -38,7 +38,16 @@ $last_type = '';
 			<?php echo JText::sprintf( 'COM_EASYSOCIAL_SEARCH_NUMBER_ITEM_FOUND_TOOLBAR', $total ); ?>
 		</div>
 		<div class="text-center fd-small mt-10">
-			<a href="<?php echo FRoute::search( array( 'q' => urlencode( $keywords ) ) );?>">
+			<?php
+				$linkOptions = array('q' => urlencode($keywords));
+				if (isset($filters) && $filters) {
+					for($i = 0; $i < count($filters); $i++) {
+						$linkOptions['filtertypes[' . $i . ']'] = $filters[$i];
+					}
+				}
+				$searchLink = FRoute::search($linkOptions);
+			?>
+			<a href="<?php echo $searchLink; ?>">
 				<?php echo JText::_('COM_EASYSOCIAL_SEARCH_VIEW_ALL_RESULTS'); ?>
 			</a>
 		</div>

@@ -140,15 +140,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<hr />
 					<ul class="fd-reset-list">
 						<li>
-							<i class="ies-user"></i> <?php echo JText::sprintf( 'APP_GROUP_TASKS_META_CREATED_BY' , $this->html( 'html.user' , $milestone->owner_id ) ); ?>
+							<i class="fa fa-user"></i> <?php echo JText::sprintf( 'APP_GROUP_TASKS_META_CREATED_BY' , $this->html( 'html.user' , $milestone->owner_id ) ); ?>
 						</li>
 						<li>
-							<i class="ies-calendar"></i> <?php echo JText::sprintf( 'APP_GROUP_TASKS_META_CREATED_ON' , FD::date( $milestone->created )->format( JText::_( 'DATE_FORMAT_LC3' ) ) ); ?>
+							<i class="fa fa-calendar"></i> <?php echo JText::sprintf( 'APP_GROUP_TASKS_META_CREATED_ON' , FD::date( $milestone->created )->format( JText::_( 'DATE_FORMAT_LC3' ) ) ); ?>
 						</li>
 
 						<?php if( $milestone->hasDueDate() ){ ?>
 						<li>
-							<i class="ies-calendar"></i> <?php echo JText::sprintf( 'APP_GROUP_TASKS_META_DUE_ON' , FD::date( $milestone->due )->format( JText::_( 'DATE_FORMAT_LC3' ) ) ); ?>
+							<i class="fa fa-calendar"></i> <?php echo JText::sprintf( 'APP_GROUP_TASKS_META_DUE_ON' , FD::date( $milestone->due )->format( JText::_( 'DATE_FORMAT_LC3' ) ) ); ?>
 						</li>
 						<?php } ?>
 					</ul>

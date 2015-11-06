@@ -6,15 +6,14 @@ EasySocial.require()
 	$( '[data-table-grid]' ).implement( EasySocial.Controller.Grid );
 
 	$.Joomla( 'submitbutton' , function( action ) {
+
 		if (action == 'purge') {
-			EasySocial.dialog(
-			{
-				content		: EasySocial.ajax( 'admin/views/stream/confirmDelete' ),
-				bindings 	:
+			EasySocial.dialog({
+				content: EasySocial.ajax('admin/views/stream/confirmDelete'),
+				bindings:
 				{
-					"{deleteButton} click" : function()
-					{
-						$.Joomla( 'submitform' , [ action ] );
+					"{deleteButton} click" : function() {
+						$.Joomla('submitform', [action]);
 					}
 				}
 			});

@@ -352,8 +352,8 @@ Class Asido_Driver_GD_Hack Extends Asido_Driver_GD {
 		{
 			$p = pathinfo($tmp->target_filename);
 
-			($tmp->save = $this->__mime_metaphone[metaphone($p['extension'])])
-				|| ($tmp->save = $this->__mime_soundex[soundex($p['extension'])]);
+			($tmp->save = @$this->__mime_metaphone[metaphone($p['extension'])])
+				|| ($tmp->save = @$this->__mime_soundex[soundex($p['extension'])]);
 		}
 
 		$result = false;

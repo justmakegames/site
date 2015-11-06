@@ -76,7 +76,7 @@ $privacy = $this->my->getPrivacy();
 				<ul class="fd-reset-list es-friends-links list-inline">
 					<li>
 						<a href="<?php echo FRoute::friends( array( 'userid' => $user->getAlias() ) );?>" class="fd-small muted">
-							<i class="ies-users-2 "></i>
+							<i class="fa fa-users"></i>
 
 							<?php if( $user->getTotalFriends() ){ ?>
 								<?php echo $user->getTotalFriends();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_FRIENDS' , $user->getTotalFriends() ) ); ?>
@@ -89,7 +89,7 @@ $privacy = $this->my->getPrivacy();
 					<?php if( $this->config->get( 'followers.enabled' ) ) { ?>
 					<li>
 						<a href="<?php echo FRoute::followers( array( 'userid' => $user->getAlias() ) );?>" class="fd-small muted">
-							<i class="ies-tree-view "></i>
+							<i class="fa fa-share-alt "></i>
 							<?php if( $user->getTotalFollowers() ){ ?>
 								<?php echo $user->getTotalFollowers();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_FOLLOWERS' , $user->getTotalFollowers() ) ); ?>
 							<?php } else { ?>
@@ -102,7 +102,7 @@ $privacy = $this->my->getPrivacy();
 					<?php if ( $this->config->get( 'badges.enabled' ) ) { ?>
 					<li>
 						<a href="<?php echo FRoute::badges( array( 'userid' => $user->getAlias() , 'layout' => 'achievements' ) );?>" class="fd-small muted">
-							<i class="ies-crown "></i>
+							<i class="fa fa-trophy "></i>
 							<?php if( $user->getTotalbadges() ){ ?>
 								<?php echo $user->getTotalbadges();?> <?php echo JText::_( FD::string()->computeNoun( 'COM_EASYSOCIAL_BADGES' , $user->getTotalbadges() ) ); ?>
 							<?php } else { ?>
@@ -116,7 +116,7 @@ $privacy = $this->my->getPrivacy();
 						<?php if( FD::privacy( $this->my->id )->validate( 'profiles.post.message' , $user->id ) ){ ?>
 						<li data-friendItem-message>
 							<a href="javascript:void(0);" class="fd-small muted">
-								<i class="ies-mail-2 "></i> <?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_SEND_MESSAGE' ); ?>
+								<i class="fa fa-envelope "></i> <?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_SEND_MESSAGE' ); ?>
 							</a>
 						</li>
 						<?php } ?>

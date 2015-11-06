@@ -11,6 +11,11 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
+<?php if (!$actor->isBlock()) { ?>
 <a href="<?php echo $actor->getPermalink();?>" alt="<?php echo $this->html( 'string.escape' , $actor->getName() );?>"><?php echo $actor->getName(); ?></a>
-<i class="ies-arrow-right"></i>
+<?php } else { ?>
+<?php echo $actor->getName(); ?>
+<?php } ?>
+
+<i class="fa fa-caret-right"></i>
 <a href="<?php echo $cluster->getPermalink();?>"><?php echo $cluster->getName();?></a>

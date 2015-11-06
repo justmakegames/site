@@ -1,7 +1,7 @@
 {
 	"title"	: "COM_EASYSOCIAL_MENU_GROUP_MIGRATORS",
 	"link"	: "index.php?option=com_easysocial&view=migrators",
-	"class"	: "ies-loop",
+	"class"	: "fa-refresh",
 	"access": "easysocial.access.migrators",
 	"view"	: "migrators",
 	"active": "layout",
@@ -9,7 +9,7 @@
 	[
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_MIGRAORS_JOMSOCIAL",
-			"class"	: "ies-puzzle",
+			"class": "",
 			"url"	:
 			{
 				"view"	: "migrators",
@@ -19,7 +19,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_MIGRAORS_EASYBLOG",
-			"class"	: "ies-puzzle",
+			"class": "",
 			"url"	:
 			{
 				"view"	: "migrators",
@@ -29,7 +29,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_MIGRAORS_KUNENA",
-			"class"	: "ies-puzzle",
+			"class": "",
 			"url"	:
 			{
 				"view"	: "migrators",
@@ -39,7 +39,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_MIGRAORS_JOOMLA",
-			"class"	: "ies-puzzle",
+			"class": "",
 			"url"	:
 			{
 				"view"	: "migrators",
@@ -49,7 +49,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_MIGRAORS_JOMSOCIAL_GROUP",
-			"class"	: "ies-puzzle",
+			"class": "",
 			"url"	:
 			{
 				"view"	: "migrators",
@@ -59,7 +59,7 @@
 		},
 		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_MIGRAORS_JOMSOCIAL_EVENT",
-			"class"	: "ies-puzzle",
+			"class": "",
 			"url"	:
 			{
 				"view"	: "migrators",
@@ -68,8 +68,18 @@
 			"childs": []
 		},
 		{
+			"title"	: "COM_EASYSOCIAL_MENU_ITEM_MIGRAORS_JOMSOCIAL_VIDEO",
+			"class": "",
+			"url"	:
+			{
+				"view"	: "migrators",
+				"layout": "jomsocialvideo"
+			},
+			"childs": []
+		},
+		{
 			"title"	: "COM_EASYSOCIAL_MENU_ITEM_MIGRAORS_CB",
-			"class"	: "ies-puzzle",
+			"class": "",
 			"url"	:
 			{
 				"view"	: "migrators",

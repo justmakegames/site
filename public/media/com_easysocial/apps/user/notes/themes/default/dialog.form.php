@@ -66,10 +66,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<?php if( ( $params->get( 'stream_create' , true ) && !$note->id ) || ( $params->get( 'stream_update' , true ) && $note->id ) ){ ?>
 			<div class="control-group">
-				<label class="checkbox">
-					<input type="checkbox" name="publish_stream" value="1" checked="checked" class="mr-5" data-apps-notes-publish-stream />
-					<?php echo JText::_( 'APP_NOTES_FORM_PUBLISH_STREAM' );?></label>
-				</label>
+				<div class="es-checkbox">
+					<input type="checkbox" name="publish_stream" value="1" checked="checked" class="mr-5" id="data-apps-notes-publish-stream" data-apps-notes-publish-stream />
+					<label for="data-apps-notes-publish-stream"><?php echo JText::_( 'APP_NOTES_FORM_PUBLISH_STREAM' );?></label>
+				</div>
 			</div>
 			<?php } ?>
 

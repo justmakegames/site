@@ -233,6 +233,11 @@ class EasySocialControllerUsers extends EasySocialController
 
 		$pagination	= $model->getPagination();
 
+		$displayOptions = $model->getDisplayOptions();
+
+		// var_dump($displayOptions);
+
+
 		// Define those query strings here
 		$pagination->setVar( 'Itemid'	, FRoute::getItemId( 'users' ) );
 		$pagination->setVar( 'view'		, 'users' );
@@ -260,7 +265,7 @@ class EasySocialControllerUsers extends EasySocialController
 		}
 
 
-		return $view->call(__FUNCTION__, $users, $filter, $pagination);
+		return $view->call(__FUNCTION__, $users, $filter, $pagination, $displayOptions);
 	}
 
 
@@ -313,6 +318,12 @@ class EasySocialControllerUsers extends EasySocialController
 		$config 	= FD::config();
 		$options['includeAdmin'] = $config->get( 'users.listings.admin' ) ? true : false;
 
+		// exclude current logged in user
+		$my = ES::user();
+		if ($my->id) {
+			$options['exclusion'] = $my->id;
+		}
+
 		// $model = FD::model('Profiles');
 		// $users = $model->getMembers($id, $options);
 
@@ -363,85 +374,85 @@ class EasySocialControllerUsers extends EasySocialController
 		// Check for request forgeries
 		FD::checkToken();
 
-		// Get the current view
-		$view 	= $this->getCurrentView();
-		$my 	= FD::user();
-
 		// Get the current filter
 		$filter = $this->input->get('filter', 'all', 'word');
 
 		// Get the current sorting
-		$sort   = $this->input->get('sort', 'latest', 'word');
+		$sort = $this->input->get('sort', $this->config->get('users.listings.sorting'), 'word');
 		$isSort = $this->input->get('isSort', false, 'bool');
 		$showPagination = $this->input->get('showpagination', 0, 'default');
 
-		$model 		= FD::model('Users');
-		$options	= array('exclusion' => $my->id);
+		$model = FD::model('Users');
+		$options = array('exclusion' => $this->my->id);
 
 		if ($sort == 'alphabetical') {
-			$options[ 'ordering' ]	= 'a.name';
-			$options[ 'direction' ]	= 'ASC';
+			$nameField = $this->config->get('users.displayName') == 'username' ? 'a.username' : 'a.name';
+
+			$options['ordering'] = $nameField;
+			$options['direction'] = 'ASC';
 		} elseif($sort == 'latest') {
-			$options[ 'ordering' ]	= 'a.id';
-			$options[ 'direction' ]	= 'DESC';
+
+			$options['ordering'] = 'a.id';
+			$options['direction'] = 'DESC';
+		} elseif($sort == 'lastlogin') {
+
+			$options['ordering'] = 'a.lastvisitDate';
+			$options['direction'] = 'DESC';
 		}
 
 		if ($filter == 'online') {
-			$options[ 'login' ]	= true;
+			$options['login'] = true;
 		}
 
 		if ($filter == 'photos') {
-			$options[ 'picture' ]	= true;
+			$options['picture']	= true;
 		}
 
 		// setup the limit
-		$limit 		= FD::themes()->getConfig()->get('userslimit');
-		$options['limit']	= $limit;
+		$limit = FD::themes()->getConfig()->get('userslimit');
+		$options['limit'] = $limit;
 
 		// Determine if we should display admins
-		$config 	= FD::config();
-		$admin 		= $config->get( 'users.listings.admin' ) ? true : false;
+		$admin = $this->config->get('users.listings.admin') ? true : false;
 
-		$options[ 'includeAdmin' ]	= $admin;
+		$options['includeAdmin'] = $admin;
 
 		// we only want published user.
-		$options[ 'published' ]	= 1;
+		$options['published'] = 1;
 
 		// exclude users who blocked the current logged in user.
 		$options['excludeblocked'] = 1;
 
-		$result		= $model->getUsers( $options );
-		$pagination  = null;
+		$result = $model->getUsers($options);
+		$pagination = null;
 
 		if ($showPagination) {
 			$pagination	= $model->getPagination();
 
 			// Define those query strings here
-			$pagination->setVar( 'Itemid'	, FRoute::getItemId( 'users' ) );
-			$pagination->setVar( 'view'		, 'users' );
-			$pagination->setVar( 'filter' , $filter );
-			$pagination->setVar( 'sort' , $sort );
+			$pagination->setVar('Itemid', FRoute::getItemId('users'));
+			$pagination->setVar('view', 'users');
+			$pagination->setVar('filter' , $filter);
+			$pagination->setVar('sort', $sort);
 		}
 
-		$users 		= array();
+		$users = array();
 
 		// preload users.
 		$arrIds = array();
 
 		foreach ($result as $obj) {
-			$arrIds[]	= FD::user( $obj->id );
+			$arrIds[] = FD::user($obj->id);
 		}
 
-		if( $arrIds )
-		{
-			FD::user( $arrIds );
+		if ($arrIds) {
+			FD::user($arrIds);
 		}
 
-		foreach( $result as $obj )
-		{
-			$users[]	= FD::user( $obj->id );
+		foreach ($result as $obj) {
+			$users[] = FD::user($obj->id);
 		}
 
-		return $view->call( __FUNCTION__ , $users , $isSort, $pagination );
+		return $this->view->call(__FUNCTION__, $users, $isSort, $pagination);
 	}
 }

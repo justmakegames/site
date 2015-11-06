@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,12 +11,6 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-/**
- * Displays the groups widget in a profile
- *
- * @since	1.2
- * @access	public
- */
 class GroupsWidgetsProfile extends SocialAppsWidgets
 {
 	/**
@@ -73,6 +67,7 @@ class GroupsWidgetsProfile extends SocialAppsWidgets
 		$total = $user->getTotalGroups($groupCntOptions);
 
 		$theme = FD::themes();
+		$theme->set('user', $user);
 		$theme->set('limit', $limit);
 		$theme->set('groups', $groups);
 		$theme->set('total', $total);

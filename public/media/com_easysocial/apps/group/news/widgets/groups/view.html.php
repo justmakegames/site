@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,14 +9,8 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Widgets for group
- *
- * @since	1.0
- * @access	public
- */
 class NewsWidgetsGroups extends SocialAppsWidgets
 {
 	/**
@@ -48,31 +42,37 @@ class NewsWidgetsGroups extends SocialAppsWidgets
 	 * @param	string
 	 * @return
 	 */
-	public function sidebarBottom( $groupId )
+	public function sidebarBottom($groupId)
 	{
 		// Set the max length of the item
-		$params 	= $this->app->getParams();
-		$enabled 	= $params->get('widget', true);
+		$params = $this->app->getParams();
+		$enabled = $params->get('widget', true);
 
 		if (!$enabled) {
 			return;
 		}
 
-		$theme 		= FD::themes();
+		$theme = ES::themes();
 
 		// Get the group
-		$group		= FD::group( $groupId );
+		$group = ES::group($groupId);
 
 
-		$options 	= array( 'limit' => (int) $params->get( 'widget_total' , 5 ) );
+		$options = array('limit' => (int) $params->get('widget_total', 5));
 
-		$model 		= FD::model( 'Groups' );
-		$items 		= $model->getNews( $group->id , $options );
+		$model = ES::model('Groups');
+		$items = $model->getNews($group->id, $options);
+		$total = $model->getTotalNews($group->id);
 
-		$theme->set( 'group'	, $group );
-		$theme->set( 'app'		, $this->app );
-		$theme->set( 'items' 	, $items );
+		if (!$items) {
+			return;
+		}
+		
+		$theme->set('total', $total);
+		$theme->set('group'	, $group);
+		$theme->set('app', $this->app);
+		$theme->set('items', $items);
 
-		echo $theme->output( 'themes:/apps/group/news/widgets/widget.news' );
+		echo $theme->output('themes:/apps/group/news/widgets/widget.news');
 	}
 }

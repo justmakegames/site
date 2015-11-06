@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,15 +9,15 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="es-container" data-profile-edit>
     <a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-        <i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE');?>
+        <i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE');?>
     </a>
     <div class="es-sidebar" data-sidebar>
 
-        <?php echo $this->render('module' , 'es-profile-edit-sidebar-top'); ?>
+        <?php echo $this->render('module' , 'es-profile-edit-sidebar-top' , 'site/dashboard/sidebar.module.wrapper'); ?>
 
         <div class="es-widget es-widget-borderless">
             <div class="es-widget-head">
@@ -39,7 +39,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
         </div>
 
-        <?php if ($this->config->get('users.display.profiletype', true)) { ?>
+        <?php if ($this->config->get('users.display.profiletype', true) && $this->my->hasCommunityAccess()) { ?>
         <div class="es-widget es-widget-borderless">
             <div class="es-widget-head">
                 <div class="widget-title pull-left">
@@ -79,7 +79,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
         <?php } ?>
 
-        <?php echo $this->render('module' , 'es-profile-edit-sidebar-bottom'); ?>
+        <?php echo $this->render('module' , 'es-profile-edit-sidebar-bottom' , 'site/dashboard/sidebar.module.wrapper'); ?>
     </div>
 
     <div class="es-content">
@@ -87,7 +87,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <?php echo $this->render('module' , 'es-profile-edit-before-contents'); ?>
 
         <div class="profile-wrapper" data-profile-edit-fields>
-            <form method="post" action="<?php echo JRoute::_('index.php'); ?>" class="form-horizontal" data-profile-fields-form>
+            <form method="post" action="<?php echo JRoute::_('index.php'); ?>" class="form-horizontal" data-profile-fields-form autocomplete="off">
                 <div class="edit-form">
                     <div class="tab-content profile-content">
                         <?php $i = 0; ?>
@@ -132,17 +132,6 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 <?php } ?>
 
                                 <ul class="yesno-list mb-20">
-                                    <?php if ($this->config->get('oauth.facebook.pull')){ ?>
-                                    <!-- <li>
-                                        <div class="yesno-item pull-left fd-small">
-                                            <?php echo JText::_('COM_EASYSOCIAL_OAUTH_FACEBOOK_INTEGRATIONS_PULL_STREAM_ITEMS');?>
-                                        </div>
-                                        <div class="pull-right">
-                                            <?php echo $this->html('grid.boolean' , 'oauth.facebook.pull' , $fbOAuth->pull); ?>
-                                        </div>
-                                    </li> -->
-                                    <?php } ?>
-
                                     <?php if ($this->config->get('oauth.facebook.push')){ ?>
                                     <li>
                                         <div class="yesno-item pull-left fd-small">
@@ -164,18 +153,19 @@ defined('_JEXEC') or die('Unauthorized Access');
                     </div>
                 </div>
                 <div class="form-actions">
+                    
+                    <?php if ($this->my->hasCommunityAccess()) { ?>
                     <div class="pull-left">
                         <a href="<?php echo $this->my->getPermalink();?>" class="btn btn-sm btn-es-danger"><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON'); ?></a>
                     </div>
+                    <?php } ?>
 
                     <div class="pull-right">
-                        <button type="button" class="btn btn-medium btn-es-primary" data-profile-fields-save>
-                            <?php echo JText::_('COM_EASYSOCIAL_SAVE_BUTTON');?>
-                        </button>
+                        <button type="button" class="btn btn-sm btn-es-primary" data-profile-fields-save><?php echo JText::_('COM_EASYSOCIAL_SAVE_BUTTON');?></button>
 
-                        <button type="button" class="btn btn-medium btn-es-primary" data-profile-fields-save-close>
-                            <?php echo JText::_('COM_EASYSOCIAL_SAVE_AND_CLOSE_BUTTON');?>
-                        </button>
+                        <?php if ($this->my->hasCommunityAccess()) { ?>
+                        <button type="button" class="btn btn-sm btn-es-primary" data-profile-fields-save-close><?php echo JText::_('COM_EASYSOCIAL_SAVE_AND_CLOSE_BUTTON');?></button>
+                        <?php } ?>
                     </div>
                 </div>
 

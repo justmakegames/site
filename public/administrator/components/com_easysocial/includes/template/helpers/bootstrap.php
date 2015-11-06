@@ -24,15 +24,27 @@ class ThemesHelperBootstrap
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public static function popover( $title = '' , $content = '' , $placement = '' , $placeholder = '' , $html = false )
+	public static function popover($title = '', $content = '', $placement = '' , $placeholder = '' , $html = false )
 	{
-		$theme 	= FD::get( 'Themes' );
+		$theme = ES::themes();
 
-		$theme->set( 'title'	, $title );
-		$theme->set( 'content'	, $content );
-		$theme->set( 'placement', $placement );
-		$theme->set( 'placeholder' , $placeholder );
-		$theme->set( 'html' , $html );
+		if (!$content) {
+			$content = $title . '_TOOLTIP';
+		}
+
+		if (!$placeholder) {
+			$placeholder = $title .'_PLACEHOLDER';
+		}
+
+		$title = JText::_($title);
+		$content = JText::_($content);
+		$placeholder = JText::_($placeholder);
+		
+		$theme->set('title', $title);
+		$theme->set('content', $content);
+		$theme->set('placement', $placement);
+		$theme->set('placeholder', $placeholder);
+		$theme->set('html', $html);
 
 		return $theme->output( 'admin/html/bootstrap.popover' );
 	}

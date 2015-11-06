@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,77 +11,58 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html class="demo-mobile-horizontal" lang="en">
 <head>
-	<title><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION' ); ?> - <?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_STEP' );?> <?php echo $active; ?></title>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<link href="<?php echo JURI::root();?>administrator/components/com_easysocial/setup/assets/images/logo.png" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
-	<link rel="stylesheet" href="<?php echo JURI::base();?>components/com_easysocial/setup/assets/styles/bootstrap.min.css" type="text/css" />
-	<link rel="stylesheet" href="<?php echo JURI::base();?>components/com_easysocial/setup/assets/styles/style.css" type="text/css" />
-	<script src="<?php echo JURI::base();?>components/com_easysocial/setup/assets/scripts/jquery.js" type="text/javascript"></script>
-	<script src="<?php echo JURI::base();?>components/com_easysocial/setup/assets/scripts/bootstrap.min.js" type="text/javascript"></script>
-	<script src="<?php echo JURI::base();?>components/com_easysocial/setup/assets/scripts/application.js" type="text/javascript"></script>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title><?php echo JText::_('COM_EASYSOCIAL_INSTALLATION'); ?> - <?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_STEP');?> <?php echo $active; ?></title>
+	<link href="<?php echo ES_SETUP_URL;?>/assets/images/logo.png" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
+
+	<link type="text/css" href="http://fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic,500italic,500,300italic,300" rel="stylesheet">
+	<link type="text/css" href="<?php echo ES_SETUP_URL;?>/assets/icons/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link type="text/css" href="<?php echo ES_SETUP_URL;?>/assets/icons/ionicons/css/ionicons.min.css" rel="stylesheet">
+	<link type="text/css" href="<?php echo ES_SETUP_URL;?>/assets/styles/theme.css" rel="stylesheet" />
+	
+	<script src="<?php echo ES_SETUP_URL;?>/assets/scripts/jquery.js" type="text/javascript"></script>
+	<script src="<?php echo ES_SETUP_URL;?>/assets/scripts/bootstrap.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
-	<?php require( JPATH_ROOT . '/administrator/components/com_easysocial/setup/assets/scripts/script.js' ); ?>
+	<?php require(JPATH_ROOT . '/administrator/components/com_easysocial/setup/assets/scripts/script.js'); ?>
 	</script>
 </head>
+
 <body class="step<?php echo $active;?>">
-<div id="es-header">
-	<div class="navbar">
-		<div class="navbar-inner">
-			<div>
-				<div class="brand">
-					<img src="<?php echo JURI::root();?>administrator/components/com_easysocial/setup/assets/images/logo.png" class="easysocial-logo pull-left" />
-					<div class="title">EasySocial Installer</div>
-					<div class="tagline">Building Awesome Social Network for your Joomla! site.</div>
+	<div class="header text-center">
+		<div class="container">
+			<div class="col-cell" style="padding-right: 20px;">
+				<img src="<?php echo ES_SETUP_URL;?>/assets/images/logo.png" height="64" />
+			</div>
+			<div class="col-cell text-left">
+				<h2 style="color: #fff; font-weight: 400; margin: 0 0 8px; font-size: 24px;">
+					<?php echo JText::_('EasySocial');?>
+				</h2>
+
+				<div>
+					<?php echo JText::_('Building Awesome Social Network for Joomla!');?>
 				</div>
+			</div>
+			
+
+			<div class="steps row-table">
+				<?php include(__DIR__ . '/default.steps.php'); ?>
 			</div>
 		</div>
 	</div>
-</div>
-<div id="es-wrap">
-
-	<div class="es-installer-header">
-		<h2 class="section-heading">
-			<span>
-		<?php if( $activeStep->template == 'complete' ){ ?>
-			<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_COMPLETED' );?>
-		<?php } else { ?>
-			<?php echo JText::_( $activeStep->title );?>
-		<?php } ?>
-			</span>
-		</h2>
+	
+	<div class="content">
+		<div class="container">
+			<?php include(__DIR__ . '/steps/' . $activeStep->template . '.php'); ?>
+		</div>
 	</div>
 
-	<div class="es-installer">
-
-		<?php if( $activeStep->template != 'complete' ){ ?>
-		<div class="navbar es-stepbar">
-			<div class="navbar-inner">
-				<div class="navbar-collapse">
-					<div class="media">
-						<div class="media-object pull-left">
-							<?php include( dirname( __FILE__ ) . '/default.steps.php' ); ?>
-						</div>
-						<div class="media-body">
-							<div class="divider-vertical-last"></div>
-						</div>
-					</div>
-
-				</div>
-			</div>
-		</div>
-		<?php } ?>
-
-		<div class="es-installer-body">
-			<?php include( dirname( __FILE__ ) . '/default.content.php' ); ?>
-		</div>
-
-		<?php include( dirname( __FILE__ ) . '/default.footer.php' ); ?>
+	<div class="footer">
+		<?php include(dirname(__FILE__) . '/default.footer.php'); ?>
 	</div>
-
-</div>
-
 </body>
 </html>

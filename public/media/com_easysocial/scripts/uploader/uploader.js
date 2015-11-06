@@ -4,178 +4,103 @@ EasySocial.module( 'uploader/uploader' , function($){
 
 	EasySocial.require()
 	.library( 'plupload' )
-	.view( 'site/uploader/queue.item' )
+	.view('site/uploader/queue.item')
 	.script( 'uploader/queue' )
 	.done( function(){
 
-		EasySocial.Controller(
-			'Uploader',
-			{
-				defaults:
-				{
-					url				: $.indexUrl + '?option=com_easysocial&controller=uploader&task=uploadTemporary&format=json&tmpl=component&' + EasySocial.token() + '=1',
-					uploaded		: [],
+		EasySocial.Controller('Uploader', {
+				defaults: {
+					url: $.indexUrl + '?option=com_easysocial&controller=uploader&task=uploadTemporary&format=json&tmpl=component&' + EasySocial.token() + '=1',
+					uploaded: [],
 
 					// Allows caller to define their custom query.
-					query				: "",
+					query: "",
 
-					plupload 			: '',
-					dropArea			: 'uploaderDragDrop',
-					extensionsAllowed 		: 'jpg,jpeg,png,gif',
+					plupload: '',
+					dropArea: 'uploaderDragDrop',
+					extensionsAllowed: 'jpg,jpeg,png,gif',
 
-					temporaryUpload 	: false,
+					// Determines if we should upload the file first or not
+					temporaryUpload: false,
 
 					// Contains a list of files in the queue so others can manipulate this.
-					files 			: [],
+					files: [],
 
-					'{uploaderForm}' 	: '[data-uploader-form]',
-					'{uploadButton}'	: '[data-uploader-browse]',
-					'{uploadArea}'		: '.uploadArea',
+					'{uploaderForm}': '[data-uploader-form]',
+					'{uploadButton}': '[data-uploader-browse]',
+					'{uploadArea}': '.uploadArea',
 
 					// This contains the file list queue.
-					'{queue}'			: '[data-uploaderQueue]',
+					'{queue}': '[data-uploaderQueue]',
 
 					// The queue item.
-					'{queueItem}'		: '[data-uploaderQueue-item]',
+					'{queueItem}': '[data-uploaderQueue-item]',
 
 					// When the queue doesn't have any item, this is the container.
-					'{emptyFiles}'			: '[data-uploader-empty]',
+					'{emptyFiles}': '[data-uploader-empty]',
 
 					// This is the file removal link.
-					'{removeFile}'			: '[data-uploaderQueue-remove]',
-					'{uploadCounter}'		: '.uploadCounter',
+					'{removeFile}': '[data-uploaderQueue-remove]',
+					'{uploadCounter}': '.uploadCounter',
 
-					view :
-					{
+					view : {
 						queueItem : "site/uploader/queue.item"
 					}
 				}
-			},
-			function( self ){ return {
+			}, function(self, opts, base){ return {
 
 				init: function(){
 
 					// Implement the uploader queue.
-					self.queue().implement( EasySocial.Controller.Uploader.Queue );
+					self.queue().implement(EasySocial.Controller.Uploader.Queue);
 
-					if( self.options.temporaryUpload )
-					{
-						self.options.url 	= $.indexUrl + '?option=com_easysocial&controller=uploader&task=uploadTemporary&format=json&tmpl=component&' + EasySocial.token() + '=1';
+					if (opts.temporaryUpload) {
+						opts.url = $.indexUrl + '?option=com_easysocial&controller=uploader&task=uploadTemporary&format=json&tmpl=component&' + EasySocial.token() + '=1';
 					}
 
-					if( self.options.query != '' )
-					{
-						self.options.url 	= self.options.url + '&' + self.options.query;
+					if (opts.query != '') {
+						opts.url = opts.url + '&' + opts.query;
 					}
 
-					// Initialize the uploader element
-					self.uploaderForm().implement(
-						'plupload',
-						{
-							settings:
-							{
-								url				: self.options.url,
-								drop_element	: self.options.dropArea,
-								filters			: [{
-									title		: 'Allowed File Type',
-									extensions	: self.options.extensionsAllowed
-								}]
-							},
-							'{uploader}'		: '[data-uploader-form]',
-							'{uploadButton}'	: '[data-uploader-browse]'
+					// Implement the plupload controller on the upload form
+					self.uploaderForm().implement('plupload', {
+						settings: {
+							url: opts.url,
+							drop_element: opts.dropArea,
+							filters: [{
+								title: 'Allowed File Type',
+								extensions: opts.extensionsAllowed
+							}]
 						},
-						function()
-						{
-							// Get the plupload options
-							self.options.plupload = this.plupload;
-						}
-					);
+						'{uploader}': '[data-uploader-form]',
+						'{uploadButton}': '[data-uploader-browse]'
+					}, function() {
+						// Get the plupload options
+						opts.plupload = this.plupload;
+					});
 				},
 
-				"{uploaderForm} FilesAdded": function(el, event, uploader, files )
-				{
-					// Add a file to the queue when files are selected.
-					self.addFiles( files );
 
-					// Begin the upload immediately if needed
-					if( self.options.temporaryUpload )
-					{
-						self.startUpload();
-					}
+				createFileItem: function(files) {
+					
+					$.each(files, function(index, file) {
 
-				},
-
-				"{uploaderForm} UploadProgress" : function( el , event , uploader , file ){
-
-					// Trigger upload progress on the queue item.
-					self.queueItem( '#' + file.id ).trigger( 'UploadProgress' , file );
-
-				},
-
-				'{uploaderForm} FileUploaded' : function( el , event, uploader, file , response ){
-
-					// console.log( 'here' );
-
-					// Trigger upload progress on the queue item.
-					self.queueItem( '#' + file.id ).trigger( 'FileUploaded' , [file , response] );
-				},
-
-				"{uploaderForm} UploadComplete" : function( el , event , uploader , files )
-				{
-					self.options.uploading 	= false;
-				},
-
-				/**
-				 * Error handling should come here
-				 */
-				'{uploaderForm} Error': function(el, event, uploader, error)
-				{
-					// Clear previous message
-					self.clearMessage();
-
-					var obj = { 'message' : error.message , 'type' : 'error' };
-
-					self.setMessage( obj );
-				},
-
-				'{uploaderForm} FileError': function(el, event, uploader, file, response)
-				{
-					var obj = { 'message' : response.message , 'type' : 'error' };
-
-					self.setMessage(obj);
-
-					self.queueItem( '#' + file.id ).trigger('FileError', [file, response]);
-
-					// queueItem.find('[data-uploaderqueue-progress]')
-					// self.removeItem(file.id);
-				},
-
-				/**
-				 * Adds an item into the upload queue.
-				 */
-				addFiles: function( files )
-				{
-					// Go through each of the files.
-					$.each( files , function( index , file )
-					{
 						// Get the file size.
-						file.size 		= self.formatSize( file.size );
+						file.size = self.formatSize(file.size);
 
 						// Get the upload queue content.
-						var content 	= self.view.queueItem(
-											{
-												"file"	: file,
+						var content = self.view.queueItem({
+												"file": file,
 												"temporaryUpload" : self.options.temporaryUpload
-											});
+									});
 
 						// Implement the queue item controller.
-						$( content ).implement( EasySocial.Controller.Uploader.Queue.Item ,
-						{
-							"{uploader}"	: self
+						$(content).implement(EasySocial.Controller.Uploader.Queue.Item, {
+							"{uploader}": self
 						});
 
 						// Add this item into our own queue.
-						self.options.files.push( file );
+						opts.files.push(file);
 
 						// Hide the "No files" value
 						self.emptyFiles().hide();
@@ -188,8 +113,8 @@ EasySocial.module( 'uploader/uploader' , function($){
 				/**
 				 * Formats the size in bytes into kilobytes.
 				 */
-				formatSize: function( bytes )
-				{
+				formatSize: function(bytes) {
+
 					// @TODO: Currently this only converts bytes to kilobytes.
 					var val = parseInt( bytes / 1024 );
 
@@ -199,25 +124,19 @@ EasySocial.module( 'uploader/uploader' , function($){
 				/**
 				 * Clears the list of upload items in the queue.
 				 */
-				reset: function()
-				{
+				reset: function() {
 					// Remove the item from the list.
 					self.queueItem().remove();
 				},
 
-				/**
-				 * Removes an item from the upload queue.
-				 */
-				removeItem: function( id )
-				{
-					var element 	= $( '#' + id );
+				removeItem: function(id) {
+					var element = $('#' + id);
 
 					// When an item is removed, we need to send an ajax call to the server to delete this record
-					var uploaderId	= $( element ).find( 'input[name=upload-id\\[\\]]' ).val();
+					var uploaderId = $(element).find('input[name=upload-id\\[\\]]').val();
 
 					EasySocial.ajax( 'site/controllers/uploader/delete' , { "id" : uploaderId } )
-					.done(function()
-					{
+					.done(function() {
 						// Remove the item from the attachment list.
 						$( '#' + id ).remove();
 
@@ -226,30 +145,68 @@ EasySocial.module( 'uploader/uploader' , function($){
 					});
 				},
 
-				/**
-				 * Begins the upload process.
-				 */
-				startUpload: function()
-				{
+				startUpload: function() {
 					self.upload();
 				},
 
-				upload: function()
-				{
-					if(self.options.plupload.files.length > 0)
-					{
+				upload: function() {
+					
+					if(self.options.plupload.files.length > 0) {
 						self.options.uploading 	= true;
 						self.options.plupload.start();
 					}
 				},
 
-				/**
-				 * Determines if there's any files in the queue currently.
-				 */
 				 hasFiles: function(){
 				 	return self.options.files.length > 0;
-				 }
+				 },
 
+				"{uploaderForm} FilesAdded": function(el, event, uploader, files ) {
+					
+					// Add a file to the queue when files are selected.
+					self.createFileItem(files);
+
+					// Begin the upload immediately if needed
+					if (opts.temporaryUpload) {
+						self.startUpload();
+					}
+				},
+
+				"{uploaderForm} UploadProgress" : function(el, event, uploader, file) {
+
+					// Trigger upload progress on the queue item.
+					if (file) {				
+						self.queueItem('#' + file.id)
+							.trigger('UploadProgress', file);
+					}
+
+				},
+
+				'{uploaderForm} FileUploaded' : function( el , event, uploader, file , response ){
+					// Trigger upload progress on the queue item.
+					self.queueItem( '#' + file.id ).trigger( 'FileUploaded' , [file , response] );
+				},
+
+				"{uploaderForm} UploadComplete" : function(el, event , uploader , files) {
+					self.options.uploading 	= false;
+				},
+
+				'{uploaderForm} Error': function(el, event, uploader, error) {
+					// Clear previous message
+					self.clearMessage();
+
+					var obj = { 'message' : error.message , 'type' : 'error' };
+
+					self.setMessage( obj );
+				},
+
+				'{uploaderForm} FileError': function(el, event, uploader, file, response) {
+					var obj = { 'message' : response.message , 'type' : 'error' };
+
+					self.setMessage(obj);
+
+					self.queueItem( '#' + file.id ).trigger('FileError', [file, response]);
+				}
 			} }
 		);
 

@@ -13,13 +13,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="app-tasks app-groups" data-tasks-milestones data-eventid="<?php echo $event->id; ?>">
 
-    <div class="es-filterbar">
-        <div class="h5 pull-left filterbar-title"><?php echo JText::_('APP_EVENT_TASKS_TITLE'); ?></div>
+    <div class="es-filterbar row-table">
+        <div class="col-cell filterbar-title"><?php echo JText::_('APP_EVENT_TASKS_TITLE'); ?></div>
 
         <?php if ($event->getGuest()->isGuest()) { ?>
-        <a href="<?php echo FRoute::apps(array('layout' => 'canvas', 'uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT, 'id' => $app->getAlias(), 'customView' => 'form')); ?>" class="btn btn-es-primary btn-sm pull-right">
-            <?php echo JText::_('APP_EVENT_TASKS_NEW_MILESTONE'); ?>
-        </a>
+        <div class="col-cell cell-tight">
+            <a href="<?php echo FRoute::apps(array('layout' => 'canvas', 'uid' => $event->getAlias(), 'type' => SOCIAL_TYPE_EVENT, 'id' => $app->getAlias(), 'customView' => 'form')); ?>" class="btn btn-es-primary btn-sm pull-right">
+                <?php echo JText::_('APP_EVENT_TASKS_NEW_MILESTONE'); ?>
+            </a>
+        </div>
         <?php } ?>
     </div>
 

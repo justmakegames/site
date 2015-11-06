@@ -15,7 +15,7 @@
     @import "forms-custom"; // Note: custom for ES
     @import "sentence";
     @import "dropdowns"; // Note: custom .dropdown-menu
-    @import "alerts"; // Note: custom .alert
+    // @import "alerts"; // Note: custom .alert
     @import "tabs"; // Note: extended .nav-tabs
     @import "login-box";
     @import "list"; //Note: es-item-list es-item-grid
@@ -50,20 +50,26 @@
     //custom icons
     @import "icons-sprites"; //32x32
     @import "icons-32"; //32x32
-    @import "icons-es";
+    // @import "icons-es";
     @import "icons-emo"; //emoticons
+    // Foundry
+    @import "font-awesome/font-awesome";
 
     //Javascript UI
     @import "textboxlist";
     @import "ui";
     @import "popover-custom";
+    @import "location";
     // @import "datetimepicker"
 
     @import "markitup/default"; // foundry
 }
+
+@import "lightbox";
 @import "broadcast";
 
 
 @{Foundry} {
-    @import "datetimepicker/default"
+    @import "datetimepicker/default";
+    @import "videojs/default";
 }

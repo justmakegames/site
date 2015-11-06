@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,20 +9,12 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-// Include the fields library
-FD::import( 'admin:/includes/fields/dependencies' );
+// Include dependencies
+ES::import('admin:/includes/fields/dependencies');
+ES::import('fields:/user/permalink/helper');
 
-// Include helper file.
-FD::import( 'fields:/user/permalink/helper' );
-
-/**
- * Field application for Gender
- *
- * @since	1.0
- * @author	Jason Rey <jasonrey@stackideas.com>
- */
 class SocialFieldsUserPermalink extends SocialFieldItem
 {
 	/**
@@ -33,7 +25,7 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	 * @param	string
 	 * @return
 	 */
-	public function save( $post , $user )
+	public function save($post , $user)
 	{
 		$value 	= isset( $post[ $this->inputName ] ) && !empty( $post[ $this->inputName ] ) ? $post[ $this->inputName ] : '';
 
@@ -94,16 +86,13 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	 */
 	public function validate( $value , $user = null )
 	{
-		if( !$this->isRequired() && empty( $value ) )
-		{
+		if (!$this->isRequired() && empty($value)) {
 			return true;
 		}
 
 		// Catch for errors if this is a required field.
-		if( $this->isRequired() && empty( $value ) )
-		{
-			$this->setError( JText::_( 'PLG_FIELDS_PERMALINK_REQUIRED' ) );
-
+		if ($this->isRequired() && empty($value)) {
+			$this->setError(JText::_('PLG_FIELDS_PERMALINK_REQUIRED'));
 			return false;
 		}
 
@@ -146,7 +135,6 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	 * @param	SocialTableRegistration		The registration ORM table.
 	 * @return	bool	Determines if the system should proceed or throw errors.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
 	public function onRegisterValidate( &$post, &$registration )
 	{
@@ -166,7 +154,6 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	 * @param	SocialTableRegistration		The registration ORM table.
 	 * @return	bool	Determines if the system should proceed or throw errors.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
 	public function onEditValidate( &$post , $user )
 	{
@@ -186,7 +173,6 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	 * @param	SocialTableRegistration
 	 * @return	string	The html output.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
 	public function onRegister( &$post, &$registration )
 	{
@@ -214,7 +200,7 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	 */
 	public function onEdit( &$post, &$user, $errors )
 	{
-		$value = !empty( $post[ $this->inputName ] ) ? $post[ $this->inputName ] : $user->getAlias(false);
+		$value = !empty( $post[ $this->inputName ] ) ? $post[ $this->inputName ] : $user->permalink;
 
 		$error = $this->getError( $errors );
 
@@ -233,7 +219,6 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	 * @access	public
 	 * @return	string	The html output.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
 	public function onSample()
 	{
@@ -243,7 +228,6 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	/**
 	 * Checks if this field is complete.
 	 *
-	 * @author Jason Rey <jasonrey@stackideas.com>
 	 * @since  1.2
 	 * @access public
 	 * @param  SocialUser    $user The user being checked.
@@ -256,7 +240,6 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	/**
 	 * Checks if this field is filled in.
 	 *
-	 * @author Jason Rey <jasonrey@stackideas.com>
 	 * @since  1.3
 	 * @access public
 	 * @param  array		$data	The post data.

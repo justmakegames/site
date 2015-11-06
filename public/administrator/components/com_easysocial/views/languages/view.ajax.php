@@ -12,20 +12,38 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Include main views file.
-FD::import( 'admin:/views/views' );
+FD::import('admin:/views/views');
 
 class EasySocialViewLanguages extends EasySocialAdminView
 {
 	/**
-	 * Retrieves
+	 * Responds to the ajax calls
 	 *
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function getLanguages()
+	public function getLanguages($result)
 	{
-		$ajax 	= FD::ajax();
+		return $this->ajax->resolve($result);
+	}
 
-		$ajax->resolve();
+	/**
+	 * Displays a confirmation to delete a language
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function confirmDelete()
+	{
+		$theme = ES::themes();
+
+		$ids = $this->input->get('cid', array(), 'array');
+
+		$theme->set('ids', $ids);
+		$content = $theme->output('admin/languages/dialog.delete');
+
+		return $this->ajax->resolve($content);
 	}
 }

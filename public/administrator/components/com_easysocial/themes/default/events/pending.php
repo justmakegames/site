@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" class="esForm" id="adminForm" data-table-grid>
-    <div class="filter-bar form-inline">
+    <div class="app-filter filter-bar form-inline">
         <div class="form-group">
             <?php echo $this->html('filter.search', $search); ?>
         </div>
@@ -34,150 +34,127 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
     </div>
 
-    <table class="table table-striped table-es table-hover">
-        <thead>
-            <tr>
-                <th width="1%" class="center">
-                    <input type="checkbox" name="toggle" data-table-grid-checkall />
-                </th>
+    <div class="panel-table">
+        <table class="app-table table table-eb table-striped">
+            <thead>
+                <tr>
+                    <th width="1%" class="center">
+                        <input type="checkbox" name="toggle" data-table-grid-checkall />
+                    </th>
 
-                <th>
-                    <?php echo $this->html('grid.sort', 'a.title', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_TITLE'), $ordering, $direction); ?>
-                </th>
+                    <th>
+                        <?php echo $this->html('grid.sort', 'a.title', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_TITLE'), $ordering, $direction); ?>
+                    </th>
 
-                <th width="5%" class="center">
-                    <?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_USERS'); ?>
-                </th>
+                    <th width="5%" class="center">
+                        <?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_USERS'); ?>
+                    </th>
 
-                <th class="center">
-                    <?php echo $this->html('grid.sort', 'b.title', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_CATEGORY'), $ordering, $direction); ?>
-                </th>
+                    <th class="center" width="10%">
+                        <?php echo $this->html('grid.sort', 'b.title', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_CATEGORY'), $ordering, $direction); ?>
+                    </th>
 
-                <th class="center">
-                    <?php echo $this->html('grid.sort', 'a.created_by', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_CREATED_BY'), $ordering, $direction); ?>
-                </th>
+                    <th class="center" width="10%">
+                        <?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_TYPE');?>
+                    </th>
 
-                <th class="center">
-                    <?php echo $this->html('grid.sort', 'a.created', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_CREATED'), $ordering, $direction); ?>
-                </th>
+                    <th class="center" width="10%">
+                        <?php echo $this->html('grid.sort', 'a.created_by', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_CREATED_BY'), $ordering, $direction); ?>
+                    </th>
 
-                <th width="5%" class="center">
-                    <?php echo $this->html('grid.sort', 'a.id', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_ID'), $ordering, $direction); ?>
-                </th>
-        </thead>
-        <tbody>
-        <?php if (!empty($events)) { ?>
-            <?php $i = 0;?>
-            <?php foreach ($events as $event) { ?>
-                <tr class="row<?php echo $i; ?>" data-grid-row data-id="<?php echo $event->id; ?>">
-                    <td align="center">
-                        <?php echo $this->html('grid.id', $i, $event->id); ?>
-                    </td>
+                    <th class="center" width="10%">
+                        <?php echo $this->html('grid.sort', 'a.created', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_CREATED'), $ordering, $direction); ?>
+                    </th>
 
-                    <td>
-                        <div class="media">
-                            <div class="media-object pull-left">
-                                <img src="<?php echo $event->getAvatar();?>" class="es-avatar" />
-                            </div>
+                    <th width="1%" class="center">
+                        <?php echo $this->html('grid.sort', 'a.id', JText::_('COM_EASYSOCIAL_TABLE_COLUMN_ID'), $ordering, $direction); ?>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php if (!empty($events)) { ?>
+                <?php $i = 0;?>
+                <?php foreach ($events as $event) { ?>
+                    <tr class="row<?php echo $i; ?>" data-grid-row data-id="<?php echo $event->id; ?>">
+                        <td align="center">
+                            <?php echo $this->html('grid.id', $i, $event->id); ?>
+                        </td>
 
-                            <div class="media-body">
-                                <a href="<?php echo FRoute::url(array('view' => 'events', 'layout' => 'form', 'id' => $event->id));?>" style="font-size: 16px;font-weight:700;">
-                                    <?php echo JText::_($event->title); ?>
-                                </a>
+                        <td>
+                            <a href="<?php echo FRoute::url(array('view' => 'events', 'layout' => 'form', 'id' => $event->id));?>"><?php echo JText::_($event->title); ?></a>
 
-                                <p class="mt-5 mb-10 fd-small">
-                                    <?php if ($event->description){ ?>
-                                        <?php echo $this->html('string.truncater', $event->description, 180);?>
-                                    <?php } else { ?>
-                                        <?php echo JText::_('COM_EASYSOCIAL_EVENTS_NO_DESCRIPTION'); ?>
-                                    <?php } ?>
-                                </p>
+                            &mdash;
+                            <?php if ($event->isOver()) { ?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OVER_EVENT'); ?>
+                            <?php } ?>
 
+                            <?php if ($event->isOngoing()) { ?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_ONGOING_EVENT'); ?>
+                            <?php } ?>
 
-                                <?php if ($event->isOpen()){ ?>
-                                <span class="label label-success mr-5" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                                    <i class="ies-earth"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
-                                </span>
-                                <?php } ?>
+                            <?php if ($event->isUpcoming()) { ?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_UPCOMING_EVENT'); ?>
+                            <?php } ?>
 
-                                <?php if ($event->isClosed()){ ?>
-                                <span class="label label-danger mr-5" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_CLOSED_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                                    <i class="ies-locked"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_CLOSED_EVENT'); ?>
-                                </span>
-                                <?php } ?>
+                            <?php if ($event->isRecurringEvent()) { ?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_RECURRING_EVENT'); ?>
+                            <?php } ?>
+                        </td>
 
-                                <?php if ($event->isInviteOnly()){ ?>
-                                <span class="label label-warning mr-5" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                                    <i class="ies-locked"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
-                                </span>
-                                <?php } ?>
+                        <td class="center">
+                            <?php echo $event->getTotalGuests(); ?>
+                        </td>
 
-                                <?php if ($event->isOver()) { ?>
-                                <span class="label label-warning mr-5" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_OVER_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                                    <i class="ies-flag"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OVER_EVENT'); ?>
-                                </span>
-                                <?php } ?>
+                        <td class="center">
+                            <a href="<?php echo FRoute::url(array('view' => 'events', 'layout' => 'category', 'id' => $event->category_id)); ?>" target="_blank"><?php echo JText::_($event->getCategory()->title); ?></a>
+                        </td>
 
-                                <?php if ($event->isOngoing()) { ?>
-                                <span class="label label-info mr-5" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_ONGOING_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                                    <i class="ies-flag"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_ONGOING_EVENT'); ?>
-                                </span>
-                                <?php } ?>
+                        <td class="center">
+                            <?php if ($event->isOpen()){ ?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
+                            <?php } ?>
 
-                                <?php if ($event->isUpcoming()) { ?>
-                                <span class="label label-success mr-5" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_UPCOMING_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                                    <i class="ies-alarm"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_UPCOMING_EVENT'); ?>
-                                </span>
-                                <?php } ?>
+                            <?php if ($event->isClosed()){ ?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_CLOSED_EVENT'); ?>
+                            <?php } ?>
 
-                                <?php if ($event->isRecurring) { ?>
-                                <span class="label label-warning mr-5" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_EVENTS_RECURRING_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="top">
-                                    <i class="ies-refresh"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_RECURRING_EVENT'); ?>
-                                </span>
-                                <?php } ?>
-                            </div>
-                        </div>
-                    </td>
+                            <?php if ($event->isInviteOnly()){ ?>
+                                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
+                            <?php } ?>
+                        </td>
 
-                    <td class="center">
-                        <?php echo $event->getTotalGuests(); ?>
-                    </td>
+                        <td class="center">
+                            <a href="<?php echo FRoute::url(array('view' => 'users', 'layout' => 'form', 'id' => $event->getCreator()->id)); ?>" target="_blank"><?php echo $event->getCreator()->getName(); ?></a>
+                        </td>
 
-                    <td class="center">
-                        <a href="<?php echo FRoute::url(array('view' => 'events', 'layout' => 'category', 'id' => $event->category_id)); ?>" target="_blank"><?php echo JText::_($event->getCategory()->title); ?></a>
-                    </td>
+                        <td class="center">
+                            <?php echo $event->created; ?>
+                        </td>
 
-                    <td class="center">
-                        <a href="<?php echo FRoute::url(array('view' => 'users', 'layout' => 'form', 'id' => $event->getCreator()->id)); ?>" target="_blank"><?php echo $event->getCreator()->getName(); ?></a>
-                    </td>
-
-                    <td class="center">
-                        <?php echo $event->created; ?>
-                    </td>
-
-                    <td class="center">
-                        <?php echo $event->id;?>
+                        <td class="center">
+                            <?php echo $event->id;?>
+                        </td>
+                    </tr>
+                <?php $i++; ?>
+                <?php } ?>
+            <?php } else { ?>
+                <tr class="is-empty">
+                    <td colspan="8" class="center empty">
+                        <?php echo JText::_( 'COM_EASYSOCIAL_EVENTS_NO_EVENT_FOUND' );?>
                     </td>
                 </tr>
-            <?php $i++; ?>
             <?php } ?>
-        <?php } else { ?>
-            <tr class="is-empty">
-                <td colspan="7" class="center empty">
-                    <?php echo JText::_( 'COM_EASYSOCIAL_EVENTS_NO_EVENT_FOUND' );?>
-                </td>
-            </tr>
-        <?php } ?>
-        </tbody>
+            </tbody>
 
-        <tfoot>
-            <tr>
-                <td colspan="7" class="center">
-                    <div class="footer-pagination"><?php echo $pagination->getListFooter(); ?></div>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+            <tfoot>
+                <tr>
+                    <td colspan="8" class="center">
+                        <div class="footer-pagination"><?php echo $pagination->getListFooter(); ?></div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
     <?php echo JHTML::_('form.token'); ?>
     <input type="hidden" name="ordering" value="<?php echo $ordering;?>" data-table-grid-ordering />

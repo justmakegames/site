@@ -3,36 +3,36 @@ EasySocial.module('utilities/alias', function($) {
 
 	var module = this;
 
-	EasySocial.Controller(
-		'Utilities.Alias',
-		{
-			defaultOptions:
-			{
+	EasySocial.Controller('Utilities.Alias', {
+			defaultOptions: {
 				// Should be overriden by the caller.
 				"{target}"	: "",
 				"{source}"	: ""
 			}
-		},function( self ){ 
+		},function(self) { 
 			return {
-
-				init: function()
-				{
+				init: function() {
 				},
 
-				convertToPermalink: function( title )
-				{
+				convertToPermalink: function(title) {
 					return title.replace(/\s/g, '-').replace(/[^\w/-]/g, '').toLowerCase();
 				},
 
-				"{source} keyup" : function()
-				{
+				"{source} keyup" : function(input, event) {
+						
+					var permalink = self.convertToPermalink(self.source().val());
+
 					// Update the target when the source is change.
-					self.target().val( self.convertToPermalink( self.source().val() ) );
+					self.target()
+						.val(permalink);
 				},
 
-				"{target} keyup" : function()
-				{
-					self.target().val( self.convertToPermalink( self.target().val() ) );
+				"{target} keyup" : function(input, event) {
+
+					var permalink = self.convertToPermalink(self.target().val());
+
+					self.target()
+						.val(permalink);
 				}
 			}
 		});

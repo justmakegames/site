@@ -27,6 +27,7 @@ div.kheader{
 }
 
 /* Mobile Menu */
+
 @media only screen and (max-width: 767px){
 	#rt-top .rt-grid-4 .rt-block{
 		margin-top: 30px;
@@ -59,16 +60,16 @@ div.kheader{
 	line-height: 44px;
 }
 
-#rt-top .rt-block .custom img{
-	
-}
-
 #rt-top .gf-menu .item{
 	font-weight: bold;
 	letter-spacing: 1px;
 }
 
 /* Easy Social Easy Blog */
+
+.ezb-mod .avatar{
+	border: 0 !important;
+}
 
 #ezblog-head .component-links{
 	display: none;
@@ -103,6 +104,10 @@ body div#fd.es.popbox.popbox-toolbar .arrow{
 	float: right;
 }
 
+#rt-sidebar-a .rt-block{
+	overflow: hidden;
+}
+
 body div#fd.es .es-toolbar .fd-nav>li>a [class^="ies-"],
 body div#fd.es .es-toolbar .fd-nav>li>a [class*=" ies-"]{
 	color: #fff;
@@ -125,3 +130,34 @@ body div#fd.es.mod-es-groups-categories ul li .es-category-meta{
 .klatest-items .knewchar{
 	display: none;
 }
+
+/* Product Prizes */
+
+
+.q2c_pin_wrapper .thumbnail{
+	padding: 0 10px;
+}
+
+.q2c_pin_wrapper .thumbnail .caption{
+	padding: 10px;
+	font-weight: bold;
+}
+
+.q2c_pin_wrapper .thumbnail .caption a{
+	font-size: 110%;
+}
+
+.q2c-wrapper .thumbnails > li.prodImg_wrapper{
+	float: left; margin-right: 10px;
+}
+
+.q2c-wrapper .caption .hr-condensed{
+	display: none;
+}
+
+.q2c-wrapper .caption .form-horizontal{
+	margin-top: 10px;
+	padding-bottom: 20px;
+	border-bottom: 2px solid #eee;
+}
+

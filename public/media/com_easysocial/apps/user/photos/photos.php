@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,29 +9,15 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-Foundry::import( 'admin:/includes/group/group' );
+ES::import('admin:/includes/group/group');
 
-
-/**
- * Photos application for EasySocial
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialUserAppPhotos extends SocialAppItem
 {
-	/**
-	 * Class constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 */
-	public function __construct( $options = array() )
+	public function __construct($options = array())
 	{
-		JFactory::getLanguage()->load( 'app_photos' , JPATH_ROOT );
-
-		parent::__construct( $options );
+		parent::__construct($options);
 	}
 
 	/**
@@ -44,7 +30,7 @@ class SocialUserAppPhotos extends SocialAppItem
 	 */
 	public function canDeleteComment(SocialTableComments &$comment, SocialUser &$viewer)
 	{
-		$allowed 	= array('photos.user.create');
+		$allowed = array('photos.user.create');
 
 		if (!in_array($comment->element, $allowed)) {
 			return;
@@ -169,7 +155,7 @@ class SocialUserAppPhotos extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#F8829C';
-		$obj->icon 		= 'ies-picture';
+		$obj->icon 		= 'fa fa-image';
 		$obj->label 	= 'APP_USER_PHOTOS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -263,8 +249,8 @@ class SocialUserAppPhotos extends SocialAppItem
 
 		// Decorate the stream
 		$item->color 		= '#F8829C';
-		$item->fonticon 	= 'ies-picture';
-		$item->label 		= JText::_('APP_USER_PHOTOS_STREAM_TOOLTIP');
+		$item->fonticon 	= 'fa-image';
+		$item->label 		= FD::_('APP_USER_PHOTOS_STREAM_TOOLTIP', true);
 		$item->display		= SOCIAL_STREAM_DISPLAY_FULL;
 
 
@@ -273,20 +259,21 @@ class SocialUserAppPhotos extends SocialAppItem
 		$photoId		= $item->contextId;
 		$photoParams	= ( isset( $item->contextParams[ $photoId ] ) ) ? $item->contextParams[ $photoId ] : '';
 
-		if( $photoParams )
-		{
-			$obj 	= Foundry::json()->decode( $photoParams );
-			$photo->bind( $obj );
+		if ($photoParams) {
+			$obj = FD::json()->decode($photoParams);
 
-			// Ensure that the photo is always valid.
-			if( !$photo->id )
-			{
-				$photo->load( $photoId );
+			if (!$obj) {
+				$photo->load($photoId);
+			} else {
+
+				// Bind the photo data
+				$photo->bind($obj);
+
+				if (!$photo->id) {
+					$photo->load($photoId);
+				}
 			}
-		}
-		else
-		{
-			// Load the photo and album objects
+		} else {
 			$photo->load( $photoId );
 		}
 
@@ -306,10 +293,15 @@ class SocialUserAppPhotos extends SocialAppItem
 				return;
 			}
 
+			// Check if the group is private or invite, dont show the sharing button
+			if( !$group->isOpen()) {
+				$item->sharing = false;
+			}
+
 			// We need a different label for group items
 			$item->color 	= '#303229';
-			$item->fonticon = 'ies-users';
-			$item->label 	= JText::_( 'APP_USER_PHOTOS_GROUPS_STREAM_TOOLTIP' );
+			$item->fonticon = 'fa fa-users';
+			$item->label 	= FD::_( 'APP_USER_PHOTOS_GROUPS_STREAM_TOOLTIP', true);
 		}
 
 		// If this is an event, we need to prepare accordingly.
@@ -324,9 +316,14 @@ class SocialUserAppPhotos extends SocialAppItem
 				return;
 			}
 
+			// Check if the event is private or invite, dont show the sharing button
+			if( !$event->isOpen()) {
+				$item->sharing = false;
+			}
+
 			$item->color = '#f06050';
-			$item->fonticon = 'ies-calendar';
-			$item->label = JText::_('APP_USER_EVENTS_STREAM_TOOLTIP');
+			$item->fonticon = 'fa fa-calendar';
+			$item->label = FD::_('APP_USER_EVENTS_STREAM_TOOLTIP', true);
 		}
 
 		// Process actions on the stream
@@ -344,10 +341,10 @@ class SocialUserAppPhotos extends SocialAppItem
 			if ($privacyRule == 'photos.view') {
 				// we need to check the photo's album privacy to see if user allow to view or not.
 				// if( !$privacy->validate( 'albums.view' , $photo->album_id,  SOCIAL_TYPE_ALBUM, $item->actor->id ) )
-				if( !$privacy->validate( 'photos.view' , $photo->id,  SOCIAL_TYPE_PHOTO, $item->actor->id ) )
-				{
+				if (!$privacy->validate('photos.view' , $photo->id,  SOCIAL_TYPE_PHOTO, $item->actor->id)) {
 					return;
 				}
+
 			} else {
 
 				if ($useAlbum && $privacyRule =='albums.view') {
@@ -430,6 +427,12 @@ class SocialUserAppPhotos extends SocialAppItem
 			$item->opengraph->addDescription($item->title);
 		}
 
+		$maxLength = $params->get('stream_max_chars', '');
+
+		if ($maxLength) {
+			$item->content = JString::substr(strip_tags($item->content), 0, $maxLength) . JText::_('COM_EASYSOCIAL_ELLIPSES');
+		}
+
 		return;
 	}
 
@@ -476,7 +479,7 @@ class SocialUserAppPhotos extends SocialAppItem
 	private function processActions( SocialStreamItem &$item , $privacy )
 	{
 
-		$group 			= $item->cluster_id ? SOCIAL_APPS_GROUP_GROUP : SOCIAL_APPS_GROUP_USER;
+		$group 			= $item->cluster_id ? $item->cluster_type : SOCIAL_APPS_GROUP_USER;
 
 		// Whether the item is shared or uploaded via the photo albums, we need to bind the repost here
 		$repost 		= Foundry::get('Repost', $item->uid, SOCIAL_TYPE_STREAM, $group);
@@ -513,13 +516,24 @@ class SocialUserAppPhotos extends SocialAppItem
 			return;
 		}
 
-		// Here onwards, we are assuming the user is uploading the photos via the albums area.
-
 		// If there is more than 1 photo uploaded, we need to link the likes and comments on the album
 		if (count($item->contextIds) > 1) {
 
-			$photos 	= $this->getPhotoFromParams( $item , $privacy );
-			$photo 		= isset($photos[0]) ? $photos[0] : false;
+			$photo = false;
+			$photos = $this->getPhotoFromParams($item, $privacy);
+
+			if ($photos instanceof SocialTablePhoto) {
+				$photo = $photos;
+			}
+
+			if (is_array($photos)) {
+				$photo = $photos[0];
+			}
+
+			// If we can't get anything, skip this
+			if (!$photo) {
+				return;
+			}
 
 			// If we can't get anything, skip this
 			if (!$photo) {
@@ -535,12 +549,12 @@ class SocialUserAppPhotos extends SocialAppItem
 
 			// Format the likes for the stream
 			$likes 			= Foundry::likes();
-			$likes->get($photo->album_id, 'albums', 'create', SOCIAL_APPS_GROUP_USER);
+			$likes->get($photo->album_id, 'albums', 'create', $group);
 			$item->likes	= $likes;
 
 			// Apply comments on the stream
 			$commentParams 		= array( 'url' => $album->getPermalink());
-			$comments			= Foundry::comments($photo->album_id, 'albums', 'create', SOCIAL_APPS_GROUP_USER, $commentParams);
+			$comments			= Foundry::comments($photo->album_id, 'albums', 'create', $group, $commentParams);
 			$item->comments 	= $comments;
 
 			return;
@@ -801,6 +815,7 @@ class SocialUserAppPhotos extends SocialAppItem
 
 		if( $includePrivacy )
 		{
+			// $item->privacy 	= $privacy->form( $uid, $element, $item->actor->id, $privacyRule, false, $item->uid, array('override' => true, 'value' => true) );
 			$item->privacy 	= $privacy->form( $uid, $element, $item->actor->id, $privacyRule, false, $item->uid );
 		}
 	}
@@ -1194,42 +1209,51 @@ class SocialUserAppPhotos extends SocialAppItem
 		return true;
 	}
 
-
+	/**
+	 * Prepares the photos in the story form
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function onPrepareStoryPanel($story)
 	{
-		$config 	= Foundry::config();
-
-		if( !$config->get( 'photos.enabled' ) )
-		{
+		if (!$this->config->get('photos.enabled')) {
 			return;
 		}
 
-		// Get current logged in user.
-		$my 	= Foundry::user();
-
 		// Get user access
-		$access	= Foundry::access( $my->id , SOCIAL_TYPE_USER );
+		$access = $this->my->getAccess();
 
+		// Create the story plugin
 		$plugin = $story->createPlugin("photos", "panel");
 
-		$theme = Foundry::get('Themes');
+		$theme = ES::themes();
 
 		// check max photos upload here.
-		if ($access->exceeded('photos.uploader.max', $my->getTotalPhotos())) {
+		if ($access->exceeded('photos.uploader.max', $this->my->getTotalPhotos())) {
 			$theme->set('exceeded', JText::sprintf('COM_EASYSOCIAL_PHOTOS_EXCEEDED_MAX_UPLOAD', $access->get('photos.uploader.max')));
 		}
 
 		// check max photos upload daily here.
-		if ($access->exceeded('photos.uploader.maxdaily', $my->getTotalPhotos(true))) {
+		if ($access->exceeded('photos.uploader.maxdaily', $this->my->getTotalPhotos(true))) {
 			$theme->set('exceeded', JText::sprintf('COM_EASYSOCIAL_PHOTOS_EXCEEDED_DAILY_MAX_UPLOAD', $access->get('photos.uploader.maxdaily')));
 		}
 
-		$plugin->button->html = $theme->output('themes:/apps/user/photos/story/panel.button');
-		$plugin->content->html = $theme->output( 'themes:/apps/user/photos/story/panel.content' );
+        $button = $theme->output('site/photos/story/button');
+        $form = $theme->output('site/photos/story/form');
 
-		$script = Foundry::get('Script');
+       	// Attach the script files
+        $script = ES::script();
+
+        $script->set('type', SOCIAL_TYPE_USER);
+        $script->set('uid', $this->my->id);
 		$script->set('maxFileSize', $access->get('photos.uploader.maxsize') . 'M');
-		$plugin->script = $script->output('apps:/user/photos/story');
+		$scriptFile = $script->output('site/photos/story/plugin');
+
+		$plugin->setHtml($button, $form);
+		$plugin->setScript($scriptFile);
 
 		return $plugin;
 	}
@@ -1253,6 +1277,9 @@ class SocialUserAppPhotos extends SocialAppItem
 		$element 	= $likes->type;
 		$uid 		= $likes->uid;
 
+		// Get the photo object
+		$photo 	= Foundry::table('Photo');
+
 		if ($likes->type == 'stream.user.upload') {
 			// $uid is the stream id, not the photo id.
 			// Need to find the photo id back from stream table
@@ -1261,8 +1288,6 @@ class SocialUserAppPhotos extends SocialAppItem
 
 			$photoId = $streamItem->context_id;
 
-			// Get the photo object
-			$photo 	= Foundry::table('Photo');
 			$photo->load( $photoId );
 
 			// @points: photos.unlike
@@ -1270,9 +1295,8 @@ class SocialUserAppPhotos extends SocialAppItem
 			$photo->assignPoints('photos.unlike', Foundry::user()->id);
 		}
 
-		if ($likes->type == 'photos.user.create') {
+		if ($likes->type == 'photos.user.create' || $likes->type == 'photos.user.add' || $likes->type == 'photos.user.upload' || $likes->type == 'photos.user.uploadAvatar' || $likes->type == 'photos.user.updateCover') {
 			$photo->load($likes->uid);
-
 			$photo->assignPoints('photos.unlike', Foundry::user()->id);
 		}
 	}
@@ -1707,7 +1731,7 @@ class SocialUserAppPhotos extends SocialAppItem
 	public function onNotificationLoad( SocialTableNotification &$item )
 	{
 		$allowed 	= array('comments.item', 'comments.involved', 'likes.item', 'likes.involved', 'photos.tagged',
-							'likes.likes' , 'comments.comment.add' );
+							'likes.likes' , 'comments.comment.add', 'albums.favourite' );
 
 		if (!in_array($item->cmd, $allowed)) {
 			return;
@@ -1738,6 +1762,16 @@ class SocialUserAppPhotos extends SocialAppItem
 
 			$hook 	= $this->getHook('notification', 'tagging');
 			$hook->execute($item);
+		}
+
+		// when user favourte an album
+		$allowedContexts 	= array('albums.user.favourite');
+		if (($item->cmd == 'albums.favourite') && in_array($item->context_type, $allowedContexts)) {
+
+			$hook 	= $this->getHook('notification', 'favourite');
+			$hook->execute($item);
+
+			return;
 		}
 
 

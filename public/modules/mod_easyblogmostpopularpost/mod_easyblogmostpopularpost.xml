@@ -1,201 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" version="3.0" client="site" method="upgrade">
-	<name>EasyBlog Most Popular Post</name>
-	<author>StackIdeas</author>
-	<creationDate>24th May 2010</creationDate>
-	<copyright>Copyright 2009 - 2011 StackIdeas. All rights reserved.</copyright>
-	<license>GPL License</license>
+	<name>EasyBlog - Most Popular Post Module</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>12th October 2015</creationDate>
+	<copyright>Copyright 2009 - 2015 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
-	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>3.9.2</version>
-	<description>Most popular post module for your EasyBlog's component.</description>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>5.0.28</version>
+	<description><![CDATA[Most popular post module for your EasyBlog's component.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easyblogmostpopularpost.ini</language>
-		<language tag="da-DK">da-DK.mod_easyblogmostpopularpost.ini</language>
-		<language tag="fr-FR">fr-FR.mod_easyblogmostpopularpost.ini</language>
-		<language tag="sv-SE">sv-SE.mod_easyblogmostpopularpost.ini</language>
-		<language tag="pl-PL">pl-PL.mod_easyblogmostpopularpost.ini</language>
 	</languages>
 	<files>
-		<filename module="mod_easyblogmostpopularpost">mod_easyblogmostpopularpost.php</filename>
-		<filename>helper.php</filename>
-		<filename>index.html</filename>
 		<folder>tmpl</folder>
+		<filename>index.html</filename>
+		<filename module="mod_easyblogmostpopularpost">mod_easyblogmostpopularpost.php</filename>
+		<filename>mod_easyblogmostpopularpost.xml</filename>
 	</files>
-	<params addpath="/administrator/components/com_easyblog/elements">
-		<param name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
-		<param name="routingtype" type="list" default="default" label="Routing Type" description="Choose the routing type when generate blog post link">
-			<option value="default">Use default behaviour</option>
-			<option value="menuitem">Use menu item</option>
-			<option value="category">Use post's category</option>
-			<option value="tag">Use post's tag</option>
-		</param>
-		<param name="menuitemid" type="easyblogmenuitem" default="" label="Use Menu Item" description="Select menu item if you have choose to use 'menu item' as routing type" state="1" />
-		<param name="@spacer" type="spacer" default="" label="" description="" />
-		<param name="count" type="text" default="5" label="Count" description="The number of items to display (set it to 0 if number of post limiting if not required)." />
-		<param name="textcount" type="text" default="200" label="Total characters" description="Set the number of characters should be displayed (set 0 to disable truncating). Only applicable if you did not enable the option to only pickup featured post." />
-		<param name="showintro" type="list" default="0" label="Show Intro Text" description="Show or hide the post's intro text in the module.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="catid" type="text" label="Category ID" description="Only select blog posts from specific categories. Leave empty to select from all categories" />
-		<param name="showcommentcount" type="list" default="1" label="Show Comment Count" description="Show or hide the post's comment total count in the module.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="showratings" type="list" default="1" label="Show Ratings" description="Show or hide the rating for the post">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="enableratings" type="list" default="1" label="Enable Ratings" description="Enable rating for the post">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="showhits" type="list" default="1" label="Show Post's Hits" description="Show or hide the number of post's hits in the module.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="showavatar" type="list" default="1" label="Show Blogger Avatar" description="Show or hide the post's blogger avatar.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="showreadmore" type="list" default="1" label="Show Read More" description="Show or hide the read more link.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-
-		<param name="showauthor" type="list" default="1" label="Show Post By author name" description="Show or hide Post By author name.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="showdate" type="list" default="1" label="Show post date" description="Show or hide post date.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="showcategory" type="list" default="1" label="Show Category" description="Show or hide post's category.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="@spacer" type="spacer" default="" label="" description="" />
-		<param name="video_show" type="list" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_SHOW" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_SHOW_DESC">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="video_width" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_WIDTH" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_WIDTH_DESC" />
-		<param name="video_height" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_HEIGHT" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_HEIGHT_DESC" />
-
-		<param name="@spacer" type="spacer" default="" label="" description="" />
-		<param name="photo_show" type="list" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SHOW" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SHOW_DESC">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="photo_width" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_MAX_WIDTH" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_MAX_WIDTH_DESC" />
-		<param name="photo_height" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_MAX_HEIGHT" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_MAX_HEIGHT_DESC" />
-		<param name="alignment" type="list" default="default" label="Alignment" description="Set the photo alignment.">
-            <option value="default">Default</option>
-			<option value="left">Left</option>
-			<option value="right">Right</option>
-		</param>
-
-	</params>
-	<params group="advanced">
-		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
-			<option value="1">Use global</option>
-			<option value="0">No caching</option>
-		</param>
-		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
-	</params>
-
 	<config>
 		<fields name="params">
 			<fieldset name="basic" addfieldpath="/administrator/components/com_easyblog/elements/fields">
-				<field name="routingtype" type="list" default="default" label="Routing Type" description="Choose the routing type when generate blog post link">
-					<option value="default">Use default behaviour</option>
-					<option value="menuitem">Use menu item</option>
-					<option value="category">Use post's category</option>
-					<option value="tag">Use post's tag</option>
-				</field>
-				<field name="menuitemid" type="modal_easyblogmenuitem" default="" label="Use Menu Item" description="Select menu item if you have choose to use 'menu item' as routing type" state="1" />
 
-				<field name="count" type="text" default="5" label="Count" description="The number of items to display (set it to 0 if number of post limiting if not required)." />
-				<field name="textcount" type="text" default="200" label="Total characters" description="Set the number of characters should be displayed (set 0 to disable truncating). Only applicable if you did not enable the option to only pickup featured post." />
-				<field name="showintro" type="list" default="0" label="Show Intro Text" description="Show or hide the post's intro text in the module." >
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field
-					name="catid"
-					type="text"
-					default=""
-					label="Category ID"
-					description="Only select blog posts from specific categories. Leave empty to select from all categories" />
-				<field name="showcommentcount" type="list" default="1" label="Show Comment Count" description="Show or hide the post's comment total count in the module.">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="showratings" type="list" default="1" label="Show Ratings" description="Show or hide the rating for the post">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="enableratings" type="list" default="1" label="Enable Ratings" description="Enable ratings for the post">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="showhits" type="list" default="1" label="Show Post's Hits" description="Show or hide the number of post's hits in the module.">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="showavatar" type="list" default="1" label="Show Blogger Avatar" description="Show or hide the post's blogger avatar.">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="showreadmore" type="list" default="1" label="Show Read More" description="Show or hide the read more link.">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="showauthor" type="list" default="1" label="Show Post By author name" description="Show or hide Post By author name.">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="showdate" type="list" default="1" label="Show post date" description="Show or hide post date.">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="showcategory" type="list" default="1" label="Show Category" description="Show or hide post's category.">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="@spacer" type="spacer" default="" label="" description="" />
-				<field name="video_show" type="list" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_SHOW" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_SHOW_DESC">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="video_width" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_WIDTH" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_WIDTH_DESC" />
-				<field name="video_height" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_HEIGHT" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_HEIGHT_DESC" />
-
-				<field name="@spacer" type="spacer" default="" label="" description="" />
-				<field name="photo_show" type="list" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SHOW" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SHOW_DESC">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
-				</field>
-				<field name="photo_width" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_MAX_WIDTH" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_MAX_WIDTH_DESC" />
-				<field name="photo_height" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_MAX_HEIGHT" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_MAX_HEIGHT_DESC" />
-				<field name="alignment" type="list" default="default" label="Alignment" description="Set the photo alignment.">
-		            <option value="default">Default</option>
-					<option value="left">Left</option>
-					<option value="right">Right</option>
+				<field name="layout" type="radio" class="btn-group" default="vertical" label="MOD_EASYBLOGMOSTPOPULARPOST_LAYOUT" description="MOD_EASYBLOGMOSTPOPULARPOST_LAYOUT_DESC">
+					<option value="vertical">MOD_EASYBLOGMOSTPOPULARPOST_VERTICAL</option>
+					<option value="horizontal">MOD_EASYBLOGMOSTPOPULARPOST_HORIZONTAL</option>
 				</field>
 
+				<field name="column" type="text" default="4" label="MOD_EASYBLOGMOSTPOPULARPOST_COLUMN_NUMBER" description="MOD_EASYBLOGMOSTPOPULARPOST_COLUMN_NUMBER_DESC" />
 
+				<field name="count" type="text" default="5" label="MOD_EASYBLOGMOSTPOPULARPOST_COMMENT_COUNT" description="MOD_EASYBLOGMOSTPOPULARPOST_COMMENT_COUNT_DESC" />
 
+				<field name="textcount" type="text" default="200" label="MOD_EASYBLOGMOSTPOPULARPOST_TOTAL_CHARACTERS" description="MOD_EASYBLOGMOSTPOPULARPOST_TOTAL_CHARACTERS_DESC" />
+
+				<field name="showintro" type="list" class="btn-group" default="0" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_INTRO" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_INTRO_DESC" >
+					<option value="-1">Do not show any content</option>
+					<option value="0">Introtext</option>
+					<option value="1">Main content</option>
+				</field>
+
+				<field name="catid" type="text" default="" label="MOD_EASYBLOGMOSTPOPULARPOST_CATEGORY_ID" description="MOD_EASYBLOGMOSTPOPULARPOST_CATEGORY_ID_DESC" />
+
+				<field name="showcommentcount" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_COMMENT_COUNT" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_COMMENT_COUNT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="showratings" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_RATINGS" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_RATINGS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="enableratings" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_ENABLE_RATINGS" description="MOD_EASYBLOGMOSTPOPULARPOST_ENABLE_RATINGS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="showhits" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_HITS" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_HITS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="showavatar" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_BLOGGER_AVATAR" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_BLOGGER_AVATAR_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="showreadmore" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_READ_MORE" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_READ_MORE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="showauthor" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_POST_BY" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_POST_BY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="showdate" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_DATE" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_DATE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="showcategory" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_CATEGORY" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_CATEGORY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
 			</fieldset>
+
+			<fieldset name="Photos" addfieldpath="/administrator/components/com_easyblog/elements/">
+				<field name="photo_show" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SHOW" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SHOW_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="photo_legacy" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_LEGACY" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_LEGACY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="photo_size" type="list" default="default" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SIZE" description="Set the photo size.">
+                    <option value="large">MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SIZE_LARGE</option>
+					<option value="medium">MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SIZE_MEDIUM</option>
+					<option value="small">MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_SIZE_SMALL</option>
+
+				</field>
+				<field name="photo_layout" type="cover" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_LAYOUT_TYPE" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_LAYOUT_TYPE_DESC" crop="1" full="1" defaultwidth="260" defaultheight="200" />
+
+				<field name="alignment" type="list" default="center" label="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_ALLIGNMENT" description="MOD_EASYBLOGMOSTPOPULARPOST_PHOTO_ALLIGNMENT_DESC">
+                    <option value="center">MOD_EASYBLOGMOSTPOPULARPOST_CENTER</option>
+					<option value="left">MOD_EASYBLOGMOSTPOPULARPOST_LEFT</option>
+					<option value="right">MOD_EASYBLOGMOSTPOPULARPOST_RIGHT</option>
+				</field>
+			</fieldset>
+
+			<fieldset name="Videos">
+				<field name="video_show" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_SHOW" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_SHOW_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="video_width" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_WIDTH" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_WIDTH_DESC" />
+
+				<field name="video_height" type="text" default="250" size="5" label="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_HEIGHT" description="MOD_EASYBLOGMOSTPOPULARPOST_VIDEO_HEIGHT_DESC" />
+			</fieldset>
+
+
 			<fieldset name="advanced">
 				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+
 				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
 					<option value="1">JGLOBAL_USE_GLOBAL</option>
 					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING
 					</option>
 				</field>
+
 				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
 			</fieldset>
 		</fields>

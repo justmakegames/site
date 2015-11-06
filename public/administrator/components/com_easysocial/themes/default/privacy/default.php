@@ -16,7 +16,7 @@ $privLib = FD::privacy();
 ?>
 <form name="adminForm" id="adminForm" method="post" data-table-grid>
 
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -28,85 +28,87 @@ $privLib = FD::privacy();
 		<?php } ?>
 	</div>
 
-	<table class="table table-striped table-es table-hover">
-		<thead>
-			<th width="1%" class="center">
-				<input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />
-			</th>
-			<th>
-				<?php echo $this->html( 'grid.sort' , 'description' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_DESCRIPTION' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="5%" class="center">
-				<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_STATUS' ); ?>
-			</th>
-			<th width="10%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'type' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_TYPE' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="10%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'rule' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_RULE' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="15%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'value' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_DEFAULT' ) , $ordering , $direction ); ?>
-			</th>
-			<th width="5%" class="center">
-				<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
-			</th>
-		</thead>
+	<div class="panel-table">
+		<table class="app-table table table-eb table-striped">
+			<thead>
+				<th width="1%" class="center">
+					<input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />
+				</th>
+				<th>
+					<?php echo $this->html( 'grid.sort' , 'description' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_DESCRIPTION' ) , $ordering , $direction ); ?>
+				</th>
+				<th width="5%" class="center">
+					<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_STATUS' ); ?>
+				</th>
+				<th width="10%" class="center">
+					<?php echo $this->html( 'grid.sort' , 'type' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_TYPE' ) , $ordering , $direction ); ?>
+				</th>
+				<th width="10%" class="center">
+					<?php echo $this->html( 'grid.sort' , 'rule' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_RULE' ) , $ordering , $direction ); ?>
+				</th>
+				<th width="15%" class="center">
+					<?php echo $this->html( 'grid.sort' , 'value' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_DEFAULT' ) , $ordering , $direction ); ?>
+				</th>
+				<th width="5%" class="center">
+					<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
+				</th>
+			</thead>
 
-		<tbody>
-		<?php if( $privacy ){ ?>
-			<?php $i = 0;?>
-			<?php foreach( $privacy as $item ){ ?>
-			<tr>
-				<td>
-					<?php echo $this->html( 'grid.id' , $i , $item->id ); ?>
-				</td>
-				<td>
-					<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=privacy&layout=form&id=' . $item->id );?>">
-						<?php echo JText::_( $item->description ); ?>
-					</a>
-				</td>
-				<td class="center">
-					<?php echo $this->html( 'grid.published' , $item , 'privacy' , 'state' ); ?>
-				</td>
-				<td class="center">
-					<?php echo $item->type ?>
-				</td>
-				<td class="center">
-					<?php echo $item->rule ?>
-				</td>
-				<td class="center">
-					<?php
-						$text = $privLib->toKey( $item->value );
-						echo JText::_( 'COM_EASYSOCIAL_PRIVACY_OPTION_'  . strtoupper( $text ) );
-					?>
-				</td>
+			<tbody>
+			<?php if( $privacy ){ ?>
+				<?php $i = 0;?>
+				<?php foreach( $privacy as $item ){ ?>
+				<tr>
+					<td>
+						<?php echo $this->html( 'grid.id' , $i , $item->id ); ?>
+					</td>
+					<td>
+						<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=privacy&layout=form&id=' . $item->id );?>">
+							<?php echo JText::_( $item->description ); ?>
+						</a>
+					</td>
+					<td class="center">
+						<?php echo $this->html( 'grid.published' , $item , 'privacy' , 'state' ); ?>
+					</td>
+					<td class="center">
+						<?php echo $item->type ?>
+					</td>
+					<td class="center">
+						<?php echo $item->rule ?>
+					</td>
+					<td class="center">
+						<?php
+							$text = $privLib->toKey( $item->value );
+							echo JText::_( 'COM_EASYSOCIAL_PRIVACY_OPTION_'  . strtoupper( $text ) );
+						?>
+					</td>
 
-				<td class="center">
-					<?php echo $item->id;?>
-				</td>
-			</tr>
-				<?php $i++; ?>
+					<td class="center">
+						<?php echo $item->id;?>
+					</td>
+				</tr>
+					<?php $i++; ?>
+				<?php } ?>
+			<?php } else { ?>
+				<tr class="is-empty">
+					<td colspan="6" class="empty center">
+						<div><?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_LIST_EMPTY' ); ?></div>
+					</td>
+				</tr>
 			<?php } ?>
-		<?php } else { ?>
-			<tr class="is-empty">
-				<td colspan="6" class="empty center">
-					<div><?php echo JText::_( 'COM_EASYSOCIAL_PRIVACY_LIST_EMPTY' ); ?></div>
-				</td>
-			</tr>
-		<?php } ?>
-		</tbody>
+			</tbody>
 
-		<tfoot>
-			<tr>
-				<td colspan="6">
-					<?php if( $privacy ){ ?>
-					<div class="footer-pagination"><?php echo $pagination->getListFooter();?></div>
-					<?php } ?>
-				</td>
-			</tr>
-		</tfoot>
-	</table>
+			<tfoot>
+				<tr>
+					<td colspan="6">
+						<?php if( $privacy ){ ?>
+						<div class="footer-pagination"><?php echo $pagination->getListFooter();?></div>
+						<?php } ?>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
 
 	<?php echo JHTML::_( 'form.token' ); ?>
 	<input type="hidden" name="ordering" value="<?php echo $ordering;?>" data-table-grid-ordering />

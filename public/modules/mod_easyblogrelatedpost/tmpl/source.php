@@ -1,27 +1,28 @@
 <?php
 /**
- * @package		EasyBlog
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyBlog is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
-defined('_JEXEC') or die('Restricted access');
+* @package      EasyBlog
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<?php if( $params->get( 'showauthor' ) || $params->get( 'showdate' , true ) ) { ?>
-<div class="post-author small">
-	<?php if( $params->get( 'showauthor' ) ) { ?>
-		<?php echo JText::_( 'MOD_EASYBLOGRELATED_WRITTEN_BY' ); ?>
-		<a href="<?php echo $post->author->getProfileLink( $itemId ); ?>"><?php echo $post->author->getName();?></a>
+<?php if ($params->get('showauthor', true) || $params->get('showdate', true)) { ?>
+<div class="mod-small mod-muted" >
+	<?php if ($params->get('showauthor', true)) { ?>
+		<div class="mod-cell eb-mod-media-body">
+			<strong><a href="<?php echo $post->author->getProfileLink(); ?>" class="eb-mod-media-title"><?php echo $post->author->getName();?></a></strong>
+		</div>
 	<?php } ?>
 
-	<?php if( $params->get( 'showdate' , true ) ) { ?>
-		<?php echo JText::_( 'MOD_EASYBLOGRELATED_WRITTEN_ON' );?> <?php echo $post->date;?>
+	<?php if ($params->get('showdate' , true)) { ?>
+		<div class="mod-muted mod-small">
+			<?php echo $post->getCreationDate()->format($params->get('dateformat', JText::_('DATE_FORMAT_LC3'))); ?>
+		</div>
 	<?php } ?>
 </div>
 <?php } ?>

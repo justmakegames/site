@@ -70,8 +70,6 @@ class EasySocialControllerLikes extends EasySocialController
 		return $view->call( __FUNCTION__ , $users );
 	}
 
-
-
 	/**
 	 * Toggle the likes on an object.
 	 *
@@ -83,57 +81,73 @@ class EasySocialControllerLikes extends EasySocialController
 	public function toggle()
 	{
 		// Check for request forgeries.
-		FD::checkToken();
+		ES::checkToken();
 
 		// User needs to be logged in.
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Get the stream id.
-		$id 		= JRequest::getInt( 'id' );
-		$type 		= JRequest::getString( 'type' );
-		$group 		= JRequest::getString( 'group', SOCIAL_APPS_GROUP_USER );
-		$itemVerb 	= JRequest::getString( 'verb', '' );
-		$streamid 	= JRequest::getVar( 'streamid', '' );
+		$id = $this->input->get('id', 0, 'int');
 
-		// Get the view.
-		$view 	= $this->getCurrentView();
+		// Get the type
+		$type = $this->input->get('type', '', 'string');
+
+		// Get the group
+		$group = $this->input->get('group', SOCIAL_APPS_GROUP_USER, 'string');
+
+		// Get the verb
+		$itemVerb = $this->input->get('verb', '', 'string');
+
+		// Get the stream id
+		$streamId = $this->input->get('streamid', 0, 'int');
 
 		// If id is invalid, throw an error.
 		if (!$id || !$type) {
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_ID' ) , SOCIAL_MSG_ERROR );
+			$this->view->setMessage( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_ID' ) , SOCIAL_MSG_ERROR );
 			return $view->call( __FUNCTION__ );
 		}
 
-		// Get current logged in user.
-		$my 		= FD::user();
-
 		// Load likes library.
-		$model 		= FD::model( 'Likes' );
+		$model = ES::model('Likes');
 
 		// Build the key for likes
-		$key		= $type . '.' . $group;
+		$key = $type . '.' . $group;
+
 		if ($itemVerb) {
 			$key = $key . '.' . $itemVerb;
 		}
 
 		// Determine if user has liked this item previously.
-		$hasLiked	= $model->hasLiked( $id , $key, $my->id );
+		$hadLiked = $model->hasLiked($id, $key, $this->my->id);
 
 		// If user had already liked this item, we need to unlike it.
-		if ($hasLiked) {
-			$useStreamId = ($type == 'albums') ? '' : $streamid;
-			$state 	= $model->unlike( $id , $key , $my->id, $useStreamId );
+		if ($hadLiked) {
+
+			// Should we use the stream id to relate the likes
+			$useStreamId = ($type == 'albums' || $type == 'video') ? '' : $streamId;
+
+			$state = $model->unlike($id, $key, $this->my->id, $useStreamId);
+
+			// we need to revert the last action of this stream.
+			if ($state && $useStreamId) {
+				$stream = ES::stream();
+				$stream->revertLastAction($streamId, $this->my->id, SOCIAL_STREAM_LAST_ACTION_LIKE);
+			}
 
 		} else {
-			$useStreamId = ($type == 'albums') ? '' : $streamid;
-			$state 	= $model->like( $id , $key , $my->id, $useStreamId );
 
-			//now we need to update the associated stream id from the liked object
-			if ($streamid) {
+			$useStreamId = ($type == 'albums' || $type == 'video') ? '' : $streamId;
+
+			$state = $model->like($id, $key, $this->my->id, $useStreamId);
+
+			// Now we need to update the associated stream id from the liked object
+			if ($streamId) {
+				
 				$doUpdate = true;
+				
 				if ($type == 'photos') {
-					$sModel = FD::model('Stream');
-					$totalItem = $sModel->getStreamItemsCount($streamid);
+					$sModel = ES::model('Stream');
+					$totalItem = $sModel->getStreamItemsCount($streamId);
 
 					if ($totalItem > 1) {
 						$doUpdate = false;
@@ -141,22 +155,21 @@ class EasySocialControllerLikes extends EasySocialController
 				}
 
 				if ($doUpdate) {
-					$stream = FD::stream();
-					$stream->updateModified( $streamid );
+					$stream = ES::stream();
+					$stream->updateModified($streamId, $this->my->id, SOCIAL_STREAM_LAST_ACTION_LIKE);
 				}
 			}
 		}
 
 		// The current action
-		$verb 	= $hasLiked ? 'unlike' : 'like';
+		$verb = $hadLiked ? 'unlike' : 'like';
 
 		// If there's an error, log this down here.
 		if (!$state) {
-			// Set the view with error
-			$view->setMessage( $model->getError() , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ , $verb, $id , $type, $group, $itemVerb );
+			$this->view->setMessage($model->getError(), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__, $verb, $id, $type, $group, $itemVerb);
 		}
 
-		return $view->call( __FUNCTION__ , $verb , $id , $type, $group, $itemVerb );
+		return $this->view->call(__FUNCTION__, $verb, $id, $type, $group, $itemVerb);
 	}
 }

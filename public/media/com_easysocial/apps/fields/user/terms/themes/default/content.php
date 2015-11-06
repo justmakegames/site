@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div data-field-terms>
-	<div class="col-sm-12">
+	<div class="col-xs-12 col-sm-8">
 		<textarea class="form-control input-sm es-terms-field" readonly="readonly" data-field-terms-textbox><?php echo JText::_($params->get( 'message' , JText::_('PLG_FIELDS_TERMS_CONDITION_MESSAGE_TERMS')));?></textarea>
 	</div>
 	<div class="mt-5 terms-checkbox">

@@ -12,18 +12,27 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="es-album-menu es-media-item-menu es-album-menu-item">
+	
+	<?php if($lib->isOwner() || $creator->isFriends($this->my->id)){ ?>
+	<div class="btn-group btn-group-xs">
+			<div class="btn btn-es btn-media btn-album-favourite dropdown_ <?php echo $album->isFavourite($this->my->id)? 'is-fav btn-es-primary' : '' ?>" data-album-favourite-button>
+				<a href="javascript:void(0);" ><i class="fa fa-star"></i> <span><?php echo JText::_('COM_EASYSOCIAL_ALBUMS_FAVOURITE_ALBUM'); ?></span></a>
+		</div>
+	</div>
+	<?php } ?>
+
 	<?php if( $lib->canUpload() || $lib->editable() || $lib->deleteable() ){ ?>
 	<div class="btn-group btn-group-xs">
 
 		<?php if( $options['canUpload'] && $lib->canUpload() ){ ?>
 		<div class="btn btn-es btn-media" data-album-upload-button>
-			<a href="javascript: void(0);"><i class="ies-plus"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_ADD_PHOTOS"); ?></a>
+			<a href="javascript: void(0);"><i class="fa fa-plus"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_ADD_PHOTOS"); ?></a>
 		</div>
 		<?php } ?>
-
+		
 		<?php if(($lib->editable() && $lib->isOwner() )|| $lib->deleteable() ){ ?>
 		<div class="btn btn-es btn-media dropdown_" data-item-actions-menu>
-			<a href="javascript:void(0);" data-bs-toggle="dropdown" class="dropdown-toggle_"><i class="ies-cog-2"></i> <span><?php echo JText::_('COM_EASYSOCIAL_ALBUMS_EDIT'); ?></span> </a>
+			<a href="javascript:void(0);" data-bs-toggle="dropdown" class="dropdown-toggle_"><i class="fa fa-cog"></i> <span><?php echo JText::_('COM_EASYSOCIAL_ALBUMS_EDIT'); ?></span> </a>
 			<ul class="dropdown-menu">
 				<?php if( $lib->editable() && $lib->isOwner()){ ?>
 				<li data-album-edit-button>
@@ -44,7 +53,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php } ?>
 	<div class="btn-group btn-group-xs">
 		<div class="btn btn-es btn-media">
-			<?php echo FD::get( 'Sharing' , array( 'url' => $album->getPermalink( false , true ) , 'text' => JText::_( 'COM_EASYSOCIAL_ALBUMS_SHARE' ) ) )->getHTML(true); ?>
+			<?php echo FD::get( 'Sharing' , array( 'url' => $album->getPermalink( false , true ) , 'text' => JText::_( 'COM_EASYSOCIAL_ALBUMS_SHARE' ) ) )->html(true, false); ?>
 		</div>
 		<div class="btn btn-es btn-media">
 			<?php echo FD::reports()->getForm( 'com_easysocial' , SOCIAL_TYPE_ALBUM , $album->id , $album->get( 'title' ) , JText::_( 'COM_EASYSOCIAL_ALBUMS_REPORT' ) , JText::_( 'COM_EASYSOCIAL_ALBUMS_REPORT_ALBUM_TITLE' ) , JText::_( 'COM_EASYSOCIAL_ALBUMS_REPORT_DESC' ),
@@ -60,19 +69,19 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<a href="<?php echo $album->getPermalink();?>" title="<?php echo $lib->getPageTitle('item');?>"><?php echo JText::_("COM_EASYSOCIAL_ALBUMS_CANCEL"); ?></a>
 		</div>
 		<div class="btn btn-media btn-es-primary" data-album-done-button>
-			<a href="<?php echo $album->getPermalink(); ?>"><i class="ies-checkmark"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_DONE"); ?></a>
+			<a href="<?php echo $album->getPermalink(); ?>"><i class="fa fa-check"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_DONE"); ?></a>
 		</div>
 	</div>
 	<div class="btn-group btn-group-xs">
 		<?php if( $options['canUpload'] && $lib->canUpload() ){ ?>
 		<div class="btn btn-es btn-media" data-album-upload-button>
-			<a href="javascript: void(0);"><i class="ies-plus"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_ADD_PHOTOS"); ?></a>
+			<a href="javascript: void(0);"><i class="fa fa-plus"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_ADD_PHOTOS"); ?></a>
 		</div>
 		<?php } ?>
 
 		<?php if( $lib->deleteable() ){ ?>
 		<div class="btn btn-es btn-media <?php echo (empty($album->id)) ? 'disabled' : ''; ?>" data-album-delete-button>
-			<a href="javascript:void(0);"><i class="ies-remove"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_DELETE_ALBUM"); ?></a>
+			<a href="javascript:void(0);"><i class="fa fa-remove"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_DELETE_ALBUM"); ?></a>
 		</div>
 		<?php } ?>
 	</div>

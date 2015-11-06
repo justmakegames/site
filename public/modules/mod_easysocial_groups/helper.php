@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,56 +13,57 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 class EasySocialModGroupsHelper
 {
-	public static function getGroups( &$params )
+	public static function getGroups(&$params)
 	{
-		$model 	= FD::model( 'Groups' );
+		$my = FD::user();
+		$model = FD::model('Groups');
 
 		// Determine filter type
-		$filter 	= $params->get( 'filter' );
+		$filter = $params->get('filter', 0);
 
 		// Determine the ordering of the groups
-		$ordering 	= $params->get( 'ordering' , 'latest' );
+		$ordering = $params->get('ordering', 'latest');
 
 		// Default options
-		$options 	= array();
+		$options = array();
 
 		// Limit the number of groups based on the params
-		$options[ 'limit' ]		= $params->get( 'display_limit' , 5 );
-		$options[ 'ordering' ]	= $ordering;
-		$options['state']		= SOCIAL_STATE_PUBLISHED;
+		$options['limit'] = $params->get('display_limit', 5);
+		$options['ordering'] = $ordering;
+		$options['state'] = SOCIAL_STATE_PUBLISHED;
+		$options['inclusion'] = $params->get('group_inclusion');
 
 		if ($filter == 0) {
-			$groups 	= $model->getGroups( $options );
+			$groups = $model->getGroups( $options );
 		}
 
-		if( $filter == 1 )
-		{
+		if ($filter == 1) {
 			$category 	= trim( $params->get( 'category' ) );
 
-			if( empty( $category ) )
-			{
+			if (!$category) {
 				return array();
 			}
 
 			// Since category id's are stored as ID:alias, we only want the id portion
-			$category 	= explode( ':' , $category );
+			$category = explode(':', $category);
 
-			$options[ 'category' ]	= $category[0];
+			$options['category'] = $category[0];
 
-			$groups 				= $model->getGroups( $options );
+			$groups = $model->getGroups($options);
 		}
 
-		// Featured modules only
-		if( $filter == 2 )
-		{
-			$options[ 'featured' ]	= true;
+		// Featured groups only
+		if ($filter == 2) {
+			$options['featured'] = true;
 
-			$groups 	= $model->getGroups( $options );
+			$groups = $model->getGroups($options);
 		}
 
-		if( !$groups )
-		{
-			return $groups;
+		// Groups from logged in user
+		if ($filter == 3) {
+			$options['types'] = 'currentuser';
+			$options['userid'] = $my->id;
+			$groups = $model->getGroups($options);
 		}
 
 		return $groups;

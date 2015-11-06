@@ -7,27 +7,17 @@
 // -------------------------
 
 .alert {
-  padding: 8px 35px 8px 36px;
+  padding: 8px 35px 8px 15px;
   margin-bottom: @baseLineHeight;
-  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  text-shadow: none;
   background-color: @warningEsBackground;
-  border: 1px solid @warningEsBorder;
+  border: 0px;
   border-radius: @baseBorderRadius;
   color: @warningEsText;
   position: relative;
   min-height: 36px;
   line-height: 16px;
-  &:before {
-    position: absolute;
-    content: ' ';
-    display: block;
-    width: 16px;
-    height: 16px;
-    background-image: url('@{media_uri}/images/icons/icons-alert.png');
-    background-repeat: no-repeat;
-    top: 8px;
-    left: 10px;
-  }
+  
   .button.close {
     padding: 0 2px;
   }
@@ -47,7 +37,7 @@
   text-shadow: none;
   font-family: 'Lucida Grande','Gisha','Lucida Sans Unicode','Lucida Sans',Lucida,Arial,Verdana,sans-serif;
   background: black;
-  line-height: 14px;
+  line-height: 13px;
   font-size: 11px;
   .opacity(.3);
   border-radius: 50%;
@@ -69,35 +59,23 @@
   background-color: @successEsBackground;
   border-color: @successEsBorder;
   color: @successEsText;
-  &:before {
-    background-position: -24px 0;
-  }
 }
 .alert-danger,
 .alert-error {
   background-color: @errorEsBackground;
   border-color: @errorEsBorder;
   color: @errorEsText;
-  text-shadow: @btnTextShadowAlt;
-  &:before {
-    background-position: -48px 0;
-  }
+  // text-shadow: @btnTextShadowAlt;
 }
 .alert-info {
   background-color: @infoEsBackground;
   border-color: @infoEsBorder;
   color: @infoEsText;
-  &:before {
-    background-position: -72px 0;
-  }
 }
 .alert-info-2 {
     background-color: #EDF8FC;
     color: @esColor;
     border: none;
-    &:before {
-        display: none;
-    }
 }
 
 // Block alerts

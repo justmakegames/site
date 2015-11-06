@@ -22,7 +22,7 @@ Styleguide: /index.php?option=com_easysocial&view=styleguide&layout=render&file=
 // ----------------
 //mini
 .es-header-mini {
-    font-size: 11px;
+    font-size: @baseFontSize;
     position: relative;
     background: @esHeaderMiniBackground;
     border: 1px solid @esHeaderBorder;
@@ -108,17 +108,12 @@ Styleguide: /index.php?option=com_easysocial&view=styleguide&layout=render&file=
         span {
 
             &.action {
-                font-size: 11px;
+                font-size: @baseFontSize;
                 position: relative;
                 display: inline-block;
             }
         }
 
-        .btn {
-            font-size: 11px;
-
-            padding: 5px 10px;
-        }
         > div {
             padding-left: 20px; //http://screencast.com/t/h9vQzn61o67b
         }
@@ -182,7 +177,7 @@ Styleguide: /index.php?option=com_easysocial&view=styleguide&layout=render&file=
             width: 64px;
             height: 50px;
             padding: 5px 10px;
-            font-size: 11px;
+            font-size: @baseFontSize;
             text-align: center;
             > span {
                 display: block;
@@ -238,6 +233,9 @@ Styleguide: /index.php?option=com_easysocial&view=styleguide&layout=render&file=
 
         .es-header-mini-meta {
             position: relative;
+            .es-cover-title {
+                width: 100%;
+            }
         }
 
         .es-header-mini-footer {
@@ -259,6 +257,19 @@ Styleguide: /index.php?option=com_easysocial&view=styleguide&layout=render&file=
             margin: 10px 15px;
         }
         .btn-scroll {
+            display: none;
+        }
+    }
+}
+
+
+// Override on specific view
+&.view-dashboard {
+    .es-header-mini {
+        border-left: 0;
+        margin-left: -20px;
+
+        .media-meta { // hide event action in dashboard
             display: none;
         }
     }

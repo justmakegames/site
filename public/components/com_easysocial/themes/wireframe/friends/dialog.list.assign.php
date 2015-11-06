@@ -44,7 +44,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<div data-assignFriends-notice></div>
 
-			<p class="fd-small"><?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_ADD_DIALOG_CONTENT' ); ?></p>
+			<p class="fd-small mb-20"><?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_LIST_ADD_DIALOG_CONTENT' ); ?></p>
 
 			<div class="controls textboxlist disabled" data-friends-suggest>
 				<input type="text" class="input-xlarge textboxlist-textField" name="members" data-textboxlist-textField disabled />

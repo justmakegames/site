@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,14 +9,8 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Component's router for apps view.
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialRouterApps extends SocialRouterAdapter
 {
 	/**
@@ -27,27 +21,29 @@ class SocialRouterApps extends SocialRouterAdapter
 	 * @param	string
 	 * @return
 	 */
-	public function build( &$menu , &$query )
+	public function build(&$menu, &$query)
 	{
-		$segments 	= array();
+		$addedView = false;
+		$segments = array();
+
 
 		// If there is no active menu for friends, we need to add the view.
-		if( $menu && $menu->query[ 'view' ] != 'apps' )
-		{
-			$segments[]	= $this->translate( $query[ 'view' ] );
+		if ($menu && $menu->query['view'] != 'apps') {
+			$addedView = true;
+			$segments[]	= $this->translate($query['view']);
 		}
 
-		if( !$menu )
-		{
-			$segments[]	= $this->translate( $query[ 'view' ] );
+		if (!$menu) {
+			$addedView = true;
+			$segments[]	= $this->translate($query['view']);
 		}
-		unset( $query[ 'view' ] );
+
+		unset($query['view']);
 
 		// From here if element is set, then we point it to child app router and build the segments from the child app router
 		// If not then we proceed with the usual
 		// We default group to SOCIAL_APPS_GROUP_USER
-		if( !empty( $query['element'] ) )
-		{
+		if (!empty($query['element'])) {
 			$group = empty( $query['group'] ) ? SOCIAL_APPS_GROUP_USER : $query['group'];
 			$element = $query['element'];
 
@@ -69,34 +65,33 @@ class SocialRouterApps extends SocialRouterAdapter
 			}
 		}
 
-		$layout 	= isset( $query[ 'layout' ] ) ? $query[ 'layout' ] : null;
+		// Get the layout
+		$layout = $this->normalize($query, 'layout');
 
-		if( !is_null( $layout ) )
-		{
-			$segments[]	= $this->translate( 'apps_layout_' . $layout );
-			unset( $query[ 'layout' ] );
+		if (!is_null($layout)) {
+			$segments[]	= $this->translate('apps_layout_' . $layout);
+			unset($query['layout']);
 		}
 
-		$id 		= isset( $query[ 'id' ] ) ? $query[ 'id' ] : null;
+		// Get the id
+		$id = $this->normalize($query, 'id');
 
-		if( !is_null( $id ) )
-		{
+		if (!is_null($id)) {
 			$segments[]	= $id;
-			unset( $query[ 'id' ] );
+			unset($query['id']);
 		}
 
 		// Determines if filter is set
-		$filter 		= isset( $query[ 'filter' ] ) ? $query[ 'filter' ] : null;
+		$filter = $this->normalize($query, 'filter');
 
-		if( !is_null( $filter ) )
-		{
+		if (!is_null($filter)) {
 			$segments[]	= $this->translate( 'apps_filter_' . $filter );
 			unset( $query[ 'filter' ] );
 		}
 
 		// Translate uid and type for apps view
-		$uid 	= isset( $query[ 'uid' ] ) ? $query[ 'uid' ] : null;
-		$type 	= isset( $query[ 'type' ] ) ? $query[ 'type' ] : null;
+		$uid = $this->normalize($query, 'uid');
+		$type = $this->normalize($query, 'type');
 
 		if( !is_null( $uid ) && !is_null( $type ) )
 		{
@@ -123,6 +118,23 @@ class SocialRouterApps extends SocialRouterAdapter
 		{
 			$segments[]	= $query[ 'userid' ];
 			unset( $query[ 'userid' ] );
+		}
+
+		// Get the item id if the layout is canvas
+		if ($layout == 'canvas' && $uid && $type) {
+			$customView = 'events';
+
+            if ($type == 'group') {
+                $customView = 'groups';
+            }
+
+            // Ensure that the view already isn't added
+            if (!$addedView) {
+            	array_unshift($segments, $this->translate('apps'));
+            }
+
+			// Try to get the item id
+			$query['Itemid'] = ESR::getItemId($customView, 'item', (int) $uid);
 		}
 
 		return $segments;
@@ -301,7 +313,7 @@ class SocialRouterApps extends SocialRouterAdapter
 	}
 }
 
-abstract class SOcialRouterAppsAdapter extends SocialRouterApps
+abstract class SocialRouterAppsAdapter extends SocialRouterApps
 {
 	// This is a function for child router to use
 	// Rather than constructing a the translation string from APPS_GROUP_ELEMENT_TASK, child router only need to pass in TASK

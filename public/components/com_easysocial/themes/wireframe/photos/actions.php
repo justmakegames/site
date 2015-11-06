@@ -19,7 +19,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 <?php if( $photo->shareable() ){ ?>
 <li data-photo-share-button>
-	<?php echo FD::get( 'Sharing' , array( 'url' => $photo->getPermalink() , 'text' => JText::_( 'COM_EASYSOCIAL_SHARE_PHOTO' ) , 'display' => 'dialog' ) )->getHTML(); ?>
+	<?php echo FD::get( 'Sharing' , array( 'url' => $photo->getPermalink() , 'text' => JText::_( 'COM_EASYSOCIAL_SHARE_PHOTO' ) , 'display' => 'dialog' ) )->html(true, false); ?>
 </li>
 <li class="divider"></li>
 <?php } ?>

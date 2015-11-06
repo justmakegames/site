@@ -90,62 +90,58 @@ class EasySocialModelThemes extends EasySocialModel
 	 * @param	string
 	 * @return
 	 */
-	public function install( $file )
+	public function install($file)
 	{
-		$source			= $file[ 'tmp_name' ];
-		$config 		= FD::config();
-		$fileName 		= md5( $file[ 'name' ] . FD::date()->toMySQL() );
-		$fileExtension	= '_themes_install.zip';
-		$destination	= SOCIAL_TMP . '/' . $fileName . $fileExtension;
+		$source = $file['tmp_name'];
+		$config = FD::config();
+		$fileName = md5($file['name'] . FD::date()->toMySQL());
+		$fileExtension = '_themes_install.zip';
+		$destination = SOCIAL_TMP . '/' . $fileName . $fileExtension;
+		$state = JFile::upload($source , $destination);
 
-		$state 			= JFile::upload( $source , $destination );
-
-		if( !$state )
-		{
-			$this->setError( JText::_( 'COM_EASYSOCIAL_THEMES_INSTALLER_ERROR_COPY_FROM_PHP' ) );
-
+		if (!$state) {
+			$this->setError(JText::_('COM_EASYSOCIAL_THEMES_INSTALLER_ERROR_COPY_FROM_PHP'));
 			return false;
 		}
 
-		$extracted		= dirname( $destination ) . '/' . $fileName . '_themes_install';
-		$state 			= JArchive::extract( $destination , $extracted );
+		// Extract to this folder
+		$extracted = dirname($destination) . '/' . $fileName . '_themes_install';
+		$state = JArchive::extract($destination, $extracted);
 
 		// Get the configuration file.
-		$manifest 		= $extracted . '/config/template.json';
+		$manifest = $extracted . '/config/template.json';
 
 		// Get the theme object
-		$theme 			= FD::makeObject( $manifest );
+		$theme = FD::makeObject($manifest);
 
 		// Move it to the appropriate folder
-		$finalDest		= SOCIAL_SITE_THEMES . '/' . strtolower( $theme->element );
+		$finalDest = SOCIAL_SITE_THEMES . '/' . strtolower($theme->element);
 
 		// @TODO: If folder exists, overwrite it. For now, just throw an error.
-		if( JFolder::exists( $finalDest ) )
+		if (JFolder::exists($finalDest))
 		{
 			// Cleanup folder
-			JFile::delete( $destination );
-			JFolder::delete( $extracted );
+			JFile::delete($destination);
+			JFolder::delete($extracted);
 
-			$this->setError( JText::sprintf( 'COM_EASYSOCIAL_THEMES_INSTALLER_ERROR_SAME_THEME_FOLDER_EXISTS' , $theme->element ) );
+			$this->setError(JText::sprintf('COM_EASYSOCIAL_THEMES_INSTALLER_ERROR_SAME_THEME_FOLDER_EXISTS', $theme->element));
 			return false;
 		}
 
 		// Move the extracted folder over to the final destination
-		$state 			= JFolder::move( $extracted , $finalDest );
+		$state = JFolder::move($extracted , $finalDest);
 
-		if( !$state )
-		{
+		if (!$state) {
 			// Cleanup folder
-			JFile::delete( $destination );
-			JFolder::delete( $extracted );
+			JFile::delete($destination);
+			JFolder::delete($extracted);
 
-			$this->setError( JText::_( 'COM_EASYSOCIAL_THEMES_INSTALLER_ERROR_MOVING_FOLDER_TO_THEMES_FOLDER' ) );
+			$this->setError(JText::_('COM_EASYSOCIAL_THEMES_INSTALLER_ERROR_MOVING_FOLDER_TO_THEMES_FOLDER'));
 			return false;
 		}
 
-
 		// Cleanup the zip file.
-		JFile::delete( $destination );
+		JFile::delete($destination);
 
 		return true;
 	}

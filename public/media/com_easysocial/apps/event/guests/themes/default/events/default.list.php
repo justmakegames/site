@@ -86,6 +86,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 </ul>
 <?php } ?>
 <div class="empty empty-hero">
-    <i class="ies-users"></i>
+    <i class="fa fa-users"></i>
     <?php echo JText::_('APP_EVENT_GUESTS_EMPTY'); ?>
 </div>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 class ThemesHelperForm
 {
@@ -22,14 +22,61 @@ class ThemesHelperForm
 	 */
 	public static function token()
 	{
-		$theme	= FD::themes();
-		$token 	= FD::token();
+		$token = FD::token();
 
-		$theme->set( 'token' , $token );
+		$theme = ES::themes();
+		$theme->set('token', $token);
 
-		$content	= $theme->output( 'admin/html/form.token' );
+		$content = $theme->output('admin/html/form/token');
 
 		return $content;
+	}
+
+	/**
+	 * Allows caller to generically load up a form action which includes the generic data
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function action($controller, $task = '', $view = '')
+	{
+		$theme = ES::themes();
+
+		$theme->set('controller', $controller);
+		$theme->set('task', $task);
+		$theme->set('view', $view);
+
+		$output = $theme->output('admin/html/form/action');
+
+		return $output;
+	}
+
+	/**
+	 * Generates a location form
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function location($name, SocialLocation $location)
+	{
+		$theme = ES::themes();
+
+		$address = $location->getAddress();
+		$latitude = $location->getLatitude();
+		$longitude = $location->getLongitude();
+
+		$theme->set('name', $name);
+		$theme->set('address', $address);
+		$theme->set('latitude', $latitude);
+		$theme->set('longitude', $longitude);
+
+		$output = $theme->output('admin/html/form/location');
+
+		return $output;
 	}
 
 	/**
@@ -56,7 +103,7 @@ class ThemesHelperForm
 
 		$theme->set( 'itemid'	, $itemid );
 
-		$content	= $theme->output( 'admin/html/form.itemid' );
+		$content = $theme->output('admin/html/form/itemid');
 
 		return $content;
 	}
@@ -72,15 +119,15 @@ class ThemesHelperForm
 	 */
 	public static function editor( $name , $value = '' , $id = '' , $editor = '' )
 	{
+		// Get the editor
+		$editor = JFactory::getEditor('tinymce');
 
-		$editor 	= JFactory::getEditor( 'tinymce' );
-
-		$theme 		= FD::themes();
+		$theme = FD::themes();
 
 		$theme->set( 'editor'	, $editor );
 		$theme->set( 'name'		, $name );
 		$theme->set( 'content'	, $value );
-		$content 	= $theme->output( 'admin/html/form.editor' );
+		$content 	= $theme->output('admin/html/form/editor');
 
 		return $content;
 	}
@@ -95,19 +142,18 @@ class ThemesHelperForm
 	 */
 	public static function usergroups( $name , $selected = '' )
 	{
-		$model 		= FD::model( 'Users' );
-		$groups 	= $model->getUserGroups();
+		$model = FD::model('Users');
+		$groups = $model->getUserGroups();
 
-		$theme 		= FD::themes();
+		$theme = FD::themes();
 
-		$theme->set( 'name'		, $name );
-		$theme->set( 'selected'	, $selected );
-		$theme->set( 'groups' 	, $groups );
+		$theme->set( 'name', $name );
+		$theme->set( 'selected', $selected );
+		$theme->set( 'groups', $groups );
 
-		$output 	= $theme->output( 'admin/html/form.usergroups' );
+		$output = $theme->output('admin/html/form/usergroups');
 
 		return $output;
-		return JHTML::_('select.genericlist', JFactory::getAcl()->get_group_children_tree( null, 'USERS', false ), $name , 'size="10"', 'value', 'text', $selected );
 	}
 
 	/**
@@ -126,13 +172,12 @@ class ThemesHelperForm
 	 */
 	public static function calendar( $name , $value = '', $id = '' , $attributes = '' , $time = false , $format = '', $language = false )
 	{
-		if( is_array( $attributes ) )
-		{
+		if (is_array($attributes)) {
 			$attributes	= implode( ' ' , $attributes );
 		}
 
-		$theme 	= FD::themes();
-		$uuid 	= uniqid();
+		$theme = FD::themes();
+		$uuid = uniqid();
 
 		if (!$language) {
 			$language 	= JFactory::getDocument()->getLanguage();
@@ -147,7 +192,7 @@ class ThemesHelperForm
 		$theme->set( 'id'			, $id );
 		$theme->set( 'attributes'	, $attributes );
 
-		return $theme->output( 'admin/html/form.calendar' );
+		return $theme->output('admin/html/form/calendar');
 	}
 
 	/**
@@ -182,8 +227,77 @@ class ThemesHelperForm
 		$theme->set( 'id'			, $id );
 		$theme->set( 'attributes'	, $attributes );
 
-		return $theme->output( 'admin/html/form.editors' );
+		return $theme->output('admin/html/form/editors');
 	}
+
+	/**
+	 * Displays the text input
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function text($name, $id = null, $value = '', $options)
+	{
+		$class = 'form-control input-sm';
+		$placeholder = '';
+		$attributes = '';
+
+		if (isset($options['attr']) && $options['attr']) {
+			$attributes = $options['attr'];
+		}
+
+		if (isset($options['class']) && $options['class']) {
+			$class = $options['class'];
+		}
+
+		if (isset($options['placeholder']) && $options['placeholder']) {
+			$placeholder = JText::_($options['placeholder']);
+		}
+
+		$theme = ES::themes();
+		$theme->set('attributes', $attributes);
+		$theme->set('name', $name);
+		$theme->set('id', $id);
+		$theme->set('value', $value);
+		$theme->set('class', $class);
+		$theme->set('placeholder', $placeholder);
+
+		return $theme->output('admin/html/form/text');
+	}
+
+	/**
+	 * Displays the textarea input
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function textarea($name, $id = null, $value = '', $options)
+	{
+		$class = 'form-control input-sm';
+		$placeholder = '';
+
+		if (isset($options['class']) && $options['class']) {
+			$class = $options['class'];
+		}
+
+		if (isset($options['placeholder']) && $options['placeholder']) {
+			$placeholder = JText::_($options['placeholder']);
+		}
+
+		$theme = ES::themes();
+		$theme->set('name', $name);
+		$theme->set('id', $id);
+		$theme->set('value', $value);
+		$theme->set('class', $class);
+		$theme->set('placeholder', $placeholder);
+
+		return $theme->output('admin/html/form/textarea');
+	}
+
 
 	/**
 	 * Retrieve list of editors from the site
@@ -253,7 +367,7 @@ class ThemesHelperForm
 		$theme->set('id'		, $id );
 		$theme->set('selected'	, $selected );
 
-		$output 	= $theme->output( 'admin/html/form.profiles' );
+		$output = $theme->output('admin/html/form/profiles');
 
 		return $output;
 	}
@@ -290,7 +404,7 @@ class ThemesHelperForm
 		$theme->set( 'name'		, $name );
 		$theme->set( 'menus'	, $menus );
 		$theme->set( 'selected' , $selected );
-		$output 	= $theme->output( 'admin/html/form.menus' );
+		$output = $theme->output('admin/html/form/menus');
 
 		return $output;
 	}

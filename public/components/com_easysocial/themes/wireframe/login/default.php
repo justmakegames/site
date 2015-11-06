@@ -81,7 +81,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					|| ( $this->config->get( 'registrations.enabled' ) && !$this->config->get('general.site.lockdown.enabled') )
 				){ ?>
 
-			<?php if ($this->template->get('dashboard_mini_registration', true)) { ?>
+			<?php if ($this->config->get('registrations.mini.enabled', false)) { ?>
 				<div class="col-md-6 register-column">
 					<form method="post" action="<?php echo JRoute::_( 'index.php' );?>" data-registermini-form>
 						<div class="register-wrap <?php echo empty( $fields ) ? ' is-empty' : '';?>">
@@ -91,9 +91,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							</p>
 
 
-							<?php if( !empty( $fields ) ) { ?>
-								<?php foreach( $fields as $field ) { ?>
+							<?php if (!empty($fields)) { ?>
+								<?php foreach ($fields as $field) { ?>
+									<?php if (isset($field->output)) { ?>
 									<div class="register-field" data-registermini-fields-item><?php echo $field->output; ?></div>
+									<?php } ?>
 								<?php } ?>
 							<?php } ?>
 

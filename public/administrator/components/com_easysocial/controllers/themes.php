@@ -141,13 +141,40 @@ class EasySocialControllerThemes extends EasySocialController
 	public function upload()
 	{
 		// Get the file from the server.
-		$file 		= JRequest::getVar( 'package' , '' , 'FILES' );
+		$file = $this->input->files->get('package', '');
 
-		$state = $this->installPackage( $file, 'themes', array( 'zip' ), false );
+		// Allowed extensions for file name.
+		$allowedExtension = array('zip'); 
 
-		$view = $this->getCurrentView();
+		// There could be possibility the server reject the file upload
+		if (empty($file['tmp_name'])) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_INSTALL_UPLOAD_ERROR_INVALID_TYPE'), SOCIAL_MSG_ERROR);
+			$this->view->call(__FUNCTION__);
+			return false;
+		}
 
-		return $view->call( __FUNCTION__ );
+		// We just ensure that the mime is a zip file
+		if ($file['type'] !== 'application/zip') {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_INSTALL_UPLOAD_ERROR_INVALID_TYPE'), SOCIAL_MSG_ERROR);
+			$this->view->call(__FUNCTION__);
+			return false;
+		}
+
+		// Get information about the file that was uploaded
+		$extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+
+		// Double check to ensure that the file name really contains .zip_close(zip)
+		if (!in_array($extension, $allowedExtension)) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_INSTALL_UPLOAD_ERROR_INVALID_TYPE' ), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
+		}
+
+		// Get the themes model
+		$model = FD::model('Themes');
+		$model->install($file);
+
+		$this->view->setMessage( JText::_( 'COM_EASYSOCIAL_INSTALL_UPLOAD_SUCCESSFULLY', SOCIAL_MSG_SUCCESS));
+		return $this->view->call(__FUNCTION__);
 	}
 
 	/**

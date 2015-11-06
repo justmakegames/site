@@ -77,6 +77,11 @@ EasySocial.module( 'site/search/list' , function($){
 						var next_limit 	= self.pagination().data('last-limit');
 						var last_type 	= self.pagination().data('last-type');
 
+						var filters = [];
+						$("[data-search-filtertypes]:checked").each( function(idx, ele) {
+							filters.push($(ele).val());
+						});
+
 						if( next_limit == '-1')
 						{
 							self.loadmorebutton().hide();
@@ -91,7 +96,8 @@ EasySocial.module( 'site/search/list' , function($){
 							"last_type" : last_type,
 							"type" : type,
 							"q" : query,
-							"loadmore" : '1'
+							"loadmore" : '1',
+							'filtertypes' : filters
 						},
 						{
 							beforeSend: function()

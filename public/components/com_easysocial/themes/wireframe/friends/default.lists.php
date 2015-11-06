@@ -33,7 +33,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					 data-friends-listItem
 					>
 					<a href="javascript:void(0);">
-						<i class="ies-star ies-small filter-item-default"></i>
+						<i class="fa fa-star  filter-item-default"></i>
 						<?php echo $this->html( 'string.escape' , $list->get( 'title' ) ); ?>
 					</a>
 

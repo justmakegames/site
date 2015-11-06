@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div id="datetimepicker4" class="input-group">
                 <input type="text" class="form-control" placeholder="<?php echo JText::_('FIELDS_EVENT_STARTEND_START_DATETIME'); ?>" />
                 <span class="input-group-addon">
-                    <i class="ies-calendar-2"></i>
+                    <i class="fa fa-calendar"></i>
                 </span>
             </div>
         </div>
@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div id="datetimepicker4" class="input-group">
                 <input type="text" class="form-control" placeholder="<?php echo JText::_('FIELDS_EVENT_STARTEND_END_DATETIME'); ?>" />
                 <span class="input-group-addon">
-                    <i class="ies-calendar-2"></i>
+                    <i class="fa fa-calendar"></i>
                 </span>
             </div>
         </div>

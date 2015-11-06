@@ -1,10 +1,8 @@
 <?php
 /**
-* @package        %PACKAGE%
-* @subpackge    %SUBPACKAGE%
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
-* @license        GNU/GPL, see LICENSE.php
-*
+* @package      EasySocial
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -27,7 +25,7 @@ class SocialEventAppFiles extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#2969B0';
-        $obj->icon = 'ies-stack';
+        $obj->icon = 'fa-files-o';
         $obj->label = 'COM_EASYSOCIAL_STREAM_CONTEXT_TITLE_FILES_TOOLTIP';
 
         return $obj;
@@ -249,8 +247,8 @@ class SocialEventAppFiles extends SocialAppItem
         // Define standard stream looks
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
         $item->color = '#2969B0';
-        $item->fonticon = 'ies-stack';
-        $item->label = JText::_('COM_EASYSOCIAL_STREAM_CONTEXT_TITLE_FILES_TOOLTIP');
+        $item->fonticon = 'fa fa-files-o';
+        $item->label = FD::_('COM_EASYSOCIAL_STREAM_CONTEXT_TITLE_FILES_TOOLTIP', true);
 
         if ($item->verb == 'uploaded') {
             $this->prepareUploadedStream($item);
@@ -275,23 +273,139 @@ class SocialEventAppFiles extends SocialAppItem
         // Do not allow user to repost files
         $item->repost = false;
 
-        // Get the file object
-        $file = FD::table('File');
-        $file->load($params->get('file')->id);
+        // Try to get the file object
+        $obj = $params->get('file');
 
-        if (!$file->id) {
-            return;
+        // Default variables
+        $content = '';
+        $files = array();
+
+        if (is_object($obj)) {
+
+            // Get the file object
+            $file = FD::table('File');
+            $file->load($params->get('file')->id);
+
+            if (!$file->id) {
+                return;
+            }
+
+            $files[] = $file;
+
+        } else {
+            $params = FD::registry($item->contextParams[0]);
+            $fileItems = $params->get('file');
+            $content = $item->content;
+
+            foreach ($fileItems as $fileId) {
+                $file = FD::table('File');
+                $file->load((int) $fileId);
+
+                $files[] = $file;
+            }
+
+
         }
+
+        // Apply likes on the stream
+        $likes = FD::likes();
+        $likes->get($item->uid , $item->context, $item->verb, SOCIAL_APPS_GROUP_EVENT, $item->uid);
+        $item->likes = $likes;
 
         // Get the actor
         $actor = $item->actor;
 
+        $this->set('content', $content);
         $this->set('actor', $actor);
-        $this->set('file', $file);
+        $this->set('files', $files);
         $this->set('event', $event);
 
         // Load up the contents now.
         $item->title = parent::display('streams/uploaded.title');
         $item->content = parent::display('streams/uploaded.content');
+    }
+
+    /**
+     * Prepares what should appear in the story form.
+     *
+     * @since   1.3
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function onPrepareStoryPanel($story)
+    {
+        $params = $this->getParams();
+
+        // Determine if the user can use this feature
+        if (!$params->get('enable_uploads', true)) {
+            return;
+        }
+
+        // Get the event object
+        $event = FD::event($story->cluster);
+
+        // Determines if this event has access to files
+        $access = $event->getAccess();
+
+        if (!$access->get('files.enabled', true)) {
+            return;
+        }
+
+        // Get the guest
+        $guest = $event->getGuest($this->my->id);
+
+        if (!$guest->isGuest()) {
+            return;
+        }
+
+        // Create plugin object
+        $plugin = $story->createPlugin('files', 'panel');
+
+        // Get the allowed extensions
+        $allowedExtensions = $params->get('allowed_extensions', 'zip,txt,pdf,gz,php,doc,docx,ppt,xls');
+        $maxFileSize = $params->get('max_upload_size', 8) . 'M';
+
+        // We need to attach the button to the story panel
+        $theme  = FD::themes();
+
+        $plugin->button->html = $theme->output('themes:/apps/user/files/story/panel.button');
+        $plugin->content->html = $theme->output('themes:/apps/user/files/story/panel.content');
+
+        // Attachment script
+        $script = FD::script();
+        $script->set('allowedExtensions', $allowedExtensions);
+        $script->set('maxFileSize', $maxFileSize);
+        $script->set('type', SOCIAL_TYPE_EVENT);
+        $script->set('uid', $story->cluster);
+
+        $plugin->script = $script->output('apps:/user/files/story');
+
+        return $plugin;
+    }
+
+    /**
+     * Processes after the story is saved so that we can generate a stream item for this
+     *
+     * @since   1.3
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function onAfterStorySave(SocialStream &$stream , SocialTableStreamItem $streamItem, &$template)
+    {
+        $files = $this->input->get('files', array(), 'array');
+
+        if (!$files) {
+            return;
+        }
+
+        // We need to set the context id's for the files shared in this stream.
+        $params = FD::registry();
+        $params->set('file', $files);
+
+        $streamItem->verb = 'uploaded';
+        $streamItem->params = $params->toString();
+        $streamItem->store();
     }
 }

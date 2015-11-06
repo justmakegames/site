@@ -14,12 +14,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 // We need the router
 require_once( JPATH_ROOT . '/components/com_content/helpers/route.php' );
 
-/**
- * Profile view for article app
- *
- * @since	1.0
- * @access	public
- */
 class DiscussionsViewGroups extends SocialAppsView
 {
 	/**
@@ -29,36 +23,35 @@ class DiscussionsViewGroups extends SocialAppsView
 	 * @access	public
 	 * @param	int		The user id that is currently being viewed.
 	 */
-	public function display( $groupId = null , $docType = null )
+	public function display($groupId = null, $docType = null)
 	{
-		$group 	= FD::group( $groupId );
+		$group = ES::group($groupId);
 
 		// Check if the viewer is allowed here.
-		if( !$group->canViewItem() )
-		{
-			return $this->redirect( $group->getPermalink( false ) );
+		if (!$group->canViewItem()) {
+			return $this->redirect($group->getPermalink(false));
 		}
 
 		// Get app params
-		$params 	= $this->app->getParams();
+		$params = $this->app->getParams();
 
-		$model 		= FD::model( 'Discussions' );
-		$options	= array( 'limit' => $params->get( 'total' , 10 ) );
+		$model = FD::model('Discussions');
+		$options = array('limit' => $params->get('total', 10));
 
-		$discussions	= $model->getDiscussions( $group->id , SOCIAL_TYPE_GROUP , $options );
-		$pagination 	= $model->getPagination();
-		$pagination->setVar( 'option' , 'com_easysocial' );
-		$pagination->setVar( 'view' , 'groups' );
-		$pagination->setVar( 'layout' , 'item' );
-		$pagination->setVar( 'id' , $group->getAlias() );
-		$pagination->setVar( 'appId' , $this->app->getAlias() );
+		$discussions = $model->getDiscussions($group->id , SOCIAL_TYPE_GROUP , $options);
+		$pagination = $model->getPagination();
+		$pagination->setVar('option' , 'com_easysocial');
+		$pagination->setVar('view' , 'groups');
+		$pagination->setVar('layout' , 'item');
+		$pagination->setVar('id' , $group->getAlias());
+		$pagination->setVar('appId' , $this->app->getAlias());
 
-		$this->set( 'params'		, $params );
-		$this->set( 'pagination'	, $pagination );
-		$this->set( 'group'			, $group );
-		$this->set( 'discussions'	, $discussions );
+		$this->set('params', $params);
+		$this->set('pagination', $pagination);
+		$this->set('group', $group);
+		$this->set('discussions', $discussions);
 
-		echo parent::display( 'groups/default' );
+		echo parent::display('groups/default');
 	}
 
 }

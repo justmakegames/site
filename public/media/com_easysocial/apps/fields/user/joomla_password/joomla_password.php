@@ -14,12 +14,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 // Include the fields library
 FD::import('admin:/includes/fields/dependencies');
 
-/**
- * Field application for Joomla password
- *
- * @since	1.0
- * @author	Jason Rey <jasonrey@stackideas.com>
- */
 class SocialFieldsUserJoomla_password extends SocialFieldItem
 {
 	protected $password	= null;
@@ -32,8 +26,6 @@ class SocialFieldsUserJoomla_password extends SocialFieldItem
 	 * @param	array		The post data.
 	 * @param	SocialTableRegistration
 	 * @return	string	The html output.
-	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
 	public function onRegister(&$post , &$registration)
 	{
@@ -42,7 +34,7 @@ class SocialFieldsUserJoomla_password extends SocialFieldItem
 		$this->set('input', $input);
 
 		// Check for errors
-		$error		= $registration->getErrors($this->inputName);
+		$error = $registration->getErrors($this->inputName);
 
 		// Set errors.
 		$this->set('error', $error);
@@ -59,8 +51,6 @@ class SocialFieldsUserJoomla_password extends SocialFieldItem
 	 * @access	public
 	 * @param	array 	The post data.
 	 * @return	bool	Determines if the system should proceed or throw errors.
-	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
 	public function onRegisterValidate(&$post)
 	{
@@ -76,14 +66,27 @@ class SocialFieldsUserJoomla_password extends SocialFieldItem
 		return $this->validatePassword($input, $reconfirm);
 	}
 
+	/**
+	 * Validate mini registrations
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function onRegisterMiniValidate(&$post)
 	{
-		$input	 	= !empty($post[$this->inputName . '-input']) ? $post[$this->inputName . '-input'] : '';
+		$input = !empty($post[$this->inputName . '-input']) ? $post[$this->inputName . '-input'] : '';
+		$reconfirm	= !empty($post[$this->inputName . '-reconfirm']) ? $post[$this->inputName . '-reconfirm'] : '';
 
-		return $this->validatePassword($input, $input);
+		// Check if reconfirm passwords is disabled.
+		if (!$this->params->get('mini_reconfirm_password'))
+		{
+			$reconfirm = $input;
+		}
+
+		return $this->validatePassword($input, $reconfirm);
 	}
-
-
 
 	/**
 	 * Executes before a user's registration is saved.
@@ -272,6 +275,14 @@ class SocialFieldsUserJoomla_password extends SocialFieldItem
 		return true;
 	}
 
+	/**
+	 * Performs password validation
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	private function validatePassword($input, $reconfirm)
 	{
 		// Verify that the passwords are valid and not empty
@@ -291,6 +302,40 @@ class SocialFieldsUserJoomla_password extends SocialFieldItem
 			$this->setError(JText::sprintf('PLG_FIELDS_JOOMLA_PASSWORD_MAXIMUM_CHAR', $this->params->get('max')));
 
 			return false;
+		}
+
+		// Verify minimum symbols
+		$minSymbols = (int) $this->params->get('min_symbols');
+
+		if ($minSymbols > 0) {
+
+			// Get the total number of symbols used in the password
+			$totalSymbols = preg_match_all('[\W]', $input, $matches);
+
+			if ($totalSymbols < $minSymbols) {
+				return $this->setError(JText::sprintf('PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_SYMBOLS', $minSymbols));
+			}
+		}
+
+		// Verify minimum integers
+		$minInteger = $this->params->get('min_integer');
+		if ($minInteger > 0) {
+			$totalIntegers = preg_match_all('/[0-9]/', $input, $matches);
+
+			if ($totalIntegers < $minInteger) {
+				return $this->setError(JText::sprintf('PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_INTEGER', $minInteger));
+			}
+		}
+
+		// Verify minimum uppercase
+		$minUppercase = $this->params->get('min_uppercase');
+
+		if ($minUppercase > 0) {
+			$totalUppercase = preg_match_all('/[A-Z]/', $input, $matches);
+
+			if ($totalUppercase < $minUppercase) {
+				return $this->setError(JText::sprintf('PLG_FIELDS_JOOMLA_PASSWORD_MINIMUM_UPPERCASE', $minUppercase));
+			}
 		}
 
 		if ($input !== $reconfirm) {

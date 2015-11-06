@@ -16,21 +16,17 @@ defined('_JEXEC') or die('Unauthorized Access');
     <?php if ($params->get('calendar')) { ?>
     <div class="es-field-datetime-form with-border with-calendar mb-5" data-field-datetime-form>
         <div class="es-field-datetime-textbox">
-            <i class="ies-calendar-2" data-field-datetime-icon></i>
+            <i class="fa fa-calendar" data-field-datetime-icon></i>
             <input class="datepicker-wrap form-control input-sm" data-field-datetime-select data-date="<?php echo $date; ?>" type="text" placeholder="<?php echo JText::_($params->get('placeholder')); ?>" />
         </div>
 
         <div class="es-field-datetime-buttons">
-            <a class="es-field-datetime-remove-button" href="javascript:void(0);" data-clear><i class="ies-cancel-2"></i></a>
+            <a class="es-field-datetime-remove-button" href="javascript:void(0);" data-clear><i class="fa fa-remove"></i></a>
         </div>
     </div>
     <?php } else { ?>
         <div class="es-field-datetime-form with-border mb-5">
-            <?php echo $this->loadTemplate('fields/user/datetime/form.year', array('year' => $dateObject->year, 'yearRange' => $yearRange)); ?>
-
-            <?php echo $this->loadTemplate('fields/user/datetime/form.month', array('month' => $dateObject->month)); ?>
-
-            <?php echo $this->loadTemplate('fields/user/datetime/form.day', array('day' => $dateObject->day, 'maxDay' => $dateObject->isValid() ? $dateObject->format('t') : 31)); ?>
+            <?php echo $dateHTML; ?>
         </div>
 
         <?php if ($params->get('allow_time')) { ?>

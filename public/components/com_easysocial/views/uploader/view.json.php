@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,33 +9,35 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-FD::import( 'site:/views/views' );
+FD::import('site:/views/views');
 
 class EasySocialViewUploader extends EasySocialSiteView
 {
 	/**
-	 * Responsible to handle temporary file uploads. This is useful for services that may want
-	 * to upload files before their real items are created.
+	 * Processes after a file is uploaded on the site
 	 *
-	 * @since	1.0
+	 * @since	1.4
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	public function uploadTemporary( $uploader = null )
+	public function uploadTemporary($uploader = null)
 	{
 		$json = FD::json();
 
 		// If there was an error uploading,
 		// return error message.
 		if ($this->hasErrors()) {
-			$json->send($this->getMessage());
+			return $json->send($this->getMessage());
 		}
 
 		$response = new stdClass();
 		$response->id = $uploader->id;
+		$response->preview = $uploader->getPermalink();
 
-		$json->send($response);
+		return $json->send($response);
 	}
 
 	/**

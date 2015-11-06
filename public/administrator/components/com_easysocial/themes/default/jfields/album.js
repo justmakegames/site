@@ -1,28 +1,38 @@
 
-EasySocial.require()
-.library( 'dialog' )
-.done(function($)
-{
-	<?php if( FD::version()->getVersion() < 3 ){ ?>
+EasySocial
+.require()
+.library('dialog')
+.done(function($) {
+
+	<?php if (ES::version()->getVersion() < 3) { ?>
 		$('body').addClass( 'com_easysocial25' );
 	<?php } ?>
 
-	window.selectAlbum 	= function( obj )
-	{
-		$( '[data-jfield-album-title]' ).val( obj.title );
+	var titleField = $('[data-jfield-album-title]');
+	var valueField = $('[data-jfield-album-value]');
+	var browseButton = $('[data-jfield-album]');
+	var cancelButton = $('[data-jfield-album-cancel]');
 
-		$( '[data-jfield-album-value]' ).val( obj.alias );
+	window.selectAlbum = function(obj) {
+		titleField.val(obj.title);
+		valueField.val(obj.alias);
 
 		// Close the dialog when done
 		EasySocial.dialog().close();
 	}
 
-	$( '[data-jfield-album]' ).on( 'click', function()
-	{
-		EasySocial.dialog(
-		{
-			content 	: EasySocial.ajax( 'admin/views/albums/browse' , { 'jscallback' : 'selectAlbum' })
-		});
+	cancelButton.on('click', function() {
+		titleField.val('<?php echo JText::_('COM_EASYSOCIAL_JFIELD_SELECT_ALBUM', true);?>');
+		valueField.val('');
 	});
 
+
+	browseButton.on('click', function() {
+
+		EasySocial.dialog({
+			content: EasySocial.ajax('admin/views/albums/browse', {
+								'jscallback' : 'selectAlbum'
+					})
+		});
+	});
 });

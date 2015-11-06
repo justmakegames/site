@@ -20,7 +20,7 @@
         }
         h5 {
             a {
-                font-size: 11px;
+                font-size: @baseFontSize;
                 font-weight: normal;
             }
         }
@@ -32,6 +32,14 @@
 
                 &.active{
                     font-weight: 700;
+                }
+
+                > ul {
+                    > li {
+                        > a {
+                            font-weight: normal;
+                        }
+                    }
                 }
             }
 
@@ -76,7 +84,7 @@
         .es-conversation-username {
             // float: left;
             margin: 5px 0 0 5px;
-            font-size: 11px;
+            font-size: @baseFontSize;
             line-height: 16px;
             .text-overflow();
             > a {
@@ -156,20 +164,8 @@
             position: relative;
             .opacity(0);
 
-            .btn-group{
-
-                .btn{
-                    font-size: 11px;
-                    border-radius: @borderRadiusSmall;
-                }
-            }
-            .btn-es {
-                padding: 5px 8px;
-                line-height: 8px;
-            }
-
             .dropdown-menu{
-                font-size: 11px;
+                font-size: @baseFontSize;
                 color: #595959;
             }
 
@@ -196,7 +192,7 @@
 
 
         .conversation-filters{
-            font-size: 11px;
+            font-size: @baseFontSize;
             > li {
                 display: inline-block;
             }
@@ -253,7 +249,7 @@
             }
 
             .conversation-meta{
-                font-size: 11px;
+                font-size: @baseFontSize;
                 // background: red;
                 .text-overflow();
                 .getContrast(@esConversationBackground);
@@ -263,7 +259,6 @@
             }
         }
     }
-
 
     // Compose layout
     &.layout-compose{
@@ -294,8 +289,6 @@
         .form-actions{
             margin-top: 50px;
         }
-
-
     }
 
     // Read layout
@@ -310,7 +303,7 @@
         }
 
         .last-updated{
-            font-size: 11px;
+            font-size: @baseFontSize;
         }
 
         .location-service,
@@ -355,7 +348,7 @@
                     background: @esConversationBackground;
                     padding: 1px 10px;
                     color: @esConversationTimestampColor;
-                    font-size: 10px;
+                    font-size: @fontSizeSmall;
                 }
             }
             > li + li{
@@ -368,7 +361,8 @@
 
             > li.message-item {
                 padding: 15px 0;
-                font-size: 11px;
+                font-size: @baseFontSize;
+                width: 100%;
 
                 .message-user-name {
                     float: left;
@@ -412,7 +406,7 @@
         }//conversation-messages
 
         .files-list{
-            font-size: 11px;
+            font-size: @baseFontSize;
         }
 
         .conversation-attachments{
@@ -453,7 +447,7 @@
 
         .dropdown-conversation-actions,
         .conversation-action{
-            font-size: 11px;
+            font-size: @baseFontSize;
         }
 
         .conversation-action{
@@ -481,7 +475,7 @@
 
     .form-control {
         background: none;
-        font-size: 11px;
+        font-size: @baseFontSize;
         min-height: 150px;
         border-color: transparent;
         .box-shadow(none);
@@ -505,7 +499,6 @@
             margin-left: 0;
         }
     }
-
 }
 
 
@@ -539,5 +532,4 @@
             }
         }
     }
-
 }

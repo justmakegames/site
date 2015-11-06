@@ -21,7 +21,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					</time>
 				</span>
 			</li>
-			<li><a href="javascript:void(0);" class="fd-small"><?php echo $likes->button();?></a></li>
+			<li>
+				<?php echo $likes->button();?>
+			</li>
 			<li><a href="javascript:void(0);" class="fd-small"><?php echo $shares->button();?></a></li>
 			<li class="es-action-privacy">
 				<?php

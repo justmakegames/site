@@ -40,24 +40,13 @@ $files['user']->path 	= JPATH_ROOT . '/plugins/user';
 $files['auth']	= new stdClass();
 $files['auth']->path 	= JPATH_ROOT . '/plugins/authentication';
 
-##########################################
-## Debugging
-##########################################
-$posixExists 		= function_exists( 'posix_getpwuid' );
-
-if( $posixExists )
-{
-	$owners 			= array();
-}
-
 
 ##########################################
 ## Determine states
 ##########################################
 $hasErrors	= false;
 
-foreach( $files as $file )
-{
+foreach ($files as $file) {
 	// The only proper way to test this is to not use is_writable
 	$contents	= "<body></body>";
 	$state 		= JFile::write( $file->path . '/tmp.html' , $contents );
@@ -65,26 +54,14 @@ foreach( $files as $file )
 	// Initialize this to false by default
 	$file->writable 	= false;
 
-	if( $state )
-	{
+	if ($state) {
 		JFile::delete( $file->path . '/tmp.html' );
 
 		$file->writable 	= true;
 	}
 
-	if( !$file->writable )
-	{
+	if (!$file->writable) {
 		$hasErrors 		= true;
-	}
-
-	if( $posixExists )
-	{
-		$owner 			= posix_getpwuid( fileowner( $file->path ) );
-		$group 			= posix_getpwuid( filegroup( $file->path ) );
-
-		$file->owner 		= $owner[ 'name' ];
-		$file->group 		= $group[ 'name' ];
-		$file->permissions	= substr( decoct( fileperms( $file->path ) ) , 1 );
 	}
 }
 ?>
@@ -116,6 +93,11 @@ jQuery( document ).ready( function(){
 <p class="section-desc">
 	<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_DESC' ); ?>
 </p>
+
+<?php if( !$hasErrors ){ ?>
+<hr />
+<p class="text-success"><?php echo JText::_('COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_SUCCESS');?></p>
+<?php } ?>
 
 <?php if( $hasErrors ){ ?>
 <div class="alert alert-error" data-permissions-error style="display: none;">
@@ -150,34 +132,15 @@ jQuery( document ).ready( function(){
 					<a href="javascript:void(0);" class="btn btn-es-danger btn-mini pull-right mr-5"><?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_HOW_TO_FIX' ); ?></a>
 					<?php } ?>
 				</div>
-
-				<ul class="permissions-info list-unstyled mt-10">
-					<?php if( $posixExists ){ ?>
-					<li>
-						<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_CURRENT_OWNER' ); ?>: <strong><?php echo $file->owner; ?></strong>
-					</li>
-					<li>
-						<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_CURRENT_GROUP' ); ?>: <strong><?php echo $file->group; ?></strong>
-					</li>
-					<li>
-						<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_CURRENT_MODE' );?>: <strong><?php echo $file->permissions; ?></strong>
-					</li>
-					<?php } else { ?>
-					<li>
-						<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_POSIX' );?>
-					</li>
-					<?php } ?>
-				</ul>
-
 			</td>
 			<?php if( $file->writable ){ ?>
 			<td class="center text-success">
-				<i class="ies-checkmark ies-small mr-5"></i>
+				<i class="fa fa-check  mr-5"></i>
 				<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_WRITABLE' );?>
 			</td>
 			<?php } else { ?>
 			<td class="center text-error">
-				<i class="ies-cancel-2 ies-small mr-5"></i>
+				<i class="fa fa-remove  mr-5"></i>
 				<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_UNWRITABLE' );?>
 			</td>
 			<?php } ?>
@@ -186,12 +149,6 @@ jQuery( document ).ready( function(){
 
 	</tbody>
 </table>
-
-<?php if( !$hasErrors ){ ?>
-<div class="alert alert-success">
-	<?php echo JText::_( 'COM_EASYSOCIAL_INSTALLATION_PERMISSIONS_SUCCESS' );?>
-</div>
-<?php } ?>
 
 <input type="hidden" name="option" value="com_easysocial" />
 <input type="hidden" name="active" value="<?php echo $active; ?>" />

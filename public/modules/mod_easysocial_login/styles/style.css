@@ -1,32 +1,41 @@
-body div#fd.es.mod-es-login.style-horizontal .input-area {
+div#fd.es.mod-es-login.style-horizontal .input-area {
   font-size: 11px;
   display: table;
+  width: 100%;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area .input-area-cell {
+div#fd.es.mod-es-login.style-horizontal .input-area .input-area-cell {
   display: table-cell;
-  padding: 0 4px 0 0;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area .form-inline {
+div#fd.es.mod-es-login.style-horizontal .input-area .input-area-cell + .input-area-cell {
+  padding: 0 0 0 10px;
+}
+div#fd.es.mod-es-login.style-horizontal .input-area .form-inline {
+  background: #fff !important;
   padding-left: 18px;
   border: 1px solid #d7d7d7;
   border-radius: 3px;
+  width: 100% !important;
   display: inline-block;
   position: relative;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area .form-inline i {
+div#fd.es.mod-es-login.style-horizontal .input-area .form-inline i {
   font-size: 11px;
   color: #ccc;
   position: absolute;
   left: 6px;
   top: 12px;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area .form-inline input {
+div#fd.es.mod-es-login.style-horizontal .input-area .form-inline .form-control {
+  border: 0 !important;
+  background: none !important;
+}
+div#fd.es.mod-es-login.style-horizontal .input-area .form-inline input {
   padding-left: 5px;
   width: 55%;
   font-size: 11px;
   display: inline-block;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area .form-inline .btn-es {
+div#fd.es.mod-es-login.style-horizontal .input-area .form-inline .btn-es {
   height: 25px;
   font-size: 10px;
   padding: 2px 8px;
@@ -34,53 +43,57 @@ body div#fd.es.mod-es-login.style-horizontal .input-area .form-inline .btn-es {
   top: 5px;
   right: 5px;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area .es-secret-key input {
+div#fd.es.mod-es-login.style-horizontal .input-area .es-secret-key input {
   width: 100%;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area input {
+div#fd.es.mod-es-login.style-horizontal .input-area input {
   font-size: 11px;
   border: 0;
   box-shadow: none;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area .btn {
+div#fd.es.mod-es-login.style-horizontal .input-area .btn {
   height: 34px;
   line-height: 20px;
   font-size: 11px;
   margin: 0;
 }
-body div#fd.es.mod-es-login.style-horizontal .input-area input,
-body div#fd.es.mod-es-login.style-horizontal .input-area button {
+div#fd.es.mod-es-login.style-horizontal .input-area .btn-login,
+div#fd.es.mod-es-login.style-horizontal .input-area .btn-register {
+  width: 100%;
+}
+div#fd.es.mod-es-login.style-horizontal .input-area input,
+div#fd.es.mod-es-login.style-horizontal .input-area button {
   display: inline;
 }
-body div#fd.es.mod-es-login.style-horizontal .remember {
+div#fd.es.mod-es-login.style-horizontal .remember {
   margin-top: 5px;
 }
-body div#fd.es.mod-es-login.style-horizontal .remember .checkbox {
+div#fd.es.mod-es-login.style-horizontal .remember .checkbox {
   margin-top: 0;
 }
-body div#fd.es.mod-es-login.style-horizontal.w768 .form-inline {
+div#fd.es.mod-es-login.style-horizontal.w768 .form-inline {
   margin-bottom: 10px;
 }
-body div#fd.es.mod-es-login.style-horizontal.w320 .input-area {
+div#fd.es.mod-es-login.style-horizontal.w320 .input-area {
   display: block;
 }
-body div#fd.es.mod-es-login.style-horizontal.w320 .input-area .input-area-cell {
+div#fd.es.mod-es-login.style-horizontal.w320 .input-area .input-area-cell {
   display: block;
   padding: 0 0 10px;
 }
-body div#fd.es.mod-es-login.style-horizontal.w320 .form-inline {
+div#fd.es.mod-es-login.style-horizontal.w320 .form-inline {
   width: 100%;
 }
-body div#fd.es.mod-es-login label {
+div#fd.es.mod-es-login label {
   font-size: 11px;
 }
-body div#fd.es.mod-es-login .es-signin-social p {
+div#fd.es.mod-es-login .es-signin-social p {
   margin-top: 20px;
 }
-body div#fd.es.mod-es-login .es-signin-social .line {
+div#fd.es.mod-es-login .es-signin-social .line {
   position: relative;
 }
-body div#fd.es.mod-es-login .es-signin-social .line:before {
+div#fd.es.mod-es-login .es-signin-social .line:before {
   content: '';
   width: 100%;
   position: absolute;
@@ -89,15 +102,15 @@ body div#fd.es.mod-es-login .es-signin-social .line:before {
   top: 9px;
   height: 1px;
 }
-body div#fd.es.mod-es-login .es-signin-social .line strong {
+div#fd.es.mod-es-login .es-signin-social .line strong {
   padding: 0 6px;
   position: relative;
   z-index: 2;
 }
-body div#fd.es.mod-es-login .es-signin-social .text-error,
-body div#fd.es.mod-es-login .es-signin-social .text-error a {
+div#fd.es.mod-es-login .es-signin-social .text-error,
+div#fd.es.mod-es-login .es-signin-social .text-error a {
   color: #B94A48;
 }
-body div#fd.es.mod-es-login .btn-login {
+div#fd.es.mod-es-login .btn-login {
   margin-top: 10px;
 }

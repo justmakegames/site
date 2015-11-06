@@ -19,13 +19,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 
 		<div data-photo-done-button class="btn btn-media btn-es-primary">
-			<a href="<?php echo $photo->getPermalink();?>" title="<?php echo $this->html( 'string.escape' , $photo->get( 'title' ) );?>"><i class="ies-checkmark"></i> <?php echo JText::_( 'COM_EASYSOCIAL_DONE_BUTTON' );?></a>
+			<a href="<?php echo $photo->getPermalink();?>" title="<?php echo $this->html( 'string.escape' , $photo->get( 'title' ) );?>"><i class="fa fa-check"></i> <?php echo JText::_( 'COM_EASYSOCIAL_DONE_BUTTON' );?></a>
 		</div>
 	</div>
 
 	<div class="btn-group btn-group-xs">
 		<div class="es-media-item-menu-item btn btn-media btn-es dropdown_" data-item-actions-menu>
-			<a href="javascript: void(0);" data-bs-toggle="dropdown"><i class="ies-arrow-down-2"></i> <span><?php echo JText::_( 'COM_EASYSOCIAL_PHOTOS_EDIT' ); ?></span></a>
+			<a href="javascript: void(0);" data-bs-toggle="dropdown"><i class="fa fa-angle-down"></i> <span><?php echo JText::_( 'COM_EASYSOCIAL_PHOTOS_EDIT' ); ?></span></a>
 			<ul class="dropdown-menu">
 
 				<?php if ( $lib->editable() ){ ?>
@@ -62,11 +62,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<?php if ( $lib->canRotatePhoto() ){ ?>
 	<div class="btn-group btn-group-xs">
 		<div class="btn btn-media btn-es" data-photo-rotateLeft-button>
-			<a href="javascript: void(0);"><i class="ies-rotate-2"></i></a>
+			<a href="javascript: void(0);"><i class="fa fa-rotate-left"></i></a>
 		</div>
 
 		<div class="btn btn-media btn-es" data-photo-rotateRight-button>
-			<a href="javascript: void(0);"><i class="ies-rotate"></i></a>
+			<a href="javascript: void(0);"><i class="fa fa-rotate-right"></i></a>
 		</div>
 	</div>
 	<?php } ?>

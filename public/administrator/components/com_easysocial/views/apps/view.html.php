@@ -24,55 +24,102 @@ class EasySocialViewApps extends EasySocialAdminView
 	 * @param	null
 	 * @return	null
 	 */
-	public function display( $tpl = null )
+	public function display($tpl = null)
 	{
 		// Set the page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_APPS' ) );
-
-		// Set the page icon
-		$this->setIcon( 'icon-jar jar-store' );
-
-		// Set the page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_APPS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_APPS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_APPS');
 
 		// Add Joomla buttons here.
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
 		JToolbarHelper::divider();
-		JToolbarHelper::deleteList( '' , 'uninstall' , JText::_( 'COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_UNINSTALL' ) );
+		JToolbarHelper::deleteList('', 'uninstall', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_UNINSTALL'));
 
 		// Get the applications model.
-		$model 		= FD::model( 'Apps' , array( 'initState' => true ) );
+		$model = ES::model('Apps', array('initState' => true));
 
 		// Get the current ordering.
-		$search 	= JRequest::getVar( 'search' , $model->getState( 'search' ) );
-		$filter		= JRequest::getCmd( 'filter' , $model->getState( 'filter' ) );
-		$state		= JRequest::getVar( 'state' , $model->getState( 'state' ) );
-		$group 		= JRequest::getVar( 'group' , $model->getState( 'group' ) );
+		$search = $this->input->get('search', $model->getState('search'));
+		$state = $this->input->get('state', $model->getState('state'));
+		$group = $this->input->get('group', $model->getState('group'));
 
-		$ordering 	= $model->getState( 'ordering' );
-		$direction	= $model->getState( 'direction' );
-		$limit 		= $model->getState( 'limit' );
-		$search 	= $model->getState( 'search' );
-		$group		= $model->getState( 'group' );
+		$ordering = $model->getState('ordering');
+		$direction = $model->getState('direction');
+		$limit = $model->getState('limit');
+		$search = $model->getState('search');
+		$group = $model->getState('group');
 
 		// Load the applications.
-		$apps 		= $model->getItemsWithState();
+		$options = array('filter' => 'apps');
+		$apps = $model->getItemsWithState($options);
 
 		// Get the pagination.
 		$pagination	= $model->getPagination();
 
-		$this->set( 'group'		, $group );
-		$this->set( 'search' 	, $search );
-		$this->set( 'limit'		, $limit );
-		$this->set( 'ordering'	, $ordering );
-		$this->set( 'direction'	, $direction );
-		$this->set( 'filter'	, $filter );
-		$this->set( 'state'		, $state );
-		$this->set( 'apps'		, $apps );
-		$this->set( 'pagination', $pagination );
+		$this->set('group', $group);
+		$this->set('search', $search);
+		$this->set('limit', $limit);
+		$this->set('ordering', $ordering);
+		$this->set('direction', $direction);
+		$this->set('state', $state);
+		$this->set('apps', $apps);
+		$this->set('pagination', $pagination);
 
-		parent::display( 'admin/apps/default' );
+		parent::display('admin/apps/default');
+	}
+
+	/**
+	 * Default fields applications listing
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	null
+	 * @return	null
+	 */
+	public function fields($tpl = null)
+	{
+		// Set the page heading
+		$this->setHeading('COM_EASYSOCIAL_HEADING_APPS_FIELDS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_APPS_FIELDS');
+
+		// Add Joomla buttons here.
+		JToolbarHelper::publishList();
+		JToolbarHelper::unpublishList();
+		JToolbarHelper::divider();
+		JToolbarHelper::deleteList('', 'uninstall', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_UNINSTALL'));
+
+		// Get the applications model.
+		$model = ES::model('Apps', array('initState' => true));
+
+		// Get the current ordering.
+		$search = $this->input->get('search', $model->getState('search'));
+		$state = $this->input->get('state', $model->getState('state'));
+		$group = $this->input->get('group', $model->getState('group'));
+
+		$ordering = $model->getState('ordering');
+		$direction = $model->getState('direction');
+		$limit = $model->getState('limit');
+		$search = $model->getState('search');
+		$group = $model->getState('group');
+
+		// Load the applications.
+		$options = array('filter' => 'fields');
+		$apps = $model->getItemsWithState($options);
+
+		// Get the pagination.
+		$pagination	= $model->getPagination();
+
+		$this->set('group', $group);
+		$this->set('search', $search);
+		$this->set('limit', $limit);
+		$this->set('ordering', $ordering);
+		$this->set('direction', $direction);
+		$this->set('state', $state);
+		$this->set('apps', $apps);
+		$this->set('pagination', $pagination);
+
+		parent::display('admin/apps/fields');
 	}
 
 	/**
@@ -89,10 +136,8 @@ class EasySocialViewApps extends EasySocialAdminView
 		$info->set( $this->getMessage() );
 
 		// Set the page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_APPS' ) );
-		$this->setIcon( 'icon-jar jar-window_sidebar' );
-		// Set the page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_APPS_INSTALLER' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_APPS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_APPS_INSTALLER');
 
 		// Set the default temporary path.
 		$jConfig 		= JFactory::getConfig();
@@ -133,11 +178,8 @@ class EasySocialViewApps extends EasySocialAdminView
 		FD::info()->set( $this->getMessage() );
 
 		// Set the page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_DISCOVER_APPS' ) );
-
-		$this->setIcon( 'icon-jar jar-cloud_down' );
-		// Set the page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_DISCOVER_APPS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_DISCOVER_APPS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_DISCOVER_APPS');
 
 		// Add Joomla buttons here.
 		JToolbarHelper::custom( 'installDiscovered' , 'upload' , '' , JText::_( 'COM_EASYSOCIAL_INSTALL_SELECTED_BUTTON' ) , false );
@@ -201,26 +243,21 @@ class EasySocialViewApps extends EasySocialAdminView
 	public function installCompleted( $app )
 	{
 		// Set the page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_APPS_INSTALL_SUCCESS' ) );
-		$this->setIcon( 'icon-jar jar-tick' );
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_APPS_INSTALL_SUCCESS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_APPS_INSTALL_SUCCESS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_APPS_INSTALL_SUCCESS');
 
-		$session		= JFactory::getSession();
-
-		$session->set( 'application.queue' , null );
-
-		// Load the app language
-		// $app->loadLanguage(true);
+		$session = JFactory::getSession();
+		$session->set('application.queue', null);
 
 		// Get the apps meta.
-		$meta 		= $app->getMeta();
+		$meta = $app->getMeta();
 
-		$this->set( 'meta'		, $meta );
-		$this->set( 'app'		, $app );
-		$this->set( 'output'	, $app->result->output );
-		$this->set( 'desc'		, $meta->desc );
+		$this->set('meta', $meta);
+		$this->set('app', $app);
+		$this->set('output', $app->result->output);
+		$this->set('desc', $meta->desc);
 
-		echo parent::display( 'admin/apps/install.completed' );
+		echo parent::display('admin/apps/install.completed');
 	}
 
 	/**
@@ -229,11 +266,34 @@ class EasySocialViewApps extends EasySocialAdminView
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function publish()
+	public function publish($type)
 	{
-		FD::info()->set( $this->getMessage() );
+		$this->info->set($this->getMessage());
 
-		$this->redirect( 'index.php?option=com_easysocial&view=apps' );
+		$url = 'index.php?option=com_easysocial&view=apps';
+
+		if ($type == 'fields') {
+			$url .= '&layout=fields';
+		}
+
+		// Reinitialize previous states
+		$limitstart = $this->input->get('limitstart', '');
+		$group = $this->input->get('group', '');
+		$state = $this->input->get('state', '');
+
+		if ($limitstart) {
+			$url .= '&limitstart=' . $limitstart;
+		}
+
+		if ($group) {
+			$url .= '&group=' . $group;
+		}
+
+		if ($state) {
+			$url .= '&state=' . $state;
+		}
+		
+		$this->redirect($url);
 	}
 
 	/**
@@ -242,11 +302,34 @@ class EasySocialViewApps extends EasySocialAdminView
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function unpublish()
+	public function unpublish($type)
 	{
-		FD::info()->set( $this->getMessage() );
+		$this->info->set($this->getMessage());
 
-		$this->redirect( 'index.php?option=com_easysocial&view=apps' );
+		$url = 'index.php?option=com_easysocial&view=apps';
+
+		if ($type == 'fields') {
+			$url .= '&layout=fields';
+		}
+
+		// Reinitialize previous states
+		$limitstart = $this->input->get('limitstart', '');
+		$group = $this->input->get('group', '');
+		$state = $this->input->get('state', '');
+
+		if ($limitstart) {
+			$url .= '&limitstart=' . $limitstart;
+		}
+
+		if ($group) {
+			$url .= '&group=' . $group;
+		}
+
+		if ($state) {
+			$url .= '&state=' . $state;
+		}
+		
+		$this->redirect($url);
 	}
 
 	/**
@@ -313,18 +396,15 @@ class EasySocialViewApps extends EasySocialAdminView
 		FD::language()->loadSite();
 
 		// Set the page heading
-		$this->setHeading( $app->get( 'title' ) );
-
-		$this->setIconUrl( $app->getIcon( 'large' ) , false );
-
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_APPS_CONFIGURATION' ) );
+		$this->setHeading($app->get('title'));
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_APPS_CONFIGURATION');
 
 		JToolbarHelper::cancel();
 		JToolbarHelper::divider();
 		JToolbarHelper::apply();
 		JToolbarHelper::save();
 
-		$this->set( 'app'	, $app );
+		$this->set('app', $app);
 
 		parent::display( 'admin/apps/form' );
 	}

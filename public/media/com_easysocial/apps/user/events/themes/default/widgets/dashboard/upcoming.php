@@ -30,8 +30,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                     </div>
                     <div class="media-body">
                         <a href="<?php echo $event->getPermalink(); ?>"><?php echo $event->getName(); ?></a>
-                        <div class="mb-10">
+                        <div class="mb-5">
                             <span class="fd-small es-muted"><?php echo $event->getStartEndDisplay(array('end' => false));?></span>
+                        </div>
+                        <div class="mb-10">
+                            <?php echo $event->showRsvpButton(true); ?>
                         </div>
                     </div>
                 </div>

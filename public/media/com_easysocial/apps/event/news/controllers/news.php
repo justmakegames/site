@@ -155,7 +155,7 @@ class NewsControllerNews extends SocialAppsController
 
         $options = array();
         $options['title'] = $this->input->get('title', '', 'default');
-        $options['content'] = $this->input->get('news_content', '', 'html');
+        $options['content'] = $this->input->get('news_content', '', 'raw');
         $options['comments'] = $this->input->get('comments', true, 'bool');
         $options['state'] = SOCIAL_STATE_PUBLISHED;
 

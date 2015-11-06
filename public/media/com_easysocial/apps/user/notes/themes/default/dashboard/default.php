@@ -13,10 +13,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="app-notes" data-dashboard-app-notes data-app-id="<?php echo $app->id; ?>">
 
-	<div class="es-filterbar">
-		<div class="h5 pull-left filterbar-title"><?php echo JText::_( 'APP_USER_NOTES_MANAGE_NOTES' ); ?></div>
+	<div class="es-filterbar row-table">
+		<div class="col-cell filterbar-title"><?php echo JText::_( 'APP_USER_NOTES_MANAGE_NOTES' ); ?></div>
 
-		<a class="btn btn-es-primary btn-sm pull-right" href="javascript:void(0);" data-app-notes-create><?php echo JText::_( 'APP_NOTES_NEW_NOTE_BUTTON' ); ?></a>
+		<div class="col-cell cell-tight">
+			<a class="btn btn-es-primary btn-sm pull-right" href="javascript:void(0);" data-app-notes-create><?php echo JText::_( 'APP_NOTES_NEW_NOTE_BUTTON' ); ?></a>
+		</div>
 	</div>
 
 
@@ -36,7 +38,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 
 		<div class="empty" data-feeds-empty>
-			<i class="ies-database"></i>
+			<i class="fa fa-database"></i>
 			<?php echo JText::_( 'APP_NOTES_EMPTY_NOTES' ); ?>
 		</div>
 	</div>

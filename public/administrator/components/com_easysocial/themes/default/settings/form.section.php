@@ -11,36 +11,24 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="widget-box">
+<div class="panel">
+	<?php echo $header; ?>
 
-	<?php if( is_array( $section ) ) {
+	<div class="panel-body">
+		<?php if (is_array($section)) { ?>
+			<?php foreach ($section as $data) { ?>
+				<?php if (is_array($data)) { ?>
+					<?php echo call_user_func_array(array($settings, 'renderSetting'), $data); ?>
+				<?php } ?>
 
-		if( count( $section ) === 1 && is_string( $section[0] ) ) {
-			echo $section[0];
-		}
-		else
-		{
-			if( is_string( $section[0] ) )
-			{
-				$header = array_shift( $section );
+				<?php if (is_string($data)) { ?>
+					<?php echo $data;?>
+				<?php } ?>
+			<?php } ?>
+		<?php } ?>
 
-				echo $settings->renderHeader( $header );
-			}
-
-			foreach( $section as $data ) {
-
-				if( is_array( $data ) ) {
-					echo call_user_func_array( array( $settings, 'renderSetting' ), $data );
-				}
-
-				if( is_string( $data ) ) {
-					echo $data;
-				}
-			}
-		}
-	}
-
-	if( is_string( $section ) ) {
-		echo $section;
-	} ?>
+		<?php if (is_string($section)) { ?>
+			<?php echo $section;?>
+		<?php } ?>
+	</div>
 </div>

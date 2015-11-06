@@ -87,45 +87,51 @@ class SocialRouterFollowers extends SocialRouterAdapter
 
 		// User is viewing their own followers
 		// URL: http://site.com/menu/followers
-		if( $total == 1 && $segments[ 0 ] == $this->translate( 'followers' ) )
-		{
-			$vars[ 'view' ]	= 'followers';
-
+		if ($total == 1 && $segments[0] == $this->translate('followers')) {
+			$vars['view']	= 'followers';
 			return $vars;
 		}
 
 		// When viewing a list of people that is following the current user.
 		// URL: http://site.com/menu/followers/following
-		if( $total == 2 && $segments[ 1 ] == $this->translate( 'followers_filter_following' ) )
-		{
-			$vars[ 'view' ]		= 'followers';
-			$vars[ 'filter' ]	= 'following';
+		if ($total == 2 && $segments[1] == $this->translate('followers_filter_following')) {
+			$vars['view'] = 'followers';
+			$vars['filter'] = 'following';
 
 			return $vars;
 		}
 
-		$filters 	= array( $this->translate( 'followers_filter_following' ) , $this->translate( 'followers_filter_followers' ) );
+		// URL: http://site.com/menu/followers/following
+		if ($total == 2 && $segments[1] == $this->translate('followers_filter_suggest')) {
+			$vars['view'] = 'followers';
+			$vars['filter'] = 'suggest';
+
+			return $vars;
+		}
+
+		$filters = array($this->translate('followers_filter_following') , $this->translate('followers_filter_followers'), $this->translate('followers_filter_suggest'));
 
 		// When user is viewing another person's follower list
 		// URL: http://site.com/menu/followers/ID-username/following
-		if( $total == 2 && !in_array( $segments[ 1 ] , $filters ) )
-		{
-			$vars[ 'view' ]		= 'followers';
-			$vars[ 'userid' ] 	= $this->getUserId( $segments[ 1 ] );
+		if ($total == 2 && !in_array($segments[1] , $filters)) {
+			$vars['view'] = 'followers';
+			$vars['userid'] = $this->getUserId($segments[1]);
 
 			return $vars;
 		}
 
 		// When user is viewing another person's follower list
 		// URL: http://site.com/menu/followers/ID-username/following
-		if( $total == 3 && in_array( $segments[ 2 ] , $filters ) )
-		{
-			$vars[ 'view' ]		= 'followers';
-			$vars[ 'userid' ] 	= $this->getUserId( $segments[ 1 ] );
+		if ($total == 3 && in_array($segments[2], $filters)) {
+			$vars['view'] = 'followers';
+			$vars['userid'] = $this->getUserId($segments[1]);
 
-			if( $segments[ 2 ] == $this->translate( 'followers_filter_following' ) )
-			{
-				$vars[ 'filter' ]	= 'following';
+			if ($segments[2] == $this->translate('followers_filter_following')) {
+				$vars['filter']	= 'following';
+			}
+
+			if ($segments[2] == $this->translate('followers_filter_suggest')) {
+				$vars['filter']	= 'suggest';
 			}
 
 			return $vars;

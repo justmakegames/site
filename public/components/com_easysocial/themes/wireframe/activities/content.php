@@ -13,8 +13,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 $filterType = isset( $filtertype ) ? $filtertype : 'all';
 ?>
-<div class="es-filterbar socialActivities">
-	<div class="filterbar-title h4 pull-left" data-activities-es-stream-content-title><?php echo $title; ?></div>
+<div class="es-snackbar socialActivities">
+	<div data-activities-es-stream-content-title><?php echo $title; ?></div>
 </div>
 
 <div data-activities-content>

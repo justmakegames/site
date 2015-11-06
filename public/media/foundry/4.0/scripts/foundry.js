@@ -10,10 +10,33 @@
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2014-11-26T02:59Z
+ * Date: 2015-09-04T08:47Z
  */
 
-(function(){
+(function( global, factory ) {
+
+	if ( typeof module === "object" && typeof module.exports === "object" ) {
+		// For CommonJS and CommonJS-like environments where a proper window is present,
+		// execute the factory and get jQuery
+		// For environments that do not inherently posses a window with a document
+		// (such as Node.js), expose a jQuery-making factory as module.exports
+		// This accentuates the need for the creation of a real window
+		// e.g. var jQuery = require("jquery")(window);
+		// See ticket #14549 for more info
+		module.exports = global.document ?
+			factory( global, true ) :
+			function( w ) {
+				if ( !w.document ) {
+					throw new Error( "jQuery requires a window with a document" );
+				}
+				return factory( w );
+			};
+	} else {
+		factory( global );
+	}
+
+// Pass this if window is not defined yet
+}(typeof window !== "undefined" ? window : this, function( window, noGlobal ) {
 
 // Can't do this because several apps including ASP.NET trace
 // the stack via arguments.caller.callee and Firefox dies if
@@ -10346,7 +10369,7 @@ jQuery.browser = browser;
 
 
 jQuery.version = "4.0";
-jQuery.long_version = "4.0.34";
+jQuery.long_version = "4.0.37";
 
 jQuery.uid = function(p,s) {
 	return ((p) ? p : "") + Math.random().toString().replace(".","") + ((s) ? s : "");
@@ -10379,12 +10402,25 @@ jQuery.initialize = function(options) {
 // Register jquery into bootloader
 FD40.jquery(jQuery);
 
+// Register as a named AMD module, since jQuery can be concatenated with other
+// files that may use define, but not via a proper concatenation script that
+// understands anonymous AMD modules. A named AMD is safest and most robust
+// way to register. Lowercase jquery is used because AMD module names are
+// derived from file names, and jQuery is normally delivered in a lowercase
+// file name. Do this after creating the global so that if an AMD module wants
+// to call noConflict to hide this version of jQuery, it will work.
+if ( typeof define === "function" && define.amd ) {
+	define( "jquery", [], function() {
+		return jQuery;
+	});
+}
+
 
 
 
 return jQuery;
 
-})();
+}));
 
 FD40.plugin("lodash", function($) {
 
@@ -17165,7 +17201,7 @@ FD40.plugin("bootstrap3", function($) {
 var jQuery = $;
 /*!
  * Bootstrap v3.0.3 (http://getbootstrap.com)
- * Copyright 2014 Twitter, Inc.
+ * Copyright 2015 Twitter, Inc.
  * Licensed under http://www.apache.org/licenses/LICENSE-2.0
  */
 
@@ -19908,7 +19944,7 @@ $.Task = function(props) {
 
                 task.list.push(item);
 
-                return task;
+                return item;
             },
             process: function() {
 
@@ -20228,6 +20264,135 @@ $.fn.activateClass = function(className) {
     this.prevObject.removeClass(className);
     return $(this).addClass(className);
 };;/**
+ * jquery.color
+ * Color helpers.
+ *
+ * Part of the jQuery Utils family:
+ * https://github.com/jstonne/jquery.utils
+ *
+ * Copyright (c) 2014 Jensen Tonne
+ * http://jstonne.me
+ *
+ * Dual licensed under the MIT and GPL licenses:
+ * http://www.opensource.org/licenses/mit-license.php
+ * http://www.gnu.org/licenses/gpl.html
+ *
+ */
+(function(){
+
+var hexToRgb = function(hex) {
+    var hex = parseInt(((hex.indexOf('#') > -1) ? hex.substring(1) : hex), 16);
+    return {r: hex >> 16, g: (hex & 0x00FF00) >> 8, b: (hex & 0x0000FF)};
+};
+
+var hexToHsb = function(hex) {
+    return rgbToHsb(hexToRgb(hex));
+};
+
+var rgbToHsb = function(rgb) {
+    var hsb = {h: 0, s: 0, b: 0};
+    var min = Math.min(rgb.r, rgb.g, rgb.b);
+    var max = Math.max(rgb.r, rgb.g, rgb.b);
+    var delta = max - min;
+    hsb.b = max;
+    hsb.s = max != 0 ? 255 * delta / max : 0;
+    if (hsb.s != 0) {
+        if (rgb.r == max) hsb.h = (rgb.g - rgb.b) / delta;
+        else if (rgb.g == max) hsb.h = 2 + (rgb.b - rgb.r) / delta;
+        else hsb.h = 4 + (rgb.r - rgb.g) / delta;
+        hsb.h *= 60;
+    } else hsb.h = 360;
+    if (hsb.h < 0) hsb.h += 360;
+    hsb.s *= 100/255;
+    hsb.b *= 100/255;
+    return hsb;
+};
+
+var hsbToRgb = function(hsb) {
+    var rgb = {};
+    var h = hsb.h;
+    var s = hsb.s*255/100;
+    var v = hsb.b*255/100;
+    if(s == 0) {
+        rgb.r = rgb.g = rgb.b = v;
+    } else {
+        var t1 = v;
+        var t2 = (255-s)*v/255;
+        var t3 = (t1-t2)*(h%60)/60;
+        if(h==360) h = 0;
+        if(h<60) {rgb.r=t1; rgb.b=t2; rgb.g=t2+t3}
+        else if(h<120) {rgb.g=t1; rgb.b=t2; rgb.r=t1-t3}
+        else if(h<180) {rgb.g=t1; rgb.r=t2; rgb.b=t2+t3}
+        else if(h<240) {rgb.b=t1; rgb.r=t2; rgb.g=t1-t3}
+        else if(h<300) {rgb.b=t1; rgb.g=t2; rgb.r=t2+t3}
+        else if(h<360) {rgb.r=t1; rgb.g=t2; rgb.b=t1-t3}
+        else {rgb.r=0; rgb.g=0; rgb.b=0}
+    }
+    return {r:Math.round(rgb.r), g:Math.round(rgb.g), b:Math.round(rgb.b)};
+};
+
+var rgbToHex = function(rgb) {
+    var hex = [
+        rgb.r.toString(16),
+        rgb.g.toString(16),
+        rgb.b.toString(16)
+    ];
+    $.each(hex, function (nr, val) {
+        if (val.length == 1) {
+            hex[nr] = '0' + val;
+        }
+    });
+    return hex.join('');
+};
+
+var hsbToHex = function (hsb) {
+    return rgbToHex(hsbToRgb(hsb));
+};
+
+var fixHsb = function (hsb) {
+    return {
+        h: Math.min(360, Math.max(0, hsb.h)),
+        s: Math.min(100, Math.max(0, hsb.s)),
+        b: Math.min(100, Math.max(0, hsb.b))
+    };
+};
+
+var fixRgb = function (rgb) {
+    return {
+        r: Math.min(255, Math.max(0, rgb.r)),
+        g: Math.min(255, Math.max(0, rgb.g)),
+        b: Math.min(255, Math.max(0, rgb.b))
+    };
+};
+
+var fixHex = function (hex) {
+    var len = 6 - hex.length;
+
+    if (len == 3) {
+        var chars = hex.split(""), chr, hex = "";
+        while (chr = chars.shift()) hex += chr + chr;
+    } else {
+        while (len--) hex = "0" + hex;
+    }
+
+    hex.replace(/[^A-Fa-f0-9]/g, "0");
+
+    return hex;
+};
+
+$.extend($, {
+    hexToRgb: hexToRgb,
+    hexToHsb: hexToHsb,
+    rgbToHsb: rgbToHsb,
+    hsbToRgb: hsbToRgb,
+    rgbToHex: rgbToHex,
+    hsbToHex: hsbToHex,
+    fixHsb: fixHsb,
+    fixRgb: fixRgb,
+    fixHex: fixHex
+});
+
+})();;;/**
  * jquery.fn.htmlData
  * Utilities to handle data within jQuery elements.
  *
@@ -20430,7 +20595,9 @@ $.create = function(tagName) {
 
 $.fn.editable = function(editable) {
     if ($.isUndefined(editable)) return this.prop("contenteditable")==="true";
-    return this.prop("contenteditable", editable);
+    this.prop("contenteditable", editable);
+    editable===false && this.removeAttr("contenteditable");
+    return this;
 };/**
  * jquery.download
  * Simulate a download programatically.
@@ -20476,7 +20643,24 @@ $.download = function(src) {
 $.ns = function(event, ns) {
     return event.split(" ").join(ns + " ") + ns;
 };
-;/**
+
+
+/**
+ * jquery.getPointerPosition
+ * Get pointer position whether it came from mouse or touch events.
+ */
+$.getPointerPosition = function(event) {
+
+    return event.type.match("touch") ?
+        {
+            x: event.originalEvent.changedTouches[0].pageX,
+            y: event.originalEvent.changedTouches[0].pageY
+        } :
+        {
+            x: event.pageX,
+            y: event.pageY
+        };
+};;/**
  * jquery.eventable
  * Extend objects with simple event system.
  *
@@ -22517,6 +22701,13 @@ FD40.plugin("mvc", function($) {
 	 */
 	var oldClosest = $.fn._closest = $.fn.closest;
 	$.fn.closest = function(selectors, context){
+
+		// FOUNDRY_HACK
+		// If a jQuery or node element was passed in, use original closest method.
+		if (selectors instanceof $ || $.isElement(selectors)) {
+			return oldClosest.call(this, arguments);
+		}
+
 		var rooted = {}, res, result, thing, i, j, selector, rootedIsEmpty = true, selector, selectorsArr = selectors;
 		if(typeof selectors == "string") selectorsArr = [selectors];
 
@@ -23874,9 +24065,24 @@ FD40.plugin("mvc", function($) {
 				    names  = element.slice(start + 1, end).split("|"),
 				    j = 0;
 
-					while (name = names[j++]) {
+				    // "^width [data-eb{label|slider}]" turns into
+				    // widthLabel  => [data-eb-label]
+				    // widthSlider => [data-eb-slider]
 
-						var prop = "{" + $.camelize(name) + "}";
+				    // "^width [data-eb".match(/^\^(\S*)\s(.*)/);
+				    // 0 ==> "^width [data-eb"
+				    // 1 ==> "width",
+				    // 2 ==> "[data-eb"
+				    var parts = prefix.match(/^\^(\S*)\s(.*)/),
+				    	propPrefix = "";
+
+				    if (parts) {
+				    	propPrefix = parts[1] + "-";
+				    	prefix = parts[2];
+				    }
+
+					while (name = names[j++]) {
+						var prop = "{" + $.camelize(propPrefix + name) + "}";
 
 						!$.has(defaults, prop) &&
 							(defaults[prop] = prefix + name + suffix);
@@ -24291,6 +24497,8 @@ FD40.plugin("mvc", function($) {
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
 			// The rest are passed in as controller properties.
+			instance.selectors = {};
+
 			for (var name in instanceOptions) {
 
 				if (!name.match(/^\{.+\}$/)) continue;
@@ -24303,7 +24511,7 @@ FD40.plugin("mvc", function($) {
 
 					var selectorFuncExtension = instance[key];
 
-					instance[key] = (function(instance, selector, funcName) {
+					instance[key] = instance.selectors[key] = (function(instance, selector, funcName) {
 
 						// Selector shorthand for controllers
 						selector = /^(\.|\#)$/.test(selector) ? selector + funcName : selector;
@@ -24311,7 +24519,7 @@ FD40.plugin("mvc", function($) {
 						// Create selector function
 						var selectorFunc = function(filter) {
 
-							var elements = instance.element.find(selector);
+							var elements = (selectorFunc.baseElement || instance.element).find(selector);
 
 							if ($.isString(filter)) {
 								elements = elements.filter(filter);
@@ -24356,6 +24564,19 @@ FD40.plugin("mvc", function($) {
 							return $(el).parents(selector).eq(0);
 						};
 
+				        selectorFunc.under = function(el) {
+
+				            var nodes = [];
+
+				            selectorFunc().each(function(){
+				                if ($(this).parents().filter(el).length) {
+				                    nodes.push(this);
+				                }
+				            });
+
+				            return $(nodes);
+				        };
+				        
 						if ($.isPlainObject(selectorFuncExtension)) {
 							$.extend(selectorFunc, selectorFuncExtension);
 						}

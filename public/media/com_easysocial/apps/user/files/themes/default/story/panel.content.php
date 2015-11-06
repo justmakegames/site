@@ -15,8 +15,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
     <div class="es-story-files-dropsite" data-files-dropsite>
         <div class="es-story-files-upload" data-files-upload>
             <span>
-                <b class="add-hint"><i class="ies-upload-5"></i><?php echo JText::_('APP_USER_FILES_STORY_ADD_FILES'); ?></b>
-                <b class="drop-hint"><i class="ies-upload-5"></i><?php echo JText::_("APP_USER_FILES_DROP_FILES_CANVAS"); ?></b>
+                <b class="add-hint"><i class="fa fa-upload"></i><?php echo JText::_('APP_USER_FILES_STORY_ADD_FILES'); ?></b>
+                <b class="drop-hint"><i class="fa fa-upload"></i><?php echo JText::_("APP_USER_FILES_DROP_FILES_CANVAS"); ?></b>
             </span>
         </div>
         <div class="es-story-files-items" data-files-items>

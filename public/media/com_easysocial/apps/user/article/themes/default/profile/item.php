@@ -17,7 +17,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</h4>
 
 	<div class="article-meta">
-		<i class="ies-calendar-2"></i> <?php echo $this->html( 'string.date' , $article->created , JText::_( 'DATE_FORMAT_LC3' ) ); ?>
+		<i class="fa fa-calendar"></i> <?php echo $this->html( 'string.date' , $article->created , JText::_( 'DATE_FORMAT_LC3' ) ); ?>
 		<?php echo JText::sprintf( 'APP_USER_ARTICLE_IN' , '<a href="' . $article->category->permalink . '">' . $article->category->title . '</a>' ); ?>
 	</div>
 

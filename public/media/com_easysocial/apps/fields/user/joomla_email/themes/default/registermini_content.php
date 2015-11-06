@@ -17,4 +17,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		id="email"
 		name="email"
 		placeholder="<?php echo JText::_( 'PLG_FIELDS_JOOMLA_EMAIL_SAMPLE_EMAIL_ADDRESS', true ); ?>" />
+
+    <?php if( $params->get( 'mini_reconfirm_email', false ) ) { ?>
+        <br />
+        <input type="text" size="30" class="form-control input-sm" id="email-reconfirm" name="email-reconfirm" value=""
+        style="margin-top:5px;"
+        data-field-email-reconfirm-input
+        autocompleted="off"
+        placeholder="<?php echo JText::_( 'PLG_FIELDS_JOOMLA_EMAIL_SAMPLE_EMAIL_ADDRESS_RECONFIRM' ); ?>" />
+    <?php } ?>
 </div>

@@ -23,7 +23,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             $country = $countries[$i];
         ?>
 		<li>
-            <?php echo (isset($advancedsearchlinks) && isset($advancedsearchlinks[$i]) && $advancedsearchlinks[$i]) ? '<a href="' . $advancedsearchlink[$i] . '">' : ''; ?>
+            <?php echo (isset($advancedsearchlinks) && isset($advancedsearchlinks[$i]) && $advancedsearchlinks[$i]) ? '<a href="' . $advancedsearchlinks[$i] . '">' : ''; ?>
             <?php echo $country; ?>
             <?php echo (isset($advancedsearchlinks) && isset($advancedsearchlinks[$i]) && $advancedsearchlinks[$i]) ? '</a>' : ''; ?>
         </li>

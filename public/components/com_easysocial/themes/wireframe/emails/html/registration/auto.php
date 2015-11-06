@@ -35,74 +35,80 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_THANK_YOU_FOR_REGISTERING_COMPLETED' , $site ); ?>
         </p>
 
-        <table align="center" width="96px" border="0" cellpadding="0" cellspacing="0">
-        <tbody><tr>
-        <td width="96" height="96" style="border-collapse:collapse;"><span style="display:block;border:1px solid #f5f5f5;width:96px;height:96px;padding:3px;border-radius:50%;background:#fff;">
-            <img src="<?php echo $avatar;?>" alt="" style="width:96px;height: 96px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff; "/>
-        </span></td></tr>
-        </tbody></table>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
+        <tr>
+        <td align="center">
+            <table align="center" width="96px" border="0" cellpadding="0" cellspacing="0">
+            <tbody><tr>
+            <td width="96" height="96" style="border-collapse:collapse;"><span style="display:block;border:1px solid #f5f5f5;width:96px;height:96px;padding:3px;border-radius:50%;background:#fff;">
+                <img src="<?php echo $avatar;?>" alt="" style="width:96px;height: 96px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff; "/>
+            </span></td></tr>
+            </tbody></table>
 
-        <table align="center" width="380" style="margin-top:-10px" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td style="color:#888;border-top: 1px solid #ebebeb;padding: 15px 20px; background-color:#f8f9fb;font-size:13px;text-align:center">
-                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_USERNAME' ); ?>: <?php echo $username;?>
-                </td>
-            </tr>
-            <?php if( $this->config->get( 'registrations.email.password' ) ){ ?>
-            <tr>
-                <td style="color:#888;border-top: 1px solid #ebebeb;padding: 15px 20px; background-color:#f8f9fb;font-size:13px;text-align:center">
-                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_PASSWORD' ); ?>: <?php echo $password;?>
-                </td>
-            </tr>
-            <?php } ?>
-        </table>
+            <table align="center" width="380" style="margin-top:-10px" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td style="color:#888;border-top: 1px solid #ebebeb;padding: 15px 20px; background-color:#f8f9fb;font-size:13px;text-align:center">
+                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_USERNAME' ); ?>: <?php echo $username;?>
+                    </td>
+                </tr>
+                <?php if( $this->config->get( 'registrations.email.password' ) ){ ?>
+                <tr>
+                    <td style="color:#888;border-top: 1px solid #ebebeb;padding: 15px 20px; background-color:#f8f9fb;font-size:13px;text-align:center">
+                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_PASSWORD' ); ?>: <?php echo $password;?>
+                    </td>
+                </tr>
+                <?php } ?>
+            </table>
 
-        <span style="margin:30px auto;text-align:center;display:block">
-            <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/divider.png" alt="<?php echo JText::_( 'divider' );?>" />
-        </span>
+            <span style="margin:30px auto;text-align:center;display:block">
+                <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/divider.png" alt="<?php echo JText::_( 'divider' );?>" />
+            </span>
 
-        <span style="font-family:Arial;font-size:26px;font-weight:normal;color:#333;display:block; margin: 4px 0 20px;"><?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_WHATS_NEXT' );?></span>
+            <span style="font-family:Arial;font-size:26px;font-weight:normal;color:#333;display:block; margin: 4px 0 20px;"><?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_REGISTRATION_WHATS_NEXT' );?></span>
 
-        <table width="520" align="center" style="border:1px solid #ebebeb" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td>
-                    <table width="250" align="center">
-                        <tr>
-                            <td valign="top" style="padding: 10px 0;">
-                                <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/icon-user.png" alt="" />
-                            </td>
-                            <td valign="top" style="text-align:left;padding: 10px 0;font-size:12px;">
-                                <a href="<?php echo FRoute::profile( array( 'layout' => 'edit' , 'external' => true ) );?>" style="text-decoration:none;color:#00aeef;">
-                                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_UPDATE_YOUR_PROFILE' ); ?>
-                                </a>
-                                <p style="margin: 5px 0 0;color:#888;">
-                                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_UPDATE_YOUR_PROFILE_DESC' ); ?>
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-                <td style="background:#ebebeb" width="1">
-                    <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/spacer.gif" alt="" width="1" />
-                </td>
-                <td>
-                    <table width="250" align="center">
-                        <tr>
-                            <td valign="top" style="padding: 10px 0;">
-                                <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/icon-invite.png" alt="" />
-                            </td>
-                            <td valign="top" style="text-align:left;padding: 10px 0;font-size:12px;">
-                                <a href="<?php echo FRoute::users( array( 'external' => true ) );?>" style="text-decoration:none;color:#00aeef;">
-                                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_FIND_FRIENDS' ); ?>
-                                </a>
-                                <p style="margin: 5px 0 0;color:#888;">
-                                    <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_FIND_FRIENDS_DESC' ); ?>
-                                </p>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
+            <table width="520" align="center" style="border:1px solid #ebebeb" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>
+                        <table width="250" align="center">
+                            <tr>
+                                <td valign="top" style="padding: 10px 0;">
+                                    <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/icon-user.png" alt="" />
+                                </td>
+                                <td valign="top" style="text-align:left;padding: 10px 0;font-size:12px;">
+                                    <a href="<?php echo FRoute::profile( array( 'layout' => 'edit' , 'external' => true ) );?>" style="text-decoration:none;color:#00aeef;">
+                                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_UPDATE_YOUR_PROFILE' ); ?>
+                                    </a>
+                                    <p style="margin: 5px 0 0;color:#888;">
+                                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_UPDATE_YOUR_PROFILE_DESC' ); ?>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td style="background:#ebebeb" width="1">
+                        <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/spacer.gif" alt="" width="1" />
+                    </td>
+                    <td>
+                        <table width="250" align="center">
+                            <tr>
+                                <td valign="top" style="padding: 10px 0;">
+                                    <img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/icon-invite.png" alt="" />
+                                </td>
+                                <td valign="top" style="text-align:left;padding: 10px 0;font-size:12px;">
+                                    <a href="<?php echo FRoute::users( array( 'external' => true ) );?>" style="text-decoration:none;color:#00aeef;">
+                                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_FIND_FRIENDS' ); ?>
+                                    </a>
+                                    <p style="margin: 5px 0 0;color:#888;">
+                                        <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_FIND_FRIENDS_DESC' ); ?>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        </tr>
         </table>
     </td>
 </tr>

@@ -11,36 +11,27 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-class SocialLikes
+class SocialLikes extends EasySocial
 {
-	/**
-	 * A list of items that the current user has liked
-	 * @var	Array
-	 */
-	var $data 		= array();
-	var $uid 		= null;
-	var $element 	= null;
-	var $group 		= null;
-	var $verb 		= null;
-	var $options 	= array();
-	var $stream_id 	= null;
+	public $data = array();
+	public $uid = null;
+	public $element = null;
+	public $group = null;
+	public $verb = null;
+	public $options = array();
+	public $stream_id = null;
 
-	/**
-	 * Class constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 */
 	public function __construct( $uid = null, $element = null, $verb = null, $group = SOCIAL_APPS_GROUP_USER, $options = array() )
 	{
-		$this->uid  	= $uid;
-		$this->element 	= $element;
-		$this->group 	= $group;
-		$this->verb 	= $verb;
+		parent::__construct();
+		
+		$this->uid = $uid;
+		$this->element = $element;
+		$this->group = $group;
+		$this->verb = $verb;
 
-		if( !is_null( $uid ) && !is_null( $element ) )
-		{
-			$this->get( $uid , $element, $verb, $group, $options );
+		if (!is_null($uid) && !is_null($element)) {
+			$this->get($uid, $element, $verb, $group, $options);
 		}
 	}
 
@@ -211,81 +202,95 @@ class SocialLikes
 		$this->options[ $key ] = $value;
 	}
 
+	/**
+	 * Generates the like link.
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function button()
 	{
-		$my 		= FD::user();
-		$model 		= FD::model( 'Likes' );
-		$hasLiked   = false;
+		$model = ES::model('Likes');
 
-		if ($this->stream_id && $this->element != 'photos') {
-			$hasLiked 	= $model->hasLiked( $this->uid , $this->formKeys( $this->element, $this->group, $this->verb ) , $my->id, $this->stream_id );
-		} else {
-			$hasLiked 	= $model->hasLiked( $this->uid , $this->formKeys( $this->element, $this->group, $this->verb ) , $my->id );
+		// We should respect the stream id or if it is photos, we won't use the stream id
+		$streamId = !$this->stream_id || $this->element == 'photos' ? false : $this->stream_id;
+
+		// Determines if the user has liked the item before
+		$liked = $model->hasLiked($this->uid, $this->formKeys($this->element, $this->group, $this->verb), $this->my->id, $streamId);
+
+		// Generate the button text
+		$text = JText::_('COM_EASYSOCIAL_LIKES_LIKE');
+
+		if ($liked) {
+			$text = JText::_('COM_EASYSOCIAL_LIKES_UNLIKE');
 		}
 
-		$text = JText::_( 'COM_EASYSOCIAL_LIKES_LIKE' );
-
-		if( $hasLiked )
-		{
-			$text = JText::_( 'COM_EASYSOCIAL_LIKES_UNLIKE' );
-		}
-
-		$themes 	= FD::get( 'Themes' );
-
-		$themes->set( 'text', $text );
-		$themes->set( 'my'	, $my );
-		$themes->set( 'uid'	, $this->uid );
-		$themes->set( 'element', $this->element );
-		$themes->set( 'group', $this->group );
-		$themes->set( 'verb', $this->verb );
-
+		// Should we inject the stream id
 		$streamid = '';
-		if( !empty( $this->options['streamid'] ) )
-		{
+
+		if (!empty($this->options['streamid'])) {
 			$streamid = $this->options['streamid'];
-		} else if($this->stream_id) {
+		} else {
 			$streamid = $this->stream_id;
 		}
 
-		$themes->set( 'streamid', $streamid );
+		$theme = ES::themes();
 
+		$theme->set('text', $text);
+		$theme->set('uid', $this->uid);
+		$theme->set('element', $this->element);
+		$theme->set('group', $this->group);
+		$theme->set('verb', $this->verb);
+		$theme->set('streamid', $streamid);
 
- 		$html = $themes->output( 'site/likes/action' );
- 		return $html;
+		$output = $theme->output('site/likes/action');
+
+		return $output;
 	}
 
-
 	/**
-	 * Returns the likes html codes.
+	 * Generates the likes output
 	 *
-	 * @since	1.0
+	 * @since	1.4
 	 * @access	public
-	 * @return	string	The html code for the likes string.
+	 * @param	string
+	 * @return	
 	 */
-	public function toHTML()
+	public function html()
 	{
 		// Get the count.
-		$count 	= 0;
-		$text 	= '';
+		$count = 0;
+		$text = '';
 
-		if( $this->data !== false )
-		{
+		if ($this->data !== false) {
 			$count = count( $this->data );
 			$text  = $this->toString();
 		}
 
-		$themes 	= FD::get( 'Themes' );
-		$themes->set( 'text'		, $text );
-		$themes->set( 'count'	, $count );
-		$themes->set( 'uid', $this->uid );
-		$themes->set( 'element', $this->element );
-		$themes->set( 'group', $this->group );
-		$themes->set( 'verb', $this->verb );
+		$theme = ES::themes();
 
+		$theme->set('text', $text);
+		$theme->set('count', $count);
+		$theme->set('uid', $this->uid);
+		$theme->set('element', $this->element);
+		$theme->set('group', $this->group);
+		$theme->set('verb', $this->verb);
 
- 		$html = $themes->output( 'site/likes/item' );
+		$output = $theme->output('site/likes/item');
 
-		return $html;
+		return $output;
+	}
+
+	/**
+	 * Deprecated. Use $likes->html();
+	 *
+	 * @deprecated 1.4
+	 */
+	public function toHTML()
+	{
+		return $this->html();
 	}
 
 	/**

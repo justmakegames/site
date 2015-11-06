@@ -1,9 +1,9 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -635,6 +635,7 @@ class EasySocialViewEvents extends EasySocialSiteView
 
         if (!$guest->isOwner() && ($my->isSiteAdmin() || $myGuest->isOwner() || ($myGuest->isAdmin() && !$guest->isAdmin()))) {
             $theme->set('user', $user);
+            $theme->set('guest', $guest);
 
             $contents = $theme->output('site/events/dialog.guest.remove');
 
@@ -642,6 +643,12 @@ class EasySocialViewEvents extends EasySocialSiteView
         }
 
         return $this->ajax->resolve($theme->output('site/events/dialog.guest.error'));
+    }
+
+    public function removeGuest()
+    {
+        //Remove Event guest user.
+        return $this->ajax->resolve();
     }
 
     public function guestResponse($state = null)
@@ -720,13 +727,24 @@ class EasySocialViewEvents extends EasySocialSiteView
         return $this->ajax->resolve($contents);
     }
 
+    /**
+     * Allows caller to retrieve stream contents via ajax
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function getStream($stream = null)
     {
         if ($this->hasErrors()) {
             return $this->ajax->reject($this->getMessage());
         }
 
-        $contents = $stream->html();
+        $theme = ES::themes();
+        $theme->set('stream', $stream);
+
+        $contents = $theme->output('site/events/item.feeds');
 
         return $this->ajax->resolve($contents);
     }
@@ -1110,5 +1128,30 @@ class EasySocialViewEvents extends EasySocialSiteView
         }
 
         return $this->ajax->resolve();
+    }
+
+    /**
+     * Updates the event button state
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function refreshButtonState()
+    {
+        // Ensure that the user is logged in
+        FD::requireLogin();
+
+        $id = $this->input->getInt('id', 0);
+        $isPopbox = $this->input->getInt('isPopbox', 0, 'int');
+
+        $hideText = (bool) $this->input->getInt('hidetext', 1);
+
+        $event = FD::event($id);
+
+        $contents = $event->showRsvpButton($isPopbox);
+
+        return $this->ajax->resolve($contents);
     }
 }

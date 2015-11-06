@@ -11,9 +11,9 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<?php if( $target && $actor->id != $target->id  ){ ?>
+<?php if ($target && $actor->id != $target->id) { ?>
 	<a href="<?php echo $actor->getPermalink();?>"><?php echo $actor->getName();?></a>
-	<i class="ies-arrow-right"></i> <a href="<?php echo $target->getPermalink();?>"><?php echo $target->getStreamName();?></a>
+	<i class="fa fa-caret-right"></i> <a href="<?php echo $target->getPermalink();?>"><?php echo $target->getStreamName();?></a>
 <?php } else { ?>
-	<?php echo JText::_('APP_USER_STORY_ACTIVITY_LOG_UPDATE_OWN_TIMELINE' ); ?>
+	<?php echo JText::_('APP_USER_STORY_ACTIVITY_LOG_UPDATE_OWN_TIMELINE'); ?>
 <?php } ?>

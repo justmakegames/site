@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,11 +9,11 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" class="esForm" id="adminForm" data-table-grid>
 
-	<div class="filter-bar form-inline<?php echo $callback ? ' mt-20' : '';?>">
+	<div class="app-filter filter-bar form-inline<?php echo $callback ? ' mt-20' : '';?>">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -30,17 +30,16 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php } ?>
 	</div>
 
-	<?php if( $orphanCount ) { ?>
-	<div class="mt-20 small">
-		<span class="label label-warning small"><?php echo JText::_( 'COM_EASYSOCIAL_FOOTPRINT_WARNING' );?>:</span>
+	<?php if ($orphanCount) { ?>
+	<div class="mt-20 filter-bar">
+		<span class="label label-danger small"><?php echo JText::_('COM_EASYSOCIAL_FOOTPRINT_NOTE');?></span>
 		<?php echo JText::sprintf( 'COM_EASYSOCIAL_PROFILES_ORPHAN_ITEMS_NOTICE', $orphanCount );?>
 	</div>
 	<br />
 	<?php } ?>
 
-	<div id="profilesTable" data-profiles>
-
-		<table class="table table-striped table-es table-hover">
+	<div id="profilesTable" class="panel-table" data-profiles>
+		<table class="app-table table table-eb table-striped">
 			<thead>
 				<tr>
 					<?php if( !$callback ){ ?>
@@ -69,10 +68,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 					<?php if( !$callback ){ ?>
 					<th class="center" width="10%">
-						<?php echo $this->html( 'grid.sort' , 'ordering' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ORDERING' ) , $ordering , $direction ); ?>
+						<?php echo $this->html('grid.sort' , 'ordering' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ORDERING' ) , $ordering , $direction ); ?>
+						<?php echo $this->html('grid.order' , $profiles); ?>
 					</th>
 					<th width="10%" class="center">
 						<?php echo $this->html( 'grid.sort' , 'created' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
+					</th>
+					<th width="10%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'modified' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_MODIFIED' ) , $ordering , $direction ); ?>
 					</th>
 					<?php } ?>
 
@@ -83,18 +86,19 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</thead>
 			<tbody>
 
-				<?php if( $profiles ){ ?>
+				<?php if ($profiles) { ?>
 					<?php $i = 0; ?>
-					<?php foreach( $profiles as $profile ){ ?>
+
+					<?php foreach ($profiles as $profile) { ?>
 					<tr class="row<?php echo $i; ?>"
 						data-profiles-item
 						data-grid-row
-						data-title="<?php echo $this->html( 'string.escape' , $profile->get( 'title' ) );?>"
+						data-title="<?php echo $this->html('string.escape', $profile->get('title'));?>"
 						data-id="<?php echo $profile->id;?>"
 						data-avatar="<?php echo $profile->getAvatar();?>"
 						data-alias="<?php echo $profile->alias;?>"
 					>
-						<?php if( !$callback ){ ?>
+						<?php if (!$callback) { ?>
 						<td align="center">
 							<?php echo $this->html( 'grid.id' , $i , $profile->id ); ?>
 						</td>
@@ -110,7 +114,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							><?php echo $profile->get( 'title' ); ?></a>
 						</td>
 
-						<?php if( !$callback ){ ?>
+						<?php if (!$callback) { ?>
 						<td class="center">
 							<?php echo $this->html( 'grid.featured' , $profile , 'profiles' ); ?>
 						</td>
@@ -120,16 +124,28 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						<?php } ?>
 
 						<td class="center">
-							<?php echo $profile->getMembersCount( false ); ?>
+							<?php if (!$callback) { ?>
+							<a href="<?php echo JRoute::_('index.php?option=com_easysocial&view=users&profile=' . $profile->id);?>">
+							<?php } ?>
+
+								<?php echo $profile->getMembersCount(false); ?>
+
+							<?php if (!$callback) { ?>
+							</a>
+							<?php } ?>
 						</td>
 
-						<?php if( !$callback ){ ?>
+						<?php if (!$callback) { ?>
 						<td class="order center">
 							<?php echo $this->html( 'grid.ordering' , count( $profiles ) , ( $i + 1 ) , $ordering == 'ordering' ,  $profile->ordering ); ?>
 						</td>
 
 						<td class="center">
 							<?php echo $profile->created; ?>
+						</td>
+
+						<td class="center">
+							<?php echo $profile->modified; ?>
 						</td>
 						<?php } ?>
 
@@ -141,7 +157,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<?php } ?>
 				<?php } else { ?>
 					<tr class="is-empty">
-						<td colspan="8" class="center empty">
+						<td colspan="9" class="center empty">
 							<?php echo JText::_( 'COM_EASYSOCIAL_NO_PROFILES_AVAILABLE_CURRENTLY' );?>
 						</td>
 					</tr>
@@ -150,17 +166,20 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<tfoot>
 				<tr>
-					<td colspan="8" class="center">
+					<td colspan="9" class="center">
 						<div class="footer-pagination"><?php echo $pagination->getListFooter(); ?></div>
 					</td>
 				</tr>
 			</tfoot>
-
 		</table>
-
 	</div>
 
 	<?php echo JHTML::_( 'form.token' ); ?>
+	<?php if ($this->tmpl == 'component') { ?>
+	<input type="hidden" name="tmpl" value="component" />
+	<?php } ?>
+	<input type="hidden" name="jscallback" value="<?php echo $this->html('string.escape', JRequest::getWord('jscallback'));?>" />
+	<input type="hidden" name="callback" value="<?php echo $this->html('string.escape', JRequest::getWord('callback'));?>" />
 	<input type="hidden" name="ordering" value="<?php echo $ordering;?>" data-table-grid-ordering />
 	<input type="hidden" name="direction" value="<?php echo $direction;?>" data-table-grid-direction />
 	<input type="hidden" name="boxchecked" value="0" data-table-grid-box-checked />

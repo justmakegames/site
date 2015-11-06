@@ -35,10 +35,18 @@ class EasySocialControllerMain extends EasySocialParentController
 
 	public function __construct()
 	{
+		$this->my = FD::user();
+		$this->app = JFactory::getApplication();
+		$this->config = FD::config();
+		$this->doc = JFactory::getDocument();
+
 		// Set the current view automatically for the sub controllers
 		$this->view = $this->getCurrentView();
 
 		parent::__construct();
+
+		// Input needs to be overridden later because the parent controller is already assigning the input variable
+		$this->input = FD::request();
 	}
 
 	/**

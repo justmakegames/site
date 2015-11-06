@@ -27,25 +27,33 @@ class FilesWidgetsGroups extends SocialAppsWidgets
 	 * @param	string
 	 * @return
 	 */
-	public function sidebarBottom( $groupId )
+	public function sidebarBottom($groupId)
 	{
 		// Get the params of the group
-		$params 	= $this->app->getParams();
+		$params = $this->app->getParams();
 
-		if( !$params->get( 'widget' ) )
-		{
+		// If the widget has been disabled we shouldn't display anything
+		if (!$params->get('widget')) {
 			return;
 		}
 
-		$group 		= FD::group( $groupId );
-		$theme 		= FD::themes();
+		$group = FD::group($groupId);
+		
+		$theme = FD::themes();
+		$limit = $params->get( 'widget_total' , 5 );
 
-		$limit 		= $params->get( 'widget_total' , 5 );
-		$model 		= FD::model( 'Files' );
-		$options 	= array( 'limit' => $limit );
-		$files 		= $model->getFiles( $group->id , SOCIAL_TYPE_GROUP , $options );
+		$model = ES::model('Files');
+		$options = array('limit' => $limit);
+		$files = $model->getFiles($group->id, SOCIAL_TYPE_GROUP, $options);
 
-		$theme->set( 'files' , $files );
+		if (!$files) {
+			return;
+		}
+		
+		$total = $model->getTotalFiles($group->id, SOCIAL_TYPE_GROUP);
+
+		$theme->set('total', $total);
+		$theme->set('files', $files);
 
 		echo $theme->output( 'themes:/apps/group/files/widgets/widget.files' );
 	}

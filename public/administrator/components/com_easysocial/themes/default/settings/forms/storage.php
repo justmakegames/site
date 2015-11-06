@@ -39,23 +39,25 @@ echo $settings->renderTabs(array(
 	'general' => $settings->renderPage(
 		$settings->renderColumn(
 			$settings->renderSection(
-				$settings->renderHeader('Storage'),
+				$settings->renderHeader('Storage', 'Storage Info'),
 				$settings->renderSetting('Avatars', 'storage.avatars', 'list', $storageServices),
 				$settings->renderSetting('Files', 'storage.files', 'list', $storageServices),
-				$settings->renderSetting('Photos', 'storage.photos', 'list', $storageServices)
+				$settings->renderSetting('Photos', 'storage.photos', 'list', $storageServices),
+				$settings->renderSetting('Videos', 'storage.videos', 'list', $storageServices),
+				$settings->renderSetting('Images From Links', 'storage.links', 'list', $storageServices)
 			)
 		)
 	),
 	'amazon' => $settings->renderPage(
 		$settings->renderColumn(
-			// $settings->renderSection($this->includeTemplate('admin/settings/forms/storage.amazon.info')),
 			$settings->renderSection(
-				$settings->renderHeader('Amazon S3'),
+				$settings->renderHeader('Amazon S3', 'Amazon S3 Info'),
 				$settings->renderSetting('Amazon access key', 'storage.amazon.access', 'input', array('class' => 'form-control input-sm', 'help' => true)),
 				$settings->renderSetting('Amazon secret key', 'storage.amazon.secret', 'input', array('class' => 'form-control input-sm', 'help' => true)),
 				$settings->renderSetting('Amazon bucket path', 'storage.amazon.bucket', 'input', array('help' => true, 'class' => 'form-control input-sm', 'unit' => true)),
 				$settings->renderSetting('Amazon SSL', 'storage.amazon.ssl', 'boolean', array('help' => true)),
-				$settings->renderSetting('Amazon transfer limit', 'storage.amazon.limit', 'input', array('class' => 'form-control input-sm', 'help' => true, 'class' => 'form-control input-sm input-short', 'unit' => true)),
+				$settings->renderSetting('Delete Files After Upload', 'storage.amazon.delete', 'boolean', array('help' => true)),
+				$settings->renderSetting('Amazon transfer limit', 'storage.amazon.limit', 'input', array('class' => 'form-control input-sm', 'help' => true, 'class' => 'form-control input-sm input-short text-center', 'unit' => true)),
 				$settings->renderSetting('Amazon storage region', 'storage.amazon.region', 'list', array('class' => 'form-control input-sm', 'options' => $amazonRegion, 'help' => true)),
 				$settings->renderSetting('Amazon storage class', 'storage.amazon.class', 'list', array('class' => 'form-control input-sm', 'options' => $amazonClass, 'help' => true, 'info' => true))
 			)

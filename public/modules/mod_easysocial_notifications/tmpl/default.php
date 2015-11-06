@@ -24,8 +24,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				   data-interval="<?php echo $params->get('interval_notifications_system', 60 );?>"
 				   data-popbox-toggle="click"
 				   data-popbox-position="<?php echo $params->get('popbox_position', 'bottom'); ?>"
-				   data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>">
-					<i class="ies-earth"></i>
+                   data-popbox-offset="<?php echo $params->get('popbox_offset', 10); ?>"
+                   >
+					<i class="fa fa-globe"></i>
 					<span class="badge badge-notification" data-notificationSystem-counter><?php echo $my->getTotalNewNotifications();?></span>
 				</a>
 			</div>
@@ -44,8 +45,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				   data-popbox="module://easysocial/friends/popbox"
 				   data-popbox-toggle="click"
 				   data-popbox-position="<?php echo $params->get('popbox_position', 'bottom'); ?>"
-				   data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>">
-					<i class="ies-users"></i>
+				   data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>"
+                   data-popbox-offset="<?php echo $params->get('popbox_offset', 10); ?>"
+                   >
+					<i class="fa fa-users"></i>
 					<span class="badge badge-notification" data-notificationFriends-counter><?php echo $my->getTotalFriendRequests();?></span>
 				</a>
 			</div>
@@ -63,8 +66,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				   data-interval="<?php echo $params->get('interval_notifications_conversations', 60 );?>"
 				   data-popbox-toggle="click"
 				   data-popbox-position="<?php echo $params->get('popbox_position', 'bottom'); ?>"
-				   data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>">
-					<i class="ies-mail-2"></i>
+				   data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>"
+                   data-popbox-offset="<?php echo $params->get('popbox_offset', 10); ?>"
+                   >
+					<i class="fa fa-envelope"></i>
 					<span class="badge badge-notification" data-notificationConversation-counter><?php echo $my->getTotalNewConversations();?></span>
 				</a>
 			</div>

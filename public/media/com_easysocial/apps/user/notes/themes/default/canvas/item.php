@@ -38,7 +38,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 	<time datetime="<?php echo $this->html( 'string.date' , $note->created ); ?>" class="note-date">
 		<span>
-			<i class="ies-calendar-2 ies-small"></i>
+			<i class="fa fa-calendar "></i>
 			<?php echo $this->html( 'string.date' , $note->created , JText::_( 'DATE_FORMAT_LC3' ) ); ?>
 		</span>
 	</time>

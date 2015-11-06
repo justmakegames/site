@@ -12,5 +12,5 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="es-stream-hide-notice" data-stream-hide-notice>
-	<i class="ies-star mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_STREAM_ITEM_NO_LONGER_BOOKMARKED'); ?>
+	<i class="fa fa-star mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_STREAM_ITEM_NO_LONGER_BOOKMARKED'); ?>
 </div>

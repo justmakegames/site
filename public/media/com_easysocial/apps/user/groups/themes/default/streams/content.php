@@ -22,14 +22,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<a href="<?php echo $group->getPermalink();?>"><?php echo $group->getName(); ?></a>
 
 				<?php if( $group->isOpen() ){ ?>
-				<span class="label label-success" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_OPEN_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="bottom">
-					<i class="ies-earth"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?>
+				<span class="label label-success" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_GROUPS_OPEN_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="bottom">
+					<i class="fa fa-globe"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?>
 				</span>
 				<?php } ?>
 
 				<?php if( $group->isClosed() ){ ?>
-				<span class="label label-danger" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_CLOSED_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="bottom">
-					<i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?>
+				<span class="label label-danger" data-original-title="<?php echo FD::_('COM_EASYSOCIAL_GROUPS_CLOSED_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="bottom">
+					<i class="fa fa-lock"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?>
 				</span>
 				<?php } ?>
 			</h4>
@@ -38,25 +38,25 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<li>
 					<span>
 						<a href="<?php echo FRoute::groups( array( 'layout' => 'category' , 'id' => $group->getCategory()->getAlias() ) );?>">
-							<i class="ies-database"></i> <?php echo $group->getCategory()->get( 'title' ); ?>
+							<i class="fa fa-database"></i> <?php echo $group->getCategory()->get( 'title' ); ?>
 						</a>
 					</span>
 				</li>
 				<li>
 					<span>
 						<a href="<?php echo FRoute::albums( array( 'uid' => $group->id , 'type' => SOCIAL_TYPE_GROUP ) );?>">
-							<i class="ies-picture"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_ALBUMS' , $group->getTotalAlbums() ) , $group->getTotalAlbums() ); ?>
+							<i class="fa fa-photo"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_ALBUMS' , $group->getTotalAlbums() ) , $group->getTotalAlbums() ); ?>
 						</a>
 					</span>
 				</li>
 				<li>
 					<span>
-						<i class="ies-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_MEMBERS' , $group->getTotalMembers() ) , $group->getTotalMembers() ); ?>
+						<i class="fa fa-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_MEMBERS' , $group->getTotalMembers() ) , $group->getTotalMembers() ); ?>
 					</span>
 				</li>
 				<li>
 					<span>
-						<i class="ies-eye"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_VIEWS' , $group->hits ) , $group->hits ); ?>
+						<i class="fa fa-eye"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_VIEWS' , $group->hits ) , $group->hits ); ?>
 					</span>
 				</li>
 			</ul>

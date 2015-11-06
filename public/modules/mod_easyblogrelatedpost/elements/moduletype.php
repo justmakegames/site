@@ -25,10 +25,7 @@ class JFormFieldModuleType extends JFormField
 
 		JHTML::_( 'behavior.modal' );
 
-		require_once( JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'constants.php' );
-		require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'helper.php' );
-
-		EasyBlogHelper::loadHeaders();
+		EB::loadHeaders();
 
 		ob_start();
 		$output		= ob_get_contents();

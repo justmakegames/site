@@ -55,21 +55,28 @@ class EasySocialView extends EasySocialViewMain
 	public function __construct( $config = array() )
 	{
 		// Load Joomla's app
-	    $this->app    = JFactory::getApplication();
-		$this->input  = JFactory::getApplication()->input;
-		$this->doc    = JFactory::getDocument();
-		$this->theme  = FD::themes();
-		$this->config = FD::config();
-		$this->jconfig = FD::jconfig();
-		$this->my   = FD::user();
-		$this->info = FD::info();
+	    $this->app = JFactory::getApplication();
+		$this->doc = JFactory::getDocument();
+		$this->theme = ES::themes();
+		$this->config = ES::config();
+		$this->jconfig = ES::jconfig();
+		$this->my = ES::user();
+		$this->info = ES::info();
+		$this->page = ES::page();
+		$this->string = ES::string();
+		$this->opengraph = ES::opengraph();
+		$this->json = ES::json();
 
+		// If the request is an ajax request, we should prepare the ajax library for the caller
 		if ($this->doc->getType() == 'ajax') {
-			$this->ajax = FD::ajax();
+			$this->ajax = ES::ajax();
 		}
 
 		// @task: Initialize the necessary javascript header's that will be used throughout the site
 		parent::__construct($config);
+
+		// Input needs to be overridden later incase the parent view is already assigning the input variable
+		$this->input = ES::request();
 	}
 
 	/**
@@ -80,7 +87,7 @@ class EasySocialView extends EasySocialViewMain
 	 * @param	string
 	 * @return	boolean
 	 */
-	public function setMessage( $message , $messageType = SOCIAL_MSG_SUCCESS )
+	public function setMessage($message, $messageType = SOCIAL_MSG_SUCCESS)
 	{
 		// Accepts SocialException instance
 		if ($message instanceof SocialException) {
@@ -99,7 +106,7 @@ class EasySocialView extends EasySocialViewMain
 		$format = $this->input->get('format', 'html', 'cmd');
 
 		if ($format == 'ajax') {
-			$this->ajax->notify($message, $messageType);
+			$this->ajax->notify($obj->message, $obj->type);
 		}
 
 		$this->message = $obj;

@@ -28,7 +28,6 @@ if( count( $item->custom ) > 0 )
 
 	$defaultCustom = implode( ',', $cIds );
 }
-
 ?>
 <div class="es-privacy"
 	 data-es-provide="tooltip"
@@ -38,7 +37,7 @@ if( count( $item->custom ) > 0 )
      <?php echo ( $item->editable ) ? ' data-es-privacy-container' : ''?>
 >
 
-    <?php if( $item->editable ) { ?>
+    <?php if ($item->editable) { ?>
 		<a class="es-privacy-toggle btn btn-es btn-notext" href="javascript:void(0);" data-privacy-toggle>
 			<i class="<?php echo $icon; ?>" data-privacy-icon ></i>
 			<span class="caret"></span>
@@ -67,6 +66,7 @@ if( count( $item->custom ) > 0 )
 				data-utype="<?php echo $item->type; ?>"
 				data-uid="<?php echo $item->uid; ?>"
 				data-pid="<?php echo $item->id; ?>"
+				<?php echo ($item->override) ? ' data-userid="'.$item->user_id.'"' : ''; ?>
 				data-pitemid="<?php echo $item->pid; ?>"
 				data-streamid="<?php echo $streamid; ?>"
 				class="privacyItem <?php echo ( $opVal ) ? 'active':''; ?>"

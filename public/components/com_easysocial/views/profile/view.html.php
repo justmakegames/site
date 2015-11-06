@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,10 +9,10 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-// Include main view file.
-FD::import('site:/views/views');
+// Include dependencies
+ES::import('site:/views/views');
 
 class EasySocialViewProfile extends EasySocialSiteView
 {
@@ -25,9 +25,6 @@ class EasySocialViewProfile extends EasySocialSiteView
 	 */
 	public function isLockDown()
 	{
-		$config 	= FD::config();
-		$layout 	= $this->getLayout();
-
 		return true;
 	}
 
@@ -39,250 +36,256 @@ class EasySocialViewProfile extends EasySocialSiteView
 	 * @param	null
 	 * @return	null
 	 **/
-	public function display( $tpl = null )
+	public function display($tpl = null)
 	{
 		// Get the user's id.
 		$id = $this->input->get('id', 0, 'int');
 
+		// Check if there is any stream filtering or not.
+		$filter	= $this->input->get('type', '', 'word');
+
 		// The current logged in user might be viewing their own profile.
 		if ($id == 0) {
-			$id = FD::user()->id;
+			$id = ES::user()->id;
 		}
 
 		// When the user tries to view his own profile but if he isn't logged in, throw a login page.
 		if ($id == 0) {
-			return FD::requireLogin();
+			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_PROFILE_INVALID_USER'));
 		}
 
 		// Check for user profile completeness
-		FD::checkCompleteProfile();
+		ES::checkCompleteProfile();
 
 		// Get the user's object.
-		$user = FD::user( $id );
+		$user = ES::user($id);
 
-		// If the user still don't exist, throw a 404
+		// If the user doesn't exist throw an error
 		if (!$user->id) {
 			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_PROFILE_INVALID_USER'));
 		}
 
-		if (Foundry::user()->id != $user->id) {
-			if(FD::user()->isBlockedBy($user->id)) {
-				return JError::raiseError(404, JText::_('COM_EASYSOCIAL_PROFILE_INVALID_USER'));
-			}
+		// If the user is blocked or the user doesn't have community access
+		if (($this->my->id != $user->id && $this->my->isBlockedBy($user->id)) || !$user->hasCommunityAccess()) {
+			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_PROFILE_INVALID_USER'));
 		}
 
-
-		if ($user->isBlock()) {
-			FD::info()->set( JText::sprintf( 'COM_EASYSOCIAL_PROFILE_USER_NOT_EXIST', $user->getName() ), SOCIAL_MSG_ERROR );
-			return $this->redirect( FRoute::dashboard( array() , false ) );
+		// If the user is blocked, they should not be accessible
+		if ($user->isBlock() && !$this->my->isSiteAdmin()) {
+			return JError::raiseError(404, JText::_('COM_EASYSOCIAL_PROFILE_INVALID_USER'));
 		}
 
-		// Set the page title
-		FD::page()->title(FD::string()->escape($user->getName()));
+		// Set the page properties
+		$this->page->title($this->string->escape($user->getName()));
+		$this->page->breadcrumb($this->string->escape($user->getName()));
 
-		// Set the page breadcrumb
-		FD::page()->breadcrumb(FD::string()->escape($user->getName()));
+		// Get the current user's privacy object
+		$privacy = $this->my->getPrivacy();
+
+		// Let's test if the current viewer is allowed to view this profile.
+		if ($this->my->id != $user->id && !$privacy->validate('profiles.view', $user->id, SOCIAL_TYPE_USER)) {
+
+			$facebook = ES::oauth('facebook');
+			$return = base64_encode($user->getPermalink());
+
+			$this->set('return', $return);
+			$this->set('facebook', $facebook);
+			$this->set('user', $user);
+
+			return parent::display('site/profile/restricted');
+		}
 
 		// Apply opengraph tags.
-		FD::opengraph()->addProfile($user);
-
-		// Get the current logged in user's object.
-		$my 	= FD::user();
+		$this->opengraph->addProfile($user);
 
 		// Do not assign badge if i view myself.
-		if ($user->id != $my->id && $my->id) {
+		if ($user->id != $this->my->id && $this->my->id) {
 			// @badge: profile.view
-			$badge 	= FD::badges();
-			$badge->log( 'com_easysocial' , 'profile.view' , $my->id , JText::_( 'COM_EASYSOCIAL_PROFILE_VIEWED_A_PROFILE' ) );
+			$badge = ES::badges();
+			$badge->log('com_easysocial', 'profile.view', $this->my->id, JText::_('COM_EASYSOCIAL_PROFILE_VIEWED_A_PROFILE'));
 		}
 
-		$startlimit 	= JRequest::getInt( 'limitstart' , 0 );
+		// Get the limit start
+		$startLimit = $this->input->get('limitstart', 0, 'int');
 
 		// Determine if the current request is to load an app
-		$appId 		= JRequest::getInt( 'appId' );
-
-		// Get site configuration
-		$config 	= FD::config();
+		$appId = $this->input->get('appId', 0, 'int');
 
 		// Get the apps library.
-		$appsLib 	= FD::apps();
+		$appsLib = ES::apps();
 
+		// Default contents
 		$contents = '';
 
-		if($appId) {
-			// Load the app
-			$app 	= FD::table( 'App' );
-			$app->load( $appId );
+		// Load the app when necessary
+		if ($appId) {
+
+			$app = ES::table('App');
+			$app->load($appId);
 
 			// Check if the user has access to this app
-			if( !$app->accessible( $user->id ) )
-			{
-				FD::info()->set( null , JText::_( 'COM_EASYSOCIAL_PROFILE_APP_IS_NOT_INSTALLED_BY_USER' ) , SOCIAL_MSG_ERROR );
-				return $this->redirect( FRoute::profile( array( 'id' => $user->getAlias() ) , false ) );
+			if (!$app->accessible($user->id)) {
+				FD::info()->set(false, JText::_('COM_EASYSOCIAL_PROFILE_APP_IS_NOT_INSTALLED_BY_USER'), SOCIAL_MSG_ERROR);
+
+				$redirect = FRoute::profile(array('id' => $user->getAlias()), false);
+
+				return $this->redirect($redirect);
 			}
 
 			// Set the page title
-			FD::page()->title( FD::string()->escape( $user->getName() ) . ' - ' . $app->get( 'title' ) );
+			$this->page->title(ES::string()->escape($user->getName()) . ' - ' . $app->get('title'));
 
-			$contents 	= $appsLib->renderView( SOCIAL_APPS_VIEW_TYPE_EMBED , 'profile' , $app , array( 'userId' => $user->id ) );
+			// Render the app contents
+			$contents = $appsLib->renderView(SOCIAL_APPS_VIEW_TYPE_EMBED, 'profile', $app, array('userId' => $user->id));
 		}
 
-		$layout = JRequest::getCmd('layout');
+		// Get the layout
+		$layout = $this->input->get('layout', '', 'cmd');
+
 
 		// @since 1.3.7
 		// If layout is empty, means we want to get the default view
 		// Previously timeline is always the default
-		if (empty($appId) && empty($layout)) {
-			$defaultDisplay = FD::config()->get('users.profile.display', 'timeline');
+		if (empty($appId) && empty($layout) && $filter != 'appFilter') {
+			$defaultDisplay = $this->config->get('users.profile.display', 'timeline');
 
 			$layout = $defaultDisplay;
 		}
 
+		// Default variables
+		$timeline = null;
+		$newCover = false;
+
+		// Viewing info of a user.
 		if ($layout === 'about') {
-			FD::language()->loadAdmin();
 
-			$currentStep = JRequest::getInt('step', 1);
+			$showTimeline = false;
+			$usersModel = ES::model('Users');
+			$steps = $usersModel->getAbout($user);
 
-			$steps = FD::model('Steps')->getSteps($user->profile_id, SOCIAL_TYPE_PROFILES, SOCIAL_PROFILES_VIEW_DISPLAY);
-
-			$fieldsLib = FD::fields();
-
-			$fieldsModel = FD::model('Fields');
-
-			$index = 1;
-
-			foreach ($steps as $step) {
-				$step->fields = $fieldsModel->getCustomFields(array('step_id' => $step->id, 'data' => true, 'dataId' => $user->id, 'dataType' => SOCIAL_TYPE_USER, 'visible' => SOCIAL_PROFILES_VIEW_DISPLAY));
-
-				if (!empty($step->fields)) {
-					$args = array($user);
-
-					$fieldsLib->trigger('onDisplay', SOCIAL_FIELDS_GROUP_USER, $step->fields, $args);
-				}
-
-				$step->hide = true;
-
-				foreach ($step->fields as $field) {
-					// As long as one of the field in the step has an output, then this step shouldn't be hidden
-					// If step has been marked false, then no point marking it as false again
-					// We don't break from the loop here because there is other checking going on
-					if (!empty($field->output) && $step->hide === true ) {
-						$step->hide = false;
-					}
-				}
-
-				if ($index === 1) {
-					$step->url = FRoute::profile(array('id' => $user->getAlias(), 'layout' => 'about'), false);
-				} else {
-					$step->url = FRoute::profile(array('id' => $user->getAlias(), 'layout' => 'about', 'step' => $index), false);
-				}
-
-				$step->title = $step->get('title');
-
-				$step->active = !$step->hide && $currentStep == $index;
-
-				if ($step->active) {
-					$theme = FD::themes();
-
-					$theme->set('fields', $step->fields);
-
-					$contents = $theme->output('site/events/item.info');
-				}
-
-				$step->index = $index;
-
-				$index++;
+			// We should generate a canonical link if user is viewing the about section and the default page is about
+			if ($this->config->get('users.profile.display') == 'about') {
+				$this->page->canonical($user->getPermalink(false, true));
 			}
 
+			// $this->page->title($this->string->escape(JText::_('COM_EASYSOCIAL_PROFILE_ABOUT')));
+
+			if ($steps) {
+
+				foreach ($steps as $step) {
+					if ($step->active) {
+						$theme = ES::themes();
+
+						$theme->set('fields', $step->fields);
+
+						$contents = $theme->output('site/events/item.info');
+					}
+				}
+			}
 			$this->set('infoSteps', $steps);
 		}
 
-		// If contents is still empty at this point, then we just get the stream items as the content
-		if (empty($contents)) {
+		// Should we filter stream items by specific app types
+		$appType = $this->input->get('filterid', '', 'string');
 
-			// Mark timeline item as the active one
-			$this->set('timeline', true);
+		// If contents is still empty at this point, then we just get the stream items as the content
+		if (empty($contents) || $filter == 'appFilter') {
+
+			// Should the timeline be active
+			$timeline = true;
 
 			// Retrieve user's stream
-			$theme 	= FD::themes();
+			$theme = ES::themes();
 
 			// Get story
-			$story 			= FD::get( 'Story' , SOCIAL_TYPE_USER );
-			$story->target 	= $user->id;
+			$story = ES::story(SOCIAL_TYPE_USER);
+			$story->target = $user->id;
 
-			$stream = FD::stream();
-			$stream->get( array( 'userId' => $user->id, 'startlimit' => $startlimit ) );
+			// Get the stream
+			$stream = ES::stream();
 
-			if( FD::user()->id )
-			{
-				// only logged in user can submit story.
+			//lets get the sticky posts 1st
+			$stickies = $stream->getStickies(array('userId' => $user->id, 'limit' => 0));
+
+			if ($stickies) {
+				$stream->stickies = $stickies;
+			}
+
+			$streamOptions = array('userId' => $user->id, 'nosticky' => true, 'startlimit' => $startLimit);
+
+			if ($filter == 'appFilter') {
+				$timeline = false;
+
+				$streamOptions['actorId'] = $user->id;
+			}
+
+			if ($appType) {
+				$streamOptions['context'] = $appType;
+
+				// Should this be set now or later
+				$stream->filter = 'custom';
+			}
+
+			$stream->get($streamOptions);
+
+			// Only registered users can access the story form
+			if (!$this->my->guest) {
 				$stream->story = $story;
 			}
 
 			// Set stream to theme
-			$theme->set( 'stream'	, $stream );
+			$theme->set('stream', $stream);
 
-			$contents 	= $theme->output( 'site/profile/default.stream' );
+			$contents = $theme->output('site/profile/default.stream');
 		}
 
-		$this->set( 'contents' , $contents );
-
-		$privacy 	= $my->getPrivacy();
-
-		// Let's test if the current viewer is allowed to view this profile.
-		if( $my->id != $user->id )
-		{
-			if( !$privacy->validate( 'profiles.view' , $user->id , SOCIAL_TYPE_USER ) )
-			{
-				$this->set( 'user' , $user );
-				parent::display( 'site/profile/restricted' );
-
-				return;
-			}
+		// Add canonical tag for user's profile page
+		if (!$filter) {
+			$this->page->canonical($user->getPermalink(false, true));
 		}
 
 		// Get user's cover object
 		$cover = $user->getCoverData();
-		$this->set( 'cover'	, $cover );
 
 		// If we're setting a cover
-		$coverId = JRequest::getInt('cover_id', null);
+		$coverId = $this->input->get('cover_id', 0, 'int');
 
-		if( $coverId )
-		{
-			// Load cover photo
-			$newCover = FD::table( 'Photo' );
-			$newCover->load( $coverId );
+		// Load cover photo
+		if ($coverId) {
+			$coverTable = ES::table('Photo');
+			$coverTable->load($coverId);
 
 			// If the cover photo belongs to the user
-			if ($newCover->isMine()) {
-
-				// Then allow replacement of cover
-				$this->set('newCover', $newCover);
+			if ($coverTable->isMine()) {
+				$newCover = $coverTable;
 			}
 		}
 
-		$photosModel 	= FD::model( 'Photos' );
-		$photos 		= array();
-		// $photos 		= $photosModel->getPhotos( array( 'uid' => $user->id ) ); // not using? it seems like no one is referencing this photos.
-		$totalPhotos 	= 0;
+		$streamModel = FD::model('Stream');
+
+		// Get a list of application filters
+		$appFilters = $streamModel->getAppFilters(SOCIAL_TYPE_USER);
 
 		// Retrieve list of apps for this user
-		$appsModel 	= FD::model( 'Apps' );
-		$options	= array( 'view' => 'profile' , 'uid' => $user->id , 'key' => SOCIAL_TYPE_USER );
-		$apps 		= $appsModel->getApps( $options );
+		$profile = $user->getProfile();
+		$appsModel = ES::model('Apps');
+		$options = array('view' => 'profile', 'uid' => $user->id, 'key' => SOCIAL_TYPE_USER, 'inclusion' => $profile->getDefaultApps());
+		$apps = $appsModel->getApps($options);
 
-		// Set the apps lib
-		$this->set( 'appsLib' , $appsLib );
-		$this->set( 'totalPhotos' , $totalPhotos );
-		$this->set( 'photos' 	, $photos );
-		$this->set( 'apps'		, $apps );
-		$this->set( 'activeApp'	, $appId );
-		$this->set( 'privacy', $privacy );
-		$this->set( 'user'		, $user );
+		$this->set('appFilters', $appFilters);
+		$this->set('filterId', $appType);
+		$this->set('timeline', $timeline);
+		$this->set('newCover', $newCover);
+		$this->set('cover', $cover);
+		$this->set('contents' , $contents);
+		$this->set('appsLib', $appsLib);
+		$this->set('apps', $apps);
+		$this->set('activeApp', $appId );
+		$this->set('privacy', $privacy );
+		$this->set('user', $user);
 
 		// Load the output of the profile.
-		echo parent::display( 'site/profile/default' );
+		return parent::display('site/profile/default');
 	}
 
 	/**
@@ -297,46 +300,46 @@ class EasySocialViewProfile extends EasySocialSiteView
 	public function edit($errors = null)
 	{
 		// Unauthorized users should not be allowed to access this page.
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Set any messages here.
-		FD::info()->set($this->getMessage());
+		$this->info->set($this->getMessage());
 
 		// Load the language file from the back end.
-		FD::language()->loadAdmin();
+		ES::language()->loadAdmin();
 
 		// Get list of steps for this user's profile type.
 		$profile = $this->my->getProfile();
 
 		// Get user's installed apps
-		$appsModel = FD::model('Apps');
+		$appsModel = ES::model('Apps');
 		$userApps = $appsModel->getUserApps($this->my->id);
 
 		// Get the steps model
-		$stepsModel = FD::model('Steps');
+		$stepsModel = ES::model('Steps');
 		$steps = $stepsModel->getSteps($profile->id, SOCIAL_TYPE_PROFILES, SOCIAL_PROFILES_VIEW_EDIT);
 
 		// Get custom fields model.
-		$fieldsModel = FD::model('Fields');
+		$fieldsModel = ES::model('Fields');
 
 		// Get custom fields library.
-		$fields = FD::fields();
+		$fields = ES::fields();
 
 		// Set page title
-		FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_ACCOUNT_SETTINGS'));
+		ES::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_ACCOUNT_SETTINGS'));
 
 		// Set the page breadcrumb
-		FD::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_PROFILE'), FRoute::profile());
-		FD::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_ACCOUNT_SETTINGS'));
+		ES::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_PROFILE'), FRoute::profile());
+		ES::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_ACCOUNT_SETTINGS'));
 
 		// Check if there are any errors in the session
-		// If session contains error, means that this is from the FD::fields()->checkCompleteProfile();
+		// If session contains error, means that this is from the ES::fields()->checkCompleteProfile();
 		if (empty($errors)) {
 			$session = JFactory::getSession();
 			$errors = $session->get('easysocial.profile.errors', '', SOCIAL_SESSION_NAMESPACE);
 
 			if (!empty($errors)) {
-				FD::info()->set(false, JText::_('COM_EASYSOCIAL_PROFILE_PLEASE_COMPLETE_YOUR_PROFILE'), SOCIAL_MSG_ERROR);
+				ES::info()->set(false, JText::_('COM_EASYSOCIAL_PROFILE_PLEASE_COMPLETE_YOUR_PROFILE'), SOCIAL_MSG_ERROR);
 			}
 		}
 
@@ -372,7 +375,7 @@ class EasySocialViewProfile extends EasySocialSiteView
 			$showSocialTabs = true;
 
 			$facebookToken	= $this->my->getOAuthToken('facebook');
-			$facebookClient = FD::oauth('facebook');
+			$facebookClient = ES::oauth('facebook');
 
 			// Set the access for the client.
 			$facebookClient->setAccess($facebookToken);
@@ -385,15 +388,15 @@ class EasySocialViewProfile extends EasySocialSiteView
 					'type' => SOCIAL_MSG_ERROR
 				);
 
-				FD::info()->set($message);
+				ES::info()->set($message);
 			}
 
 			$fbUserMeta = false;
 
 			$fbOAuth = $this->my->getOAuth(SOCIAL_TYPE_FACEBOOK);
 
-			$facebookMeta = FD::registry( $fbOAuth->params );
-			$facebookPermissions = FD::makeArray( $fbOAuth->permissions );
+			$facebookMeta = ES::registry( $fbOAuth->params );
+			$facebookPermissions = ES::makeArray( $fbOAuth->permissions );
 		}
 
 		$this->set('fbUserMeta', $fbUserMeta);
@@ -420,28 +423,25 @@ class EasySocialViewProfile extends EasySocialSiteView
 	public function editNotifications()
 	{
 		// User needs to be logged in
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Check for user profile completeness
-		FD::checkCompleteProfile();
-
-		// Get the current logged in user.
-		$my 		= FD::user();
+		ES::checkCompleteProfile();
 
 		// Get the user notification settings
-		$alertLib 	= FD::alert();
-		$alerts 	= $alertLib->getUserSettings( $my->id );
+		$lib = ES::alert();
+		$alerts = $lib->getUserSettings($this->my->id);
 
 		// Set page title
-		FD::page()->title( JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_NOTIFICATION_SETTINGS' ) );
+		$this->page->title('COM_EASYSOCIAL_PAGE_TITLE_NOTIFICATION_SETTINGS');
 
 		// Set the page breadcrumb
-		FD::page()->breadcrumb( JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_PROFILE' ) , FRoute::profile() );
-		FD::page()->breadcrumb( JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_NOTIFICATION_SETTINGS' ) );
+		$this->page->breadcrumb('COM_EASYSOCIAL_PAGE_TITLE_PROFILE', FRoute::profile());
+		$this->page->breadcrumb('COM_EASYSOCIAL_PAGE_TITLE_NOTIFICATION_SETTINGS');
 
-		$this->set( 'alerts'	, $alerts );
+		$this->set('alerts', $alerts);
 
-		parent::display( 'site/profile/default.edit.notifications' );
+		parent::display('site/profile/default.edit.notifications');
 	}
 
 	/**
@@ -455,50 +455,114 @@ class EasySocialViewProfile extends EasySocialSiteView
 	public function editPrivacy()
 	{
 		// User needs to be logged in
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Check for user profile completeness
-		FD::checkCompleteProfile();
-
-		// Get the current logged in user.
-		$my = FD::user();
+		ES::checkCompleteProfile();
 
 		// Get user's privacy
-		$privacyLib = FD::privacy( $my->id );
+		$privacyLib = ES::privacy($this->my->id);
 		$result = $privacyLib->getData();
 
 		// Set page title
-		FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_PRIVACY_SETTINGS'));
+		$this->page->title('COM_EASYSOCIAL_PAGE_TITLE_PRIVACY_SETTINGS');
 
 		// Set the page breadcrumb
-		FD::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_PROFILE'), FRoute::profile());
-		FD::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_PRIVACY_SETTINGS'));
+		$this->page->breadcrumb('COM_EASYSOCIAL_PAGE_TITLE_PROFILE', FRoute::profile());
+		$this->page->breadcrumb('COM_EASYSOCIAL_PAGE_TITLE_PRIVACY_SETTINGS');
 
 		$privacy = array();
 
 		// Update the privacy data with proper properties.
 		foreach ($result as $group => $items) {
+
 			// We do not want to show field privacy rules here because it does not make sense for user to set a default value
 			// Most of the fields only have 1 and it is set in Edit Profile page
 			if ($group === 'field') {
 				continue;
 			}
 
-			foreach ($items as &$item) {
-				$rule 		= strtoupper( JString::str_ireplace( '.' , '_' , $item->rule ) );
-				$groupKey 	= strtoupper( $group );
+			// Only display such privacy rules if photos is enabled
+			if (($group == 'albums' || $group == 'photos') && !$this->config->get('photos.enabled')) {
+				continue;
+			}
 
-				$item->groupKey 	= $groupKey;
-				$item->label 		= JText::_( 'COM_EASYSOCIAL_PRIVACY_LABEL_' . $groupKey . '_' . $rule );
-				$item->tips 		= JText::_( 'COM_EASYSOCIAL_PRIVACY_TIPS_' . $groupKey . '_' . $rule );
+			// Only display videos privacy if videos is enabled.
+			if ($group == 'videos' && !$this->config->get('video.enabled')) {
+				continue;
+			}
+
+			// Do not display badges / achievements in privacy if badges is disabled
+			if ($group == 'achievements' && !$this->config->get('badges.enabled')) {
+				continue;
+			}
+
+			// Do not display followers privacy item
+			if ($group == 'followers' && !$this->config->get('followers.enabled')) {
+				continue;
+			}
+
+			foreach ($items as &$item) {
+
+				// Conversations rule should only appear if it is enabled.
+				if (($group == 'profiles' && $item->rule == 'post.message') && !$this->config->get('conversations.enabled')) {
+					unset($item);
+				}
+
+				$rule = JString::str_ireplace('.', '_', $item->rule);
+				$rule = strtoupper($rule);
+
+				$groupKey = strtoupper($group);
+
+				// Determines if this has custom
+				$item->hasCustom = $item->custom ? true : false;
+
+				// If the rule is a custom rule, we need to set the ids
+				$item->customIds = array();
+				$item->customUsers = array();
+
+				if ($item->hasCustom) {
+					foreach ($item->custom as $friend) {
+						$item->customIds[] = $friend->user_id;
+
+						$user = ES::user($friend->user_id);
+						$item->customUsers[] = $user;
+					}
+				}
+
+				// Try to find an app element that is related to the privacy type
+				$app = ES::table('App');
+				$appExists = $app->load(array('element' => $item->type));
+
+				if ($appExists) {
+					$app->loadLanguage();
+				}
+
+				// Go through each options to get the selected item
+				$item->selected = '';
+
+				foreach ($item->options as $option => $value) {
+					if ($value) {
+						$item->selected = $option;
+					}
+
+					// We need to remove "Everyone" if the site lockdown is enabled
+					if ($this->config->get('general.site.lockdown.enabled') && $option == SOCIAL_PRIVACY_0) {
+						unset($item->options[$option]);
+					}
+				}
+
+				$item->groupKey = $groupKey;
+				$item->label = JText::_('COM_EASYSOCIAL_PRIVACY_LABEL_' . $groupKey . '_' . $rule );
+				$item->tips = JText::_('COM_EASYSOCIAL_PRIVACY_TIPS_' . $groupKey . '_' . $rule );
 			}
 
 			$privacy[$group] = $items;
 		}
 
 		// Get a list of blocked users for this user
-		$model   = FD::model('Blocks');
-		$blocked = $model->getBlockedUsers($this->my->id);
+		$blockModel = ES::model('Blocks');
+		$blocked = $blockModel->getBlockedUsers($this->my->id);
 
 		$this->set('blocked', $blocked);
 		$this->set('privacy', $privacy);
@@ -514,7 +578,7 @@ class EasySocialViewProfile extends EasySocialSiteView
 	 */
 	public function save()
 	{
-		FD::info()->set($this->getMessage());
+		ES::info()->set($this->getMessage());
 
 		$task = $this->input->getString('task');
 
@@ -535,7 +599,7 @@ class EasySocialViewProfile extends EasySocialSiteView
 	 */
 	public function saveNotification()
 	{
-		$info 	= FD::info();
+		$info 	= ES::info();
 		$info->set( $this->getMessage() );
 
 		$this->redirect( FRoute::profile( array( 'layout' => 'editNotifications' ) , false ) );
@@ -550,7 +614,7 @@ class EasySocialViewProfile extends EasySocialSiteView
 	 */
 	public function savePrivacy()
 	{
-		FD::info()->set( $this->getMessage() );
+		ES::info()->set( $this->getMessage() );
 
 		$this->redirect( FRoute::profile( array( 'layout' => 'editPrivacy' ) , false ) );
 	}
@@ -567,11 +631,11 @@ class EasySocialViewProfile extends EasySocialSiteView
 	public function downloadFile()
 	{
 		// Currently only registered users are allowed to view a file.
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Load the file object
 		$id = $this->input->get('fileid', 0, 'int');
-		$file = FD::table('File');
+		$file = ES::table('File');
 		$file->load($id);
 
 		if (!$file->id || !$id) {
@@ -581,7 +645,7 @@ class EasySocialViewProfile extends EasySocialSiteView
 		}
 
 		// Add points for the user when they upload a file.
-		FD::points()->assign('files.download', 'com_easysocial', $this->my->id);
+		ES::points()->assign('files.download', 'com_easysocial', $this->my->id);
 
 		// @TODO: Check for the privacy.
 
@@ -597,9 +661,9 @@ class EasySocialViewProfile extends EasySocialSiteView
 	 */
 	public function removeAvatar()
 	{
-		FD::info()->set( $this->getMessage() );
+		ES::info()->set( $this->getMessage() );
 
-		$my 	= FD::user();
+		$my 	= ES::user();
 
 		$this->redirect( FRoute::profile( array( 'id' => $my->getAlias() ) , false ) );
 	}
@@ -615,7 +679,7 @@ class EasySocialViewProfile extends EasySocialSiteView
 	 */
 	public function delete()
 	{
-		FD::info()->set( $this->getMessage() );
+		ES::info()->set( $this->getMessage() );
 
 
 		$this->redirect( FRoute::dashboard( array() , false ) );

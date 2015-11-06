@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form action="index.php" method="post" name="adminForm" class="esForm" id="adminForm" data-reports data-table-grid>
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -22,97 +22,98 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 	</div>
 
-	<table class="table table-striped table-es">
-		<thead>
-			<tr>
-				<th width="1%" class="center">
-					<input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />
-				</th>
-				<th>
-					<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_REPORTED_OBJECT' ) , $ordering , $direction ); ?>
-				</th>
-				<th class="center" width="10%">
-					<?php echo $this->html( 'grid.sort' , 'total' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_TOTAL_REPORTS' ) , $ordering , $direction ); ?>
-				</th>
-				<th class="center" width="10%">
-					<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_REPORTS' ); ?>
-				</th>
-				<th class="center" width="10%">
-					<?php echo $this->html( 'grid.sort' , 'extension' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_EXTENSION' ) , $ordering , $direction ); ?>
-				</th>
-				<th width="10%" class="center">
-					<?php echo $this->html( 'grid.sort' , 'extension' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
-				</th>
-				<th width="5%" class="center">
-					<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php if( $reports ){ ?>
-				<?php $i = 0; ?>
-				<?php foreach( $reports as $report ){ ?>
-				<tr class="row<?php echo $i; ?>"
-					data-reports-item
-					data-id="<?php echo $report->id;?>"
-					data-type="<?php echo $report->type;?>"
-					data-uid="<?php echo $report->uid; ?>"
-					data-extension="<?php echo $report->extension;?>"
-				>
-					<td align="center">
-						<?php echo $this->html( 'grid.id' , $i , $report->id ); ?>
-					</td>
-					<td style="text-align:left;">
-						<div>
-							<a href="<?php echo $report->url;?>" class="mr-5">
-								<?php echo $report->get( 'title' ); ?>
-							</a>
-
-							<a href="<?php echo $report->url;?>" target="_blank">
-								<i class="ies-new-tab ies-small small"></i>
-							</a>
-						</div>
-						<div class="small mt-5">
-							<span class="label label-info"><?php echo ucfirst( $report->get( 'type' ) );?></span>
-						</div>
-					</td>
-					<td class="center">
-						<?php echo $report->total; ?>
-					</td>
-					<td class="center">
-						<a href="javascript:void(0);" data-reports-item-view-reports>
-							<?php echo JText::_( 'COM_EASYSOCIAL_REPORTS_VIEW_REPORTS' );?>
-						</a>
-					</td>
-					<td class="center">
-						<?php echo $report->get( 'extension' ); ?>
-					</td>
-					<td class="center">
-						<?php echo $report->created; ?>
-					</td>
-					<td class="center">
-						<?php echo $report->id; ?>
-					</td>
+	<div class="panel-table">
+        <table class="app-table table table-eb table-striped">
+			<thead>
+				<tr>
+					<th width="1%" class="center">
+						<input type="checkbox" name="toggle" class="checkAll" data-table-grid-checkall />
+					</th>
+					<th>
+						<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_REPORTED_OBJECT' ) , $ordering , $direction ); ?>
+					</th>
+					<th class="center" width="10%">
+						<?php echo $this->html( 'grid.sort' , 'total' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_TOTAL_REPORTS' ) , $ordering , $direction ); ?>
+					</th>
+					<th class="center" width="10%">
+						<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_REPORTS' ); ?>
+					</th>
+					<th class="center" width="10%">
+						<?php echo $this->html( 'grid.sort' , 'extension' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_EXTENSION' ) , $ordering , $direction ); ?>
+					</th>
+					<th width="10%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'extension' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
+					</th>
+					<th width="5%" class="center">
+						<?php echo $this->html( 'grid.sort' , 'id' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_ID' ) , $ordering , $direction ); ?>
+					</th>
 				</tr>
+			</thead>
+			<tbody>
+				<?php if( $reports ){ ?>
+					<?php $i = 0; ?>
+					<?php foreach( $reports as $report ){ ?>
+					<tr class="row<?php echo $i; ?>"
+						data-reports-item
+						data-id="<?php echo $report->id;?>"
+						data-type="<?php echo $report->type;?>"
+						data-uid="<?php echo $report->uid; ?>"
+						data-extension="<?php echo $report->extension;?>"
+					>
+						<td align="center">
+							<?php echo $this->html( 'grid.id' , $i , $report->id ); ?>
+						</td>
+						<td style="text-align:left;">
+							<div>
+								<a href="<?php echo $report->url;?>" class="mr-5">
+									<?php echo $report->get( 'title' ); ?>
+								</a>
+
+								<a href="<?php echo $report->url;?>" target="_blank">
+									<i class="fa fa-new-tab  small"></i>
+								</a>
+							</div>
+							<div class="small mt-5">
+								<span class="label label-info"><?php echo ucfirst( $report->get( 'type' ) );?></span>
+							</div>
+						</td>
+						<td class="center">
+							<?php echo $report->total; ?>
+						</td>
+						<td class="center">
+							<a href="javascript:void(0);" data-reports-item-view-reports>
+								<?php echo JText::_( 'COM_EASYSOCIAL_REPORTS_VIEW_REPORTS' );?>
+							</a>
+						</td>
+						<td class="center">
+							<?php echo $report->get( 'extension' ); ?>
+						</td>
+						<td class="center">
+							<?php echo $report->created; ?>
+						</td>
+						<td class="center">
+							<?php echo $report->id; ?>
+						</td>
+					</tr>
+					<?php } ?>
+				<?php } else { ?>
+					<tr class="is-empty">
+						<td colspan="10" class="center empty">
+							<?php echo JText::_( 'COM_EASYSOCIAL_NO_REPORTS_AVAILABLE_CURRENTLY' );?>
+						</td>
+					</tr>
 				<?php } ?>
-			<?php } else { ?>
-				<tr class="is-empty">
-					<td colspan="10" class="center empty">
-						<?php echo JText::_( 'COM_EASYSOCIAL_NO_REPORTS_AVAILABLE_CURRENTLY' );?>
+			</tbody>
+
+			<tfoot>
+				<tr>
+					<td colspan="10" class="center">
+						<div class="footer-pagination"><?php echo $pagination->getListFooter(); ?></div>
 					</td>
 				</tr>
-			<?php } ?>
-		</tbody>
-
-		<tfoot>
-			<tr>
-				<td colspan="10" class="center">
-					<div class="footer-pagination"><?php echo $pagination->getListFooter(); ?></div>
-				</td>
-			</tr>
-		</tfoot>
-
-	</table>
+			</tfoot>
+		</table>
+	</div>
 
 
 <?php echo JHTML::_( 'form.token' ); ?>

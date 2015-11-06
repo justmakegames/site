@@ -78,6 +78,29 @@ class SocialExplorerHookGroup extends SocialExplorerHooks
 	}
 
 	/**
+	 * Determines if the user has access to delete the files on the group
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function hasDeleteAccess(SocialTableFile $file)
+	{
+		// If the user owns the file, allow them to delete it
+		if ($this->my->id == $file->user_id) {
+			return true;
+		}
+
+		// If the user is the admin of the group allow them to delete the files
+		if ($this->group->isAdmin() || $this->my->isSiteAdmin()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Determines if the current person has access to the explorer of the group
 	 *
 	 * @since	1.2
@@ -179,53 +202,56 @@ class SocialExplorerHookGroup extends SocialExplorerHooks
 		// Run the parent's logics first
 		$result 	= parent::addFile( $title );
 
-		if( $result instanceof SocialException )
-		{
+		if ($result instanceof SocialException) {
 			return $result;
 		}
 
-		// Create a stream item for the groups now
-		$stream		= FD::stream();
-		$tpl		= $stream->getTemplate();
-		$actor 		= FD::user();
+		$createStream = $this->input->get('createStream', false, 'bool');
 
-		// this is a cluster stream and it should be viewable in both cluster and user page.
-		$tpl->setCluster( $this->group->id, SOCIAL_TYPE_GROUP, $this->group->type );
+		if ($createStream) {
+			// Create a stream item for the groups now
+			$stream		= FD::stream();
+			$tpl		= $stream->getTemplate();
+			$actor 		= FD::user();
 
-		// Set the actor
-		$tpl->setActor( $actor->id , SOCIAL_TYPE_USER );
+			// this is a cluster stream and it should be viewable in both cluster and user page.
+			$tpl->setCluster( $this->group->id, SOCIAL_TYPE_GROUP, $this->group->type );
 
-		// Set the context
-		$tpl->setContext($result->id, SOCIAL_TYPE_FILES);
+			// Set the actor
+			$tpl->setActor( $actor->id , SOCIAL_TYPE_USER );
 
-		// Set the verb
-		$tpl->setVerb( 'uploaded' );
+			// Set the context
+			$tpl->setContext($result->id, SOCIAL_TYPE_FILES);
 
-		$file 		= FD::table( 'File' );
-		$file->load( $result->id );
+			// Set the verb
+			$tpl->setVerb( 'uploaded' );
+
+			$file 		= FD::table( 'File' );
+			$file->load( $result->id );
 
 
-		// Set the params to cache the group data
-		$registry	= FD::registry();
-		$registry->set( 'group' , $this->group );
-		$registry->set( 'file'	, $file );
+			// Set the params to cache the group data
+			$registry	= FD::registry();
+			$registry->set( 'group' , $this->group );
+			$registry->set( 'file'	, $file );
 
-		// Set the params to cache the group data
-		$tpl->setParams( $registry );
+			// Set the params to cache the group data
+			$tpl->setParams( $registry );
 
-		// since this is a cluster and user stream, we need to call setPublicStream
-		// so that this stream will display in unity page as well
-		// This stream should be visible to the public
-		$tpl->setAccess( 'core.view' );
+			// since this is a cluster and user stream, we need to call setPublicStream
+			// so that this stream will display in unity page as well
+			// This stream should be visible to the public
+			$tpl->setAccess( 'core.view' );
 
-		$streamItem	 = $stream->add( $tpl );
+			$streamItem	 = $stream->add( $tpl );
 
-		// Prepare the stream permalink
-		$permalink 	= FRoute::stream(array('layout' => 'item', 'id' => $streamItem->uid));
+			// Prepare the stream permalink
+			$permalink 	= FRoute::stream(array('layout' => 'item', 'id' => $streamItem->uid));
 
-		// Notify group members when a new file is uploaded
-		$this->group->notifyMembers('file.uploaded', array('fileId' => $file->id, 'fileName' => $file->name, 'fileSize' => $file->getSize(), 'permalink' => $permalink, 'userId' => $file->user_id));
-
+			// Notify group members when a new file is uploaded
+			$this->group->notifyMembers('file.uploaded', array('fileId' => $file->id, 'fileName' => $file->name, 'fileSize' => $file->getSize(), 'permalink' => $permalink, 'userId' => $file->user_id));
+		}
+		
 		return $result;
 	}
 

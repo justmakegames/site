@@ -19,51 +19,48 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<a href="<?php echo FRoute::groups( array( 'layout' => 'item' , 'id' => $group->getAlias() ) );?>">&larr; <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_BACK_TO_GROUP' ); ?></a>
 			</div>
 
-			<div class="row group-news-item">
-				<div class="col-md-12">
-					<div class="row">
-						<div class="col-md-12">
-							<h3 class="pull-left">
-								<a href="<?php echo FRoute::apps( array( 'layout' => 'canvas' , 'customView' => 'item' , 'uid' => $group->getAlias() , 'type' => SOCIAL_TYPE_GROUP , 'id' => $app->getAlias() , 'newsId' => $news->id ) , false );?>"><?php echo $news->get( 'title' );?></a>
-							</h3>
-							<div class="pull-right btn-group mt-20">
-								<a class="dropdown-toggle_ btn btn-dropdown" data-bs-toggle="dropdown" href="javascript:void(0);">
-									<i class="icon-es-dropdown"></i>
-								</a>
+			<div class="fd-cf group-news-item">
+					<div class="fd-cf">
+						<h3 class="pull-left">
+							<a href="<?php echo FRoute::apps( array( 'layout' => 'canvas' , 'customView' => 'item' , 'uid' => $group->getAlias() , 'type' => SOCIAL_TYPE_GROUP , 'id' => $app->getAlias() , 'newsId' => $news->id ) , false );?>"><?php echo $news->get( 'title' );?></a>
+						</h3>
+						<div class="pull-right btn-group mt-20">
+							<a class="dropdown-toggle_ btn btn-dropdown" data-bs-toggle="dropdown" href="javascript:void(0);">
+								<i class="icon-es-dropdown"></i>
+							</a>
 
-								<ul class="dropdown-menu">
-									<li>
-										<a href="<?php echo FRoute::apps( array( 'layout' => 'canvas' , 'customView' => 'form' , 'uid' => $group->getAlias() , 'type' => SOCIAL_TYPE_GROUP , 'id' => $app->getAlias(), 'newsId' => $news->id ) );?>">
-											<?php echo JText::_( 'APP_GROUP_NEWS_EDIT_ITEM' ); ?>
-										</a>
-									</li>
-									<li class="divider"></li>
-									<li>
-										<a href="javascript:void(0);" data-news-delete><?php echo JText::_( 'APP_GROUP_NEWS_DELETE_ITEM' ); ?></a>
-									</li>
-								</ul>
-							</div>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="<?php echo FRoute::apps( array( 'layout' => 'canvas' , 'customView' => 'form' , 'uid' => $group->getAlias() , 'type' => SOCIAL_TYPE_GROUP , 'id' => $app->getAlias(), 'newsId' => $news->id ) );?>">
+										<?php echo JText::_( 'APP_GROUP_NEWS_EDIT_ITEM' ); ?>
+									</a>
+								</li>
+								<li class="divider"></li>
+								<li>
+									<a href="javascript:void(0);" data-news-delete><?php echo JText::_( 'APP_GROUP_NEWS_DELETE_ITEM' ); ?></a>
+								</li>
+							</ul>
 						</div>
 					</div>
 
 					<?php if( $params->get( 'display_author' , true ) || $params->get( 'display_hits' , true ) || $params->get( 'display_date' , true ) ){ ?>
 					<div class="group-news-meta">
-						<ul class="list-unstyled">
+						<ul class="fd-reset-list">
 							<?php if( $params->get( 'display_author' , true ) ){ ?>
 							<li>
-								<i class="ies-user"></i> <a href="<?php echo $author->getPermalink(); ?>"><?php echo $author->getName();?></a>
+								<i class="fa fa-user"></i> <a href="<?php echo $author->getPermalink(); ?>"><?php echo $author->getName();?></a>
 							</li>
 							<?php } ?>
 
 							<?php if( $params->get( 'display_date' , true ) ){ ?>
 							<li>
-								<i class="ies-calendar"></i> <?php echo FD::date( $news->created )->format( JText::_( 'DATE_FORMAT_LC' ) );?>
+								<i class="fa fa-calendar"></i> <?php echo FD::date( $news->created )->format( JText::_( 'DATE_FORMAT_LC' ) );?>
 							</li>
 							<?php } ?>
 
 							<?php if( $params->get( 'display_hits' , true ) ){ ?>
 							<li>
-								<i class="ies-eye"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'APP_GROUP_NEWS_HITS' , $news->hits ) , $news->hits ); ?>
+								<i class="fa fa-eye"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'APP_GROUP_NEWS_HITS' , $news->hits ) , $news->hits ); ?>
 							</li>
 							<?php } ?>
 						</ul>
@@ -76,7 +73,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 					<div class="group-news-actions">
 						<div class="es-action-wrap">
-							<ul class="list-unstyled es-action-feedback">
+							<ul class="fd-reset-list es-action-feedback">
 								<li>
 									<a href="javascript:void(0);" class="fd-small"><?php echo $likes->button();?></a>
 								</li>
@@ -97,7 +94,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						</div>
 
 					</div>
-				</div>
 
 			</div>
 		</div>

@@ -11,8 +11,6 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-require_once( ES_LIB . '/json.php' );
-
 class EasySocialControllerExtract
 {
 	/**
@@ -25,18 +23,13 @@ class EasySocialControllerExtract
 	 */
 	public function extract()
 	{
-		$json 	= new Services_JSON();
+		$app = JFactory::getApplication();
+		$input = $app->input;
 
-		$file 	= JRequest::getVar( 'file' );
+		$file = $input->get('file', '', 'default');
 
-
-		// @TODO: Extract main installation file to the temporary folder.
-
-
-		// $state 	= false;
 		$state 	= true;
-
-		$result = $json->encode( $state );
+		$result = json_encode($state);
 
 		header('Content-type: text/x-json; UTF-8');
 		echo $result;

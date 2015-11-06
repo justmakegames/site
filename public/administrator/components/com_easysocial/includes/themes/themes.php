@@ -203,7 +203,7 @@ class SocialThemes extends SocialTemplate
 	public function output( $tpl = null , $args = null )
 	{
 		// Try to get the template data.
-		$template	= $this->getTemplate($tpl);
+		$template = $this->getTemplate($tpl);
 
 		// Template
 		$this->file	= $template->file;
@@ -272,18 +272,17 @@ class SocialThemes extends SocialTemplate
 	 */
 	public function render()
 	{
-		$args 		= func_get_args();
+		$args = func_get_args();
 
 		// Get the type of the widget from the first parameter.
-		$type 		= array_shift( $args );
-		$method 	= 'render' . ucfirst( $type );
+		$type = array_shift($args);
+		$method = 'render' . ucfirst($type);
 
-		if( !method_exists( $this , $method ) )
-		{
+		if (!method_exists($this, $method)) {
 			return;
 		}
 
-		return call_user_func_array( array( $this , $method ) , $args );
+		return call_user_func_array(array($this, $method), $args);
 	}
 
 	/**
@@ -398,10 +397,12 @@ class SocialThemes extends SocialTemplate
 	 */
 	public function renderWidgets($group, $view, $position)
 	{
-		$apps = FD::apps();
+		$apps = ES::apps();
 		$args = func_get_args();
 		$args = isset($args[3]) ? $args[3] : array();
 
-		return $apps->renderWidgets($group, $view, $position, $args);
+		$output = $apps->renderWidgets($group, $view, $position, $args);
+
+		return $output;
 	}
 }

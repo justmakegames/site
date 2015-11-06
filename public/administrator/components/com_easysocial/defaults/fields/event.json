@@ -100,6 +100,13 @@
                 "default"           : true
             },
             {
+                "element": "videos",
+                "title": "COM_EASYSOCIAL_EVENT_FIELDS_ALLOW_VIDEOS",
+                "description": "COM_EASYSOCIAL_EVENT_FIELDS_ALLOW_VIDEOS_DESC",
+                "required": false,
+                "default": true
+            },
+            {
                 "element"           : "news",
                 "title"             : "COM_EASYSOCIAL_FIELDS_EVENT_NEWS",
                 "description"       : "COM_EASYSOCIAL_FIELDS_EVENT_NEWS_DESC",

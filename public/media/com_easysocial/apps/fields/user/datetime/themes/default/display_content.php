@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="pull-right mr-5">
     <div class="profile-data-timezone" data-es-provide="tooltip" data-placement="top" data-original-title="<?php echo JText::_('FIELDS_USER_DATETIME_TOGGLE_TIMEZONE'); ?>">
         <a href="javascript:void(0);" class="profile-data-timezone-toggle btn btn-es btn-notext" data-popbox data-popbox-position="bottom-right">
-            <i class="ies-clock"></i>
+            <i class="fa fa-clock-o"></i>
             <span class="caret"></span>
         </a>
     </div>

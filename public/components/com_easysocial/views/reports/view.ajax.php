@@ -42,48 +42,35 @@ class EasySocialViewReports extends EasySocialSiteView
 	}
 
 	/**
-	 * Dialog to confirm a report.
+	 * Renders a dialog to submit a report against an item on the site.
 	 *
-	 * @since	1.0
+	 * @since	1.4
 	 * @access	public
 	 */
 	public function confirmReport()
 	{
-		$ajax 	= FD::ajax();
-
-		// Determine if the user is a guest
-		$my 		= FD::user();
-		$config 	= FD::config();
-
-		if( !$my->id )
-		{
-			if( !$config->get( 'reports.guests' , false ) )
-			{
-				return;
-			}
-		}
-		else
-		{
-			// Check if user is really allowed to submit any reports.
-			$access	= FD::access();
-
-			if( !$access->allowed( 'reports.submit' ) )
-			{
-				$this->setMessage( JText::_( 'COM_EASYSOCIAL_REPORTS_NOT_ALLOWED_TO_SUBMIT_REPORTS' ) , SOCIAL_MSG_ERROR );
-				return $ajax->reject( $this->getMessage() );
-			}
+		if ($this->my->guest && !$this->config->get('reports.guests', false)) {
+			return;
 		}
 
-		$title 			= JRequest::getVar( 'title' , JText::_( 'COM_EASYSOCIAL_REPORTS_DIALOG_TITLE' ) );
-		$description 	= JRequest::getVar( 'description' , '' );
+		// Check if user is really allowed to submit any reports.
+		$access	= FD::access();
 
-		$theme			= FD::themes();
+		if (!$access->allowed('reports.submit')) {
+			$this->setMessage(JText::_('COM_EASYSOCIAL_REPORTS_NOT_ALLOWED_TO_SUBMIT_REPORTS'), SOCIAL_MSG_ERROR);
+			return $this->ajax->reject($this->getMessage());
+		}
 
-		$theme->set( 'title'		, $title );
-		$theme->set( 'description'	, $description );
+		$title = $this->input->get('title', JText::_('COM_EASYSOCIAL_REPORTS_DIALOG_TITLE'), 'default');
+		$description = $this->input->get('description', '', 'default');
 
-		$html = $theme->output( 'site/reports/dialog.form' );
+		$theme = ES::themes();
 
-		return $ajax->resolve( $html );
+		$theme->set('title', $title);
+		$theme->set('description', $description);
+
+		$html = $theme->output('site/reports/dialog.form');
+
+		return $this->ajax->resolve($html);
 	}
 }

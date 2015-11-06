@@ -225,6 +225,9 @@ body.com_easysocial .btn-wrapper {
 body.com_easysocial .btn-wrapper + .btn-wrapper {
   margin-left: 5px;
 }
+body.com_easysocial .subhead-collapse {
+  margin-bottom: 0;
+}
 body.com_easysocial .container-main {
   padding: 0;
 }
@@ -475,4 +478,12 @@ body #fd.es .footer-pagination .container div.limit select#limit {
 }
 body #tooltip {
   z-index: 999999;
+}
+div#fd .row-sm {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+div#fd .row-sm > div {
+  padding-left: 10px;
+  padding-right: 10px;
 }

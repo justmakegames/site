@@ -61,24 +61,47 @@ class SocialTableClusterCategory extends SocialTable
      * The state of the category.
      * @var string
      */
-    public $state       = null;
+    public $state = null;
 
     /**
      * The creator's id.
      * @var int
      */
-    public $uid         = null;
+    public $uid = null;
 
     /**
      * The ordering of the category.
      * @var int
      */
-    public $ordering    = null;
+    public $ordering = null;
 
+    /**
+     * Multi site support
+     * @var int
+     */
+    public $site_id = null;
 
     public function __construct(& $db)
     {
         parent::__construct('#__social_clusters_categories' , 'id' , $db);
+    }
+
+    public function load( $keys = null, $reset = true )
+    {
+
+        if (! is_array($keys)) {
+
+            // attempt to get from cache
+            $catKey = 'cluster.category.'. $keys;
+
+            if (FD::cache()->exists($catKey)) {
+                $state = parent::bind(FD::cache()->get($catKey));
+                return $state;
+            }
+        }
+
+        $state = parent::load( $keys, $reset );
+        return $state;
     }
 
     /**
@@ -158,7 +181,7 @@ class SocialTableClusterCategory extends SocialTable
      * @since   1.3
      * @access  public
      * @param   string
-     * @return  
+     * @return
      */
     public function getAcl()
     {
@@ -476,7 +499,6 @@ class SocialTableClusterCategory extends SocialTable
      */
     public function getAccess($type = 'create')
     {
-        // Delete all existing create access for this category first.
         $model = FD::model('ClusterCategory');
 
         $ids = $model->getAccess($this->id, $type);

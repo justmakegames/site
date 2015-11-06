@@ -3,7 +3,7 @@ FD40.plugin("bootstrap3", function($) {
 var jQuery = $;
 /*!
  * Bootstrap v3.0.3 (http://getbootstrap.com)
- * Copyright 2014 Twitter, Inc.
+ * Copyright 2015 Twitter, Inc.
  * Licensed under http://www.apache.org/licenses/LICENSE-2.0
  */
 

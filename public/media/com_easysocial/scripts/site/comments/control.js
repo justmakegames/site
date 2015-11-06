@@ -35,8 +35,7 @@ EasySocial.module('site/comments/control', function($) {
 
 				var data = self.populate();
 
-				if(!self.options.monitoring)
-				{
+				if (!self.options.monitoring) {
 					return false;
 				}
 

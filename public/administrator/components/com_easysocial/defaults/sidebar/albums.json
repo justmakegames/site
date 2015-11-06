@@ -1,7 +1,7 @@
 {
 	"title"	: "COM_EASYSOCIAL_MENU_GROUP_ALBUMS",
 	"link"	: "index.php?option=com_easysocial&view=albums",
-	"class"	: "ies-pictures",
+	"class"	: "fa-photo",
 	"access": "easysocial.access.albums",
 	"view"	: "albums",
 	"active": "layout",

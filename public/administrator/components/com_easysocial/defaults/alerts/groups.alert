@@ -73,5 +73,10 @@
         "element"   : "groups",
         "rule"      : "user.removed",
         "core"      : true
+    },
+    {
+        "element": "groups",
+        "rule": "video.create",
+        "core": true
     }
 ]

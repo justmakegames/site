@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form action="index.php" method="post" name="adminForm" class="esForm" id="adminForm" data-table-grid>
 
-	<div class="filter-bar form-inline<?php echo $callback ? ' mt-20' : '';?>">
+	<div class="app-filter filter-bar form-inline<?php echo $callback ? ' mt-20' : '';?>">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -38,9 +38,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php } ?>
 	</div>
 
-	<div id="profilesTable" data-profiles>
-
-		<table class="table table-striped table-es table-hover">
+	<div id="profilesTable" class="panel-table" data-profiles>
+		<table class="app-table table table-eb table-striped">
 			<thead>
 				<tr>
 					<?php if( $this->tmpl != 'component' ){ ?>
@@ -57,15 +56,22 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<th class="center" width="15%">
 						<?php echo $this->html( 'grid.sort' , 'b.title' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CATEGORY' ) , $ordering , $direction ); ?>
 					</th>
+
 					<th class="center" width="5%">
 						<?php echo $this->html( 'grid.sort' , 'a.featured' , JText::_('COM_EASYSOCIAL_TABLE_COLUMN_FEATURED') , $ordering , $direction ); ?>
 					</th>
 					<th class="center" width="5%">
 						<?php echo $this->html( 'grid.sort' , 'a.state' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_STATUS' ) , $ordering , $direction ); ?>
 					</th>
-					<th class="center" width="5%">
-						<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED_BY' ); ?>
+
+					<th class="center" width="10%">
+						<?php echo JText::_('COM_EASYSOCIAL_TABLE_COLUMN_TYPE');?>
 					</th>
+
+					<th class="center" width="10%">
+						<?php echo JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED_BY'); ?>
+					</th>
+
 					<?php } ?>
 
 					<th width="5%" class="center">
@@ -101,52 +107,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						<?php } ?>
 
 						<td>
-							<div class="media">
-								<div class="media-object pull-left">
-									<img src="<?php echo $group->getAvatar();?>" class="es-avatar" />
-								</div>
-
-								<div class="media-body">
-									<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=groups&layout=form&id=' . $group->id );?>"
-										data-group-insert
-										data-id="<?php echo $group->id;?>"
-										data-avatar="<?php echo $group->getAvatar();?>"
-										data-title="<?php echo $this->html( 'string.escape' , $group->getName() );?>"
-										style="font-size: 16px;font-weight:700;">
-										<?php echo $group->getName(); ?>
-									</a>
-
-									<?php if( $this->tmpl != 'component' ){ ?>
-										<p class="mt-5 mb-10 fd-small">
-											<?php if( $group->description ){ ?>
-												<?php echo $this->html('string.truncater', $group->description, 180);?>
-											<?php } else { ?>
-												<?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_NO_DESCRIPTION' ); ?>
-											<?php } ?>
-										</p>
-
-
-										<?php if( $group->isOpen() ){ ?>
-										<span class="label label-success" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_OPEN_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="top">
-											<i class="ies-earth"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_OPEN_GROUP' ); ?>
-										</span>
-										<?php } ?>
-
-										<?php if( $group->isClosed() ){ ?>
-										<span class="label label-danger" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_CLOSED_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="top">
-											<i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_CLOSED_GROUP' ); ?>
-										</span>
-										<?php } ?>
-
-										<?php if( $group->isInviteOnly() ){ ?>
-										<span class="label label-warning" data-original-title="<?php echo JText::_('COM_EASYSOCIAL_GROUPS_INVITE_GROUP_TOOLTIP' , true );?>" data-es-provide="tooltip" data-placement="top">
-											<i class="ies-locked"></i> <?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_INVITE_GROUP' ); ?>
-										</span>
-										<?php } ?>
-									<?php } ?>
-
-								</div>
-							</div>
+							<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=groups&layout=form&id=' . $group->id );?>"
+								data-group-insert
+								data-id="<?php echo $group->id;?>"
+								data-alias="<?php echo $group->alias;?>"
+								data-avatar="<?php echo $group->getAvatar();?>"
+								data-title="<?php echo $this->html( 'string.escape' , $group->getName() );?>"
+							>
+								<?php echo $group->getName(); ?>
+							</a>
 						</td>
 
 						<td class="center">
@@ -160,6 +129,21 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						<td class="center">
 							<?php echo $this->html( 'grid.published' , $group , 'groups' ); ?>
 						</td>
+
+						<td class="center">
+							<?php if( $group->isOpen() ){ ?>
+								<?php echo JText::_('COM_EASYSOCIAL_GROUPS_OPEN_GROUP'); ?>
+							<?php } ?>
+
+							<?php if( $group->isClosed() ){ ?>
+								<?php echo JText::_('COM_EASYSOCIAL_GROUPS_CLOSED_GROUP'); ?>
+							<?php } ?>
+
+							<?php if( $group->isInviteOnly() ){ ?>
+								<?php echo JText::_('COM_EASYSOCIAL_GROUPS_INVITE_GROUP'); ?>
+							<?php } ?>
+						</td>
+
 						<td class="center">
 							<a href="<?php echo $group->getCreator()->getPermalink( true , true );?>" target="_blank"><?php echo $group->getCreator()->getName();?></a>
 						</td>
@@ -181,7 +165,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					<?php } ?>
 				<?php } else { ?>
 					<tr class="is-empty">
-						<td colspan="9" class="center empty">
+						<td colspan="10" class="center empty">
 							<?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_NO_GROUPS_AVAILABLE' );?>
 						</td>
 					</tr>
@@ -190,14 +174,12 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<tfoot>
 				<tr>
-					<td colspan="9" class="center">
+					<td colspan="10" class="center">
 						<div class="footer-pagination"><?php echo $pagination->getListFooter(); ?></div>
 					</td>
 				</tr>
 			</tfoot>
-
 		</table>
-
 	</div>
 
 	<?php echo JHTML::_( 'form.token' ); ?>

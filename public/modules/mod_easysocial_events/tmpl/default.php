@@ -15,12 +15,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     <ul class="es-events-list fd-reset-list">
         <?php foreach ($events as $event) { ?>
+
         <li>
             <?php if ($params->get('display_avatar' , true)) { ?>
-            <div class="es-event-avatar">
-                <img class="es-avatar" src="<?php echo $event->getAvatar();?>" alt="<?php echo $modules->html('string.escape' , $event->getName());?>" />
+            <div class="es-event-avatar es-avatar es-avatar-sm es-avatar-border-sm">
+                <img src="<?php echo $event->getAvatar();?>" alt="<?php echo $modules->html('string.escape' , $event->getName());?>" />
             </div>
             <?php } ?>
+
             <div class="es-event-object">
                 <a href="<?php echo $event->getPermalink();?>" class="event-title"><?php echo $event->getName();?></a>
             </div>
@@ -33,20 +35,25 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php if ($params->get('display_category' , true)) { ?>
                 <span>
                     <a href="<?php echo FRoute::events(array('layout' => 'category' , 'id' => $event->getCategory()->getAlias()));?>" alt="<?php echo $modules->html('string.escape' , $event->getCategory()->get('title'));?>" class="event-category">
-                        <i class="ies-database"></i> <?php echo $modules->html('string.escape' , $event->getCategory()->get('title'));?>
+                        <i class="fa fa-database"></i> <?php echo $modules->html('string.escape' , $event->getCategory()->get('title'));?>
                     </a>
                 </span>
                 <?php } ?>
 
                 <?php if ($params->get('display_member_counter', true)) { ?>
                 <span class="hit-counter">
-                    <i class="ies-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('MOD_EASYSOCIAL_EVENTS_GUEST_COUNT' , $event->getTotalGuests()) , $event->getTotalGuests()); ?>
+                    <i class="fa fa-users"></i> <?php echo JText::sprintf(FD::string()->computeNoun('MOD_EASYSOCIAL_EVENTS_GUEST_COUNT' , $event->getTotalGuests()) , $event->getTotalGuests()); ?>
                 </span>
                 <?php } ?>
             </div>
+
+            <?php echo $event->showRsvpButton(); ?>
+
         </li>
         <?php } ?>
     </ul>
 
-    <a href="<?php echo FRoute::events(); ?>"><?php echo JText::_('MOD_EASYSOCIAL_EVENTS_ALL_EVENT'); ?></a>
+    <div class="fd-small">
+        <a href="<?php echo FRoute::events(); ?>"><?php echo JText::_('MOD_EASYSOCIAL_EVENTS_ALL_EVENT'); ?></a>
+    </div>
 </div>

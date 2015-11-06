@@ -56,4 +56,63 @@ class EasySocialControllerLocation extends EasySocialController
 
 		return $view->delete();
 	}
+
+	/**
+	 * Suggests a location to people
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function suggestLocations()
+	{
+		$address = $this->input->get('address', '', 'default');
+
+		$location = FD::location();
+
+		if ($location->hasErrors()) {
+			return $this->ajax->reject($location->getError());
+		}
+
+		// Search for address
+		$location->setSearch($address);
+
+		$result = $location->getResult();
+
+		return $this->ajax->resolve($result);
+	}
+
+	/**
+	 * Retrieves a list of locations
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getLocations()
+	{
+		// Get the provided latitude and longitude
+		$latitude = $this->input->get('latitude', '', 'string');
+		$longitude = $this->input->get('longitude', '', 'string');
+		$query = $this->input->get('query', '', 'string');
+
+		$location = ES::location();
+
+		if ($location->hasErrors()) {
+			return $this->ajax->reject($location->getError());
+		}
+
+		$location->setCoordinates($latitude, $longitude);
+		$location->setSearch($query);
+
+		$result = $location->getResult();
+
+		if ($location->hasErrors()) {
+			return $this->ajax->reject($location->getError());
+		}
+
+		return $this->ajax->resolve($result);
+	}
 }

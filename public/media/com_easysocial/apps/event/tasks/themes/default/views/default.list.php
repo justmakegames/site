@@ -55,16 +55,16 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="milestone-meta">
             <ul class="fd-reset-list">
                 <li>
-                    <i class="ies-signup"></i> <?php echo JText::sprintf(FD::string()->computeNoun('APP_EVENT_TASKS_TOTAL_TASKS', $milestone->getTotalTasks()), $milestone->getTotalTasks()); ?>
+                    <i class="fa fa-signup"></i> <?php echo JText::sprintf(FD::string()->computeNoun('APP_EVENT_TASKS_TOTAL_TASKS', $milestone->getTotalTasks()), $milestone->getTotalTasks()); ?>
                 </li>
                 <?php if ($milestone->hasDueDate()) { ?>
                 <li>
-                    <i class="ies-calendar"></i> <?php echo JText::sprintf('APP_EVENT_TASKS_META_DUE_ON', FD::date($milestone->due)->format(JText::_('DATE_FORMAT_LC1'))); ?></i>
+                    <i class="fa fa-calendar"></i> <?php echo JText::sprintf('APP_EVENT_TASKS_META_DUE_ON', FD::date($milestone->due)->format(JText::_('DATE_FORMAT_LC1'))); ?></i>
                 </li>
                 <?php } ?>
                 <?php if ($milestone->hasAssignee()) { ?>
                 <li>
-                    <i class="ies-user"></i> <?php echo JText::sprintf('APP_EVENT_TASKS_MILESTONE_IS_RESPONSIBLE', $this->html('html.user', $milestone->getAssignee()->id, true)); ?></a>
+                    <i class="fa fa-user"></i> <?php echo JText::sprintf('APP_EVENT_TASKS_MILESTONE_IS_RESPONSIBLE', $this->html('html.user', $milestone->getAssignee()->id, true)); ?></a>
                 </li>
                 <?php } ?>
             </ul>
@@ -78,7 +78,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 <?php if (!$milestones) { ?>
 <div class="empty empty-hero">
-    <i class="ies-download-3"></i>
+    <i class="fa fa-download"></i>
 
     <div>
         <?php echo JText::_('APP_EVENT_TASKS_EMPTY_MILESTONES'); ?>

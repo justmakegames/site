@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div data-compile-sections>
-	<div class="tab-box tab-box-alt tab-box-sidenav">
+	<div class="tab-box tab-box-sidenav">
 		<div class="tabbable">
 			<ul class="nav nav-tabs nav-tabs-icons">
 				<?php foreach ($sections as $i => $section) { ?>

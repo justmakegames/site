@@ -15,30 +15,30 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 require_once(JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php');
 
 // Check if Foundry exists
-if (!FD::exists()) {
+if (!ES::exists()) {
 	echo JText::_('COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING');
 	return;
 }
 
 // Start collecting page objects.
-FD::page()->start();
+ES::page()->start();
 
 // Get app
-$app 	= JFactory::getApplication();
-$input 	= $app->input;
+$app = JFactory::getApplication();
+$input = $app->input;
 
 // Load foundry configuration
-$config = FD::config();
+$config = ES::config();
 
 // Dispatch emails if necessary
 if ($config->get('email.pageload')) {
-	$cron	 = FD::cron();
+	$cron = ES::cron();
 	$cron->dispatchEmails();
 }
 
 // Process cron service here.
 if ($input->get('cron', false, 'bool') == true) {
-	$cron = FD::cron();
+	$cron = ES::cron();
 	$cron->execute();
 	exit;
 }
@@ -53,16 +53,16 @@ $task = $input->get('task', 'display', 'cmd');
 $controller	= $input->get('controller', '', 'word');
 
 // Listen for ajax calls.
-FD::ajax()->listen();
+ES::ajax()->listen();
 
 // We need the base controller
-FD::import('site:/controllers/controller');
+ES::import('site:/controllers/controller');
 
 if (!empty($controller)) {
 	$controller	= JString::strtolower($controller);
 
 	// Import controller
-	$state = FD::import('site:/controllers/' . $controller);
+	$state = ES::import('site:/controllers/' . $controller);
 
 	if (!$state) {
 		JError::raiseError(500 , JText::sprintf('COM_EASYSOCIAL_INVALID_CONTROLLER', $controller));
@@ -84,4 +84,5 @@ $controller->execute($task);
 // Redirect if set by the controller
 $controller->redirect();
 
-FD::page()->end();
+ES::page()->end();
+

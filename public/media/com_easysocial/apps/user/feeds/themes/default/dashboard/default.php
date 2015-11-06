@@ -12,10 +12,12 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="app-feeds" data-feeds>
-	<div class="es-filterbar">
-		<div class="h5 pull-left filterbar-title"><?php echo JText::_( 'APP_USER_FEEDS_MANAGE_FEEDS' ); ?></div>
+	<div class="es-filterbar row-table">
+		<div class="col-cell filterbar-title"><?php echo JText::_( 'APP_USER_FEEDS_MANAGE_FEEDS' ); ?></div>
 
-		<a class="btn btn-es-primary btn-sm pull-right" href="javascript:void(0);" data-feeds-create><?php echo JText::_( 'APP_FEEDS_NEW_FEED' ); ?></a>
+		<div class="col-cell cell-tight">
+			<a class="btn btn-es-primary btn-sm pull-right" href="javascript:void(0);" data-feeds-create><?php echo JText::_( 'APP_FEEDS_NEW_FEED' ); ?></a>
+		</div>
 	</div>
 
 	<div class="app-contents<?php echo !$feeds ? ' is-empty' : '';?>" data-app-contents>
@@ -34,7 +36,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 
 		<div class="empty" data-feeds-empty>
-			<i class="ies-database"></i>
+			<i class="fa fa-database"></i>
 			<?php echo JText::_( 'APP_FEEDS_NO_FEEDS_YET' ); ?>
 		</div>
 	</div>

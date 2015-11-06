@@ -309,6 +309,53 @@ class EasySocialModelAlert extends EasySocialModel
 		$db		= FD::db();
 		$sql	= $db->sql();
 
+		$config = ES::config();
+
+		// need to exclude core features thats are disabled.
+		$excludeElements = array();
+		$excludeElementRules = array();
+
+		// badges
+		if (! $config->get('badges.enabled')) {
+			$excludeElements[] = 'badges';
+		}
+
+		//followers
+		if (! $config->get('followers.enabled')) {
+			$excludeElementRules[] = 'profile.followed';
+		}
+
+		// groups
+		if (! $config->get('groups.enabled')) {
+			$excludeElements[] = 'groups';
+		}
+
+		//events
+		if (! $config->get('events.enabled')) {
+			$excludeElements[] = 'events';
+		}
+
+		//reports
+		if (! $config->get('reports.enabled')) {
+			$excludeElements[] = 'reports';
+		}
+
+		//photos / albums
+		if (! $config->get('photos.enabled')) {
+			$excludeElements[] = 'photos';
+			$excludeElements[] = 'albums';
+		}
+
+		// notifications.broadcast.popup
+		if (! $config->get('notifications.broadcast.popup')) {
+			$excludeElements[] = 'broadcast';
+		}
+
+		// video.enabled
+		if (! $config->get('video.enabled')) {
+			$excludeElements[] = 'videos';
+		}
+
 		$sql->select('#__social_alert', 'a')
 			->column('a.id')
 			->column('a.element')
@@ -328,8 +375,23 @@ class EasySocialModelAlert extends EasySocialModel
 			->on('b.user_id', $uid)
 			->where('a.app', 0)
 			->where('a.field', 0)
-			->where('a.published', 1)
-			->order('a.element');
+			->where('a.published', 1);
+
+		if ($excludeElements) {
+			$sql->where('a.element', $excludeElements, 'NOT IN');
+		}
+
+		if ($excludeElementRules) {
+			foreach($excludeElementRules as $exER) {
+				$segments = explode('.', $exER);
+				$sql->where('(');
+				$sql->where('a.element', $segments[0], '!=');
+				$sql->where('a.rule', $segments[1], '!=');
+				$sql->where(')');
+			}
+		}
+
+		$sql->order('a.element');
 
 		$db->setQuery($sql);
 

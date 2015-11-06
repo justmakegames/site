@@ -14,16 +14,19 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div data-albums class="es-container es-albums es-media-group <?php echo (empty($albums)) ? '' : 'has-albums'; ?> is-user">
 
 	<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-		<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+		<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 	</a>
 
 	<div class="es-sidebar" data-sidebar>
+
+		<?php echo $this->render('module', 'es-albums-all-sidebar-top'); ?>
+
 		<div class="es-widget">
 
 			<?php if( $lib->canCreateAlbums() ){ ?>
 			<div class="es-widget-head center">
 				<div class="btn btn-es-primary btn-create">
-					<a href="<?php echo $lib->getCreateLink();?>"><i class="ies-plus ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ALBUMS_CREATE_ALBUM' );?></a>
+					<a href="<?php echo $lib->getCreateLink();?>"><i class="fa fa-plus  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_ALBUMS_CREATE_ALBUM' );?></a>
 				</div>
 			</div>
 			<?php } ?>
@@ -36,6 +39,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				</ul>
 			</div>
 		</div>
+
+		<?php echo $this->render('module', 'es-albums-all-sidebar-bottom'); ?>
 	</div>
 
 	<div class="es-content">
@@ -45,7 +50,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 				<div class="btn-group btn-group-view-apps pull-right mr-20" data-apps-sorting>
 
-					<a class="btn btn-es recent<?php echo $ordering == 'created' ? ' active' : '';?>"
+					<a class="btn btn-es recent<?php echo $sorting == 'created' ? ' active' : '';?>"
 						data-albums-sort
 						data-albums-sort-type="recent"
 						data-es-provide="tooltip"
@@ -54,9 +59,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						href="<?php echo FRoute::albums( array( 'layout' => 'all' , 'sort' => 'created' ) );?>"
 						title="<?php echo JText::_( 'COM_EASYSOCIAL_ALBUMS_SORT_CREATION_DATE' , true );?>"
 					>
-						<i class="ies-upload-2 ies-small"></i>
+						<i class="fa fa-upload "></i>
 					</a>
-					<a class="btn btn-es alphabetical<?php echo $ordering == 'alphabetical' ? ' active' : '';?>"
+					<a class="btn btn-es alphabetical<?php echo $sorting == 'alphabetical' ? ' active' : '';?>"
 						data-albums-sort
 						data-albums-sort-type="alphabetical"
 						data-es-provide="tooltip"
@@ -65,9 +70,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						href="<?php echo FRoute::albums( array( 'layout' => 'all' , 'sort' => 'alphabetical' ) );?>"
 						title="<?php echo JText::_( 'COM_EASYSOCIAL_ALBUMS_SORT_ALPHABETICALLY' , true );?>"
 					>
-						<i class="ies-bars ies-small"></i>
+						<i class="fa fa-bars "></i>
 					</a>
-					<a class="btn btn-es trending<?php echo $ordering == 'popular' ? ' active' : '';?>"
+					<a class="btn btn-es trending<?php echo $sorting == 'popular' ? ' active' : '';?>"
 						data-albums-sort
 						data-albums-sort-type="trending"
 						data-es-provide="tooltip"
@@ -76,7 +81,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						href="<?php echo FRoute::albums( array( 'layout' => 'all' , 'sort' => 'popular' ) );?>"
 						title="<?php echo JText::_( 'COM_EASYSOCIAL_ALBUMS_SORT_POPULAR' , true );?>"
 					>
-						<i class="ies-fire ies-small"></i>
+						<i class="fa fa-fire "></i>
 					</a>
 				</div>
 			</div>

@@ -73,7 +73,7 @@
 }
 
 .es-story-link-description-textfield {
-	font-size: 11px;
+	font-size: @baseFontSize;
 	padding: 6px !important;
 }
 
@@ -96,7 +96,7 @@
 	border: 1px solid transparent;
 	cursor: pointer;
 	overflow: hidden;
-	font-size: 11px;
+	font-size: @baseFontSize;
 	line-height: 16px;
 	margin: 4px 0 8px;
 
@@ -127,9 +127,16 @@
 	}
 }
 
+.es-story-link-image-wrapper {
+	&.active {
+		display: block;
+	}
+
+	display: none;
+}
+
 .es-story-link-images {
 	width: 102px;
-	// position: absolute;
 	top: 10px;
 	left: 10px;
 	float: left;
@@ -140,20 +147,17 @@
     border: 1px solid @esBorder;
     padding: 2px;
 
+    .es-story-image-dimension {
+    	font-size: @baseFontSize;
+    	text-align: center;
+    }
+
 	img.es-story-link-image {
 		width: 96px;
 		max-width: 96px !important;
 		border: 1px solid @esBorder;
 		background: @esBackground;
-		display: none;
-
-		&.active {
-			display: block;
-		}
 	}
-}
-
-.es-story-link-col {
 }
 
 .es-story-link-form {
@@ -204,7 +208,7 @@
 
 	.btn {
 		height: 32px;
-		font-size: 11px;
+		font-size: @baseFontSize;
 		line-height: 20px;
 		border-radius: 0 3px 3px 0;
 	}
@@ -227,11 +231,6 @@
 
 	.btn {
 		padding: 2px 4px;
-
-		// i {
-		// 	position: relative;
-		// 	top: -2px;
-		// }
 	}
 }
 
@@ -256,33 +255,6 @@
 	cursor: pointer;
 
 	i {
-		font-size: 8px;
+		font-size: baseFontSize;
 	}
 }
-
-// responsive
-/*.es-story.w320 {
-
-	.es-story-link-item {
-		&.has-images {
-			padding-left: 10px;
-		}
-	}
-
-	.es-story-link-images {
-		position: relative;
-		top: auto;
-		left: auto;
-		float: none;
-		margin: 0 0 10px;
-	}
-
-	.es-story-link-description-textbox,
-	.es-story-link-description-textfield {
-		min-height: 110px;
-	}
-	.es-story-link-url a {
-		white-space: pre-wrap;
-	}
-}
-*/

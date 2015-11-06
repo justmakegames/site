@@ -12,8 +12,6 @@ EasySocial.module('admin/access/discover', function($) {
 
 					progressController: null,
 
-					'{startButton}': '[data-access-discovery-start]',
-
 					'{progressBar}': '.discoverProgress',
 
 					'{results}': '[data-access-discovery-result]'
@@ -22,6 +20,13 @@ EasySocial.module('admin/access/discover', function($) {
 				return {
 					init: function() {
 						self.options.progressController = self.progressBar().addController(EasySocial.Controller.Progress);
+
+						$.Joomla('submitbutton', function(task) {
+
+							if (task == 'discover') {
+								self.startDiscovering();
+							}
+						});
 					},
 
 					reset: function() {
@@ -34,11 +39,8 @@ EasySocial.module('admin/access/discover', function($) {
 						$('<tr></tr>').append($('<td></td>').html(msg)).appendTo(self.results());
 					},
 
-					'{startButton} click' : function(element) {
+					startDiscovering: function() {
 						self.reset();
-
-						// Disable start button.
-						self.startButton().attr('disabled', 'disabled');
 
 						// Discover the list of files.
 						EasySocial.ajax('admin/controllers/access/scanFiles').done(function(files, message) {
@@ -63,9 +65,6 @@ EasySocial.module('admin/access/discover', function($) {
 
 								// Append message to the result list.
 								self.addLog($.language('COM_EASYSOCIAL_SCAN_COMPLETED'));
-
-								// Make the scan button work again.
-								self.startButton().removeAttr('disabled');
 							}
 						});
 					},
@@ -99,9 +98,6 @@ EasySocial.module('admin/access/discover', function($) {
 
 								// Append message to the result list.
 								self.addLog($.language('COM_EASYSOCIAL_SCAN_COMPLETED'));
-
-								// Make the scan button work again.
-								self.startButton().removeAttr('disabled');
 							}
 						});
 					}

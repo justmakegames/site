@@ -23,7 +23,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</ul>
 
 		<div class="empty">
-			<i class="ies-droplet"></i>
+			<i class="fa fa-droplet"></i>
 			<?php echo JText::sprintf( 'APP_USER_K2_NO_ARTICLES_CURRENTLY', $user->getName() ); ?>
 		</div>
 

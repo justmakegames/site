@@ -1,7 +1,7 @@
 {
     "title" : "COM_EASYSOCIAL_MENU_GROUP_MAINTENANCE",
     "link"  : "index.php?option=com_easysocial&view=maintenance",
-    "class" : "ies-aid",
+    "class" : "fa-medkit",
     "access": "easysocial.access.maintenance",
     "view"  : "maintenance",
     "active": "layout",
@@ -9,7 +9,7 @@
     [
         {
             "title": "COM_EASYSOCIAL_MENU_ITEM_MAINTENANCE_SCRIPTS",
-            "class": "ies-file",
+            "class": "",
             "url": {
                 "view": "maintenance",
                 "layout": ""
@@ -18,7 +18,7 @@
         },
         {
             "title": "COM_EASYSOCIAL_MENU_ITEM_MAINTENANCE_DATABASE",
-            "class": "ies-database",
+            "class": "",
             "url": {
                 "view": "maintenance",
                 "layout": "database"

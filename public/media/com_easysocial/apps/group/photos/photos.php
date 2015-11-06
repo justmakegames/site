@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,25 +9,12 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Photos application for EasySocial
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialGroupAppPhotos extends SocialAppItem
 {
-	/**
-	 * Class constructor
-	 *
-	 * @since	1.2
-	 * @access	public
-	 */
 	public function __construct()
 	{
-		JFactory::getLanguage()->load( 'app_photos' , JPATH_ROOT );
-
 		parent::__construct();
 	}
 
@@ -91,7 +78,7 @@ class SocialGroupAppPhotos extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#F8829C';
-		$obj->icon 		= 'ies-picture';
+		$obj->icon 		= 'fa fa-image';
 		$obj->label 	= 'APP_GROUP_PHOTOS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -183,6 +170,10 @@ class SocialGroupAppPhotos extends SocialAppItem
 			return;
 		}
 
+		// check the group category allow photo acl permission
+		if (!$group->getCategory()->getAcl()->get('photos.enabled', true) || !$group->getParams()->get('photo.albums', true)) {
+			return;
+		}
 
 		// Get current logged in user.
 		$my         = FD::user();
@@ -198,9 +189,9 @@ class SocialGroupAppPhotos extends SocialAppItem
 
 		// Decorate the stream
 		$item->display	= SOCIAL_STREAM_DISPLAY_FULL;
-		$item->fonticon = 'ies-picture';
+		$item->fonticon = 'fa fa-image';
 		$item->color 	= '#F8829C';
-		$item->label	= JText::_( 'APP_GROUP_PHOTOS_STREAM_TOOLTIP' );
+		$item->label	= FD::_( 'APP_GROUP_PHOTOS_STREAM_TOOLTIP', true );
 
 		// Get the app params.
 		$params 		= $this->getParams();
@@ -573,45 +564,55 @@ class SocialGroupAppPhotos extends SocialAppItem
 	 * @param	string
 	 * @return
 	 */
-	public function onPrepareStoryPanel( $story )
+	public function onPrepareStoryPanel($story)
 	{
-		$config 	= FD::config();
+		$my = FD::user();
 
-		if( !$config->get( 'photos.enabled' ) )
-		{
+		if (!$this->config->get('photos.enabled') || !$my->getAccess()->allowed('albums.create')) {
 			return;
 		}
 
-		$group 	= FD::group( $story->cluster );
+		// Get the group
+		$group = FD::group($story->cluster);
+
+		// check the group category allow photo acl permission
+		if (!$group->getCategory()->getAcl()->get('photos.enabled', true) || !$group->getParams()->get('photo.albums', true)) {
+			return;
+		}
 
 		// Get current logged in user.
-		$access 	= $group->getAccess();
+		$access = $group->getAccess();
 
 		// Create the story plugin
-		$plugin		= $story->createPlugin("photos", "panel");
+		$plugin = $story->createPlugin("photos", "panel");
 
 
-		$theme		= FD::get('Themes');
+		$theme = FD::themes();
 
-		// check max photos upload here.
-		if ($access->exceeded('photos.max', $group->getTotalPhotos()))
-		{
+		// Check for group's access
+		if ($access->exceeded('photos.max', $group->getTotalPhotos())) {
 			$theme->set('exceeded', JText::sprintf('COM_EASYSOCIAL_PHOTOS_EXCEEDED_MAX_UPLOAD', $access->get('photos.uploader.max')));
 		}
 
 		// check max photos upload daily here.
-		if ($access->exceeded('photos.maxdaily', $group->getTotalPhotos(true)))
-		{
+		if ($access->exceeded('photos.maxdaily', $group->getTotalPhotos(true))) {
 			$theme->set('exceeded', JText::sprintf('COM_EASYSOCIAL_PHOTOS_EXCEEDED_DAILY_MAX_UPLOAD', $access->get('photos.uploader.maxdaily')));
 		}
 
-		$plugin->button->html 	= $theme->output('themes:/apps/group/photos/story/panel.button');
-		$plugin->content->html 	= $theme->output( 'themes:/apps/group/photos/story/panel.content' );
+        $button = $theme->output('site/photos/story/button');
+        $form = $theme->output('site/photos/story/form');
 
-		$script = FD::get('Script');
-		$script->set( 'group' , $group );
-		$script->set( 'maxFileSize', $access->get('photos.maxsize') . 'M');
-		$plugin->script = $script->output('apps:/group/photos/story');
+       	// Attach the script files
+        $script = ES::script();
+        $maxSize = $access->get('photos.maxsize', 5);
+        
+        $script->set('type', SOCIAL_TYPE_GROUP);
+        $script->set('uid', $group->id);
+		$script->set('maxFileSize', $maxSize . 'M');
+		$scriptFile = $script->output('site/photos/story/plugin');
+
+		$plugin->setHtml($button, $form);
+		$plugin->setScript($scriptFile);
 
 		return $plugin;
 	}
@@ -1004,6 +1005,42 @@ class SocialGroupAppPhotos extends SocialAppItem
 		}
 
 	}
+
+	/**
+	 * Responsible to return the excluded verb from this app context
+	 * @since	1.2
+	 * @access	public
+	 * @param	array
+	 */
+	public function onStreamVerbExclude( &$exclude )
+	{
+		// Get app params
+		$params		= $this->getParams();
+
+		$excludeVerb = false;
+
+		if(! $params->get('stream_avatar', true)) {
+			$excludeVerb[] = 'uploadAvatar';
+		}
+
+		if (! $params->get('stream_cover', true)) {
+			$excludeVerb[] = 'updateCover';
+		}
+
+		if (! $params->get('stream_share', true)) {
+			$excludeVerb[] = 'share';
+		}
+
+		if (! $params->get('stream_upload', true)) {
+			$excludeVerb[] = 'add';
+			$excludeVerb[] = 'create';
+		}
+
+		if ($excludeVerb !== false) {
+			$exclude['photos'] = $excludeVerb;
+		}
+	}
+
 
 
 	/**

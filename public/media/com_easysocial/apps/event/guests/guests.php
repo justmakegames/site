@@ -19,7 +19,7 @@ class SocialEventAppGuests extends SocialAppItem
     {
         $obj = new stdClass();
         $obj->color = '#6bccb4';
-        $obj->icon = 'ies-user';
+        $obj->icon = 'fa-user';
         $obj->label = 'APP_EVENT_GUESTS_STREAM_TOOLTIP';
 
         return $obj;
@@ -92,8 +92,8 @@ class SocialEventAppGuests extends SocialAppItem
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
 
         $item->color = '#6bccb4';
-        $item->fonticon = 'ies-user';
-        $item->label = JText::_('APP_EVENT_GUESTS_STREAM_TOOLTIP');
+        $item->fonticon = 'fa fa-user';
+        $item->label = FD::_('APP_EVENT_GUESTS_STREAM_TOOLTIP', true);
 
         $actor = $item->actor;
 

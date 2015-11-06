@@ -30,21 +30,26 @@
     // }
 
     .es-media-item-menu {
-        .btn > a {
-            padding: 5px 8px;
-            height: 24px;
-            line-height: 14px;
+        .btn {
+            padding: 0;
 
-            > i {
-                // If the button has icon without text,
-                // this is needed.
-                // Seem like after declare line-height:1 it safe to remove the height for icon #3044
-                // height: 15px;
+            > a {
+                padding: 0 10px;
+                height: 24px;
+                line-height: 24px;
+                color: #555;
+                font-size: 11px;
+                font-weight: bold;
+            }
+        }
 
-                &.caret {
-                    height: 18px;
-                    position: relative;
-                    top: 6px;
+        .btn-es-featured {
+            &.btn-es-primary {
+                    background: @esBackground !important;
+                    border: 1px solid @esBorder !important;
+
+                a {
+                    color: darken(#fc0, 2.5%);
                 }
             }
         }

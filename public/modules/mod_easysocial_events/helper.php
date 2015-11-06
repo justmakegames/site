@@ -31,7 +31,14 @@ class EasySocialModEventsHelper
         $options['ordering'] = $ordering;
         $options['state'] = SOCIAL_STATE_PUBLISHED;
         $options['type'] = array(SOCIAL_EVENT_TYPE_PUBLIC, SOCIAL_EVENT_TYPE_PRIVATE);
-        $options['upcoming'] = FD::date()->toSql();
+        $options['upcoming'] = true;
+        $options['ongoing'] = true;
+        
+        $inclusion = trim($params->get('event_inclusion'));
+
+        if ($inclusion) {
+            $options['inclusion'] = explode(',', $inclusion);
+        } 
 
         $events = array();
 
@@ -58,6 +65,15 @@ class EasySocialModEventsHelper
         if ($filter == 2) {
             $options['featured'] = true;
 
+            $events = $model->getEvents($options);
+        }
+
+        // Retrieve events participated by the current logged in user
+        if ($filter == 3) {
+            $my = FD::user();
+
+            $options['type'] = 'user';
+            $options['guestuid'] = $my->id;
             $events = $model->getEvents($options);
         }
 

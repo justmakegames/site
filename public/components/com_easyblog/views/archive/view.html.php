@@ -1,129 +1,65 @@
 <?php
 /**
 * @package		EasyBlog
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-jimport( 'joomla.application.component.view');
-jimport( 'joomla.html.toolbar' );
-
-require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'date.php' );
+require_once(JPATH_COMPONENT . '/views/views.php');
 
 class EasyBlogViewArchive extends EasyBlogView
 {
-	function calendar( $tmpl = null )
+	/**
+	 * Displays the default archives view
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function display($tpl = null)
 	{
-		JPluginHelper::importPlugin( 'easyblog' );
+		// Get the archives model
+		$model = EB::model('Archive');
 
-		$dispatcher = JDispatcher::getInstance();
-		$mainframe	= JFactory::getApplication();
-		$document	= JFactory::getDocument();
-		$config		= EasyBlogHelper::getConfig();
-		$my         = JFactory::getUser();
-		$acl		= EasyBlogACLHelper::getRuleSet();
+		// Get a list of posts
+		$posts = $model->getPosts();
 
-		//setting pathway
-	    $pathway	= $mainframe->getPathway();
-		if( ! EasyBlogRouter::isCurrentActiveMenu( 'archive' ) )
-		{
-			$pathway->addItem( JText::_('COM_EASYBLOG_ARCHIVE_BREADCRUMB') , '' );
-		}
+		// Format the posts
+		$posts = EB::formatter('list', $posts);
 
-		EasyBlogHelper::getHelper( 'Feeds' )->addHeaders( 'index.php?option=com_easyblog&view=archive' );
+		// Get the pagination
+		$pagination = $model->getPagination();
 
-		$menuParams 	= $mainframe->getParams();
-		$defaultYear	= $menuParams->get('es_archieve_year', 0);
-		$defaultMonth	= $menuParams->get('es_archieve_month', 0);
+		// meta
+		EB::setMeta(META_ID_ARCHIVE, META_TYPE_VIEW);
 
-		$archiveYear	= JRequest::getVar( 'archiveyear' , $defaultYear , 'REQUEST' );
-		$archiveMonth	= JRequest::getVar( 'archivemonth' , $defaultMonth, 'REQUEST' );
-		$archiveDay		= JRequest::getVar( 'archiveday' , 0 , 'REQUEST' );
-		$itemId 		= JRequest::getInt('Itemid', 0);
+		// Update the title of the page if navigating on different pages to avoid Google marking these title's as duplicates.
+		$title = EB::getPageTitle(JText::_('COM_EASYBLOG_ARCHIVE_PAGE_TITLE'));
+		parent::setPageTitle($title, $pagination, $this->config->get('main_pagetitle_autoappend'));
 
-		if(empty($archiveYear) || empty($archiveMonth))
-		{
-			// @task: Set the page title
-			$title					= EasyBlogHelper::getPageTitle( JText::_( 'COM_EASYBLOG_ARCHIVE_PAGE_TITLE' ) );
-			parent::setPageTitle( $title , false , $config->get( 'main_pagetitle_autoappend' ) );
+		$this->set('posts', $posts);
+		$this->set('pagination', $pagination);
 
-			$tpl	= new CodeThemes();
-			$tpl->set('itemId', $itemId );
-			echo $tpl->fetch( 'calendar.php' );
-			return;
-		}
-
-		$date           = EasyBlogHelper::getDate();
-		$sort			= 'latest';
-        $model			= $this->getModel( 'Archive' );
-		$year			= $model->getArchiveMinMaxYear();
-		$data			= $model->getArchive($archiveYear, $archiveMonth, $archiveDay);
-		$pagination		= $model->getPagination();
-		$params			= $mainframe->getParams('com_easyblog');
-		$limitstart		= JRequest::getVar('limitstart', 0, '', 'int');
-		$data			= EasyBlogHelper::formatBlog( $data );
-
-		//if day is empty
-		if(empty($archiveDay))
-		{
-			$archiveDay		= '01';
-			$dateformat		= '%B %Y';
-			$emptyPostMsg	= JText::_('COM_EASYBLOG_ARCHIVE_NO_ENTRIES_ON_MONTH');
-		}
-		else
-		{
-			$dateformat		= '%d %B %Y';
-			$emptyPostMsg	= JText::_('COM_EASYBLOG_ARCHIVE_NO_ENTRIES_ON_DAY');
-		}
-
-		$archiveDay		= ( strlen( $archiveDay ) < 2 )? '0' . $archiveDay : $archiveDay;
-		$viewDate		= EasyBlogHelper::getDate( $archiveYear . '-' . $archiveMonth . '-' . $archiveDay);
-		$formatedDate	= $viewDate->toFormat( $dateformat );
-		$archiveTitle	= JText::sprintf( 'COM_EASYBLOG_ARCHIVE_HEADING_TITLE' , $formatedDate );
-
-		// @task: Set the page title
-		$title					= EasyBlogHelper::getPageTitle( JText::sprintf( 'COM_EASYBLOG_ARCHIVE_HEADING_TITLE' , $formatedDate ) );
-		parent::setPageTitle( $title , false , $config->get( 'main_pagetitle_autoappend' ) );
-
-
-	   	// set meta tags for featured view
-		EasyBlogHelper::setMeta( META_ID_ARCHIVE, META_TYPE_VIEW, JText::_( 'COM_EASYBLOG_ARCHIVE_PAGE_TITLE' ) . ' - ' . $formatedDate);
-
-	   	// set meta tags for featured view
-		EasyBlogHelper::setMeta( META_ID_ARCHIVE, META_TYPE_VIEW, JText::_( 'COM_EASYBLOG_ARCHIVE_PAGE_TITLE' ) . ' - ' . $formatedDate);
-
-		$tpl	= new CodeThemes();
-		$tpl->set('data', $data );
-		$tpl->set('pagination', $pagination->getPagesLinks());
-		$tpl->set('siteadmin', EasyBlogHelper::isSiteAdmin() );
-		$tpl->set('archiveYear', $archiveYear);
-		$tpl->set('archiveMonth', $archiveMonth);
-		$tpl->set('archiveDay', $archiveDay);
-		$tpl->set('config', $config);
-		$tpl->set('my', $my );
-		$tpl->set('acl', $acl );
-		$tpl->set('archiveTitle', $archiveTitle );
-		$tpl->set('emptyPostMsg', $emptyPostMsg );
-
-		echo $tpl->fetch( 'blog.archive.php' );
+		parent::display('blogs/archives/list');
 	}
 
-	public function display( $tpl = null )
+	/**
+	 * Deprecated. Use view=calendar
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function calendar($tmpl = null)
 	{
-		$model			= $this->getModel( 'Blog' );
-		$data			= $model->getBlogsBy( '' , 0 , 'latest' , 0 , EBLOG_FILTER_PUBLISHED , false , false , array() , false , false , true , array() , array() , null , 'archive' );
-		$pagination		= $model->getPagination();
-
-		$tpl	= new CodeThemes();
-		$tpl->set( 'data' 		, $data );
-		$tpl->set( 'pagination'	, $pagination );
-		$tpl->set( 'emptyPostMsg' , JText::_( 'COM_EASYBLOG_NO_ENTRIES_YET' ) );
-		echo $tpl->fetch( 'blog.archive.list.php' );
+		return $this->app->redirect(EB::_('index.php?option=com_easyblog&view=calendar', false));
 	}
 }

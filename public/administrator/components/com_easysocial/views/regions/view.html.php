@@ -22,10 +22,8 @@ class EasySocialViewRegions extends EasySocialAdminView
             $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR') , 'error');
         }
 
-        $this->setHeading(JText::_('COM_EASYSOCIAL_REGIONS_COUNTRIES_TITLE'));
-        $this->setDescription(JText::_('COM_EASYSOCIAL_REGIONS_COUNTRIES_DESCRIPTION'));
-
-        $this->setIcon('ies-earth');
+        $this->setHeading('COM_EASYSOCIAL_REGIONS_COUNTRIES_TITLE');
+        $this->setDescription('COM_EASYSOCIAL_REGIONS_COUNTRIES_DESCRIPTION');
 
         JToolbarHelper::addNew('form', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_NEW'), false);
         JToolbarHelper::publishList('publish');
@@ -81,14 +79,12 @@ class EasySocialViewRegions extends EasySocialAdminView
         $result = $parent->load(array('uid' => $parentuid, 'type' => SOCIAL_REGION_TYPE_COUNTRY));
 
         if (!$result) {
-            $this->setHeading(JText::_('COM_EASYSOCIAL_REGIONS_STATES_TITLE'));
-            $this->setDescription(JText::_('COM_EASYSOCIAL_REGIONS_STATES_DESCRIPTION'));
+            $this->setHeading('COM_EASYSOCIAL_REGIONS_STATES_TITLE');
+            $this->setDescription('COM_EASYSOCIAL_REGIONS_STATES_DESCRIPTION');
         } else {
             $this->setHeading(JText::sprintf('COM_EASYSOCIAL_REGIONS_STATES_OF_COUNTRY_TITLE', $parent->name));
             $this->setDescription(JText::sprintf('COM_EASYSOCIAL_REGIONS_STATES_OF_COUNTRY_DESCRIPTION', $parent->name));
         }
-
-        $this->setIcon('ies-earth');
 
         JToolbarHelper::addNew('form', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_NEW'), false);
         JToolbarHelper::publishList('publish');
@@ -141,15 +137,8 @@ class EasySocialViewRegions extends EasySocialAdminView
 
     public function init()
     {
-        // Check access
-        if (!$this->authorise('easysocial.access.regions')) {
-            $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR') , 'error');
-        }
-
-        $this->setHeading(JText::_('COM_EASYSOCIAL_REGIONS_INITIALISE_TITLE'));
-        $this->setDescription(JText::_('COM_EASYSOCIAL_REGIONS_INITIALISE_DESCRIPTION'));
-
-        $this->setIcon('ies-earth');
+        $this->setHeading('COM_EASYSOCIAL_REGIONS_INITIALISE_TITLE');
+        $this->setDescription('COM_EASYSOCIAL_REGIONS_INITIALISE_DESCRIPTION');
 
         echo parent::display('admin/regions/init');
     }
@@ -167,14 +156,12 @@ class EasySocialViewRegions extends EasySocialAdminView
         $region->load($id);
 
         if (empty($region->id)) {
-            $this->setHeading(JText::_('COM_EASYSOCIAL_REGIONS_NEW_REGION_TITLE'));
-            $this->setDescription(JText::_('COM_EASYSOCIAL_REGIONS_NEW_REGION_DESCRIPTION'));
+            $this->setHeading('COM_EASYSOCIAL_REGIONS_NEW_REGION_TITLE');
+            $this->setDescription('COM_EASYSOCIAL_REGIONS_NEW_REGION_DESCRIPTION');
         } else {
             $this->setHeading(JText::sprintf('COM_EASYSOCIAL_REGIONS_EDIT_REGION_TITLE', $region->name));
             $this->setDescription(JText::sprintf('COM_EASYSOCIAL_REGIONS_EDIT_REGION_DESCRIPTION', $region->name));
         }
-
-        $this->setIcon('ies-earth');
 
         JToolbarHelper::apply('apply', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE'), false, false);
         JToolbarHelper::save('save', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_CLOSE'));

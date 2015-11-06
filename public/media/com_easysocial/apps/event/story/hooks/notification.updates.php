@@ -89,7 +89,7 @@ class SocialEventAppStoryHookNotificationUpdates
             // Since we got all the child of stream, we can get the correct count
             $count = count($streamItems);
 
-            if ($count <= 1) {
+            if ($count && $count == 1) {
 
                 $photo = FD::table('Photo');
                 $photo->load($streamItems[0]->id);

@@ -31,39 +31,45 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<img src="<?php echo rtrim( JURI::root() , '/' );?>/components/com_easysocial/themes/wireframe/images/emails/divider.png" alt="<?php echo JText::_( 'divider' );?>" />
 		</div>
 
-		<table width="540" cellspacing="0" cellpadding="0" border="0" align="center">
-			<tr>
-				<td>
-					<p style="text-align:left;">
-						<?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_HELLO' ); ?> <?php echo $name; ?>,
-					</p>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
+        <tr>
+        <td align="center">
+    		<table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="table-layout:fixed;margin: 0 auto;">
+    			<tr>
+    				<td>
+    					<p style="text-align:left;">
+    						<?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_HELLO' ); ?> <?php echo $name; ?>,
+    					</p>
 
-					<p style="text-align:left;">
-						<?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_NEW_REPLY_DESC' , $authorName );?>
-					</p>
-				</td>
-			</tr>
-		</table>
+    					<p style="text-align:left;">
+    						<?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_NEW_REPLY_DESC' , $authorName );?>
+    					</p>
+    				</td>
+    			</tr>
+    		</table>
 
-		<table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;">
-			<tbody>
-				<tr>
-					<td valign="top" width="100">
-						<span style="display:block;margin: 0px auto 20px;border:1px solid #f5f5f5;width:64px;padding:3px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff">
-							<a href="<?php echo $authorLink;?>"><img src="<?php echo $authorAvatar;?>" alt="<?php echo $this->html( 'string.escape' , $authorName );?>" style="border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff" width="64" height="64"/></a>
-						</span>
-					</td>
-					<td valign="top" style="color:#888;background-color:#f8f9fb;text-align:left;padding: 0 10px;">
-						<p style="margin:0 0 5px;font-weight:bold;font-size:13px;">
-							<a href="<?php echo $authorLink;?>" style="color:#888;text-decoration:none;"><?php echo $authorName;?></a> <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_SAID' );?>:
-						</p>
-						<p style="margin:0;font-size:11px;">
-							<?php echo $message; ?>
-						</p>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+    		<table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="table-layout:fixed;margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;">
+    			<tbody>
+    				<tr>
+    					<td valign="top" width="100">
+    						<span style="display:block;margin: 0px auto 20px;border:1px solid #f5f5f5;width:64px;padding:3px;border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff">
+    							<a href="<?php echo $authorLink;?>"><img src="<?php echo $authorAvatar;?>" alt="<?php echo $this->html( 'string.escape' , $authorName );?>" style="border-radius:50%; -moz-border-radius:50%; -webkit-border-radius:50%;background:#fff" width="64" height="64"/></a>
+    						</span>
+    					</td>
+    					<td valign="top" style="color:#888;background-color:#f8f9fb;text-align:left;padding: 0 10px;">
+    						<p style="margin:0 0 5px;font-weight:bold;font-size:13px;">
+    							<a href="<?php echo $authorLink;?>" style="color:#888;text-decoration:none;"><?php echo $authorName;?></a> <?php echo JText::_( 'COM_EASYSOCIAL_EMAILS_SAID' );?>:
+    						</p>
+    						<p style="margin:0;font-size:11px;">
+    							<?php echo $message; ?>
+    						</p>
+    					</td>
+    				</tr>
+    			</tbody>
+    		</table>
+        </td>
+        </tr>
+        </table>
 
 		<a style="
 				display:inline-block;

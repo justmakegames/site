@@ -5,7 +5,7 @@
 	<author>Stack Ideas Sdn Bhd</author>
 	<url>http://stackideas.com</url>
 	<created>19/08/2013</created>
-	<version>1.2.221</version>
+	<version>1.2.354</version>
 	<copyright>Copyright (C) 2010 - 2013 Stack Ideas Sdn Bhd</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<installable>true</installable>
@@ -25,8 +25,4 @@
 		<file>tasks.php</file>
 		<file>tasks.xml</file>
 	</files>
-	<updates>
-		<version>1.2.221</version>
-		<patch>http://stackideas.com/updater/easysocial/apps/patch</patch>
-	</updates>
 </social>

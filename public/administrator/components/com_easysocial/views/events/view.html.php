@@ -16,22 +16,17 @@ FD::import('admin:/views/views');
 class EasySocialViewEvents extends EasySocialAdminView
 {
     /**
-     * Display function for main events listing page.
+     * Displays the listings of events at the back end
      *
-     * @author  Jason Rey <jasonrey@stackideas.com>
-     * @since   1.3
+     * @since   1.4
      * @access  public
+     * @param   string
+     * @return
      */
     public function display($tpl = null)
     {
-        // Check access
-        if (!$this->authorise('easysocial.access.events')) {
-            $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR') , 'error');
-        }
-
-        $this->setHeading(JText::_('COM_EASYSOCIAL_EVENTS_TITLE'));
-        $this->setIcon('ies-calendar-2');
-        $this->setDescription(JText::_('COM_EASYSOCIAL_EVENTS_DESCRIPTION'));
+        $this->setHeading('COM_EASYSOCIAL_EVENTS_TITLE');
+        $this->setDescription('COM_EASYSOCIAL_EVENTS_DESCRIPTION');
 
         JToolbarHelper::addNew('create', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_NEW'), false);
         JToolbarHelper::divider();
@@ -40,6 +35,9 @@ class EasySocialViewEvents extends EasySocialAdminView
         JToolbarHelper::divider();
         JToolbarHelper::publishList('publish');
         JToolbarHelper::unpublishList('unpublish');
+        JToolbarHelper::divider();
+        JToolbarHelper::custom('makeFeatured', 'featured', '', JText::_('COM_EASYSOCIAL_MAKE_FEATURED'));
+        JToolbarHelper::custom('removeFeatured', 'star', '', JText::_('COM_EASYSOCIAL_REMOVE_FEATURED'));
         JToolbarHelper::divider();
         JToolbarHelper::deleteList('', 'delete', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_DELETE'));
 
@@ -58,6 +56,7 @@ class EasySocialViewEvents extends EasySocialAdminView
         $state = $model->getState('state');
         $type = $model->getState('type');
         $limit = $model->getState('limit');
+        $tmpl = $this->input->getVar('tmpl');
 
         $this->set('search', $search);
         $this->set('ordering', $ordering);
@@ -65,6 +64,7 @@ class EasySocialViewEvents extends EasySocialAdminView
         $this->set('state', $state);
         $this->set('type', $type);
         $this->set('limit', $limit);
+        $this->set('tmpl', $tmpl);
 
         echo parent::display('admin/events/default');
     }
@@ -72,17 +72,11 @@ class EasySocialViewEvents extends EasySocialAdminView
     /**
      * Display function for creating an event.
      *
-     * @author Jason Rey <jasonrey@stackideas.com>
      * @since  1.3
      * @access public
      */
     public function form($errors = array())
     {
-        // Check access
-        if (!$this->authorise('easysocial.access.events')) {
-            $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR') , 'error');
-        }
-
         JToolbarHelper::apply('apply', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE'), false, false);
         JToolbarHelper::save('save', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_CLOSE'));
         JToolbarHelper::save2new('savenew', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_NEW'));
@@ -91,7 +85,7 @@ class EasySocialViewEvents extends EasySocialAdminView
 
         FD::language()->loadSite();
 
-        $id = JRequest::getInt('id');
+        $id = $this->input->get('id', 0, 'int');
 
         $event = FD::event($id);
 
@@ -99,16 +93,16 @@ class EasySocialViewEvents extends EasySocialAdminView
 
         $isNew = empty($event->id);
 
+        $this->setHeading('COM_EASYSOCIAL_EVENTS_CREATE_EVENT_TITLE');
+        $this->setDescription('COM_EASYSOCIAL_EVENTS_CREATE_EVENT_DESCRIPTION');
+
         // Set the structure heading here.
         if (!$isNew) {
-            $this->setHeading(JText::_($event->title));
-            $this->setDescription(JText::_('COM_EASYSOCIAL_EVENTS_EDIT_EVENT_DESCRIPTION'));
+            $this->setHeading($event->title);
+            $this->setDescription('COM_EASYSOCIAL_EVENTS_EDIT_EVENT_DESCRIPTION');
 
             $category->load($event->category_id);
         } else {
-            $this->setHeading(JText::_('COM_EASYSOCIAL_EVENTS_CREATE_EVENT_TITLE'));
-            $this->setDescription(JText::_('COM_EASYSOCIAL_EVENTS_CREATE_EVENT_DESCRIPTION'));
-
             // By default the published state should be published.
             $event->state = SOCIAL_STATE_PUBLISHED;
 
@@ -197,8 +191,8 @@ class EasySocialViewEvents extends EasySocialAdminView
             return $this->redirect(FRoute::url(array('view' => 'events')));
         }
 
-        $this->setHeading(JText::_('COM_EASYSOCIAL_EVENTS_APPLYING_RECURRING_EVENT_CHANGES'));
-        $this->setDescription(JText::_('COM_EASYSOCIAL_EVENTS_APPLYING_RECURRING_EVENT_CHANGES_DESCRIPTION'));
+        $this->setHeading('COM_EASYSOCIAL_EVENTS_APPLYING_RECURRING_EVENT_CHANGES');
+        $this->setDescription('COM_EASYSOCIAL_EVENTS_APPLYING_RECURRING_EVENT_CHANGES_DESCRIPTION');
 
         $post = JRequest::get('POST');
 
@@ -284,11 +278,8 @@ class EasySocialViewEvents extends EasySocialAdminView
             $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR') , 'error');
         }
 
-        $this->setHeading(JText::_('COM_EASYSOCIAL_PENDING_EVENTS_TITLE'));
-
-        $this->setIcon('ies-calendar-2');
-
-        $this->setDescription(JText::_('COM_EASYSOCIAL_PENDING_EVENTS_DESCRIPTION'));
+        $this->setHeading('COM_EASYSOCIAL_PENDING_EVENTS_TITLE');
+        $this->setDescription('COM_EASYSOCIAL_PENDING_EVENTS_DESCRIPTION');
 
         JToolbarHelper::custom('approve', 'publish', 'social-publish-hover', JText::_('COM_EASYSOCIAL_APPROVE_BUTTON'), true);
         JToolbarHelper::custom('reject', 'unpublish', 'social-unpublish-hover', JText::_('COM_EASYSOCIAL_REJECT_BUTTON'), true);
@@ -341,11 +332,8 @@ class EasySocialViewEvents extends EasySocialAdminView
             $this->redirect('index.php', JText::_('JERROR_ALERTNOAUTHOR') , 'error');
         }
 
-        $this->setHeading(JText::_('COM_EASYSOCIAL_EVENT_CATEGORIES_TITLE'));
-
-        $this->setIcon('ies-folder-3');
-
-        $this->setDescription(JText::_('COM_EASYSOCIAL_EVENT_CATEGORIES_DESCRIPTION'));
+        $this->setHeading('COM_EASYSOCIAL_EVENT_CATEGORIES_TITLE');
+        $this->setDescription('COM_EASYSOCIAL_EVENT_CATEGORIES_DESCRIPTION');
 
         JToolbarHelper::addNew('categoryForm', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_NEW'), false);
         JToolbarHelper::divider();
@@ -402,17 +390,15 @@ class EasySocialViewEvents extends EasySocialAdminView
         // Set the structure heading here.
         if ($category->id) {
             $this->setHeading($category->get('title'));
-            $this->setDescription(JText::_('COM_EASYSOCIAL_EVENT_CATEGORY_EDIT_DESCRIPTION'));
+            $this->setDescription('COM_EASYSOCIAL_EVENT_CATEGORY_EDIT_DESCRIPTION');
         }
         else {
-            $this->setHeading(JText::_('COM_EASYSOCIAL_EVENT_CATEGORY_CREATE_TITLE'));
-            $this->setDescription(JText::_('COM_EASYSOCIAL_EVENT_CATEGORY_CREATE_DESCRIPTION'));
+            $this->setHeading('COM_EASYSOCIAL_EVENT_CATEGORY_CREATE_TITLE');
+            $this->setDescription('COM_EASYSOCIAL_EVENT_CATEGORY_CREATE_DESCRIPTION');
 
             // By default the published state should be published.
             $category->state = SOCIAL_STATE_PUBLISHED;
         }
-
-        $this->setIcon('ies-folder-3');
 
         JToolbarHelper::apply('applyCategory', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE'), false, false);
         JToolbarHelper::save('saveCategory', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_CLOSE'));
@@ -434,7 +420,7 @@ class EasySocialViewEvents extends EasySocialAdminView
 
             // Get the available custom fields for groups
             $appsModel = FD::model('Apps');
-            $defaultApps = $appsModel->getApps($options);
+            $defaultFields = $appsModel->getApps($options);
 
             // Get the steps for this id
             $stepsModel = FD::model('Steps');
@@ -479,8 +465,8 @@ class EasySocialViewEvents extends EasySocialAdminView
             $usedUniqueAppsCount = 0;
 
             // hide the apps if it is a core app and it is used in the field
-            if ($defaultApps) {
-                foreach ($defaultApps as $app) {
+            if ($defaultFields) {
+                foreach ($defaultFields as $app) {
                     $app->hidden = false;
 
                     // If app is core, increase the coreAppsCount counter
@@ -532,7 +518,7 @@ class EasySocialViewEvents extends EasySocialAdminView
             $this->set('uniqueAppsRemain', $uniqueAppsRemain);
 
             // Set the default apps to the template.
-            $this->set('defaultApps', $defaultApps);
+            $this->set('defaultFields', $defaultFields);
 
             // Set the steps for the template.
             $this->set('steps', $steps);
@@ -545,7 +531,7 @@ class EasySocialViewEvents extends EasySocialAdminView
 
             // Render the access form.
             $accessModel = FD::model('Access');
-            $accessForm = $accessModel->getForm($category->id, SOCIAL_TYPE_CLUSTERS, 'access');
+            $accessForm = $accessModel->getForm($category->id, SOCIAL_TYPE_EVENT, 'access');
             $this->set('accessForm' , $accessForm);
         }
 

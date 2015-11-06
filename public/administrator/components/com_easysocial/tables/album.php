@@ -408,6 +408,22 @@ class SocialTableAlbum extends SocialTable
 	}
 
 	/**
+	 * Get the total number of tags for this album
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @return	int
+	 */
+	public function isFavourite($userId)
+	{
+		$model = FD::model('Albums');
+
+		$exists = $model->isFavourite($this->id, $userId);
+
+		return $exists;
+	}
+
+	/**
 	 * Retrieves a list of tags from all albums
 	 *
 	 * @since	1.0
@@ -684,11 +700,6 @@ class SocialTableAlbum extends SocialTable
 		if( $exists )
 		{
 			$state 	= JFolder::delete( $storage );
-
-			if( !$state )
-			{
-				FD::logError( __FILE__ , __LINE__ , 'ALBUMS: Unable to delete the photos folder ' . $storage );
-			}
 		}
 
 		// Delete the record from the database first.
@@ -696,20 +707,11 @@ class SocialTableAlbum extends SocialTable
 
 		// Delete likes related to the album
 		$likes 	= FD::get( 'Likes' );
-
-		if( !$likes->delete( $this->id , SOCIAL_TYPE_ALBUM, 'create' ) )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'ALBUMS: Unable to delete the likes for the album ' . $this->id );
-		}
+		$likes->delete( $this->id , SOCIAL_TYPE_ALBUM, 'create');
 
 		// Delete comments related to the album
 		$comments = FD::comments( $this->id, SOCIAL_TYPE_ALBUM, 'create', SOCIAL_APPS_GROUP_USER );
-
-		if( !$comments->delete() )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'ALBUMS: Unable to delete the comments for the album ' . $this->id );
-		}
-
+		$comments->delete();
 
 		return $state;
 	}

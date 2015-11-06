@@ -1,31 +1,39 @@
 
-EasySocial.require()
-.library( 'dialog' )
-.done(function($)
-{
-	<?php if( FD::version()->getVersion() < 3 ){ ?>
+EasySocial
+.require()
+.library('dialog')
+.done(function($) {
+
+	<?php if (ES::version()->getVersion() < 3) { ?>
 		$('body').addClass( 'com_easysocial25' );
 	<?php } ?>
 
-	window.selectUser 	= function( obj )
-	{
-		$( '[data-jfield-user-title]' ).val( obj.title );
+	var titleField = $('[data-jfield-user-title]');
+	var valueField = $('[data-jfield-user-value]');
+	var browseButton = $('[data-jfield-user]');
+	var cancelButton = $('[data-jfield-user-cancel]');
 
-		$( '[data-jfield-user-value]' ).val( obj.alias );
+	window.selectUser = function(obj) {
+
+		titleField.val(obj.title);
+		valueField.val(obj.alias);
 
 		// Close the dialog when done
 		EasySocial.dialog().close();
-	}
+	};
 
-	$( '[data-jfield-user]' ).on( 'click', function()
-	{
-		EasySocial.dialog(
-		{
-			content 	: EasySocial.ajax( 'admin/views/users/browse' ,
-							{
-								'dialogTitle'	: '<?php echo JText::_( 'COM_EASYSOCIAL_USERS_BROWSE_USERS_DIALOG_TITLE' );?>',
+	cancelButton.on('click', function() {
+		titleField.val('<?php echo JText::_('COM_EASYSOCIAL_JFIELD_SELECT_USER', true);?>');
+		valueField.val('');
+	});
+
+	browseButton.on('click', function() {
+
+		EasySocial.dialog({
+			content: EasySocial.ajax('admin/views/users/browse', {
+								'dialogTitle': '<?php echo JText::_( 'COM_EASYSOCIAL_USERS_BROWSE_USERS_DIALOG_TITLE' );?>',
 								'jscallback' : 'selectUser'
-							})
+					})
 		});
 	});
 

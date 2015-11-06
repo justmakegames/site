@@ -11,14 +11,14 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<a href="javascript:void(0);" class="btn btn-clean btn-block dropdown-toggle btn-sm"
+<a href="javascript:void(0);" class="btn btn-clean dropdown-toggle btn-sm"
 	data-profileFriends-button
 	data-profileFriends-pending
 	data-bs-toggle="dropdown"
 >
-	<i class="ies-user-add mr-5"></i>
+	<i class="fa fa-user-plus mr-5"></i>
 	<span class="fd-small"><?php echo JText::_( 'COM_EASYSOCIAL_FRIENDS_REQUEST_SENT' );?></span>
-	<i class="ies-arrow-down ies-small"></i>
+	<i class="fa fa-caret-down "></i>
 </a>
 
 <ul class="dropdown-menu dropdown-arrow-topleft dropdown-friends" data-profileFriends-dropdown>

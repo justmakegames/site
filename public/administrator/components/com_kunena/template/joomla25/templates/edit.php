@@ -4,7 +4,7 @@
  * @package Kunena.Administrator.Template
  * @subpackage Templates
  *
- * @copyright (C) 2008 - 2014 Kunena Team. All rights reserved.
+ * @copyright (C) 2008 - 2015 Kunena Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link http://www.kunena.org
  **/
@@ -43,7 +43,7 @@ JHtml::_('behavior.tooltip');
 									<tr>
 										<td><?php echo JText::_( 'COM_KUNENA_A_TEMPLATE_MANAGER_DESCRIPTION' ); ?>:</td>
 										<td><?php $path = KPATH_SITE.'/template/'.$this->templatename. '/images/template_thumbnail.png';
-											if (file_exists($path)) : ?>
+											if (is_file($path)) : ?>
 												<div><img src ="<?php echo JUri::root(true); ?>/components/com_kunena/template/<?php echo $this->escape($this->templatename); ?>/images/template_thumbnail.png" alt="" /></div>
 											<?php endif; ?>
 											<div><?php echo JText::_($this->details->description); ?></div>

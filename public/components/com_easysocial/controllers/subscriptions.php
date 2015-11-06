@@ -54,11 +54,7 @@ class EasySocialControllerSubscriptions extends EasySocialController
 			$state = $subscribe->follow( $uid, $type, $group, $my->id, $notify );
 		}
 
-		if( !$state )
-		{
-
-			FD::logError( __FILE__ , __LINE__ , 'Subscription: Unable to ' . $verb . ' the stream item because of the error message ' . $subscribe->getError() );
-
+		if (!$state) {
 			// Set the view with error
 			$view->setMessage( $subscribe->getError() , SOCIAL_MSG_ERROR );
 

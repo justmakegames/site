@@ -12,6 +12,6 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <span>
-	<i class="ies-users muted"></i>
+	<i class="fa fa-users muted"></i>
 	<a href="<?php echo $permalink;?>"><?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_MEMBERS' , $group->getTotalMembers() ) , $group->getTotalMembers() ); ?></a>
 </span>

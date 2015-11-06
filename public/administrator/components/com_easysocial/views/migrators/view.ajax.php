@@ -72,6 +72,16 @@ class EasySocialViewMigrators extends EasySocialAdminView
 		return $ajax->resolve( $contents );
 	}
 
+	public function confirmPurge()
+	{
+		$ajax 	= FD::ajax();
 
+		$type = $this->input->get('type', '', 'default');
+
+		$theme 		= FD::themes();
+		$contents	= $theme->output( 'admin/migrators/dialog.confirm.purge' );
+
+		return $ajax->resolve( $contents );
+	}
 
 }

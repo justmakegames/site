@@ -13,8 +13,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <span class="input-append">
 	<input type="text" class="input-medium" disabled="disabled" size="35" value="<?php echo $title; ?>" data-jfield-user-title />
+    <a class="btn btn-default" data-jfield-user-cancel>
+        <i class="icon-cancel-2"></i>
+    </a>
+
 	<a class="btn btn-primary" data-jfield-user href="javascript:void(0);">
-		<i class="icon-user"></i> <?php echo JText::_( $label ); ?>
+		<i class="icon-user"></i> <?php echo JText::_('COM_EASYSOCIAL_JFIELD_SELECT_USER'); ?>
 	</a>
+
 	<input type="hidden" id="<?php echo $id;?>_id" name="<?php echo $name;?>" value="<?php echo $value;?>" data-jfield-user-value />
 </span>

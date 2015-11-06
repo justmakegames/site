@@ -18,7 +18,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
  * @since 	1.0
  * @author	Mark Lee <mark@stackideas.com>
  */
-class SocialPoints
+class SocialPoints extends EasySocial
 {
 	/**
 	 * Points factory.
@@ -86,7 +86,7 @@ class SocialPoints
 	 * @param	int		The total number of points
 	 * @return	bool	True if success false otherwise.
 	 */
-	public function updateUserPoints($userId , $points)
+	public function updateUserPoints($userId , $points, $command = '')
 	{
 		// Load user's app
 		FD::apps()->load(SOCIAL_TYPE_USER);
@@ -98,12 +98,13 @@ class SocialPoints
 		$dispatcher = FD::dispatcher();
 
 		// Construct the arguments to pass to the apps
-		$args = array(&$user, &$points);
+		$args = array(&$user, &$points, $command);
 
 		// @trigger onBeforeAssignPoints
 		$dispatcher->trigger(SOCIAL_TYPE_USER, 'onBeforeAssignPoints', $args);
 
-		$user->addPoints( $points );
+		// Add points for the user
+		$user->addPoints($points);
 
 		// @trigger onAfterAssignPoints
 		$dispatcher->trigger(SOCIAL_TYPE_USER, 'onAfterAssignPoints', $args);
@@ -121,19 +122,20 @@ class SocialPoints
 	 * @param	string	Any custom message for this point assignment.
 	 * @return	bool	True if success, false otherwise.
 	 */
-	public function assignCustom( $userId , $points , $message = '' )
+	public function assignCustom($userId, $points, $message = '')
 	{
-		// Add history.
-		$history 				= FD::table( 'PointsHistory' );
-		$history->user_id 		= $userId;
-		$history->points 		= $points;
-		$history->state 		= SOCIAL_STATE_PUBLISHED;
-		$history->message 		= $message;
-		$state 	= $history->store();
+		$history = FD::table('PointsHistory');
+		$history->user_id = $userId;
+		$history->points = $points;
+		$history->state = SOCIAL_STATE_PUBLISHED;
+		$history->message = $message;
+
+		$state = $history->store();
 
 		if ($state) {
-			$this->updateUserPoints( $userId , $points );
+			$this->updateUserPoints($userId, $points, 'custom');
 		}
+
 		return $state;
 	}
 
@@ -149,10 +151,8 @@ class SocialPoints
 	 */
 	public function assign($command, $extension , $userId)
 	{
-		$config = FD::config();
-
 		// Check if points system is enabled.
-		if (!$config->get('points.enabled')) {
+		if (!$this->config->get('points.enabled')) {
 			return false;
 		}
 
@@ -161,14 +161,17 @@ class SocialPoints
 			return false;
 		}
 
-		$user 	= FD::user( $userId );
-		if (! $user->id) {
+		// Check if the user really exists on the site
+		$user = FD::user($userId);
+
+		if (!$user->id) {
 			return false;
 		}
 
 		// Retrieve the points table.
 		$points = FD::table('Points');
-		$state  = $points->load(array('command' => $command, 'extension' => $extension));
+		$options = array('command' => $command, 'extension' => $extension);
+		$state = $points->load($options);
 
 		// Check the command and extension and see if it is valid.
 		if (!$state) {
@@ -198,7 +201,7 @@ class SocialPoints
 		$history->state = SOCIAL_STATE_PUBLISHED;
 		$history->store();
 
-		$this->updateUserPoints($userId , $points->points);
+		$this->updateUserPoints($userId , $points->points, $command);
 
 		// Assign a badge to the user for earning points.
 		$badge 	= FD::badges();

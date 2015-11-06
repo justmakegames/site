@@ -40,7 +40,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 					<?php if ($params->get('show_edit', true)) { ?>
 					<div class="user-edit">
-						<a href="<?php echo FRoute::profile( array( 'layout' => 'edit' ) );?>"><i class="ies-pencil"></i></a>
+						<a href="<?php echo FRoute::profile( array( 'layout' => 'edit' ) );?>"><i class="fa fa-pencil"></i></a>
 					</div>
 					<?php } ?>
 				</div>
@@ -66,7 +66,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				   data-popbox-position="<?php echo $params->get('popbox_position', 'bottom'); ?>"
 				   data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>"
 				   data-user-id="43">
-					<i class="ies-earth"></i>
+					<i class="fa fa-globe"></i>
 					<span class="badge badge-notification" data-notificationSystem-counter><?php echo $my->getTotalNewNotifications();?></span>
 				</a>
 			</div>
@@ -87,7 +87,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				   data-popbox-position="<?php echo $params->get('popbox_position', 'bottom'); ?>"
 				   data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>"
 				   >
-					<i class="ies-users"></i>
+					<i class="fa fa-users"></i>
 					<span class="badge badge-notification" data-notificationFriends-counter><?php echo $my->getTotalFriendRequests();?></span>
 				</a>
 			</div>
@@ -108,7 +108,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				   data-popbox-position="<?php echo $params->get('popbox_position', 'bottom'); ?>"
 				   data-popbox-collision="<?php echo $params->get('popbox_collision', 'flip'); ?>"
 				   data-user-id="43">
-					<i class="ies-mail-2"></i>
+					<i class="fa fa-envelope-o"></i>
 					<span class="badge badge-notification" data-notificationConversation-counter><?php echo $my->getTotalNewConversations();?></span>
 				</a>
 			</div>
@@ -145,7 +145,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<li>
 				<a href="<?php echo FRoute::conversations();?>">
 					<span>
-						<i class="ies-comments-2 ies-small"></i>
+						<i class="fa fa-comments"></i>
 						<?php echo JText::_( 'MOD_EASYSOCIAL_MENU_CONVERSATIONS' );?>
 					</span>
 
@@ -156,10 +156,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</li>
 			<?php } ?>
 
-			<?php if( $params->get( 'show_friends' , true ) ){ ?>
+			<?php if ($params->get('show_friends', true)) { ?>
 			<li>
 				<a href="<?php echo FRoute::friends();?>">
-					<i class="ies-users-2 ies-small"></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_FRIENDS' );?></span>
+					<i class="fa fa-users"></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_FRIENDS' );?></span>
 				</a>
 			</li>
 			<?php } ?>
@@ -167,7 +167,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php if( $params->get( 'show_followers' , true ) ){ ?>
 			<li>
 				<a href="<?php echo FRoute::followers();?>">
-					<i class="ies-tree-view ies-small"></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_FOLLOWERS' );?></span>
+					<i class="fa fa-share-alt "></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_FOLLOWERS' );?></span>
 				</a>
 			</li>
 			<?php } ?>
@@ -175,7 +175,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php if( $params->get( 'show_photos' , true ) ){ ?>
 			<li>
 				<a href="<?php echo FRoute::albums( array( 'uid' => $my->getAlias() , 'type' => SOCIAL_TYPE_USER ) );?>">
-					<i class="ies-picture ies-small"></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_PHOTOS' );?></span>
+					<i class="fa fa-photo "></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_PHOTOS' );?></span>
+				</a>
+			</li>
+			<?php } ?>
+
+			<?php if ($params->get('show_videos', true)) { ?>
+			<li>
+				<a href="<?php echo FRoute::videos();?>">
+					<i class="fa fa-film"></i> <span><?php echo JText::_('MOD_EASYSOCIAL_MENU_VIDEOS');?></span>
 				</a>
 			</li>
 			<?php } ?>
@@ -183,7 +191,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php if( $params->get( 'show_apps' , true ) ){ ?>
 			<li>
 				<a href="<?php echo FRoute::apps();?>">
-					<i class="ies-cube ies-small"></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_APPS' );?></span>
+					<i class="fa fa-cube"></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_APPS' );?></span>
 				</a>
 			</li>
 			<?php } ?>
@@ -191,40 +199,41 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php if( $params->get( 'show_activity' , true ) ){ ?>
 			<li>
 				<a href="<?php echo FRoute::activities();?>">
-					<i class="ies-cabinet ies-small"></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_ACTIVITY_LOG' );?></span>
+					<i class="fa fa-file-text-o"></i> <span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_ACTIVITY_LOG' );?></span>
 				</a>
 			</li>
 			<?php } ?>
 
 
 			<!-- EasyBlog Integrations -->
-			<?php if( $params->get( 'integrate_easyblog' , true ) && $eblogExists ){ ?>
-			<li>
-				<?php require_once( JPATH_ROOT . '/components/com_easyblog/helpers/helper.php' ); ?>
-				<a href="<?php echo EasyBlogRouter::_( 'index.php?option=com_easyblog&view=dashboard&layout=write&Itemid=' . EasyBlogRouter::getItemId( 'dashboard' ) );?>">
-					<i class="ies-plus-2 ies-small"></i>
-					<span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_EASYBLOG_WRITE_NEW' );?></span>
-				</a>
-			</li>
-			<li>
-				<a href="<?php echo EasyBlogRouter::_( 'index.php?option=com_easyblog&view=dashboard&layout=entries&Itemid=' . EasyBlogRouter::getItemId( 'dashboard' ) );?>">
-					<i class="ies-newspaper ies-small"></i>
-					<span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_EASYBLOG_POSTS' );?></span>
-				</a>
-			</li>
-			<li>
-				<a href="<?php echo EasyBlogRouter::_( 'index.php?option=com_easyblog&view=dashboard&layout=drafts&Itemid=' . EasyBlogRouter::getItemId( 'dashboard' )  );?>">
-					<i class="ies-upload-5 ies-small"></i>
-					<span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_EASYBLOG_DRAFTS' );?></span>
-				</a>
-			</li>
+			<?php if ($params->get('integrate_easyblog', true) && $eblogExists) { ?>
+				<?php if (EB::acl()->get('add_entry')) { ?>
+					<li>
+						<a href="<?php echo EBR::_( 'index.php?option=com_easyblog&view=dashboard&layout=write&Itemid=' . EBR::getItemId( 'dashboard' ) );?>">
+							<i class="fa fa-pencil-square-o"></i>
+							<span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_EASYBLOG_WRITE_NEW' );?></span>
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo EBR::_( 'index.php?option=com_easyblog&view=dashboard&layout=entries&Itemid=' . EBR::getItemId( 'dashboard' ) );?>">
+							<i class="fa fa-list-alt"></i>
+							<span><?php echo JText::_('MOD_EASYSOCIAL_MENU_EASYBLOG_POSTS');?></span>
+						</a>
+					</li>
+					<li>
+						<a href="<?php echo EBR::_( 'index.php?option=com_easyblog&view=dashboard&layout=drafts&Itemid=' . EBR::getItemId( 'dashboard' )  );?>">
+							<i class="fa fa-upload"></i>
+							<span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_EASYBLOG_DRAFTS' );?></span>
+						</a>
+					</li>
+				<?php } ?>
 			<?php } ?>
 
 			<?php if( $params->get( 'show_signout' , true ) ){ ?>
 			<li>
-				<form action="index.php" id="es-mod-login-signout" method="post" data-es-menu-signout-form>
+				<form action="<?php echo JRoute::_('index.php');?>" id="es-mod-login-signout" method="post" data-es-menu-signout-form>
 					<a href="javascript:void(0);" onclick="document.getElementById( 'es-mod-login-signout' ).submit();" data-es-menu-signout>
-						<i class="ies-switch ies-small"></i>
+						<i class="fa fa-power-off"></i>
 						<span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_SIGN_OUT' );?></span>
 					</a>
 

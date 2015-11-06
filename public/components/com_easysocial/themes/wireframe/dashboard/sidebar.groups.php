@@ -14,7 +14,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="es-widget es-widget-borderless">
 	<div class="es-widget-head">
         <div class="widget-title pull-left">
-            <?php echo JText::_( 'COM_EASYSOCIAL_DASHBOARD_SIDEBAR_GROUPS' );?>
+            <?php echo JText::_('COM_EASYSOCIAL_DASHBOARD_SIDEBAR_GROUPS');?>
         </div>
 	</div>
 
@@ -30,7 +30,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						data-id="<?php echo $group->id;?>">
 						<a href="<?php echo FRoute::dashboard( array( 'type' => 'group' , 'groupId' => $group->getAlias() ) );?>"
 							title="<?php echo $this->html( 'string.escape' , $this->my->getName() ) . ' - ' . $this->html( 'string.escape' , $group->getName() ); ?>">
-							<i class="ies-users mr-5"></i> <?php echo $group->getName(); ?>
+							<?php echo $group->getName(); ?>
 						</a>
 					</li>
 					<?php $x++; ?>

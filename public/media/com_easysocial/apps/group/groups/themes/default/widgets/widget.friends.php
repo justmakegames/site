@@ -14,6 +14,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="es-widget">
 	<div class="es-widget-head">
 		<div class="pull-left widget-title"><?php echo JText::_( 'APP_GROUP_GROUPS_FRIENDS_IN_GROUP_WIDGET_TITLE' );?></div>
+		<span class="widget-label">(<?php echo $total;?>)</span>
 	</div>
 
 	<div class="es-widget-body">

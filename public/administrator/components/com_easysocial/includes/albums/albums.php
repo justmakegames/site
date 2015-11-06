@@ -11,14 +11,6 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-/**
- *
- * Photo albums library
- *
- * @since	1.0
- * @access	public
- *
- */
 class SocialAlbums extends JObject
 {
 	/**
@@ -102,19 +94,17 @@ class SocialAlbums extends JObject
 	 * @param	mixed	Arguments
 	 * @return
 	 */
-	public function __call( $method , $args )
+	public function __call($method, $args)
 	{
-		$refArray	= array();
+		$refArray = array();
 
-		if( $args )
-		{
-			foreach( $args as &$arg )
-			{
-				$refArray[]	=& $arg;
+		if ($args) {
+			foreach ($args as &$arg) {
+				$refArray[] =& $arg;
 			}
 		}
 
-		return call_user_func_array( array( $this->adapter , $method ) , $refArray );
+		return call_user_func_array(array($this->adapter, $method), $refArray);
 	}
 
 	/**
@@ -183,9 +173,13 @@ class SocialAlbums extends JObject
 
 		$privacy 	= FD::privacy( FD::user()->id );
 
+		$isPrivacyRequired = isset($options['privacy']) ? $options['privacy'] : false;
+
+
 		while( $counter < $limit )
 		{
-			$newPhotos = $model->getPhotos( array( 'album_id' => $albumId, 'start' => $nextStart, 'limit' => $limit , 'state' => SOCIAL_STATE_PUBLISHED ) );
+			$tmpLimit = $isPrivacyRequired ? $limit + 1 : $limit;
+			$newPhotos = $model->getPhotos( array( 'album_id' => $albumId, 'start' => $nextStart, 'limit' => $tmpLimit , 'state' => SOCIAL_STATE_PUBLISHED, 'privacy' => $isPrivacyRequired ) );
 
 			$photosCount = count( $newPhotos );
 
@@ -196,14 +190,25 @@ class SocialAlbums extends JObject
 				break;
 			}
 
+			// if privacy invoke, then we need to pop the last element
+			if ($isPrivacyRequired && $photosCount > $limit) {
+				array_pop($newPhotos);
+			}
+
 			foreach( $newPhotos as $photo )
 			{
-				if ($photo->viewable()) {
-					// Add this photo into the photos list if privacy is true
+				if ($isPrivacyRequired) {
+					//this mean in the sql, we already injected the privacy checking. so no lib checking required here.
 					$photos[] = $photo;
-
-					// Add the counter if privacy is true
 					$counter++;
+				} else {
+					if ($photo->viewable()) {
+						// Add this photo into the photos list if privacy is true
+						$photos[] = $photo;
+
+						// Add the counter if privacy is true
+						$counter++;
+					}
 				}
 
 				// Add the nextStart count regardless of the privacy
@@ -214,6 +219,11 @@ class SocialAlbums extends JObject
 				{
 					break;
 				}
+			}
+
+			if ($isPrivacyRequired && $photosCount <= $limit) {
+				$nextStart = -1;
+				break;
 			}
 		}
 
@@ -308,8 +318,20 @@ class SocialAlbums extends JObject
 			$photoOptions['limit'] = $options['limit'];
 		}
 
+		//privacy
+		if (isset($options['privacy'])) {
+			$photoOptions['privacy'] = $options['privacy'];
+		}
+
 		// Get album phtoos
 		$photos = $album->getPhotos($photoOptions);
+
+		// // Add opengraph data for each photos
+		if ($photos['photos']) {
+			foreach ($photos['photos'] as $photo) {
+				FD::opengraph()->addImage($photo->getSource());
+			}
+		}
 
 		// Get album likes
 		$likes = FD::likes($album->id, SOCIAL_TYPE_ALBUM , 'create', SOCIAL_APPS_GROUP_USER );

@@ -11,13 +11,21 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<li class="toolbarItem toolbar-login" data-toolbar-login>
+<li class="toolbarItem toolbar-login" data-toolbar-login
+    data-popbox
+    data-popbox-id="fd"
+    data-popbox-component="es"
+    data-popbox-type="toolbar"
+    data-popbox-toggle="click"
+    data-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-left' : 'bottom-right';?>"
+    data-popbox-target=".toobar-profile-popbox"
+>
 	<a href="javascript:void(0);" data-es-provide="tooltip" data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_LOGIN' , true );?>" data-placement="top" class="dropdown-toggle_ loginLink">
-		<i class="ies-locked"></i>
+		<i class="fa fa-lock"></i>
 		<span class="visible-phone"><?php echo JText::_( 'COM_EASYSOCIAL_TOOLBAR_LOGIN' );?></span>
 	</a>
 
-	<div style="display:none;" data-toolbar-login-dropdown data-dropdown-position="bottom-right">
+	<div style="display:none;" class="toobar-profile-popbox" data-toolbar-login-dropdown>
 		<div class="popbox-dropdown-menu dropdown-menu-login loginDropDown" style="display: block;">
 			<form action="<?php echo JRoute::_( 'index.php' );?>" method="post">
 			<ul class="fd-reset-list">
@@ -79,16 +87,16 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						|| ( $this->config->get( 'registrations.enabled' ) && !$this->config->get('general.site.lockdown.enabled') )
 					){ ?>
 					<li>
-						<i class="ies-plus-2"></i>  <a href="<?php echo FRoute::registration();?>" class="pull-" tabindex="107"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_CREATE_NEW_ACCOUNT' );?></a>
+						<i class="fa fa-plus"></i>  <a href="<?php echo FRoute::registration();?>" class="pull-" tabindex="107"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_CREATE_NEW_ACCOUNT' );?></a>
 					</li>
 					<?php } ?>
 					<?php if( !$this->config->get( 'registrations.emailasusername' ) ) { ?>
 					<li>
-						<i class="ies-help"></i>  <a href="<?php echo FRoute::account( array( 'layout' => 'forgetUsername' ) );?>" class="pull-" tabindex="108"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_FORGOT_USERNAME' );?></a>
+						<i class="fa fa-life-saver"></i>  <a href="<?php echo FRoute::account( array( 'layout' => 'forgetUsername' ) );?>" class="pull-" tabindex="108"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_FORGOT_USERNAME' );?></a>
 					</li>
 					<?php } ?>
 					<li>
-						<i class="ies-help"></i>  <a href="<?php echo FRoute::account( array( 'layout' => 'forgetPassword' ) );?>" class="pull-" tabindex="109"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_FORGOT_PASSWORD' );?></a>
+						<i class="fa fa-life-saver"></i>  <a href="<?php echo FRoute::account( array( 'layout' => 'forgetPassword' ) );?>" class="pull-" tabindex="109"><?php echo JText::_( 'COM_EASYSOCIAL_REGISTRATION_FORGOT_PASSWORD' );?></a>
 					</li>
 				</ul>
 			</div>

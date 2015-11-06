@@ -4,7 +4,7 @@
  * @package Kunena.Plugins
  * @subpackage Comprofiler
  *
- * @Copyright (C) 2008 - 2014 Kunena Team. All rights reserved.
+ * @Copyright (C) 2008 - 2015 Kunena Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link http://www.kunena.org
  **/
@@ -15,7 +15,7 @@ class plgKunenaComprofiler extends JPlugin {
 
 	public function __construct(&$subject, $config) {
 		// Do not load if Kunena version is not supported or Kunena is offline
-		if (!(class_exists('KunenaForum') && KunenaForum::isCompatible('3.0') && KunenaForum::installed())) return;
+		if (!(class_exists('KunenaForum') && KunenaForum::isCompatible('4.0') && KunenaForum::installed())) return;
 
 		$app = JFactory::getApplication ();
 

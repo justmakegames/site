@@ -29,7 +29,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	}
 	</bindings>
 	<title><?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_ADD_MEMBERS_DIALOG_TITLE' ); ?></title>
-	<content type="text"><?php echo JURI::root();?>administrator/index.php?option=com_easysocial&view=users&tmpl=component&multiple=1&jscallback=addMembers;?></content>
+	<content type="text"><?php echo JURI::root();?>administrator/index.php?option=com_easysocial&view=users&tmpl=component&multiple=1&jscallback=addMembers</content>
 	<buttons>
 		<button data-cancel-button type="button" class="btn btn-es"><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON'); ?></button>
 		<button data-submit-button type="button" class="btn btn-es-success"><?php echo JText::_('COM_EASYSOCIAL_SUBMIT_BUTTON'); ?></button>

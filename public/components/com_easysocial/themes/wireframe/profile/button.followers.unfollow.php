@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<a href="javascript:void(0);" class="btn btn-es-primary btn-block btn-action-followers is-following btn-sm" data-subscription-unfollow data-subscription-button>
-	<i class="ies-cancel-2 ies-small mr-5"></i>
+<a href="javascript:void(0);" class="btn btn-es-primary btn-action-followers is-following btn-sm" data-subscription-unfollow data-subscription-button>
+	<i class="fa fa-remove  mr-5"></i>
 	<span data-subscription-message><?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_UNFOLLOW' );?></span>
 </a>

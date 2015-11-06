@@ -60,6 +60,22 @@ class EasySocialModelProfiles extends EasySocialModel
 		$table->reorder();
 	}
 
+	public function updateOrdering($id, $order)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = "update `#__social_profiles` set ordering = " . $db->Quote($order);
+		$query .= " where id = " . $db->Quote($id);
+
+		$sql->raw($query);
+
+		$db->setQuery($sql);
+		$state = $db->query();
+
+		return $state;
+	}
+
 	/**
 	 * Gets the default profile.
 	 *
@@ -313,10 +329,10 @@ class EasySocialModelProfiles extends EasySocialModel
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function getMembers( $profileId , $options = array() )
+	public function getMembers($profileId, $options = array())
 	{
 		$config = FD::config();
-		$db 		= FD::db();
+		$db = ES::db();
 
 		// Determine if we should randomize the result.
 		$randomize 	= isset( $options[ 'randomize' ] ) ? true : false;
@@ -340,11 +356,11 @@ class EasySocialModelProfiles extends EasySocialModel
 
 
 		// Where
-		$query[]	= 'WHERE a.' . $db->nameQuote( 'profile_id' ) . '=' . $db->Quote( $profileId );
-		$query[]	= 'AND b.' . $db->nameQuote( 'block' ) . ' = ' . $db->Quote( 0 );
+		$query[] = 'WHERE a.' . $db->nameQuote('profile_id' ) . '=' . $db->Quote( $profileId );
+		$query[] = 'AND b.' . $db->nameQuote('block') . ' = ' . $db->Quote(0);
 
+		// user block continue here
 		if ($config->get('users.blocking.enabled') && $excludeBlocked && !JFactory::getUser()->guest) {
-		    // user block continue here
 		    $query[] = ' AND bus.' . $db->nameQuote( 'id' ) . ' IS NULL';
 		}
 
@@ -511,6 +527,33 @@ class EasySocialModelProfiles extends EasySocialModel
 		$db->Query();
 	}
 
+	/**
+	 * Updates the user groups assigned
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function updateJoomlaGroup($userId, $profileId)
+	{
+		$profile = ES::table('Profile');
+		$profile->load($profileId);
+
+		// Get the list of groups
+		$gid = $profile->getJoomlaGroups();
+		$options = array('gid' => $gid);
+
+		// Get the current user object and assign it
+		$user = ES::user($userId);
+		$user->bind($options);
+
+		// Save the user object
+		$state = $user->save();
+
+		return $state;
+	}
+
 	/*
 	 * Update the fields that are associated to certain profile type.
 	 *
@@ -554,54 +597,27 @@ class EasySocialModelProfiles extends EasySocialModel
 	 * @param	string
 	 * @return
 	 */
-	public function updateUserProfile( $uid , $profileId )
+	public function updateUserProfile($uid, $profileId)
 	{
-		$map 		= FD::table( 'ProfileMap' );
-		$exists		= $map->load( array( 'user_id' => $uid ) );
+		$map = ES::table('ProfileMap');
+		$exists = $map->load(array('user_id' => $uid));
 
-		if( !$exists )
-		{
-			$map->user_id	= $uid;
-			$map->state 	= SOCIAL_STATE_PUBLISHED;
+		if (!$exists) {
+			$map->user_id = $uid;
+			$map->state = SOCIAL_STATE_PUBLISHED;
 		}
 
-		$map->profile_id	= $profileId;
+		$map->profile_id = $profileId;
 
-		$state 		= $map->store();
+		$state = $map->store();
 
-		if( !$state )
-		{
-			$this->setError( $map->getError() );
+		if (!$state) {
+			$this->setError($map->getError());
 			return $state;
 		}
 
-		// Instead of deleting, try to map back to the new profile based on unique key
-
-		// $sql->delete( '#__social_fields_data' );
-		// $sql->where( 'uid' , $uid );
-		// $sql->where( 'type' , SOCIAL_TYPE_USER );
-		// $db->setQuery( $sql );
-		// return $db->Query();
-
-		/*
-		select c.id as new_field_id, a.* as new_field_id from jos_social_fields_data as a
-		left join jos_social_fields as b on a.field_id = b.id
-		left join jos_social_fields as c on b.unique_key = c.unique_key
-		left join jos_social_fields_steps as d on c.step_id = d.id
-		where a.uid = 968 and a.type = 'user'
-		and d.type = 'profiles' and d.uid = 1;
-
-		update jos_social_fields_data as a
-		left join jos_social_fields as b on a.field_id = b.id
-		left join jos_social_fields as c on b.unique_key = c.unique_key
-		left join jos_social_fields_steps as d on c.step_id = d.id
-		set a.field_id = c.id
-		where a.uid = 968 and a.type = 'user'
-		and d.type = 'profiles' and d.uid = 14;
-		 */
-
-		$db 		= FD::db();
-		$sql 		= $db->sql();
+		$db = ES::db();
+		$sql = $db->sql();
 
 		$sql->update( '#__social_fields_data', 'a');
 		$sql->leftjoin( '#__social_fields', 'b' );
@@ -616,8 +632,54 @@ class EasySocialModelProfiles extends EasySocialModel
 		$sql->where( 'd.type', 'profiles' );
 		$sql->where( 'd.uid', $profileId ) ;
 
-		$db->setQuery( $sql );
-		return $db->query();
+		$db->setQuery($sql);
+
+		$state = $db->query();
+
+		if ($state) {
+
+			// Update fields privacy according to the new profile
+			$sql 		= $db->sql();
+
+			// update `jos_social_privacy_items as a
+			//  left join jos_social_fields as b
+			//  	on a.uid = bid and a.type = 'field'
+			//  left join jos_social_fields as c
+			//  	on b.unique_key = c.unique_key
+			//  left join jos_social_fields_steps as d
+			//  	on c.step_id = d.id
+			//  set a.uid = c.id
+			//  where a.user_id = $uid
+			//  and a.type = 'field'
+			//  and d.type = 'profiles'
+			//  and d.uid = $profileId;
+
+			$sql->update( '#__social_privacy_items', 'a');
+			$sql->leftjoin( '#__social_fields', 'b' );
+			$sql->on( 'a.uid', 'b.id' );
+			$sql->leftjoin('#__social_fields', 'c' );
+			$sql->on( 'b.unique_key', 'c.unique_key' );
+			$sql->leftjoin( '#__social_fields_steps', 'd' );
+			$sql->on( 'c.step_id', 'd.id' );
+
+			$sql->set( 'a.uid', 'c.id', false );
+
+			$sql->where( 'a.user_id', $uid );
+			$sql->where('(');
+			$sql->where( 'a.type', 'field' );
+			$sql->where( 'a.type', 'year' ,'=', 'OR' );
+			$sql->where(')');
+			$sql->where( 'd.type', 'profiles' );
+			$sql->where( 'd.uid', $profileId ) ;
+
+			$db->setQuery( $sql );
+
+			$state = $db->query();
+
+		}
+
+		return $state;
+
 	}
 
 	/**
@@ -630,16 +692,44 @@ class EasySocialModelProfiles extends EasySocialModel
 	 */
 	public function getProfiles( $config = array() )
 	{
-		$db 		= FD::db();
-		$query 		= array();
+		$db = FD::db();
+		$query = array();
+		$my = FD::user();
 
 		// Ensure that the user's are published
 		$validUsers 	= isset( $config[ 'validUser' ] ) ? $config[ 'validUser' ] : null;
+
+		// Determines if we should display admin's on this list.
+		$includeAdmin 	= isset( $config[ 'includeAdmin' ] ) ? $config[ 'includeAdmin' ] : null;
+
+		$excludeIds = array();
+
+		if ($my->id) {
+			$excludeIds[] = $my->id;
+		}
+
+		// If caller doesn't want to include admin, we need to set the ignore list.
+		if ($includeAdmin === false) {
+			// Get a list of site administrators from the site.
+			$userModel = FD::model('Users');
+			$admins 	= $userModel->getSiteAdmins();
+
+			if ($admins) {
+				foreach ($admins as $admin) {
+					$excludeIds[] 	= $admin->id;
+				}
+			}
+		}
+
 
 		$query[]	= 'SELECT a.* , COUNT(b.' . $db->nameQuote( 'id' ) . ') AS ' . $db->nameQuote( 'count' );
 		$query[]	= 'FROM ' . $db->nameQuote( '#__social_profiles' ) . ' AS a';
 		$query[]	= 'LEFT JOIN ' . $db->nameQuote( '#__social_profiles_maps' ) . ' AS b';
 		$query[]	= 'ON a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'profile_id' );
+
+		if ($excludeIds) {
+			$query[] = ' AND b.' . $db->nameQuote('user_id') . ' NOT IN (' . implode(',', $excludeIds) . ')';
+		}
 
 		if( $validUsers )
 		{
@@ -667,29 +757,12 @@ class EasySocialModelProfiles extends EasySocialModel
 			$query[]	= 'AND a.' . $db->nameQuote( 'registration' ) . '=' . $db->Quote( $registration );
 		}
 
-		// Determines if we should display admin's on this list.
-		$includeAdmin 	= isset( $config[ 'includeAdmin' ] ) ? $config[ 'includeAdmin' ] : null;
 
-		// If caller doesn't want to include admin, we need to set the ignore list.
-		if( $includeAdmin === false )
-		{
-			// Get a list of site administrators from the site.
-			$userModel = FD::model('Users');
-			$admins 	= $userModel->getSiteAdmins();
-
-			if( $admins )
-			{
-				$ids	= array();
-
-				foreach( $admins as $admin )
-				{
-					$ids[] 	= $admin->id;
-				}
-
-				$query[] = ' AND b.' . $db->nameQuote('user_id') . ' NOT IN (' . implode(',', $ids) . ')';
-			}
+		// Only show which profile have the community access permission
+		// if enable this allow admin view ESAD profile user and that user is superadmin then only can view.
+		if (!(FD::config()->get('users.listings.esadadmin') && $my->isSiteAdmin()) && isset($config['excludeESAD']) && $config['excludeESAD']) {
+			$query[] = ' AND a.' . $db->nameQuote('community_access') . ' = 1';
 		}
-
 
 		// Group results up since we joined with profile maps
 		$query[]	= 'GROUP BY a.' . $db->nameQuote( 'id' );

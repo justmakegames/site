@@ -1,0 +1,6 @@
+css:
+  -
+    location: ''
+    inline: ".gantry-logo img{\nwidth:300px;\n}\n#g-header #fd{\nfloat: right;\n}"
+    extra: {  }
+    name: override.css

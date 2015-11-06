@@ -140,7 +140,7 @@ class SocialApps
 	public function renderWidgets( $group , $view , $position , $args = array() )
 	{
 		// Get a list of apps that has widget layout.
-		$model = FD::model('Apps');
+		$model = ES::model('Apps');
 
 		// Determine if the uid is provided
 		if (isset($args['uid'])) {
@@ -152,7 +152,7 @@ class SocialApps
 			$uid = $user->id;
 		}
 
-		$options = array('uid' => $uid, 'widget' => SOCIAL_STATE_PUBLISHED, 'group' => $group, 'limit' => null);
+		$options = array('uid' => $uid, 'widget' => SOCIAL_STATE_PUBLISHED, 'group' => $group, 'limit' => null, 'state' => SOCIAL_STATE_PUBLISHED, 'type' => SOCIAL_APPS_TYPE_APPS);
 
 		// For now, only $group == 'user' have 'key' in order to filter what app does the user install
 		// group and event doesn't need to pass in key because we don't have mapping of which app exist in which group/event. All group/event apps is default.
@@ -282,9 +282,7 @@ class SocialApps
 	public function renderView( $viewType , $viewName , SocialTableApp $app , $args = array() )
 	{
 		// If application id is not provided, stop execution here.
-		if( !$app->id )
-		{
-			FD::logError( __FILE__ , __LINE__ , 'APPS: Invalid application id [' . $app->id . '] provided.' );
+		if (!$app->id) {
 			return JText::_( 'COM_EASYSOCIAL_APPS_INVALID_ID_PROVIDED' );
 		}
 
@@ -580,36 +578,36 @@ class SocialApps
 	 */
 	public function hasAppListing( SocialTableApp $table , $view , $uid = '' , $type = '' )
 	{
-		$file 	= SOCIAL_APPS . '/' . $table->group . '/' . $table->element . '/' . $table->element . '.php';
+		$file = SOCIAL_APPS . '/' . $table->group . '/' . $table->element . '/' . $table->element . '.php';
 
-		jimport( 'joomla.filesystem.file' );
+		jimport('joomla.filesystem.file');
 
-		if( !JFile::exists( $file ) )
-		{
+		if (!JFile::exists($file)) {
 			return true;
 		}
 
-		require_once( $file );
+		require_once($file);
 
-		$appClass 	= 'Social' . ucfirst( $table->group ) . 'App' . ucfirst( $table->element );
+		$appClass = 'Social' . ucfirst($table->group) . 'App' . ucfirst($table->element);
 
-		if( !class_exists( $appClass ) )
-		{
+		if (!class_exists($appClass)) {
 			return true;
 		}
 
-		$app 			= new $appClass();
-		$app->element	= $table->element;
-		$app->group 	= $table->group;
+		$app = new $appClass();
+		$app->element = $table->element;
+		$app->group = $table->group;
 
-		if( !method_exists( $app , 'appListing' ) )
-		{
+		// Properties based
+		if (isset($app->appListing)) {
+			return $app->appListing;
+		}
+
+		if (!method_exists($app, 'appListing')) {
 			return true;
 		}
 
-		$appear 	= $app->appListing( $view , $uid , $type );
-
-
-		return $appear;
+		$display = $app->appListing($view, $uid, $type);
+		return $display;
 	}
 }

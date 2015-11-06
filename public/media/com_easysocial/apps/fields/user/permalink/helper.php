@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,37 +9,83 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * Field application for Gender
- *
- * @since	1.0
- * @author	Jason Rey <jasonrey@stackideas.com>
- */
 class SocialFieldsUserPermalinkHelper
 {
-	public static function valid( $permalink, $params )
+	/**
+	 * Ensures that the user doesn't try to use a permalink from a menu alias
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public static function allowed($permalink)
 	{
-		if( empty( $permalink ) || preg_match( "#[<>\"'%;()\!&_ @\.]#i", $permalink ) )
-		{
+		$jConfig = ES::jConfig();
+
+		// If sef isn't enabled, we shouldn't really need to worry about this.
+		if (!$jConfig->getValue('sef')) {
+			return true;
+		}
+
+		// Find any menu alias on the site which uses similar alias
+		if (self::menuAliasExists($permalink)) {
 			return false;
 		}
 
-		$forbidden = $params->get( 'forbidden' );
+		return true;
+	}
 
-		if( !empty( $forbidden ) )
-		{
-			$words = explode( ',', $forbidden );
+	public static function menuAliasExists($permalink)
+	{
+		$db = ES::db();
+		$query = $db->sql();
 
-			foreach( $words as $word )
-			{
-				$word = trim( $word );
+		$query->select('#__menu');
+		$query->column('COUNT(1)');
+		$query->where('client_id', 0);
+		$query->where('published', 1);
+		$query->where('alias', $permalink);
 
-				if( $word != '' && JString::stristr( $permalink, $word ) !== false )
-				{
-					return false;
-				}
+		$db->setQuery($query);
+		$exists = $db->loadResult() > 0 ? true : false;
+
+		return $exists;
+	}
+
+	/**
+	 * Determines if the permalink is a valid permalink
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public static function valid($permalink, $params)
+	{
+		$invalid = preg_match("#[<>\"'%;()\!&_ @\.]#i", $permalink);
+		
+		if (!$permalink || $invalid) {
+			return false;
+		}
+
+		// Get a list of forbidden permalinks
+		$forbidden = $params->get('forbidden');
+
+		if (!$forbidden) {
+			return true;
+		}
+
+		$words = explode(',', $forbidden);
+
+		// Trim the forbidden words
+		foreach ($words as $word) {
+			$word = JString::trim($word);
+
+			if ($word && JString::stristr($permalink, $word) !== false) {
+				return false;
 			}
 		}
 

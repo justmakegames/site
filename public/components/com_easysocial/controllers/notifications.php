@@ -50,49 +50,45 @@ class EasySocialControllerNotifications extends EasySocialController
 	 */
 	public function setAllState()
 	{
+		// Check for request forgeries
 		FD::checkToken();
 
+		// Only logged in users are allowed here
 		FD::requireLogin();
 
-		$view 	= $this->getCurrentView();
-		$my 	= FD::user();
+		// Get the state
+		$state = $this->input->get('state', '', 'word');
 
-		$state 	= JRequest::getVar( 'state', '' );
-
-		if( ! $state )
-		{
-			$view->setMessage( JText::_( 'COM_EASYSOCIAL_NOTIFICATIONS_INVALID_STATE_PROVIDED' ) , SOCIAL_MSG_ERROR );
-			return $view->call( __FUNCTION__ );
+		if (!$state) {
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_NOTIFICATIONS_INVALID_STATE_PROVIDED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
+		// Load up our model
+		$model = FD::model('Notifications');
 
-		$model 	= FD::model( 'Notifications' );
+		// Mark all notification as read
+		if ($state == 'read') {
+			$result = $model->setAllState(SOCIAL_NOTIFICATION_STATE_READ);
 
-		if( $state == 'read' )
-		{
-			// mark all notification as read
-			$state = $model->setAllState( SOCIAL_NOTIFICATION_STATE_READ );
-
-			if( ! $state )
-			{
-				$view->setMessage( JText::_( 'COM_EASYSOCIAL_NOTIFICATIONS_FAILED_TO_MARK_AS_READ' ) , SOCIAL_MSG_ERROR );
-				return $view->call( __FUNCTION__ );
-			}
-		}
-		else if( $state == 'clear' )
-		{
-			// remove all notification from this user.
-			$state = $model->setAllState( 'clear' );
-
-			if( ! $state )
-			{
-				$view->setMessage( JText::_( 'COM_EASYSOCIAL_NOTIFICATIONS_FAILED_TO_REMOVE' ) , SOCIAL_MSG_ERROR );
-				return $view->call( __FUNCTION__ );
+			if (!$result) {
+				$this->view->setMessage('COM_EASYSOCIAL_NOTIFICATIONS_FAILED_TO_MARK_AS_READ', SOCIAL_MSG_ERROR);
+				return $this->view->call(__FUNCTION__);
 			}
 		}
 
+		// Removes all notification from this user.
+		if ($state == 'clear') {
+			
+			$result = $model->setAllState('clear');
 
-		return $view->call( __FUNCTION__ );
+			if (!$result) {
+				$this->view->setMessage('COM_EASYSOCIAL_NOTIFICATIONS_FAILED_TO_REMOVE', SOCIAL_MSG_ERROR);
+				return $this->view->call(__FUNCTION__);
+			}
+		}
+
+		return $this->view->call(__FUNCTION__);
 	}
 
 	/**
@@ -130,7 +126,7 @@ class EasySocialControllerNotifications extends EasySocialController
 			return $view->call( __FUNCTION__ );
 		}
 
-		$stateValue 	= SOCIAL_NOTIFICATION_STATE_READ;
+		$stateValue = SOCIAL_NOTIFICATION_STATE_READ;
 
 		if( $state == 'unread' )
 		{
@@ -205,13 +201,14 @@ class EasySocialControllerNotifications extends EasySocialController
 		// Ensure that user is logged in
 		FD::requireLogin();
 
-		$view 	= FD::view( 'Notifications' , false );
-		$my 	= FD::user();
+		$model = ES::model('Notifications');
+		$options = array(
+						'unread' => true,
+						'target' => array('id' => $this->my->id, 'type' => SOCIAL_TYPE_USER)
+					);
+		$total = $model->getCount($options);
 
-		$model 	= FD::model( 'Notifications' );
-		$total 	= $model->getCount( array( 'unread' => true , 'target' => array( 'id' => $my->id , 'type' => SOCIAL_TYPE_USER ) ) );
-
-		return $view->call( __FUNCTION__ , $total );
+		return $this->view->call(__FUNCTION__, $total);
 	}
 
 	/**
@@ -228,20 +225,24 @@ class EasySocialControllerNotifications extends EasySocialController
 		// Ensure that user is logged in
 		FD::requireLogin();
 
-		// Get current view.
-		$view 	= $this->getCurrentView();
+		// Load up the notifications library
+		$notification = FD::notification();
 
-		$my 	= FD::user();
+		$options = array(
+						'target_id' => $this->my->id,
+						'target_type' => SOCIAL_TYPE_USER,
+						'unread' => true
+					);
 
-		// Just to be sure that the language files on the front end is loaded
-		FD::language()->loadSite();
+		$items = $notification->getItems($options);
 
-		$notification 	= FD::notification();
-
-		$options 		= array( 'target_id' => $my->id , 'target_type' => SOCIAL_TYPE_USER , 'unread' => true );
-		$items 			= $notification->getItems( $options );
-
-		return $view->call( __FUNCTION__ , $items );
+		// Mark all items as read if auto read is enabled.
+		if ($this->config->get('notifications.system.autoread')) {
+			$model = FD::model('Notifications');
+			$result = $model->setAllState(SOCIAL_NOTIFICATION_STATE_READ);
+		}
+		
+		return $this->view->call(__FUNCTION__, $items);
 	}
 
 	/**
@@ -311,6 +312,12 @@ class EasySocialControllerNotifications extends EasySocialController
 		// Get conversation items.
 		$conversations	= $model->getConversations( $my->id , $options );
 
+		// Mark all items as read if auto read is enabled.
+		if ($this->config->get('notifications.conversation.autoread')) {
+			foreach ($conversations as $item) {
+				$model->markAsRead($item->id, $my->id);
+			}
+		}
 
 		return $view->call( __FUNCTION__ , $conversations );
 	}

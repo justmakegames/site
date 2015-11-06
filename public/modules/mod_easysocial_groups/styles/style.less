@@ -6,65 +6,53 @@
 **/
 @import "config";
 
-@{EasySocial}
-{
+@{EasySocial} {
 	// EasySocial Groups Modules
-	&.mod-es-groups
-	{
-		ul
-		{
+	&.mod-es-groups {
+		
+		ul {
 			list-style: none;
 
-			li
-			{
+			li {
 				margin-bottom: 10px;
 				list-style: none;
 
-				.es-group-object
-				{
+				.es-group-object {
 					margin-bottom:5px;
 				}
 				.es-group-avatar {
 					float: right;
 					+ .es-group-object {
-						margin-right: 30px;
+						margin-right: 35px;
 					}
 				}
-				.es-avatar
-				{
-					width: 24px;
-					height: 24px;
-					border: 1px solid #d7d7d7;
-					padding: 3px;
-				}
 
-				.group-title
-				{
+				.group-title {
 					font-size: 14px;
 					display: inline-block;
 				}
 
-				.es-group-meta
-				{
+				.es-group-meta {
 					font-size: 10px;
-					color: #666;
+					color: @esColor;
 
-					span
-					{
+					span {
 						margin-right: 5px;
 
-						+span
-						{
-							border-left: 1px dotted #d7d7d7;
+						+span {
+							border-left: 1px dotted @esBorder;
 							padding-left: 8px;
 						}
 					}
 				}
 
-				+li
-				{
+				.es-group-actions {
+					margin-top: 8px;
+				}
+
+				+li {
 					padding-top: 10px;
-					border-top: 1px dotted #d7d7d7;
+					border-top: 1px dotted @esBorder;
 				}
 			}
 		}

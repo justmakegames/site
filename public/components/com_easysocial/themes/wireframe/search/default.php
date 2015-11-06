@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,28 +9,18 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div data-search>
 	<div class="es-container">
 		<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-			<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+			<i class="fa fa-grid-view mr-5"></i> <?php echo JText::_('COM_EASYSOCIAL_SIDEBAR_TOGGLE');?>
 		</a>
-
-		<div class="es-sidebar" data-search-sidebar data-sidebar>
-
-			<?php echo $this->render( 'widgets' , 'user' , 'search' , 'sidebarTop' ); ?>
-
-			<?php echo $this->includeTemplate( 'site/search/default.sidebar' ); ?>
-
-			<?php echo $this->render( 'widgets' , 'user' , 'search' , 'sidebarBottom' ); ?>
-
-		</div>
 
 		<div class="es-container">
 			<div class="pt-10">
 				<div class="es-search-result">
-					<?php echo $this->includeTemplate( 'site/search/default.content' ); ?>
+					<?php echo $this->includeTemplate('site/search/default.content'); ?>
 				</div>
 			</div>
 		</div>

@@ -192,20 +192,16 @@ class EasySocialViewUsers extends EasySocialAdminView
 	 */
 	public function switchProfileForm()
 	{
-		$ajax 	= FD::ajax();
-
-		$theme 	= FD::themes();
-
 		// Get the id's of the user that we are trying to modify
-		$ids 	= JRequest::getVar( 'ids' );
-		$ids 	= FD::makeArray( $ids );
+		$ids = $this->input->get('ids', array(), 'array');
+		$ids = ES::makeArray($ids);
 
+		$theme = ES::themes();
+		$theme->set('ids', $ids);
 
-		$theme->set( 'ids' , $ids );
+		$output = $theme->output('admin/users/dialog.switch.profile');
 
-		$output = $theme->output( 'admin/users/dialog.switch.profile' );
-
-		return $ajax->resolve( $output );
+		return $this->ajax->resolve($output);
 	}
 
 	/**

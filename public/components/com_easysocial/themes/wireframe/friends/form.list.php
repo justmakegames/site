@@ -51,7 +51,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<span class="textboxlist-itemContent" data-textboxlist-itemContent><?php echo $this->html( 'string.escape' , $user->getName() );?>
 								<input type="hidden" name="items[]" value="<?php echo $user->id;?>" />
 							</span>
-							<a class="textboxlist-itemRemoveButton" href="javascript: void(0);" data-textboxlist-itemRemoveButton><i class="ies-cancel-2"></i></a>
+							<a class="textboxlist-itemRemoveButton" href="javascript: void(0);" data-textboxlist-itemRemoveButton><i class="fa fa-remove"></i></a>
 						</div>
 					<?php } ?>
 				<?php } ?>

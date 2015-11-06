@@ -126,6 +126,36 @@ class EasySocialModelGroups extends EasySocialModel
 	}
 
 	/**
+	 * Retrieves the total number of announcements
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getTotalNews($groupId, $options = array())
+	{
+		$db = ES::db();
+		$sql = $db->sql();
+
+		$sql->select('#__social_clusters_news', 'a');
+		$sql->column('COUNT(1)');
+		$sql->where('a.cluster_id', $groupId);
+
+		// If we should exclude specific items
+		$exclude = isset($options['exclude']) ? $options['exclude'] : '';
+
+		if ($exclude) {
+			$sql->where('a.id', $exclude, 'NOT IN');
+		}
+
+		$db->setQuery($sql);
+		$total = $db->loadResult();
+
+		return $total;
+	}
+
+	/**
 	 * Retrieves a list of news item from a particular group
 	 *
 	 * @since	1.0
@@ -207,6 +237,15 @@ class EasySocialModelGroups extends EasySocialModel
 		$sql->column('DISTINCT(a.uid)');
 		$sql->innerjoin('#__social_clusters', 'b');
 		$sql->on('a.cluster_id', 'b.id');
+
+		// exclude esad users
+		$sql->innerjoin('#__social_profiles_maps', 'upm');
+		$sql->on('a.uid', 'upm.user_id');
+
+		$sql->innerjoin('#__social_profiles', 'up');
+		$sql->on('upm.profile_id', 'up.id');
+		$sql->on('up.community_access', '1');
+
 
 		if (FD::config()->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    $sql->leftjoin( '#__social_block_users' , 'bus');
@@ -311,11 +350,38 @@ class EasySocialModelGroups extends EasySocialModel
 
 		$optionskey = serialize($options);
 
-		if (!isset($cache[$groupId][$optionskey])) {
+
+		$load = array();
+		if (is_array($groupId)) {
+			foreach($groupId as $gid) {
+				if (! isset($cache[$gid][$optionskey])) {
+					$load[] = $gid;
+				}
+			}
+		} else {
+
+			if (! isset($cache[$groupId][$optionskey])) {
+				$load[] = $groupId;
+			}
+		}
+
+
+		if ($load) {
+
+			// prefill empty array
+			if (count($load) > 1) {
+				foreach($load as $ld) {
+					$cache[$ld][$optionskey] = array();
+				}
+			} else {
+				$cache[$load[0]][$optionskey] = array();
+			}
+
 			$db 	= FD::db();
 			$sql 	= $db->sql();
 
 			$sql->select('#__social_clusters_nodes', 'a');
+			$sql->column('a.*');
 
 			if (FD::config()->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 			    $sql->leftjoin( '#__social_block_users' , 'bus');
@@ -324,16 +390,36 @@ class EasySocialModelGroups extends EasySocialModel
 			    $sql->isnull('bus.id');
 			}
 
-			$sql->where('a.cluster_id', $groupId);
+			// We should not fetch banned users
+			$sql->join('#__users', 'u');
+			$sql->on('a.uid', 'u.id');
 
-			$state 	= isset($options[ 'state' ]) ? $options[ 'state' ] : '';
+			// exclude esad users
+			$sql->innerjoin('#__social_profiles_maps', 'upm');
+			$sql->on('u.id', 'upm.user_id');
+
+			$sql->innerjoin('#__social_profiles', 'up');
+			$sql->on('upm.profile_id', 'up.id');
+			$sql->on('up.community_access', '1');
+
+			// By specific groups
+			if (count($load) > 1) {
+				$sql->where('a.cluster_id', $load, 'IN');
+			} else {
+				$sql->where('a.cluster_id', $load[0]);
+			}
+
+			// Whe the user isn't blocked
+			$sql->where('u.block', 0);
+
+			$state = isset($options['state']) ? $options['state'] : '';
 
 			if ($state) {
 				$sql->where('a.state', $state);
 			}
 
 			// Determine if we should retrieve admins only
-			$adminOnly 	= isset($options[ 'admin' ]) ? $options[ 'admin' ] : '';
+			$adminOnly = isset($options['admin']) ? $options['admin'] : '';
 
 			if ($adminOnly) {
 				$sql->where('a.admin', SOCIAL_STATE_PUBLISHED);
@@ -352,27 +438,37 @@ class EasySocialModelGroups extends EasySocialModel
 				$sql->order($options['ordering'], $direction);
 			}
 
-			$limit 	= isset($options[ 'limit' ]) ? $options[ 'limit' ] : '';
+			// Should we apply pagination
+			$limit = isset($options['limit']) ? $options['limit'] : '';
 
 			if ($limit) {
+
 				// Set the total records for pagination.
 				$this->setTotal($sql->getTotalSql());
-
-				$sql->limit($limit);
+				$this->setLimit($limit);
 
 				// Get the final result
-				$result		= $this->getData($sql->getSql());
-			}
-			else
-			{
+				$result = $this->getData($sql->getSql());
+			} else {
 				// Run the main query to get the list of users
 				$db->setQuery($sql);
 
-				$result 	= $db->loadObjectList();
+				$result = $db->loadObjectList();
 			}
 
-			$cache[$groupId][$optionskey] = $result;
+			if ($result) {
+				foreach($result as $item) {
+					$cache[$item->cluster_id][$optionskey][] = $item;
+				}
+			}
+
 		}
+
+		if (is_array($groupId)) {
+			// when this is an array of group ids, we know we are doign preload. lets return true.
+			return true;
+		}
+
 
 		$result = $cache[$groupId][$optionskey];
 
@@ -381,14 +477,19 @@ class EasySocialModelGroups extends EasySocialModel
 		$users 		= array();
 
 		if ($usersObject) {
+			//preload users
+			$userIds = array();
+			foreach ($result as $row) {
+				$userIds[] = $row->uid;
+			}
+			FD::user($userIds);
+
+			//
 			foreach ($result as $row) {
 				$user 	= FD::user($row->uid);
-
 				$users[]	= $user;
 			}
-		}
-		else
-		{
+		} else {
 			$users = $this->bindTable('GroupMember', $result);
 		}
 
@@ -514,12 +615,13 @@ class EasySocialModelGroups extends EasySocialModel
 	 */
 	public function getTotalGroups($options = array())
 	{
-		$db 	= FD::db();
-		$sql 	= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 
 		$sql->select('#__social_clusters', 'a');
         $sql->column('a.id', 'id', 'count distinct');
 
+        // Check for blocked users
 		if (FD::config()->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    $sql->leftjoin( '#__social_block_users' , 'bus');
 		    $sql->on( 'a.creator_uid' , 'bus.user_id' );
@@ -530,7 +632,7 @@ class EasySocialModelGroups extends EasySocialModel
 		$sql->where('a.state', SOCIAL_CLUSTER_PUBLISHED);
 		$sql->where('a.cluster_type', SOCIAL_TYPE_GROUP);
 
-		$types 	= isset($options['types']) ? $options['types'] : '';
+		$types = isset($options['types']) ? $options['types'] : '';
 
 		if ($types != 'all') {
 			if ($types === 'user') {
@@ -538,6 +640,7 @@ class EasySocialModelGroups extends EasySocialModel
 
 				$sql->leftjoin('#__social_clusters_nodes', 'nodes');
 				$sql->on('a.id', 'nodes.cluster_id');
+
 				$sql->where('(');
 				$sql->where('a.type', array(SOCIAL_GROUPS_PRIVATE_TYPE, SOCIAL_GROUPS_PUBLIC_TYPE), 'IN');
 				$sql->where('(', '', '', 'OR');
@@ -546,7 +649,13 @@ class EasySocialModelGroups extends EasySocialModel
 				$sql->where(')');
 				$sql->where(')');
 			} else {
-				$sql->where('a.type', array(SOCIAL_GROUPS_PRIVATE_TYPE, SOCIAL_GROUPS_PUBLIC_TYPE), 'IN');
+
+				// Get the current logged in user
+				$my = FD::user();
+
+				if (!$my->isSiteAdmin()) {
+					$sql->where('a.type', array(SOCIAL_GROUPS_PRIVATE_TYPE, SOCIAL_GROUPS_PUBLIC_TYPE), 'IN');
+				}
 			}
 		}
 
@@ -565,7 +674,7 @@ class EasySocialModelGroups extends EasySocialModel
 		}
 
 		$db->setQuery($sql);
-		$count 		= (int) $db->loadResult();
+		$count = (int) $db->loadResult();
 
 		return $count;
 	}
@@ -639,8 +748,8 @@ class EasySocialModelGroups extends EasySocialModel
 	 */
 	public function getOnlineMembers($groupId)
 	{
-		$db 		= FD::db();
-		$sql 		= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 
 		// Get the session life time so we can know who is really online.
 		$jConfig 	= FD::jConfig();
@@ -654,6 +763,14 @@ class EasySocialModelGroups extends EasySocialModel
 		$sql->join('#__social_clusters_nodes', 'c', 'INNER');
 		$sql->on('c.uid', 'b.id');
 		$sql->on('c.type', SOCIAL_TYPE_USER);
+
+        // exclude esad users
+        $sql->innerjoin('#__social_profiles_maps', 'upm');
+        $sql->on('c.uid', 'upm.user_id');
+
+        $sql->innerjoin('#__social_profiles', 'up');
+        $sql->on('upm.profile_id', 'up.id');
+        $sql->on('up.community_access', '1');
 
 		if (FD::config()->get('users.blocking.enabled') && !JFactory::getUser()->guest) {
 		    $sql->leftjoin( '#__social_block_users' , 'bus');
@@ -669,7 +786,7 @@ class EasySocialModelGroups extends EasySocialModel
 
 		$db->setQuery($sql);
 
-		$result 	= $db->loadColumn();
+		$result = $db->loadColumn();
 
 		if (!$result) {
 			return array();
@@ -724,10 +841,19 @@ class EasySocialModelGroups extends EasySocialModel
 		$sql 	= $db->sql();
 
 
-		$sql->select('#__social_clusters_nodes');
+		$sql->select('#__social_clusters_nodes', 'a');
 		$sql->column('COUNT(1)');
-		$sql->where('cluster_id', $clusterId);
-		$sql->where('state', SOCIAL_STATE_PUBLISHED);
+
+        // exclude esad users
+        $sql->innerjoin('#__social_profiles_maps', 'upm');
+        $sql->on('a.uid', 'upm.user_id');
+
+        $sql->innerjoin('#__social_profiles', 'up');
+        $sql->on('upm.profile_id', 'up.id');
+        $sql->on('up.community_access', '1');
+
+		$sql->where('a.cluster_id', $clusterId);
+		$sql->where('a.state', SOCIAL_STATE_PUBLISHED);
 
 		$db->setQuery($sql);
 		$count 		= (int) $db->loadResult();
@@ -893,7 +1019,6 @@ class EasySocialModelGroups extends EasySocialModel
 		return $categories;
 	}
 
-
 	/**
 	 * Retrieves a list of cluster categories on the site
 	 *
@@ -914,6 +1039,7 @@ class EasySocialModelGroups extends EasySocialModel
 		$query[] = "LEFT JOIN `#__social_clusters_categories_access` AS `b`";
 		$query[] = "ON `a`.`id` = `b`.`category_id`";
 		$query[] = "WHERE `a`.`type` = 'group'";
+        $query[] = "AND `a`.`state` = '1'";
 
 		if (!FD::user()->isSiteAdmin()) {
 			$query[] = "AND (`b`.`profile_id` = " . $profileId;
@@ -1172,13 +1298,16 @@ class EasySocialModelGroups extends EasySocialModel
 		$sql->raw($query);
 		$db->setQuery($sql);
 
-		$ids = $db->loadObjectList();
+		$ids = $db->loadColumn();
 
 		$groups 	= array();
 		if ($ids) {
-			foreach ($ids as $id) {
-				$groups[]	= FD::group($id->cluster_id);
-			}
+			// foreach ($ids as $id) {
+				// $groups[]	= FD::group($id->cluster_id);
+				// $groups[]	= FD::group($id);
+
+			// }
+			$groups = FD::group()->loadGroups($ids);
 		}
 		return $groups;
 	}
@@ -1195,8 +1324,8 @@ class EasySocialModelGroups extends EasySocialModel
 	 */
 	public function getGroups($filter = array())
 	{
-		$db 	= FD::db();
-		$sql 	= $db->sql();
+		$db = FD::db();
+		$sql = $db->sql();
 
 		$sql->select('#__social_clusters', 'a');
 		$sql->column('DISTINCT(a.id)');
@@ -1218,7 +1347,7 @@ class EasySocialModelGroups extends EasySocialModel
 		}
 
 		// Test to filter by creator
-		$uid 		= isset($filter[ 'uid' ]) ? $filter[ 'uid' ] : '';
+		$uid = isset($filter[ 'uid' ]) ? $filter[ 'uid' ] : '';
 
 		if ($uid) {
 			$sql->join('#__social_clusters_nodes', 'c', 'INNER');
@@ -1229,7 +1358,7 @@ class EasySocialModelGroups extends EasySocialModel
 		}
 
 		// Test to filter by invitation
-		$invited 	= isset($filter[ 'invited' ]) ? $filter[ 'invited' ] : '';
+		$invited = isset($filter[ 'invited' ]) ? $filter[ 'invited' ] : '';
 
 		if ($invited) {
 			$sql->join('#__social_clusters_nodes', 'b', 'INNER');
@@ -1246,12 +1375,29 @@ class EasySocialModelGroups extends EasySocialModel
 			$sql->where('a.featured', $featured);
 		}
 
+		// Test if there is an inclusion
+		$inclusion 	= isset($filter[ 'inclusion' ]) ? $filter[ 'inclusion' ] : '';
+
+		if ($inclusion !== '') {
+			$groupId = explode(',',$inclusion);
+			$sql->where( 'a.id', $groupId, 'in' );
+		}
+
 		// Test to filter all group types
-		$types 		= isset($filter[ 'types' ]) ? $filter[ 'types' ] : '';
+		$types = isset($filter['types']) ? $filter['types'] : '';
 
 		if ($types != 'all') {
-			if ($types === 'user') {
-				$userid = isset($filter['userid']) ? $filter['userid'] : FD::user()->id;
+
+			$userid = isset($filter['userid']) ? $filter['userid'] : FD::user()->id;
+
+			// currentuser type is currently used in groups module.
+			if ($types === 'currentuser' && $userid) {
+
+				$sql->innerjoin('#__social_clusters_nodes', 'nodes');
+				$sql->on('a.id', 'nodes.cluster_id');
+				$sql->where('nodes.uid', $userid);
+
+			} else if ($types === 'user' && $userid) {
 
 				$sql->leftjoin('#__social_clusters_nodes', 'nodes');
 				$sql->on('a.id', 'nodes.cluster_id');
@@ -1262,13 +1408,15 @@ class EasySocialModelGroups extends EasySocialModel
 				$sql->where('nodes.uid', $userid);
 				$sql->where(')');
 				$sql->where(')');
+
 			} else {
+
 				$sql->where('a.type', array(SOCIAL_GROUPS_PRIVATE_TYPE, SOCIAL_GROUPS_PUBLIC_TYPE), 'IN');
 			}
 		}
 
 		// Test to filter published / unpublished groups
-		$state		= isset($filter[ 'state' ]) ? $filter[ 'state' ] : '';
+		$state = isset($filter[ 'state' ]) ? $filter[ 'state' ] : '';
 
 		if ($state) {
 			$sql->where('a.state', $state);
@@ -1277,44 +1425,58 @@ class EasySocialModelGroups extends EasySocialModel
 		// Determines if there are ordering options supplied
 		$ordering 	= isset($filter[ 'ordering' ]) ? $filter[ 'ordering' ] : 'latest';
 
-		if ($ordering == 'popular') {
-			$sql->order('a.hits');
-		}
-
-		if ($ordering == 'latest') {
-			$sql->order('a.created', 'DESC');
-		}
-
-		if ($ordering == 'random') {
-			$sql->order('', 'DESC', 'RAND');
-		}
+		$cntSQL = '';
 
 		if ($ordering == 'members') {
 			$sql->join('#__social_clusters_nodes', 'f', 'INNER');
 			$sql->on('f.cluster_id', 'a.id');
 			$sql->on('f.state', SOCIAL_GROUPS_MEMBER_PUBLISHED);
+
+			// lets get the sql without the order by condition.
+			$cntSQL = $sql->getSql();
+
 			$sql->order('COUNT(f.`id`)', 'DESC');
 			$sql->group('a.id');
+		} else {
+
+			// lets get the sql without the order by condition.
+			$cntSQL = $sql->getSql();
+
+			if ($ordering == 'popular') {
+				$sql->order('a.hits', 'DESC');
+			}
+
+			if ($ordering == 'latest') {
+				$sql->order('a.created', 'DESC');
+			}
+
+			if ($ordering == 'random') {
+				$sql->order('', 'DESC', 'RAND');
+			}
+
+			if ($ordering == 'name') {
+				$sql->order('a.title', 'ASC');
+			}
 		}
 
-		$limit 		= isset($filter[ 'limit' ]) ? $filter[ 'limit' ] : '';
+		$limit = isset($filter[ 'limit' ]) ? $filter[ 'limit' ] : '';
 
 		if ($limit) {
 			$this->setState('limit', $limit);
 
 			// Get the limitstart.
-			//$limitstart 	= $this->getUserStateFromRequest('limitstart', 0);
-			$limitstart 	= JRequest::getInt('limitstart', 0);
+			//$limitstart = $this->getUserStateFromRequest('limitstart', 0);
+			$limitstart = JRequest::getInt('limitstart', 0);
 
-			$limitstart 	= ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0);
+			$limitstart = ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0);
 
 			$this->setState('limitstart', $limitstart);
 
 			// Set the total records for pagination.
-			$this->setTotal($sql->getTotalSql());
+			$this->setTotal($cntSQL, true);
 
 			// Get the list of ids
-			$ids	= $this->getData($sql->getSql());
+			$ids = $this->getData($sql->getSql());
 		}
 		else
 		{
@@ -1567,6 +1729,50 @@ class EasySocialModelGroups extends EasySocialModel
 	}
 
 	/**
+	 * Retrieves total number of friends in the group
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	int		The group id
+	 * @param	Array	An array of options
+	 * @return
+	 */
+	public function getTotalFriendsInGroup($groupId, $options = array())
+	{
+		$db 	= FD::db();
+		$query	= array();
+
+		$query[]	= 'SELECT COUNT(DISTINCT(a.uid)) FROM ' . $db->nameQuote('#__social_clusters_nodes') . ' AS ' . $db->nameQuote('a');
+		$query[]	= 'INNER JOIN ' . $db->nameQuote('#__social_friends') . ' AS ' . $db->nameQuote('b');
+		$query[]	= 'ON(';
+
+		$query[]	= '(';
+		$query[]	= 'a.' . $db->nameQuote('uid') . ' = b.' . $db->nameQuote('actor_id') . ' AND b.' . $db->nameQuote('target_id') . ' = ' . $db->Quote($options[ 'userId' ]);
+		$query[]	= ')';
+		$query[]	= 'OR';
+		$query[]	= '(';
+		$query[]	= 'a.' . $db->nameQuote('uid') . ' = b.' . $db->nameQuote('target_id') . ' AND b.' . $db->nameQuote('actor_id') . ' = ' . $db->Quote($options[ 'userId' ]);
+		$query[]	= ')';
+
+		$query[]	= ')';
+		$query[]	= 'AND b.' . $db->nameQuote('state') . ' = ' . $db->Quote(SOCIAL_STATE_PUBLISHED);
+		$query[]	= 'WHERE a.' . $db->nameQuote('cluster_id') . '=' . $db->Quote($groupId);
+
+		$publishedOnly 	= isset($options['published']) ? $options['published'] : false;
+
+		if ($publishedOnly) {
+			$query[]	= 'AND (';
+			$query[]	= 'a.' . $db->nameQuote('state') . '=' . $db->Quote(SOCIAL_GROUPS_MEMBER_PUBLISHED);
+			$query[]	= ')';
+		}
+
+		$db->setQuery($query);
+		$total = $db->loadResult();
+
+		return $total;
+	}
+
+	/**
 	 * Retrieves a list of friends from a particular group
 	 *
 	 * @since	1.0
@@ -1750,6 +1956,12 @@ class EasySocialModelGroups extends EasySocialModel
 			$group->state 	= SOCIAL_CLUSTER_PUBLISHED;
 		}
 
+        $dispatcher  = FD::dispatcher();
+        $triggerArgs = array(&$group, &$my, true);
+
+        // @trigger: onGroupBeforeSave
+        $dispatcher->trigger(SOCIAL_TYPE_USER, 'onGroupBeforeSave', $triggerArgs);
+
 		// Let's try to save the user now.
 		$state 		= $group->save();
 
@@ -1790,6 +2002,10 @@ class EasySocialModelGroups extends EasySocialModel
 
 		// @trigger onRegisterAfterSaveFields
 		$lib->trigger('onRegisterAfterSaveFields', SOCIAL_FIELDS_GROUP_GROUP, $fields, $args);
+
+        // @trigger: onGroupAfterSave
+        $triggerArgs = array(&$group, &$my, true);
+        $dispatcher->trigger(SOCIAL_TYPE_USER, 'onGroupAfterSave', $triggerArgs);
 
 		// We need to set the "data" back to the registration table
 		$newData 			= FD::json()->encode($data);
@@ -1868,6 +2084,57 @@ class EasySocialModelGroups extends EasySocialModel
 	}
 
 	/**
+	 * Searches for groups
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function search($keyword, $options = array())
+	{
+		$db = ES::db();
+		$sql = $db->sql();
+
+		$sql->select('#__social_clusters');
+		$sql->where('cluster_type', SOCIAL_TYPE_GROUP);
+		$sql->where('title', '%' . $keyword . '%', 'LIKE');
+
+		// Determines if we should search for unpublished groups as well
+		$unpublished = isset($options['unpublished']) && $options['unpublished'] ? true : false;
+
+		if (!$unpublished) {
+			$sql->where('state', SOCIAL_STATE_PUBLISHED);
+		}
+
+		// Determines if we should exclude specific group ids
+		$exclusion = isset($options['exclusion']) && $options['exclusion'] ? $options['exclusion'] : false;
+
+		if ($exclusion) {
+			$exclusion = ES::makeArray($exclusion);
+
+			$sql->where('id', $exclusion, 'NOT IN');
+		}
+
+		$db->setQuery($sql);
+		$result = $db->loadObjectList();
+		$groups = array();
+
+		if (!$result) {
+			return $groups;
+		}
+
+		foreach ($result as $row) {
+			$group = FD::group();
+			$group->bind($row);
+
+			$groups[] = $group;
+		}
+
+		return $groups;
+	}
+
+	/**
 	 * Notify site admins that a group is created and it is pending moderation.
 	 *
 	 * @since	1.2
@@ -1883,7 +2150,7 @@ class EasySocialModelGroups extends EasySocialModel
 								'creatorName'	=> $group->getCreator()->getName(),
 								'categoryTitle'	=> $group->getCategory()->get('title'),
 								'avatar'		=> $group->getAvatar(SOCIAL_AVATAR_LARGE),
-								'permalink'		=> $group->getPermalink(true, true),
+								'permalink'		=> JURI::root() . 'administrator/index.php?option=com_easysocial&view=groups&layout=pending',
 								'reject'		=> FRoute::controller('groups', array('external' => true, 'task' => 'rejectGroup', 'id' => $group->id, 'key' => $group->key)),
 								'approve'		=> FRoute::controller('groups', array('external' => true, 'task' => 'approveGroup', 'id' => $group->id, 'key' => $group->key)),
 								'alerts'		=> false

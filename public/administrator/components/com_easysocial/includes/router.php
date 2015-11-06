@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasySocial
-* @copyright    Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -16,39 +16,39 @@ FD::import( 'admin:/includes/router/router' );
 /**
  * Routing library for EasySocial
  *
- * @since   3.0
+ * @since   1.2
  * @author  Mark Lee <mark@stackideas.com>
  */
-class FRoute
+class ESR
 {
-    static $base    = 'index.php?option=com_easysocial';
-    static $views   = array(
-                                'account',
-                                'activities',
-                                'albums',
-                                'apps',
-                                'badges',
-                                'conversations',
-                                'events',
-                                'groups',
-                                'dashboard',
-                                'fields',
-                                'friends',
-                                'followers',
-                                'profile',
-                                'profiles',
-                                'unity',
-                                'users',
-                                'stream',
-                                'notifications',
-                                'leaderboard',
-                                'points',
-                                'photos',
-                                'registration',
-                                'search',
-                                'login',
-                                'unity'
-                            );
+    static $base = 'index.php?option=com_easysocial';
+    static $views = array(
+                            'account',
+                            'activities',
+                            'albums',
+                            'apps',
+                            'badges',
+                            'conversations',
+                            'events',
+                            'groups',
+                            'dashboard',
+                            'fields',
+                            'friends',
+                            'followers',
+                            'profile',
+                            'profiles',
+                            'unity',
+                            'users',
+                            'stream',
+                            'notifications',
+                            'leaderboard',
+                            'points',
+                            'photos',
+                            'registration',
+                            'search',
+                            'login',
+                            'videos'
+                        );
 
     /**
      * Translates URL to SEF friendly
@@ -191,6 +191,26 @@ class FRoute
         return $uri;
     }
 
+        /**
+     * Retrieves the referer url that is being accessed.
+     *
+     * @since   1.3
+     * @access  public
+     * @param   bool    Determines if we should append this as a callback url.
+     * @return  string  The current url.
+     */
+    public static function referer($isCallback = false)
+    {
+        $uri = $_SERVER['HTTP_REFERER'];
+
+        if($isCallback)
+        {
+            return '&callback=' . base64_encode($uri);
+        }
+
+        return $uri;
+    }
+
     /**
      * Retrieves the default menu id
      *
@@ -249,6 +269,59 @@ class FRoute
         }
 
         return $id;
+    }
+
+    /**
+     * Given a menu item id, try to get the link
+     *
+     * @since   1.3
+     * @access  public
+     * @param   string
+     * @return  
+     */
+    public static function getMenuLink($menuId)
+    {
+        $app = JFactory::getApplication();
+        $menu = $app->getMenu();
+        $menuItem = $menu->getItem($menuId);
+
+        $link = false;
+
+        if (!$menuItem) {
+            return $link;
+        }
+
+        // For menus linked within EasySocial, use our own router
+        if ($menuItem->component == 'com_easysocial') {
+            $view = isset($menuItem->query['view']) ? $menuItem->query['view'] : '';
+
+            if ($view) {
+                $queries = $menuItem->query;
+
+                unset($queries['option']);
+                unset($queries['view']);
+
+                $options = array($queries, false);
+                $link = call_user_func_array(array('FRoute', $view), $options);
+            }
+        }
+
+        // For menus not linked to EasySocial
+        if ($menuItem->component != 'com_easysocial') {
+        
+            if (strpos($menuItem->link, '?') > 0) {
+                $link = JRoute::_($menuItem->link . '&Itemid=' . $menuItem->id, false);
+            } else {
+                $link = JRoute::_($menuItem->link . '?Itemid=' . $menuItem->id, false);
+            }
+
+            // If this menu is a home menu item, the link should just be the site url.
+            if (!$link || (isset($menuItem->home) && $menuItem->home)) {
+                $link = JURI::root();
+            }
+        }
+
+        return $link;
     }
 
     /**
@@ -412,38 +485,49 @@ class FRoute
      * @param   string
      * @return
      */
-    public static function getItemId( $view , $layout = '', $id = '')
+    public static function getItemId($view, $layout = '', $id = '', $type = false)
     {
         static $views   = array();
 
         // Cache the result
-        $key        = $view . $layout . $id;
+        $key = $view . $layout . $id;
 
         if (!isset($views[$key])) {
 
             // Retrieve the list of default menu
-            $defaultMenu    = FRoute::getMenus('dashboard','');
+            $defaultMenu = ESR::getMenus('dashboard','');
 
             // Initial menu should be false
-            $menuId     = false;
+            $menuId = false;
 
             if (!empty($layout)) {
 
                 // Try to locate menu with just the view if we still can't find a menu id.
-                $menus      = FRoute::getMenus($view, $layout, $id);
+                $menus = ESR::getMenus($view, $layout, $id);
 
                 if (!$menuId && $menus) {
-                    // If this menu contains data about "id", we shouldn't simply use it.
-                    // if (!isset($menus[0]->segments->id)) {
-                    //     $menuId     = $menus[0]->id;
-                    // }
-                    // var_dump($menus[0]);exit;
-                    $menuId     = $menus[0]->id;
+                    $menuId = $menus[0]->id;
+                }
+            }
+
+            // Fix for the create page for app in Group/Event (example: discussion app in group)
+            if ($view == 'apps' && $layout == 'canvas' && $type) {
+
+                $view = 'events';
+
+                if ($type == 'group') {
+                    $view = 'groups';
+                } 
+
+                $menus = ESR::getMenus($view, 'item');
+
+                if (!$menuId && $menus) {
+                    $menuId = $menus[0]->id;
                 }
             }
 
             // Try to locate menu with just the view if we still can't find a menu id.
-            $menus      = FRoute::getMenus($view, '', '');
+            $menus = FRoute::getMenus($view, '', '');
 
             // If menu id for view + layout doesn't exists, use the one from the view
             if (!$menuId && $menus) {
@@ -495,193 +579,6 @@ class FRoute
     }
 
     /**
-     * Returns the sef url for registration links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::registration();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     */
-    public static function account()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for registration links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::registration();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     */
-    public static function registration()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for apps
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function apps()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for following links
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function points()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for following links
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function followers()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for profile links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function profile()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for profile links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function groups()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for login links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function profiles()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for login links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function login()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for login links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function friends()
-    {
-        $args   = func_get_args();
-        return self::callStatic(__FUNCTION__, $args);
-    }
-
-    /**
      * Calls the adapter file
      *
      * @since   1.0
@@ -689,257 +586,11 @@ class FRoute
      * @param   string
      * @return
      */
-    public static function callStatic($view, $args)
+    public static function __callStatic($view, $args)
     {
         $router     = FD::router($view);
 
         return call_user_func_array(array($router, 'route'), $args);
-    }
-
-    /**
-     * Returns the sef url for activity logs
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function activities()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for activity logs
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function leaderboard()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-
-    /**
-     * Returns the sef url for login links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function conversations()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for login links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function stream()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for badge links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to badges page
-     * echo FRoute::badges();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function badges()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the URL to users
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function users()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the URL to albums
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function albums()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the URL to albums
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function photos()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the URL to search
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function search()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the URL to unity
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function unity()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-
-    /**
-     * Returns the URL to dashboard
-     *
-     * @since   1.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function dashboard()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for login links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to registration page.
-     * echo FRoute::profile();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     * @param   int     (Optional) User's id.
-     */
-    public static function notifications()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the URL to fields
-     *
-     * @since   1.0
-     * @access  public
-     * @param   array
-     * @return
-     */
-    public static function fields()
-    {
-        $args   = func_get_args();
-        return self::callStatic( __FUNCTION__ , $args );
-    }
-
-    /**
-     * Returns the sef url for events links.
-     *
-     * Example:
-     * <code>
-     * <?php
-     * // Returns routed url to events page.
-     * echo FRoute::events();
-     * ?>
-     * </code>
-     *
-     * @since   1.0
-     * @access  public
-     */
-    public static function events()
-    {
-        $args = func_get_args();
-        return self::callStatic(__FUNCTION__, $args);
     }
 
     /**
@@ -1028,42 +679,35 @@ class FRoute
      */
     public static function build(&$query)
     {
-        $app        = JFactory::getApplication();
-        $segments   = array();
+        $app = JFactory::getApplication();
+        $segments = array();
 
-        $menu       = $app->getMenu();
+        $menu = $app->getMenu();
 
         //remove ts from the query
         if (isset($query['_ts'])) {
             unset($query['_ts']);
         }
 
+        // If we don't have the item id, use the default one.
+        $active = $menu->getActive();
+
         // If there is item id already assigned to the query, we need to query for the active menu
+        // Get the menu item based on the item id.
         if (isset($query['Itemid'])) {
-
-            // Get the menu item based on the item id.
-            $active     = $menu->getItem($query['Itemid']);
-
-        } else {
-
-            // If we don't have the item id, use the default one.
-            $active     = $menu->getActive();
-
+            $active = $menu->getItem($query['Itemid']);
         }
 
         // If there's no view, we wouldn't want to set anything
-        if( !isset( $query[ 'view' ] ) )
-        {
+        if (!isset($query['view'])) {
             return $segments;
         }
 
         // Get the view.
-        $view       = isset( $query[ 'view' ] ) ? $query[ 'view' ] : $active->query[ 'view' ];
+        $view = isset($query['view']) ? $query['view'] : $active->query['view'];
+        $router = ES::router($view);
 
-        // Initialize router object
-        $router     = FD::router( $view );
-
-        $segments   = $router->build( $active , $query );
+        $segments = $router->build($active, $query);
 
         return $segments;
     }
@@ -1115,3 +759,6 @@ class FRoute
         return FRoute::_($base, $xhtml, array(), $ssl, $tokenize, $external, '', '', $sef);
     }
 }
+
+
+class FRoute extends ESR {}

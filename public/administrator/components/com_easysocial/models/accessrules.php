@@ -162,6 +162,28 @@ class EasySocialModelAccessRules extends EasySocialModel
 		return $access;
 	}
 
+	/**
+	 * Retrieves a list of known groups for ACL
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getGroups()
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$sql->select('#__social_access_rules');
+		$sql->column('group', '', 'distinct');
+
+		$db->setQuery($sql);
+		$result = $db->loadColumn();
+
+		return $result;
+	}
+
 	public function getExtensions()
 	{
 		$db = FD::db();
@@ -217,66 +239,69 @@ class EasySocialModelAccessRules extends EasySocialModel
 		return $files;
 	}
 
+	/**
+	 * Given the path to the access file, try to install the rule.
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function install($path)
 	{
 		jimport('joomla.filesystem.file');
 
-		$data = FD::makeObject($path);
+		$rules = FD::makeObject($path);
 
-		if (empty($data))
-		{
-			FD::logError(__FILE__, __LINE__, 'ACCESS: Unable to read the file ' . $path);
+		if (!$rules) {
 			$this->setError(JText::_('Unable to read access file'));
 			return false;
 		}
 
-		$json = FD::json();
-
-		$now = FD::date()->toSQL();
+		// Get the current time
+		$now = ES::date()->toSql();
 
 		$result = array();
 
-		foreach ($data as $row)
-		{
-			if (empty($row->name))
-			{
+		foreach ($rules as $rule) {
+				
+			// The rule should at least contain a name property.
+			if (!$rule->name) {
 				continue;
 			}
 
-			$name = $row->name;
+			// Get the name of the rule
+			$name = $rule->name;
+			unset($rule->name);
 
-			unset($row->name);
-
+			// Normalize the element field
 			$element = '';
 
-			if (!empty($row->element))
-			{
-				$element = $row->element;
-			}
-			else
-			{
+			if (isset($rule->element) && $rule->element) {
+				$element = $rule->element;
+			} else {
+				
 				// If no element is defined, then we check if the name has a . starting from index 1 to get the first segment
-				if (strpos($name, '.') > 0)
-				{
+				if (strpos($name, '.') > 0) {
 					$tmp = explode('.', $name);
 
 					$element = $tmp[0];
 				}
 			}
+			unset($rule->element);
 
-			unset($row->element);
+			// Normalize the group of the access rule
+			$group = isset($rule->group) && $rule->group ? $rule->group : SOCIAL_TYPE_USER;
+			unset($rule->group);
 
-			$group = !empty($row->group) ? $row->group : SOCIAL_TYPE_USER;
+			// Normalize the extension of the access rule
+			$extension = isset($rule->extension) && $rule->extension ? $rule->extension : SOCIAL_COMPONENT_NAME;
+			unset($rule->extension);
 
-			unset($row->group);
-
-			$extension = !empty($row->extension) ? $row->extension : SOCIAL_COMPONENT_NAME;
-
-			unset($row->extension);
-
+			// Load up the table now and see if the rule already exists
 			$table = FD::table('accessrules');
 
-			$state = $table->load(
+			$exists = $table->load(
 				array(
 					'name' => $name,
 					'element' => $element,
@@ -285,30 +310,32 @@ class EasySocialModelAccessRules extends EasySocialModel
 				)
 			);
 
-			if ($state)
-			{
+			// If the rule already exists, we shouldn't be doing anything
+			if ($exists) {
 				continue;
 			}
 
+			// Bind the new rule data
 			$table->name = $name;
 			$table->element = $element;
 			$table->group = $group;
 			$table->extension = $extension;
-
 			$this->loadLanguage($extension);
 
-			// JText here because the title/description is not used in frontend, and also due to "search" using SQL like to perform, we should store translated text into db
-			$table->title = !empty($row->title) ? JText::_($row->title) : '';
-			$table->description = !empty($row->description) ? JText::_($row->description) : '';
+			// JText here because the title/description is not used in frontend, 
+			// and also due to "search" using SQL like to perform, we should store translated text into db
+			$table->title = !empty($rule->title) ? JText::_($rule->title) : '';
 
-			unset($row->title);
-			unset($row->description);
+			// Check if the description really exists
+			$description = isset($rule->description) ? $rule->description : $rule->title . '_TIPS';
+			$table->description = JText::_($description);
+
+			unset($rule->title);
+			unset($rule->description);
 
 			$table->state = SOCIAL_STATE_PUBLISHED;
-
 			$table->created = $now;
-
-			$table->params = $json->encode($row);
+			$table->params = json_encode($rule);
 
 			$table->store();
 

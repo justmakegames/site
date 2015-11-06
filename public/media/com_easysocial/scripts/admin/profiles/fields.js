@@ -11,11 +11,11 @@ EasySocial.module('admin/profiles/fields', function($) {
 		'field'
 	)
 	.view(
-		'admin/profiles/form.fields.editorItem',
-		'admin/profiles/form.fields.stepItem',
-		'admin/profiles/form.fields.editorPage',
-		'admin/profiles/form.fields.config',
-		'admin/profiles/dialog.move.field'
+		'admin/profiles/fields/editor.item',
+		'admin/profiles/fields/step.item',
+		'admin/profiles/fields/editor.page',
+		'admin/profiles/fields/config',
+		'admin/profiles/fields/dialog.move'
 	)
 	.language(
 		'COM_EASYSOCIAL_PROFILES_FORM_FIELDS_ITEM_CONFIG_LOADING',
@@ -65,7 +65,7 @@ EasySocial.module('admin/profiles/fields', function($) {
 				'{saveForm}'	: '[data-fields-save]',
 
 				view: {
-					config: 'admin/profiles/form.fields.config'
+					config: 'admin/profiles/fields/config'
 				}
 			}
 		}, function(self) {
@@ -790,7 +790,7 @@ EasySocial.module('admin/profiles/fields', function($) {
 				'{add}'		: '[data-fields-step-add]',
 
 				view: {
-					stepItem: 'admin/profiles/form.fields.stepItem'
+					stepItem: 'admin/profiles/fields/step.item'
 				}
 			}
 		}, function(self) {
@@ -942,7 +942,7 @@ EasySocial.module('admin/profiles/fields', function($) {
 				'{item}'	: '[data-fields-editor-page-item]',
 
 				view: {
-					editorPage: 'admin/profiles/form.fields.editorPage'
+					editorPage: 'admin/profiles/fields/editor.page'
 				}
 			}
 		}, function(self) {
@@ -1057,7 +1057,7 @@ EasySocial.module('admin/profiles/fields', function($) {
 				'{pageInfoDone}'			: '[data-fields-editor-page-done]',
 
 				view: {
-					editorItem: 'admin/profiles/form.fields.editorItem'
+					editorItem: 'admin/profiles/fields/editor.item'
 				}
 			}
 		}, function(self) {
@@ -1256,7 +1256,7 @@ EasySocial.module('admin/profiles/fields', function($) {
 					if(!$.isEmptyObject(self.params)) {
 						state.resolve();
 					} else {
-						EasySocial.ajax('admin/controllers/profiles/getPageConfig', {
+						EasySocial.ajax('admin/controllers/fields/renderPageConfig', {
 							pageid: self.options.pageid
 						})
 						.done(function(params, values, html) {
@@ -1485,7 +1485,7 @@ EasySocial.module('admin/profiles/fields', function($) {
 				'{closeConfig}'	: '[data-fields-config-close]',
 
 				view: {
-					moveDialog: 'admin/profiles/dialog.move.field'
+					moveDialog: 'admin/profiles/fields/dialog.move'
 				}
 			}
 		}, function(self) {

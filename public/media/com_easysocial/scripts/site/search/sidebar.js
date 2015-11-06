@@ -52,10 +52,24 @@ EasySocial.module( 'site/search/sidebar' , function($){
 						var type 	= self.element.data( 'type' ),
 							url 	= self.element.data( 'url' );
 
-							
 						var query = $("[data-search-query]").val();
+						var filters = [];
 
-		
+						// clear all filters
+						$("[data-search-filtertypes]").each( function(idx, ele) {
+							$(ele).prop('checked', false);
+						});
+
+						if (type != "") {
+							filters.push(type);
+
+							$("[data-search-filtertypes]").each( function(idx, ele) {
+								if ($(ele).val() == type) {
+									$(ele).prop('checked', true);
+								}
+							});
+						}
+
 						// If this is an embedded layout, we need to play around with the push state.
 						History.pushState( {state:1} , '' , url );
 
@@ -68,11 +82,12 @@ EasySocial.module( 'site/search/sidebar' , function($){
 						EasySocial.ajax( 'site/controllers/search/getItems',
 						{
 							"type"		: type,
-							"q" 		: query
+							"q" 		: query,
+							"filtertypes" : filters
 						})
 						.done(function( html )
 						{
-							self.parent.updateContent( html );	
+							self.parent.updateContent( html );
 						})
 						.fail(function( message ){
 							console.log( message );
@@ -81,7 +96,7 @@ EasySocial.module( 'site/search/sidebar' , function($){
 						self.parent.updateContent();
 					}
 				}
-			});		
+			});
 
 		module.resolve();
 	});

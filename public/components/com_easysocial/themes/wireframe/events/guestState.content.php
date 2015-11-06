@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Unauthorized Access');
     <?php if ($event->isOver()) { ?>
         <nav class="media-meta pull-right">
         <?php if ($guest->isGoing()) { ?>
-            <a class="btn btn-es btn-sm btn-es-success" href="javascript:void(0);"><i class="ies-user-add"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_GUEST_GOING'); ?></a>
+            <a class="btn btn-es btn-sm btn-es-success" href="javascript:void(0);"><i class="fa fa-user-plus"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_GUEST_GOING'); ?></a>
             <?php } ?>
 
             <?php if ($guest->isMaybe()) { ?>
@@ -38,7 +38,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php echo JText::_('COM_EASYSOCIAL_EVENTS_GUEST_PENDING'); ?>
             </a>
             <?php } else { ?>
-            <a class="btn btn-es btn-sm <?php if ($guest->isGoing()) { ?>btn-es-success<?php } ?>" href="javascript:void(0);" data-guest-action="state" data-guest-state="going"><i class="ies-user-add"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_GUEST_GOING'); ?></a>
+            <a class="btn btn-es btn-sm <?php if ($guest->isGoing()) { ?>btn-es-success<?php } ?>" href="javascript:void(0);" data-guest-action="state" data-guest-state="going"><i class="fa fa-user-plus"></i> <?php echo JText::_('COM_EASYSOCIAL_EVENTS_GUEST_GOING'); ?></a>
 
             <?php if ($event->getParams()->get('allowmaybe')) { ?>
             <a class="btn btn-es btn-sm <?php if ($guest->isMaybe()) { ?>btn-es-info<?php } ?>" href="javascript:void(0);" data-guest-action="state" data-guest-state="maybe"><?php echo JText::_('COM_EASYSOCIAL_EVENTS_GUEST_MAYBE'); ?></a>

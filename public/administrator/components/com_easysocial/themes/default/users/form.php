@@ -13,15 +13,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form name="adminForm" id="adminForm" class="profileForm" method="post" enctype="multipart/form-data" data-user-form>
 
-<div class="row-fluid es-user-form">
-	<div class="col-md-12">
-		<?php echo $this->includeTemplate( 'admin/users/form.profile.content' ); ?>
-	</div>
+<div class="es-user-form">
+	<?php echo $this->includeTemplate('admin/users/form.profile.content'); ?>
 </div>
+
 <input type="hidden" name="option" value="com_easysocial" />
 <input type="hidden" name="controller" value="users" />
 <input type="hidden" name="task" value="" />
-<input type="hidden" name="id" value="<?php echo isset( $user ) ? $user->id : ''; ?>" />
-<?php echo JHTML::_( 'form.token' );?>
+<input type="hidden" name="id" value="<?php echo isset($user) ? $user->id : ''; ?>" />
+<?php echo JHTML::_('form.token');?>
 
 </form>

@@ -39,8 +39,8 @@ class EasySocialControllerPhotos extends EasySocialController
 
         if( !$id || !$photo->id )
         {
-            $view->setMessage( JText::_( 'COM_EASYSOCIAL_PHOTOS_INVALID_PHOTO_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
-            return $view->call( __FUNCTION__ );
+            $this->view->setMessage( JText::_( 'COM_EASYSOCIAL_PHOTOS_INVALID_PHOTO_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
+            return $this->view->call( __FUNCTION__ );
         }
 
         // Get other attributes
@@ -189,6 +189,7 @@ class EasySocialControllerPhotos extends EasySocialController
         $photoLib   = FD::get('Photos', $image);
 
         // Get the storage path for this photo
+        $storageContainer = FD::cleanPath($config->get('photos.storage.container'));
         $storage    = $photoLib->getStoragePath($album->id, $photo->id);
         $paths      = $photoLib->create($storage);
 
@@ -203,8 +204,9 @@ class EasySocialControllerPhotos extends EasySocialController
                 $meta->photo_id     = $photo->id;
                 $meta->group        = SOCIAL_PHOTOS_META_PATH;
                 $meta->property     = $type;
-                $meta->value        = $storage . '/' . $fileName;
-
+                // do not store the container path as this path might changed from time to time
+                $tmpStorage = str_replace('/' . $storageContainer . '/', '/', $storage);
+                $meta->value = $tmpStorage . '/' . $fileName;
                 $meta->store();
 
                 // We need to store the photos dimension here
@@ -245,6 +247,9 @@ class EasySocialControllerPhotos extends EasySocialController
             $photo->addPhotosStream( 'create' );
         }
 
+        // Assign badge to user
+        $photo->assignBadge('photos.create', $my->id);
+
         if ($isAvatar) {
             return $photo;
         }
@@ -262,141 +267,135 @@ class EasySocialControllerPhotos extends EasySocialController
     public function uploadStory()
     {
         // Check for request forgeries
-        FD::checkToken();
+        ES::checkToken();
 
         // Only registered users should be allowed to upload photos
-        FD::requireLogin();
-
-        // Get the current view
-        $view   = $this->getCurrentView();
-
-        // Get current logged in user.
-        $my     = FD::user();
+        ES::requireLogin();
 
         // Get user access
-        $access = FD::access( $my->id , SOCIAL_TYPE_USER );
+        $access = $this->my->getAccess();
 
         // Get the uid and type
         $uid  = $this->input->get('uid', 0, 'int');
         $type = $this->input->get('type', '', 'cmd');
 
         // Load up the photo library
-        $lib  = FD::photo($uid, $type);
+        $lib = FD::photo($uid, $type);
 
         // Determines if the person exceeded their upload limit
         if ($lib->exceededUploadLimit()) {
-            $view->setMessage( $lib->getError() , SOCIAL_MSG_ERROR );
-            return $view->call( __FUNCTION__ );
+            $this->view->setMessage($lib->getError(), SOCIAL_MSG_ERROR);
+            return $this->view->call(__FUNCTION__);
         }
 
         // Determines if the person exceeded their daily upload limit
         if ($lib->exceededDailyUploadLimit()) {
-            $view->setMessage( $lib->getError() , SOCIAL_MSG_ERROR );
-            return $view->call( __FUNCTION__ );
+            $this->view->setMessage($lib->getError(), SOCIAL_MSG_ERROR);
+            return $this->view->call(__FUNCTION__);
         }
 
         // Define uploader options
-        $options = array( 'name' => 'file', 'maxsize' => $lib->getUploadFileSizeLimit() );
+        $options = array('name' => 'file', 'maxsize' => $lib->getUploadFileSizeLimit());
 
         // Get uploaded file
-        $file   = FD::uploader($options)->getFile();
+        $file = ES::uploader($options)->getFile();
 
         // If there was an error getting uploaded file, stop.
-        if ($file instanceof SocialException)
-        {
-            $view->setMessage( $file , SOCIAL_MSG_ERROR );
-            return $view->call(__FUNCTION__);
+        if ($file instanceof SocialException) {
+            $this->view->setMessage($file, SOCIAL_MSG_ERROR);
+            return $this->view->call(__FUNCTION__);
         }
 
         // Load the iamge object
-        $image  = FD::image();
-        $image->load( $file[ 'tmp_name' ] , $file[ 'name' ] );
+        $image = ES::image();
+        $image->load($file['tmp_name'], $file['name']);
 
         // Detect if this is a really valid image file.
-        if( !$image->isValid() )
-        {
-            $view->setMessage( JText::_( 'COM_EASYSOCIAL_PHOTOS_INVALID_FILE_PROVIDED' ) , SOCIAL_MSG_ERROR );
-            return $view->call( __FUNCTION__ );
+        if (!$image->isValid()) {
+            $this->view->setMessage(JText::_('COM_EASYSOCIAL_PHOTOS_INVALID_FILE_PROVIDED'), SOCIAL_MSG_ERROR);
+            return $this->view->call(__FUNCTION__);
         }
 
         // Load up the album's model.
-        $albumsModel    = FD::model( 'Albums' );
+        $albumsModel = ES::model('Albums');
 
         // Create the default album if necessary
-        $album  = $albumsModel->getDefaultAlbum( $uid , $type , SOCIAL_ALBUM_STORY_ALBUM );
+        $album = $albumsModel->getDefaultAlbum($uid, $type, SOCIAL_ALBUM_STORY_ALBUM);
 
         // Bind photo data
-        $photo              = FD::table( 'Photo' );
-        $photo->uid         = $uid;
-        $photo->type        = $type;
-        $photo->user_id     = $my->id;
-        $photo->album_id    = $album->id;
-        $photo->title       = $file[ 'name' ];
-        $photo->caption     = '';
-        $photo->ordering    = 0;
+        $photo = ES::table('Photo');
+        $photo->uid = $uid;
+        $photo->type = $type;
+        $photo->user_id = $this->my->id;
+        $photo->album_id = $album->id;
+        $photo->title = $file['name'];
+        $photo->caption = '';
+        $photo->ordering = 0;
 
         // Set the creation date alias
-        $photo->assigned_date   = FD::date()->toMySQL();
+        $photo->assigned_date = FD::date()->toMySQL();
 
         // Trigger rules that should occur before a photo is stored
-        $photo->beforeStore( $file , $image );
+        $photo->beforeStore($file, $image);
 
         // Try to store the photo.
-        $state      = $photo->store();
+        $state = $photo->store();
 
-        if( !$state )
-        {
-            $view->setMessage( JText::_( 'COM_EASYSOCIAL_PHOTOS_UPLOAD_ERROR_STORING_DB' ) , SOCIAL_MSG_ERROR );
-            return $view->call( __FUNCTION__ );
+        if (!$state) {
+            $this->view->setMessage(JText::_('COM_EASYSOCIAL_PHOTOS_UPLOAD_ERROR_STORING_DB'), SOCIAL_MSG_ERROR);
+            return $this->view->call(__FUNCTION__);
         }
 
         // Load the photos model
-        $photosModel    = FD::model( 'Photos' );
+        $photosModel = ES::model('Photos');
 
         // Get the storage path for this photo
-        $storage    = FD::call( 'Photos' , 'getStoragePath' , array( $album->id , $photo->id ) );
+        $storage = ES::call('Photos', 'getStoragePath', array($album->id, $photo->id));
 
         // Get the photos library
-        $photoLib   = FD::get( 'Photos' , $image );
-        $paths      = $photoLib->create($storage);
+        $photoLib = ES::get('Photos', $image);
+        $paths = $photoLib->create($storage);
 
         // Create metadata about the photos
-        if( $paths )
-        {
-            foreach( $paths as $type => $fileName )
-            {
-                $meta               = FD::table( 'PhotoMeta' );
-                $meta->photo_id     = $photo->id;
-                $meta->group        = SOCIAL_PHOTOS_META_PATH;
-                $meta->property     = $type;
-                $meta->value        = $storage . '/' . $fileName;
+        if ($paths) {
 
+            foreach ($paths as $type => $fileName) {
+
+                $meta = ES::table('PhotoMeta');
+                $meta->photo_id = $photo->id;
+                $meta->group = SOCIAL_PHOTOS_META_PATH;
+                $meta->property = $type;
+                $meta->value = $storage . '/' . $fileName;
                 $meta->store();
 
                 // We need to store the photos dimension here
                 list($width, $height, $imageType, $attr) = getimagesize(JPATH_ROOT . $storage . '/' . $fileName);
 
                 // Set the photo dimensions
-                $meta               = FD::table('PhotoMeta');
-                $meta->photo_id     = $photo->id;
-                $meta->group        = SOCIAL_PHOTOS_META_WIDTH;
-                $meta->property     = $type;
-                $meta->value        = $width;
+                $meta = ES::table('PhotoMeta');
+                $meta->photo_id = $photo->id;
+                $meta->group = SOCIAL_PHOTOS_META_WIDTH;
+                $meta->property = $type;
+                $meta->value = $width;
                 $meta->store();
 
-                $meta               = FD::table('PhotoMeta');
-                $meta->photo_id     = $photo->id;
-                $meta->group        = SOCIAL_PHOTOS_META_HEIGHT;
-                $meta->property     = $type;
-                $meta->value        = $height;
+                // Set the photo height
+                $meta = ES::table('PhotoMeta');
+                $meta->photo_id = $photo->id;
+                $meta->group = SOCIAL_PHOTOS_META_HEIGHT;
+                $meta->property = $type;
+                $meta->value = $height;
                 $meta->store();
             }
         }
 
-        // After storing the photo, trigger rules that should occur after a photo is stored
-        $photo->afterStore( $file , $image );
+        // Assign badge to user
+        $photo->assignBadge('photos.create', $this->my->id);
 
-        return $view->call( __FUNCTION__ , $photo , $paths , $width, $height );
+        // After storing the photo, trigger rules that should occur after a photo is stored
+        $photo->afterStore($file, $image);
+
+        return $this->view->call(__FUNCTION__, $photo, $paths, $width, $height);
     }
 
 
@@ -558,22 +557,22 @@ class EasySocialControllerPhotos extends EasySocialController
         FD::requireLogin();
 
         // Get the current view
-        $view   = $this->getCurrentView();
+        $view = $this->getCurrentView();
 
         // Get photo id
-        $id = JRequest::getInt('id');
+        $id = $this->input->get('id', 0, 'int');
 
         // Get photo
-        $photo  = FD::table('Photo');
+        $photo = FD::table('Photo');
         $photo->load($id);
 
         if (!$id || !$photo->id) {
             $view->setMessage( JText::_( 'COM_EASYSOCIAL_PHOTOS_INVALID_PHOTO_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
-            return $view->call( __FUNCTION__ );
+            return $view->call(__FUNCTION__);
         }
 
         // Determine if the user has access to rotate the photo
-        $lib        = FD::photo($photo->uid, $photo->type, $photo);
+        $lib = FD::photo($photo->uid, $photo->type, $photo);
 
         if (!$lib->canRotatePhoto()) {
             $view->setMessage( JText::_( 'COM_EASYSOCIAL_PHOTOS_NOT_ALLOWED_TO_ROTATE_THIS_PHOTO' ) , SOCIAL_MSG_ERROR );
@@ -581,22 +580,19 @@ class EasySocialControllerPhotos extends EasySocialController
         }
 
         // Rotate photo
-        $tmpAngle   = JRequest::getInt('angle');
+        $tmpAngle = $this->input->get('angle', 0, 'int');
 
         // Get the real angle now.
-        $angle      = $photo->getAngle() + $tmpAngle;
+        $angle = $photo->getAngle() + $tmpAngle;
 
         // Update the angle
         $photo->updateAngle($angle);
 
-        // Get destination folder path.
-        $config     = FD::config();
-
         // Delete the previous images that are generated except the stock version
-        $photo->deletePhotos( array( 'thumbnail' , 'large' , 'original' , 'featured', 'square' ) );
+        $photo->deletePhotos(array('thumbnail', 'large', 'original', 'featured', 'square'));
 
         // Rotate the photo
-        $image  = FD::image();
+        $image = FD::image();
         $image->load($photo->getPath('stock'));
 
         // Rotate the new image
@@ -621,7 +617,7 @@ class EasySocialControllerPhotos extends EasySocialController
             $meta->photo_id     = $photo->id;
             $meta->group        = SOCIAL_PHOTOS_META_PATH;
             $meta->property     = $type;
-            $meta->value        = $storage . '/' . $fileName;
+            $meta->value        = '/' . $photo->album_id . '/' . $photo->id . '/' . $fileName;
             $meta->store();
 
             // We need to store the photos dimension here
@@ -1213,7 +1209,109 @@ class EasySocialControllerPhotos extends EasySocialController
         return $view->call( 'createAvatar' , $photo );
     }
 
+    /**
+     * Allows caller to create an avatar by posted the $_FILE data
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function createAvatarFromWebcam()
+    {
+        // Check for request forgeries
+        ES::checkToken();
 
+        // Only registered users should be allowed to upload photos
+        ES::requireLogin();
 
+        // Get the unique item id
+        $uid = $this->input->get('uid', 0, 'int');
+        $type = $this->input->get('type', '', 'cmd');
 
+        $filename = JRequest::getVar('file');
+
+        if (!$uid && !$type) {
+            $this->view->setMessage(JText::_('COM_EASYSOCIAL_PHOTOS_INVALID_ID_PROVIDED'), SOCIAL_MSG_ERROR);
+            return $this->view->call('createAvatar');
+        }
+        
+        // Get Joomla's temporary path
+        $jConfig = ES::jConfig();
+
+        $tmp = $jConfig->getValue('tmp_path');
+        $filePath = $tmp . '/' . $filename;
+
+        // Load the image
+        $image = ES::image();
+        $image->load($filePath);
+
+        $avatar = ES::avatar($image, $uid, SOCIAL_TYPE_USER);
+
+        // Check if there's a profile photos album that already exists.
+        $albumModel = ES::model('Albums');
+
+        // Retrieve the default album for this node.
+        $album = $albumModel->getDefaultAlbum($uid, SOCIAL_TYPE_USER, SOCIAL_ALBUM_PROFILE_PHOTOS);
+
+        // we need to update the album user_id to this current user.
+        $album->user_id = $uid;
+        $album->store();
+
+        $photo = ES::table('Photo');
+        $photo->uid = $uid;
+        $photo->type = SOCIAL_TYPE_USER;
+        $photo->user_id = $uid;
+        $photo->album_id = $album->id;
+        $photo->title = $filename;
+        $photo->caption = '';
+        $photo->ordering = 0;
+
+        // Set the creation date alias
+        $photo->assigned_date = ES::date()->toMySQL();
+
+        // We need to set the photo state to "SOCIAL_PHOTOS_STATE_TMP"
+        $photo->state = SOCIAL_PHOTOS_STATE_TMP;
+
+        // Try to store the photo first
+        $state = $photo->store();
+
+        if (!$state) {
+            $this->view->setMessage(JText::_('COM_EASYSOCIAL_PHOTOS_ERROR_CREATING_IMAGE_FILES'), SOCIAL_MSG_ERROR);
+            return $this->view->call('createAvatar');
+        }
+
+        // Push all the ordering of the photo down
+        $photosModel = FD::model('photos');
+        $photosModel->pushPhotosOrdering($album->id, $photo->id);
+
+        // Render photos library
+        $photoLib = FD::get('Photos', $image);
+        $storage = $photoLib->getStoragePath($album->id, $photo->id);
+        $paths = $photoLib->create($storage);
+
+        // Create metadata about the photos
+        foreach ($paths as $type => $fileName) {
+            $meta = FD::table( 'PhotoMeta' );
+            $meta->photo_id = $photo->id;
+            $meta->group = SOCIAL_PHOTOS_META_PATH;
+            $meta->property = $type;
+            $meta->value = $storage . '/' . $fileName;
+
+            $meta->store();
+        }
+
+        // Save as avatar
+        $options = array('addstream' => false);
+        $avatar->store($photo, $options);
+
+        // Add stream item
+        $photo->addPhotosStream('uploadAvatar', $photo->assigned_date);
+
+        // Retrieve the original photo again.
+        $image = $photo->getImageObject('original');
+
+        return $this->view->call('createAvatar', $photo);
+    }
+    
 }

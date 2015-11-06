@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <form action="index.php" method="post" name="adminForm" class="esForm" id="adminForm" data-table-grid>
 
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<?php echo $this->html( 'filter.search' , $search ); ?>
 		</div>
@@ -22,11 +22,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<strong><?php echo JText::_( 'COM_EASYSOCIAL_FILTER_BY' ); ?> :</strong>
 			<div>
 				<?php echo $this->html( 'filter.published' , 'state' , $state ); ?>
-				<select name="filter" class="form-control input-sm mr-5" data-table-grid-filter>
-					<option value="all"<?php echo $filter == 'all' ? ' selected="selected"' : '';?>><?php echo JText::_( 'COM_EASYSOCIAL_GRID_SELECT_TYPE' );?></option>
-					<option value="fields"<?php echo $filter == 'fields' ? ' selected="selected"' : '';?>><?php echo JText::_( 'COM_EASYSOCIAL_GRID_FILTER_TYPE_FIELDS' );?></option>
-					<option value="apps"<?php echo $filter == 'apps' ? ' selected="selected"' : '';?>><?php echo JText::_( 'COM_EASYSOCIAL_GRID_FILTER_TYPE_APPS' );?></option>
-				</select>
 
 				<select name="group" class="form-control input-sm mr-5" data-table-grid-filter>
 					<option value="all"<?php echo $group == 'all' ? ' selected="selected"' : '';?>><?php echo JText::_( 'COM_EASYSOCIAL_GRID_SELECT_GROUP' );?></option>
@@ -42,42 +37,34 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 	</div>
 
-	<div class="filter-bar form-inline">
+	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
 			<strong>
 				<i class="icon-es-help mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_APPS_INFO_NOTE' ); ?>
-				<a href="http://stackideas.com/apps" class="btn btn-sm btn-primary ml-20" target="_blank"><i class="ies-basket"></i>&nbsp; <?php echo JText::_( 'COM_EASYSOCIAL_APPS_BROWSER' ); ?></a>
+				<a href="http://stackideas.com/apps" class="btn btn-sm btn-primary ml-20" target="_blank"><i class="fa fa-shopping-cart"></i>&nbsp; <?php echo JText::_( 'COM_EASYSOCIAL_APPS_BROWSER' ); ?></a>
 			</strong>
 		</div>
 	</div>
 
-	<div id="appsTable">
-
-		<table class="table table-striped table-es table-hover">
+	<div id="appsTable" class="panel-table">
+		<table class="app-table table table-eb table-striped">
 			<thead>
 				<tr>
 					<th width="1%" class="center">
 						<input type="checkbox" name="toggle" data-table-grid-checkall />
 					</th>
-
 					<th style="text-align: left;">
 						<?php echo $this->html( 'grid.sort' , 'title' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_TITLE' ) , $ordering , $direction ); ?>
 					</th>
-
-					<th class="center" width="5%">
+					<th class="center" width="10%">
 						<?php echo $this->html( 'grid.sort' , 'state' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_STATUS' ) , $ordering , $direction ); ?>
 					</th>
-
-					<th class="center" width="10%">
-						<?php echo $this->html( 'grid.sort' , 'type' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_TYPE' ) , $ordering , $direction ); ?>
-					</th>
-
 					<th class="center" width="10%">
 						<?php echo $this->html( 'grid.sort' , 'group' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_GROUP' ) , $ordering , $direction ); ?>
 					</th>
 
 					<th width="10%" class="center">
-						<?php echo $this->html( 'grid.sort' , 'created' , JText::_( 'COM_EASYSOCIAL_TABLE_COLUMN_CREATED' ) , $ordering , $direction ); ?>
+						<?php echo $this->html('grid.sort', 'created' , JText::_('COM_EASYSOCIAL_TABLE_COLUMN_ELEMENT'), $ordering , $direction ); ?>
 					</th>
 
 					<th width="5%" class="center">
@@ -89,37 +76,24 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<?php if( $apps ){ ?>
 					<?php $i = 0; ?>
 					<?php foreach( $apps as $app ){ ?>
-					<tr class="<?php echo $app->state ? '' : 'error';?>">
+					<tr>
 						<td class="center">
 							<?php echo $this->html( 'grid.id' , $i++ , $app->id ); ?>
 						</td>
-
 						<td>
 							<div>
-								<img src="<?php echo $app->getIcon( 'large' ); ?>" width="24" class="mr-10" />
-								<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=apps&layout=form&id=' . $app->id );?>">
-									<?php echo ucfirst( $app->group ); ?> &mdash; <?php echo $app->get( 'title' ); ?>
-								</a>
-							</div>
-
-
+								<a href="<?php echo FRoute::_( 'index.php?option=com_easysocial&view=apps&layout=form&id=' . $app->id );?>"><?php echo $app->get('title'); ?></a>
 							</div>
 						</td>
-
 						<td class="center">
 							<?php echo $this->html( 'grid.published' , $app , 'apps' ); ?>
 						</td>
-
-						<td class="center">
-							<?php echo JText::_( 'COM_EASYSOCIAL_APPS_TYPE_' . strtoupper( $app->type ) ); ?>
-						</td>
-
 						<td class="center">
 							<?php echo $app->group; ?>
 						</td>
 
 						<td class="center">
-							<?php echo $app->created; ?>
+							<?php echo $app->element; ?>
 						</td>
 
 						<td class="center">
@@ -143,7 +117,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					</td>
 				</tr>
 			</tfoot>
-
 		</table>
 	</div>
 

@@ -59,11 +59,7 @@ class EasySocialControllerActivities extends EasySocialController
 		$my 	= FD::user();
 
 		// The user needs to be at least logged in to perform this action.
-		if( !$my->id )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'Activity Log: Unable to hide item because user is not logged in.' );
-
+		if (!$my->id) {
 			$view->setError( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_ID' ) );
 			return $view->call( __FUNCTION__ , $id, $cState );
 		}
@@ -73,11 +69,7 @@ class EasySocialControllerActivities extends EasySocialController
 		$state	= $model->toggle( $id , $my->id );
 
 		// If there's an error, log this down.
-		if( !$state )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'Activity Log: Unable to hide item because model returned the error, ' . $model->getError() );
-
+		if (!$state) {
 			$view->setError( $model->getError() );
 
 			return $view->call( __FUNCTION__ , $id, $cState );
@@ -110,18 +102,13 @@ class EasySocialControllerActivities extends EasySocialController
 		$item->load( $id );
 
 		// If id is invalid, throw an error.
-		if( !$id || !$item->id )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'Activity Log: Unable to delete item because id provided is invalid.' );
-
+		if (!$id || !$item->id) {
 			$view->setError( JText::_( 'COM_EASYSOCIAL_ERROR_UNABLE_TO_LOCATE_ID' ) );
 			return $view->call( __FUNCTION__ );
 		}
 
 		// Check if the current user is allowed to delete this stream item
-		if( !$item->deleteable() )
-		{
+		if (!$item->deleteable()) {
 			$view->setError( JText::_( 'COM_EASYSOCIAL_ACTIVITIES_NOT_ALLOWED_TO_DELETE_ITEM' ) );
 			return $view->call( __FUNCTION__ );
 		}
@@ -129,11 +116,7 @@ class EasySocialControllerActivities extends EasySocialController
 		$model = FD::model( 'Activities' );
 		$state = $model->delete( $id );
 
-		if(! $state )
-		{
-			//Internal error logging.
-			FD::logError( __FILE__ , __LINE__ , 'Activity Log: Unable to delete item because model returned the error, ' . $model->getError() );
-
+		if (!$state) {
 			$view->setError( $model->getError() );
 
 			return $view->call( __FUNCTION__ );

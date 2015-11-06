@@ -76,7 +76,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</div>
 
 			<?php if( $this->config->get( 'registrations.enabled' ) ){ ?>
-				<?php if ($this->template->get('dashboard_mini_registration', true)) { ?>
+				<?php if ($this->config->get('registrations.mini.enabled', false)) { ?>
 					<div class="col-md-6 register-column">
 						<form method="post" action="<?php echo JRoute::_( 'index.php' );?>" data-registermini-form>
 							<div class="register-wrap <?php echo empty( $fields ) ? ' is-empty' : '';?>">

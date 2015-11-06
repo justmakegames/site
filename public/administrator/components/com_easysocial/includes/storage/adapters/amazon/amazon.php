@@ -28,13 +28,10 @@ class SocialStorageAmazon implements SocialStorageInterface
 
 		$region 		= $this->config->get( 'storage.amazon.region' );
 
-		if( $region == 'us' )
-		{
-			$endpoint 	= 's3.amazonaws.com';
-		}
-		else
-		{
-			$endpoint 	= 's3-' . $this->config->get( 'storage.amazon.region' ) . '.amazonaws.com';
+		if ($region == 'us') {
+			$endpoint = 's3.amazonaws.com';
+		} else {
+			$endpoint = 's3-' . $this->config->get( 'storage.amazon.region' ) . '.amazonaws.com';
 		}
 
 		$this->region 	= $endpoint;
@@ -134,15 +131,16 @@ class SocialStorageAmazon implements SocialStorageInterface
 	 * @param	string	The relative path to the file
 	 * @return
 	 */
-	public function push( $fileName , $source , $dest )
+	public function push($fileName, $source, $dest)
 	{
-		$file 	= $this->lib->inputFile( $source );
+		// Get file infomration of the source
+		$file = $this->lib->inputFile($source);
 
 		// Ensure that there is no preceeding / in front of the relative path.
-		$dest	= ltrim( $dest , '/' );
+		$dest = ltrim($dest, '/');
 
 		// Try to push the object over now
-		$state	= $this->lib->putObject( $file , $this->bucket , $dest , SocialAmazonLibrary::ACL_PUBLIC_READ , array() , array("Content-Type" => "application/octet-stream", "Content-Disposition" => "attachment; filename=" . $fileName ) );
+		$state = $this->lib->putObject($file, $this->bucket, $dest, SocialAmazonLibrary::ACL_PUBLIC_READ, array(), array("Content-Type" => "application/octet-stream", "Content-Disposition" => "attachment; filename=" . $fileName));
 
 		return $state;
 	}

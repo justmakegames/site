@@ -29,7 +29,7 @@ class EasySocialViewAccount extends EasySocialSiteView
 		$layout 	= $this->getLayout();
 
 		// Allowed layouts on lockdown mode
-		$allowed 	= array( 'forgetUsername' , 'forgetPassword' , 'confirmReset' , 'confirmResetPassword' , 'resetUser' , 'completeResetPassword' );
+		$allowed 	= array( 'forgetUsername' , 'forgetPassword' , 'confirmReset' , 'confirmResetPassword' , 'resetUser' , 'completeResetPassword', 'completeReset' );
 
 		if( $config->get( 'general.site.lockdown.registration' ) || in_array( $layout , $allowed ) )
 		{
@@ -124,14 +124,16 @@ class EasySocialViewAccount extends EasySocialSiteView
 	public function confirmResetPassword()
 	{
 		// Enqueue the message
-		FD::info()->set( $this->getMessage() );
+		FD::info()->set($this->getMessage());
 
-		if( $this->hasErrors() )
-		{
-			return $this->redirect( FRoute::account( array( 'layout' => 'confirmReset' ) , false ) );
+		if ($this->hasErrors()) {
+			$redirect = FRoute::account(array('layout' => 'confirmReset'), false);
+			return $this->redirect($redirect);
 		}
 
-		$this->redirect( FRoute::account( array( 'layout' => 'completeReset' ) , false ) );
+		$redirect = FRoute::account(array('layout' => 'completeReset'), false);
+
+		$this->redirect($redirect);
 	}
 
 	/**
@@ -213,6 +215,45 @@ class EasySocialViewAccount extends EasySocialSiteView
 	 */
 	public function completeReset()
 	{
-		parent::display( 'site/profile/reset.password.complete' );
+		parent::display('site/profile/reset.password.complete');
 	}
+
+
+	/**
+	 * Displays the password reset form
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function requirePasswordReset()
+	{
+		parent::display( 'site/profile/require.reset.password' );
+	}
+
+	/**
+	 * Displays the password reset form
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function completeRequireResetPassword()
+	{
+		// Enqueue the message
+		FD::info()->set($this->getMessage());
+
+		if ($this->hasErrors()) {
+			$redirect = FRoute::account(array('layout' => 'requirePasswordReset'), false);
+			return $this->redirect($redirect);
+		}
+
+		$redirect = FRoute::dashboard(array(), false);
+
+		$this->redirect($redirect);
+	}
+
+
 }

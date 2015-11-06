@@ -14,68 +14,71 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <form name="adminForm" id="adminForm" class="accessForm" method="post" enctype="multipart/form-data" data-access-discover>
 <div class="row">
 	<div class="col-md-6">
-		<div class="widget-box">
-			<h3><?php echo JText::_( 'COM_EASYSOCIAL_ACCESS_INSTALL_SCAN' );?></h3>
+		<div class="panel">
+			<div class="panel-head">
+				<b><?php echo JText::_( 'COM_EASYSOCIAL_ACCESS_INSTALL_SCAN' );?></b>
+				<p><?php echo JText::_( 'COM_EASYSOCIAL_ACCESS_INSTALL_SCAN_DESC' );?></p>
+			</div>
 
-			<p>
-				<?php echo JText::_( 'COM_EASYSOCIAL_ACCESS_INSTALL_SCAN_DESC' );?>
-			</p>
+			<div class="panel-body">
+				<table class="table table-striped table-noborder">
+					<tr>
+						<td>
+							<?php echo JPATH_ROOT;?>/administrator/components/
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<?php echo JPATH_ROOT;?>/components/
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<?php echo JPATH_ROOT;?>/plugins/
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<?php echo JPATH_ROOT;?>/media/com_easysocial/apps/users/
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<?php echo JPATH_ROOT;?>/media/com_easysocial/apps/fields/
+						</td>
+					</tr>
+				</table>
 
-			<table class="table table-striped table-noborder">
-				<tr>
-					<td>
-						<?php echo JPATH_ROOT;?>/administrator/components/
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<?php echo JPATH_ROOT;?>/components/
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<?php echo JPATH_ROOT;?>/plugins/
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<?php echo JPATH_ROOT;?>/media/com_easysocial/apps/users/
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<?php echo JPATH_ROOT;?>/media/com_easysocial/apps/fields/
-					</td>
-				</tr>
-			</table>
-
-			<a href="javascript:void(0);" class="btn btn-es-primary btn-large mt-10" data-access-discovery-start><?php echo JText::_( 'COM_EASYSOCIAL_ACCESS_INSTALL_SCAN_START_SCAN' );?></a>
-
-			<div class="mt-20 fd-small">
-				<span class="label label-danger fd-small"><?php echo JText::_( 'COM_EASYSOCIAL_FOOTPRINT_NOTE' );?>:</span> <?php echo JText::_( 'COM_EASYSOCIAL_ACCESS_INSTALL_SCAN_FOOTPRINT' );?>
+				<div class="mt-20 fd-small">
+					<span class="label label-danger fd-small"><?php echo JText::_( 'COM_EASYSOCIAL_FOOTPRINT_NOTE' );?>:</span> <?php echo JText::_('COM_EASYSOCIAL_ACCESS_INSTALL_SCAN_FOOTPRINT');?>
+				</div>
 			</div>
 		</div>
 	</div>
 
 	<div class="col-md-6">
-		<div class="widget-box">
-			<h3><?php echo JText::_( 'COM_EASYSOCIAL_DISCOVERY_RESULT' );?></h3>
-
-			<div class="es-progress-wrap">
-				<div class="discoverProgress" stlye="display: none;">
-					<div style="width: 0%;text-align:left;padding-left: 5px;" class="bar"></div>
-					<div class="progress-result"></div>
-				</div>
+		<div class="panel">
+			<div class="panel-head">
+				<b><?php echo JText::_('COM_EASYSOCIAL_DISCOVERY_RESULT');?></b>
 			</div>
 
-			<div class="discovery-log">
-				<table class="table table-striped table-noborder" data-access-discovery-result>
-					<tr>
-						<td>
-							<?php echo JText::_( 'COM_EASYSOCIAL_NO_ITEMS_DISCOVERED_YET' ); ?>
-						</td>
-					</tr>
-				</table>
+			<div class="panel-body">
+				<div class="es-progress-wrap">
+					<div class="discoverProgress" stlye="display: none;">
+						<div style="width: 0%;text-align:left;padding-left: 5px;" class="bar"></div>
+						<div class="progress-result"></div>
+					</div>
+				</div>
+
+				<div class="discovery-log">
+					<table class="table table-striped table-noborder" data-access-discovery-result>
+						<tr>
+							<td>
+								<?php echo JText::_('COM_EASYSOCIAL_NO_ITEMS_DISCOVERED_YET'); ?>
+							</td>
+						</tr>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>

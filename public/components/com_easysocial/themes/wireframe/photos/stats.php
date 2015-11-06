@@ -14,17 +14,17 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div data-photo-stats class="es-media-stats">
 	<div class="es-media-stat">
 		<b><?php echo JText::_("COM_EASYSOCIAL_MEDIA_STAT_LIKES"); ?></b>
-		<i class="ies-heart"></i>
+		<i class="fa fa-heart"></i>
 		<span data-photo-like-count><?php echo $photo->getLikesCount();?></span>
 	</div>
 	<div class="es-media-stat">
 		<b><?php echo JText::_("COM_EASYSOCIAL_MEDIA_STAT_COMMENTS"); ?></b>
-		<i class="ies-comments"></i>
+		<i class="fa fa-comments"></i>
 		<span data-photo-comment-count><?php echo $photo->getCommentsCount();?></span>
 	</div>
 	<div class="es-media-stat">
 		<b><?php echo JText::_("COM_EASYSOCIAL_MEDIA_STAT_TAGS"); ?></b>
-		<i class="ies-tag"></i>
+		<i class="fa fa-tag"></i>
 		<span data-photo-tag-count><?php echo count($tags); ?></span>
 	</div>
 </div>

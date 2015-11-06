@@ -13,10 +13,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="es-container" data-users>
 	<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-		<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+		<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 	</a>
 	<div class="es-sidebar" data-sidebar>
-		<?php echo $this->render( 'module' , 'es-users-sidebar-top' ); ?>
+		<?php echo $this->render('module', 'es-users-sidebar-top', 'site/dashboard/sidebar.module.wrapper'); ?>
 
 		<?php if (!$issearch) { ?>
 		<div class="es-widget es-widget-borderless">
@@ -112,8 +112,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			</div>
 		</div>
 		<?php } ?>
-
-		<?php echo $this->render( 'module' , 'es-users-sidebar-bottom' ); ?>
+		
+		<?php echo $this->render('module', 'es-users-sidebar-bottom', 'site/dashboard/sidebar.module.wrapper'); ?>
 
 	</div>
 
@@ -123,7 +123,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<div data-users-content>
 			<?php $isSort = ($filter == 'profiletype' || $filter == 'search') ? true : false; ?>
-			<?php echo $this->loadTemplate( 'site/users/default.list' , array('users' => $users , 'filter' => $filter , 'sort' => $sort , 'isSort' => $isSort , 'activeTitle' => $activeTitle, 'activeProfile' => $activeProfile, 'searchFilter' => $searchFilter)); ?>
+			<?php echo $this->loadTemplate( 'site/users/default.list' , array('users' => $users , 'filter' => $filter , 'sort' => $sort , 'isSort' => $isSort , 'activeTitle' => $activeTitle, 'activeProfile' => $activeProfile, 'searchFilter' => $searchFilter, 'displayOptions' => $displayOptions)); ?>
 
 			<?php if ($pagination) { ?>
 			<div class="es-pagination-footer" data-users-pagination>

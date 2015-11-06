@@ -45,7 +45,7 @@ class SocialConnector
 		return $this;
 	}
 
-	public function getResult($url, $withHeaders = false)
+	public function getResult($url = null, $withHeaders = false)
 	{
 		return $this->adapter->getResult($url, $withHeaders);
 	}

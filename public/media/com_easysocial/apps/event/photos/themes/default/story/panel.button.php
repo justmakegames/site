@@ -11,4 +11,4 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<i class="ies-pictures-2" data-story-attachment-icon data-es-provide="tooltip" data-placement="top" data-original-title="<?php echo JText::_('APP_EVENT_PHOTOS_PANEL_TOOLTIP'); ?>"></i>
+<i class="fa fa-image" data-story-attachment-icon data-es-provide="tooltip" data-placement="top" data-original-title="<?php echo FD::_('APP_EVENT_PHOTOS_PANEL_TOOLTIP', true); ?>"></i>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,27 +9,21 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.model');
 
 FD::import( 'admin:/includes/model' );
 
-/**
- * Model for tags
- *
- * @author	Mark Lee <mark@stackideas.com>
- * @since	1.2
- */
 class EasySocialModelTags extends EasySocialModel
 {
-	private $data			= null;
+	private $data = null;
 	static $_data = array();
 
 
-	function __construct()
+	public function __construct()
 	{
-		parent::__construct( 'tags' );
+		parent::__construct('tags');
 	}
 
 	/**
@@ -41,7 +35,7 @@ class EasySocialModelTags extends EasySocialModel
 	 * @param	string	The target type
 	 * @return
 	 */
-	public function getTags( $targetId , $targetType )
+	public function getTags($targetId, $targetType)
 	{
 		$db 	= FD::db();
 		$sql 	= $db->sql();

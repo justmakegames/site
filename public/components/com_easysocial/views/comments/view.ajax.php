@@ -22,16 +22,15 @@ class EasySocialViewComments extends EasySocialSiteView
 	 * @access	public
 	 * @param	SocialTableComments	The comment table object.
 	 */
-	public function save( $comment = null )
+	public function save($comment = null)
 	{
-		$ajax = FD::ajax();
-
-		if( $this->hasErrors() )
-		{
-			return $ajax->reject( $this->getMessage() );
+		if ($this->hasErrors()) {
+			return $this->ajax->reject($this->getMessage());
 		}
 
-		return $ajax->resolve( $comment->renderHTML() );
+		$output = $comment->renderHTML();
+		
+		return $this->ajax->resolve($output);
 	}
 
 	public function update( $comment = null )
@@ -108,6 +107,35 @@ class EasySocialViewComments extends EasySocialSiteView
 		}
 
 		return $ajax->resolve( $string );
+	}
+
+	/**
+	 * Confirmation to delete a comment attachment item
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function confirmDeleteCommentAttachment()
+	{
+		$theme = ES::themes();
+		$contents = $theme->output('site/comments/dialog.delete.attachment');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Post processing after a comment attachment is deleted
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function deleteAttachment()
+	{
+		return $this->ajax->resolve();
 	}
 
 	public function delete()

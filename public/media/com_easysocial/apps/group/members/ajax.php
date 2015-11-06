@@ -53,7 +53,7 @@ class SocialGroupAppMembers extends SocialAppItem
 		// Define standard stream looks
 		$item->display 	= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 	= '#1616d3';
-		$item->icon 	= '<i class="ies-copy" data-original-title="' . JText::_( 'APP_ARTICLE_STREAM_TOOLTIP' ) . '" data-es-provide="tooltip"></i>';
+		$item->icon 	= '<i class="fa fa-copy" data-original-title="' . FD::_( 'APP_ARTICLE_STREAM_TOOLTIP', true ) . '" data-es-provide="tooltip"></i>';
 
 		if( $item->verb == 'create' )
 		{

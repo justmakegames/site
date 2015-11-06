@@ -56,12 +56,12 @@ class SocialRouterSearch extends SocialRouterAdapter
 		}
 
 
-		$type 	= isset( $query[ 'type' ] ) ? $query[ 'type' ] : null;
-		if( !is_null( $type ) )
-		{
-			$segments[]	= $type;
-			unset( $query[ 'type' ] );
-		}
+		// $type 	= isset( $query[ 'type' ] ) ? $query[ 'type' ] : null;
+		// if( !is_null( $type ) )
+		// {
+		// 	$segments[]	= $type;
+		// 	unset( $query[ 'type' ] );
+		// }
 
 
 		$fid 		= isset( $query[ 'fid' ] ) ? $query[ 'fid' ] : null;
@@ -115,14 +115,14 @@ class SocialRouterSearch extends SocialRouterAdapter
 			return $vars;
 		}
 
-		// URL: http://site.com/menu/search/type
-		if( $total == 2 && ($segments[ 0 ] == $this->translate( 'search' ) || $segments[ 0 ] == 'search') && $segments[ 1 ] != $this->translate( 'search_layout_advanced') )
-		{
-			$vars[ 'view' ]		= 'search';
-			$vars[ 'type' ]		= $segments[1];
+		// // URL: http://site.com/menu/search/type
+		// if( $total == 2 && ($segments[ 0 ] == $this->translate( 'search' ) || $segments[ 0 ] == 'search') && $segments[ 1 ] != $this->translate( 'search_layout_advanced') )
+		// {
+		// 	$vars[ 'view' ]		= 'search';
+		// 	$vars[ 'type' ]		= $segments[1];
 
-			return $vars;
-		}
+		// 	return $vars;
+		// }
 
 		// URL: http://site.com/menu/search/
 		if( $total == 1 && ($segments[ 0 ] == $this->translate( 'search' ) || $segments[ 0 ] == 'search') )

@@ -12,15 +12,15 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <?php if ($miniheader) { ?>
-<li>
+<span>
 <?php } else { ?>
 <span>
 <?php } ?>
-    <i class="ies-users muted"></i>
+    <i class="fa fa-users muted"></i>
     <a href="<?php echo $permalink;?>"><?php echo JText::sprintf(FD::string()->computeNoun('COM_EASYSOCIAL_EVENTS_TOTAL_GUESTS', $event->getTotalGoing()), $event->getTotalGoing()); ?></a>
 
 <?php if ($miniheader) { ?>
-</li>
+</span>
 <?php } else { ?>
 </span>
 <?php } ?>

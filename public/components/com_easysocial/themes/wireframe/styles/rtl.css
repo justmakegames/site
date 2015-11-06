@@ -37,7 +37,9 @@ body div#fd.es .es-story-friends-textbox .textboxlist-textField,
 body div#fd.es .textboxlist-textField,
 body div#fd.es .es-comments-form .es-avatar,
 body div#fd.es .es-create-category-select .btn-wrap,
-body div#fd .nav-tabs > li {
+body div#fd .nav-tabs > li,
+body div#fd.es .avatar-wrap,
+body div#fd.es.view-conversations .es-sidebar .es-avatar-wrap {
     float: right;
 }
 
@@ -82,6 +84,27 @@ body div#fd.es .dropdown-menu {
     left: auto;
     right: 0;
 }
+body div#fd .list-inline > li:first-child {
+    padding-left: 5px;
+    padding-right: 0;
+}
+body div#fd .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle_),
+body div#fd .pagination > li:last-child > a, body div#fd .pagination > li:last-child > span {
+    border-radius: 0 4px 4px 0;
+}
+body div#fd .btn-group > .btn:last-child:not(:first-child), body div#fd .btn-group > .dropdown-toggle_:not(:first-child),
+body div#fd .pagination > li:first-child > a, body div#fd .pagination > li:first-child > span {
+    border-radius: 4px 0 0 4px;
+}
+body div#fd.es .avatar-wrap {
+    margin-right: 0;
+    margin-left: 10px;
+}
+
+body div#fd blockquote {
+    border-left: 0;
+    border-right: 5px solid #eeeeee;
+}
 /*helper*/
 body div#fd .mr-0{margin-left:0px !important}
 body div#fd .mr-5{margin-left:5px !important}
@@ -107,7 +130,7 @@ body div#fd .pl-20{padding-right:20px !important}
 
 /*grid*/
 
-body div#fd [class^="col-"] {
+body div#fd.es [class^="col-"] {
     float: right;
     padding-left: 15px;
     padding-right: 15px;
@@ -263,6 +286,14 @@ body div#fd.es .es-widget .es-widget-calendar tbody > tr > td
 body div#fd.es .es-widget .es-widget-calendar tbody > tr > td {
     padding: 3px;
 }
+body div#fd.es .es-widget .fd-nav > li.loading > a:before {
+    left:6px;
+    right: auto;
+}
+body div#fd.es .es-widget .fd-nav .data-dashboardfeeds-filter-edit {
+    left: 5px;
+    right: auto;
+}
 
 /*profile header*/
 body div#fd.es .es-profile-header-avatar {
@@ -290,13 +321,24 @@ body div#fd.es .es-header-mini .es-header-mini-body {
     margin-left: 0;
     margin-right: 100px;
 }
+body div#fd.es.w480 .es-header-mini .es-header-mini-body {
+    margin-right: 0;
+}
 body div#fd.es .es-header-mini .es-header-mini-meta {
     left: auto;
     right: 0;
 }
+body div#fd.es .es-header-mini .es-header-mini-footer > div {
+    padding-right: 20px;
+    padding-left: 0;
+    line-height: 26px;
+}
 body div#fd.es .es-header-mini .btn-scroll {
     right: auto;
     left: 0;
+}
+body div#fd.es .es-header-mini .es-nav-apps {
+    float: left;
 }
 body div#fd.es .es-header-mini .es-header-mini-apps-action {
     left: 0;
@@ -322,7 +364,35 @@ body div#fd.es .es-header-mini .btn-scroll .btn-left {
 body div#fd.es .es-header-mini .es-header-mini-cover b {
     box-shadow: -200px -30px 100px #fff inset;
 }
+body div#fd.es.w480 .es-header-mini .es-header-mini-avatar {
+    right: auto;
+}
+body div#fd.es.w480 .es-header-mini .es-header-mini-footer > div {
+    padding-left: 0;
+    padding-right: 10px;
+}
+body div#fd.es.w480 .es-profile-header .es-profile-header-avatar {
+    right: auto;
+}
+body div#fd.es .es-profile-header-footer nav > span + span {
+    border-left: none;
+    border-right: 1px dotted #d7d7d7;
+    margin: 0 10px 0 0;
+    padding-left: 0;
+    padding-right: 10px;
+}
 
+/*es-filter*/
+body div#fd.es .es-filter-nav > li {
+    margin-right: 0;
+    margin-left: 8px;
+}
+body div#fd.es .es-filter-nav > li + li {
+    border-left: 0;
+    padding-left: 0;
+    border-right: 1px dotted #d7d7d7;
+    padding-right: 8px;
+}
 /*story*/
 body div#fd.es .es-story-avatar {
     left: auto;
@@ -363,7 +433,38 @@ body div#fd.es .es-story-location-buttons {
     left: 0;
     right: auto;
 }
+body div#fd.es .es-story-link-input {
+    padding: 4px 4px 4px 73px !important;
+}
+body div#fd.es .es-story-link-buttons {
+    left: 0;
+    right: auto;
+}
+body div#fd.es .es-story-link-buttons .btn {
+    border-radius: 3px 0 0 3px;
+}
 
+body div#fd.es .es-story-link-item {
+    padding: 10px 10px 10px 30px;
+}
+body div#fd.es .es-story-link-remove-button {
+    right: auto;
+    left: 10px;
+}
+body div#fd.es .es-story-link-images {
+    float: right;
+    left: auto;
+    right: 10px;
+    margin-right: 0;
+    margin-left: 10px;
+}
+body div#fd.es .es-story-link-item.has-images .es-story-link-col {
+
+}
+body div#fd.es .es-story-link-item.has-images .es-story-link-col {
+    margin-left: 0;
+    margin-right: 120px;
+}
 /*stream*/
 body div#fd.es .es-streams {
     padding: 10px 20px 0 0;
@@ -396,6 +497,30 @@ body div#fd.es .es-story-panel-content .es-story-files-content .es-story-files-d
     right: -5px;
 }
 
+body div#fd.es.view-activities .es-stream .es-stream-control {
+    right: 0;
+    left: auto;
+}
+body div#fd.es.view-activities .es-stream .es-privacy {
+    float: left;
+    left: 0;
+    right: auto;
+    margin-left: 0;
+    margin-right: 0;
+}
+body div#fd.es .stream-apps-content .stream-apps-meta li {
+    margin-right: 0;
+    margin-left: 8px;
+}
+body div#fd.es .stream-apps-content .stream-apps-meta li + li {
+    border-left: 0;
+    border-right: 1px dotted #d7d7d7;
+    padding-left: 0;
+    padding-right: 8px;
+}
+body div#fd.es .stream-filter .stream-filter-heading h3 {
+    margin: 10px 20px 0;
+}
 /*comment*/
 body div#fd.es .es-comments-form .es-form {
     margin-left: 0;
@@ -431,7 +556,14 @@ body div#fd.es .es-comments-form .es-form-footer {
     margin-right: 40px;
 }
 
-
+body div#fd.es .es-comment-actions {
+    right: auto;
+    left: 5px;
+}
+body div#fd.es .es-comment-actions .es-comment-actions-toggle {
+    left: 0;
+    right: auto;
+}
 /*stream photo*/
 body div#fd.es .es-photo {
     float: right;
@@ -450,13 +582,16 @@ body div#fd.es .es-photos.pattern-tile.photos-4 .es-photo:nth-child(4) u {
 }
 
 body div#fd.es .es-photo > a.fit-width b,
+body div#fd.es .es-photo > a.fit-height b,
 body div#fd.es .es-photos.pattern-tile.photos-1 .es-photo a.fit-small b,
 body div#fd.es .es-photos.pattern-tile.photos-1 .es-photo a.fit-width b,
 body div#fd.es .es-photos.pattern-tile.photos-1 .es-photo a.fit-height b,
 body div#fd.es .es-photos.pattern-tile.photos-1 .es-photo a.fit-both b {
     text-align: right;
 }
-
+body div#fd.es .es-photo > a.fit-height img {
+    left: 0;
+}
 
 /*friend*/
 body div#fd.es.view-friends .es-item-list.friend-items .es-item-body > .btn-group,
@@ -473,10 +608,12 @@ body div#fd.es.view-friends .es-item-grid.friend-items .es-item-body {
 
 
 body div#fd.es .es-online-status {
-    left: 3px;
+    left: 10px;
     right: auto;
 }
-
+body div#fd.es .es-online-status.es-online-status-mini {
+    left: 5px;
+}
 
 /*widget*/
 body div#fd.es .es-widget .widget-list .es-count-no {
@@ -547,6 +684,10 @@ body div#fd.es.popbox li > a {
     padding-right: 0;
     padding-left: 20px;
 }
+body div#fd.es.popbox.popbox-toolbar li > a {
+    padding-right: 20px;
+    padding-left: 0;
+}
 
 body div#fd.es .es-widget .es-widget-tab > li + li {
     border-right: 1px solid #d7d7d7;
@@ -557,6 +698,18 @@ body div#fd.es .es-widget .es-widget-tab > li + li {
 body div#fd.es .es-media-item-menu {
     left: 0;
     right: auto;
+}
+body div#fd.es .es-media-item-menu .btn .dropdown-menu {
+    left: 0;
+    right: auto;
+}
+body div#fd.es .es-media-item-menu .btn .dropdown-menu:before {
+    right: auto;
+    left: 5px;
+}
+body div#fd.es .es-media-item-menu .btn .dropdown-menu:after {
+    right: auto;
+    left: 6px;
 }
 body div#fd.es .es-media-browser .es-content {
     padding: 15px 15px 15px 0;
@@ -598,7 +751,16 @@ body div#fd.es .es-media-browser [data-album-list-item-group] > li > a > b {
 body div#fd.es .es-album-cover b {
     box-shadow: -200px -30px 100px white inset;
 }
-
+body div#fd.es .es-album-item .es-photo-item.layout-item {
+    float: right;
+}
+body div#fd.es .es-media-browser [data-album-list-item-group] > li.loading > a {
+    background-position: right center;
+}
+body div#fd.es .es-album-item .es-photo-item.layout-item .es-photo-menu-item {
+    right: auto;
+    left: 10px;
+}
 body div#fd.es .es-album-item.layout-row .es-photo-item {
     float: right;
     margin-right: 0;
@@ -694,7 +856,9 @@ body div#fd .input-group .form-control:first-child,
 body div#fd .input-group-addon:first-child,
 body div#fd .input-group-btn:first-child > .btn,
 body div#fd .input-group-btn:first-child > .dropdown-toggle_,
-body div#fd .input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle_) {
+body div#fd .input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle_),
+body div#fd .btn-group > .btn:last-child:not(:first-child),
+body div#fd .btn-group > .dropdown-toggle_:not(:first-child) {
     /*border-bottom-right-radius: 3px;*/
     /*border-top-right-radius: 3px;*/
 
@@ -704,7 +868,8 @@ body div#fd .input-group .form-control:last-child,
 body div#fd .input-group-addon:last-child,
 body div#fd .input-group-btn:last-child > .btn,
 body div#fd .input-group-btn:last-child > .dropdown-toggle_,
-body div#fd .input-group-btn:first-child > .btn:not(:first-child) {
+body div#fd .input-group-btn:first-child > .btn:not(:first-child),
+body div#fd .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle_) {
     border-radius: 3px 0 0 3px;
 }
 
@@ -713,6 +878,10 @@ body div#fd .input-group-btn:last-child > .btn {
     margin-right: -1px;
 }
 
+body div#fd.es .data-relationship-form-target .btn-delete {
+    left: 5px;
+    right: auto;
+}
 body div#fd.es .es-privacy .es-privacy-menu {
     left: 0;
     right: auto;
@@ -786,6 +955,10 @@ body div#fd.es .app-discussions .media .media-object {
     margin-left: 10px;
     margin-right: 0;
 }
+body div#fd.es .page-item .page-apps-container,
+body div#fd.es .page-item .app-contents-wrap {
+    padding: 10px 20px 0 0;
+}
 
 /* fd-explorer */
 body div#fd.es .fd-explorer-browser-action {
@@ -814,9 +987,98 @@ body div#fd.es .fd-explorer-file .btn-file-remove {
     left: 10px;
     right: auto;
 }
-
+body div#fd.es.es-photo-popup .es-media-item-menu .btn-group {
+    float: left;
+}
+body div#fd.es .es-media-item-menu .btn-group + .btn-group {
+    margin-left: 8px;
+    margin-right: 0;
+}
+body div#fd.es .fd-explorer-folder .fd-folder-remove-button {
+    right: auto;
+    left: 6px;
+}
 
 /* timepicker */
 body div#fd.ui .ui-timepicker-div dl dt {
     text-align: right;
+}
+
+body div#fd.es .es-app-filter.has-favicon .app-title {
+    margin-left: 0;
+    margin-right: 24px;
+}
+
+/*photo popup*/
+body div#fd.es.es-photo-popup .es-photo-close-button {
+    left: 0;
+    right: auto;
+}
+body div#fd.es.es-photo-popup .es-popup-handle {
+    padding-right: 0;
+    padding-left: 320px;
+}
+body div#fd.es.es-photo-popup .es-photo-footer {
+
+    left: -320px;
+    right: auto;
+
+}
+
+body div#fd.es .mentions-menu .mentions-menuItem {
+    text-align: right;
+}
+body div#fd.es.mentions-autocomplete .mentions-menu .mentions-menuItem > img {
+    float: right;
+    margin-right: 0;
+    margin-left: 6px;
+
+}
+
+body div#fd.es .app-members .member-item .desc,
+body div#fd.es .app-members .member-item h5 {
+    margin: 5px 50px 0 0;
+}
+body div#fd.es .app-news .group-news-items .group-news-meta ul li + li {
+    border-left: 0;
+    margin-left: 0;
+    padding-left: 0;
+
+    border-right: 1px dotted #d7d7d7;
+    margin-right: 10px;
+    padding-right: 10px;
+}
+
+/*conversations*/
+body div#fd.es.view-conversations.layout-read ul.conversation-messages > li.message-item .message-user-name {
+    float: right;
+}
+body div#fd.es.view-conversations.layout-read ul.conversation-messages > li.message-item .message-time-wrap {
+    float: left;
+    margin-left: auto;
+    margin-right: 1px;
+}
+body div#fd.es.view-conversations.layout-read ul.conversation-messages > li.message-item .media-object {
+    float: right;
+    margin-left: 10px;
+    margin-right: auto;
+}
+body div#fd.es.view-conversations.layout-read ul.conversation-messages > li.message-item.message-right .media-object {
+    float: left;
+    margin-left: auto;
+    margin-right: 10px;
+}
+body div#fd.es.view-conversations.layout-read ul.conversation-messages > li.message-item.message-right .message-user-name {
+    float: left;
+    text-align: left;
+}
+body div#fd.es.view-conversations.layout-read ul.conversation-messages > li.message-item.message-right .message-time-wrap {
+    float: right;
+}
+body div#fd.es.view-conversations .es-content .conversation-actions {
+    right: 30px;
+    left: auto;
+}
+body div#fd.es.view-conversations .item-check {
+    margin-right: 0 !important;
 }

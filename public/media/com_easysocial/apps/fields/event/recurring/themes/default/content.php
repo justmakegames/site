@@ -93,7 +93,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <div class="input-group input-group-sm">
                     <input class="form-control" type="text" data-recurring-end-picker />
                     <span class="input-group-addon" data-recurring-end-toggle="">
-                        <i class="ies-calendar-2"></i>
+                        <i class="fa fa-calendar"></i>
                     </span>
                 </div>
                 <input type="hidden" name="<?php echo $inputName; ?>[end]" data-recurring-end-result value="<?php echo isset($value->end) ? $value->end : ''; ?>" />

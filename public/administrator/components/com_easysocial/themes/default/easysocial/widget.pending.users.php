@@ -12,8 +12,8 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <?php if( $pendingUsers ){ ?>
-<h4><?php echo JText::_( 'COM_EASYSOCIAL_WIDGET_TITLE_PENDING_USERS' );?></h4>
-<hr />
+<!-- <h4><?php echo JText::_( 'COM_EASYSOCIAL_WIDGET_TITLE_PENDING_USERS' );?></h4> -->
+<!-- <hr /> -->
 
 <ul class="list-unstyled es-items-list" data-widget-pending-users>
 	<?php if( $pendingUsers ){ ?>

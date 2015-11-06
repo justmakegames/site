@@ -24,6 +24,14 @@ EasySocial.require().script('admin/grid/grid').done(function($) {
             return false;
         }
 
+        if (task == 'makeFeatured' || task == 'removeFeatured') {
+            $('[data-table-grid-task]').val(task);
+
+            $('[data-table-grid]').submit();
+
+            return false;
+        }
+
         if (task === 'delete') {
             EasySocial.dialog({
                 content: EasySocial.ajax('admin/views/events/deleteDialog'),

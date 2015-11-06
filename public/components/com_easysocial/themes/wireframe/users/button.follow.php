@@ -12,5 +12,5 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <a href="javascript:void(0);" class="btn btn-es btn-sm" data-es-followers-follow data-es-followers-id="<?php echo $user->id;?>" data-es-show-popbox="false">
-	<i class="ies-tree-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_FOLLOW_USER_BUTTON' );?>
+	<i class="fa fa-share-alt  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_FOLLOW_USER_BUTTON' );?>
 </a>

@@ -13,9 +13,9 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div data-photo-next-button
 	 class="es-photo-next-button es-photo-nav-button">
-	 <i class="ies-arrow-right-2"></i>
+	 <i class="fa fa-arrow-right"></i>
 </div>
 <div data-photo-prev-button
      class="es-photo-prev-button es-photo-nav-button">
-     <i class="ies-arrow-left-2"></i>
+     <i class="fa fa-arrow-left"></i>
 </div>

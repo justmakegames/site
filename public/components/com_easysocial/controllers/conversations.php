@@ -183,8 +183,7 @@ class EasySocialControllerConversations extends EasySocialController
 
 		// Store conversation message
 		$message = FD::table('ConversationMessage');
-		// $post = $this->input->post->getArray();
-		$post = JRequest::get('POST');
+		$post = $this->input->getArray('post');
 
 		// Bind the message data.
 		$message->bind($post);
@@ -297,7 +296,7 @@ class EasySocialControllerConversations extends EasySocialController
 			$mailParams['authorName'] = $this->my->getName();
 			$mailParams['authorAvatar']	= $this->my->getAvatar();
 			$mailParams['authorLink'] = $this->my->getPermalink(true, true);
-			$mailParams['message'] = $message->message;
+			$mailParams['message'] = $message->getContents();
 			$mailParams['messageDate'] = $message->created;
 			$mailParams['conversationLink']	= $conversation->getPermalink(true, true);
 
@@ -415,9 +414,16 @@ class EasySocialControllerConversations extends EasySocialController
 				}
 
 				if ($tag->type == 'entity') {
+
+					//user:122
 					$value = $object->value;
-					$tag->item_id = $value->id;
-					$tag->item_type = SOCIAL_TYPE_USER;
+					$parts = explode(':', $value);
+
+                    $entityType = $parts[0];
+                    $entityId = $parts[1];
+
+					$tag->item_id = $entityId;
+					$tag->item_type = $entityType;
 				}
 
 				$tag->creator_id = $this->my->id;
@@ -464,6 +470,11 @@ class EasySocialControllerConversations extends EasySocialController
 		$recipients = $conversation->getParticipants(array($this->my->id));
 
 		foreach ($recipients as $recipient) {
+
+			if ( !$recipient->hasCommunityAccess()) {
+				// skip sending email notification to this ESAD user.
+				continue;
+			}
 
 			// Add new notification item
 			$title = 'COM_EASYSOCIAL_EMAILS_NEW_REPLY_RECEIVED_SUBJECT';
@@ -548,54 +559,50 @@ class EasySocialControllerConversations extends EasySocialController
 		FD::requireLogin();
 
 		// Get the current logged in user.
-		$my 	= FD::user();
+		$my = FD::user();
 
 		// Get the current view.
-		$view 	= $this->getCurrentView();
+		$view = $this->getCurrentView();
 
 		// Get the id's that needs to be deleted.
-		$ids 	= JRequest::getVar( 'ids' );
+		$ids = $this->input->get('ids', array(), 'array');
 
 		// Ensure that id's is an array.
-		FD::makeArray( $ids );
+		FD::makeArray($ids);
 
 		// Let's loop through each of the ids.
-		foreach( $ids as $id )
-		{
-			$id				= (int) $id;
+		foreach ($ids as $id) {
+			$id = (int) $id;
 
-			$conversation	= FD::table( 'Conversation' );
-			$state			= $conversation->load( $id );
+			$conversation = FD::table('Conversation');
+			$state = $conversation->load($id);
 
-			if( !$id || !$state )
-			{
-				$view->setMessage( JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_ERROR_INVALID_ID' ) , SOCIAL_MSG_ERROR );
-				return $view->call( __FUNCTION__ );
+			if (!$id || !$state) {
+				$this->view->setMessage('COM_EASYSOCIAL_CONVERSATIONS_ERROR_INVALID_ID', SOCIAL_MSG_ERROR);
+				return $this->view->call(__FUNCTION__);
 			}
 
 			// Determines if the user has access to this conversation
-			$hasAccess 	= $conversation->hasAccess( $my->id );
+			$hasAccess = $conversation->hasAccess($my->id);
 
-			if( !$hasAccess )
-			{
-				$view->setMessage( JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_ERROR_NO_ACCESS' ) , SOCIAL_MSG_ERROR );
-				return $view->call( __FUNCTION__ );
+			if (!$hasAccess) {
+				$this->view->setMessage('COM_EASYSOCIAL_CONVERSATIONS_ERROR_NO_ACCESS', SOCIAL_MSG_ERROR);
+				return $this->view->call(__FUNCTION__);
 			}
 
-			// Let's try to delete the conversation now.
-			$state 	= $conversation->delete( $my->id );
+			// Let's try to delete the conversation now
+			$state = $conversation->delete($my->id);
 
 			// If there's an error deleting, spit it out.
-			if( !$state )
-			{
-				$view->setMessage( $conversation->getError() , SOCIAL_MSG_ERROR );
-
-				return $view->call( __FUNCTION__ );
+			if (!$state) {
+				$this->view->setMessage($conversation->getError(), SOCIAL_MSG_ERROR);
+				return $this->view->call(__FUNCTION__);
 			}
 		}
 
-		$view->setMessage( JText::_( 'COM_EASYSOCIAL_CONVERSATIONS_DELETED_SUCCESSFULLY' ) , SOCIAL_MSG_SUCCESS );
-		return $view->call( __FUNCTION__ );
+		$this->view->setMessage('COM_EASYSOCIAL_CONVERSATIONS_DELETED_SUCCESSFULLY', SOCIAL_MSG_SUCCESS);
+
+		return $this->view->call(__FUNCTION__);
 	}
 
 	/**

@@ -12,32 +12,39 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="stream-links">
-	<h4 class="es-stream-content-title<?php echo $assets->get('image') || $assets->get('content') ? ' has-info' : '';?>">
-		<a target="_blank" href="<?php echo $assets->get( 'link' );?>"<?php if ( $params->get( 'stream_link_nofollow' , false ) ) { ?> rel="nofollow"<?php } ?>><?php echo $assets->get( 'title' ); ?></a>
+	<h4 class="es-stream-content-title<?php echo $image || $content ? ' has-info' : '';?>">
+		<a target="_blank" href="<?php echo $assets->get( 'link' );?>"<?php echo $params->get('stream_link_nofollow', false) ? ' rel="nofollow"' : '';?>>
+			<?php echo $assets->get('title'); ?>
+		</a>
 	</h4>
 
+	<?php if ($image || $content) { ?>
 	<div class="links-content">
-		<div class="es-stream-preview fd-small">
-			<?php if( $params->get( 'stream_thumbnail' , true ) && $assets->get( 'image' ) ){ ?>
-				<?php if( isset( $oembed->html ) ){ ?>
+		<div class="fd-small es-stream-preview">
+			<?php if ($params->get('stream_thumbnail', true) && $image) { ?>
 
-					<?php if( !isset( $oembed->thumbnail ) ){ ?>
+				<?php if (isset($oembed->html)) { ?>
+
+					<?php if (!isset($oembed->thumbnail)) { ?>
+						<div class="<?php echo !isset($oembed->thumbnail) || !$oembed->thumbnail ?  '' : 'video-container'; ?>">
 						<?php echo $oembed->html; ?>
+						</div>
 					<?php } else { ?>
-						<a href="javascript:void(0);" class="stream-preview-image" data-es-links-embed-item data-es-stream-embed-player="<?php echo $this->html( 'string.escape' , $oembed->html );?>">
+						<a href="javascript:void(0);" class="stream-preview-image" data-es-links-embed-item data-es-stream-embed-player="<?php echo $this->html('string.escape', $oembed->html);?>">
 							<img src="<?php echo $oembed->thumbnail;?>" />
 							<i class="icon-es-video-play"></i>
 						</a>
 					<?php } ?>
 
 				<?php } else { ?>
-					<a href="<?php echo $assets->get( 'link' );?>" class="stream-preview-image" target="_blank"<?php if ( $params->get( 'stream_link_nofollow' , false ) ) { ?> rel="nofollow"<?php } ?>>
-						<img src="<?php echo $assets->get( 'image' );?>" />
+					<a href="<?php echo $assets->get('link');?>" class="stream-preview-image" target="_blank"<?php echo $params->get('stream_link_nofollow', false) ? ' rel="nofollow"' : '';?>>
+						<img src="<?php echo $image;?>" alt="<?php echo $this->html('string.escape', $assets->get('title'));?>" />
 					</a>
 				<?php } ?>
 			<?php } ?>
 
-			<?php echo $assets->get( 'content' , '' ); ?>
+			<?php echo $content;?>
 		</div>
 	</div>
+	<?php } ?>
 </div>

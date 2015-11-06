@@ -17,6 +17,11 @@ echo $settings->renderPage(
 			$settings->renderHeader('General'),
 			$settings->renderSetting('Cache Shared Images', 'links.cache.images', 'boolean', array('help' => true)),
             $settings->renderSetting('Cache Location', 'links.cache.location', 'input', array('help' => true, 'class' => 'form-control input-sm'))
-		)
+		),
+        $settings->renderSection(
+            $settings->renderHeader('URL Caching'),
+            $settings->renderSetting('Automatically purge cached urls', 'general.url.purge', 'boolean', array('help' => true)),
+            $settings->renderSetting('Purge interval', 'general.url.interval', 'input', array('help' => true, 'class' => 'form-control input-sm input-short text-center', 'unit' => true))
+        )
 	)
 );

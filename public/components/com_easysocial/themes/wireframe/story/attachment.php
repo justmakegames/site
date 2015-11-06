@@ -15,7 +15,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<div class="es-story-attachment-items" data-story-panel-contents>
 		<?php foreach ($story->panels as $panel) { ?>
 			<div class="es-story-attachment-item <?php echo $panel->content->classname; ?>" data-story-attachment-item data-story-plugin-name="<?php echo $panel->name; ?>">
-				<button type="button" class="close es-story-reset-button" data-story-reset="" style="top: -8px;"><i class="ies-cancel-2"></i></button>
+				<button type="button" class="close es-story-reset-button" data-story-reset="" style="top: -8px;"><i class="fa fa-remove"></i></button>
 
 				<div class="es-story-attachment-content" data-story-attachment-content data-story-plugin-name="<?php echo $panel->name; ?>">
 					<?php echo $panel->content->html; ?>

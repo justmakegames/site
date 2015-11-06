@@ -10,6 +10,8 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+
+$routerOptions = array('q' => $query);
 ?>
 <div class="es-widget es-widget-borderless">
 	<div class="es-widget-head">
@@ -23,10 +25,10 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				data-sidebar-menu
 				data-sidebar-item
 				data-type=""
-				data-url="<?php echo FRoute::search( array( 'q' => $query ) );?>"
+				data-url="<?php echo FRoute::search($routerOptions);?>"
 			>
 				<a href="javascript:void(0);">
-					<i class="ies-search mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SEARCH_BY_ALL' );?>
+					<i class="fa fa-search mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SEARCH_BY_ALL' );?>
 					<div class="label label-notification pull-right mr-20"></div>
 				</a>
 			</li>
@@ -36,15 +38,20 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 						$lang = JText::_( 'COM_EASYSOCIAL_SEARCH_BY_' . strtoupper( $item->displayTitle ) );
 						$typeAlias = $item->id . ':' . $item->title;
+
+						$routerOptions = array('q' => $query);
+						$routerOptions['type'] = $typeAlias;
+
+						$routerOptions['filtertypes[0]'] = $typeAlias;
 					?>
 					<li
 						data-sidebar-menu
 						data-sidebar-item
 						data-type="<?php echo $typeAlias; ?>"
-						data-url="<?php echo FRoute::search( array( 'type' => $typeAlias , 'q' => $query ) );?>"
+						data-url="<?php echo FRoute::search($routerOptions);?>"
 					>
 						<a href="javascript:void(0);">
-							<i class="<?php echo $item->icon;?> ies-small mr-5"></i> <?php echo (strpos($lang, 'COM_EASYSOCIAL_SEARCH_BY_') !== false) ? ucfirst($item->displayTitle) : $lang ;?>
+							<i class="<?php echo $item->icon;?>  mr-5"></i> <?php echo (strpos($lang, 'COM_EASYSOCIAL_SEARCH_BY_') !== false) ? ucfirst($item->displayTitle) : $lang ;?>
 							<div class="label label-notification pull-right mr-20"></div>
 						</a>
 					</li>

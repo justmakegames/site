@@ -22,7 +22,7 @@ class EasySocialViewNotifications extends EasySocialSiteView
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function display( $tpl = null )
+	public function display($tpl = null)
 	{
 		// Unauthorized users should not be allowed to access this page.
 		FD::requireLogin();
@@ -69,12 +69,13 @@ class EasySocialViewNotifications extends EasySocialSiteView
 	public function route()
 	{
 		// The user needs to be logged in to access notifications
-		FD::requireLogin();
+		ES::requireLogin();
 
 		// Get the notification id
 		$id = $this->input->get('id', 0, 'int');
 
-		$table = FD::table('Notification');
+		// Load up the notification object
+		$table = ES::table('Notification');
 		$table->load($id);
 
 		// Default redirection URL
@@ -96,8 +97,18 @@ class EasySocialViewNotifications extends EasySocialSiteView
 		// Mark the notification item as read
 		$table->markAsRead();
 
+		// Trigger before redirecting to allow apps to modify the url
+		$dispatcher = ES::dispatcher();
+		$args = array(&$table);
+
+		// Trigger onBeforeStreamDelete
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_USER, 'onBeforeNotificationRedirect', $args);
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_GROUP, 'onBeforeNotificationRedirect', $args);
+		$dispatcher->trigger(SOCIAL_APPS_GROUP_EVENT, 'onBeforeNotificationRedirect', $args);
+
 		// Ensure that all &amp; are replaced with &
 		$url = str_ireplace('&amp;', '&', $table->url);
+
 
 		$redirect = FRoute::_($url, false);
 

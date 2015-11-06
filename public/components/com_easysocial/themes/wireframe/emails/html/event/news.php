@@ -29,7 +29,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
         </div>
 
         <p style="text-align:center;padding: 0 30px;">
-            <?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_EVENT_NEW_ANNOUNCEMENT_CONTENT' , '<a href="' . $userLink . '">' . $userName . '</a>' , '<a href="' . $groupLink . '">' . $groupName . '</a>' );?>
+            <?php echo JText::sprintf( 'COM_EASYSOCIAL_EMAILS_EVENT_NEW_ANNOUNCEMENT_CONTENT' , '<a href="' . $userLink . '">' . $userName . '</a>' , '<a href="' . $eventLink . '">' . $eventName . '</a>' );?>
         </p>
 
         <table align="center" style="margin: 20px auto 0;padding: 0 50px;" border="0" cellspacing="0" cellpadding="0">

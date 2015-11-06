@@ -12,6 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <span class="es-stream-info-meta">
+    &#8207;
     &mdash;
     <?php echo $this->loadTemplate( 'site/stream/meta.with' , array( 'stream' => $stream ) ); ?>
     <?php echo $this->loadTemplate( 'site/stream/meta.location' , array( 'stream' => $stream ) ); ?>

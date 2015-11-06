@@ -3,8 +3,8 @@ EasySocial.module( 'site/conversations/composer' , function($){
 	var module 	= this;
 
 	EasySocial.require()
-	.library( 'mentions' )
-	.script( 'site/friends/suggest' , 'uploader/uploader')
+	.library('mentions')
+	.script('site/friends/suggest', 'uploader/uploader')
 	.view(
 		"site/friends/suggest.item",
 		"site/friends/suggest.hint.search",
@@ -19,14 +19,13 @@ EasySocial.module( 'site/conversations/composer' , function($){
 	)
 	.done(function($){
 
-		EasySocial.Controller(
-			'Conversations.Composer',
-			{
-				defaultOptions:
-				{
+		EasySocial.Controller('Conversations.Composer', {
+				defaultOptions: {
+
 					// Determines if these features should be enabled.
 					attachments 		: true,
 					location 			: true,
+					showNonFriend		: false,
 
 					// Uploader properties.
 					extensionsAllowed	: "",
@@ -59,58 +58,31 @@ EasySocial.module( 'site/conversations/composer' , function($){
 						tagSuggestItem: "site/hashtags/suggest.item"
 					}
 				}
-			},
-			function( self ){
-				return {
+			}, function(self) { return {
 
-					init: function()
-					{
+					init: function() {
+
 						// Initialize the participants textbox.
 						self.initSuggest();
 
-						// Initialize editor.
-						// self.initEditor();
-
 						// Initialize uploader
-						if( self.options.attachments )
-						{
+						if (self.options.attachments) {
 							self.initUploader();
 						}
-
-						// Initialize location
-						// if( self.options.location )
-						// {
-						// 	self.initLocation();
-						// }
 
 						self.setMentionsLayout();
 					},
 
-					/**
-					 * Initializes the location form.
-					 */
-					// initLocation: function()
-					// {
-					// 	self.location().implement( EasySocial.Controller.Location.Form );
-					// },
-
-					/**
-					 * Resets the conversation form.
-					 */
-					resetForm: function()
-					{
+					resetForm: function() {
 						self.editor().val('');
 					},
 
-					setMentionsLayout: function()
-					{
+					setMentionsLayout: function() {
 
-						var editor		= self.editorArea(),
-							mentions	= editor.controller("mentions");
+						var editor = self.editorArea();
+						var mentions = editor.controller("mentions");
 
-
-						if (mentions)
-						{
+						if (mentions) {
 							mentions.cloneLayout();
 							return;
 						}
@@ -118,12 +90,11 @@ EasySocial.module( 'site/conversations/composer' , function($){
 						var header = self.editorHeader();
 
 						editor
-							.mentions(
-							{
-								triggers:
-								{
-								    "@":
-								    {
+							.mentions({
+								
+								triggers: {
+								    
+								    "@": {
 										type			: "entity",
 										wrap			: false,
 										stop			: "",
@@ -233,47 +204,29 @@ EasySocial.module( 'site/conversations/composer' , function($){
 								}
 							});
 					},
-					/**
-					 * Initializes the uploader.
-					 */
-					initUploader: function()
-					{
+
+					initUploader: function() {
 						// Implement uploader controller.
-						self.uploader().implement( EasySocial.Controller.Uploader ,
-						{
+						self.uploader().implement( EasySocial.Controller.Uploader , {
 							// We want the uploader to upload automatically.
 							temporaryUpload	: true,
 							query 			: "type=conversations",
 							type 				: 'conversations',
 							extensionsAllowed : self.options.extensionsAllowed
 						});
-
-						if( EasySocial.environment == 'development' )
-						{
-							console.log( 'Extensions Allowed: ' + self.options.extensionsAllowed );
-							console.log( 'Maximum individual file size: ' + self.options.maxSize );
-						}
 					},
 
-					/**
-					 * Initializes and converts the normal textbox into a suggest list.
-					 */
-					initSuggest: function()
-					{
+					initSuggest: function() {
 						self.friendSuggest()
 							.addController(EasySocial.Controller.Friends.Suggest,
 								{
 									friendList		: true,
-									friendListName	: "list_id[]"
+									friendListName	: "list_id[]",
+									showNonFriend : self.options.showNonFriend
 								});
 					},
 
-					/**
-					 * Initializes the editor
-					 *
-					 */
-					initEditor : function()
-					{
+					initEditor : function() {
 						self.editor().expandingTextarea();
 					},
 
@@ -355,68 +308,47 @@ EasySocial.module( 'site/conversations/composer' , function($){
 			}
 		);
 
-		EasySocial.Controller(
-			'Conversations.Composer.Dialog',
-			{
-				defaultOptions:
-				{
-					// Default options
-					recipient 		: {},
-				}
-			},
-			function( self ){
-				return {
-					init: function()
-					{
+		EasySocial.Controller('Conversations.Composer.Dialog', {
+			defaultOptions: {
+				recipient: {},
+			}
+		}, function(self) { return {
 
-					},
+			"{self} click" : function() {
+				EasySocial.dialog({
+					"content"	: EasySocial.ajax( 'site/views/conversations/composer' , { "id" : self.options.recipient.id } ),
+					"bindings"	: {
+						"{sendButton} click" : function(el) {
 
-					"{self} click" : function()
-					{
-						EasySocial.dialog(
-						{
-							"content"	: EasySocial.ajax( 'site/views/conversations/composer' , { "id" : self.options.recipient.id } ),
-							"bindings"	:
-							{
-								"{sendButton} click" : function(el)
-								{
-									var dialog		= this.parent,
-										recipient 	= $( '[data-composer-recipient]' ).val(),
-										message 	= $( '[data-composer-message]' ).val();
+							var dialog = this.parent;
+							var recipient = $('[data-composer-recipient]').val();
+							var message = $('[data-composer-message]').val();
 
-									// disable the send button so that user cannot click again.
-									el.disabled(true);
+							// disable the send button so that user cannot click again.
+							el.disabled(true);
 
-									EasySocial.ajax( 'site/controllers/conversations/store' ,
-									{
-										"uid"		: recipient,
-										"message"	: message
-									})
-									.done(function( link )
-									{
-										EasySocial.dialog(
-										{
-											"content"	: EasySocial.ajax( 'site/views/conversations/sent' , { "id" : self.options.recipient.id }),
-											"bindings"	:
-											{
-												"{viewButton} click" : function()
-												{
-													document.location 	= link;
-												}
-											}
-										});
-									})
-									.fail( function( message )
-									{
-										dialog.setMessage(message);
-										el.disabled(false);
-									});
-								}
-							}
-						});
+							EasySocial.ajax( 'site/controllers/conversations/store', {
+								"uid"		: recipient,
+								"message"	: message
+							}).done(function(link) {
+
+								EasySocial.dialog({
+									"content": EasySocial.ajax( 'site/views/conversations/sent' , { "id" : self.options.recipient.id }),
+									"bindings": {
+										"{viewButton} click" : function() {
+											document.location 	= link;
+										}
+									}
+								});
+							}).fail(function(message) {
+								dialog.setMessage(message);
+								el.disabled(false);
+							});
+						}
 					}
-				}
-		});
+				});
+			}
+		}});
 
 		module.resolve();
 	});

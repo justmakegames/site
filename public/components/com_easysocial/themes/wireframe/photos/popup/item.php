@@ -47,7 +47,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<?php if ($lib->taggable()) { ?>
 				<div class="es-photo-hint tag-hint alert">
 					<?php echo JText::_("COM_EASYSOCIAL_PHOTOS_TAGS_HINT"); ?>
-					<button class="btn btn-es" href="javascript: void(0);" data-photo-tag-button="disable"><i class="ies-checkmark"></i> <span><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_TAGS_DONE"); ?></span></button>
+					<button class="btn btn-es" href="javascript: void(0);" data-photo-tag-button="disable"><i class="fa fa-check"></i> <span><?php echo JText::_("COM_EASYSOCIAL_PHOTOS_TAGS_DONE"); ?></span></button>
 				</div>
 				<?php } ?>
 			</div>
@@ -76,7 +76,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 		<?php } ?>
 
-		<a class="es-photo-close-button" href="javascript: void(0);" data-popup-close-button><i class="ies-cancel-2"></i></a>
+		<a class="es-photo-close-button" href="javascript: void(0);" data-popup-close-button><i class="fa fa-remove"></i></a>
 
 		<?php echo $this->render( 'module' , 'es-photos-before-info' ); ?>
 

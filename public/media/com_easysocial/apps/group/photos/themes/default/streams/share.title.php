@@ -11,4 +11,4 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<?php echo $this->html( 'html.user' , $actor->id ); ?> <i class="ies-arrow-right"></i> <?php echo $this->html('html.group', $group->id);?>
+<?php echo $this->html( 'html.user' , $actor->id ); ?> <i class="fa fa-caret-right"></i> <?php echo $this->html('html.group', $group->id);?>

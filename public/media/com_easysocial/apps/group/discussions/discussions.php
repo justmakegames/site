@@ -39,7 +39,7 @@ class SocialGroupAppDiscussions extends SocialAppItem
 		$obj 			= new stdClass();
 
 		$obj->color 	= '#69b598';
-		$obj->icon		= 'ies-comments';
+		$obj->icon		= 'fa-comments';
 		$obj->label 	= 'APP_USER_GROUP_STREAM_TOOLTIP';
 
 		return $obj;
@@ -57,6 +57,31 @@ class SocialGroupAppDiscussions extends SocialAppItem
 		// Delete all discussions from a group
 		$model 	= FD::model( 'Discussions' );
 		$model->delete( $group->id , SOCIAL_TYPE_GROUP );
+	}
+
+	/**
+	 * Determines if the app should appear on the sidebar
+	 *
+	 * @since	1.3
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function appListing($view, $id, $type)
+	{
+		if ($type != SOCIAL_TYPE_GROUP) {
+			return true;
+		}
+
+		// We should not display the discussions on the app if it's disabled
+		$group = FD::group($id);
+		$registry = $group->getParams();
+
+		if (!$registry->get('discussions', true)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -231,11 +256,18 @@ class SocialGroupAppDiscussions extends SocialAppItem
 			return;
 		}
 
+		// Ensure that announcements are enabled for this group
+		$registry = $group->getParams();
+
+		if (!$registry->get('discussions', true)) {
+			return;
+		}
+
 		// Define standard stream looks
 		$item->display 	= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 	= '#69b598';
-		$item->fonticon	= 'ies-comments';
-		$item->label	= JText::_( 'COM_EASYSOCIAL_STREAM_CONTEXT_TITLE_DISCUSSIONS_TOOLTIP' );
+		$item->fonticon	= 'fa-comments';
+		$item->label	= FD::_('COM_EASYSOCIAL_STREAM_CONTEXT_TITLE_DISCUSSIONS_TOOLTIP', true);
 
 		$params 	= $this->getApp()->getParams();
 

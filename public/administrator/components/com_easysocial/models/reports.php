@@ -197,4 +197,29 @@ class EasySocialModelReports extends EasySocialModel
 
 		return true;
 	}
+
+	/**
+	 * Retrieves the total number of reported stream from the site
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getReportCount()
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = 'select count(1)';
+		$query .= ' from `#__social_reports`';
+
+		$sql->raw($query);
+		$db->setQuery($sql);
+
+		$total = (int) $db->loadResult();
+
+		return $total;
+	}	
 }
+

@@ -8,5 +8,15 @@
             "email"     : true,
             "system"    : true
         }
+    },
+    {
+        "element"   : "albums",
+        "rule"      : "favourite",
+        "core"      : true,
+        "value"     :
+        {
+            "email"     : true,
+            "system"    : true
+        }
     }
 ]

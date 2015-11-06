@@ -4,7 +4,7 @@
  * @package Kunena.Template.Blue_Eagle
  * @subpackage Category
  *
- * @copyright (C) 2008 - 2014 Kunena Team. All rights reserved.
+ * @copyright (C) 2008 - 2015 Kunena Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link http://www.kunena.org
  **/
@@ -21,7 +21,7 @@ foreach ( $this->sections as $section ) :
 		<?php if (count($this->sections) > 0) : ?>
 		<span class="ktoggler"><a class="ktoggler close" title="<?php echo JText::_('COM_KUNENA_TOGGLER_COLLAPSE') ?>" rel="catid_<?php echo intval($section->id) ?>"></a></span>
 		<?php endif; ?>
-		<h2><span><?php echo $this->GetCategoryLink ( $section, $this->escape($section->name) ); ?></span></h2>
+		<h1><span><?php echo $this->GetCategoryLink ( $section, $this->escape($section->name) ); ?></span></h1>
 		<?php if (!empty($section->description)) : ?>
 		<div class="ktitle-desc km hidden-phone">
 			<?php echo KunenaHtmlParser::parseBBCode ( $section->description ); ?>
@@ -39,7 +39,11 @@ foreach ( $this->sections as $section ) :
 		<tr class="k<?php echo $tabclass [$k ^= 1], isset ( $category->class_sfx ) ? ' k' . $this->escape($tabclass [$k]) . $this->escape($category->class_sfx) : '' ?>"
 			id="kcat<?php echo intval($category->id) ?>">
 			<td class="kcol-first kcol-category-icon hidden-phone">
-				<?php echo $this->getCategoryLink($category, $this->getCategoryIcon($category), '') ?>
+				<?php if (!empty($category->icon)) : ?>
+					<i class="icon-big <?php echo $category->icon;?> <?php if ($category->getNewCount()) :?>  icon-knewchar <?php endif; ?>"></i>
+				<?php else : ?>
+					<?php echo $this->getCategoryLink($category, $this->getCategoryIcon($category), ''); ?>
+				<?php endif; ?>
 			</td>
 
 			<td class="kcol-mid kcol-kcattitle">
@@ -118,7 +122,7 @@ foreach ( $this->sections as $section ) :
 				$profile = KunenaFactory::getUser((int)$last->last_post_userid);
 				$useravatar = $profile->getAvatarImage('klist-avatar', 'list');
 				if ($useravatar) : ?>
-					<span class="klatest-avatar hidden-phone"> <?php echo $last->getLastPostAuthor()->getLink( $useravatar ); ?></span>
+					<span class="klatest-avatar hidden-phone"> <?php echo $last->getLastPostAuthor()->getLink( $useravatar, null, 'nofollow', '', null, $category->id ); ?></span>
 				<?php endif; ?>
 			<?php endif; ?>
 			<div class="klatest-subject ks">
@@ -128,7 +132,7 @@ foreach ( $this->sections as $section ) :
 			<div class="klatest-subject-by ks hidden-phone">
 			<?php
 					echo JText::_('COM_KUNENA_BY') . ' ';
-					echo $last->getLastPostAuthor()->getLink();
+					echo $last->getLastPostAuthor()->getLink(null, null, 'nofollow', '', null, $category->id);
 					echo '<br /><span class="nowrap" title="' . KunenaDate::getInstance($last->last_post_time)->toKunena('config_post_dateformat_hover') . '">' . KunenaDate::getInstance($last->last_post_time)->toKunena('config_post_dateformat') . '</span>';
 					?>
 			</div>

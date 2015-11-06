@@ -40,6 +40,7 @@ class SocialUserAppFriends extends SocialAppItem
 		if ($item->cmd == 'friends.approve') {
 			$user 			= FD::user($item->actor_id);
 			$item->title	= JText::sprintf('APP_USER_FRIENDS_NOTIFICATIONS_USER_ACCEPTED_YOUR_FRIEND_REQUEST', $user->getName());
+			$item->image 	= $user->getAvatar();
 		}
 	}
 
@@ -55,7 +56,7 @@ class SocialUserAppFriends extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#7AD7EE';
-		$obj->icon 		= 'ies-user';
+		$obj->icon 		= 'fa fa-user';
 		$obj->label 	= 'APP_USER_FRIENDS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -180,6 +181,23 @@ class SocialUserAppFriends extends SocialAppItem
 			return;
 		}
 
+		// Determines if the stream should be generated
+		$params 	= $this->getParams();
+
+		if( !$params->get( 'stream_friends' , true ) )
+		{
+			return;
+		}
+
+		// Get the actor
+		$actor 			= $item->actor;
+
+		// check if the actor is ESAD profile or not, if yes, we skip the rendering.
+		if (! $actor->hasCommunityAccess()) {
+			$item->title = '';
+			return;
+		}
+
 		$my         = FD::user();
 		$privacy	= FD::privacy( $my->id );
 
@@ -200,19 +218,8 @@ class SocialUserAppFriends extends SocialAppItem
 			return;
 		}
 
-		// Determines if the stream should be generated
-		$params 	= $this->getParams();
-
-		if( !$params->get( 'stream_friends' , true ) )
-		{
-			return;
-		}
-
 		// Receiving actor.
 		$target		= $item->targets[ 0 ];
-
-		// Get the actor
-		$actor 			= $item->actor;
 
 		// Get the current id.
 		$id 		= JRequest::getInt( 'id' );
@@ -220,8 +227,8 @@ class SocialUserAppFriends extends SocialAppItem
 		// Decorate the stream
 		$item->display		= SOCIAL_STREAM_DISPLAY_MINI;
 		$item->color 		= '#7AD7EE';
-		$item->fonticon		= 'ies-user';
-		$item->label 		= JText::_( 'APP_USER_FRIENDS_STREAM_TOOLTIP' );
+		$item->fonticon		= 'fa-user';
+		$item->label 		= FD::_( 'APP_USER_FRIENDS_STREAM_TOOLTIP', true );
 
 		// Apply likes on the stream
 		$likes 			= FD::likes();

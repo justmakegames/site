@@ -4,41 +4,33 @@ EasySocial.module( 'admin/users/form' , function($) {
 
 	EasySocial.require()
 	.script('field')
-	.done(function($)
-	{
-		EasySocial.Controller(
-		'Users.Form',
-		{
-			defaultOptions:
-			{
-				userid				: null,
+	.done(function($) {
+		
+		EasySocial.Controller('Users.Form', {
+			defaultOptions: {
+				userid: null,
+				mode: 'adminedit',
 
-				mode				: 'adminedit',
+				"{selectProfile}": "[data-user-select-profile]",
+				"{content}": "[data-user-new-content]",
+				"{profileTitle}": "[data-profile-title]",
 
-				"{selectProfile}"	: "[data-user-select-profile]",
-				"{content}"			: "[data-user-new-content]",
-				"{profileTitle}"	: "[data-profile-title]",
+				"{fieldItem}": "[data-profile-adminedit-fields-item]",
 
-				"{fieldItem}"		: "[data-profile-adminedit-fields-item]",
+				"{tabnav}": "[data-tabnav]",
+				"{tabcontent}": "[data-tabcontent]",
 
-				"{tabnav}"			: "[data-tabnav]",
-				"{tabcontent}"		: "[data-tabcontent]",
+				"{stepnav}": "[data-stepnav]",
+				"{stepcontent}": "[data-stepcontent]",
 
-				"{stepnav}"			: "[data-stepnav]",
-				"{stepcontent}"		: "[data-stepcontent]",
-
-				view:
-				{
+				view: {
 					loading : "site/loading/large"
 				}
 			}
-		},
-		function( self )
-		{
+		}, function(self) {
 			return {
 
-				init : function()
-				{
+				init : function() {
 					window.selectedProfile 	= self.selectedProfile;
 
 					self.fieldItem().addController('EasySocial.Controller.Field.Base', {
@@ -47,15 +39,13 @@ EasySocial.module( 'admin/users/form' , function($) {
 					});
 				},
 
-				selectedProfile : function( profileId )
-				{
+				selectedProfile : function(profileId) {
 					EasySocial.dialog().close();
 
 					window.location.href	= 'index.php?option=com_easysocial&view=users&layout=form&profileId=' + profileId;
 				},
 
-				"{selectProfile} click" : function()
-				{
+				"{selectProfile} click" : function() {
 					EasySocial.dialog(
 					{
 						content 	: EasySocial.ajax( 'admin/views/profiles/browse' )

@@ -33,7 +33,7 @@ class SocialUserAppProfiles extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#FF7553';
-		$obj->icon 		= 'ies-briefcase';
+		$obj->icon 		= 'fa fa-suitcase';
 		$obj->label 	= 'APP_USER_PROFILES_UPDATE_PROFILE_STREAM_TOOLTIP';
 
 		return $obj;
@@ -322,19 +322,24 @@ class SocialUserAppProfiles extends SocialAppItem
 		if( $item->verb == 'register' )
 		{
 			$item->color 		= '#FF7553';
-			$item->fonticon 	= 'ies-user-add';
-			$item->label		= JText::_( 'APP_USER_PROFILES_REGISTER_STREAM_TOOLTIP' );
+			$item->fonticon 	= 'fa-user-plus';
+			$item->label		= FD::_( 'APP_USER_PROFILES_REGISTER_STREAM_TOOLTIP', true);
 		}
 
 		// When user updates their profile.
 		if( $item->verb == 'update' )
 		{
 			$item->color 	= '#1FBCA7';
-			$item->fonticon	= 'ies-briefcase';
-			$item->label 	= JText::_( 'APP_USER_PROFILES_UPDATE_PROFILE_STREAM_TOOLTIP' );
+			$item->fonticon	= 'fa-suitcase';
+			$item->label 	= FD::_( 'APP_USER_PROFILES_UPDATE_PROFILE_STREAM_TOOLTIP', true);
 		}
 
 		$actor	= $item->actor;
+
+		if (! $actor->hasCommunityAccess()) {
+			$item->title = '';
+			return;
+		}
 
 		$genderValue = $actor->getFieldData('GENDER');
 

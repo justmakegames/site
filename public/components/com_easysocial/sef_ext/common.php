@@ -13,15 +13,15 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 function addPrefix(&$title, $prefix)
 {
-	$title[]	= $prefix;
+	$title[] = $prefix;
 }
 
 // Determine how is the user's current id being set.
-function addView( &$title , $view )
+function addView(&$title, $view)
 {
-	$title[]	= JString::ucwords( JText::_( 'COM_EASYSOCIAL_ROUTER_' . strtoupper( $view ) ) );
+	$title[] = JString::ucwords(JText::_('COM_EASYSOCIAL_ROUTER_' . strtoupper($view)));
 
-	shRemoveFromGETVarsList( 'view' );
+	shRemoveFromGETVarsList('view');
 }
 
 function addLayout( &$title , $view , $layout )
@@ -59,13 +59,30 @@ function getListAlias( $id )
 	return $alias;
 }
 
-function getBadgeAlias( $id )
+function getBadgeAlias($id)
 {
-	$badge 		= FD::table( 'Badge' );
+	$badge = FD::table( 'Badge' );
 	$badge->load( $id );
 
-	$alias 		= JFilterOutput::stringURLSafe( $badge->alias );
+	$alias = JFilterOutput::stringURLSafe($badge->alias);
 	return $alias;
+}
+
+function getVideoCategoryAlias($id)
+{
+	static $cats = array();
+
+	if (!isset($cats[$id])) {
+
+		$id = (int) $id;
+
+		$category = ES::table('VideoCategory');
+		$category->load($id);
+
+		$cats[$id] = JString::ucwords($category->alias);
+	}
+
+	return $cats[$id];
 }
 
 function getGroupCategoryAlias($id)
@@ -104,6 +121,23 @@ function getEventCategoryAlias($id)
 	}
 
 	return $categories[$id];
+}
+
+function getVideoAlias($id)
+{
+	// Ensure that it's typecasted appropriately.
+	$id = (int) $id;
+
+	static $videos = array();
+
+	if (!isset($videos[$id])) {
+		$video = ES::table('Video');
+		$video->load($id);
+
+		$videos[$id] = JString::ucwords($video->getAlias(false));
+	}
+
+	return $videos[$id];
 }
 
 function getGroupAlias($id)

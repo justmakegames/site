@@ -12,58 +12,55 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Include main engine
-$file 		= JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
-$easyblog 	= JPATH_ROOT . '/administrator/components/com_easyblog/easyblog.php';
+$file = JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
+$easyblog = JPATH_ROOT . '/administrator/components/com_easyblog/easyblog.php';
 
 jimport( 'joomla.filesystem.file' );
 
-if( !JFile::exists( $file ) || !JFile::exists( $easyblog ) )
-{
+if (!JFile::exists($file) || !JFile::exists($easyblog)) {
 	return;
 }
 
 // Include the engine file.
-require_once( $file );
+require_once($file);
 
 // Check if Foundry exists
-if( !FD::exists() )
-{
+if (!FD::exists()) {
 	FD::language()->loadSite();
 	echo JText::_( 'COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING' );
 	return;
 }
 
 // Include EasyBlog's library
-require_once( JPATH_ROOT . '/components/com_easyblog/helpers/helper.php' );
+require_once(JPATH_ROOT . '/administrator/components/com_easyblog/includes/easyblog.php');
 
-$my 		= FD::user();
+$my = ES::user();
 
 // Load up the module engine
-$modules 	= FD::modules( 'mod_easysocial_easyblog_posts' );
+$modules = ES::modules('mod_easysocial_easyblog_posts');
 
-$model 		= EasyBlogHelper::getModel( 'Blog' );
+$model = EB::model('Blog');
 
 // Get the module options
-$total 		= (int) $params->get( 'total' , 5 );
-$sorting	= $params->get( 'sorting' , 'latest' );
+$total = (int) $params->get( 'total' , 5 );
+$sorting = $params->get( 'sorting' , 'latest' );
 
 // Let's load the list of posts now
-$posts 		= $model->getBlogsBy( 'latest' , '' , $sorting , $total );
+$posts = $model->getBlogsBy( 'latest' , '' , $sorting , $total );
 
 // We need to format the blog post accordingly.
-$posts 		= EasyBlogHelper::formatBlog( $posts , false , true , true , true );
+$posts = EB::formatter('list', $posts, false);
 
 // Get the author of the blog posts
-foreach( $posts as $post )
-{
-	$post->user 	= FD::user( $post->created_by );
+foreach ($posts as $post) {
+	$post->user = ES::user($post->created_by);
 }
 
 // We need these packages
 $modules->addDependency( 'css' , 'javascript' );
 
 // Get the layout to use.
-$layout 	= $params->get( 'layout' , 'default' );
-$suffix 	= $params->get( 'suffix' , '' );
+$layout = $params->get( 'layout' , 'default' );
+$suffix = $params->get( 'suffix' , '' );
 
-require( JModuleHelper::getLayoutPath( 'mod_easysocial_easyblog_posts' , $layout ) );
+require(JModuleHelper::getLayoutPath('mod_easysocial_easyblog_posts', $layout));

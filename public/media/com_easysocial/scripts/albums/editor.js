@@ -64,7 +64,7 @@ EasySocial.module("albums/editor", function($){
 			"{cancelButton}"   : "[data-album-cancel-button]",
 			"{cancelButtonLink}"   : "[data-album-cancel-button] > a",
 
-			"{locationWidget}"  : ".es-album-location-form .es-location",
+			"{locationWidget}"  : ".es-album-location-form .es-locations",
 			"{latitude}"        : "[data-location-lat]",
 			"{longitude}"       : "[data-location-lng]"
 		}
@@ -289,7 +289,7 @@ EasySocial.module("albums/editor", function($){
 		},
 
 		"{deleteButton} click": function(deleteButton) {
-
+			
 			if (deleteButton.disabled()) return;
 
 			EasySocial.dialog({
@@ -330,8 +330,9 @@ EasySocial.module("albums/editor", function($){
 		},
 
 		"{locationWidget} locationChange": function(el, event, location) {
+			var address = location.address || location.fulladdress || location.formatted_address;
 
-			var address = location.formatted_address;
+			// Set the address in the caption
 			self.locationCaption().html(address);
 			self.location().addClass("has-data");
 		}

@@ -32,10 +32,10 @@ class SocialGroupAppTasks extends SocialAppItem
 	 */
 	public function getFavIcon()
 	{
-		$obj 			= new stdClass();
-		$obj->color		= '#658ea6';
-		$obj->icon 		= 'ies-checkbox-checked';
-		$obj->label 	= 'APP_USER_TASKS_STREAM_TOOLTIP';
+		$obj = new stdClass();
+		$obj->color = '#658ea6';
+		$obj->icon = 'fa fa-check-square';
+		$obj->label = 'APP_USER_TASKS_STREAM_TOOLTIP';
 
 		return $obj;
 	}
@@ -364,45 +364,49 @@ class SocialGroupAppTasks extends SocialAppItem
 	 */
 	public function onPrepareStoryPanel($story)
 	{
-		$params 		= $this->getApp()->getParams();
+		$params = $this->getApp()->getParams();
 
-		if( !$params->get( 'story_form' , true ) )
-		{
+		if (!$params->get('story_form', true)) {
 			return;
 		}
 
 		// Get the group data
-		$group 		= FD::group( $story->cluster );
+		$group = ES::group($story->cluster);
 
-		$tasks 		= FD::model( 'Tasks' );
+		$tasks = ES::model('Tasks');
 		$milestones	= $tasks->getMilestones( $group->id , SOCIAL_TYPE_GROUP );
 
-		$theme 		= FD::themes();
+		$theme = ES::themes();
 
 		// Create plugin object
-		$plugin		= $story->createPlugin( 'tasks' , 'panel' );
-		$plugin->button->html 	= $theme->output('themes:/apps/group/tasks/story/panel.button');
+		$plugin = $story->createPlugin('tasks', 'panel');
 
-		// Attachment script
-		$script				= FD::get('Script');
-		$plugin->script		= $script->output('apps:/group/tasks/story');
+		$button = $theme->output('site/tasks/story/button');
 
 		// If there is no milestone, do not need to display the tasks embed in the story form.
-		if( !$milestones )
-		{
+		if (!$milestones) {
 			$permalink 	= $this->getApp()->getPermalink('canvas', array('groupId' => $group->id, 'customView' => 'form'));
 
 			// We need to attach the button to the story panel
 			$theme->set('permalink', $permalink);
+    
+	        $form = $theme->output('site/tasks/story/empty');
 
-			$plugin->content->html 	= $theme->output( 'themes:/apps/group/tasks/story/panel.empty' );
+	        $plugin->setHtml($button, $form);
+
 			return $plugin;
 		}
 
 		// We need to attach the button to the story panel
-		$theme->set( 'milestones' , $milestones );
+		$theme->set('milestones', $milestones);
 
-		$plugin->content->html 	= $theme->output( 'themes:/apps/group/tasks/story/panel.content' );
+		$form = $theme->output('site/tasks/story/form');
+
+		// Attachment script
+		$script = ES::get('Script');
+
+		$plugin->setHtml($button, $form);
+		$plugin->setScript($script->output('site/tasks/story/plugin'));
 
 		return $plugin;
 	}
@@ -473,8 +477,8 @@ class SocialGroupAppTasks extends SocialAppItem
 
 		$item->display	= SOCIAL_STREAM_DISPLAY_FULL;
 		$item->color 	= '#658ea6';
-		$item->fonticon = 'ies-checkbox-checked';
-		$item->label 	= JText::_( 'APP_GROUPS_TASKS_STREAM_TOOLTIP' );
+		$item->fonticon = 'fa fa-check-square';
+		$item->label 	= FD::_( 'APP_GROUPS_TASKS_STREAM_TOOLTIP', true );
 
 		// Do not allow reposting on milestone items
 		$item->repost 	= false;

@@ -25,7 +25,7 @@ class SocialEventAppStory extends SocialAppItem
     {
         $obj            = new stdClass();
         $obj->color     = '#6E9545';
-        $obj->icon      = 'ies-pencil-2';
+        $obj->icon      = 'fa fa-pencil';
         $obj->label     = 'APP_USER_STORY_UPDATES_STREAM_TOOLTIP';
 
         return $obj;
@@ -296,9 +296,9 @@ class SocialEventAppStory extends SocialAppItem
         $actor = $item->getActor();
 
         // Decorate the stream
-        $item->fonticon = 'ies-pencil-2';
+        $item->fonticon = 'fa fa-pencil';
         $item->color = '#6E9545';
-        $item->label = JText::_('APP_EVENT_STORY_STREAM_TOOLTIP');
+        $item->label = FD::_('APP_EVENT_STORY_STREAM_TOOLTIP', true);
         $item->display = SOCIAL_STREAM_DISPLAY_FULL;
 
         $this->set('event', $event);

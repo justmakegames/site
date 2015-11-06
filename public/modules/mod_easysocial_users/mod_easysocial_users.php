@@ -12,44 +12,42 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 // Include main engine
-$file 	= JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
+$file = JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
 
-jimport( 'joomla.filesystem.file' );
+jimport('joomla.filesystem.file');
 
-if( !JFile::exists( $file ) )
-{
+if (!JFile::exists($file)) {
 	return;
 }
 
 // Include the engine file.
-require_once( $file );
+require_once($file);
 
 // Check if Foundry exists
-if( !FD::exists() )
-{
+if (!FD::exists()) {
 	FD::language()->loadSite();
-	echo JText::_( 'COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING' );
+	echo JText::_('COM_EASYSOCIAL_FOUNDRY_DEPENDENCY_MISSING');
 	return;
 }
 
-$my 		= FD::user();
+$my = FD::user();
 
 // Load up the module engine
-$modules 	= FD::modules( 'mod_easysocial_users' );
+$modules = FD::modules('mod_easysocial_users');
 
 // We need these packages
 $modules->loadComponentScripts();
 $modules->loadComponentStylesheets();
-$modules->addDependency( 'css' , 'javascript' );
+$modules->addDependency('css', 'javascript');
 
 // Get the layout to use.
-$layout 	= $params->get('layout', 'default');
-$suffix 	= $params->get('suffix', '');
+$layout = $params->get('layout', 'default');
+$suffix = $params->get('suffix', '');
 
 
 // Get the layout to use.
-$model 		= FD::model( 'Users' );
-$options 	= array( 'ordering' => 'a.' . $params->get( 'ordering' , 'registerDate' ) , 'direction' => $params->get( 'direction' , 'desc' ) , 'limit' => $params->get( 'total' , 10 ) );
+$model = FD::model('Users');
+$options = array( 'ordering' => 'a.' . $params->get( 'ordering' , 'registerDate' ) , 'direction' => $params->get( 'direction' , 'desc' ) , 'limit' => $params->get( 'total' , 10 ) );
 
 // Check filter type
 if ($params->get('filter' , 'recent' ) == 'online') {
@@ -66,13 +64,13 @@ if ($params->get('profileId')) {
 
 
 // Determine if admins should be included in the user's listings.
-$config 	= FD::config();
-$admin 		= $config->get('users.listings.admin');
+$config = FD::config();
+$admin = $config->get('users.listings.admin');
 
-$options['includeAdmin']	= $admin ? true : false;
+$options['includeAdmin'] = $admin ? true : false;
 
 // Check if we should only include user's with avatar.
-if ($params->get('hasavatar' , false ) == true) {
+if ($params->get('hasavatar', false) == true) {
 	$options['picture']	= true;
 }
 
@@ -82,15 +80,19 @@ $options[ 'published' ]	= 1;
 // exclude users that blocked the current logged in user
 $options['excludeblocked'] = 1;
 
-$result 	= $model->getUsers($options);
-$users		= array();
+$inclusion = trim($params->get('user_inclusion'));
 
-if( $result )
-{
-	foreach( $result as $row )
-	{
-		$users[]	= FD::user( $row->id );
+if ($inclusion) {
+    $options['inclusion'] = explode(',', $inclusion);
+}
+
+$result = $model->getUsers($options);
+$users = array();
+
+if ($result) {
+	foreach ($result as $row) {
+		$users[] = FD::user($row->id);
 	}
 }
 
-require( JModuleHelper::getLayoutPath( 'mod_easysocial_users' , $layout ) );
+require(JModuleHelper::getLayoutPath('mod_easysocial_users', $layout));

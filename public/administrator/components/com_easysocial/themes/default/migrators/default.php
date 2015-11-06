@@ -57,6 +57,23 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<div class="media">
 
 				<div class="media-body">
+					<a href="<?php echo FRoute::_('index.php?option=com_easysocial&view=migrators&layout=jomsocialvideo');?>">
+						<h3><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_JOMSOCIAL_VIDEOS' ); ?></h3>
+					</a>
+					<p class="migrator-info">
+						<?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_JOMSOCIAL_VIDEOS_DESC' ); ?>
+					</p>
+
+					<div>
+						<span class="label label-danger"><?php echo JText::_( 'COM_EASYSOCIAL_NOTE' );?>:</span> <?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_JOMSOCIAL_VIDEOS_NOTE' );?>
+					</div>
+				</div>
+			</div>
+		</li>
+		<li>
+			<div class="media">
+
+				<div class="media-body">
 					<a href="<?php echo FRoute::_('index.php?option=com_easysocial&view=migrators&layout=easyblog');?>">
 						<h3><?php echo JText::_( 'COM_EASYSOCIAL_MIGRATORS_EASYBLOG_STREAMS' ); ?></h3>
 					</a>

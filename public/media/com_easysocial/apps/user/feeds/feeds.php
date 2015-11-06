@@ -74,7 +74,7 @@ class SocialUserAppFeeds extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#e67e22';
-		$obj->icon 		= 'ies-feed';
+		$obj->icon 		= 'fa fa-rss-square';
 		$obj->label 	= 'APP_USER_FEED_STREAM_TOOLTIP';
 
 		return $obj;
@@ -338,8 +338,8 @@ class SocialUserAppFeeds extends SocialAppItem
 
 		$item->color 	= '#e67e22';
 		$item->display	= SOCIAL_STREAM_DISPLAY_FULL;
-		$item->fonticon = 'ies-feed';
-		$item->label 	= JText::_( 'APP_USER_FEED_STREAM_TOOLTIP' );
+		$item->fonticon = 'fa fa-rss-square';
+		$item->label 	= FD::_( 'APP_USER_FEED_STREAM_TOOLTIP', true );
 
 		$item->title 	= parent::display( 'streams/' . $item->verb . '.title' );
 		$item->content	= parent::display( 'streams/' . $item->verb . '.content' );

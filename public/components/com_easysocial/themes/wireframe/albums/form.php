@@ -23,7 +23,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			autocomplete="off"
 			<?php echo ($album->core) ? 'readonly' : ''; ?>
 		/>
-
 		<textarea
 			data-album-caption-field
 			class="es-album-caption-field"
@@ -40,14 +39,14 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			class="es-album-cover-field no-cover"
 			<?php } ?>
 			>
-			<i class="ies-pictures-2"></i>
+			<i class="fa fa-image"></i>
 		</div>
 
 		<div data-album-meta-field class="es-album-meta-field sentence">
 
 			<?php if (!$album->core) { ?>
 			<div data-album-location class="es-album-location words">
-				<i class="ies-location"></i>
+				<i class="fa fa-map-marker"></i>
 				<span
 					data-album-location-caption
 					data-bs-toggle="dropdown"
@@ -70,7 +69,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 			<?php if ($album->hasDate()) { ?>
 			<div data-album-date class="es-album-date words has-data">
-				<i class="ies-clock"></i>
+				<i class="fa fa-clock-o"></i>
 				<span data-album-date-caption
 				      data-bs-toggle="dropdown"
 				      class="with-data">

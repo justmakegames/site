@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,22 +11,24 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
+$app = JFactory::getApplication();
+$input = $app->input;
+
 // Ensure that the Joomla sections don't appear.
-JRequest::setVar( 'tmpl' , 'component' );
+$input->set('tmpl', 'component');
 
 // Determines if the current mode is re-install
-$reinstall 	= JRequest::getBool( 'reinstall' , false ) || JRequest::getBool( 'install' , false );
+$reinstall = $input->get('reinstall', false, 'bool') || $input->get('install', false, 'bool');
 
 // If the mode is update, we need to get the latest version
-$update 	= JRequest::getBool( 'update' , false );
+$update = $input->get('launchInstaller', false, 'bool') || $input->get('update', false, 'bool');
 
 // Determines if we are now in developer mode.
-$developer 	= JRequest::getBool( 'developer' );
+$developer = $input->get('developer', false, 'bool');
 
-if( $developer )
-{
-	$session 	= JFactory::getSession();
-	$session->set( 'easysocial.developer' , true );
+if ($developer) {
+	$session = JFactory::getSession();
+	$session->set('easysocial.developer', true);
 }
 
 ############################################################
@@ -42,29 +44,22 @@ define('ES_VERIFIER', 'http://stackideas.com/updater/verify' );
 define('ES_MANIFEST', 'http://stackideas.com/updater/manifests/easysocial' );
 define('ES_TMP', dirname(__FILE__) . '/tmp');
 define('ES_BETA', false);
-
-############################################################
-#### Dependencies
-############################################################
-jimport( 'joomla.filesystem.file' );
-require_once( ES_LIB . '/json.php' );
-
+define('ES_SETUP_URL', rtrim(JURI::root(), '/') . '/administrator/components/com_easysocial/setup');
 
 ############################################################
 #### Process ajax calls
 ############################################################
-if( JRequest::getBool( 'ajax' ) )
-{
-	// Perform ajax methods here.
-	$controller 	= JRequest::getCmd( 'controller' );
-	$task 			= JRequest::getCmd( 'task' );
+if ($input->get('ajax', false, 'bool')) {
 
-	$controllerFile 	= ES_CONTROLLERS . '/' . strtolower( $controller ) . '.php';
+	$controller = $input->get('controller', '', 'cmd');
+	$task = $input->get('task', '', 'cmd');
 
-	require_once( $controllerFile );
+	$controllerFile = ES_CONTROLLERS . '/' . strtolower( $controller ) . '.php';
 
-	$controllerName 	= 'EasySocialController' . ucfirst( $controller );
-	$controller 		= new $controllerName();
+	require_once($controllerFile);
+
+	$controllerName = 'EasySocialController' . ucfirst( $controller );
+	$controller = new $controllerName();
 
 	return $controller->$task();
 }
@@ -72,72 +67,59 @@ if( JRequest::getBool( 'ajax' ) )
 ############################################################
 #### Process controller
 ############################################################
-$controller 	= JRequest::getCmd( 'controller' , '' );
+$controller = $input->get('controller', '', 'cmd');
 
-if( !empty( $controller ) )
-{
-	$controllerFile 	= ES_CONTROLLERS . '/' . strtolower( $controller ) . '.php';
+if (!empty($controller)) {
+	$controllerFile = ES_CONTROLLERS . '/' . strtolower($controller) . '.php';
 
-	require_once( $controllerFile );
+	require_once($controllerFile);
 
-	$controllerName 	= 'EasySocialController' . ucfirst( $controller );
-	$controller 		= new $controllerName();
+	$controllerName = 'EasySocialController' . ucfirst( $controller );
+	$controller = new $controllerName();
 	return $controller->execute();
 }
-
-#####################################
 
 ############################################################
 #### Initialization
 ############################################################
-$contents 	= JFile::read( ES_CONFIG . '/installation.json' );
-$json 		= new Services_JSON();
-$steps 		= $json->decode( $contents );
-
+$contents = JFile::read(ES_CONFIG . '/installation.json');
+$steps = json_decode($contents);
 
 ############################################################
 #### Workflow
 ############################################################
-$active 	= JRequest::getInt( 'active' , 0 );
+$active = $input->get('active', 0, 'int');
 
-if( $active == 0 )
-{
-	$active 	= 1;
-	$stepIndex 	= 0;
-}
-else
-{
-	$active 	+= 1;
-	$stepIndex 	= $active - 1;
+if ($active == 0) {
+	$active = 1;
+	$stepIndex = 0;
+} else {
+	$active += 1;
+	$stepIndex = $active - 1;
 }
 
-if( $active > count( $steps ) )
-{
-	$active 		= 'complete';
-	$activeStep 	= new stdClass();
+if ($active > count($steps)) {
+	$active = 'complete';
+	$activeStep = new stdClass();
 
-	$activeStep->title 		= JText::_( 'COM_EASYSOCIAL_INSTALLATION_COMPLETED' );
-	$activeStep->template	= 'complete';
+	$activeStep->title = JText::_( 'COM_EASYSOCIAL_INSTALLATION_COMPLETED' );
+	$activeStep->template = 'complete';
 
 	// Assign class names to the step items.
 	if ($steps) {
-
 		foreach ($steps as $step) {
-			$step->className 	= ' active past';
+			$step->className = ' current done';
 		}
 	}
-}
-else
-{
+} else {
 	// Get the active step object.
-	$activeStep 	= $steps[ $stepIndex ];
+	$activeStep = $steps[$stepIndex];
 
 	// Assign class names to the step items.
-	foreach( $steps as $step )
-	{
-		$step->className 	= $step->index == $active || $step->index < $active ? ' active' : '';
-		$step->className 	.= $step->index < $active ? ' past' : '';
+	foreach ($steps as $step) {
+		$step->className = $step->index == $active || $step->index < $active ? ' current' : '';
+		$step->className .= $step->index < $active ? ' done' : '';
 	}
 }
 
-require( ES_THEMES . '/default.php' );
+require(ES_THEMES . '/default.php');

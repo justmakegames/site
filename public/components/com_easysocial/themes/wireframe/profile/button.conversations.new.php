@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<a href="javascript:void(0);" class="btn btn-block btn-es btn-sm" data-profile-conversation>
-	<i class="ies-mail-2 ies-small mr-5"></i>
+<a href="javascript:void(0);" class="btn btn-es btn-sm" data-profile-conversation>
+	<i class="fa fa-envelope  mr-5"></i>
 	<span class="fd-small"><?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_SEND_MESSAGE' );?></span>
 </a>

@@ -32,13 +32,51 @@
 				"type"		: "boolean",
 				"default"	: true
 			},
+            {
+                "label"		: "APP_USER_FOLLOWERS_SETTINGS_WIDGETS_PROFILE_TOTAL",
+                "tooltip"	: "APP_USER_FOLLOWERS_SETTINGS_WIDGETS_PROFILE_TOTAL_DESC",
+                "name"		: "follower_widget_profile_total",
+                "type"		: "text",
+                "default"	: 20,
+                "class"		: "input-mini text-center"
+            },
 			{
 				"label"		: "APP_USER_FOLLOWERS_SETTINGS_WIDGETS_FOLLOWING",
 				"tooltip"	: "APP_USER_FOLLOWERS_SETTINGS_WIDGETS_FOLLOWING_DESC",
 				"name"		: "widget_following",
 				"type"		: "boolean",
 				"default"	: true
-			}
+			},
+            {
+                "label"		: "APP_USER_FOLLOWING_SETTINGS_WIDGETS_PROFILE_TOTAL",
+                "tooltip"	: "APP_USER_FOLLOWING_SETTINGS_WIDGETS_PROFILE_TOTAL_DESC",
+                "name"		: "following_widget_profile_total",
+                "type"		: "text",
+                "default"	: 20,
+                "class"		: "input-mini text-center"
+            }
 		]
-	}
+	},
+    {
+        "title"     : "APP_USER_FOLLOWERS_SETTINGS_WIDGETS_DASHBOARD",
+        "desc"      : "APP_USER_FOLLOWERS_SETTINGS_WIDGETS_DASHBOARD_DESC",
+        "fields"    :
+        [
+            {
+                "label"     : "APP_USER_FOLLOWERS_SETTINGS_WIDGETS_DASHBOARD_SUGGESTIONS",
+                "tooltip"   : "APP_USER_FOLLOWERS_SETTINGS_WIDGETS_DASHBOARD_SUGGESTIONS_DESC",
+                "name"      : "widget_suggestions",
+                "type"      : "boolean",
+                "default"   : true
+            },
+            {
+                "label"     : "APP_USER_FOLLOWING_SETTINGS_WIDGETS_DASHBOARD_SUGGESTIONS_TOTAL",
+                "tooltip"   : "APP_USER_FOLLOWING_SETTINGS_WIDGETS_DASHBOARD_SUGGESTIONS_TOTAL_DESC",
+                "name"      : "widget_suggestions_total",
+                "type"      : "text",
+                "default"   : 5,
+                "class"     : "input-mini text-center"
+            }
+        ]
+    }
 ]

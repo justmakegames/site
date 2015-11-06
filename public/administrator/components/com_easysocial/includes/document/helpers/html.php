@@ -60,7 +60,6 @@ class SocialDocumentHTML extends EasySocial
 			return;
 		}
 
-
 		$configuration = FD::getInstance('Configuration');
 		$configuration->attach();
 
@@ -94,10 +93,10 @@ class SocialDocumentHTML extends EasySocial
 		// Build theme styles
 		$location = $this->app->isAdmin() ? 'admin' : 'site';
 		$theme = strtolower($this->config->get('theme.' . $location));
-			
+
 		// Site location
 		if ($location == 'site') {
-			
+
 			$profile = FD::user()->getProfile();
 
 			if ($profile && !isset($profiles[$profile->id])) {
@@ -114,7 +113,14 @@ class SocialDocumentHTML extends EasySocial
 			if ($profile && isset($profiles[$profile->id])) {
 				$theme 	= $profiles[$profile->id];
 			}
+		}
 
+		// Build theme styles
+        $stylesheet = FD::stylesheet($location, $theme);
+        $stylesheet->attach();
+
+		// Site location
+		if ($location == 'site') {
 			// Check if custom.css exists on the site as template overrides
 			$file = JPATH_ROOT . '/templates/' . $this->app->getTemplate() . '/html/com_easysocial/css/custom.css';
 
@@ -124,21 +130,21 @@ class SocialDocumentHTML extends EasySocial
 				$this->doc->addStylesheet($customCssFile);
 			}
 		}
+		
 
-		$stylesheet = FD::stylesheet($location, $theme);
-		$stylesheet->attach();
 
 		// @TODO: Make this part of ATS in the future
 		// If this is RTL, load RTL specific styles
 		$direction = $this->doc->getDirection();
 
 		if ($direction == 'rtl') {
-			$rtlStylesheet = rtrim(JURI::root(), '/') . '/components/com_easysocial/themes/wireframe/styles/rtl.css';
 
-			$this->doc->addStylesheet($rtlStylesheet);
+			if ($theme == 'wireframe' || $theme == 'frosty') {
+				$rtlStylesheet = rtrim(JURI::root(), '/') . '/components/com_easysocial/themes/' . $theme . '/styles/rtl.css';
+
+				$this->doc->addStylesheet($rtlStylesheet);
+			}
 		}
-
-
 
 		self::$stylesheetsLoaded = true;
 	}

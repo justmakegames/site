@@ -70,7 +70,7 @@ class SocialUserAppFollowers extends SocialAppItem
 	{
 		$obj 			= new stdClass();
 		$obj->color		= '#415457';
-		$obj->icon 		= 'ies-tree-view';
+		$obj->icon 		= 'fa fa-share-alt';
 		$obj->label 	= 'APP_USER_FOLLOWERS_STREAM_TOOLTIP';
 
 		return $obj;
@@ -216,8 +216,8 @@ class SocialUserAppFollowers extends SocialAppItem
 
 		$item->display 	= SOCIAL_STREAM_DISPLAY_MINI;
 		$item->color 	= '#415457';
-		$item->fonticon	= 'ies-tree-view';
-		$item->label 	= JText::_( 'APP_USER_FOLLOWERS_STREAM_TOOLTIP' );
+		$item->fonticon	= 'fa-share-alt';
+		$item->label 	= FD::_( 'APP_USER_FOLLOWERS_STREAM_TOOLTIP', true );
 
 		// Get the context id.
 		$id 		= $item->contextId;

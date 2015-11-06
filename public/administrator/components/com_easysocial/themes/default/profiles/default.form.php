@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,37 +11,44 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<form name="adminForm" id="adminForm" class="profileForm" method="post" enctype="multipart/form-data">
+<form name="adminForm" id="adminForm" method="post" enctype="multipart/form-data" data-profile-form>
 	<div class="wrapper accordion">
 		<div class="tab-box tab-box-alt">
 			<div class="tabbable">
-
-				<?php echo $this->loadTemplate( 'admin/profiles/form.tabs' , array( 'isNew' => $profile->id == 0 , 'activeTab' => $activeTab ) ); ?>
+				<?php echo $this->loadTemplate('admin/profiles/form.tabs' , array('isNew' => $profile->id == 0 , 'activeTab' => $activeTab)); ?>
 
 				<div class="tab-content">
 					<div id="settings" class="tab-pane<?php echo $activeTab == 'settings' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/profiles/form.settings' ); ?>
+						<?php echo $this->includeTemplate('admin/profiles/form.settings'); ?>
 					</div>
 
 					<div id="registrations" class="tab-pane<?php echo $activeTab == 'registrations' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/profiles/form.registration' ); ?>
+						<?php echo $this->includeTemplate('admin/profiles/form.registration'); ?>
 					</div>
 
-					<?php if( $profile->id ){ ?>
+					<?php if($profile->id ){ ?>
 					<div id="avatars" class="tab-pane<?php echo $activeTab == 'avatars' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/profiles/form.avatars' ); ?>
+						<?php echo $this->includeTemplate('admin/profiles/form.avatars'); ?>
 					</div>
 
 					<div id="fields" class="tab-pane<?php echo $activeTab == 'fields' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/profiles/form.fields' ); ?>
+						<?php echo $this->includeTemplate('admin/profiles/form.fields'); ?>
 					</div>
 
 					<div id="privacy" class="tab-pane<?php echo $activeTab == 'privacy' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/profiles/form.privacy' ); ?>
+						<?php echo $this->includeTemplate('admin/profiles/form.privacy'); ?>
 					</div>
 
 					<div id="access" class="tab-pane<?php echo $activeTab == 'access' ? ' active in' : '';?>">
-						<?php echo $this->includeTemplate( 'admin/profiles/form.access' ); ?>
+						<?php echo $this->includeTemplate('admin/profiles/form.access'); ?>
+					</div>
+
+					<div id="groups" class="tab-pane<?php echo $activeTab == 'groups' ? ' active in' : '';?>">
+						<?php echo $this->includeTemplate('admin/profiles/form.groups'); ?>
+					</div>
+
+					<div id="apps" class="tab-pane<?php echo $activeTab == 'apps' ? ' active in' : '';?>">
+						<?php echo $this->includeTemplate('admin/profiles/form.apps'); ?>
 					</div>
 					<?php } ?>
 
@@ -57,5 +64,5 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<input type="hidden" name="task" value="store" />
 	<input type="hidden" name="id" value="<?php echo $profile->id; ?>" />
 	<input type="hidden" name="cid" value="" />
-	<?php echo JHTML::_( 'form.token' );?>
+	<?php echo JHTML::_('form.token');?>
 </form>

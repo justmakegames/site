@@ -95,6 +95,8 @@ class EasySocialControllerEvents extends EasySocialController
 
         if ($filter === 'past') {
             $options['start-before'] = FD::date()->toSql();
+            $options['ordering'] = 'created';
+            $options['direction'] = 'desc';
         }
 
         if ($filter === 'featured') {
@@ -364,7 +366,7 @@ class EasySocialControllerEvents extends EasySocialController
         }
 
         // Ensure that the user did not exceed his limits
-        if (!$this->my->isSiteAdmin() && $this->my->getAccess()->exceeded('events.limit', $this->my->getTotalCreatedEvents(array('ongoing' => true, 'upcoming' => true)))) {
+        if (!$this->my->isSiteAdmin() && $this->my->getAccess()->intervalExceeded('events.limit', $this->my->id)) {
             $this->view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_EXCEEDED_CREATE_EVENT_LIMIT'), SOCIAL_MSG_ERROR);
 
             return $this->view->call(__FUNCTION__);
@@ -463,7 +465,7 @@ class EasySocialControllerEvents extends EasySocialController
         }
 
         // Check if the user exceeds the limit
-        if (!$this->my->isSiteAdmin() && $this->my->getAccess()->exceeded('events.limit', $this->my->getTotalCreatedEvents(array('ongoing' => true, 'upcoming' => true)))) {
+        if (!$this->my->isSiteAdmin() && $this->my->getAccess()->intervalExceeded('events.limit', $this->my->id) ) {
             $this->view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_EXCEEDED_CREATE_EVENT_LIMIT'), SOCIAL_MSG_ERROR);
 
             return $this->view->call(__FUNCTION__);
@@ -579,6 +581,9 @@ class EasySocialControllerEvents extends EasySocialController
 
         // Assign points to the user for creating event
         FD::points()->assign('events.create', 'com_easysocial', $this->my->id);
+
+        // add this action into access logs.
+        FD::access()->log('events.limit', $this->my->id, $event->id, SOCIAL_TYPE_EVENT);
 
         // If there is recurring data, then we back up the session->values and the recurring data in the the event params first before deleting step session
         if (!empty($event->recurringData)) {
@@ -955,7 +960,7 @@ class EasySocialControllerEvents extends EasySocialController
 
         $guest = $event->getGuest($this->my->id);
 
-        if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$guest->isGuest()) {
+        if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$guest->isGuest() && (!$event->isGroupEvent() || ($event->isGroupEvent() && !$event->getGroup()->isMember()))) {
             $this->view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_NO_ACCESS_TO_EVENT'), SOCIAL_MSG_ERROR);
 
             return $this->view->call(__FUNCTION__);
@@ -1184,6 +1189,8 @@ class EasySocialControllerEvents extends EasySocialController
 
         if (!$guest->isOwner() && ($my->isSiteAdmin() || $myGuest->isOwner() || ($myGuest->isAdmin() && !$guest->isAdmin()))) {
             $guest->remove();
+            $this->view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_GUEST_REMOVAL_SUCCESS'), SOCIAL_MSG_SUCCESS);
+            return $this->view->call(__FUNCTION__, $event);
         } else {
             $this->view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_NO_ACCESS_TO_EVENT'), SOCIAL_MSG_ERROR);
         }
@@ -1303,7 +1310,7 @@ class EasySocialControllerEvents extends EasySocialController
 
         $guest = $event->getGuest($this->my->id);
 
-        if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$guest->isGuest()) {
+        if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$guest->isGuest() && (!$event->isGroupEvent() || ($event->isGroupEvent() && !$event->getGroup()->isMember()))) {
             $this->view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_NO_ACCESS_TO_EVENT'), SOCIAL_MSG_ERROR);
 
             return $this->view->call(__FUNCTION__);
@@ -1372,7 +1379,7 @@ class EasySocialControllerEvents extends EasySocialController
 
         $guest = $event->getGuest($this->my->id);
 
-        if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$guest->isGuest()) {
+        if (!$this->my->isSiteAdmin() && !$event->isOpen() && !$guest->isGuest() && (!$event->isGroupEvent() || ($event->isGroupEvent() && !$event->getGroup()->isMember()))) {
             $this->view->setMessage(JText::_('COM_EASYSOCIAL_EVENTS_NO_ACCESS_TO_EVENT'), SOCIAL_MSG_ERROR);
 
             return $this->view->call(__FUNCTION__);
@@ -1388,7 +1395,13 @@ class EasySocialControllerEvents extends EasySocialController
             $stream->story = $story;
         }
 
-        $streamOptions = array('clusterId' => $event->id, 'clusterType' => $event->cluster_type);
+        //lets get the sticky posts 1st
+        $stickies = $stream->getStickies(array('clusterId' => $event->id, 'clusterType' => $event->cluster_type, 'limit' => 0));
+        if ($stickies) {
+            $stream->stickies = $stickies;
+        }
+
+        $streamOptions = array('clusterId' => $event->id, 'clusterType' => $event->cluster_type, 'nosticky' => true);
 
         // Get the filter type
         $filterType = $this->input->get('type', '', 'cmd');
@@ -1800,4 +1813,5 @@ class EasySocialControllerEvents extends EasySocialController
 
         return $this->view->call(__FUNCTION__);
     }
+
 }

@@ -32,7 +32,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             <?php echo JText::sprintf('COM_EASYSOCIAL_EMAILS_EVENT_FILE_UPLOADED_CONTENT' , '<a href="' . $actorLink . '">' . $actor . '</a>' , '<a href="' . $eventLink . '">' . $event . '</a>' );?>
         </p>
 
-        <table width="540" align="center" style="margin: 20px auto 0;padding:15px 20px;" border="0" cellspacing="0" cellpadding="0">
+        <table align="center" style="margin: 20px auto 0;padding:15px 20px;" border="0" cellspacing="0" cellpadding="0">
             <tr>
                 <td valign="top">
                     <table style="font-size: 14px;margin: 0 auto 10px 20px; text-align:center;color:#798796;width:100%;" align="center">

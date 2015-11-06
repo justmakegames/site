@@ -43,7 +43,7 @@ class SocialFieldsUserMollom extends SocialFieldItem
 	 */
 	public function hasValidated( &$post )
 	{
-		$validated	= isset( $post[ $this->inputName ] ) ? $post[ $this->inputName ] : false;
+		$validated = isset($post[$this->inputName]) ? $post[$this->inputName] : false;
 
 		return $validated;
 	}
@@ -56,41 +56,38 @@ class SocialFieldsUserMollom extends SocialFieldItem
 	 * @param	string
 	 * @return
 	 */
-	public function validateCaptcha( &$post )
+	public function validateCaptcha(&$post)
 	{
-		if( !$this->field->isRequired() || $this->hasValidated( $post ) )
-		{
+		$validated = $this->hasValidated($post);
+
+		if (!$this->field->isRequired() || $this->hasValidated($post)) {
 			return true;
 		}
 
 		// Get mollom lib
-		$captcha 	= $this->getMollom();
+		$captcha = $this->getMollom();
 
-		if( !$captcha )
-		{
+		if (!$captcha) {
 			return;
 		}
 
-		$sessionId 	= isset( $post[ 'mollom_session_id' ] ) ? $post[ 'mollom_session_id' ] : '';
-		$response 	= isset( $post[ $this->inputName ] ) ? $post[ $this->inputName ] : '';
+		// Get the necessary data from mollom
+		$sessionId = isset($post['mollom_session_id']) ? $post['mollom_session_id'] : '';
+		$response = isset($post['mollom_' . $this->inputName]) ? $post['mollom_' . $this->inputName] : '';
 
-		if( empty( $response ) )
-		{
-			return $this->setError( JText::_( 'PLG_FIELDS_MOLLOM_VALIDATION_PLEASE_ENTER_CAPTCHA_RESPONSE' ) );
+		if (empty($response)) {
+			return $this->setError(JText::_('PLG_FIELDS_MOLLOM_VALIDATION_PLEASE_ENTER_CAPTCHA_RESPONSE'));
 		}
-
 
 		// Let's try to validate the response.
-		$state 		= $captcha->checkAnswer( $sessionId , $response );
+		$state = $captcha->checkAnswer($sessionId, $response);
 
-		if( !$state )
-		{
-			return $this->setError( JText::_( 'PLG_FIELDS_MOLLOM_VALIDATION_INVALID_RESPONSE' ) );
+		if (!$state) {
+			return $this->setError(JText::_('PLG_FIELDS_MOLLOM_VALIDATION_INVALID_RESPONSE'));
 		}
 
-
 		// Set a valid response to the registration object.
-		$post[ $this->inputName ]	= true;
+		$post[$this->inputName] = true;
 
 		return true;
 	}
@@ -104,11 +101,10 @@ class SocialFieldsUserMollom extends SocialFieldItem
 	 * @param	SocialTableRegistration		The registration ORM table.
 	 * @return	bool	Determines if the system should proceed or throw errors.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
-	public function onEditValidate( &$post )
+	public function onEditValidate(&$post)
 	{
-		return $this->validateCaptcha( $post );
+		return $this->validateCaptcha($post);
 	}
 
 	/**
@@ -120,11 +116,10 @@ class SocialFieldsUserMollom extends SocialFieldItem
 	 * @param	SocialTableRegistration		The registration ORM table.
 	 * @return	bool	Determines if the system should proceed or throw errors.
 	 *
-	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
-	public function onRegisterValidate( &$post,  &$registration )
+	public function onRegisterValidate(&$post, &$registration)
 	{
-		return $this->validateCaptcha( $post );
+		return $this->validateCaptcha($post);
 	}
 
 	/**

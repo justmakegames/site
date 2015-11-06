@@ -1,101 +1,136 @@
 <?php
 /**
-* @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      EasySocial
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * EasySocial is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-class SocialLocation
+class SocialLocation extends EasySocial
 {
-	/**
-	 * The location table mapping
-	 * @var SocialTableLocation
-	 */
-	private $table 	= null;
+    static $providers = array();
+    protected $provider = null;
+    private $baseProviderClassname = '';
 
-	/**
-	 * Clas constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function __construct( $uid = null , $type = null )
-	{
-		$this->table	= FD::table( 'Location' );
+    public $table = null;
 
-		if( !is_null( $uid ) && !is_null( $type ) )
-		{
-			$this->table->load( array( 'uid' => $uid , 'type' => $type ) );
-		}
-	}
+    public function __construct($id = null, $type = null)
+    {
+        parent::__construct();
 
-	/**
-	 * Location factory
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function factory( $uid = null , $type = null )
-	{
-		$obj 	= new self( $uid , $type );
+        // Initialize the location provider
+        $this->provider = $this->initProvider();
 
-		return $obj;
-	}
+        $this->table = ES::table('Location');
 
-	/**
-	 * Creates a new location record
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function create( $uid , $type , $userId , $options = array() )
-	{
-		$address 	= isset( $options[ 'address' ] ) ? $options[ 'address' ] : JRequest::getVar( 'address' , '' );
-		$latitude 	= isset( $options[ 'latitude' ] ) ? $options[ 'latitude' ] : JRequest::getVar( 'latitude' , '' );
-		$longitude	= isset( $options[ 'longitude' ] ) ? $options[ 'longitude' ] : JRequest::getVar( 'longitude' , '' );
+        if (!is_null($id) && !is_null($type)) {
+            $this->table->load(array('uid' => $id, 'type' => $type));
+        }
+    }
 
-		$location 	= FD::table( 'Location' );
-		$location->load( array( 'uid' => $uid , 'type' => $type ) );
+    public static function factory($id = null, $type = null)
+    {
+        return new self($id, $type);
+    }
 
-		$location->user_id 		= $userId;
-		$location->address 		= $address;
-		$location->longitude	= $longitude;
-		$location->latitude		= $latitude;
-		$location->uid 			= $uid;
-		$location->type 		= $type;
+    /**
+     *
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function hasAddress()
+    {
+        return !empty($this->table->address);
+    }
 
-		$state 	= $location->store();
+    /**
+     * Retrieves the longitude
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getLongitude()
+    {
+        return $this->table->longitude;
+    }
 
-		return $state;
-	}
+    /**
+     * Retrieves the latitude
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getLatitude()
+    {
+        return $this->table->latitude;
+    }
 
-	/**
-	 * Retrieves the address
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function getAddress( $uid = null , $type = null )
-	{
-		if( !is_null( $uid ) && !is_null( $type ) )
-		{
-			$this->table->load( array( 'uid' => $uid , 'type' => $type ) );
-		}
+    /**
+     * Retrieves the address of a location.
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getAddress()
+    {
+        $address = $this->table->address;
 
-		return $this->table->getAddress();
-	}
+        return $address;
+    }
+
+    /**
+     * Initialize the location provider
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function initProvider($provider = null)
+    {
+        // If no provider is given, then we load the default one from the settings
+        if (!$provider) {
+            $provider = $this->config->get('location.provider', 'fallback');
+        }
+
+        if (isset(self::$providers[$provider])) {
+            return self::$providers[$provider];
+        }
+
+        $file = __DIR__ . '/providers/' . strtolower($provider) . '.php';
+
+        require_once($file);
+
+        $className = 'SocialLocationProviders' . ucfirst($provider);
+        $obj = new $className;
+
+
+        // Now we check if the provider's initialisation generated any errors
+        if ($obj->hasErrors()){
+            return false;
+        }
+
+        self::$providers[$provider] = $obj;
+
+        return self::$providers[$provider];
+    }
+
+    public function __call($method, $arguments)
+    {
+        return call_user_func_array(array($this->provider, $method), $arguments);
+    }
 }

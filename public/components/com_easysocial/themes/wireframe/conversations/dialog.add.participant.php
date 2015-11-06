@@ -29,7 +29,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				.addController(
 					"EasySocial.Controller.Friends.Suggest",
 					{
-						exclusion: <?php echo FD::json()->encode( $ids ); ?>
+						exclusion: <?php echo FD::json()->encode( $ids ); ?>,
+						showNonFriend : <?php echo FD::config()->get('conversations.nonfriend') ? '1' : '0'; ?>
 					}
 				);
 		},

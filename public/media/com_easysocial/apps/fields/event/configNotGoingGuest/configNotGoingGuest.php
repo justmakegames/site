@@ -28,7 +28,7 @@ class SocialFieldsEventConfigNotGoingGuest extends SocialFieldItem
     public function onRegister(&$post, &$session)
     {
         // Get any previously submitted data
-        $value = isset($post['allownotgoingguest']) ? (bool) $post['allownotgoingguest'] : true;
+        $value = isset($post['allownotgoingguest']) ? (bool) $post['allownotgoingguest'] : $this->params->get('default', true);
 
         // Detect if there's any errors
         $error = $session->getErrors($this->inputName);
@@ -52,7 +52,7 @@ class SocialFieldsEventConfigNotGoingGuest extends SocialFieldItem
      */
     public function onEdit(&$post, &$cluster, $errors)
     {
-        $value = isset($post['allownotgoingguest']) ? (bool) $post['allownotgoingguest'] : $cluster->getParams()->get('allownotgoingguest', true);
+        $value = isset($post['allownotgoingguest']) ? (bool) $post['allownotgoingguest'] : $cluster->getParams()->get('allownotgoingguest', $this->params->get('default', true));
         $error = $this->getError($errors);
 
         $this->set('error', $error);
@@ -71,7 +71,7 @@ class SocialFieldsEventConfigNotGoingGuest extends SocialFieldItem
      */
     public function onSample()
     {
-        $value = $this->params->get('default');
+        $value = $this->params->get('default', true);
 
         $this->set('value', $value);
 
@@ -109,7 +109,7 @@ class SocialFieldsEventConfigNotGoingGuest extends SocialFieldItem
     public function beforeSave(&$post, &$cluster)
     {
         // Get the posted value
-        $value = isset($post['allownotgoingguest']) ? (bool) $post['allownotgoingguest'] : true;
+        $value = isset($post['allownotgoingguest']) ? (bool) $post['allownotgoingguest'] : $this->params->get('default', true);
 
         $registry = $cluster->getParams();
         $registry->set('allownotgoingguest', $value);

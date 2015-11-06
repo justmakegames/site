@@ -4,6 +4,8 @@ EasySocial.module('apps/fields/user/joomla_email/registermini_content', function
     EasySocial.require()
     .language(
         'PLG_FIELDS_JOOMLA_EMAIL_VALIDATION_REQUIRED',
+        'PLG_FIELDS_JOOMLA_EMAIL_VALIDATION_RECONFIRM_REQUIRED',
+        'PLG_FIELDS_JOOMLA_EMAIL_VALIDATION_NOT_MATCHING',
         'PLG_FIELDS_JOOMLA_EMAIL_CHECKING',
         'PLG_FIELDS_JOOMLA_EMAIL_VALIDATION_INVALID_FORMAT')
     .done(function() {
@@ -12,18 +14,25 @@ EasySocial.module('apps/fields/user/joomla_email/registermini_content', function
                 require: true,
                 id: null,
 
-                '{input}': '#email'
+                '{input}': '#email',
+
+                '{confirm}' : '[data-field-email-reconfirm-input]'
+
             }
         }, function(self) {
             return {
                 init: function() {
-
+                    self.origEmail = self.input().val();
                 },
 
                 '{input} keyup': function(el) {
                     if(el.val().length > 0) {
                         self.delayedCheck();
                     }
+                },
+
+                '{confirm} blur': function(el, ev) {
+                    self.checkEmail();
                 },
 
                 state: false,
@@ -51,6 +60,25 @@ EasySocial.module('apps/fields/user/joomla_email/registermini_content', function
                             return false;
                         }
                     }
+
+
+                    if(self.options.reconfirm)
+                    {
+                        var reconfirm = self.confirm().val();
+
+                        if(email !== self.origEmail && $.isEmpty(reconfirm))
+                        {
+                            self.raiseError($.language('PLG_FIELDS_JOOMLA_EMAIL_VALIDATION_RECONFIRM_REQUIRED'));
+                            return false;
+                        }
+
+                        if(!$.isEmpty(reconfirm) && email !== reconfirm)
+                        {
+                            self.raiseError($.language('PLG_FIELDS_JOOMLA_EMAIL_VALIDATION_NOT_MATCHING'));
+                            return false;
+                        }
+                    }
+
 
                     if(email.length > 0) {
                         var state = $.Deferred();

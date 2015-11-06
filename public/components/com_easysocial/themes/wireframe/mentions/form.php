@@ -27,6 +27,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div class="es-stream-editor-actions clearfix">
     <a href="javascript:void(0);" class="btn btn-es-danger btn-sm pull-left" data-stream-edit-cancel><?php echo JText::_('COM_EASYSOCIAL_CANCEL_BUTTON');?></a>
     <a href="javascript:void(0);" class="btn btn-es-primary btn-sm pull-right" data-stream-edit-update>
-        <i class="ies ies-disk"></i>&nbsp; <?php echo JText::_('COM_EASYSOCIAL_UPDATE_STREAM_BUTTON');?>
+        <i class="fa fa-floppy-o"></i>&nbsp; <?php echo JText::_('COM_EASYSOCIAL_UPDATE_STREAM_BUTTON');?>
     </a>
 </div>

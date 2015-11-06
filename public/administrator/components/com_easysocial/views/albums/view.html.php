@@ -26,23 +26,11 @@ class EasySocialViewAlbums extends EasySocialAdminView
 	 */
 	public function display( $tpl = null )
 	{
-		// Disallow access
-		if( !$this->authorise( 'easysocial.access.albums' ) )
-		{
-			$this->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-		}
-
-		// Set page heading
-		$this->setHeading( JText::_( 'COM_EASYSOCIAL_HEADING_ALBUMS' ) );
-
-		// Set page icon
-		$this->setIcon( 'ies-pictures' );
-
-		// Set page description
-		$this->setDescription( JText::_( 'COM_EASYSOCIAL_DESCRIPTION_ALBUMS' ) );
+		$this->setHeading('COM_EASYSOCIAL_HEADING_ALBUMS');
+		$this->setDescription('COM_EASYSOCIAL_DESCRIPTION_ALBUMS');
 
 		// Get the model
-		$model 			= FD::model( 'Albums' , array( 'initState' => true ) );
+		$model = FD::model('Albums', array('initState' => true));
 
 		// Get filter states.
 		$ordering 	= JRequest::getVar( 'ordering' , $model->getState( 'ordering' ) );

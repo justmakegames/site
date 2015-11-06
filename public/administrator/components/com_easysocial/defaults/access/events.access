@@ -9,9 +9,12 @@
         "title"         : "COM_EASYSOCIAL_ACCESS_EVENTS_CREATE_EVENT_TOTAL",
         "description"   : "COM_EASYSOCIAL_ACCESS_EVENTS_CREATE_EVENT_TOTAL_TOOLTIP",
         "name"          : "events.limit",
-        "type"          : "limit",
+        "type"          : "limitinterval",
         "group"         : "user",
-        "default"       : 0
+        "default"       : {
+            "value": 0,
+            "interval": 0
+        }
     },
     {
         "title"         : "COM_EASYSOCIAL_ACCESS_EVENTS_JOIN_EVENT_TOTAL",
@@ -87,6 +90,28 @@
         "class"         : "form-control input-sm input-short text-center",
         "suffix"        : "MB",
         "default"       : "8"
+    },
+    {
+        "title": "COM_EASYSOCIAL_ACCESS_EVENTS_VIDEOS_ENABLED",
+        "group": "event",
+        "name": "videos.create",
+        "type": "boolean",
+        "default": 1
+    },
+    {
+        "title": "COM_EASYSOCIAL_ACCESS_EVENTS_VIDEOS_TOTAL_VIDEOS_ALLOWED",
+        "group": "event",
+        "name": "videos.total",
+        "type": "limit",
+        "default": 0
+    },
+    {
+        "title": "COM_EASYSOCIAL_ACCESS_VIDEOS_MAX_SIZE",
+        "group": "event",
+        "name": "videos.maxsize",
+        "type": "limit",
+        "suffix": "MB",
+        "default": 0
     },
     {
         "title"         : "COM_EASYSOCIAL_ACCESS_EVENTS_ALLOW_GROUP_EVENT",

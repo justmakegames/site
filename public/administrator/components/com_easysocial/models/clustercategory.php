@@ -147,4 +147,19 @@ class EasySocialModelClusterCategory extends EasySocialModel
 
 		return $ids;
 	}
+
+	public function preloadCategory($catIds)
+	{
+		$db = FD::db();
+		$sql = $db->sql();
+
+		$query = "select * from `#__social_clusters_categories` where id in (" . implode(",", $catIds) . ")";
+		$sql->raw($query);
+
+		$db->setQuery($sql);
+
+		$results = $db->loadObjectList();
+
+		return $results;
+	}
 }

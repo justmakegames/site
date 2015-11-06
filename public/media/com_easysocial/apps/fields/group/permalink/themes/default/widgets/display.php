@@ -11,7 +11,7 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<i class="ies-small mr-5 ies-<?php echo $value == 1 ? 'male' : 'female';?>"></i>
+<i class="fa fa-small mr-5 fa-<?php echo $value == 1 ? 'male' : 'female';?>"></i>
 <?php if( $value == 1 ){ ?>
 <span><?php echo JText::_( 'Male' ); ?></span>
 <?php } else { ?>

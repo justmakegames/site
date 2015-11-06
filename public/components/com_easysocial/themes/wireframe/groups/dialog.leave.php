@@ -23,29 +23,24 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</selectors>
 	<bindings type="javascript">
 	{
-		"{closeButton} click": function()
-		{
+		"{closeButton} click": function() {
 			this.parent.close();
-		},
-		"{leaveButton} click" : function()
-		{
-			this.leaveForm().submit();
 		}
 	}
 	</bindings>
-	<title><?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_DIALOG_LEAVE_GROUP_TITLE' ); ?></title>
+	<title><?php echo JText::_('COM_EASYSOCIAL_GROUPS_DIALOG_LEAVE_GROUP_TITLE'); ?></title>
 	<content>
-		<p><?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_DIALOG_LEAVE_GROUP_CONTENT' );?></p>
+		<p><?php echo JText::_('COM_EASYSOCIAL_GROUPS_DIALOG_LEAVE_GROUP_CONTENT');?></p>
 
-		<form data-leave-group-form method="post" action="<?php echo JRoute::_( 'index.php' );?>">
+		<form data-leave-group-form method="post" action="<?php echo JRoute::_('index.php');?>">
 			<input type="hidden" name="id" value="<?php echo $group->id;?>" />
 			<input type="hidden" name="controller" value="groups" />
 			<input type="hidden" name="task" value="leaveGroup" />
-			<?php echo $this->html( 'form.token' ); ?>
+			<?php echo $this->html('form.token'); ?>
 		</form>
 	</content>
 	<buttons>
-		<button data-close-button type="button" class="btn btn-es btn-sm"><?php echo JText::_( 'COM_EASYSOCIAL_CLOSE_BUTTON' ); ?></button>
-		<button data-leave-button type="button" class="btn btn-es-danger btn-sm"><?php echo JText::_( 'Leave Group' ); ?></button>
+		<button data-close-button type="button" class="btn btn-es btn-sm"><?php echo JText::_('COM_EASYSOCIAL_CLOSE_BUTTON'); ?></button>
+		<button data-leave-button type="button" class="btn btn-es-danger btn-sm"><?php echo JText::_('COM_EASYSOCIAL_GROUPS_LEAVE_GROUP'); ?></button>
 	</buttons>
 </dialog>

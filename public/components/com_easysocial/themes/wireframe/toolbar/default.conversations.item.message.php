@@ -18,7 +18,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <?php if( $conversation->getLastMessage($this->my->id) ){ ?>
 <div class="object-content fd-small mt-5">
 	<?php if( $conversation->getLastMessage($this->my->id)->created_by == $this->my->id ){ ?>
-	<i class="ies-share-2 ies-small"
+	<i class="fa fa-share"
 		data-es-provide="tooltip"
 		data-placement="bottom"
 		data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_CONVERSATION_YOU_HAVE_REPLIED_HERE' );?>"

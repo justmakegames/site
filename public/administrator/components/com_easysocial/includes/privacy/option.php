@@ -28,6 +28,7 @@ class SocialPrivacyOption
 	var $pid 		= null;
 
 	var $editable 	= null;
+	var $override	= null;
 
 	/**
 	 * Class constructor

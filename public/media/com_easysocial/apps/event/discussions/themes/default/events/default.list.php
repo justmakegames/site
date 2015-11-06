@@ -43,11 +43,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php echo $discussion->get('title'); ?>
                     </a>
                     <span class="label label-success label-resolved"><?php echo JText::_('APP_EVENT_DISCUSSIONS_RESOLVED'); ?></span>
-                    <span class="label label-warning label-locked"><i class="ies-locked locked-icon"></i> <?php echo JText::_('APP_EVENT_DISCUSSIONS_LOCKED'); ?></span>
+                    <span class="label label-warning label-locked"><i class="fa fa-lock locked-icon"></i> <?php echo JText::_('APP_EVENT_DISCUSSIONS_LOCKED'); ?></span>
                     <span class="label label-danger label-unanswered"><?php echo JText::_('APP_EVENT_DISCUSSIONS_UNANSWERED'); ?></span>
                 </h3>
 
-                <ul class="list-unstyled discussion-meta">
+                <ul class="fd-reset-list discussion-meta">
                     <?php if ($params->get('display_started_by', true)) { ?>
                     <li>
                         <?php echo JText::sprintf('APP_EVENT_DISCUSSIONS_STARTED_BY_ON', $this->html('html.user', $discussion->author->id), FD::date($discussion->created)->format(JText::_('DATE_FORMAT_LC1'))); ?>
@@ -70,7 +70,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 </ul>
 
 <div class="empty empty-hero">
-    <i class="ies-database"></i>
+    <i class="fa fa-database"></i>
     <?php echo JText::_('APP_EVENT_DISCUSSIONS_EMPTY'); ?>
 </div>
 

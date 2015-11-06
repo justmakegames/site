@@ -54,43 +54,40 @@
 		.opacity(.8);
 	}
 	.modal-header {
-		padding: 6px 8px;
+		height: 50px;
+		padding: 15px;
 		border: 1px solid @esModalBorder;
 		border-bottom: none;
 		min-height: 34px;
 		// #gradient > .vertical(@esModalHeaderBackgroundHighlight,@esModalHeaderBackground);
 		border-radius: 6px 6px 0 0;
+		background-color: #fafafa;
 
 		// Close icon
 		.close {
 			margin:0;
 			vertical-align:middle;
-			font-family:'Lucida Grande', 'Gisha', 'Lucida Sans Unicode', 'Lucida Sans', Lucida, Arial, Verdana, sans-serif;
-			color:#000;
-			float:right;
-			font-size:20px;
-			font-weight:bold;
-			line-height:16px;
-			opacity:.2;
-			text-shadow:0 1px 0 #fff;
-			background:none repeat scroll 0 0 transparent;
-			border:0 none;
-			cursor:pointer;
-			padding:0;
-			margin-top:0!important;
-			font-size:18px!important;
-
-			margin-top: 0px !important;
-			font-size: 18px !important;
+			// font-family:'Lucida Grande', 'Gisha', 'Lucida Sans Unicode', 'Lucida Sans', Lucida, Arial, Verdana, sans-serif;
+			float: right;
+			font-weight: bold;
+			line-height: 20px;
+			opacity: 1;
+			text-shadow: 0 1px 0 #fff;
+			background: none repeat scroll 0 0 transparent;
+			border: 0 none;
+			cursor: pointer;
+			padding: 0;
+			margin-top: 0!important;
+			font-size:10px!important;
 			height: 16px !important;
-			color: @esDialogTitleColor;
+			color: @esDialogCloseColor;
 		}
 		// Heading
 		.dialog-title {
 			margin: 0 !important;
-			font-size: 12px !important;
+			font-size: 14px !important;
 			line-height: 20px !important;
-			text-align: center;
+			text-align: left;
 			color: @esDialogTitleColor;
 			background: none;
 			display: block;

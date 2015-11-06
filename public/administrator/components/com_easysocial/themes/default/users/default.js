@@ -6,32 +6,27 @@ EasySocial
 
 	$('[data-table-grid]').implement(EasySocial.Controller.Grid);
 
-	<?php if($this->tmpl != 'component'){ ?>
+	<?php if($this->tmpl != 'component') { ?>
 
-	$('[data-activate-user]').on('click' , function()
-	{
+	$('[data-activate-user]').on('click' , function() {
 		$(this).parents('[data-user-item]').find('[data-table-grid-id]').prop('checked' , 'checked');
 
 		// Submit the form.
 		$.Joomla('submitform' , ['activate']);
 	});
 
-	$.Joomla('submitbutton' , function(task)
-	{
+	$.Joomla('submitbutton' , function(task) {
 		var selected 	= new Array;
 
-		if(task == 'add')
-		{
-			EasySocial.dialog(
-			{
-				content 	: EasySocial.ajax('admin/views/users/newUserForm'),
-				bindings	:
-				{
-					'{continueButton} click' : function()
-					{
-						var selectedProfile 	= this.profile().val();
+		if (task == 'add') {
+			
+			EasySocial.dialog({
+				content: EasySocial.ajax('admin/views/users/newUserForm'),
+				bindings: {
+					'{continueButton} click' : function() {
+						var selectedProfile = this.profile().val();
 
-						window.location.href 	= 'index.php?option=com_easysocial&view=users&layout=form&profileId=' + selectedProfile;
+						window.location.href = 'index.php?option=com_easysocial&view=users&layout=form&profileId=' + selectedProfile;
 					}
 				}
 			});
@@ -43,13 +38,11 @@ EasySocial
 			selected.push($(el).val());
 		});
 
-		if(task == 'switchProfile')
-		{
+		if (task == 'switchProfile') {
 			EasySocial.dialog(
 			{
-				content 	: EasySocial.ajax('admin/views/users/switchProfileForm' , { 'ids' : selected }),
-				bindings	:
-				{
+				content: EasySocial.ajax('admin/views/users/switchProfileForm' , { 'ids' : selected }),
+				bindings: {
 					'{submitButton} click' : function()
 					{
 						this.form().submit();

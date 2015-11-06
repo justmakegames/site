@@ -19,7 +19,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 <div class="es-container" data-profile-about>
 	<a href="javascript:void(0);" class="btn btn-block btn-es-inverse btn-sidebar-toggle" data-sidebar-toggle>
-		<i class="ies-grid-view ies-small mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
+		<i class="fa fa-grid-view  mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_SIDEBAR_TOGGLE' );?>
 	</a>
 	<div class="es-sidebar" data-sidebar>
 		<div class="es-widget">
@@ -53,7 +53,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<div id="tab-<?php echo $step->id;?>" class="profile-data-box step-content tab-pane<?php echo $i == 0 ? ' active' :'';?>" data-id="<?php echo $step->id; ?>" data-profile-about-step-content>
 				<?php if( $step->fields ){ ?>
 					<?php $empty = true; ?>
-                    <div class="pl-20">
     					<table class="table table-striped profile-data-table">
     						<tbody>
     							<?php foreach( $step->fields as $field ){ ?>
@@ -64,7 +63,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
     							<?php } ?>
     						</tbody>
     					</table>
-                    </div>
 
 					<?php if( $empty ){ ?>
 					<div class="empty center">

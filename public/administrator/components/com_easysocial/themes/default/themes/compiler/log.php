@@ -33,8 +33,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<tfoot>
 		<tr class="info">
 			<td colspan="2">
-				<span class="pull-left"><i class="ies-clock"></i> <b><?php echo JText::_('COM_EASYSOCIAL_THEMES_COMPILER_TOTAL_TIME'); ?>:</b> <span data-time-total><?php echo round($log['time_total'], 2); ?>s</span></span>
-				<span class="pull-right"><i class="ies-bars"></i> <b><?php echo JText::_('COM_EASYSOCIAL_THEMES_COMPILER_MEMORY_PEAK_USAGE'); ?>:</b> <span data-memory-usage><?php echo round(FD::math()->convertUnits($log['mem_peak'], 'B', 'MB'), 2); ?>mb</span></span>
+				<span class="pull-left"><i class="fa fa-clock-o"></i> <b><?php echo JText::_('COM_EASYSOCIAL_THEMES_COMPILER_TOTAL_TIME'); ?>:</b> <span data-time-total><?php echo round($log['time_total'], 2); ?>s</span></span>
+				<span class="pull-right"><i class="fa fa-bars"></i> <b><?php echo JText::_('COM_EASYSOCIAL_THEMES_COMPILER_MEMORY_PEAK_USAGE'); ?>:</b> <span data-memory-usage><?php echo round(FD::math()->convertUnits($log['mem_peak'], 'B', 'MB'), 2); ?>mb</span></span>
 			</td>
 		</tr>
 	</tfoot>

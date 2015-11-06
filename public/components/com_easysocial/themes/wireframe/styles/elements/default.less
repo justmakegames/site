@@ -36,11 +36,18 @@
 .es-muted {
     color: #888;
 }
-.ies-feed-2 {
+.fa-rss-square {
     color: #E37126;
 }
 .btn-rss {
     line-height: 30px;
+}
+
+.es-divider-top {
+    border-top: 1px solid @esBorder;
+}
+.es-divider-bottom {
+    border-bottom: 1px solid @esBorder;
 }
 
 .app-icon-small {
@@ -61,13 +68,20 @@
 //modifier for notification
 .label-notification {
 	background: @esLabelNotificationBackground;
-	color: @esLabelNotificationColor;
-	border: 1px solid @esLabelNotificationBorder;
-	border-radius: 30px;
-	font-size: 8px;
+	color: #fff !important;
+	border: 0;
+	border-radius: 8px;
+	font-size: 9px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
 	padding: 0 3px;
 	line-height: 12px;
 	display: none;
+    min-width: 16px;
+    width: auto;
+    height: 16px;
+    line-height: 16px;
+    text-align: center;
 }
 
 .has-notice {
@@ -138,12 +152,8 @@ i {
 
 // profile data table #3529
 .profile-data-table {
-    margin-top: 20px;
     tbody > tr > td {
         border-top: none;
-    }
-    .es-story-locations { // #3897
-        margin-right: 50px;
     }
 }
 
@@ -175,5 +185,28 @@ i {
 // Buttons Font size #3560
 .btn-sm,
 .btn-xs {
-    font-size: 11px;
+    font-size: @baseFontSize;
+}
+
+
+// btn group for friends listed page
+.btn-group > .btn-dropdown:first-child,
+.btn-dropdown {
+    height: 16px;
+    padding: 2px 3px;
+    width: 16px;
+    border-radius: @borderRadiusSmall;
+    outline: none;
+    .button-variant(@esBorder; @esBackground; @esBorder) !important;
+    > i {
+        position: relative;
+        top: 2px;
+        margin-top: 0;
+    }
+}
+
+.btn-group {
+    > .dropdown-menu {
+        font-size: @baseFontSize;
+    }
 }

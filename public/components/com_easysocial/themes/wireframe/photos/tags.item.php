@@ -31,7 +31,7 @@ if ($isUser) {
         <label data-photo-tag-link>
             <span data-photo-tag-title onclick="<?php echo $isUser ? 'window.open(\'' . $user->getPermalink() . '\');' : 'javascript: void(0);'; ?>" ><?php echo $tag->label; ?></span>
             <?php if ($tag->deleteable()) { ?>
-            <b data-photo-tag-remove-button data-photo-tag-id="<?php echo $tag->id; ?>"><i class="ies-cancel-2"></i></b>
+            <b data-photo-tag-remove-button data-photo-tag-id="<?php echo $tag->id; ?>"><i class="fa fa-remove"></i></b>
             <?php } ?>
         </label>
     </div>

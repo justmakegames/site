@@ -123,12 +123,21 @@ class BirthdayWidgetsDashboard extends SocialAppsWidgets
 		$query .= ' 	select `actor_id` as `user_id` from `#__social_friends` where `target_id` = ' . $db->Quote( $userId ) . ' and `state` = ' . $db->Quote( '1' );
 		$query .= ' 	 union ';
 		$query .= ' 	select `target_id` as `user_id` from `#__social_friends` where `actor_id` = '. $db->Quote( $userId ) . ' and `state` = ' . $db->Quote( '1' );
+		$query .= ' 	 union ';
+		$query .= ' 	select `uid` as `user_id` from `#__social_subscriptions` where `user_id` = '. $db->Quote( $userId ) . ' and `type` = ' . $db->Quote( 'user.user' );
+
 		$query .= ' 	) as x on a.`uid` = x.`user_id`';
+		$query .= ' INNER JOIN `#__social_users` as c on a.`uid` = c.`user_id`';
+
+		// exclude esad users
+		$query .= ' INNER JOIN `#__social_profiles_maps` as upm on c.`user_id` = upm.`user_id`';
+		$query .= ' INNER JOIN `#__social_profiles` as up on upm.`profile_id` = up.`id` and up.`community_access` = 1';
 
 		// @TODO: Here, it needs to fetch the field id based on the key.
 		$query .= ' where b.`unique_key` = ' . $db->Quote( $key );
 		$query .= ' and a.`uid` != ' . $db->Quote( $userId );
 		$query .= ' and a.`raw` != ' . $db->Quote( '' );
+		$query .= ' and c.`state` != ' . $db->Quote('0');
 
 		/*
 		Split to 2 sections

@@ -357,6 +357,13 @@ FD40.plugin("mvc", function($) {
 	 */
 	var oldClosest = $.fn._closest = $.fn.closest;
 	$.fn.closest = function(selectors, context){
+
+		// FOUNDRY_HACK
+		// If a jQuery or node element was passed in, use original closest method.
+		if (selectors instanceof $ || $.isElement(selectors)) {
+			return oldClosest.call(this, arguments);
+		}
+
 		var rooted = {}, res, result, thing, i, j, selector, rootedIsEmpty = true, selector, selectorsArr = selectors;
 		if(typeof selectors == "string") selectorsArr = [selectors];
 
@@ -1714,9 +1721,24 @@ FD40.plugin("mvc", function($) {
 				    names  = element.slice(start + 1, end).split("|"),
 				    j = 0;
 
-					while (name = names[j++]) {
+				    // "^width [data-eb{label|slider}]" turns into
+				    // widthLabel  => [data-eb-label]
+				    // widthSlider => [data-eb-slider]
 
-						var prop = "{" + $.camelize(name) + "}";
+				    // "^width [data-eb".match(/^\^(\S*)\s(.*)/);
+				    // 0 ==> "^width [data-eb"
+				    // 1 ==> "width",
+				    // 2 ==> "[data-eb"
+				    var parts = prefix.match(/^\^(\S*)\s(.*)/),
+				    	propPrefix = "";
+
+				    if (parts) {
+				    	propPrefix = parts[1] + "-";
+				    	prefix = parts[2];
+				    }
+
+					while (name = names[j++]) {
+						var prop = "{" + $.camelize(propPrefix + name) + "}";
 
 						!$.has(defaults, prop) &&
 							(defaults[prop] = prefix + name + suffix);
@@ -2131,6 +2153,8 @@ FD40.plugin("mvc", function($) {
 			// !-- FOUNDRY HACK --! //
 			// Augment selector properties into selector functions.
 			// The rest are passed in as controller properties.
+			instance.selectors = {};
+
 			for (var name in instanceOptions) {
 
 				if (!name.match(/^\{.+\}$/)) continue;
@@ -2143,7 +2167,7 @@ FD40.plugin("mvc", function($) {
 
 					var selectorFuncExtension = instance[key];
 
-					instance[key] = (function(instance, selector, funcName) {
+					instance[key] = instance.selectors[key] = (function(instance, selector, funcName) {
 
 						// Selector shorthand for controllers
 						selector = /^(\.|\#)$/.test(selector) ? selector + funcName : selector;
@@ -2151,7 +2175,7 @@ FD40.plugin("mvc", function($) {
 						// Create selector function
 						var selectorFunc = function(filter) {
 
-							var elements = instance.element.find(selector);
+							var elements = (selectorFunc.baseElement || instance.element).find(selector);
 
 							if ($.isString(filter)) {
 								elements = elements.filter(filter);
@@ -2196,6 +2220,19 @@ FD40.plugin("mvc", function($) {
 							return $(el).parents(selector).eq(0);
 						};
 
+				        selectorFunc.under = function(el) {
+
+				            var nodes = [];
+
+				            selectorFunc().each(function(){
+				                if ($(this).parents().filter(el).length) {
+				                    nodes.push(this);
+				                }
+				            });
+
+				            return $(nodes);
+				        };
+				        
 						if ($.isPlainObject(selectorFuncExtension)) {
 							$.extend(selectorFunc, selectorFuncExtension);
 						}

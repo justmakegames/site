@@ -48,6 +48,12 @@
 				"required"				: false
 			},
 			{
+				"element"				: "videos",
+				"title"					: "COM_EASYSOCIAL_FIELDS_GROUP_VIDEO",
+				"description"			: "COM_EASYSOCIAL_FIELDS_GROUP_VIDEO_DESC",
+				"required"				: false
+			},
+			{
 				"element"				: "news",
 				"title"					: "COM_EASYSOCIAL_FIELDS_GROUP_NEWS",
 				"description"			: "COM_EASYSOCIAL_FIELDS_GROUP_NEWS_DESC",
