@@ -13,10 +13,10 @@ class JConfig {
 	public $debug_lang = '0';
 	public $dbtype = 'mysqli';
 	public $host = 'localhost';
-	public $user = 'username';
-	public $password = 'password';
-	public $db = 'jmg_joomla';
-	public $dbprefix = 'y9dz7_';
+	public $user = '';
+	public $password = '';
+	public $db = '';
+	public $dbprefix = '';
 	public $live_site = '';
 	public $secret = 'StMeu62Lmg2d1JM6';
 	public $gzip = '0';
