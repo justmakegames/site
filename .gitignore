@@ -3,3 +3,5 @@ public/configuration.php
 /administrator/cache/*
 public/cache/*
 public/tmp/*
+
+public/templates/g5_hydrogen/custom/css-compiled/*
