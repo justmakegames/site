@@ -75,17 +75,19 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php } ?>
 
                         <?php $dayNumber = 1; ?>
+                        
 
                         <?php while ($dayNumber <= $calendar->days_in_month) { ?>
                             <?php $dayNumberPadded = str_pad($dayNumber, 2, '0', STR_PAD_LEFT); ?>
-                            <td class="day <?php if (!empty($days[$dayNumber])) { ?>has-events<?php } ?>" data-date="<?php echo $calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded; ?>">
+                            <?php $calendarDate = $calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded; ?>
+                            <td class="day <?php if (!empty($days[$dayNumber])) { ?>has-events<?php }  echo $calendarDate == $today? ' is-today':'';?>" data-date="<?php echo $calendarDate; ?>">
                                 <div>
-                                    <?php if (($calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded) == $today) { ?>
-                                    <a href="<?php echo FRoute::events(array('filter' => 'date'));?>" title="<?php echo JText::_('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_TODAY'); ?> - <?php echo FD::date($calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded)->format(JText::_('COM_EASYSOCIAL_DATE_DMY')); ?>" data-route><?php echo $dayNumber;?></a>
-                                    <?php } else if (($calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded) == $tomorrow) { ?>
-                                    <a href="<?php echo FRoute::events(array('filter' => 'date', 'date' => $calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded));?>" title="<?php echo JText::_('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_TOMORROW'); ?> - <?php echo FD::date($calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded)->format(JText::_('COM_EASYSOCIAL_DATE_DMY')); ?>" data-route><?php echo $dayNumber;?></a>
+                                    <?php if ($calendarDate == $today) { ?>
+                                    <a href="<?php echo FRoute::events(array('filter' => 'date'));?>" title="<?php echo JText::_('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_TODAY'); ?> - <?php echo FD::date($calendarDate)->format(JText::_('COM_EASYSOCIAL_DATE_DMY')); ?>" data-route><?php echo $dayNumber;?></a>
+                                    <?php } else if ($calendarDate == $tomorrow) { ?>
+                                    <a href="<?php echo FRoute::events(array('filter' => 'date', 'date' => $calendarDate));?>" title="<?php echo JText::_('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_TOMORROW'); ?> - <?php echo FD::date($calendarDate)->format(JText::_('COM_EASYSOCIAL_DATE_DMY')); ?>" data-route><?php echo $dayNumber;?></a>
                                     <?php } else { ?>
-                                    <a href="<?php echo FRoute::events(array('filter' => 'date', 'date' => $calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded));?>" title="<?php echo JText::sprintf('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_DATE', FD::date($calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded)->format(JText::_('COM_EASYSOCIAL_DATE_DMY'))); ?>" data-route><?php echo $dayNumber;?></a>
+                                    <a href="<?php echo FRoute::events(array('filter' => 'date', 'date' => $calendarDate));?>" title="<?php echo JText::sprintf('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_DATE', FD::date($calendarDate)->format(JText::_('COM_EASYSOCIAL_DATE_DMY'))); ?>" data-route><?php echo $dayNumber;?></a>
 
                                     <?php } ?>
                                 </div>
@@ -94,11 +96,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                                     <div class="event-details-title">
                                         <i class="fa fa-calendar"></i>
                                         <a
-                                            href="<?php echo FRoute::events(array('filter' => 'date', 'date' => $calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded));?>"
-                                            title="<?php echo JText::sprintf('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_DATE', FD::date($calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded)->format(JText::_('COM_EASYSOCIAL_DATE_DMY'))); ?>"
+                                            href="<?php echo FRoute::events(array('filter' => 'date', 'date' => $calendarDate));?>"
+                                            title="<?php echo JText::sprintf('COM_EASYSOCIAL_PAGE_TITLE_EVENTS_FILTER_DATE', FD::date($calendarDate)->format(JText::_('COM_EASYSOCIAL_DATE_DMY'))); ?>"
                                             data-route
-                                            data-date="<?php echo $calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded; ?>">
-                                            <?php echo FD::date($calendar->year . '-' . $calendar->month . '-' . $dayNumberPadded)->format(JText::_('COM_EASYSOCIAL_DATE_DMY')); ?>
+                                            data-date="<?php echo $calendarDate; ?>">
+                                            <?php echo FD::date($calendarDate)->format(JText::_('COM_EASYSOCIAL_DATE_DMY')); ?>
                                         </a>
                                     </div>
                                     <ul class="list-media">

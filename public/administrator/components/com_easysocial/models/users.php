@@ -586,7 +586,7 @@ class EasySocialModelUsers extends EasySocialModel
 	 * @param	string
 	 * @return
 	 */
-	public function getAbout($user)
+	public function getAbout($user, $activeStep = 0)
 	{
 		// Load admin language files
 		FD::language()->loadAdmin();
@@ -601,6 +601,7 @@ class EasySocialModelUsers extends EasySocialModel
 
 		// Initial step
 		$index = 1;
+		$hasActive = false;
 
 		foreach ($steps as $step) {
 
@@ -642,11 +643,23 @@ class EasySocialModelUsers extends EasySocialModel
 			}
 
 			$step->title = $step->get('title');
-			$step->active = !$step->hide && $index == 1;
+			$step->active = !$step->hide && $index == 1 && !$activeStep;
+
+			// If there is an activeStep set, we should respect that
+			if ($activeStep && $activeStep == $step->sequence) {
+				$step->active = true;
+				$hasActive = true;
+			}
+
+			// If the step is not hidden and there isn't any active set previously
+			// Also, it should be the first item on the list.
+			if (!$activeStep && !$step->hide && !$hasActive && $index == 1) {
+				$step->active = true;
+				$hasActive = true;
+			}
 
 			if ($step->active) {
 				$theme = FD::themes();
-
 				$theme->set('fields', $step->fields);
 
 				$step->html = $theme->output('site/profile/default.info');

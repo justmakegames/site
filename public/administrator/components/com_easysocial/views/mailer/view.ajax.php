@@ -24,24 +24,24 @@ class EasySocialViewMailer extends EasySocialAdminView
 	 */
 	public function preview()
 	{
-		$ajax 	= FD::ajax();
+		$id = $this->input->get('id', 0, 'int');
 
-		// Get the id.
-		$id 		= JRequest::getInt( 'id' );
-		$mailer 	= FD::table( 'Mailer' );
-		$mailer->load( $id );
+		$table = ES::table('Mailer');
+		$table->load($id);
 
-		$mailer->loadLanguage();
+		// Load the language
+		$table->loadLanguage();
 
-		$lib = FD::mailer();
+		// Load the mailer library
+		$mailer = ES::mailer();
 
-		$mailer->title = $lib->translate($mailer->title, $mailer->params);
+		$table->title = $mailer->translate($table->title, $table->params);
 
-		$theme		= FD::themes();
-		$theme->set( 'mailer' , $mailer );
-		$contents 	= $theme->output( 'admin/mailer/preview' );
+		$theme = FD::themes();
+		$theme->set('mailer', $table);
+		$contents = $theme->output('admin/mailer/preview');
 
-		return $ajax->resolve( $contents );
+		return $this->ajax->resolve($contents);
 	}
 
 	/**

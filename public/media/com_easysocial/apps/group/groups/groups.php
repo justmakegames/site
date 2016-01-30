@@ -236,8 +236,9 @@ class SocialGroupAppGroups extends SocialAppItem
 		$this->set( 'actor'	, $actor );
 
 		$item->title 	= parent::display( 'streams/leave.title' );
-  		$item->opengraph->addDescription( JText::sprintf( 'APP_GROUP_GROUPS_STREAM_LEAVED_GROUP', $actor->getName(), $group->getName() ) );
 
+		// Append the opengraph tags
+		$item->addOgDescription(JText::sprintf('APP_GROUP_GROUPS_STREAM_LEAVED_GROUP', $actor->getName(), $group->getName()));
 	}
 
 	private function prepareJoinStream( SocialStreamItem &$item )
@@ -262,7 +263,9 @@ class SocialGroupAppGroups extends SocialAppItem
 
 		$item->title 	= parent::display( 'streams/join.title' );
 		$item->content	= parent::display( 'streams/join.content' );
-		$item->opengraph->addDescription(JText::sprintf('APP_GROUP_GROUPS_STREAM_HAS_JOIN_GROUP', $actor->getName() ) );
+
+		// Append the opengraph tags
+		$item->addOgDescription(JText::sprintf('APP_GROUP_GROUPS_STREAM_HAS_JOIN_GROUP', $actor->getName()));
 	}
 
 	private function prepareMakeAdminStream( SocialStreamItem &$item )
@@ -284,7 +287,9 @@ class SocialGroupAppGroups extends SocialAppItem
 		$this->set( 'actor'	, $actor );
 
 		$item->title 	= parent::display( 'streams/makeadmin.title' );
-		$item->opengraph->addDescription( JText::sprintf( 'APP_GROUP_GROUPS_STREAM_PROMOTED_TO_BE_ADMIN', $actor->getName() ) );
+
+		// Append the opengraph tags
+		$item->addOgDescription(JText::sprintf('APP_GROUP_GROUPS_STREAM_PROMOTED_TO_BE_ADMIN', $actor->getName()));
 	}
 
 	private function prepareUpdateStream( SocialStreamItem &$item )
@@ -305,7 +310,9 @@ class SocialGroupAppGroups extends SocialAppItem
 		$this->set( 'actor'	, $actor );
 
 		$item->title 	= parent::display( 'streams/update.title' );
-		$item->opengraph->addDescription( JText::sprintf( 'APP_GROUP_GROUPS_STREAM_UPDATED_GROUP', $actor->getName() ) );
+
+		// Append the opengraph tags
+		$item->addOgDescription(JText::sprintf('APP_GROUP_GROUPS_STREAM_UPDATED_GROUP', $actor->getName()));
 	}
 
 	private function prepareCreateStream( SocialStreamItem &$item )
@@ -336,7 +343,8 @@ class SocialGroupAppGroups extends SocialAppItem
 		$item->title 	= parent::display( 'streams/create.title' );
 		$item->content	= parent::display( 'streams/create.content' );
 
-  		$item->opengraph->addDescription( JText::sprintf( 'APP_GROUP_GROUPS_STREAM_CREATED_GROUP', $actor->getName(), $group->getName() ) );
+		// Append the opengraph tags
+		$item->addOgDescription(JText::sprintf('APP_GROUP_GROUPS_STREAM_CREATED_GROUP', $actor->getName(), $group->getName()));
 	}
 
 }

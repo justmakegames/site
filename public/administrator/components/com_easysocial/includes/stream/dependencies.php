@@ -26,6 +26,23 @@ class SocialStreamItem
 	public $isNew = null;
 	public $state = null;
 
+	public $input = null;
+
+	public $view = null;
+	public $og = null;
+
+	public function __construct()
+	{
+		$this->input = JFactory::getApplication()->input;
+
+		static $opengraph = null;
+
+		// We should only allow stream items to add opengraph description
+		// on stream item pages
+		$this->view = $this->input->get('view', '', 'cmd');
+		$this->og = ES::opengraph();
+	}
+
 	/**
 	 * Determines if the stream item is posted in a cluster
 	 *
@@ -115,6 +132,60 @@ class SocialStreamItem
 		$this->repost = $repost;
 	}
 
+	/**
+	 * Determines if this is currently a stream view
+	 * 
+	 * @since	1.4.6
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function isStreamView()
+	{
+		if ($this->view !== 'stream') {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Adds image into the opengraph library
+	 *
+	 * @since	1.4.6
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function addOgImage($image)
+	{
+		if (!$this->isStreamView()) {
+			return false;
+		}
+
+		// Add the opengraph description here
+		$this->og->addImage($image);
+	}
+
+	/**
+	 * Handles adding the opengraph data
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function addOgDescription($content)
+	{
+		if (!$this->isStreamView()) {
+			return false;
+		}
+
+		// Add the opengraph description here
+		$this->og->addDescription($content);
+
+		return true;
+	}
 
 	/**
 	 * Retrieves the actor of the stream

@@ -46,11 +46,15 @@ class FeedsViewGroups extends SocialAppsView
 				$rss->bind($row);
 
 				// Initialize the parser.
-				$parser = @JFactory::getFeedParser($rss->url);
+				$parser = JFactory::getFeedParser($rss->url);
 
-				$rss->parser = $parser;
-				$rss->total = @$parser->get_item_quantity();
-				$rss->items = @$parser->get_items();
+				$rss->parser = false;
+				
+				if ($parser) {
+					$rss->parser = $parser;
+					$rss->total = @$parser->get_item_quantity();
+					$rss->items = @$parser->get_items();
+				}
 
 				$feeds[] = $rss;
 			}

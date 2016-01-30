@@ -244,8 +244,8 @@ class SocialUserAppFollowers extends SocialAppItem
 			$item->title 	= parent::display( 'streams/' . $item->verb . '.title' );
 		}
 
-		$item->opengraph->addDescription( $item->title );
-
+		// Append the opengraph tags
+		$item->addOgDescription($item->title);
 
 		if( $includePrivacy )
 		{

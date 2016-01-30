@@ -161,27 +161,30 @@ class EasySocialViewProfile extends EasySocialSiteView
 
 			$showTimeline = false;
 			$usersModel = ES::model('Users');
-			$steps = $usersModel->getAbout($user);
+
+			// Get the active step
+			$activeStep = $this->input->get('step', 0, 'int');
+
+			$steps = $usersModel->getAbout($user, $activeStep);
 
 			// We should generate a canonical link if user is viewing the about section and the default page is about
 			if ($this->config->get('users.profile.display') == 'about') {
 				$this->page->canonical($user->getPermalink(false, true));
 			}
 
-			// $this->page->title($this->string->escape(JText::_('COM_EASYSOCIAL_PROFILE_ABOUT')));
-
 			if ($steps) {
 
 				foreach ($steps as $step) {
 					if ($step->active) {
-						$theme = ES::themes();
 
+						$theme = ES::themes();
 						$theme->set('fields', $step->fields);
 
 						$contents = $theme->output('site/events/item.info');
 					}
 				}
 			}
+
 			$this->set('infoSteps', $steps);
 		}
 

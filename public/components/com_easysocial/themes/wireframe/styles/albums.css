@@ -587,7 +587,7 @@ div#fd.es .es-album-item.layout-dialog .es-album-footer {
 }
 div#fd.es .es-album-item.layout-dialog .es-album-content {
   margin: 0 auto;
-  width: 600px;
+  width: 540px;
 }
 div#fd.es .es-album-item.layout-dialog .es-album-form {
   display: none;
@@ -1011,6 +1011,9 @@ div#fd.es .es-album-taglist > span {
 }
 div#fd.es .btn-album-favourite.is-fav i {
   color: #F0AC3F;
+}
+div#fd.es .btn-album-favourite:hover {
+  border-color: #507BA3 !important;
 }
 div#fd.es.w480 .es-album-item.layout-row .es-media-stats {
   float: none;

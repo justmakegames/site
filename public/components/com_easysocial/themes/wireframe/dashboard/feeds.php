@@ -18,17 +18,16 @@ $streamType = $this->input->get('type');
 $showRSS = in_array($streamType, $allowedRss) || !$streamType;
 ?>
 <?php if (!empty($eventId)) { ?>
-<div class="item-heading">
+<div class="item-heading mb-10">
 	<?php echo $this->loadTemplate('site/events/mini.header' , array('event' => FD::event($eventId) , 'showApps' => false)); ?>
 </div>
 <?php } ?>
 
 <?php if (!empty($groupId)) { ?>
-<div class="item-heading">
+<div class="item-heading mb-10">
 	<?php echo $this->loadTemplate( 'site/groups/mini.header' , array('group' => FD::group($groupId) , 'showApps' => false ) ); ?>
 </div>
 <?php } ?>
-
 
 <div class="es-snackbar">
 	<div class="row-table">

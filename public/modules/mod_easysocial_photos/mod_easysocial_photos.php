@@ -44,6 +44,9 @@ $suffix = $params->get('suffix', '');
 $userId = (int) $params->get('userid', 0);
 $albumId = (int) $params->get('albumid', 0);
 
+$avatar = (int) $params->get('avatar', 1);
+$cover = (int) $params->get('cover', 1);
+
 $options = array('ordering' => $params->get('ordering', 'created'), 'limit' => $params->get('limit', 20));
 
 if ($userId) {
@@ -52,6 +55,14 @@ if ($userId) {
 
 if ($albumId) {
     $options['album_id'] = $albumId;
+}
+
+if (! $avatar) {
+    $options['noavatar'] = true;
+}
+
+if (! $cover) {
+    $options['nocover'] = true;
 }
 
 $model = FD::model('Photos');

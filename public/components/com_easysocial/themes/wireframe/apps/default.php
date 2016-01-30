@@ -76,7 +76,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_APPS_SORT_ALPHABETICALLY' , true );?>"
 						>
 							<i class="fa fa-sort-alpha-asc"></i>
-							Alphabetically
+							<?php echo JText::_('COM_EASYSOCIAL_APPS_ALPHABETICALLY');?>
 						</a>
 						<a class="btn btn-es btn-sm recent<?php echo $sort == 'recent' ? ' active' : '';?>"
 							data-apps-sort
@@ -88,7 +88,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_APPS_SORT_RECENT_ADDED' , true );?>"
 						>
 							<i class="fa fa-upload "></i>
-							Latest
+							<?php echo JText::_('COM_EASYSOCIAL_APPS_RECENT_ADDED');?>
 						</a>
 						<a class="btn btn-es btn-sm trending<?php echo $sort == 'trending' ? ' active' : '';?>"
 							data-apps-sort
@@ -100,7 +100,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_APPS_SORT_TRENDING_APPS' , true );?>"
 						>
 							<i class="fa fa-fire "></i>
-							Popular
+							<?php echo JText::_('COM_EASYSOCIAL_APPS_TRENDING_APPS');?>
 						</a>
 					</div>
 				</div>

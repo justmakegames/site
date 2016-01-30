@@ -66,7 +66,7 @@ class EasySocialSiteView extends EasySocialView
 			$allowedLayouts = array('edit');
 
 			// views that we should redirect the user to profile edit page.
-			$redirectView = array('dashboard', 'profile');
+			$redirectView = array('dashboard', 'profile', 'login');
 
 
 			// User should be allowed to logout from the site

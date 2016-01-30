@@ -35,6 +35,12 @@ class SocialSmileys extends EasySocial
 
 		if (!$icons) {
 			$library = SOCIAL_LIB . '/bbcode/adapters/decoda/library/config/emoticons.json';
+
+			$jsonFileOverride = JPATH_ROOT . '/templates/' . JFactory::getApplication()->getTemplate() . '/html/com_easysocial/emoticons/emoticons.json';
+			if (JFile::exists($jsonFileOverride)) {
+				$library = $jsonFileOverride;
+			}
+
 			$contents = JFile::read($library);
 			$items = json_decode($contents);
 			$icons = array();
@@ -68,7 +74,7 @@ class SocialSmileys extends EasySocial
 	 * @since	1.4
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function html()
 	{

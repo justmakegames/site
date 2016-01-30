@@ -12,7 +12,19 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="es-snackbar">
-	<?php echo JText::_('COM_EASYSOCIAL_RECENT_UPDATES');?>
+    <div class="row-table">
+        <div class="col-cell">
+	       <?php echo JText::_('COM_EASYSOCIAL_RECENT_UPDATES');?>
+        </div>
+
+        <?php if ($this->config->get('stream.rss.enabled', true)) { ?>
+        <div class="col-cell">
+            <a href="<?php echo $rssLink;?>" class="fd-small pull-right subscribe-rss btn-rss" target="_blank">
+                <i class="fa fa-rss-square"></i>&nbsp; <?php echo JText::_('COM_EASYSOCIAL_SUBSCRIBE_VIA_RSS');?>
+            </a>
+        </div>
+        <?php } ?>
+    </div>
 </div>
 
 <?php echo $stream->html(); ?>

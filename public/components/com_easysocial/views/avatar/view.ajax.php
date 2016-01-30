@@ -59,45 +59,44 @@ class EasySocialViewAvatar extends EasySocialSiteView
 		FD::requireLogin();
 
 		// Load up the ajax library
-		$ajax 	= FD::ajax();
+		$ajax = FD::ajax();
 
 		// Get the unique object.
-		$uid 	= JRequest::getInt( 'uid' );
-		$type 	= JRequest::getCmd( 'type' );
+		$uid = JRequest::getInt('uid');
+		$type = JRequest::getCmd('type');
 
 		// Get photo id
-		$id		= JRequest::getInt('id');
-		$table	= FD::table( 'Photo' );
-		$table->load( $id );
+		$id = JRequest::getInt('id');
+		$table = FD::table('Photo');
+		$table->load($id);
 
-		$redirectUrl 	= JRequest::getVar( 'redirectUrl' , '' );
+		// Get redirect url after avatar is created
+		$redirectUrl = ESR::referer();
 
 		// Load up the library
-		$lib	= FD::photo( $table->uid , $table->type , $table );
+		$lib = FD::photo($table->uid , $table->type, $table);
 
-		if( !$table->id )
-		{
-			return $this->deleted( $lib );
+		if(!$table->id) {
+			return $this->deleted($lib);
 		}
 
 		// Check if the user is really allowed to upload avatar
-		if( !$lib->canUseAvatar() )
-		{
+		if(!$lib->canUseAvatar()) {
 			return $ajax->reject();
 		}
 
-		$redirect	= JRequest::getInt( 'redirect' , 1 );
+		$redirect = JRequest::getInt('redirect', 1);
 
-		$theme		= FD::themes();
+		$theme = FD::themes();
 
-		$theme->set( 'uid' 		, $uid );
-		$theme->set( 'type' 	, $type );
-		$theme->set( 'redirectUrl' , $redirectUrl );
-		$theme->set( 'photo' 	, $lib->data );
-		$theme->set( 'redirect'	, $redirect );
+		$theme->set('uid', $uid);
+		$theme->set('type', $type);
+		$theme->set('redirectUrl', $redirectUrl);
+		$theme->set('photo', $lib->data);
+		$theme->set('redirect', $redirect);
 
-		$output		= $theme->output( 'site/avatar/crop');
+		$output = $theme->output('site/avatar/crop');
 
-		return $ajax->resolve( $output );
+		return $ajax->resolve($output);
 	}
 }

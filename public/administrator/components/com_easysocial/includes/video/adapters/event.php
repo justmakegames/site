@@ -230,7 +230,7 @@ class SocialVideoAdapterEvent extends SocialVideoAdapter
 			return true;
 		}
 
-		if ($this->event->isPublic()) {
+		if ($this->event->isOpen()) {
 			return true;
 		}
 

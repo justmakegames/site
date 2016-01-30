@@ -99,7 +99,7 @@ class ThemesHelperHTML
 		}
 
 		if ($user->block) {
-			return $user->name;
+			return $user->getName();
 		}
 
 		$theme 	= FD::themes();

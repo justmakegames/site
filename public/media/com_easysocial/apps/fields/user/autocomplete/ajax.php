@@ -55,7 +55,7 @@ class SocialFieldsUserAutocomplete extends SocialFieldItem
 
 		foreach ($result as $row) {
 			$item = new stdClass();
-			$item->id = $row->value;
+			$item->id = $row->id;
 			$item->title = $row->title;
 
 			$items[] = $item;

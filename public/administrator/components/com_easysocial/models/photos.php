@@ -13,26 +13,21 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 jimport('joomla.application.component.model');
 
-FD::import( 'admin:/includes/model' );
+FD::import('admin:/includes/model');
 
 class EasySocialModelPhotos extends EasySocialModel
 {
 	static $_photometas = array();
-	static $_cache 		= null;
+	static $_cache = null;
 
-
-	function __construct()
+	function __construct() 
 	{
-
-		if( is_null( self::$_cache ) )
-		{
+		if (is_null(self::$_cache)) {
 			self::$_cache = false;
 		}
 
-
-		parent::__construct( 'photos' );
+		parent::__construct('photos');
 	}
-
 
 	/**
 	 * Retrieves the total amount of storage used by a specific user
@@ -69,6 +64,33 @@ class EasySocialModelPhotos extends EasySocialModel
 
 		return $total;
 	}
+
+	/**
+	 * Retrieves the list of items which stored in Amazon
+	 *
+	 * @since	1.4.6
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getPhotosStoredExternally($storageType = 'amazon')
+	{
+		// Get the number of files to process at a time
+		$config = ES::config();
+		$limit = $config->get('storage.amazon.limit', 10);
+
+		$db = FD::db();
+		$sql = $db->sql();
+		$sql->select('#__social_photos');
+		$sql->where('storage', $storageType);
+		$sql->limit($limit);
+
+		$db->setQuery($sql);
+
+		$result = $db->loadObjectList();
+
+		return $result;
+	}		
 
 	/**
 	 * Stores the exif data for this photo
@@ -284,6 +306,9 @@ class EasySocialModelPhotos extends EasySocialModel
 		$exclusion 		= isset($options['exclusion']) ? $options['exclusion'] :'';
 		$privacy = isset($options['privacy']) ? $options['privacy'] :'';
 
+		$noavatar = isset($options['noavatar']) && $options['noavatar'] ? true : false;
+		$nocover = isset($options['nocover']) && $options['nocover'] ? true : false;
+
 		$ordering = isset($options['ordering']) ? $options['ordering'] : '';
 		$sort = isset($options['sort']) ? $options['sort'] : 'DESC';
 
@@ -301,6 +326,11 @@ class EasySocialModelPhotos extends EasySocialModel
 		}
 
 		$query[] = "from `#__social_photos` as a";
+
+		if ($noavatar || $nocover) {
+			$query[] = " inner join `#__social_albums` as b on a.album_id = b.id";
+		}
+
 		$query[] = "where a.`state` = " . $db->Quote($state);
 
 
@@ -326,6 +356,14 @@ class EasySocialModelPhotos extends EasySocialModel
 
 			$eIds = implode(',', $exclusion);
 			$query[] = "and a.`id` NOT IN ($eIds)";
+		}
+
+		if ($noavatar && $nocover) {
+			$query[] = " and b.`core` not in (1, 2)";
+		} else if ($noavatar) {
+			$query[] = " and b.`core` != 1";
+		} else if ($nocover) {
+			$query[] = " and b.`core` != 2";
 		}
 
 		if (!empty($ordering)) {

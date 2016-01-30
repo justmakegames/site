@@ -104,7 +104,7 @@ class SocialFieldsUserJoomla_joindate extends SocialFieldItem
         // linkage to advanced search page.
         // place the code here so that the timezone wont kick in. we search the date using GMT value.
         $field = $this->field;
-        if ($field->searchable) {
+        if ($field->type == SOCIAL_FIELDS_GROUP_USER && $field->searchable) {
             $date = $regDate->toFormat('Y-m-d');
 
             $params = array( 'layout' => 'advanced' );

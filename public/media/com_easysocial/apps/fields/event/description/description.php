@@ -102,7 +102,7 @@ class SocialFieldsEventDescription extends SocialFieldItem
     public function onDisplay($cluster)
     {
         // Push variables into theme.
-        $value = $cluster->description;
+        $value = $cluster->getDescription();
 
         $this->set('value', $value);
 

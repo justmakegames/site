@@ -103,6 +103,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 </ul>
 
+
+
 <div class="empty empty-hero">
 	<?php echo JText::_( 'APP_GROUP_MEMBERS_EMPTY' ); ?>
 </div>

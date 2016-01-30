@@ -14,10 +14,17 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <li class="feed-item" data-feeds-list-item>
 	<div class="feed-item-heading">
 		<h5>
-			<a href="<?php echo @$rss->parser->get_link();?>" target="_blank">
-				<?php echo $rss->title; ?>
-				<i class="fa fa-new-tab "></i>
-			</a>
+			<?php if ($rss->parser) { ?>
+				<a href="<?php echo @$rss->parser->get_link();?>" target="_blank">
+					<?php echo $rss->title; ?>
+					<i class="fa fa-new-tab "></i>
+				</a>
+			<?php } else { ?>
+				<a href="javascript:void(0);">
+					<?php echo $rss->title;?>
+				</a>
+			<?php } ?>
+
 			<span class="btn-group mr-10 pull-right">
 				<a href="javascript:void(0);" data-bs-toggle="dropdown" class="dropdown-toggle_ btn btn-dropdown">
 					<i class="icon-es-dropdown"></i>
@@ -36,7 +43,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<?php echo $rss->description;?>
 		</p>
 
-		<?php if( $rss->total ){ ?>
+		<?php if ($rss->parser && $rss->total) { ?>
 		<div class="fd-small">
 			<?php echo JText::sprintf('APP_FEEDS_PAGINATION_NOTE' , $totalDisplayed , $rss->total);?>
 			<a href="<?php echo $rss->parser->get_link();?>" target="_blank" class="view-all"><?php echo JText::_( 'APP_FEEDS_VIEW_ALL' ); ?></a>
@@ -44,7 +51,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		<?php } ?>
 	</div>
 
-	<?php if ($rss->items) { ?>
+	<?php if ($rss->parser && $rss->items) { ?>
 	<ul class="list-unstyled feed-item-list" data-feeds-list>
 		<?php foreach ($rss->items as $item ){ ?>
 		<li data-feed-item>

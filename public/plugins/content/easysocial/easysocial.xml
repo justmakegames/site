@@ -38,6 +38,11 @@
 					<option value="1">JYES</option>
 				</field>
 
+				<field name="guest_viewcomments" type="radio" class="btn-group" default="1" label="PLG_CONTENT_EASYSOCIAL_GUEST_VIEWCOMMENTS" description="PLG_CONTENT_EASYSOCIAL_GUEST_VIEWCOMMENTS">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
 				<field name="placement" type="list" default="1" label="PLG_CONTENT_EASYSOCIAL_METADATA_PLACEMENT" description="PLG_CONTENT_EASYSOCIAL_METADATA_PLACEMENT_DESC">
 					<option value="1">PLG_CONTENT_EASYSOCIAL_METADATA_DEFAULT</option>
 					<option value="2">PLG_CONTENT_EASYSOCIAL_METADATA_AFTER_TITLE</option>

@@ -54,15 +54,15 @@ class SocialFieldsUserUrl extends SocialFieldItem
 
 		// linkage to advanced search page.
 		$field = $this->field;
-		if ($field->searchable) {
-			$params = array( 'layout' => 'advanced' );
-			$params['criterias[]'] = $field->unique_key . '|' . $field->element;
-			$params['operators[]'] = 'contain';
-			$params['conditions[]'] = $this->escape($this->value);
+		// if ($field->type == SOCIAL_FIELDS_GROUP_USER && $field->searchable) {
+		// 	$params = array( 'layout' => 'advanced' );
+		// 	$params['criterias[]'] = $field->unique_key . '|' . $field->element;
+		// 	$params['operators[]'] = 'contain';
+		// 	$params['conditions[]'] = $this->escape($this->value);
 
-			$advsearchLink = FRoute::search($params);
-			$this->set( 'advancedsearchlink'	, $advsearchLink );
-		}
+		// 	$advsearchLink = FRoute::search($params);
+		// 	$this->set( 'advancedsearchlink'	, $advsearchLink );
+		// }
 
 		return $this->display();
 	}

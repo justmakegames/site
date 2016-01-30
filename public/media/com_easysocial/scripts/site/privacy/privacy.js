@@ -14,24 +14,18 @@ EasySocial.module("site/privacy/privacy", function($){
 	)
 	.done(function($){
 
-
-		EasySocial.Controller("Privacy",
-		{
+		EasySocial.Controller("Privacy", {
 			defaultOptions: {
-
-				"{menu}"  : "[data-privacy-menu]",
-				"{item}"  : "[data-privacy-item]",
-				"{icon}"  : "[data-privacy-icon]",
+				"{menu}": "[data-privacy-menu]",
+				"{privacyItem}": "[data-privacy-item]",
+				"{icon}": "[data-privacy-icon]",
 				"{button}": "[data-privacy-toggle]",
 				"{tooltip}": "[data-original-title]",
-
-				"{key}"   : "[data-privacy-hidden]"
+				"{key}": "[data-privacy-hidden]"
 			}
-		},
-		function(self){ return {
+		}, function(self) { return {
 
 			init: function() {
-
 				self.instanceId = $.uid();
 
 				self.addPlugin("custom");
@@ -43,8 +37,8 @@ EasySocial.module("site/privacy/privacy", function($){
 
 			"{self} click" : function(el, event) {
 
-				var target = $(event.target),
-					button = self.button();
+				var target = $(event.target);
+				var button = self.button();
 
 				// If the area being clicked is the toggle button,
 				if (target.parents().andSelf().filter(button).length > 0) {
@@ -54,7 +48,7 @@ EasySocial.module("site/privacy/privacy", function($){
 				}
 			},
 
-			"{item} click" : function(item) {
+			"{privacyItem} click" : function(item) {
 
 				// Retrieve data from this privacy item
 				var data = self.getData(item);
@@ -75,7 +69,7 @@ EasySocial.module("site/privacy/privacy", function($){
 			"{self} privacyChange": function(el, event, data) {
 
 				// Deactivate other privacy item
-				self.item()
+				self.privacyItem()
 					.removeClass("active")
 
 					// and activate current privacy item.
@@ -84,11 +78,13 @@ EasySocial.module("site/privacy/privacy", function($){
 			},
 
 			toggle: function() {
+
 				var isActive = self.element.hasClass("active");
 				self[(isActive) ? "deactivate" : "activate"]();
 			},
 
 			activate: function() {
+
 				self.element.addClass("active");
 
 				self.trigger("activate", [self]);
@@ -114,9 +110,10 @@ EasySocial.module("site/privacy/privacy", function($){
 			},
 
 			deactivate: function() {
+
 				self.element.removeClass("active");
 
-				self.trigger("deactivate", [self]);
+				self.trigger("deactivateAllPrivacy", [self]);
 				$(window).trigger("deactivatePrivacy", [self]);
 			},
 
@@ -126,7 +123,7 @@ EasySocial.module("site/privacy/privacy", function($){
 				}
 			},
 
-			save: function( data ) {
+			save: function(data) {
 
 				// Set privacy value
 				self.key().val(data.value);
@@ -165,17 +162,15 @@ EasySocial.module("site/privacy/privacy", function($){
 		}});
 
 
-		EasySocial.Controller("Privacy.Custom",
-			{
-				defaultOptions: {
-					"{textField}"   : "[data-textfield]",
-					"{saveButton}" 	: "[data-save-button]",
-					"{cancelButton}": "[data-cancel-button]",
-					"{customItem}"  : "[data-privacy-item][data-value=custom]",
-					"{customKey}"   : "[data-privacy-custom-hidden]"
-				}
-			},
-			function(self) { return {
+		EasySocial.Controller("Privacy.Custom", {
+			defaultOptions: {
+				"{textField}"   : "[data-textfield]",
+				"{saveButton}" 	: "[data-save-button]",
+				"{cancelButton}": "[data-cancel-button]",
+				"{customItem}"  : "[data-privacy-item][data-value=custom]",
+				"{customKey}"   : "[data-privacy-custom-hidden]"
+			}
+		}, function(self) { return {
 
 				init: function() {
 
@@ -192,8 +187,7 @@ EasySocial.module("site/privacy/privacy", function($){
 
 										var users = self.getIds();
 
-										var ajax = EasySocial.ajax("site/views/privacy/getfriends",
-											{
+										var ajax = EasySocial.ajax("site/views/privacy/getfriends", {
 												q: keyword,
 												exclude: users
 											});
@@ -248,7 +242,8 @@ EasySocial.module("site/privacy/privacy", function($){
 					// for now do nothing.
 				},
 
-				"{parent} deactivate": function() {
+				"{parent} deactivateAllPrivacy": function(el, event) {
+
 					self.textboxlist.autocomplete.hide();
 				},
 
@@ -280,14 +275,20 @@ EasySocial.module("site/privacy/privacy", function($){
 				}
 		}});
 
-		$(document).on('click.es.privacy',  '[data-es-privacy-container]', function(){
+		// Implement privacy button upon clicking on the button
+		$(document).on('click.es.privacy',  '[data-es-privacy-container]', function() {
 
-			var privacyButton = $(this),
-				privacyController = "EasySocial.Controller.Privacy";
+			var privacyButton = $(this);
+			var privacyController = "EasySocial.Controller.Privacy";
 
-			if (privacyButton.hasController(privacyController)) return;
+			// If controller is already implemented on the button, just skip implementation
+			if (privacyButton.hasController(privacyController)) {
+				return;
+			}
 
-			privacyButton.addController(privacyController).toggle();
+			// Run the toggle.
+			privacyButton.addController(privacyController)
+				.toggle();
 		});
 
 		module.resolve();

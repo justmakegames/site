@@ -31,14 +31,6 @@
 				"name"		: "uploadPhotos",
 				"type"		: "boolean",
 				"default"	: true
-			},
-			{
-				"label": "APP_PHOTOS_USER_STREAM_MAX_CHARACTERS",
-				"tooltip": "APP_PHOTOS_USER_STREAM_MAX_CHARACTERS_DESC",
-				"name": "stream_max_chars",
-				"class": "input-mini center",
-				"type": "text",
-				"default": "250"
 			}
 		]
 	},

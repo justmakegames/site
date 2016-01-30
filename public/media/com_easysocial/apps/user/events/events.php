@@ -58,7 +58,7 @@ class SocialUserAppEvents extends SocialAppItem
         // Only show Social sharing in public event
         if ($event->type != SOCIAL_EVENT_TYPE_PUBLIC) {
             $item->sharing = false;
-        }        
+        }
 
         // If the event is pending and is a new item, this means this event is created from the story form, and we want to show a message stating that the event is in pending
         if ($event->isPending() && !empty($item->isNew)) {
@@ -72,8 +72,10 @@ class SocialUserAppEvents extends SocialAppItem
             return;
         }
 
-        if ($event->isInviteOnly() && !$event->getGuest()->isGuest()) {
-            return;
+        if (!$event->isGroupEvent()) {
+            if ($event->isInviteOnly() && !$event->getGuest()->isGuest()) {
+                return;
+            }
         }
 
         if (!in_array($item->context, array('events', 'guests', 'tasks', 'discussions'))) {
@@ -135,7 +137,8 @@ class SocialUserAppEvents extends SocialAppItem
             // APP_USER_EVENTS_STREAM_OPENGRAPH_UPDATE
             // APP_USER_EVENTS_STREAM_OPENGRAPH_GOING
             // APP_USER_EVENTS_STREAM_OPENGRAPH_NOTGOING
-            $item->opengraph->addDescription(JText::sprintf('APP_USER_EVENTS_STREAM_OPENGRAPH_' . strtoupper($item->verb), $item->actor->getName(), $event->getName()));
+            // Append the opengraph tags
+            $item->addOgDescription(JText::sprintf('APP_USER_EVENTS_STREAM_OPENGRAPH_' . strtoupper($item->verb), $item->actor->getName(), $event->getName()));
 
             return;
         }
@@ -148,7 +151,7 @@ class SocialUserAppEvents extends SocialAppItem
         if ($item->context === 'tasks') {
             $this->processTaskStream($item, $includePrivacy);
             return;
-        }        
+        }
     }
 
     private function processDiscussionStream(SocialStreamItem &$item, $includePrivacy)
@@ -220,7 +223,8 @@ class SocialUserAppEvents extends SocialAppItem
         $item->title = parent::display('streams/discussions/' . $item->verb . '.title');
         $item->content = parent::display('streams/discussions/' . $item->verb . '.content');
 
-        $item->opengraph->addDescription(JText::sprintf('APP_USER_EVENTS_STREAM_DISCUSSION_OPENGRAPH_' . strtoupper($item->verb), $item->actor->getName(), $event->getName()));
+        // Append the opengraph tags
+        $item->addOgDescription(JText::sprintf('APP_USER_EVENTS_STREAM_DISCUSSION_OPENGRAPH_' . strtoupper($item->verb), $item->actor->getName(), $event->getName()));
     }
 
 
@@ -315,11 +319,13 @@ class SocialUserAppEvents extends SocialAppItem
         $item->content = parent::display('streams/tasks/' . $item->verb . '.content');
 
         if ($item->verb === 'createMilestone') {
-            $item->opengraph->addDescription(JText::sprintf('APP_USER_EVENTS_TASKS_STREAM_OPENGRAPH_CREATED_MILESTONE', $item->actor->getName(), $milestone->title, $event->getName()));
+            // Append the opengraph tags
+            $item->addOgDescription(JText::sprintf('APP_USER_EVENTS_TASKS_STREAM_OPENGRAPH_CREATED_MILESTONE', $item->actor->getName(), $milestone->title, $event->getName()));
         }
 
         if ($item->verb === 'createTask') {
-            $item->opengraph->addDescription(JText::sprintf(FD::string()->computeNoun('APP_USER_EVENTS_TASKS_STREAM_OPENGRAPH_ADDED_TASK', count($tasks)), $item->actor->getName(), count($tasks), $milestone->title, $event->getName()));
+            // Append the opengraph tags
+            $item->addOgDescription(JText::sprintf(FD::string()->computeNoun('APP_USER_EVENTS_TASKS_STREAM_OPENGRAPH_ADDED_TASK', count($tasks)), $item->actor->getName(), count($tasks), $milestone->title, $event->getName()));
         }
     }
 

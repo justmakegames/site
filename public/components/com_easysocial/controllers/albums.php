@@ -660,33 +660,37 @@ class EasySocialControllerAlbums extends EasySocialController
 	public function loadMore()
 	{
 		// Check for request forgeries
-		FD::checkToken();
-
-		$view		= $this->getCurrentView();
+		ES::checkToken();
 
 		// Get params
-		$id			= JRequest::getInt('albumId', 0);
-		$start		= JRequest::getInt('start', 0);
+		$id = $this->input->get('albumId', 0, 'int');
+		$start = $this->input->get('start', 0, 'int');
 
 		if ($start == '-1') {
 			return $view->call(__FUNCTION__, '', $start);
 		}
 
-		$album 	= FD::table('Album');
-		$album->load( $id );
+		// Load up the album
+		$album = ES::table("Album");
+		$album->load($id);
 
+		// If the album id is invalid, we should skip this
 		if (!$id || !$album->id) {
-			$view->setMessage(JText::_('COM_EASYSOCIAL_ALBUMS_INVALID_ALBUM_ID_PROVIDED'), SOCIAL_MSG_ERROR);
-			return $view->call(__FUNCTION__);
+			$this->view->setMessage(JText::_('COM_EASYSOCIAL_ALBUMS_INVALID_ALBUM_ID_PROVIDED'), SOCIAL_MSG_ERROR);
+			return $this->view->call(__FUNCTION__);
 		}
 
-		$lib 	= FD::albums($album->uid, $album->type, $album);
+		// Load up our albums library
+		$lib = FD::albums($album->uid, $album->type, $album);
+		$respectPrivacy = true;
 
-		$result = $lib->getPhotos($album->id, array('start' => $start, 'privacy' => true));
+		// Privacy should only be respected when the album type is a user type
+		if ($album->type != SOCIAL_TYPE_USER) {
+			$respectPrivacy = false;
+		}
 
-		// This will generate $photos, $nextStart
-		extract($result);
+		$result = $lib->getPhotos($album->id, array('start' => $start, 'privacy' => $respectPrivacy));
 
-		return $view->call(__FUNCTION__, $photos, $nextStart);
+		return $this->view->call(__FUNCTION__, $result['photos'], $result['nextStart']);
 	}
 }

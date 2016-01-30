@@ -359,10 +359,11 @@ class SocialUserAppBadges extends SocialAppItem
 		}
 
 		// Get the actor
-		$actor 		= $item->actor;
+		$actor = $item->actor;
 
-		// check if the actor is ESAD profile or not, if yes, we skip the rendering.
-		if (! $actor->hasCommunityAccess()) {
+		// check if the actor is ESAD profile or not, if yes, we skip the rendering. 
+		// the same goes with blocked user on the site.
+		if (!$actor->hasCommunityAccess() || $actor->block) {
 			$item->title = '';
 			return;
 		}

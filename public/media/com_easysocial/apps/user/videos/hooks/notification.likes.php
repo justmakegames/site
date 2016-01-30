@@ -74,6 +74,12 @@ class SocialUserAppVideosHookNotificationLikes
                 return;
             }
 
+            if ($item->cmd == 'likes.involved') {
+                $item->title = JText::_('COM_EASYSOCIAL_LIKES_INVOLVED_SYSTEM_TITLE');
+
+                return;
+            }
+
             // For other users, we just post a generic message
             $langString     = FD::string()->computeNoun('APP_USER_VIDEOS_NOTIFICATIONS_LIKES_USERS_VIDEO', count($users));
             $item->title    = JText::sprintf($langString, $names, FD::user($video->user_id)->getName());

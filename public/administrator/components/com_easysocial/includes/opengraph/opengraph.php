@@ -93,9 +93,25 @@ class SocialOpengraph extends EasySocial
 	 */
 	public function addDescription($content)
 	{
+		// Remove html tags from the content
 		$content = strip_tags($content);
-		$content = trim( $content );
-		$this->properties[ 'description' ]	= $content;
+
+		// We need to remove newlines from the content
+		$content = str_ireplace("\r\n", "", $content);
+
+		// We also need to replace html entity for space with proper spaces
+		$content = JString::str_ireplace("&nbsp;", " ", $content);
+
+		// We also need to trim the content to avoid trailing / leading spaces
+		$content = trim($content);
+
+		// Decode back the contents if there is any other html entities
+		$content = html_entity_decode($content);
+
+		// Remove any double quotes to avoid issues with escaping
+		$content = JString::str_ireplace('"', '', $content);
+
+		$this->properties['description'] = $content;
 
 		return $this;
 	}

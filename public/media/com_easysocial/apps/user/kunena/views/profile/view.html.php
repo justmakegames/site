@@ -37,7 +37,7 @@ class KunenaViewProfile extends SocialAppsView
 		$appParams = $this->app->getParams();
 
 		// Get the total items to display
-		$total = (int) $params->get( 'total' , $appParams->get( 'total' , 5 ) );
+		$total = (int) $params->get('total_post_display', $appParams->get('total_post_display', 5));
 
 		// Get the posts created by the user.
 		$model = $this->getModel('Posts');

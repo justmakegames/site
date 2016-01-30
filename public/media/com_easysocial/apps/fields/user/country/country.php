@@ -26,7 +26,7 @@ class SocialFieldsUserCountry extends SocialFieldItem
      * @since   5.0
      * @access  public
      * @param   string
-     * @return  
+     * @return
      */
     public function onRegister(&$post, &$registration)
     {
@@ -45,7 +45,7 @@ class SocialFieldsUserCountry extends SocialFieldItem
      * @since   5.0
      * @access  public
      * @param   string
-     * @return  
+     * @return
      */
     public function onRegisterValidate(&$post)
     {
@@ -60,7 +60,7 @@ class SocialFieldsUserCountry extends SocialFieldItem
      * @since   5.0
      * @access  public
      * @param   string
-     * @return  
+     * @return
      */
     public function onEdit(&$post, &$user, $errors)
     {
@@ -82,7 +82,7 @@ class SocialFieldsUserCountry extends SocialFieldItem
      * @since   5.0
      * @access  public
      * @param   string
-     * @return  
+     * @return
      */
     public function onEditValidate(&$post)
     {
@@ -97,7 +97,7 @@ class SocialFieldsUserCountry extends SocialFieldItem
      * @since   5.0
      * @access  public
      * @param   string
-     * @return  
+     * @return
      */
     public function onSample()
     {
@@ -164,7 +164,7 @@ class SocialFieldsUserCountry extends SocialFieldItem
             $country = SocialFieldsUserCountryHelper::getCountryName($v);
 
             if ($country) {
-                if ($field->searchable) {
+                if ($field->type == SOCIAL_FIELDS_GROUP_USER && $field->searchable) {
                     $params = array('layout' => 'advanced');
                     $params['criterias[]'] = $field->unique_key . '|' . $field->element;
                     $params['operators[]'] = 'equal';
@@ -250,7 +250,7 @@ class SocialFieldsUserCountry extends SocialFieldItem
      * @since   5.0
      * @access  public
      * @param   string
-     * @return  
+     * @return
      */
     public function onEditBeforeSave(&$post, &$user)
     {

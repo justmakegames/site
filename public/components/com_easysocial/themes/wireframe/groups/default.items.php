@@ -91,7 +91,7 @@ $showCategoryHeader = true;
     	</ul>
     	<?php } ?>
 
-    	<?php if( $filter == 'featured' ){ ?>
+    	<?php if ($filter == 'featured') { ?>
     	<div class="empty empty-hero">
     		<i class="fa fa-users"></i>
     		<div><?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_NO_FEATURED_GROUPS_YET' );?></div>
@@ -116,15 +116,12 @@ $showCategoryHeader = true;
     		</li>
     		<?php } ?>
     	</ul>
-
-
-
     	<?php } else { ?>
 
-    		<?php if( $filter == 'invited' ){ ?>
+            <?php if ($filter == 'invited') { ?>
     		<div class="empty empty-hero">
     			<i class="fa fa-users"></i>
-    			<div><?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_NO_INVITED_GROUPS_YET' );?></div>
+    			<div><?php echo JText::_('COM_EASYSOCIAL_GROUPS_NO_INVITED_GROUPS_YET');?></div>
     		</div>
     		<?php } ?>
 

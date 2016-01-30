@@ -27,7 +27,7 @@ class K2ViewProfile extends SocialAppsView
 	{
 		$k2File = JPATH_ROOT . '/components/com_k2/helpers/route.php';
 
-		if (JFile::exists($k2File)) {
+		if (!JFile::exists($k2File)) {
 			return false;
 		}
 
@@ -63,37 +63,35 @@ class K2ViewProfile extends SocialAppsView
 		echo parent::display('profile/default');
 	}
 
-	private function format( &$items , $params )
+	private function format(&$items, $params)
 	{
-		if( !$items )
-		{
+		$this->exists();
+
+		if (!$items) {
 			return;
 		}
 
 		// Add K2's table path
-		JTable::addIncludePath( JPATH_ADMINISTRATOR . '/components/com_k2/tables' );
+		JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_k2/tables');
 
-		foreach( $items as $item )
-		{
+		foreach($items as $item) {
 			$category = JTable::getInstance('K2Category', 'Table');
-			$category->load( $item->catid );
+			$category->load($item->catid);
 
-			$item->category 				= $category;
-			$item->permalink	 			= K2HelperRoute::getItemRoute( $item->id . ':' . $item->alias , $item->catid );
-			$item->category->permalink	= K2HelperRoute::getCategoryRoute( $category->id . ':' . $category->alias );
-			$item->content 				= empty( $item->introtext ) ? $item->fulltext : $item->introtext;
+			$item->category = $category;
+			$item->permalink = K2HelperRoute::getItemRoute( $item->id . ':' . $item->alias , $item->catid );
+			$item->category->permalink = K2HelperRoute::getCategoryRoute( $category->id . ':' . $category->alias );
+			$item->content = empty( $item->introtext ) ? $item->fulltext : $item->introtext;
 
-			$titleLength 	= $params->get( 'title_length' );
-			$contentLength	= $params->get( 'content_length' );
+			$titleLength = $params->get( 'title_length' );
+			$contentLength = $params->get( 'content_length' );
 
-			if( $titleLength )
-			{
-				$item->title 	= JString::substr( $item->title , 0 , $titleLength );
+			if ($titleLength) {
+				$item->title = JString::substr($item->title, 0, $titleLength);
 			}
 
-			if( $contentLength )
-			{
-				$item->content 	= JString::substr( strip_tags( $item->content ) , 0 , $contentLength );
+			if ($contentLength) {
+				$item->content = JString::substr(strip_tags($item->content), 0, $contentLength);
 			}
 		}
 	}

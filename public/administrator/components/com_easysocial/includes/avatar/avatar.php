@@ -15,12 +15,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 jimport( 'joomla.filesystem.file' );
 jimport( 'joomla.filesystem.folder' );
 
-/**
- * Generic avatar library.
- *
- * @since	1.0
- * @author	Mark Lee <mark@stackideas.com>
- */
 class SocialAvatar
 {
 	private $path	= null;

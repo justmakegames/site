@@ -182,7 +182,7 @@ class SocialFieldsUserCheckbox extends SocialFieldItem
 		if (empty($post[$this->inputName])) {
 			$post[$this->inputName] = array();
 		}
-	}	
+	}
 
 	/**
 	 * Determines whether there's any errors in the submission in the edit form.
@@ -232,17 +232,27 @@ class SocialFieldsUserCheckbox extends SocialFieldItem
 			return;
 		}
 
-		$field = $this->field;
 
 		$options = array();
+
+		$field = $this->field;
+
+		$advGroups = array(SOCIAL_FIELDS_GROUP_GROUP, SOCIAL_FIELDS_GROUP_USER);
+		$addAdvLink = in_array($field->type, $advGroups) && $field->searchable;
 
 		foreach( $value as $v )
 		{
 			$option = FD::table( 'fieldoptions' );
 			$option->load( array( 'parent_id' => $this->field->id, 'key' => 'items', 'value' => $v ) );
 
-			if ($field->searchable) {
+			if ($addAdvLink) {
 				$params = array( 'layout' => 'advanced' );
+
+				if ($field->type != SOCIAL_FIELDS_GROUP_USER) {
+					$params['type'] = $field->type;
+					$params['uid'] = $field->uid;
+				}
+
 				$params['criterias[]'] = $field->unique_key . '|' . $field->element;
 				$params['operators[]'] = 'contain';
 				$params['conditions[]'] = $v;

@@ -559,10 +559,10 @@ class SocialUserAppStory extends SocialAppItem
 		$stream->title = parent::display('streams/title.' . $titleFileName);
 		$stream->content = parent::display('streams/content.' . $stream->verb);
 
-		$stream->opengraph->addDescription($stream->content);
+		// Append the opengraph tags
+		$stream->addOgDescription($stream->content);
 
 		if ($includePrivacy) {
-			// $stream->privacy = $privacy->form($uid, SOCIAL_TYPE_STORY, $stream->actor->id, 'story.view', false, $stream->uid, array('override' => true, 'value' => true));
 			$stream->privacy = $privacy->form($uid, SOCIAL_TYPE_STORY, $stream->actor->id, 'story.view', false, $stream->uid);
 		}
 

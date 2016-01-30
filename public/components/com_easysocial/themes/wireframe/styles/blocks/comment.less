@@ -64,6 +64,12 @@
         width: 20px;
         height: 20px;
     }
+
+    .es-avatar img {
+        // overwrite Elegant's Joomla template img spacing
+        margin: 0;
+        padding: 0;
+    }
 }
 
 .es-comment-actions {
@@ -173,6 +179,9 @@
         .mentions {
             font-size: @baseFontSize;
             min-height: @comment_textarea_line;
+            > div {
+                padding-bottom: 20px !important; // Reserve space for emoticon
+            }
 
             textarea {
                 font-size: @baseFontSize;

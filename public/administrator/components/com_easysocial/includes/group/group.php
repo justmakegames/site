@@ -775,81 +775,88 @@ class SocialGroup extends SocialCluster
 	public function approve( $email = true )
 	{
 		// Upda the group's state first.
-		$this->state	= SOCIAL_CLUSTER_PUBLISHED;
+		$this->state = SOCIAL_CLUSTER_PUBLISHED;
 
-		$state 	= $this->save();
+		$state = $this->save();
+
+		$dispatcher = FD::dispatcher();
+
+		// Set the arguments
+		$args = array(&$this);
+
+		// @trigger onGroupAfterApproved
+		$dispatcher->trigger(SOCIAL_TYPE_GROUP, 'onAfterApproved', $args);
+		$dispatcher->trigger(SOCIAL_TYPE_USER, 'onGroupAfterApproved', $args);
 
 		// Activity logging.
 		// Announce to the world when a new user registered on the site.
-		$config 			= FD::config();
+		$config = FD::config();
 
 		// If we need to send email to the user, we need to process this here.
-		if( $email )
-		{
+		if ($email) {
 			FD::language()->loadSite();
 
 			// Push arguments to template variables so users can use these arguments
-			$params 	= array(
-									'title'			=> $this->getName(),
-									'name'			=> $this->getCreator()->getName(),
-									'avatar'		=> $this->getAvatar( SOCIAL_AVATAR_LARGE ),
-									'groupUrl'		=> $this->getPermalink( false, true ),
-									'editUrl'		=> FRoute::groups( array( 'external' => true , 'layout' => 'edit' , 'id' => $this->getAlias() ) , false )
+			$params = array(
+							'title'	=> $this->getName(),
+							'name' => $this->getCreator()->getName(),
+							'avatar' => $this->getAvatar(SOCIAL_AVATAR_LARGE),
+							'groupUrl' => $this->getPermalink(false, true),
+							'editUrl' => FRoute::groups(array('external' => true, 'layout' => 'edit', 'id' => $this->getAlias()), false)
 							);
 
 			// Get the email title.
-			$title      = JText::sprintf( 'COM_EASYSOCIAL_EMAILS_GROUP_APPLICATION_APPROVED' , $this->getName() );
+			$title = JText::sprintf('COM_EASYSOCIAL_EMAILS_GROUP_APPLICATION_APPROVED', $this->getName());
 
 			// Immediately send out emails
-			$mailer 	= FD::mailer();
+			$mailer = FD::mailer();
 
 			// Get the email template.
-			$mailTemplate	= $mailer->getTemplate();
+			$mailTemplate = $mailer->getTemplate();
 
 			// Set recipient
-			$mailTemplate->setRecipient( $this->getCreator()->getName() , $this->getCreator()->email );
+			$mailTemplate->setRecipient($this->getCreator()->getName(), $this->getCreator()->email);
 
 			// Set title
-			$mailTemplate->setTitle( $title );
+			$mailTemplate->setTitle($title);
 
 			// Set the contents
-			$mailTemplate->setTemplate( 'site/group/approved' , $params );
+			$mailTemplate->setTemplate('site/group/approved', $params);
 
 			// Set the priority. We need it to be sent out immediately since this is user registrations.
-			$mailTemplate->setPriority( SOCIAL_MAILER_PRIORITY_IMMEDIATE );
+			$mailTemplate->setPriority(SOCIAL_MAILER_PRIORITY_IMMEDIATE);
 
 			// Try to send out email now.
-			$mailer->create( $mailTemplate );
+			$mailer->create($mailTemplate);
 		}
 
 		// Once a group is approved, generate a stream item for it.
 		// Add activity logging when a user creates a new group.
-		if( $config->get( 'groups.stream.create' ) )
-		{
-			$stream				= FD::stream();
-			$streamTemplate		= $stream->getTemplate();
+		if ($config->get('groups.stream.create')) {
+			$stream = FD::stream();
+			$streamTemplate = $stream->getTemplate();
 
 			// Set the actor
-			$streamTemplate->setActor( $this->creator_uid , SOCIAL_TYPE_USER );
+			$streamTemplate->setActor($this->creator_uid, SOCIAL_TYPE_USER);
 
 			// Set the context
-			$streamTemplate->setContext( $this->id , SOCIAL_TYPE_GROUPS );
+			$streamTemplate->setContext($this->id, SOCIAL_TYPE_GROUPS);
 
-			$streamTemplate->setVerb( 'create' );
+			$streamTemplate->setVerb('create');
 			$streamTemplate->setSiteWide();
-			$streamTemplate->setAccess( 'core.view' );
+			$streamTemplate->setAccess('core.view');
 
 			// Set the params to cache the group data
-			$registry	= FD::registry();
-			$registry->set( 'group' , $this );
+			$registry = FD::registry();
+			$registry->set('group', $this);
 
 			// Set the params to cache the group data
-			$streamTemplate->setParams( $registry );
+			$streamTemplate->setParams($registry);
 
-			$streamTemplate->setCluster( $this->id, SOCIAL_TYPE_GROUP, $this->type );
+			$streamTemplate->setCluster($this->id, SOCIAL_TYPE_GROUP, $this->type);
 
 			// Add stream template.
-			$stream->add( $streamTemplate );
+			$stream->add($streamTemplate);
 		}
 
 		return true;
@@ -1326,6 +1333,14 @@ class SocialGroup extends SocialCluster
 			// The actor is always the current user.
 			$actor 	= FD::user();
 
+			// There is a situation where action approved been made via email,
+			// and the admin did not logged in to the site (frontend).
+			// So, if actor for this action is a Guest, 
+			// we get the group creator to be the actor.
+			if (!$actor->id) {
+				$actor = FD::user($this->creator_uid);
+			}
+
 			$params 				= new stdClass();
 			$params->actor 			= $actor->getName();
 			$params->group 			= $this->getName();
@@ -1621,4 +1636,229 @@ class SocialGroup extends SocialCluster
 
 		return false;
 	}
+
+	public function copyAvatar($targetGroupId)
+	{
+		// get avatar from target group
+		// create album for current group
+		// create photos for current group
+		// duplicate physical files from target group
+		//
+		$my = ES::user();
+
+		$targetAvatar = ES::table('Avatar');
+		$targetAvatar->load(array('uid' => $targetGroupId, 'type' => SOCIAL_TYPE_GROUP));
+
+		if (! $targetAvatar->id) {
+			return false;
+		}
+
+		if ($targetAvatar->storage != SOCIAL_STORAGE_JOOMLA) {
+			return false;
+		}
+
+		$targetPhoto = ES::table('Photo');
+		$targetPhoto->load($targetAvatar->photo_id);
+
+		// now lets create album for this new group.
+		$album = ES::table('Album');
+		$album->uid = $this->id;
+		$album->type = SOCIAL_TYPE_GROUP;
+		$album->user_id = $my->id;
+
+		$album->title = 'COM_EASYSOCIAL_ALBUMS_PROFILE_AVATAR';
+		$album->caption = 'COM_EASYSOCIAL_ALBUMS_PROFILE_AVATAR_DESC';
+		$album->created = ES::date()->toMySQL();
+		$album->core = SOCIAL_ALBUM_PROFILE_PHOTOS;
+		$album->store();
+
+		// now we need to create photo
+		$photo = ES::table('Photo');
+
+		$photo->uid = $this->id;
+		$photo->type = SOCIAL_TYPE_GROUP;
+		$photo->user_id = $my->id;
+		$photo->album_id = $album->id;
+		$photo->title = $targetPhoto->title;
+		$photo->caption = $targetPhoto->caption;
+		$photo->created = ES::date()->toMySQL();
+		$photo->state = 1;
+		$photo->storage = SOCIAL_STORAGE_JOOMLA;
+		$photo->total_size = $targetPhoto->total_size;
+		$photo->store();
+
+		// update cover photo of the album.
+		$album->cover_id = $photo->id;
+		$album->store();
+
+
+		$avatar = ES::table('Avatar');
+		$avatar->uid = $this->id;
+		$avatar->type = SOCIAL_TYPE_GROUP;
+		$avatar->photo_id = $photo->id;
+		$avatar->small = $targetAvatar->small;
+		$avatar->medium = $targetAvatar->medium;
+		$avatar->square = $targetAvatar->square;
+		$avatar->large = $targetAvatar->large;
+		$avatar->modified = ES::date()->toMySQL();
+		$avatar->storage = SOCIAL_STORAGE_JOOMLA;
+		$avatar->store();
+
+		// lets copy the avatar images.
+		$config 	= FD::config();
+		// Get the avatars storage path.
+		$avatarsPath 	= FD::cleanPath($config->get('avatars.storage.container'));
+
+		// Let's construct the final path.
+		$sourcePath	= JPATH_ROOT . '/' . $avatarsPath . '/group/' . $targetGroupId;
+		$targetPath	= JPATH_ROOT . '/' . $avatarsPath . '/group/' . $this->id;
+
+		if (! JFolder::exists($targetPath)) {
+			// now we are save to copy.
+			if (JFolder::exists($sourcePath)) {
+				JFolder::copy($sourcePath, $targetPath);
+			}
+		}
+
+		// now we copy the photos
+		// Get the avatars storage path.
+		$photosPath 	= FD::cleanPath($config->get('photos.storage.container'));
+
+		// Let's construct the final path.
+		$sourcePath	= JPATH_ROOT . '/' . $photosPath . '/' . $targetPhoto->album_id . '/' . $targetPhoto->id;
+		$targetPath	= JPATH_ROOT . '/' . $photosPath . '/' . $photo->album_id . '/' . $photo->id;
+
+		if (! JFolder::exists($targetPath)) {
+			// now we are save to copy.
+			if (JFolder::exists($sourcePath)) {
+				JFolder::copy($sourcePath, $targetPath);
+
+				// now we need to insert into photo meta
+        		$model = FD::model( 'Photos' );
+        		$metas = $model->getMeta( $targetPhoto->id , SOCIAL_PHOTOS_META_PATH );
+
+        		if ($metas) {
+        			foreach ($metas as $meta) {
+
+            			$relative   = $photosPath . '/' . $photo->album_id . '/' . $photo->id . '/' . basename( $meta->value );
+
+            			$photoMeta = ES::table('PhotoMeta');
+            			$photoMeta->photo_id = $photo->id;
+            			$photoMeta->group = $meta->group;
+            			$photoMeta->property = $meta->property;
+            			$photoMeta->value = $relative;
+
+            			$photoMeta->store();
+        			}
+        		}
+
+			}
+		}
+
+		return true;
+	}
+
+
+	public function copyCover($targetGroupId)
+	{
+		// get avatar from target group
+		// create album for current group
+		// create photos for current group
+		// duplicate physical files from target group
+		//
+		$my = ES::user();
+
+		$targetCover = ES::table('Cover');
+		$targetCover->load(array('uid' => $targetGroupId, 'type' => SOCIAL_TYPE_GROUP));
+
+		if (! $targetCover->id) {
+			return false;
+		}
+
+		$targetPhoto = ES::table('Photo');
+		$targetPhoto->load($targetCover->photo_id);
+
+		if ($targetPhoto->storage != SOCIAL_STORAGE_JOOMLA) {
+			return false;
+		}
+
+		// now lets create album for this new group.
+		$album = ES::table('Album');
+		$album->uid = $this->id;
+		$album->type = SOCIAL_TYPE_GROUP;
+		$album->user_id = $my->id;
+
+		$album->title = 'COM_EASYSOCIAL_ALBUMS_PROFILE_COVER';
+		$album->caption = 'COM_EASYSOCIAL_ALBUMS_PROFILE_COVER_DESC';
+		$album->created = ES::date()->toMySQL();
+		$album->core = SOCIAL_ALBUM_PROFILE_COVERS;
+		$album->store();
+
+		// now we need to create photo
+		$photo = ES::table('Photo');
+
+		$photo->uid = $this->id;
+		$photo->type = SOCIAL_TYPE_GROUP;
+		$photo->user_id = $my->id;
+		$photo->album_id = $album->id;
+		$photo->title = $targetPhoto->title;
+		$photo->caption = $targetPhoto->caption;
+		$photo->created = ES::date()->toMySQL();
+		$photo->state = 1;
+		$photo->storage = SOCIAL_STORAGE_JOOMLA;
+		$photo->total_size = $targetPhoto->total_size;
+		$photo->store();
+
+		// update cover photo of the album.
+		$album->cover_id = $photo->id;
+		$album->store();
+
+		$cover = ES::table('Cover');
+		$cover->uid = $this->id;
+		$cover->type = SOCIAL_TYPE_GROUP;
+		$cover->photo_id = $photo->id;
+		$cover->x = $targetCover->x;
+		$cover->y = $targetCover->y;
+		$cover->modified = ES::date()->toMySQL();
+		$cover->store();
+
+		// now we copy the photos
+		$config 	= FD::config();
+		// Get the avatars storage path.
+		$photosPath 	= FD::cleanPath($config->get('photos.storage.container'));
+
+		// Let's construct the final path.
+		$sourcePath	= JPATH_ROOT . '/' . $photosPath . '/' . $targetPhoto->album_id . '/' . $targetPhoto->id;
+		$targetPath	= JPATH_ROOT . '/' . $photosPath . '/' . $photo->album_id . '/' . $photo->id;
+
+		if (! JFolder::exists($targetPath)) {
+			// now we are save to copy.
+			if (JFolder::exists($sourcePath)) {
+				JFolder::copy($sourcePath, $targetPath);
+
+				// now we need to insert into photo meta
+        		$model = FD::model( 'Photos' );
+        		$metas = $model->getMeta( $targetPhoto->id , SOCIAL_PHOTOS_META_PATH );
+
+        		if ($metas) {
+        			foreach ($metas as $meta) {
+
+            			$relative   = $photosPath . '/' . $photo->album_id . '/' . $photo->id . '/' . basename( $meta->value );
+
+            			$photoMeta = ES::table('PhotoMeta');
+            			$photoMeta->photo_id = $photo->id;
+            			$photoMeta->group = $meta->group;
+            			$photoMeta->property = $meta->property;
+            			$photoMeta->value = $relative;
+
+            			$photoMeta->store();
+        			}
+        		}
+
+			}
+		}
+
+		return true;
+	}
+
 }

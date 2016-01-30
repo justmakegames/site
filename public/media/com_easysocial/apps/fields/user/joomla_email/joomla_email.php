@@ -69,6 +69,8 @@ class SocialFieldsUserJoomla_email extends SocialFieldItem
 	 */
 	public function onRegisterValidate( &$post )
 	{
+		$post['email'] = !empty( $post['email'] ) ? trim( $post['email'] ) : '';
+
 		return $this->validateEmail( $post );
 	}
 
@@ -77,6 +79,8 @@ class SocialFieldsUserJoomla_email extends SocialFieldItem
 		// if (empty($post['email-reconfirm']) && !empty($post['email'])) {
 		// 	$post['email-reconfirm'] = $post['email'];
 		// }
+
+		$post['email'] = !empty( $post['email'] ) ? trim( $post['email'] ) : '';
 
 		// Check if reconfirm passwords is disabled.
 		if (!$this->params->get('mini_reconfirm_email') && isset($post['email'])) {
@@ -154,6 +158,8 @@ class SocialFieldsUserJoomla_email extends SocialFieldItem
 	 */
 	public function onEditValidate( &$post, &$user )
 	{
+		$post['email'] = !empty( $post['email'] ) ? trim( $post['email'] ) : '';
+
 		return $this->validateEmail( $post , $user->email );
 	}
 

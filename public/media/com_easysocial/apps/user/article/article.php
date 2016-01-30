@@ -269,7 +269,9 @@ class SocialUserAppArticle extends SocialAppItem
 		// Load up the contents now.
 		$item->title 	= parent::display( 'streams/create.title' );
 		$item->content 	= parent::display( 'streams/create.content' );
-		$item->opengraph->addDescription( $content );
+
+		// Append the opengraph tags
+		$item->addOgDescription($content);
 	}
 
 	/**
@@ -326,7 +328,9 @@ class SocialUserAppArticle extends SocialAppItem
 		// Load up the contents now.
 		$item->title 	= parent::display( 'streams/update.title' );
 		$item->content 	= parent::display( 'streams/update.content' );
-		$item->opengraph->addDescription( $content );
+
+		// Append the opengraph tags
+		$item->addOgDescription($content);
 	}
 
 	/**
@@ -379,11 +383,12 @@ class SocialUserAppArticle extends SocialAppItem
 		$this->set( 'actor'		, $actor );
 		$this->set( 'image'		, $image );
 
-
 		// Load up the contents now.
 		$item->title 	= parent::display( 'streams/read.title' );
 		$item->content 	= parent::display( 'streams/read.content' );
-		$item->opengraph->addDescription( $content );
+
+		// Append the opengraph tags
+		$item->addOgDescription($content);
 	}
 
 	private function getArticle( $item )

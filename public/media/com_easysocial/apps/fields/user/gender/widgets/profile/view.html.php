@@ -49,7 +49,7 @@ class GenderFieldWidgetsProfile
 		$theme->set( 'params'	, $field->getParams() );
 
 		// linkage to advanced search page.
-		if ($field->searchable) {
+		if ($field->type == SOCIAL_FIELDS_GROUP_USER && $field->searchable) {
 			$params = array( 'layout' => 'advanced' );
 			$params['criterias[]'] = $field->unique_key . '|' . $field->element;
 			$params['operators[]'] = 'equal';

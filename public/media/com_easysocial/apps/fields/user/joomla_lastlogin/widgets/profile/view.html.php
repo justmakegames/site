@@ -42,7 +42,7 @@ class Joomla_lastloginFieldWidgetsProfile
 			$llDate = FD::date($user->lastvisitDate);
 
 			// linkage to advanced search page.
-			if ($field->searchable) {
+			if ($field->type == SOCIAL_FIELDS_GROUP_USER && $field->searchable) {
 	            $date = $llDate->toFormat('Y-m-d');
 
 	            $params = array( 'layout' => 'advanced' );

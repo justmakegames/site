@@ -36,7 +36,7 @@ class Joomla_joindateFieldWidgetsProfile
 		$regDate = FD::date($user->registerDate);
 
 		// linkage to advanced search page.
-		if ($field->searchable) {
+		if ($field->type == SOCIAL_FIELDS_GROUP_USER && $field->searchable) {
             $date = $regDate->toFormat('Y-m-d');
 
             $params = array( 'layout' => 'advanced' );

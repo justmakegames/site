@@ -159,6 +159,8 @@ abstract class SocialRouterAdapter
      */
     public static function translate( $str )
     {
+        FD::language()->loadSite();
+        
         $str = JString::strtoupper($str);
         $text = 'COM_EASYSOCIAL_ROUTER_' . $str;
 

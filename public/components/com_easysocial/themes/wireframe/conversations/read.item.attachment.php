@@ -31,7 +31,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					        </div>
 					        <div class="media-body">
 					            <div class="">
-					                10675669_636029936520492_8831380915507774114_n.jpg
+					                <?php echo $attachment->name; ?>
 					                <span class="attach-size muted fd-small">- <?php echo $attachment->getSize( 'kb' );?> <?php echo JText::_( 'COM_EASYSOCIAL_UNIT_KILOBYTES' );?></span>
 					            </div>
 					            <div class="btn-group btn-group-xs" role="group" aria-label="...">

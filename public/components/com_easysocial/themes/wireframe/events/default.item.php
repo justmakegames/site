@@ -130,25 +130,28 @@ defined('_JEXEC') or die('Unauthorized Access');
         <?php } ?>
 
         <div class="media-meta mt-5 mb-10 muted">
-            <?php if ($event->isOpen()) { ?>
-            <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
-                <i class="fa fa-globe"></i>
-                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
-            </span>
-            <?php } ?>
 
-            <?php if ($event->isPrivate()) { ?>
-            <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
-                <i class="fa fa-lock"></i>
-                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT'); ?>
-            </span>
-            <?php } ?>
+            <?php if (! $event->isGroupEvent()) { ?>
+                <?php if ($event->isOpen()) { ?>
+                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-globe"></i>
+                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
+                </span>
+                <?php } ?>
 
-            <?php if ($event->isInviteOnly()) { ?>
-            <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
-                <i class="fa fa-envelope"></i>
-                <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
-            </span>
+                <?php if ($event->isPrivate()) { ?>
+                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-lock"></i>
+                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT'); ?>
+                </span>
+                <?php } ?>
+
+                <?php if ($event->isInviteOnly()) { ?>
+                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true); ?>" data-es-provide="tooltip" data-placement="bottom">
+                    <i class="fa fa-envelope"></i>
+                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
+                </span>
+                <?php } ?>
             <?php } ?>
 
             <span>

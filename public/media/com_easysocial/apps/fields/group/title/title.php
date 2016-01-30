@@ -129,6 +129,33 @@ class SocialFieldsGroupTitle extends SocialFieldsUserTextbox
     {
         $value = $cluster->getName();
 
+        $field = $this->field;
+
+        $advGroups = array(SOCIAL_FIELDS_GROUP_GROUP, SOCIAL_FIELDS_GROUP_USER);
+
+        if (in_array($field->type, $advGroups) && $field->searchable) {
+
+            $title = $value;
+
+            // let break the text based on space
+            if (strpos($title, " ") !== false) {
+                $segments = explode(" ", $title);
+                $title = $segments[0];
+            }
+
+            $params = array( 'layout' => 'advanced' );
+            if ($field->type != SOCIAL_FIELDS_GROUP_USER) {
+                $params['type'] = $field->type;
+                $params['uid'] = $field->uid;
+            }
+            $params['criterias[]'] = $field->unique_key . '|' . $field->element;
+            $params['operators[]'] = 'contain';
+            $params['conditions[]'] = $title;
+
+            $advsearchLink = FRoute::search($params);
+            $this->set( 'advancedsearchlink'    , $advsearchLink );
+        }
+
         // Push variables into theme.
         $this->set('value', $this->escape($value));
 

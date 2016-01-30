@@ -29,9 +29,10 @@ class SocialFieldsUserPermalink extends SocialFieldItem
 	{
 		$value 	= isset( $post[ $this->inputName ] ) && !empty( $post[ $this->inputName ] ) ? $post[ $this->inputName ] : '';
 
-		if (empty($value)) {
-			return;
-		}
+		// we allow empty value.
+		// if (empty($value)) {
+		// 	return;
+		// }
 
 		// There could be possibility that the user removes their permalink so
 		// we should not check for empty value here.

@@ -496,7 +496,7 @@ class SocialStream
 				$relatedActivities = $model->getActivityItem( $uid );
 			}
 
-			$aggregatedData			= $this->buildAggregatedData($relatedActivities);
+			$aggregatedData = $this->buildAggregatedData($relatedActivities);
 
 			// Get the stream item.
 			$streamItem  = new SocialStreamItem();
@@ -517,7 +517,6 @@ class SocialStream
 			// Set the content
 			$streamItem->content = $row->content;
 			$streamItem->content_raw = $row->content;
-
 
 			// Set the title of the stream item.
 			$streamItem->title 	= $row->title;
@@ -722,7 +721,7 @@ class SocialStream
 			// @TODO: rules: only users who are friend of the last_action_user_id should see.
 			$streamItem->lastaction = '';
 			if ($row->last_userid && $row->last_action && FD::user()->id && FD::user()->id != $row->last_userid) {
-				$streamItem->lastaction = JText::sprintf('COM_EASYSOCIAL_STREAM_LASTACTION_' . $row->last_action, FD::themes()->html( 'html.user' , $row->last_userid ));
+				$streamItem->lastaction = JText::sprintf('COM_EASYSOCIAL_STREAM_LASTACTION_' . strtoupper($row->last_action), FD::themes()->html( 'html.user' , $row->last_userid ));
 			}
 
 
@@ -743,11 +742,6 @@ class SocialStream
 			// if there is still no title, we need to skip this stream altogether.
 			if ($result === false || !$streamItem->title) {
 				continue;
-			}
-
-			// Set the plain content here.
-			if (empty( $streamItem->opengraph->properties['description'])) {
-				$streamItem->opengraph->addDescription( strip_tags( $streamItem->content ) );
 			}
 
 			// This mean the plugin did not set any privacy. lets use the stream / activity.
@@ -892,8 +886,8 @@ class SocialStream
 	public function getHashTag( $id )
 	{
 		$tb = FD::table('StreamTags');
-		$tb->load($id);
 
+		$tb->loadByTitle($id);
 		return $tb;
 	}
 
@@ -972,7 +966,7 @@ class SocialStream
 				$alias = $tag->title;
 				$url = '';
 
-				if ($view == 'groups') {
+				if ($view == 'groups' || $view == 'events') {
 
 					$clusterReg 	= FD::registry($stream->params);
 					$object 		= $clusterReg->get($stream->cluster_type);

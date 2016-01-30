@@ -468,12 +468,13 @@ class EasySocialControllerSearch extends EasySocialController
 		$data 			= JRequest::getVar( 'data', '' );
 		$nextlimit 		= JRequest::getVar( 'nextlimit', '' );
 
-		// Load up advanced search library
-		$library 	= FD::get( 'AdvancedSearch' );
-
 		// data saved as json format. so we need to decode it.
 		$filter 	= FD::json()->decode($data);
 
+		$groupType = isset($filter->type) ? $filter->type : SOCIAL_FIELDS_GROUP_USER;
+
+		// Load up advanced search library
+		$library 	= FD::get( 'AdvancedSearch', $groupType );
 
 		// Get the values
 		$values 	= array();
@@ -494,15 +495,13 @@ class EasySocialControllerSearch extends EasySocialController
 		$displayOptions = array();
 
 		if ($values['criterias']) {
-
 			$results 	= $library->search($values);
 			$displayOptions = $library->getDisplayOptions();
 			$total 		= $library->getTotal();
 			$nextlimit 	= $library->getNextLimit();
-
 		}
 
-		return $view->call( __FUNCTION__, $results, $nextlimit, $displayOptions );
+		return $view->call( __FUNCTION__, $groupType, $results, $nextlimit, $displayOptions );
 	}
 
 

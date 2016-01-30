@@ -419,18 +419,12 @@ class SocialUserAppPhotos extends SocialAppItem
 		{
 			$this->preparePhotoStream( $item, $privacy , $includePrivacy, $useAlbum );
 		}
-
-		// set opengraph description
+	
+		// Append the opengraph tags
 		if ($item->content) {
-			$item->opengraph->addDescription($item->content);
+			$item->addOgDescription($item->content);
 		} else {
-			$item->opengraph->addDescription($item->title);
-		}
-
-		$maxLength = $params->get('stream_max_chars', '');
-
-		if ($maxLength) {
-			$item->content = JString::substr(strip_tags($item->content), 0, $maxLength) . JText::_('COM_EASYSOCIAL_ELLIPSES');
+			$item->addOgDescription($item->title);
 		}
 
 		return;
@@ -738,7 +732,7 @@ class SocialUserAppPhotos extends SocialAppItem
 	 * @access	public
 	 * @return
 	 */
-	public function preparePhotoStream( &$item, $privacy, $includePrivacy = true, $useAlbum = false )
+	public function preparePhotoStream(&$item, $privacy, $includePrivacy = true, $useAlbum = false)
 	{
 		// There could be more than 1 photo
 		$photos = array();
@@ -748,73 +742,78 @@ class SocialUserAppPhotos extends SocialAppItem
 		$uid = $item->contextId;
 
 		// Get photo objects
-		$photos = $this->getPhotoFromParams( $item, $privacy );
+		$photos = $this->getPhotoFromParams($item, $privacy);
 
 		if (! $photos) {
 			return;
 		}
 
 		// Get the unique item and element to be used
-		if( count( $item->contextIds ) > 1 )
-		{
-			$uid 		= $photos[ 0 ]->album_id;
-			$element	= SOCIAL_TYPE_ALBUM;
-			$useAlbum	= true;
+		if (count($item->contextIds) > 1) {
+			$uid = $photos[0]->album_id;
+			$element = SOCIAL_TYPE_ALBUM;
+			$useAlbum = true;
 		}
 
 		// Get the first photo's album id.
-		$albumId 	= $photos[ 0 ]->album_id;
+		$albumId = $photos[0]->album_id;
 
 		// Determine the privacy rule to use.
-		$privacyRule = ( $useAlbum ) ? 'albums.view' : 'photos.view';
+		$privacyRule = ($useAlbum) ? 'albums.view' : 'photos.view';
 
 		// Load up the album object
-		$album 		= Foundry::table( 'Album' );
-		$album->load( $albumId );
+		$album = Foundry::table('Album');
+		$album->load($albumId);
 
 		// Get the actor
-		$actor 			= $item->actor;
+		$actor = $item->actor;
 
 		// Ensure that they are all unique
-		$item->contextIds 	= array_unique($item->contextIds);
+		$item->contextIds = array_unique($item->contextIds);
 
-		$count 			= count( $item->contextIds );
-		$totalPhotos	= count( $photos );
+		$count = count($item->contextIds);
+		$totalPhotos = count($photos);
 
-		$ids 	= array();
-		foreach( $photos as $photo )
-		{
-			$ids[]	= $photo->id;
+		$ids = array();
+		foreach ($photos as $photo) {
+			$ids[] = $photo->id;
 		}
 
 		// Determine if there is a target
-		$target 		= $item->targets ? $item->targets[ 0 ] : '';
+		$target = $item->targets ? $item->targets[0] : '';
 
 		// Get params
-		$app = Foundry::table( 'app' );
-		$app->loadByElement( 'photos', 'user', 'apps');
+		$app = Foundry::table('app');
+		$app->loadByElement('photos', 'user', 'apps');
 		$params = $app->getParams();
 
-		$this->set( 'target'	, $target );
-		$this->set( 'totalPhotos', $totalPhotos );
-		$this->set( 'ids'		, $ids );
-		$this->set( 'count'		, $count );
-		$this->set( 'photos'	, $photos );
-		$this->set( 'album'		, $album );
-		$this->set( 'actor'		, $actor );
-		$this->set( 'content'	, $item->content );
-		$this->set( 'params'	, $params );
+		$this->set('target', $target);
+		$this->set('totalPhotos', $totalPhotos);
+		$this->set('ids', $ids);
+		$this->set('count', $count);
+		$this->set('photos', $photos);
+		$this->set('album', $album);
+		$this->set('actor', $actor);
+		$this->set('content', $item->content);
+		$this->set('params', $params);
+		$this->set('item', $item);
+
 		// old data compatibility
-		$verb = ( $item->verb == 'create' ) ? 'add' : $item->verb;
+		$verb = ($item->verb == 'create') ? 'add' : $item->verb;
 
 		// Set the display mode to be full.
-		$item->display	= SOCIAL_STREAM_DISPLAY_FULL;
+		$item->display = SOCIAL_STREAM_DISPLAY_FULL;
 
-		$item->title 	= parent::display( 'streams/user/' . $verb . '.title' );
-		$item->preview 	= parent::display( 'streams/user/' . $verb . '.content' );
+		$item->title = parent::display('streams/user/' . $verb . '.title');
+		$item->preview = parent::display('streams/user/' . $verb . '.content');
 
-		if( $includePrivacy )
-		{
+		// Currently, only share photo from story panel has the possiblity to have text and 
+		// we want to add read more feature to it.
+		if ($verb == 'share') {
+			$item->content  = parent::display( 'streams/user/' . $verb . '.text' );
+		}
+
+		if ($includePrivacy) {
 			// $item->privacy 	= $privacy->form( $uid, $element, $item->actor->id, $privacyRule, false, $item->uid, array('override' => true, 'value' => true) );
 			$item->privacy 	= $privacy->form( $uid, $element, $item->actor->id, $privacyRule, false, $item->uid );
 		}

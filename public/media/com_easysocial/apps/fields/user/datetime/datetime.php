@@ -133,11 +133,11 @@ class SocialFieldsUserDatetime extends SocialFieldItem
         $this->set('calendarDateFormat', $calendarDateFormat);
 
         $theme = FD::themes();
-        
+
         $year = $theme->loadTemplate('fields/user/datetime/form.year', array('year' => $date->year, 'yearRange' => $yearRange));
         $month = $theme->loadTemplate('fields/user/datetime/form.month', array('month' => $date->month));
-        $day = $theme->loadTemplate('fields/user/datetime/form.day', array('day' => $date->day, 'maxDay' => $date->isValid() ? $date->format('t') : 31)); 
-        
+        $day = $theme->loadTemplate('fields/user/datetime/form.day', array('day' => $date->day, 'maxDay' => $date->isValid() ? $date->format('t') : 31));
+
         $dateHTML = $this->getDateDropdown($year, $month, $day);
 
         $this->set('dateHTML', $dateHTML);
@@ -234,11 +234,11 @@ class SocialFieldsUserDatetime extends SocialFieldItem
         $this->set('calendarDateFormat', $calendarDateFormat);
 
         $theme = FD::themes();
-        
+
         $year = $theme->loadTemplate('fields/user/datetime/form.year', array('year' => $date->year, 'yearRange' => $yearRange));
         $month = $theme->loadTemplate('fields/user/datetime/form.month', array('month' => $date->month));
-        $day = $theme->loadTemplate('fields/user/datetime/form.day', array('day' => $date->day, 'maxDay' => $date->isValid() ? $date->format('t') : 31)); 
-        
+        $day = $theme->loadTemplate('fields/user/datetime/form.day', array('day' => $date->day, 'maxDay' => $date->isValid() ? $date->format('t') : 31));
+
         $dateHTML = $this->getDateDropdown($year, $month, $day);
 
         $this->set('dateHTML', $dateHTML);
@@ -340,10 +340,18 @@ class SocialFieldsUserDatetime extends SocialFieldItem
         // linkage to advanced search page.
         // place the code here so that the timezone wont kick in. we search the date using GMT value.
         $field = $this->field;
-        if ($allowYear && $field->searchable) {
+
+        $advGroups = array(SOCIAL_FIELDS_GROUP_GROUP, SOCIAL_FIELDS_GROUP_USER);
+
+        if (in_array($field->type, $advGroups) && $allowYear && $field->searchable) {
+
             $date = $data->toFormat('Y-m-d');
 
             $params = array( 'layout' => 'advanced' );
+            if ($field->type != SOCIAL_FIELDS_GROUP_USER) {
+                $params['type'] = $field->type;
+                $params['uid'] = $field->uid;
+            }
             $params['criterias[]'] = $field->unique_key . '|' . $field->element;
             $params['operators[]'] = 'between';
             $params['conditions[]'] = $date . ' 00:00:00' . '|' . $date . ' 23:59:59';

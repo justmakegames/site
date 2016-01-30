@@ -158,7 +158,7 @@ class SocialFieldsUserRelationship extends SocialFieldItem
 
 		// linkage to advanced search page.
 		$field = $this->field;
-		if ($field->searchable) {
+		if ($field->type == SOCIAL_FIELDS_GROUP_USER && $field->searchable) {
 			$params = array( 'layout' => 'advanced' );
 			$params['criterias[]'] = $field->unique_key . '|' . $field->element;
 			$params['operators[]'] = 'equal';

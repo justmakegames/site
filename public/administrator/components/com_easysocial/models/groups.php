@@ -131,7 +131,7 @@ class EasySocialModelGroups extends EasySocialModel
 	 * @since	1.4
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getTotalNews($groupId, $options = array())
 	{
@@ -441,11 +441,25 @@ class EasySocialModelGroups extends EasySocialModel
 			// Should we apply pagination
 			$limit = isset($options['limit']) ? $options['limit'] : '';
 
+			// echo $sql->debug();exit;
+
 			if ($limit) {
 
+				$this->setState( 'limit' , $limit );
+
+				// Get the limitstart.
+				$limitstart 	= $this->getUserStateFromRequest( 'limitstart' , 0 );
+				$limitstart 	= ( $limit != 0 ? ( floor( $limitstart / $limit ) * $limit ) : 0 );
+
+				$this->setState( 'limitstart' , $limitstart );
+
+
 				// Set the total records for pagination.
-				$this->setTotal($sql->getTotalSql());
-				$this->setLimit($limit);
+				// $this->setTotal($sql->getTotalSql());
+
+				$this->setTotal( $sql->getSql() , true );
+
+				// $this->setLimit($limit);
 
 				// Get the final result
 				$result = $this->getData($sql->getSql());
@@ -490,7 +504,8 @@ class EasySocialModelGroups extends EasySocialModel
 				$users[]	= $user;
 			}
 		} else {
-			$users = $this->bindTable('GroupMember', $result);
+			// return plain object lists since we no longer need to bind to jtable for members checking.
+			$users = $result;
 		}
 
 		return $users;
@@ -1340,14 +1355,14 @@ class EasySocialModelGroups extends EasySocialModel
 		$sql->where('a.cluster_type', SOCIAL_TYPE_GROUP);
 
 		// Test to filter by category
-		$category 	= isset($filter[ 'category' ]) ? $filter[ 'category' ] : '';
+		$category = $this->normalize($filter, 'category', '');
 
 		if ($category) {
 			$sql->where('a.category_id', $category);
 		}
 
 		// Test to filter by creator
-		$uid = isset($filter[ 'uid' ]) ? $filter[ 'uid' ] : '';
+		$uid = $this->normalize($filter, 'uid', '');
 
 		if ($uid) {
 			$sql->join('#__social_clusters_nodes', 'c', 'INNER');
@@ -1358,9 +1373,10 @@ class EasySocialModelGroups extends EasySocialModel
 		}
 
 		// Test to filter by invitation
-		$invited = isset($filter[ 'invited' ]) ? $filter[ 'invited' ] : '';
+		$invited = $this->normalize($filter, 'invited', '');
 
 		if ($invited) {
+
 			$sql->join('#__social_clusters_nodes', 'b', 'INNER');
 			$sql->on('b.cluster_id', 'a.id');
 
@@ -1369,14 +1385,14 @@ class EasySocialModelGroups extends EasySocialModel
 		}
 
 		// Test to filter featured items
-		$featured 	= isset($filter[ 'featured' ]) ? $filter[ 'featured' ] : '';
+		$featured = $this->normalize($filter, 'featured', '');
 
 		if ($featured !== '') {
 			$sql->where('a.featured', $featured);
 		}
 
 		// Test if there is an inclusion
-		$inclusion 	= isset($filter[ 'inclusion' ]) ? $filter[ 'inclusion' ] : '';
+		$inclusion = $this->normalize($filter, 'inclusion', '');
 
 		if ($inclusion !== '') {
 			$groupId = explode(',',$inclusion);
@@ -1410,7 +1426,6 @@ class EasySocialModelGroups extends EasySocialModel
 				$sql->where(')');
 
 			} else {
-
 				$sql->where('a.type', array(SOCIAL_GROUPS_PRIVATE_TYPE, SOCIAL_GROUPS_PUBLIC_TYPE), 'IN');
 			}
 		}
@@ -1459,7 +1474,7 @@ class EasySocialModelGroups extends EasySocialModel
 			}
 		}
 
-		$limit = isset($filter[ 'limit' ]) ? $filter[ 'limit' ] : '';
+		$limit = $this->normalize($filter, 'limit', '');
 
 		if ($limit) {
 			$this->setState('limit', $limit);
@@ -1475,24 +1490,25 @@ class EasySocialModelGroups extends EasySocialModel
 			// Set the total records for pagination.
 			$this->setTotal($cntSQL, true);
 
+			$query = $sql->getSql();
+
+
 			// Get the list of ids
-			$ids = $this->getData($sql->getSql());
-		}
-		else
-		{
+			$ids = $this->getData($query);
+		} else {
 			$db->setQuery($sql);
 
-			$ids 	= $db->loadObjectList();
+			$ids = $db->loadObjectList();
 		}
 
 		if (!$ids) {
 			return $ids;
 		}
 
-		$groups 	= array();
+		$groups = array();
 
 		foreach ($ids as $id) {
-			$groups[]	= FD::group($id->id);
+			$groups[] = FD::group($id->id);
 		}
 
 		return $groups;

@@ -11,40 +11,38 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div class="es-widget">
+<div class="es-widget es-widget--upcoming">
     <div class="es-widget-head">
         <div class="pull-left widget-title">
             <?php echo JText::_('APP_USER_EVENTS_WIDGET_UPCOMING_EVENTS'); ?>
         </div>
     </div>
-    <div class="es-widget-body">
-        <?php if ($events) { ?>
-        <ul class="fd-nav fd-nav-stacked">
-            <?php foreach ($events as $event) {?>
-            <li>
-                <div class="media">
-                    <div class="media-object pull-left">
-                        <span class="es-avatar es-avatar-sm">
-                            <img src="<?php echo $event->getAvatar(); ?>">
-                        </span>
+    <div class="es-widget-body pl-0 pl-5 pr-5">
+        <div id="fd" class="es mod-es-events">
+            <?php if ($events) { ?>
+            <ul class="es-events-list fd-reset-list">
+                <?php foreach ($events as $event) {?>
+                <li>
+                    <div class="es-event-avatar es-avatar es-avatar-sm es-avatar-border-sm">
+                        <img src="<?php echo $event->getAvatar(); ?>">
                     </div>
-                    <div class="media-body">
-                        <a href="<?php echo $event->getPermalink(); ?>"><?php echo $event->getName(); ?></a>
-                        <div class="mb-5">
-                            <span class="fd-small es-muted"><?php echo $event->getStartEndDisplay(array('end' => false));?></span>
-                        </div>
-                        <div class="mb-10">
-                            <?php echo $event->showRsvpButton(true); ?>
-                        </div>
+                    <div class="es-event-object">
+                        <a class="event-title" href="<?php echo $event->getPermalink(); ?>"><?php echo $event->getName(); ?></a>
                     </div>
-                </div>
-
-            </li>
-            <li class="divider"></li>
-            <?php } ?>
-        </ul>
-        <?php } else { ?>
-        <div class="fd-small"><?php echo JText::_('APP_USER_EVENTS_WIDGET_NO_EVENTS'); ?></div>
-        <?php } ?>
+                    <div class="es-event-meta">
+                        <span class="fd-small es-muted"><?php echo $event->getStartEndDisplay(array('end' => false));?></span>
+                    </div>
+                    <div class="mb-10">
+                        <?php echo $event->showRsvpButton(true); ?>
+                    </div>
+                </li>
+                <li class="divider"></li>
+                <?php } ?>
+            </ul>
+            <?php } else { ?>
+            <div class="fd-small"><?php echo JText::_('APP_USER_EVENTS_WIDGET_NO_EVENTS'); ?></div>
+            <?php } ?>    
+        </div>
+        
     </div>
 </div>

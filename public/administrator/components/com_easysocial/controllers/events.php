@@ -405,6 +405,7 @@ class EasySocialControllerEvents extends EasySocialController
 
         foreach ($userids as $id) {
             $member = FD::table('EventGuest');
+            $event = FD::event($eventid);
             $state = $member->load(array('uid' => $id, 'type' => SOCIAL_TYPE_USER, 'cluster_id' => $eventid));
 
             if ($state) {
@@ -423,8 +424,10 @@ class EasySocialControllerEvents extends EasySocialController
 
             $member->store();
 
+            $event->invite($id, $me->id);
+
             $count++;
-        }
+        }     
 
         $view->setMessage(JText::sprintf('COM_EASYSOCIAL_EVENTS_INVITE_GUESTS_SUCCESS', $count), SOCIAL_MSG_SUCCESS);
 

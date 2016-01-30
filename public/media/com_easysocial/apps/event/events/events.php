@@ -81,7 +81,8 @@ class SocialEventAppEvents extends SocialAppItem
         // APP_EVENT_EVENTS_STREAM_OPENGRAPH_UPDATE
         // APP_EVENT_EVENTS_STREAM_OPENGRAPH_CREATE
         // APP_EVENT_EVENTS_STREAM_OPENGRAPH_FEATURE
-        $item->opengraph->addDescription(JText::sprintf('APP_EVENT_EVENTS_STREAM_OPENGRAPH_' . strtoupper($item->verb), $actor->getName(), $event->getName()));
+        // Append the opengraph tags
+        $item->addOgDescription(JText::sprintf('APP_EVENT_EVENTS_STREAM_OPENGRAPH_' . strtoupper($item->verb), $actor->getName(), $event->getName()));
     }
 
     public function onNotificationLoad(SocialTableNotification &$item)

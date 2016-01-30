@@ -2,12 +2,12 @@
 <extension version="3.1" type="module" client="site" method="upgrade">
 	<name>EasySocial Quick Post</name>
 	<author>StackIdeas</author>
-	<creationDate>19th October 2015</creationDate>
+	<creationDate>30th December 2015</creationDate>
 	<copyright>Copyright (C) 2009 - 2013 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>1.4.3</version>
+	<version>1.4.6</version>
 	<description><![CDATA[MOD_EASYSOCIAL_QUICKPOST_DESC]]></description>
 	<files>
 		<folder>scripts</folder>
@@ -24,7 +24,10 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				
+				<field name="show_public" type="radio" class="btn-group" default="0" label="MOD_EASYSOCIAL_QUICKPOST_SHOW_ON_PUBLIC_USER" description="MOD_EASYSOCIAL_QUICKPOST_SHOW_ON_PUBLIC_USER_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
 			</fieldset>
 			<fieldset name="advanced">
 				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />

@@ -51,15 +51,19 @@ class SocialJSON
 	 */
 	public function decode( $data )
 	{
-		if( empty( $data ) )
-		{
+		if (empty($data)) {
 			return false;
 		}
 
-		$pattern 	= '#^\s*//.+$#m';
-		$data 		= preg_replace( $pattern , '' , $data );
+		$pattern = '#^\s*//.+$#m';
+		$data = preg_replace($pattern, '', $data);
 
-		$result = json_decode( $data );
+		$result = json_decode($data);
+
+		if (!$result) {
+			// the data might have html entities that breaking the json decode. letg strips the html tag
+			$result = json_decode(strip_tags($data));
+		}
 
 		return $result;
 	}

@@ -16,18 +16,17 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<height>400</height>
 	<selectors type="json">
 	{
-		"{close}"  : "[data-close-button]"
+		"{close}": "[data-close-button]"
 	}
 	</selectors>
 	<bindings type="javascript">
 	{
-		"{close} click": function()
-		{
+		"{close} click": function() {
 			this.parent.close();
 		}
 	}
 	</bindings>
-	<title><?php echo $mailer->get( 'title' );?></title>
+	<title><?php echo JText::_($mailer->title);?></title>
 	<content type="text"><?php echo rtrim( JURI::root() , '/' );?>/administrator/index.php?option=com_easysocial&view=mailer&layout=preview&id=<?php echo $mailer->id;?>&tmpl=component</content>
 	<buttons>
 		<button data-close-button type="button" class="btn btn-es btn-sm"><?php echo JText::_( 'COM_EASYSOCIAL_CLOSE_BUTTON' ); ?></button>

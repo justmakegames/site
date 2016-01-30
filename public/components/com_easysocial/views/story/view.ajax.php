@@ -50,8 +50,18 @@ class EasySocialViewStory extends EasySocialSiteView
 	 * @param	string
 	 * @return
 	 */
-	public function simpleCreate($streamItemTable = '')
+	public function createFromModule($streamItemTable = '')
 	{
+		// Default message
+		$message = JText::_('COM_EASYSOCIAL_NOTIFICATIONS_NEW_STORY_POSTED');
+
+		// If we know that there is no argument, the process failed because they are not logged in.
+		if (!$streamItemTable) {
+			$message = JText::_('COM_EASYSOCIAL_NOTIFICATIONS_NEW_STORY_POSTED_FAILED');
+			$this->ajax->script('EasySocial.login();');
+			
+			return $this->ajax->resolve(false, $message);
+		}
 
 		if ($this->hasErrors()) {
 			return $this->ajax->reject($this->getMessage());
@@ -67,7 +77,7 @@ class EasySocialViewStory extends EasySocialSiteView
 			$output = '';
 		}
 
-		return $this->ajax->resolve($output, $streamItemTable->uid);
+		return $this->ajax->resolve(true, $message, $output, $streamItemTable->uid);
 	}
 
 	/**

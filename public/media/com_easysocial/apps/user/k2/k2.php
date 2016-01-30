@@ -222,7 +222,9 @@ class SocialUserAppK2 extends SocialAppItem
 		// Load up the contents now.
 		$item->title 	= parent::display( 'streams/create.title' );
 		$item->content 	= parent::display( 'streams/create.content' );
-		$item->opengraph->addDescription( $content );
+
+		// Append the opengraph tags
+		$item->addOgDescription($content);
 	}
 
 	/**
@@ -281,7 +283,9 @@ class SocialUserAppK2 extends SocialAppItem
 		// Load up the contents now.
 		$item->title 	= parent::display( 'streams/update.title' );
 		$item->content 	= parent::display( 'streams/update.content' );
-		$item->opengraph->addDescription( $content );
+
+		// Append the opengraph tags
+		$item->addOgDescription($content);
 	}
 
 	/**
@@ -307,6 +311,11 @@ class SocialUserAppK2 extends SocialAppItem
 
 		// Get the actor
 		$actor 		= $item->actor;
+
+		// Only proceed if the actor is not a guest.
+		if (!$item->actor->id) {
+			return;
+		}
 
 		// Get the creation date
 		$date 		= FD::date( $article->created );
@@ -340,7 +349,9 @@ class SocialUserAppK2 extends SocialAppItem
 		// Load up the contents now.
 		$item->title 	= parent::display( 'streams/read.title' );
 		$item->content 	= parent::display( 'streams/read.content' );
-		$item->opengraph->addDescription( $content );
+
+		// Append the opengraph tags
+		$item->addOgDescription($content);
 	}
 
 	/**

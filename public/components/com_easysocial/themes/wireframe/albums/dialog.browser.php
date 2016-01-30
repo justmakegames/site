@@ -14,8 +14,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 <div data-layout="dialog" data-album-browser="<?php echo $uuid; ?>" class="es-container es-media-browser layout-dialog">
 	<div data-album-browser-sidebar class="es-sidebar">
 		<div class="es-widget es-widget-borderless">
-			<div class="es-widget-body">
-				<ul class="fd-nav fd-nav-stacked" data-album-list-item-group>
+			<!-- <div class="es-widget-body"> -->
+				<ul class="es-widget-filter fd-reset-list" data-album-list-item-group>
 					<?php foreach($albums as $album) { ?>
 					<li data-album-list-item data-album-id="<?php echo $album->id; ?>" class="<?php echo $album->id == $id ? 'active' : '';?>">
 						<a href="<?php echo $album->getPermalink(); ?>">
@@ -25,7 +25,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 					</li>
 					<?php } ?>
 				</ul>
-			</div>
+			<!-- </div> -->
 		</div>
 	</div>
 	<div data-album-browser-content class="es-content"><?php echo $content; ?></div>

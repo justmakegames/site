@@ -884,6 +884,15 @@ class SocialEvent extends SocialCluster
             return false;
         }
 
+        $dispatcher = FD::dispatcher();
+
+        // Set the arguments
+        $args = array(&$this);
+
+        // @trigger onEventAfterApproved
+        $dispatcher->trigger(SOCIAL_TYPE_EVENT, 'onAfterApproved', $args);
+        $dispatcher->trigger(SOCIAL_TYPE_USER, 'onEventAfterApproved', $args);
+
         // Send email.
         FD::language()->loadSite();
 
@@ -1549,8 +1558,14 @@ class SocialEvent extends SocialCluster
 
         $guest = $this->getGuest($userid);
 
-        if (!FD::user()->isSiteAdmin() && !$this->isOpen() && !$guest->isGuest()) {
-            return false;
+        if (! $this->isGroupEvent()) {
+            if (!FD::user()->isSiteAdmin() && !$this->isOpen() && !$guest->isGuest()) {
+                return false;
+            }
+        } else {
+            if (!FD::user()->isSiteAdmin() && !$this->getGroup()->isMember()) {
+                return false;
+            }
         }
 
         return true;

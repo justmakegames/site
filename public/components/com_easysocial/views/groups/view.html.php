@@ -51,10 +51,10 @@ class EasySocialViewGroups extends EasySocialSiteView
 		FD::checkCompleteProfile();
 
 		// Set the page title
-		FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS'));
+		$this->page->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS'));
 
 		// Set the page breadcrumb
-		FD::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS'));
+		$this->page->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS'));
 
 		$id = $this->input->get('userid', 0, 'int');
 		$id = !$id ? null : $id;
@@ -87,6 +87,9 @@ class EasySocialViewGroups extends EasySocialSiteView
 
 		// Determine if this is filtering groups by category
 		$categoryId = $this->input->get('categoryid', 0, 'int');
+		
+		// Default the active category to false
+		$this->set('activeCategory', false);
 
 		if ($categoryId) {
 			$category 	= FD::table('GroupCategory');
@@ -98,12 +101,10 @@ class EasySocialViewGroups extends EasySocialSiteView
 
 			$this->set('activeCategory'	, $category);
 
-			$options[ 'category' ]	= $category->id;
+			$options['category'] = $category->id;
 			$filter = 'all';
 
-			FD::page()->title($category->get('title'));
-		} else {
-			$this->set('activeCategory', false);
+			$this->page->title($category->get('title'));
 		}
 
 		// Since not logged in users cannot filter by 'invited' or 'mine', they shouldn't be able to access these filters at all
@@ -114,15 +115,16 @@ class EasySocialViewGroups extends EasySocialSiteView
 		// If the default filter is invited, we only want to fetch groups that the user has been
 		// invited to.
 		if ($filter == 'invited') {
-			FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS_FILTER_INVITED'));
+			$this->page->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS_FILTER_INVITED'));
 
 			$options['invited'] = $my->id;
 			$options['types'] = 'all';
+			$options['featured'] = '';
 		}
 
 		// Filter by own groups
 		if ($filter == 'mine') {
-			FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS_FILTER_MY_GROUPS'));
+			$this->page->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS_FILTER_MY_GROUPS'));
 
 			$options['uid'] = $my->id;
 			$options['types'] = 'all';
@@ -134,7 +136,7 @@ class EasySocialViewGroups extends EasySocialSiteView
 
 		// Get a list of groups
 		if ($filter == 'featured') {
-			FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS_FILTER_FEATURED'));
+			$this->page->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_GROUPS_FILTER_FEATURED'));
 
 			$groups = array();
 		} else {
@@ -154,8 +156,12 @@ class EasySocialViewGroups extends EasySocialSiteView
 		$totalCreatedGroups = $my->getTotalGroups();
 
 		// Get a list of featured groups
-		$options['featured'] = true;
-		$featuredGroups	= $model->getGroups($options);
+		$featuredGroups = array();
+
+		if ($filter != 'invited') {
+			$options['featured'] = true;
+			$featuredGroups	= $model->getGroups($options);
+		}
 
 		// Get total number of invitations
 		$totalInvites	= $model->getTotalInvites($my->id);
@@ -217,8 +223,49 @@ class EasySocialViewGroups extends EasySocialSiteView
 			return $this->redirect(FRoute::groups(array(), false));
 		}
 
+		// Detect for an existing create group session.
+		$session = JFactory::getSession();
+
+		$stepSession = FD::table('StepSession');
+
+		// If user doesn't have a record in stepSession yet, we need to create this.
+		if (!$stepSession->load($session->getId())) {
+			$stepSession->set('session_id', $session->getId());
+			$stepSession->set('created', FD::get('Date')->toMySQL());
+            $stepSession->set('type', SOCIAL_TYPE_GROUP);
+
+			if (!$stepSession->store()) {
+				$this->setError($stepSession->getError());
+				return false;
+			}
+		}
+
 		$model = ES::model('Groups');
 		$categories	= $model->getCreatableCategories($this->my->getProfile()->id);
+
+		// If there's only 1 category, we should just ignore this step and load the steps page.
+		if (count($categories) == 1) {
+
+			$category = $categories[0];
+
+			// Store the category id into the session.
+			$session->set('category_id', $category->id, SOCIAL_SESSION_NAMESPACE);
+
+			// Set the current category id.
+			$stepSession->uid 	= $category->id;
+
+			// When user accesses this page, the following will be the first page
+			$stepSession->step 	= 1;
+
+			// Add the first step into the accessible list.
+			$stepSession->addStepAccess(1);
+
+			// Let's save this into a temporary table to avoid missing data.
+			$stepSession->store();
+
+			$this->steps();
+			return;
+		}
 
 		// Set the page title
 		FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_SELECT_GROUP_CATEGORY'));
@@ -667,10 +714,18 @@ class EasySocialViewGroups extends EasySocialSiteView
 
 		$this->set('appId', $appId);
 
+		// Determine if the current request is for "tags"
+		$hashtag = $this->input->get('tag', '');
+
+		// hashtagalias used for the header hashtag stream
+		$hashtagAlias = $this->input->get('tag', '', 'default');
+
 		// Determines if we should display the custom content based on type.
 		$type = $this->input->get('type', '', 'cmd');
 
-		if (!$isAppView && empty($type)) {
+		// @since 1.4.6
+        // If it is a hashtag view, let the timeline be the default display
+		if (!$isAppView && empty($type) && empty($hashtag)) {
 			$type = FD::config()->get('groups.item.display', 'timeline');
 		}
 
@@ -765,10 +820,6 @@ class EasySocialViewGroups extends EasySocialSiteView
 		// Retrieve group's stream
 		$stream = FD::stream();
 
-		// Determine if the current request is for "tags"
-		$hashtag = $this->input->get('tag', 0);
-		$hashtagAlias = $this->input->get('tag');
-
 		// If there's a hash tag, try to get the actual title to display on the site
 		if ($hashtag) {
 			$tag = $stream->getHashTag($hashtag);
@@ -856,9 +907,15 @@ class EasySocialViewGroups extends EasySocialSiteView
 
 		$stream->get($options);
 
+		// RSS
+		if ($this->config->get('stream.rss.enabled')) {
+			$this->addRss(FRoute::groups(array('id' => $group->getAlias(), 'layout' => 'item'), false));
+		}
+
 		// Apply opengraph tags for the group.
 		FD::opengraph()->addGroup($group);
 
+		$this->set('rssLink', $this->rssLink);
 		$this->set('context', $context);
 		$this->set('stream', $stream);
 		$this->set('hashtag', $hashtag);

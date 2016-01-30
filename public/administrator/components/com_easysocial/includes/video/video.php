@@ -1097,6 +1097,7 @@ class SocialVideo extends EasySocial
 	public function getSharing()
 	{
 		$options = array('text' => JText::_('Share'));
+		$options['url'] = $this->getExternalPermalink();
 		$sharing = ES::sharing($options);
 
 		return $sharing;
@@ -2032,8 +2033,8 @@ class SocialVideo extends EasySocial
 	{
 		$path = $this->getStoragePath();
 
-		// @TODO: If the video is stored externally, it should be deleted differently.
-
+		// If the video is stored externally, it should be deleted differently.
+		
 		// Delete the entire folder
 		$state = JFolder::delete($path);
 
@@ -2111,6 +2112,27 @@ class SocialVideo extends EasySocial
 
 		return true;
 	}
+
+	/**
+	 * Format the url correctly.
+	 *
+	 * @since   1.4
+	 * @access  public
+	 * @param   string
+	 * @return  
+	 */
+    public function format($link=false)
+    {
+        if (preg_match("#https?://#", $link) === 0){
+            $link = 'https://' . $link;
+        }
+
+        if (strpos($link, 'youtu.be') > 0) {
+            $link = preg_replace('~^https?://youtu\.be/([a-z\d]+)$~i', 'https://www.youtube.com/watch?v=$1', $link);
+        }
+
+        return $link;
+    }
 }
 
 class SocialVideoDuration

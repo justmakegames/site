@@ -329,6 +329,7 @@ EasySocial.require()
 
 												if (!$.isArray(items)) {
 													task.reject();
+													return;
 												}
 
 												var items = $.map(items, function(item){
@@ -368,7 +369,10 @@ EasySocial.require()
 										EasySocial.ajax("site/controllers/hashtags/suggest", {search: keyword})
 											.done(function(items){
 
-												if (!$.isArray(items)) task.reject();
+												if (!$.isArray(items)) { 
+													task.reject(); 
+													return; 
+												}
 
 												var items = $.map(items, function(item){
 													item.title = "#" + item.title;

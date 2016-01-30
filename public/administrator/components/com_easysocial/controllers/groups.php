@@ -40,6 +40,7 @@ class EasySocialControllerGroups extends EasySocialController
         $this->registerTask( 'apply' , 'store' );
         $this->registerTask( 'save' , 'store' );
         $this->registerTask( 'savenew' , 'store' );
+        $this->registerTask( 'savecopy' , 'store' );
 
         $this->registerTask('makeFeatured', 'toggleDefault');
         $this->registerTask('removeFeatured', 'toggleDefault');
@@ -69,20 +70,31 @@ class EasySocialControllerGroups extends EasySocialController
 
         // Determines if this group is being edited.
         $id = $this->input->get('id', 0, 'int');
+        $cid = $id;
 
         // Flag to see if this is new or edit
         $isNew = empty($id);
+
+        $isCopy = $task == 'savecopy' ? true : false;
 
         // Get the posted data
         $post = $this->input->getArray('post');
 		$options = array();
 
-        if ($isNew) {
+        if ($isNew || $isCopy) {
             // Include group library
             FD::import('admin:/includes/group/group');
 
             $group = new SocialGroup();
             $categoryId = $this->input->get('category_id', 0, 'int');
+
+            if ($isCopy) {
+                $cgroup = FD::group($id);
+                $categoryId = $cgroup->category_id;
+
+                // lets unset the id here.
+                $post['id'] = 0;
+            }
         } else {
             $group = FD::group($id);
 
@@ -95,6 +107,8 @@ class EasySocialControllerGroups extends EasySocialController
         // Set the necessary data
         $options['uid'] = $categoryId;
         $options['group'] = SOCIAL_FIELDS_GROUP_GROUP;
+
+        // var_dump($options);exit;
 
         // Get fields model
         $fieldsModel = FD::model('Fields');
@@ -124,11 +138,18 @@ class EasySocialControllerGroups extends EasySocialController
         // Convert the values into an array.
         $data = $registry->toArray();
 
+        // var_dump($isCopy);
+        // var_dump($data);
+
+        // var_dump($group);
+
+        // exit;
+
         // Get the fields lib
         $fieldsLib = FD::fields();
 
         // Build arguments to be passed to the field apps.
-        $args = array(&$data, &$group);
+        $args = array(&$data, &$group, &$isCopy);
 
         // @trigger onAdminEditValidate
         $errors = $fieldsLib->trigger('onAdminEditValidate', $options['group'], $fields, $args);
@@ -157,7 +178,7 @@ class EasySocialControllerGroups extends EasySocialController
         }
 
         // Initialise group data for new group
-        if ($isNew) {
+        if ($isNew || $isCopy) {
             // Set the category id for the group
             $group->category_id = $categoryId;
             $group->creator_uid = $this->my->id;
@@ -172,11 +193,18 @@ class EasySocialControllerGroups extends EasySocialController
         // Bind the user object with the form data.
         $group->bind($data);
 
+        // var_dump($isCopy);
+        // var_dump($data);
+
+        // var_dump($group);
+
+        // exit;
+
         // Save the group
         $group->save();
 
         // After the group is created, assign the current user as the node item
-        if ($isNew) {
+        if ($isNew || $isCopy) {
             FD::access()->log('groups.limit', $this->my->id, $group->id, SOCIAL_TYPE_GROUP);
 
             $group->createOwner($this->my->id);
@@ -189,7 +217,6 @@ class EasySocialControllerGroups extends EasySocialController
         $fieldsLib->trigger('onAdminEditAfterSave', $options['group'], $fields, $args);
 
 
-
         // Bind the custom fields for the group.
         $group->bindCustomFields($data);
 
@@ -200,7 +227,20 @@ class EasySocialControllerGroups extends EasySocialController
         // @trigger onEditAfterSaveFields
         $fieldsLib->trigger('onAdminEditAfterSaveFields', $options['group'], $fields, $args);
 
-        $message = $id ? JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_SAVE_UPDATE_SUCCESS' ) : JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_CREATE_SUCCESS' );
+
+        // now we need to copy the avatar and cover if there are any.
+        $group->copyAvatar($cid);
+        $group->copyCover($cid);
+
+
+        $message = JText::_('COM_EASYSOCIAL_GROUPS_FORM_CREATE_SUCCESS');
+
+        if ($isCopy) {
+            $message = JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_COPIED_SUCCESS' );
+        } else if ($id) {
+            $message = JText::_( 'COM_EASYSOCIAL_GROUPS_FORM_SAVE_UPDATE_SUCCESS' );
+        }
+
 
         $view->setMessage( $message , SOCIAL_MSG_SUCCESS );
 

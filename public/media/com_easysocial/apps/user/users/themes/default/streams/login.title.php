@@ -11,4 +11,4 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<?php echo JText::sprintf( 'APP_USERS_STREAM_LOGIN' , $this->html( 'html.user' , $actor->id ) ); ?>
+<?php echo JText::sprintf('APP_USERS_STREAM_LOGIN', $this->html('html.user', $actor->id)); ?>

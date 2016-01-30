@@ -247,7 +247,7 @@ class EasySocialControllerVideos extends EasySocialController
 		// This video could be edited
 		$id = $this->input->get('id', 0, 'int');
 		$uid = $this->input->get('uid', $this->my->id, 'int');
-		$type = $this->input->get('type', SOCIAL_TYPE_USER, 'word');
+		$type = $this->input->post->get('type', SOCIAL_TYPE_USER, 'word');
 
 		$table = ES::table('Video');
 		$table->load($id);
@@ -273,6 +273,11 @@ class EasySocialControllerVideos extends EasySocialController
 		// We will only create a stream here when it is an external link.
 		if ($post['source'] != SOCIAL_VIDEO_UPLOAD) {
 			$options = array('createStream' => true);
+		}
+
+		// If the source is from external link, we need to format the url properly.
+		if ($post['source'] == 'link') {
+			$post['link'] = $video->format($post['link']);
 		}
 
 		// Save the video
@@ -480,6 +485,7 @@ class EasySocialControllerVideos extends EasySocialController
 
 		// Run the video process
 		$video->process();
+
 
 		return $this->view->call(__FUNCTION__, $video);
 	}

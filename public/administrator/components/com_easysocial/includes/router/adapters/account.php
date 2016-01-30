@@ -103,6 +103,14 @@ class SocialRouterAccount extends SocialRouterAdapter
 			return $vars;
 		}
 
+		// URL: http://site.com/menu/account/requirePasswordReset
+		if( $total == 2 && $segments[ 1 ] == $this->translate( 'account_layout_requirePasswordReset' ) )
+		{
+			$vars[ 'layout' ]	= 'requirePasswordReset';
+
+			return $vars;
+		}		
+
 		return $vars;
 	}
 }

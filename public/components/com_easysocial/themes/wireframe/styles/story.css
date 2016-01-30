@@ -139,6 +139,9 @@ div#fd.es .plugin-blog .es-story-panel-contents.active,
 div#fd.es .plugin-discuss .es-story-panel-contents.active {
   padding-top: 10px;
 }
+div#fd.es .es-story-textbox {
+  display: block !important;
+}
 div#fd.es .es-story-textbox .mentions > div {
   min-height: 52px;
 }

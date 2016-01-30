@@ -502,8 +502,8 @@ class SocialEventAppTasks extends SocialAppItem
         $streamItem->title = parent::display('streams/create.task.title');
         $streamItem->content = parent::display('streams/create.task.content');
 
-        $streamItem->opengraph->addDescription(JText::sprintf('APP_EVENT_TASKS_STREAM_OPENGRAPH_CREATE_TASK', $streamItem->actor->getName(), $milestone->title, $event->getName()));
-
+        // Append the opengraph tags
+        $streamItem->addOgDescription(JText::sprintf('APP_EVENT_TASKS_STREAM_OPENGRAPH_CREATE_TASK', $streamItem->actor->getName(), $milestone->title, $event->getName()));
     }
 
     public function prepareCreateMilestoneStream(SocialStreamItem $streamItem, $includePrivacy = true)
@@ -531,6 +531,7 @@ class SocialEventAppTasks extends SocialAppItem
         $streamItem->title = parent::display('streams/create.milestone.title');
         $streamItem->content = parent::display('streams/create.milestone.content');
 
-        $streamItem->opengraph->addDescription(JText::sprintf('APP_EVENT_TASKS_STREAM_OPENGRAPH_CREATE_MILESTONE', $streamItem->actor->getName(), $event->getName()));
+        // Append the opengraph tags
+        $streamItem->addOgDescription(JText::sprintf('APP_EVENT_TASKS_STREAM_OPENGRAPH_CREATE_MILESTONE', $streamItem->actor->getName(), $event->getName()));
     }
 }

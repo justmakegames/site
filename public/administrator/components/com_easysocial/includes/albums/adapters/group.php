@@ -11,15 +11,8 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
-require_once( dirname( __FILE__ ) . '/abstract.php' );
+require_once(dirname(__FILE__) . '/abstract.php');
 
-/**
- * Group adapter for albums
- *
- * @since	1.2
- * @access	public
- *
- */
 class SocialAlbumsAdapterGroup extends SocialAlbumsAdapter
 {
 	private $group 	= null;

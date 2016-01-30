@@ -210,6 +210,11 @@ class EasySocialViewRegistration extends EasySocialSiteView
 					// Determine if there a referer URL
 					$callback = FRoute::referer();
 
+					// Check whether the callback url is it equal to facebook url
+					if ($callback == 'https://www.facebook.com/') {
+						$callback = Froute::referrer($url);
+					}
+
 					if ($callback) {
 						$url = $callback;
 					}

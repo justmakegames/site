@@ -182,8 +182,15 @@ class SocialFieldsUserDropdown extends SocialFieldItem
 		$option->load( array( 'parent_id' => $this->field->id, 'key' => 'items', 'value' => $value ) );
 
 		$field = $this->field;
-		if ($field->searchable) {
+
+		$advGroups = array(SOCIAL_FIELDS_GROUP_GROUP, SOCIAL_FIELDS_GROUP_USER);
+
+		if (in_array($field->type, $advGroups) && $field->searchable) {
 			$params = array( 'layout' => 'advanced' );
+			if ($field->type != SOCIAL_FIELDS_GROUP_USER) {
+				$params['type'] = $field->type;
+				$params['uid'] = $field->uid;
+			}
 			$params['criterias[]'] = $field->unique_key . '|' . $field->element;
 			$params['operators[]'] = 'equal';
 			$params['conditions[]'] = $this->value;

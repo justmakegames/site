@@ -63,7 +63,7 @@ class SocialFieldsUserJoomla_lastlogin extends SocialFieldItem
 
 		return true;
 	}
-    
+
 	/**
 	 * Displays the sample html codes when the field is added into the profile.
 	 *
@@ -110,7 +110,7 @@ class SocialFieldsUserJoomla_lastlogin extends SocialFieldItem
         // linkage to advanced search page.
         // place the code here so that the timezone wont kick in. we search the date using GMT value.
         $field = $this->field;
-        if ($field->searchable) {
+        if ($field->type == SOCIAL_FIELDS_GROUP_USER && $field->searchable) {
             $date = $llDate->toFormat('Y-m-d');
 
             $params = array( 'layout' => 'advanced' );

@@ -26,7 +26,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 		<div class="media-body">
 			<div class="file-title"><?php echo $file->name; ?></div>
-			<div class="file-meta"><?php echo FD::date( $file->data->created )->format( JText::_( 'DATE_FORMAT_LC1' ) ); ?></div>
+			<div class="file-meta"><?php echo FD::date( $file->data->created )->format( JText::_( 'DATE_FORMAT_LC1' ), true ); ?></div>
 		</div>
 	</div>
 </div>

@@ -33,7 +33,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 		</div>
 	</div>
 
-	<div class="filter-bar">
+	<div class="app-filter filter-bar">
 		<strong>
 			<i class="icon-es-help mr-5"></i> <?php echo JText::_( 'COM_EASYSOCIAL_MAILER_DESCRIPTION' ); ?> <a href="http://stackideas.com/docs/easysocial/administrators/cronjobs/cronjobs" target="_blank"><?php echo JText::_( 'COM_EASYSOCIAL_LEARN_MORE' ); ?></a>
 		</strong>

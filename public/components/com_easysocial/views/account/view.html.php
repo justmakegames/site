@@ -215,6 +215,29 @@ class EasySocialViewAccount extends EasySocialSiteView
 	 */
 	public function completeReset()
 	{
+
+		$app		= JFactory::getApplication();
+		$token		= $app->getUserState( 'com_users.reset.token' , null );
+		$userId		= $app->getUserState( 'com_users.reset.user' , null );
+
+		$enableValidation = false;
+
+		if ($token && $userId) {
+			// lets check if user has the joomla password field enabled or not.
+			$user = FD::user($userId);
+			$items = FD::model('Fields')->getCustomFields(array('group' => SOCIAL_TYPE_USER, 'uid' => $user->profile_id, 'data' => false , 'dataId' => $user->id , 'dataType' => SOCIAL_TYPE_USER, 'element' => 'joomla_password'));
+
+			if ($items) {
+				$passwordField = $items[0];
+
+				$params = $passwordField->getParams();
+				$this->set('params', $params);
+
+				$enableValidation = true;
+			}
+		}
+
+		$this->set('enableValidation', $enableValidation);
 		parent::display('site/profile/reset.password.complete');
 	}
 

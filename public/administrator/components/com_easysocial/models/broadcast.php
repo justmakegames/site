@@ -130,7 +130,7 @@ class EasySocialModelBroadcast extends EasySocialModel
 	 * @param	string  The message to be broadcasted
 	 * @return
 	 */
-	public function notifyBroadcast($id, $title, $content, $link, $createdBy)
+	public function notifyBroadcast($id, $title, $content, $link, $createdBy, $streamItem)
 	{
 		$db  = FD::db();
 		$sql = $db->sql();
@@ -165,7 +165,12 @@ class EasySocialModelBroadcast extends EasySocialModel
 			$recipients[] = FD::user($result);
 		}
 
-		$options = array( 'uid' => $my->id , 'actor_id' => $my->id , 'title' => $title , 'content' => $content,'type' => 'broadcast');
+		$options = array('uid' => $my->id, 
+						 'actor_id' => $my->id,
+						 'title' => $title, 
+						 'content' => $content,
+						 'type' => 'broadcast',
+						 'url' => FRoute::stream(array('layout' => 'item', 'id' => $streamItem->uid, 'sef' => false)));
 
 		$state = Foundry::notify( 'broadcast.notify' , $recipients , false , $options );
 

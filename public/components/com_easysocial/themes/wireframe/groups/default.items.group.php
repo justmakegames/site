@@ -99,12 +99,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</span>
 		</div>
 
-		<?php if( $this->template->get( 'groups_description' , true ) ){ ?>
+		<?php if ($this->template->get('groups_description', true)) { ?>
 		<div class="media-brief mv-10">
 			<?php if( $group->description ){ ?>
-				<?php echo $this->html('string.truncater', $group->getDescription(), 350);?>
+				<?php echo $this->html('string.truncater', nl2br(strip_tags($group->getDescription())), 350);?>
 			<?php } else { ?>
-				<?php echo JText::_( 'COM_EASYSOCIAL_GROUPS_NO_DESCRIPTION_YET' ); ?>
+				<?php echo JText::_('COM_EASYSOCIAL_GROUPS_NO_DESCRIPTION_YET'); ?>
 			<?php }?>
 		</div>
 		<?php } ?>

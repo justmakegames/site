@@ -360,8 +360,10 @@ class SocialUserAppVideos extends SocialAppItem
         $data['source'] = $this->input->get('videos_type', '', 'word');
         $data['title'] = $this->input->get('videos_title', '', 'default');
         $data['description'] = $this->input->get('videos_description', '', 'default');
-        $data['link'] = $this->input->get('videos_link', '', 'default');
         $data['category_id'] = $this->input->get('videos_category', 0, 'int');
+
+        // We need to format the link first.
+        $link = $this->input->get('videos_link', '', 'default');
 
         // Save options for the video library
         $saveOptions = array();
@@ -369,6 +371,7 @@ class SocialUserAppVideos extends SocialAppItem
         // If this is a link source, we just load up a new video library
         if ($data['source'] == 'link') {
             $video = ES::video();
+            $data['link'] = $video->format($link);
         }
 
         // If this is a video upload, the id should be provided because videos are created first.
@@ -756,5 +759,5 @@ class SocialUserAppVideos extends SocialAppItem
         }
 
         return true;
-    }
+    }   
 }

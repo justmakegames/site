@@ -201,6 +201,21 @@ div#fd.es .es-media-stat span {
   font-size: 20px;
   line-height: 20px;
 }
+div#fd.es .es-albums .content-hint {
+  text-align: center;
+  font-size: 16px;
+  color: #aaa;
+  padding: 100px 0;
+  display: none;
+  background: #fafafa;
+}
+div#fd.es .es-albums .no-albums-hint {
+  display: block;
+}
+div#fd.es .es-albums .no-albums-hint .btn {
+  margin-top: 10px;
+  padding: 5px 10px;
+}
 div#fd.es .es-media-browser.layout-dialog {
   width: 100%;
   height: 100%;
@@ -243,6 +258,20 @@ div#fd.es .es-media-browser .es-content-hint {
   top: 50%;
   color: #999;
   font-size: 14px !important;
+}
+div#fd.es .es-media-browser .btn-media {
+  padding: 0;
+}
+div#fd.es .es-media-browser .btn-media > a {
+  display: block;
+  padding: 6px 10px;
+  color: #555555;
+  text-shadow: 0px 1px 0px #fff;
+  outline: 0;
+}
+div#fd.es .es-media-browser .btn-es-primary > a {
+  color: #fff !important;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
 }
 div#fd.es.w480 .es-sidebar {
   float: none;

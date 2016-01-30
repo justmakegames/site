@@ -72,7 +72,7 @@ EasySocial.module('apps/fields/user/datetime/content', function($) {
                                 up: 'glyphicon glyphicon-chevron-up',
                                 down: 'glyphicon glyphicon-chevron-down'
                             },
-                            sideBySide: true,
+                            sideBySide: false,
                             pickTime: self.options.allowTime,
                             useCurrent: false,
                             language: self.options.calendarLanguage == 'english' ? 'en-gb' : EasySocial.options.momentLang

@@ -79,6 +79,13 @@ class EasySocialViewAlbums extends EasySocialSiteView
 			$this->close();
 		}
 
+		// Check if the album is viewable
+		$viewable = $lib->viewable();
+
+		if (!$viewable) {
+			return $this->restricted($lib->uid, $lib->type);
+		}
+
 		// Check for user profile completeness
 		FD::checkCompleteProfile();
 

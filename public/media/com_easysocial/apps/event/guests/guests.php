@@ -109,7 +109,8 @@ class SocialEventAppGuests extends SocialAppItem
         // APP_EVENT_GUESTS_STREAM_OPENGRAPH_GOING
         // APP_EVENT_GUESTS_STREAM_OPENGRAPH_NOTGOING
         // APP_EVENT_GUESTS_STREAM_OPENGRAPH_MAKEADMIN
-        $item->opengraph->addDescription(JText::sprintf('APP_EVENT_GUESTS_STREAM_OPENGRAPH_' . strtoupper($item->verb), $actor->getName(), $event->getName()));
+        // Append the opengraph tags
+        $item->addOgDescription(JText::sprintf('APP_EVENT_GUESTS_STREAM_OPENGRAPH_' . strtoupper($item->verb), $actor->getName(), $event->getName()));
     }
 
     public function onAfterLikeSave($likes)

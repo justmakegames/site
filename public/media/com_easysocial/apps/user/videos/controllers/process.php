@@ -56,11 +56,36 @@ class VideosControllerProcess extends SocialAppsController
     {
         $link = $this->input->get('link', '', 'default');
 
+        // We need to format the url properly.
+        $video = ES::video();
+        $link = $video->format($link);
+
         $crawler = ES::crawler();
         $crawler->crawl($link);
 
         $data = (object) $crawler->getData();
 
-        return $this->ajax->resolve($data, $data->oembed->thumbnail_url, $data->oembed->html);
+        $html = '';
+        $thumbnail = '';
+
+        // If there is an oembed property, try to use it.
+        if (isset($data->oembed->html)) {
+            $html = $data->oembed->html;
+        }
+
+        if (isset($data->oembed->thumbnail_url)) {
+            $thumbnail = $data->oembed->thumbnail_url;
+        }
+
+        // If there is no thumbnail, we should try to get from the opengraph tag if it exists
+        if (!isset($data->oembed->thumbnail_url) && isset($data->opengraph->image)) {
+            $thumbnail = $data->opengraph->image;
+        }
+
+        if (!isset($data->oembed->html) && isset($data->opengraph->video)) {
+            $html = '<iframe src="' . $data->opengraph->video . '" frameborder="0"></iframe>';
+        }
+
+        return $this->ajax->resolve($data, $thumbnail, $html);
     }
 }

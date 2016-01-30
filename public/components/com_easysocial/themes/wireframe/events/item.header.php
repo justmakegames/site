@@ -93,25 +93,28 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </span>
                 <?php } ?>
 
-                <?php if ($event->isOpen()) { ?>
-                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="fa fa-globe muted"></i>
-                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
-                </span>
-                <?php } ?>
+                <?php if (!$event->isGroupEvent()) { ?>
 
-                <?php if ($event->isClosed()) { ?>
-                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="fa fa-lock muted"></i>
-                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT'); ?>
-                </span>
-                <?php } ?>
+                    <?php if ($event->isOpen()) { ?>
+                    <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                        <i class="fa fa-globe muted"></i>
+                        <?php echo JText::_('COM_EASYSOCIAL_EVENTS_OPEN_EVENT'); ?>
+                    </span>
+                    <?php } ?>
 
-                <?php if ($event->isInviteOnly()) { ?>
-                <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
-                    <i class="fa fa-lock muted"></i>
-                    <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
-                </span>
+                    <?php if ($event->isClosed()) { ?>
+                    <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                        <i class="fa fa-lock muted"></i>
+                        <?php echo JText::_('COM_EASYSOCIAL_EVENTS_PRIVATE_EVENT'); ?>
+                    </span>
+                    <?php } ?>
+
+                    <?php if ($event->isInviteOnly()) { ?>
+                    <span data-original-title="<?php echo FD::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT_TOOLTIP', true);?>" data-es-provide="tooltip" data-placement="bottom">
+                        <i class="fa fa-lock muted"></i>
+                        <?php echo JText::_('COM_EASYSOCIAL_EVENTS_INVITE_EVENT'); ?>
+                    </span>
+                    <?php } ?>
                 <?php } ?>
 
                 <span>
@@ -125,8 +128,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <?php if ($this->config->get('events.ical', true)) { ?>
                 <span>
-                    <i class="fa fa-download muted"></i>
-                    <a href="<?php echo FRoute::events(array('layout' => 'export', 'format' => 'ical', 'id' => $event->getAlias()));?>" target="_blank"><?php echo JText::_('COM_EASYSOCIAL_EVENTS_EXPORT_TO_ICAL');?></a>
+                    <i class="ies-download muted"></i>
+                    <?php
+                        $icalLink = FRoute::events(array('layout' => 'export', 'id' => $event->getAlias()));
+                        if (strpos($icalLink, '?') !== false) {
+                            $icalLink .= '&format=ical';
+                        } else {
+                            $icalLink .= '?format=ical';
+                        }
+                    ?>
+                    <a href="<?php echo $icalLink; ?>" target="_blank"><?php echo JText::_('COM_EASYSOCIAL_EVENTS_EXPORT_TO_ICAL');?></a>
                 </span>
                 <?php } ?>
 

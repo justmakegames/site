@@ -93,7 +93,7 @@ class SocialGroupAppStory extends SocialAppItem
         if (!$recipients) {
             return;
         }
-        
+
         $emailOptions['title']      = 'APP_USER_NOTES_EMAILS_LIKE_INVOLVED_TITLE';
         $emailOptions['template']   = 'apps/group/story/like.involved';
 
@@ -374,7 +374,27 @@ class SocialGroupAppStory extends SocialAppItem
         $mailParams['actor']        = $actor->getName();
         $mailParams['posterAvatar'] = $actor->getAvatar(SOCIAL_AVATAR_SQUARE);
         $mailParams['posterLink']   = $actor->getPermalink(true, true);
-        $mailParams['message']      = $template->content;
+
+        $contents = $template->content;
+
+        // break the text and images
+        if (strpos($template->content, '<img') !== false) {
+            preg_match('#(<img.*?>)#', $template->content, $results);
+
+            $img = "";
+            if ($results) {
+                $img = $results[0];
+            }
+
+            $segments = explode('<img', $template->content);
+            $contents = $segments[0];
+
+            if ($img) {
+                $contents = $contents . '<br /><div style="text-align:center;">' . $img . "</div>";
+            }
+        }
+
+        $mailParams['message']      = $contents;
         $mailParams['group']        = $group->getName();
         $mailParams['groupLink']    = $group->getPermalink(true, true);
         $mailParams['permalink']    = FRoute::stream(array('id' => $streamItem->uid, 'layout' => 'item', 'external' => true), true);

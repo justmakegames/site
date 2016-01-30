@@ -197,7 +197,7 @@ class EasySocialViewGroups extends EasySocialAdminView
 
 		$activeTab = $this->input->get('activeTab', 'profile', 'word');
 
-		if ($task == 'apply') {
+		if ($task == 'apply' || $task == 'savecopy') {
 			return $this->redirect('index.php?option=com_easysocial&view=groups&layout=form&id=' . $group->id . '&activeTab=' . $activeTab);
 		}
 
@@ -224,14 +224,18 @@ class EasySocialViewGroups extends EasySocialAdminView
 	 */
 	public function form($errors = array())
 	{
+		// Perhaps this is an edited category
+		$id = $this->input->get('id', 0, 'int');
+
+
 		JToolbarHelper::apply('apply', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE'), false, false);
 		JToolbarHelper::save('save', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_CLOSE'));
 		JToolbarHelper::save2new('savenew', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AND_NEW'));
+		if ($id) {
+			JToolbarHelper::save2copy('savecopy', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_SAVE_AS_COPY'));
+		}
 		JToolbarHelper::divider();
 		JToolbarHelper::cancel('cancel', JText::_('COM_EASYSOCIAL_TOOLBAR_TITLE_BUTTON_CANCEL'));
-
-		// Perhaps this is an edited category
-		$id = $this->input->get('id', 0, 'int');
 
 		$group = FD::table('Group');
 		$group->load($id);

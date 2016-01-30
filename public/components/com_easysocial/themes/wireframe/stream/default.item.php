@@ -186,7 +186,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $stream->meta; ?>
 			</div>
 
-			<?php if ($showTranslations && $this->config->get('stream.translations.bing') && $this->config->get('stream.translations.bingid') && $this->config->get('stream.translations.bingsecret')) { ?>
+			<?php if (JString::trim($stream->content) && $showTranslations && $this->config->get('stream.translations.bing') && $this->config->get('stream.translations.bingid') && $this->config->get('stream.translations.bingsecret')) { ?>
 			<div class="es-stream-translations">
 				<span class="translate-loader" data-stream-translate-loader><i class="fd-loading"></i></span>
 				<a href="javascript:void(0);" class="translate-link" data-stream-translate><?php echo JText::_('COM_EASYSOCIAL_STREAM_SEE_TRANSLATION');?></a>

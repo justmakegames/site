@@ -86,9 +86,16 @@ class EasySocialViewStream extends EasySocialSiteView
 		// Append opengraph tags
 		$image = $streamLib->getContentImage($stream);
 
+		if (!$image) {
+			// Try to get user avatar image as an alternative.
+			$image = FD::user($stream->actor->id)->getAvatar();
+		}
+
 		if ($image) {
 			$stream->opengraph->addImage($image);
 		}
+
+
 
 		// Get the permalink of this stream
 		$permalink 	= FRoute::stream(array('id' => $stream->uid, 'layout' => 'item', 'external' => 1));

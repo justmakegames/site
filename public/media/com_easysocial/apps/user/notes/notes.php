@@ -169,7 +169,8 @@ class SocialUserAppNotes extends SocialAppItem
 		$item->title 	= parent::display( 'streams/' . $item->verb . '.title' );
 		$item->content	= parent::display( 'streams/' . $item->verb . '.content' );
 
-		$item->opengraph->addDescription( $note->getContent() );
+		// Append the opengraph tags
+		$item->addOgDescription($note->getContent());
 	}
 
 
