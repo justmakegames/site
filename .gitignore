@@ -4,4 +4,8 @@ public/configuration.php
 public/cache/*
 public/tmp/*
 
+
+public/media/foundry/4.0/config/*
+public/media/com_easysocial/config/*
+public/media/com_easysocial/resources/*
 public/templates/g5_hydrogen/custom/css-compiled/*
