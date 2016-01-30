@@ -1,0 +1,12 @@
+[
+	{
+		"title" 		: "Global Game Jam 2016",
+		"description"	: "I particiated in the Global Game Jam 2016!",
+		"howto"			: "This badge is awarded to registered members who submitted .",
+		"alias"			: "globalgamejam2016",
+		"extension"		: "com_banners",
+		"command"		: "null",
+		"avatar"		: "media/com_easysocial/badges/ggj2016.png",
+		"frequency"		: 15
+	}
+]
