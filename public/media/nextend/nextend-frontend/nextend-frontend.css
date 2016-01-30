@@ -154,12 +154,12 @@
 }
 
 .litebox-overlay .litebox-prev {
-    background: url(//jmg.dev2/libraries/nextend2/nextend/media/css/../images/litebox-prev.png) no-repeat center;
+    background: url(//jmg.fly1.cagehost.com/libraries/nextend2/nextend/media/css/../images/litebox-prev.png) no-repeat center;
     left: 20px;
 }
 
 .litebox-overlay .litebox-next {
-    background: url(//jmg.dev2/libraries/nextend2/nextend/media/css/../images/litebox-next.png) no-repeat center;
+    background: url(//jmg.fly1.cagehost.com/libraries/nextend2/nextend/media/css/../images/litebox-next.png) no-repeat center;
     right: 20px;
 }
 
