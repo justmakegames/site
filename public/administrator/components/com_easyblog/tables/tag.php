@@ -159,7 +159,7 @@ class EasyBlogTableTag extends EasyBlogTable
 			jimport('joomla.filesystem.filter.filteroutput');
 
 			$i = 1;
-			while ($this->aliasExists()) {
+			while($this->aliasExists() || empty($this->alias)) {
 
 				$this->alias = empty($this->alias) ? $this->title : $this->alias . '-' . $i;
 				$i++;

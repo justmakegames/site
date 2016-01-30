@@ -25,6 +25,8 @@ img { max-width: none; }
 	border-radius: @eb-avatar-radius;
 	width: 50px;
 	height: 50px;
+	padding: 0;
+	margin: 0;
 }
 
 .eb-avatar-sm img {
@@ -54,7 +56,8 @@ img { max-width: none; }
 ---------------------------------------------------------------------------------------------- */
 
 .eb-responsive-video,
-.video-container {
+.video-container,
+&.w480 .legacy-video-container {
 	position: relative;
 	padding-bottom: 56.25%;
 	padding-top: 25px;
@@ -68,7 +71,8 @@ img { max-width: none; }
 }
 
 .eb-responsive-video,
-.video-container {
+.video-container,
+&.w480 .legacy-video-container {
 	object,
 	embed,
 	iframe {
@@ -79,7 +83,6 @@ img { max-width: none; }
 		height: 100%;
 	}
 }
-
 
 
 /*= TYPOGRAPHY
@@ -365,11 +368,6 @@ label {
 		position: static;
 		margin: 0 !important;
 
-		@media(max-width: 992px) {
-			width: auto !important;
-			display: block !important;
-		}
-
 		img {
 			max-width: 100%;
 			width: 100%; // Make img always follow container width 
@@ -388,6 +386,7 @@ label {
 		.box-shadow(0 0 1px rgba(0,0,0,0.5));
 		display: inline-block;
 		height: 220px;
+		width: 300px;
 		vertical-align: top;
 		position: relative;
 		.opacity(1);
@@ -397,25 +396,44 @@ label {
 		transform: scale(1);
 		position: static;
 		margin: 0 !important;
-
-		@media(min-width: 768px) {
-			width: 300px;
-		}
-
-		@media(max-width: 768px) {
-			width: 100% !important;
-		}
 	}
 
-	@media(min-width: 992px) {
+	&.is-left {
+		float: left;
+		margin-right: 15px;
+	}
+
+	&.is-right {
+		float: right;
+		margin-left: 15px;
+	}
+
+	&.is-full {
+		width: 100%;
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	&.is-center {
+		text-align: center;
+
+		.eb-post-image,
+		.eb-post-image-cover {
+			display: inline-block;
+		}
+	}
+}
+
+&.w480 {
+	.eb-post-thumb {
 		&.is-left {
-			float: left;
-			margin-right: 15px;
+			float: none;
+			margin-right: 0;
 		}
 
 		&.is-right {
-			float: right;
-			margin-left: 15px;
+			float: none;
+			margin-left: 0;
 		}
 
 		&.is-full {
@@ -432,6 +450,15 @@ label {
 				display: inline-block;
 			}
 		}
+	}
+
+	.eb-post-image {
+		width: auto !important;
+		display: block !important;
+	}
+
+	.eb-post-image-cover {
+		width: 100% !important; 
 	}
 }
 
@@ -1108,8 +1135,60 @@ label {
 		}
 	}
 	
-
-
+}
+.eb-calendar-topbar {
+	.clearfix();
+	border-bottom: 2px double @eb-border;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	font-weight: bold;
+	&__date {
+		float: left;
+	}
+	&__toggle {
+		float: right;
+	}
+}
+.eb-calendar {
+	&__item {
+		.clearfix();
+		padding: 10px 0;
+		line-height: 1.1;
+		&:not(:first-child) {
+			border-top: 1px solid @eb-border;
+		}
+		&:hover {
+			background-color: @eb-box-shade;
+		}
+	}
+	&__link {
+		display: block;
+		position: relative;
+		// padding: 5px;
+		.clearfix();
+		
+	}
+	
+}
+.eb-calendar__item-icon {
+	position: absolute;
+	left: 0;
+}
+.eb-calendar__item-title {
+	float: left;
+	position: relative;
+	left: 20px;
+	padding-right: 180px; // Reserve space for date
+	> i {
+		margin-right: 10px;
+	}
+}
+.eb-calendar__item-date {
+	// float: right;
+	position: absolute;
+	top: 0;
+	right: 0;
+	color: @eb-text-light-color;
 }
 // Responsive
 .w320 {
@@ -1221,7 +1300,13 @@ label {
 	}
 }
 
+
+// Non english with width auto
 .is-small .eb-share-facebook .facebook-like {
+	width: auto;
+}
+// Defined width to prevent auto disappears for some situation.
+.is-small.is-english .eb-share-facebook .facebook-like {
 	width: 122px;
 }
 
@@ -1233,10 +1318,23 @@ label {
 	width: 92px;
 }
 
+// http://stackideas.com/forums/my-share-buttons-are-not-showing
+.fb_iframe_widget iframe {
+	max-width: none;
+}
+// Shouldn't show facebook comment box in narrow layout
+// http://screencast.com/t/Jabao3pdU
+&.w480 .fb-like {
+	height: 20px;
+	overflow: hidden;
+}
+
+// http://stackideas.com/forums/easyblog-view-is-about-20-smaller-than-viewport-size
+// Temporary turn off min-width cause it will have horizontal scroll bar in narrow view
 .eb-share-facebook .fb_iframe_widget, 
 .eb-share-facebook .fb_iframe_widget span, 
 .eb-share-facebook .fb_iframe_widget span iframe[style] {
-	min-width: 450px !important;
+	// min-width: 450px !important;
 }
 
 
@@ -1248,11 +1346,43 @@ label {
 	height: 20px !important;
 }
 
+
+
 // #2549
 .is-large {
 	.eb-share-facebook {
 		&.has-sendbtn {
 			height: 86px;
+		}
+	}
+
+}
+
+.eb-share-twitter-btn {
+	font-size: 11px !important;
+	font-weight: bold !important;
+	background-color: #1b95e0 !important;
+	height: 20px !important;
+	display: inline-block !important;
+	color: #fff !important;
+	padding: 4px !important;
+	border-radius: 3px !important;
+	line-height: 1;
+	.fa:before {
+		color: #fff !important;
+	}
+	&:hover {
+		background-color: #0C7ABF !important;
+	}
+}
+.is-large {
+	.eb-share-twitter-btn {
+		text-align: center !important;
+		height: 60px !important;
+		i { // the only icon use html element here
+			display: block !important;
+			font-size: 30px !important;
+			padding: 4px 8px 0 !important;
 		}
 	}
 }

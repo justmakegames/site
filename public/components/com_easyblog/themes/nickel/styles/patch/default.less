@@ -12,6 +12,9 @@
 
 @eb-box-radius-s	: @eb-box-radius - 1;
 
+.eb-masonry {
+	min-height: 200px; // Masonry will inline height:0 if content is empty. 
+}
 .eb-masonry,
 .eb-posts {
 	margin: 0 -@theme-masonry-gap;

@@ -239,19 +239,18 @@ class EasyBlogControllerBlogs extends EasyBlogController
 		// Default redirect url
 		$return = 'index.php?option=com_easyblog&view=blogs';
 
-		// Only process the first record
-		$id = (int) $ids[0];
+		foreach ($ids as $id) {
+			$post = EB::post($id);
 
-		$post = EB::post($id);
+			$task = $this->getTask();
 
-		$task = $this->getTask();
-
-		if ($post->frontpage) {
-			$post->removeFrontpage();
-			$message = JText::sprintf('COM_EASYBLOG_BLOGS_REMOVED_FROM_FRONTPAGE_SUCCESS', $blog->title);
-		} else {
-			$post->setFrontpage();
-			$message = JText::sprintf('COM_EASYBLOG_BLOGS_SET_AS_FRONTPAGE_SUCCESS', $blog->title);
+			if ($post->frontpage) {
+				$post->removeFrontpage();
+				$message = JText::sprintf('COM_EASYBLOG_BLOGS_REMOVED_FROM_FRONTPAGE_SUCCESS', $blog->title);
+			} else {
+				$post->setFrontpage();
+				$message = JText::sprintf('COM_EASYBLOG_BLOGS_SET_AS_FRONTPAGE_SUCCESS', $blog->title);
+			}
 		}
 
 		$this->info->set($message, 'success');
@@ -764,7 +763,42 @@ class EasyBlogControllerBlogs extends EasyBlogController
 		return $this->app->redirect('index.php?option=com_easyblog&view=blogs');
 	}
 
+	/**
+	 * reset post hits
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @return
+	 */
+	public function resetHits()
+	{
+		// Check for request forgeries
+		EB::checkToken();
 
+		// @task: Check for acl rules.
+		$this->checkAccess('blog');
 
+		// Get any return urls
+		$return = $this->input->get('return', '', 'default');
+		$return = $return ? base64_decode($return) : 'index.php?option=com_easyblog&view=blogs';
 
+		// Get the list of blog ids
+		$ids = $this->input->get('cid', array(), 'array');
+
+		if (!$ids) {
+			$this->info->set('COM_EASYBLOG_INVALID_BLOG_ID', 'error');
+
+			return $this->app->redirect($return);
+		}
+
+		foreach ($ids as $id) {
+			$post = EB::post($id);
+
+			$post->resetHits();
+		}
+
+		$this->info->set('COM_EASYBLOG_BLOGS_RESET_HITS_SUCCESSFULLY', 'success');
+
+		return $this->app->redirect('index.php?option=com_easyblog&view=blogs');
+	}	
 }

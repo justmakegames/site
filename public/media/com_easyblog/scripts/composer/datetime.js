@@ -12,6 +12,7 @@ EasyBlog.require()
 EasyBlog.Controller("Post.Datetime", {
     defaultOptions: {
         format: "Do MMM, YYYY HH:mm",
+        language: "en",
         originalValue: "",
 
         "{preview}": "[data-preview]",
@@ -23,9 +24,12 @@ EasyBlog.Controller("Post.Datetime", {
 
     return {
         init: function() {
+
+            // For the language to load, we also need to load the language js file which is done by the implementer.
             self.calendar()._datetimepicker({
                 component: "eb",
-                format: opts.format
+                format: opts.format,
+                language: opts.language
             });
 
             self.datetimepicker = self.calendar().data("DateTimePicker");
@@ -39,10 +43,23 @@ EasyBlog.Controller("Post.Datetime", {
         },
 
         "{calendar} dp.change": function(el, ev) {
+
+            // Preview needs to be in their language respectively
             self.preview().text(ev.date.format(opts.format));
 
+            // Set the language to english so we can get an english version of the date
+            ev.date.lang('en');
+
+            var val = ev.date.format("YYYY-MM-DD HH:mm:ss");
+
+
             // Set the datetime as SQL format
-            self.datetime().val(ev.date.format("YYYY-MM-DD HH:mm:ss"));
+            self.datetime().val(val);
+
+            // Reset back the languge
+            ev.date.lang(opts.language);
+
+            var val = ev.date.format("YYYY-MM-DD HH:mm:ss");
 
             self.toggleCancelButton();
         },

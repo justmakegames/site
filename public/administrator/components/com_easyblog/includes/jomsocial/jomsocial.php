@@ -42,6 +42,12 @@ class EasyBlogJomSocial extends EasyBlog
 
 		$file = JPATH_ROOT . '/components/com_community/libraries/messaging.php';
 
+		if (!JFile::exists($file)) {
+			return;
+		}
+
+		require_once($file);
+
 		CMessaging::load();
 
 		$template = EB::template();

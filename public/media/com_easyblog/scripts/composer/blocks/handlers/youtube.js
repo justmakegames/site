@@ -82,7 +82,7 @@ EasyBlog.module("composer/blocks/handlers/youtube", function($) {
                 currentBlock = block;
 
                 // Populate fieldset
-                self.populate(block);
+                self.populate(currentBlock);
             },
 
             deactivate: function(block) {
@@ -125,6 +125,7 @@ EasyBlog.module("composer/blocks/handlers/youtube", function($) {
             },
 
             populate: function(block)  {
+                
                 // When populating the fieldset for a block, reset the values
                 var data = blocks.data(block);
 
@@ -133,6 +134,7 @@ EasyBlog.module("composer/blocks/handlers/youtube", function($) {
             },
 
             updateFieldset: function(block) {
+                
                 var data = blocks.data(block);
 
                 // Update the url
@@ -381,6 +383,11 @@ EasyBlog.module("composer/blocks/handlers/youtube", function($) {
                 var enabled = el.val() == 1 ? true : false;
 
                 var data = blocks.data(currentBlock);
+
+                if (!data.url) {
+                    return;
+                }
+
                 data.fluid = enabled;
 
                 self.setWrapperLayout(currentBlock);
@@ -400,6 +407,10 @@ EasyBlog.module("composer/blocks/handlers/youtube", function($) {
                 var data = blocks.data(currentBlock);
                 var width = el.val();
 
+                if (!data.url) {
+                    return;
+                }
+                
                 // If there's no value at all, don't resize the video's width
                 if (width == 0) {
                     return;

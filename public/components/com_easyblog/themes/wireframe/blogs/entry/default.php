@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
         <div class="eb-entry-tools row-table">
             <div class="col-cell">
-                <?php echo $this->output('site/blogs/entry/tools'); ?>
+                <?php echo $this->output('site/blogs/entry/tools', array('return' => $post->getPermalink(false))); ?>
             </div>
 
             <?php if (!$preview) { ?>
@@ -213,7 +213,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <?php foreach ($relatedPosts as $related) { ?>
             <div>
                 <?php if ($this->entryParams->get('post_related_image', true)) { ?>
-                <a href="<?php echo $related->getPermalink();?>" class="eb-related-thumb" style="background-image: url('<?php echo $related->postimage;?>');"></a>
+                <a href="<?php echo $related->getPermalink();?>" class="eb-related-thumb" style="background-image: url('<?php echo $related->postimage;?>') !important;"></a>
                 <?php } ?>
 
                 <h3 class="eb-related-title">

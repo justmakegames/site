@@ -28,45 +28,54 @@ EB::init('module');
 // Attach modules stylesheet
 EB::stylesheet('module')->attach();
 
-$categories	= modEasyBlogCategoriesHelper::getCategories($params);
-$app = JFactory::getApplication();
+$layoutType = $params->get('layouttype');
+$sort = $params->get('order', 'latest');
+$count = (INT)trim($params->get('count', 0));
+$hideEmptyPost = $params->get('hideemptypost', '0');
+$onlyTheseCatIds = $params->get('catid', '');
 
-$view = $app->input->get('view');
-$layout = $app->input->get('layout');
-$selected = '';
+$filterCats = array();
 
-if ($view=='categories' && $layout=='listings') {
-	$selected = $app->input->get('id');
+if (!empty($onlyTheseCatIds)) {
+    $filterStr = '';
+    $filterCats = explode(',', $onlyTheseCatIds);
 }
 
-$layoutType = $params->get('layouttype');
+// Get all the parent categories
+$model = EB::model('Category');
+$results = $model->getCategories($sort, $hideEmptyPost, $count, $filterCats, false);
 
 // For toggle-able layout
 if ($layoutType == 'toggle') {
-    $model = EB::model('Category');
 
-    $onlyTheseCatIds = $params->get('catid', '');
-    $filterCats = array();
-    
-    if (!empty($onlyTheseCatIds)) {
-        $filterStr = '';
-        $filterCats = explode(',', $onlyTheseCatIds);
+    // // Now we get the child categories for each parent
+    $top_level = 1;
+    $categories = array();
+    modEasyBlogCategoriesHelper::getChildCategories($results, $params, $categories, ++$top_level);
+
+    require(JModuleHelper::getLayoutPath('mod_easyblogcategories'));
+
+} else {
+
+    $app = JFactory::getApplication();
+    $top_level = 1;
+
+    $view = $app->input->get('view');
+    $layout = $app->input->get('layout');
+    $selected = '';
+
+    if ($view=='categories' && $layout=='listings') {
+        $selected = $app->input->get('id');
     }
 
-    $sort = $params->get('order', 'latest');
-    $count = (INT)trim($params->get('count', 0));
-    $hideEmptyPost = $params->get('hideemptypost', '0');
+    $categories = array();
 
-    // Get all the parent categories
-    $parentCategories = $model->getCategories($sort, $hideEmptyPost, $count, $filterCats, false);
+    // Get nested child category
+    modEasyBlogCategoriesHelper::getChildCategories($results, $params, $categories, ++$top_level);
 
-    // Now we get the child categories for each parent
-    foreach ($parentCategories as $category) {
-        $category->childs = $model->getChildCategories($category->id, true);
-    }
-    
-}    
+    require(JModuleHelper::getLayoutPath('mod_easyblogcategories', 'nested'));
+}
 
-require(JModuleHelper::getLayoutPath('mod_easyblogcategories'));
+
 
 

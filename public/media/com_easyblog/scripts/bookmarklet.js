@@ -30,9 +30,10 @@ EasyBlog.module('bookmarklet', function($) {
 		var parent = node.parentNode;
 		var config = document.createElement('script');
 		var script = document.createElement('script');
+
 		var btnOptions = {
 			"type": "in/share",
-			"url": options.url,
+			"data-url": options.url,
 			"data-counter": options.size == 'large' ? 'top' : 'right'
 		};
 

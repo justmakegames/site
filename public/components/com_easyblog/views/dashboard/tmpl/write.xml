@@ -6,4 +6,10 @@
 		</message>
 		<view>dashboard</view>
 	</layout>
+
+    <fields name="request">
+        <fieldset name="request" addfieldpath="/administrator/components/com_easyblog/elements">
+            <field name="category" type="categories" default="0" class="btn-group" label="COM_EASYBLOG_ELEMENTS_SELECT_A_CATEGORY" description="COM_EASYBLOG_ELEMENTS_SELECT_A_CATEGORY_DESC" />
+        </fieldset>
+    </fields>
 </metadata>

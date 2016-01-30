@@ -36,7 +36,6 @@ EasyBlog.ready(function($){
     });
 
     window.insertCategory = function(id, title) {
-
         categoryId.val(id);
         categoryTitle.val(title);
         SqueezeBox.close();

@@ -322,6 +322,7 @@ class EBR extends EasyBlog
 		$id = isset($query['id']) ? $query['id'] : null;
         $sort = isset($query['sort']) ? $query['sort'] : null;
         $lang = isset($query['lang']) ? $query['lang'] : null;
+        $search = isset($query['search']) ? $query['search'] : null;
 
         if ($lang) {
             // we knwo the lang that we passed in is the short tag. we need to get the full tag. e.g. en-GB
@@ -439,6 +440,11 @@ class EBR extends EasyBlog
                 if ($sort) {
                     $dropSegment = false;
                 }
+
+                // Some query strings may have "search" in them.
+                if ($search) {
+                    $dropSegment = false;
+                }                
 			}
 
 			// If we still cannot find any menu, use the default menu :(
@@ -686,6 +692,14 @@ class EBR extends EasyBlog
 			$router = new JRouterSite(array('mode'=>JROUTER_MODE_SEF));
 
 			$url = str_replace('/administrator', '/', EBR::_($oriURL, $xhtml, null, $dashboard, $isCanonical));
+
+            if (strpos($url, 'option=com_easyblog') !== false) {
+                // this mean someting is screwing up the jrouter. Lets use manual way to build.
+                // we need to use $url because this url already has the Itemid that was added by EBR::_();
+                $url = $router->build($url);
+            }
+
+
 			$url = rtrim(JURI::root(), '/') . '/' . ltrim(str_replace('/administrator/', '/', $url), '/');
 
 			$container = explode('/', $url);
@@ -721,7 +735,7 @@ class EBR extends EasyBlog
 	{
         $a = array('Ä', 'ä', 'Ö', 'ö', 'Ü', 'ü', 'ß' , 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð', 'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'ÿ', 'Ā', 'ā', 'Ă', 'ă', 'Ą', 'ą', 'Ć', 'ć', 'Ĉ', 'ĉ', 'Ċ', 'ċ', 'Č', 'č', 'Ď', 'ď', 'Đ', 'đ', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė', 'Ę', 'ę', 'Ě', 'ě', 'Ĝ', 'ĝ', 'Ğ', 'ğ', 'Ġ', 'ġ', 'Ģ', 'ģ', 'Ĥ', 'ĥ', 'Ħ', 'ħ', 'Ĩ', 'ĩ', 'Ī', 'ī', 'Ĭ', 'ĭ', 'Į', 'į', 'İ', 'ı', 'Ĳ', 'ĳ', 'Ĵ', 'ĵ', 'Ķ', 'ķ', 'Ĺ', 'ĺ', 'Ļ', 'ļ', 'Ľ', 'ľ', 'Ŀ', 'ŀ', 'Ł', 'ł', 'Ń', 'ń', 'Ņ', 'ņ', 'Ň', 'ň', 'ŉ', 'Ō', 'ō', 'Ŏ', 'ŏ', 'Ő', 'ő', 'Œ', 'œ', 'Ŕ', 'ŕ', 'Ŗ', 'ŗ', 'Ř', 'ř', 'Ś', 'ś', 'Ŝ', 'ŝ', 'Ş', 'ş', 'Š', 'š', 'Ţ', 'ţ', 'Ť', 'ť', 'Ŧ', 'ŧ', 'Ũ', 'ũ', 'Ū', 'ū', 'Ŭ', 'ŭ', 'Ů', 'ů', 'Ű', 'ű', 'Ų', 'ų', 'Ŵ', 'ŵ', 'Ŷ', 'ŷ', 'Ÿ', 'Ź', 'ź', 'Ż', 'ż', 'Ž', 'ž', 'ſ', 'ƒ', 'Ơ', 'ơ', 'Ư', 'ư', 'Ǎ', 'ǎ', 'Ǐ', 'ǐ', 'Ǒ', 'ǒ', 'Ǔ', 'ǔ', 'Ǖ', 'ǖ', 'Ǘ', 'ǘ', 'Ǚ', 'ǚ', 'Ǜ', 'ǜ', 'Ǻ', 'ǻ', 'Ǽ', 'ǽ', 'Ǿ', 'ǿ');
         $b = array('AE', 'ae', 'OE', 'oe', 'UE', 'ue', 'ss', 'A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'OE', 'oe', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o');
-        
+
         return str_replace($a, $b, $string);
 	}
 
@@ -1169,7 +1183,11 @@ class EBR extends EasyBlog
 			return $val;
 		}
 
-		JFactory::getLanguage()->load('com_easyblog', JPATH_ROOT);
+        // Get default site language
+        $langParams = JComponentHelper::getParams('com_languages');
+        $defaultLang = $langParams->get('site');
+
+		JFactory::getLanguage()->load('com_easyblog', JPATH_ROOT, $defaultLang);
 		$new = JText::_('COM_EASYBLOG_SEF_' . strtoupper($val));
 
 		// If translation fails, we try to use the original value instead.

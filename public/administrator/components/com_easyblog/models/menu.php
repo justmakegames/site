@@ -114,6 +114,52 @@ class EasyBlogModelMenu extends EasyBlogAdminModel
 		return $param;
 	}
 
+	public function getDefaultEntryXMLParams()
+	{
+		static $_cache = null;
+
+		if (! $_cache) {
+
+			$manifest = JPATH_ROOT . '/components/com_easyblog/views/entry/tmpl/default.xml';
+			$fieldsets = EB::form()->getManifest($manifest);
+
+			$obj = new stdClass();
+
+			foreach($fieldsets as $fieldset) {
+				foreach($fieldset->fields as $field) {
+					$obj->{$field->attributes->name} = $field->attributes->default;
+				}
+			}
+
+			$_cache = new JRegistry($obj);
+		}
+
+		return $_cache;
+	}
+
+	public function getDefaultXMLParams()
+	{
+		static $_cache = null;
+
+		if (! $_cache) {
+
+			$manifest = JPATH_ROOT . '/components/com_easyblog/views/latest/tmpl/default.xml';
+			$fieldsets = EB::form()->getManifest($manifest);
+
+			$obj = new stdClass();
+
+			foreach($fieldsets as $fieldset) {
+				foreach($fieldset->fields as $field) {
+					$obj->{$field->attributes->name} = $field->attributes->default;
+				}
+			}
+
+			$_cache = new JRegistry($obj);
+		}
+
+		return $_cache;
+	}
+
 	/**
 	 * Custom menu params as this method will intelligently determine which menu params the menu should be inheriting from
 	 *

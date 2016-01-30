@@ -142,7 +142,17 @@ class EasyBlogViewBlogger extends EasyBlogView
 				$author->tags = $tags;
 
 				// Get categories that are used by this author
-				$author->categories	= $bloggerModel->getCategoryUsed($row->id);
+				$cats = $bloggerModel->getCategoryUsed($row->id);
+				$author->categories = array();
+
+				if ($cats) {
+					foreach ($cats as $cat) {
+						$category = EB::table('Category');
+						$category->bind($cat);
+
+						$author->categories[] = $category;
+					}
+				}
 
 				// Get the twitter link for this author.
 				$author->twitter = EB::socialshare()->getLink('twitter', $row->id);

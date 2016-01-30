@@ -44,13 +44,17 @@ class EasyBlogMaintenanceScriptMigrateDraftToPost extends EasyBlogMaintenanceScr
         $db->setQuery($query);
         $drafts = $db->loadObjectList();
 
+        // Load the user. We know if this script is executed, the actor must be an admin of the site.
+        $user = JFactory::getUser();
+
         if ($drafts) {
             foreach($drafts as $draft) {
 
                 // lets gather the data before we pass to post lib
                 $data = array();
 
-                $data['created_by'] = $draft->created_by;
+                // there could be instances where the created_by is 0
+                $data['created_by'] = ($draft->created_by) ? $draft->created_by : $user->id;
                 $data['created'] = $draft->created;
                 $data['modified'] = $draft->modified;
                 $data['title'] = $draft->title;

@@ -226,6 +226,12 @@ EasyBlog.module("composer/tags", function($) {
                     selection.activate(item);
                 },
 
+                "{item} mouseout": function(item) {
+
+                    selection.deactivate();
+
+                },
+
                 "{item} click": function(item) {
 
                     selection.use(item);

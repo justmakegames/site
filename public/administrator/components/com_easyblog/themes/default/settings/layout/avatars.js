@@ -1,7 +1,13 @@
 
 EasyBlog.ready(function($){
 
-    $('[data-avatar-source]').on('change', function(){
+    var avatarSource = $('[data-avatar-source]');
+
+    if (avatarSource.val() == 'phpbb') {
+        $('[data-phpbb-path]').removeClass('hidden');
+    }
+
+    avatarSource.on('change', function(){
         var source = $(this).val();
 
         if (source == 'phpbb') {

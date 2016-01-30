@@ -48,8 +48,12 @@ $disabled = $params->get('enableratings') ? false : true;
 $photoLayout = $params->get('photo_layout');
 $photoSize = $params->get('photo_size', 'medium');
 
-$photoAlignment = $params->get('alignment', 'center');
-$photoAlignment = ($photoAlignment == 'default') ? 'center' : $photoAlignment;
+$photoAlignment = isset($photoLayout->alignment) ? $photoLayout->alignment : 'center';
+
+// If the full width photo is enabled, we strict the alignment to use center
+if (isset($photoLayout->full)) {
+	$photoAlignment = 'center';
+}
 
 // Filtering posts by blog author
 if ($filterType == 1 || $filterType == 'author') {
@@ -209,5 +213,7 @@ if ($filterType == 5 || $filterType == 'entry') {
 if ($filterType == 0 || $filterType == 'recent') {
 	$posts = modLatestBlogsHelper::getLatestPost($params);
 }
+
+modLatestBlogsHelper::formatPost($posts, $params);
 
 require(JModuleHelper::getLayoutPath('mod_easybloglatestblogs'));

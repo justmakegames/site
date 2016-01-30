@@ -125,12 +125,13 @@ class EasyBlogFeeds extends EasyBlog
 
 	    // Trim extra spacing in url so that the connector can reach the target url correctly.
 	    $feedUrl = trim($feed->url);
-	    
+
 		$connector->addUrl($feedUrl);
 		$connector->execute();
 
 		// Get the contents
 	    $contents = $connector->getResult($feedUrl);
+
 
 	    // If contents is empty, we know something failed
 	    if (!$contents) {
@@ -171,6 +172,15 @@ class EasyBlogFeeds extends EasyBlog
 
 			// Get the item's unique id
 			$uid = @$item->get_id();
+
+			//remove http:// or https://
+			if (strpos($uid, 'https://') !== false) {
+				$uid = ltrim($uid, 'https://');
+			}
+
+			if (strpos($uid, 'http://') !== false) {
+				$uid = ltrim($uid, 'http://');
+			}
 
 			// If item already exists, skip this
 			if ($model->isFeedItemImported($feed->id, $uid)) {
@@ -246,6 +256,14 @@ class EasyBlogFeeds extends EasyBlog
 	 */
 	public function cron()
 	{
+		// Get default site language
+        $langParams = JComponentHelper::getParams('com_languages');
+        $defaultLang = $langParams->get('site');
+        
+        // Load the language
+        $lang = JFactory::getLanguage(); 
+        $lang->load('com_easyblog', JPATH_ROOT, $defaultLang);
+
 		if (!class_exists('DomDocument')) {
 			return EB::exception('COM_EASYBLOG_FEEDS_DOMDOCUMENT_MISSING', EASYBLOG_MSG_ERROR);
 		}

@@ -736,31 +736,31 @@ class EasyBlogModelBlog extends EasyBlogAdminModel
 			$queryPagination = true;
 		}
 
-		if($queryPagination)
-		{
-			$query	= 'SELECT COUNT(1) FROM `#__easyblog_post` AS a';
+		// if($queryPagination)
+		// {
+		// 	$query	= 'SELECT COUNT(1) FROM `#__easyblog_post` AS a';
 
-			if( ($type == 'blogger' || $type == 'teamblog') && $statType == 'tag')
-			{
-				$query  .= ' LEFT JOIN `#__easyblog_post_tag` AS t ON a.id = t.post_id';
-			}
+		// 	if( ($type == 'blogger' || $type == 'teamblog') && $statType == 'tag')
+		// 	{
+		// 		$query  .= ' LEFT JOIN `#__easyblog_post_tag` AS t ON a.id = t.post_id';
+		// 	}
 
-			$query	.= $queryWhere;
-			$query	.= $contributeSQL;
-			$query	.= $queryExclude;
-			$query	.= $queryInclude;
+		// 	$query	.= $queryWhere;
+		// 	$query	.= $contributeSQL;
+		// 	$query	.= $queryExclude;
+		// 	$query	.= $queryInclude;
 
-			// echo $query;exit;
+		// 	// echo $query;exit;
 
-			$db->setQuery( $query );
-			$this->_total	= $db->loadResult();
-
-
-			$this->_pagination	= EB::pagination( $this->_total , $limitstart , $limit );
-		}
+		// 	$db->setQuery( $query );
+		// 	$this->_total	= $db->loadResult();
 
 
-		$query	= 'SELECT a.`id` AS key1, a.*';
+		// 	$this->_pagination	= EB::pagination( $this->_total , $limitstart , $limit );
+		// }
+
+
+		$query	= 'SELECT SQL_CALC_FOUND_ROWS a.`id` AS key1, a.*';
 		$query 	.= ', ifnull(f.`id`, 0) as `featured`';
 
 		if ($sort == 'random') {
@@ -805,6 +805,17 @@ class EasyBlogModelBlog extends EasyBlogAdminModel
 		}
 
 		$result	= $db->loadObjectList();
+
+		if($queryPagination) {
+			// now execute found_row() to get the number of records found.
+			$cntQuery = 'select FOUND_ROWS()';
+			$db->setQuery( $cntQuery );
+			$this->_total	= $db->loadResult();
+
+			$this->_pagination	= EB::pagination( $this->_total , $limitstart , $limit );
+		}
+
+
 
 		return $result;
 	}
@@ -1375,7 +1386,6 @@ class EasyBlogModelBlog extends EasyBlogAdminModel
 		$teamId = $post->getTeamAssociation();
 		$author = $post->getAuthor();
 
-
 		// // If there is an active menu for EasyBlog, check if there's any filtering by categories
 		// if ($active) {
 
@@ -1431,6 +1441,12 @@ class EasyBlogModelBlog extends EasyBlogAdminModel
 			// Filter the next / previous by author
 			if ($navigationType == 'author') {
 				$query[] = 'AND a.' . $db->qn('created_by') . '=' . $db->Quote($author->id);
+				$query[] = 'AND a.' . $db->qn('source_type') . '=' . $db->Quote(EASYBLOG_POST_SOURCE_SITEWIDE);
+			}
+
+			// Filter the next / previous post items from category
+			if ($navigationType == 'category') {
+				$query[] = 'AND a.' . $db->qn('category_id') . '=' . $db->Quote($post->category_id);
 				$query[] = 'AND a.' . $db->qn('source_type') . '=' . $db->Quote(EASYBLOG_POST_SOURCE_SITEWIDE);
 			}
 

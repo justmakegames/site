@@ -44,6 +44,7 @@ class EasyBlogModelLanguages extends EasyBlogAdminModel
 	{
 		$db 	= EB::db();
 		$query 	= 'DELETE FROM ' . $db->quoteName('#__easyblog_languages');
+		$query .= ' WHERE ' . $db->quoteName('state') . ' = ' . EBLOG_LANGUAGES_NOT_INSTALLED;
 
 		$db->setQuery($query);
 
@@ -124,7 +125,7 @@ class EasyBlogModelLanguages extends EasyBlogAdminModel
 
 			// Then check if the language needs to be updated. If it does, update the ->state to EBLOG_LANGUAGES_NEEDS_UPDATING
 			// We need to check if the language updated time is greater than the local updated time
-			if ($exists && $table->state) {
+			if ($exists && $table->state == EBLOG_LANGUAGES_INSTALLED) {
 				$languageTime 		= strtotime($language->updated);
 				$localLanguageTime	= strtotime($table->updated);
 

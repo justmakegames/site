@@ -772,7 +772,7 @@ class EasyBlogEasySocial extends EasyBlog
 	 * @param	string
 	 * @return
 	 */
-	public function buildPrivacyQuery( $alias = 'a' )
+	public function buildPrivacyQuery($alias = 'a', $includeAnd = true)
 	{
 		if (!$this->exists()) {
 			return;
@@ -782,37 +782,39 @@ class EasyBlogEasySocial extends EasyBlog
 			return;
 		}
 
-		$db		= EasyBlogHelper::db();
-		$my		= JFactory::getUser();
-		$config	= EasyBlogHelper::getConfig();
+		$db = EB::db();
+		$my = JFactory::getUser();
+		$config	= EB::config();
 
+		$my = JFactory::getUser();
+		$esFriends = Foundry::model( 'Friends' );
 
-		$my			= JFactory::getUser();
-		$esFriends	= Foundry::model( 'Friends' );
+		$friends = $esFriends->getFriends( $my->id, array( 'idonly' => true ) );
 
-		$friends	= $esFriends->getFriends( $my->id, array( 'idonly' => true ) );
-
-		if( $friends )
-		{
+		if ($friends) {
 			array_push($friends, $my->id);
 		}
 
+		// Set the alias for this query
 		$alias = $alias . '.';
-		// Insert query here.
-		$queryWhere	= ' AND (';
+
+		// Determines if we should prepend the and in front of the query
+		$queryWhere = '(';
+
+		if ($includeAnd) {
+			$queryWhere	= ' AND (';	
+		}
+		
 		$queryWhere	.= ' ( ' . $alias . '`access`= 0 ) OR';
 		$queryWhere	.= ' ( (' . $alias . '`access` = 10) AND (' . $db->Quote( $my->id ) . ' > 0 ) ) OR';
 
-		if( empty( $friends ) )
-		{
+		if (!$friends) {
 			$queryWhere	.= ' ( ( ' . $alias . '`access` = 30 ) AND ( 1 = 2 ) ) OR';
-		}
-		else
-		{
-			$queryWhere	.= ' ( ( ' . $alias . '`access` = 30) AND ( ' . $alias . $db->nameQuote( 'created_by' ) . ' IN (' . implode( ',' , $friends ) . ') ) ) OR';
+		} else {
+			$queryWhere	.= ' ( ( ' . $alias . '`access` = 30) AND ( ' . $alias . $db->qn( 'created_by' ) . ' IN (' . implode( ',' , $friends ) . ') ) ) OR';
 		}
 
-		$queryWhere	.= ' ( (' . $alias . '`access` = 40) AND ( '. $alias . $db->nameQuote( 'created_by' ) .'=' . $my->id . ') )';
+		$queryWhere	.= ' ( (' . $alias . '`access` = 40) AND ( '. $alias . $db->qn( 'created_by' ) .'=' . $my->id . ') )';
 		$queryWhere	.= ' )';
 
 		return $queryWhere;

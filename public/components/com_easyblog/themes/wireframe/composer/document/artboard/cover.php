@@ -31,6 +31,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         data-eb-mm-start-uri="_cG9zdA--"
                         data-eb-mm-filter="image"
                         data-eb-mm-browse-place="local"
+                        data-eb-mm-browse-type="cover"
                     >
                         <i class="fa fa-photo"></i> <?php echo JText::_('COM_EASYBLOG_BLOCKS_BROWSE_IMAGE_FILE'); ?>
                     </button>

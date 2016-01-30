@@ -99,7 +99,10 @@ class EasyBlogViewEntry extends EasyBlogView
 
 		// Check if the user subscribed to this post.
 		$subscription = EB::table('Subscriptions');
-		$subscription->load(array('uid' => $post->id, 'utype' => 'entry', 'user_id' => $this->my->id));
+
+		if ($this->my->id) {
+			$subscription->load(array('uid' => $post->id, 'utype' => 'entry', 'user_id' => $this->my->id));
+		}
 
 		$theme = EB::template();
 
@@ -121,7 +124,7 @@ class EasyBlogViewEntry extends EasyBlogView
 
 					// Try to get the first image in the post
 					if (!$relatedPost->hasImage()) {
-						$content = $relatedPost->getContent();
+						$content = $relatedPost->getContent(EASYBLOG_VIEW_ENTRY);
 
 						$image = EB::string()->getImage($content);
 
@@ -417,19 +420,11 @@ class EasyBlogViewEntry extends EasyBlogView
 	 */
 	public function prepareNavigation(EasyBlogPost &$post)
 	{
-		// If it's not enabled, skip this
-		if (!$this->config->get('layout_navigation')) {
-			return;
-		}
+		// Get the menu params associated with this post
+		$params = $post->getMenuParams();
 
-		// Determines if the blog is associated with any teams
-		$navigationType = 'team';
-
-		// This should change to the menu params
-		if ($this->theme->params->get('layout_navigation_restrict_author')) {
-			$navigationType = 'author';
-		}
-
+		$navigationType = $params->get('post_navigation_type', 'site');
+		
 		$model = EB::model('Blog');
 		$navigation = $model->getPostNavigation($post, $navigationType);
 

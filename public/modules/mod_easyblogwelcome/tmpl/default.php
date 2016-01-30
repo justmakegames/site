@@ -165,6 +165,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<input type="hidden" name="task" value="user.login" />
 		<input type="hidden" name="return" value="<?php echo $return; ?>" />
 		<?php echo JHTML::_('form.token'); ?>
+
+        <?php if ($config->get('integrations_jfbconnect_login')) { ?>
+        	{JFBCLogin}
+        <?php } ?>
 	</form>
 	<?php } ?>
 </div>

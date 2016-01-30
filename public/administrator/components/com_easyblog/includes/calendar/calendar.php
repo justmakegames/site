@@ -34,6 +34,15 @@ class EasyBlogCalendar
 
 		$calendar = new stdClass();
 
+		$config = EB::config();
+
+		$weekStart = '+0 day';
+
+		// We need to adjust the start day according to the start of week day.
+		if ($config->get('main_start_of_week') == 'monday') {
+			$weekStart = '-1 day';
+		}
+
 		// Here we generate the first day of the month
 		$calendar->first_day = mktime(0, 0, 0, $date->month, 1, $date->year);
 
@@ -41,7 +50,7 @@ class EasyBlogCalendar
 		$calendar->title = date('F', $calendar->first_day);
 
 		// Here we find out what day of the week the first day of the month falls on
-		$calendar->day_of_week = date('D', $calendar->first_day) ;
+		$calendar->day_of_week = date('D', strtotime($weekStart, $calendar->first_day));
 
 		// Previous month
 		$calendar->previous	= strtotime('-1 month', $calendar->first_day);

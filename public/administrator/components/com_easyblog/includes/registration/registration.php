@@ -51,48 +51,50 @@ class EasyBlogRegistration
 
 	public function addUser($values, $source = 'subscribe')
 	{
-		$userComponent	= 'com_users';
-		$config 		= EB::config();
-		$usersConfig	= JComponentHelper::getParams('com_users');
+		$userComponent = 'com_users';
+		$config = EB::config();
+		$usersConfig = JComponentHelper::getParams('com_users');
 
 
-		$canRegister    = ($source == 'comment') ?   $config->get('comment_registeroncomment', 0) :  $config->get('main_registeronsubscribe', 0);
-		if (($usersConfig->get('allowUserRegistration') == '0') || (!$canRegister))
-		{
+		$canRegister = ($source == 'comment') ?   $config->get('comment_registeroncomment', 0) :  $config->get('main_registeronsubscribe', 0);
+
+		if (($usersConfig->get('allowUserRegistration') == '0') || (!$canRegister)) {
 			return JText::_('COM_EASYBLOG_REGISTRATION_DISABLED');
 		}
 
-		$username	= $values['username'];
-		$email 		= $values['email'];
-		$fullname 	= $values['name'];
+		$username = $values['username'];
+		$email = $values['email'];
+		$fullname = $values['name'];
+		$password = $values['password'];
 
+		$mainframe = JFactory::getApplication();
+		$jConfig = EB::getJConfig();
+		$authorize = JFactory::getACL();
+		$document = JFactory::getDocument();
 
-		$mainframe  = JFactory::getApplication();
-		$jConfig	= EasyBlogHelper::getJConfig();
-		$authorize	= JFactory::getACL();
-		$document	= JFactory::getDocument();
+		$user = clone(JFactory::getUser());
+		
+		if (empty($password)) {
+			$password = $username . '123';
+		}
 
-		$user 	      = clone(JFactory::getUser());
-		$pwdClear	= $username . '123';
-
-		$newUsertype = $usersConfig->get( 'new_usertype', 2 );
+		$newUsertype = $usersConfig->get('new_usertype', 2);
 		$userArr = array(
 						'username'	=> $username,
 						'name'		=> $fullname,
 						'email'		=> $email,
-						'password'	=> $pwdClear,
-						'password2'	=> $pwdClear,
+						'password'	=> $password,
+						'password2'	=> $password,
 						'groups'	=> array( $newUsertype ),
 						'gid'       => '0',
 						'id'        => '0'
 					);
 
-		if (!$user->bind( $userArr, 'usertype' ))
-		{
+		if (!$user->bind($userArr, 'usertype')) {
 			return $user->getError();
 		}
 
-		$date 	= EB::date();
+		$date = EB::date();
 		$user->set('registerDate', $date->toSql());
 
 		//check if user require to activate the acct
@@ -105,12 +107,10 @@ class EasyBlogRegistration
 			$user->set('block', '1');
 		}
 
-
 		JPluginHelper::importPlugin('user');
 		$user->save();
 
 		// Send registration confirmation mail
-		$password = $pwdClear;
 		$password = preg_replace('/[\x00-\x1F\x7F]/', '', $password); //Disallow control chars in the email
 
 		//load com_user language file
@@ -118,9 +118,9 @@ class EasyBlogRegistration
 		$lang->load('com_users');
 
 		// Get the user id.
-		$userId 	= $user->id;
+		$userId = $user->id;
 
-		$this->sendMail( $user , $password );
+		$this->sendMail($user , $password);
 
 		return $userId;
 	}
@@ -190,7 +190,7 @@ class EasyBlogRegistration
 
 		if( EasyBlogHelper::getJoomlaVersion() >= '3.0' )
 		{
-			$mail 	= JMail::getInstance();
+			$mail = JFactory::getMailer();
 			$mail->sendMail($mailfrom, $fromname, $email, $subject, $message, true);
 		}
 		else
@@ -213,8 +213,8 @@ class EasyBlogRegistration
 
 				if( EasyBlogHelper::getJoomlaVersion() >= '3.0' )
 				{
-					$mail 	= JMail::getInstance();
-					$mail->sendMail($mailfrom, $fromname, $row->email, $subject2, $message2 , true );
+					$mail = JFactory::getMailer();
+					$mail->sendMail($mailfrom, $fromname, $row->email, $subject2, $message2, true);
 				}
 				else
 				{

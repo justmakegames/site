@@ -414,7 +414,14 @@ class EasyBlogTableProfile extends EasyBlogTable
 
 			EB::loadLanguages();
 
-			$biography = $raw ? $this->biography : nl2br($this->biography);
+			$biography = $this->biography;
+
+			// We should only add newlines if the editor is wysiwyg editor
+			$config = EB::config();
+
+			if (!$config->get('layout_dashboard_biography_editor') && !$raw) {
+				$biography = nl2br($biography);
+			}
 
 			if (!$biography) {
 				$biography = JText::sprintf('COM_EASYBLOG_BIOGRAPHY_NOT_SET', $this->getName());

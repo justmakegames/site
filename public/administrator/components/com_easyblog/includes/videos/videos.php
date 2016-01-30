@@ -143,7 +143,7 @@ class EasyBlogVideos extends EasyBlog
 	public function processUploadedVideos($content, $isPlain = false, $findText = '', $result = '')
 	{
 		$cfg = EB::config();
-		
+
 		// Since 3.0 uses a different video format, we need to do some tests here.
 		if ($result) {
 
@@ -199,6 +199,11 @@ class EasyBlogVideos extends EasyBlog
 		}
 
 		$video = json_decode($jsonString);
+
+		// The json string might contain html tag if the decode return null.
+		if ($video == null) {
+			$video = json_decode(strip_tags($jsonString));
+		}
 
 		$search = !empty($findText) ? $findText : $jsonString;
 
@@ -264,7 +269,10 @@ class EasyBlogVideos extends EasyBlog
 
 			if ($type == 'videolink') {
 				$videoObj = json_decode($video);
-    			$videos[] = $this->getProviderEmbedCodes($videoObj->video, $videoObj->width, $videoObj->height);
+				if ($videoObj) {
+					$videos[] = $this->getProviderEmbedCodes($videoObj->video, $videoObj->width, $videoObj->height);
+				}
+
 			}
 
 			if ($type == 'video') {

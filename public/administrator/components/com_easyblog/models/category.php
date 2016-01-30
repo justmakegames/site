@@ -332,7 +332,7 @@ class EasyBlogModelCategory extends EasyBlogAdminModel
 			$query .= ' OR';
 			$query .= ' a.' . $db->quoteName('language') . '=' . $db->Quote('*');
 			$query .= ')';
-		}		
+		}
 
 		if ($isFrontendWrite) {
 			$gid = EB::getUserGids();
@@ -479,7 +479,7 @@ class EasyBlogModelCategory extends EasyBlogAdminModel
 		$db = EB::db();
 
 	    $query = 'SELECT `id`, `title` FROM `#__easyblog_category`';
-	    
+
 	    if ($parentOnly) {
 	    	$query .= ' WHERE `parent_id`=' . $db->Quote(0);
 	    }
@@ -918,6 +918,7 @@ class EasyBlogModelCategory extends EasyBlogAdminModel
 		// sql for category access
 		$catLib = EB::category();
 		$catAccess = $catLib::genCatAccessSQL( 'a.`private`', 'a.`id`');
+		// $catAccess = '';
 
 		// conditions
 		$condQuery = ' WHERE a.' . $db->quoteName('published') . '=' . $db->Quote(EASYBLOG_POST_PUBLISHED);
@@ -947,63 +948,39 @@ class EasyBlogModelCategory extends EasyBlogAdminModel
 		$mainSQL = "";
 
 		// header for main query here.
-		$headSQL	= "SELECT a.*,";
-		$headSQL .= " (select count(1) from `#__easyblog_post_category` as `pcat`";
-
-		$headSQL .= " INNER JOIN `#__easyblog_post` as p on pcat.`post_id` = p.`id` and p.`published` = " . $db->Quote(EASYBLOG_POST_PUBLISHED);
-		$headSQL .= " 	and p.`state` = " . $db->Quote(EASYBLOG_POST_NORMAL);
-
-		if ($isBloggerMode !== false) {
-			$headSQL .= " and p.`created_by` = " . $db->Quote($isBloggerMode);
-		}
-
-		$headSQL .= " 		where pcat.`category_id` IN (select c.`id` from `#__easyblog_category` as c where (c.`id` = a.`id` OR c.`parent_id` = a.`id`))";
-		$headSQL .= " ) as cnt";
+		$headSQL = "select SQL_CALC_FOUND_ROWS a.*, count(pcat.`id`) as `cnt`";
 		$headSQL .= " from `#__easyblog_category` as a";
+		$headSQL .= " 	inner join `#__easyblog_category` as c on a.`lft` <= c.`lft` and a.`rgt` >= c.`rgt`";
+		$headSQL .= " 	left join `#__easyblog_post_category` as `pcat` on c.`id` = pcat.`category_id`";
+		$headSQL .= " 		left join `#__easyblog_post` as p on pcat.`post_id` = p.`id` and p.`published` = '1' and p.`state` = '0'";
+
+		$mainSQL = $headSQL . $condQuery;
 
 		// do not show categories that has empty post.
 		// we need to wrap the main sql so that we can filter by the post count.
 		if ($hideEmptyPost) {
-
-			$mainSQL = "select a.* from (";
-			$mainSQL .= $headSQL . $condQuery;
-			$mainSQL .= ") as a";
-			$mainSQL .= " where a.cnt > 0";
-
-			$totalSQL = "select count(1) FROM (";
-			$totalSQL .= $headSQL . $condQuery;
-			$totalSQL .= ") as a";
-			$totalSQL .= " where a.cnt > 0";
+			$mainSQL .= " GROUP BY a.`id` having (count(pcat.`id`) > 0)";
 
 		} else {
-
-			$mainSQL = $headSQL . $condQuery;
-
-			$totalSQL = "select count(1) FROM `#__easyblog_category` as a";
-			$totalSQL .= $condQuery;
-
-		}
-
-		//run the total query.
-		$db->setQuery($totalSQL);
-		$this->_total = $db->loadResult();
-
-		if (empty($this->_pagination)) {
-			jimport('joomla.html.pagination');
-			$this->_pagination = EB::pagination( $this->_total , $limitstart , $limit );
+			$mainSQL .= " GROUP BY a.`id`";
 		}
 
 		// main query execution.
 		$mainSQL = $mainSQL . $orderBy . $limitSQL;
 		$db->setQuery($mainSQL);
-
-
-		// echo $mainSQL;
-
 		$result	= $db->loadObjectList();
-		if($db->getErrorNum())
-		{
+
+		if ($db->getErrorNum()) {
 			JError::raiseError( 500, $db->stderr());
+		}
+
+		$cntQuery = 'select FOUND_ROWS()';
+		$db->setQuery( $cntQuery );
+		$this->_total	= $db->loadResult();
+
+		if (empty($this->_pagination)) {
+			jimport('joomla.html.pagination');
+			$this->_pagination = EB::pagination( $this->_total , $limitstart , $limit );
 		}
 
 		return $result;

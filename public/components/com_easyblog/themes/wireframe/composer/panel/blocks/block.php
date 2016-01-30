@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <div class="eb-composer-fieldset" data-name="font">
                 <div class="eb-composer-fieldset-header">
-                    <strong><?php echo JText::_('Font'); ?></strong>
+                    <strong><?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCK_TEXT_FONT_HEADER'); ?></strong>
                 </div>
                 <div class="eb-composer-fieldset-content">
                     <?php echo $this->output('site/composer/fields/font'); ?>
@@ -57,14 +57,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <div class="eb-composer-fieldset" data-name="dimensions">
                 <div class="eb-composer-fieldset-header">
-                    <strong><?php echo JText::_('Dimensions'); ?></strong>
+                    <strong><?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCK_TEXT_DIMENSIONS'); ?></strong>
                 </div>
                 <div class="eb-composer-fieldset-content">
                     <div class="eb-composer-field eb-dimensions style-bordered" data-type="dimensions">
                         <?php
                             echo $this->output('site/composer/fields/numslider', array(
                                 'name' => 'width',
-                                'label' => JText::_('Width'),
+                                'label' => JText::_('COM_EASYBLOG_COMPOSER_BLOCK_TEXT_WIDTH'),
                                 'attributes' => 'data-eb-block-dimensions-field',
                                 'container' => 'data-eb-block-dimensions-field-container'
                             ));
@@ -72,7 +72,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php
                             echo $this->output('site/composer/fields/numslider', array(
                                 'name' => 'height',
-                                'label' => JText::_('Height'),
+                                'label' => JText::_('COM_EASYBLOG_COMPOSER_BLOCK_TEXT_HEIGHT'),
                                 'attributes' => 'data-eb-block-dimensions-field',
                                 'container' => 'data-eb-block-dimensions-field-container',
                                 'units' => array(

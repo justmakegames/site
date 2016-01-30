@@ -99,4 +99,36 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
         </div>
     </div>
+    <div class="col-lg-6">
+        <div class="panel">
+            <div class="panel-head">
+                <b><?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_BLOG_SETTINGS');?></b>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label for="page_title" class="col-md-5">
+                        <?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_BLOG_TRUNCATE'); ?>
+
+                        <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_BLOG_TRUNCATE'); ?>"
+                            data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_BLOG_TRUNCATE_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+                    </label>
+
+                    <div class="col-md-7">
+                        <?php echo $this->html('grid.boolean', 'notification_blog_truncate', $this->config->get('notification_blog_truncate')); ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="page_title" class="col-md-5">
+                        <?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_BLOG_TRUNCATE_LIMIT'); ?>
+
+                        <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_BLOG_TRUNCATE_LIMIT'); ?>"
+                           data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_BLOG_TRUNCATE_LIMIT_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+                    </label>
+                    <div class="col-md-7">                      
+                        <input type="text" class="form-control" name="notification_blog_truncate_limit" value="<?php echo $this->config->get('notification_blog_truncate_limit', 300);?>" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
 </div>

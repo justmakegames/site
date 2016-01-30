@@ -181,7 +181,7 @@ EasyBlog.module("composer/blocks/handlers/instagram", function($) {
                 }
 
                 // http://instagram.com/p/xxxx/
-                var regex = /^(?:http(?:s)?:\/\/)?instagram\.com\/p\/(.*)\/$/;
+                var regex = /^(?:http(?:s)?:\/\/)?www\.instagram\.com\/p\/(.*)\/$/;
                 var valid = regex.test(url);
 
                 return valid;

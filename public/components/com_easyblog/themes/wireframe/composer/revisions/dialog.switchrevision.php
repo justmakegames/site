@@ -41,6 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <input type="hidden" name="task" value="posts.useRevision" />
             <input type="hidden" name="uid" value="<?php echo $post->uid;?>" />
             <input type="hidden" name="tmpl" value="component" />
+            <input type="hidden" name="option" value="com_easyblog" />
             <?php echo $this->html('form.token'); ?>
         </form>
 

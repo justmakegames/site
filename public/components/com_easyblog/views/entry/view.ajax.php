@@ -175,8 +175,8 @@ class EasyBlogViewEntry extends EasyBlogView
 		}
 
 		// Check if the user has access to approve
-		if (!$post->canModerate()) {
-			return $this->ajax->reject(500, JText::_('COM_EASYBLOG_NO_PERMISSIONS_TO_MODERATE'));
+		if (!$this->acl->get('feature_entry')) {
+			return $this->ajax->reject(500, JText::_('COM_EASYBLOG_NOT_ALLOWED'));
 		}
 
 		// Get the return url if there's any so that we can redirect them accordingly later

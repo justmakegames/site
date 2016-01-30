@@ -157,6 +157,11 @@ class EasyBlogTableComment extends EasyBlogTable
 
 		$blogAuthor = EB::user($blog->created_by);
 
+		// truncate the content of the comment.
+		if ($config->get('notification_commentruncate', false)) {
+			$content = JHTML::_('string.truncate', $content, $config->get('notification_commenttruncate_limit', 300));
+		}
+		
 		$data 		= array(
 							'blogTitle'			=> $blog->title,
 							'blogIntro'			=> $blog->intro,
@@ -284,10 +289,20 @@ class EasyBlogTableComment extends EasyBlogTable
 			$this->updateOrdering();
 		}
 
+		// Import plugins
+		JPluginHelper::importPlugin('easyblog');
+        $dispatcher = JDispatcher::getInstance();
+
+		// @onBeforeCommentSave
+        $dispatcher->trigger('onBeforeCommentSave', array(&$this));
+
 		// @rule: If this was moderated and it is published, we should notify the other extensions.
 		if ($isModerated && $this->published) {
 			$isNew 	= true;
 		}
+
+		// @onAfterCommentSave
+        $dispatcher->trigger('onAfterCommentSave', array(&$this));
 
 		// @rule: Store after the ordering is updated
 		$state = parent::store();

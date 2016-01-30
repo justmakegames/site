@@ -81,9 +81,25 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 <div class="eb-float-menu">
     <div class="eb-float-btn-wrap pull-left">
-        <label class="eb-float-btn eb-float-publish" data-eb-composer-publish-post-button>
-            <?php echo JText::_('COM_EASYBLOG_PUBLISH_POST');?>
-        </label>
+        <a class="eb-float-publish-btn btn btn-success eb-composer-primary-button eb-composer-publish-post-button" data-eb-composer-publish-post-button>
+            <i class="fa eb-loader-o size-sm color-white eb-composer-loader hide"></i>
+            <?php echo JText::_('COM_EASYBLOG_PUBLISH_POST'); ?>
+        </a>
+
+        <a class="eb-float-publish-btn btn btn-primary eb-composer-primary-button eb-composer-update-post-button" data-eb-composer-update-post-button>
+            <i class="fa eb-loader-o size-sm color-white eb-composer-loader hide"></i>
+            <?php echo JText::_('COM_EASYBLOG_UPDATE_POST'); ?>
+        </a>
+
+        <a class="eb-float-publish-btn btn btn-warning eb-composer-primary-button eb-composer-submit-post-button" data-eb-composer-submit-post-button>
+            <i class="fa eb-loader-o size-sm color-white eb-composer-loader hide"></i>
+            <?php echo JText::_('COM_EASYBLOG_SUBMIT_POST_FOR_APPROVAL'); ?>
+        </a>
+
+        <a class="eb-float-publish-btn btn btn-success eb-composer-primary-button eb-composer-approve-post-button" data-eb-composer-approve-post-button>
+            <i class="fa eb-loader-o size-sm color-white eb-composer-loader hide"></i>
+            <?php echo JText::_('COM_EASYBLOG_APPROVE_AND_PUBLISH_POST'); ?>
+        </a>
     </div>
 
     <!-- div class="eb-float-btn-wrap pull-left" data-eb-composer-launcher-close-button>

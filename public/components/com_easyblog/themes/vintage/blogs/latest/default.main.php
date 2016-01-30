@@ -109,7 +109,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 						<div class="eb-post-author-avatar single">
 							<a href="<?php echo $post->author->getProfileLink(); ?>" class="eb-avatar">
-								<img src="<?php echo $post->author->getAvatar();?>" width="22" height="22" alt="<?php echo $post->author->getName();?>" />
+								<img itemprop="image" src="<?php echo $post->author->getAvatar();?>" width="22" height="22" alt="<?php echo $post->author->getName();?>" />
 							</a>
 						</div>
 					<?php } ?>

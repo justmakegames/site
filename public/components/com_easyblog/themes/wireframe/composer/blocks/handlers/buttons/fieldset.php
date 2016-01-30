@@ -13,27 +13,27 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 $styles = array(
     array(
-        'label' => 'Default',
+        'label' => JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_BUTTON_COLOR_DEFAULT_TYPE'),
         'classname' => 'btn-default'
     ),
     array(
-        'label' => 'Primary',
+        'label' => JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_BUTTON_COLOR_PRIMARY_TYPE'),
         'classname' => 'btn-primary'
     ),
     array(
-        'label' => 'Success',
+        'label' => JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_BUTTON_COLOR_SUCCESS_TYPE'),
         'classname' => 'btn-success'
     ),
     array(
-        'label' => 'Info',
+        'label' => JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_BUTTON_COLOR_INFO_TYPE'),
         'classname' => 'btn-info'
     ),
     array(
-        'label' => 'Warning',
+        'label' => JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_BUTTON_COLOR_WARNING_TYPE'),
         'classname' => 'btn-warning'
     ),
     array(
-        'label' => 'Danger',
+        'label' => JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_BUTTON_COLOR_DANGER_TYPE'),
         'classname' => 'btn-danger'
     )
 );
@@ -51,7 +51,7 @@ $styles = array(
                     <div class="col-xs-4">
                         <div class="eb-swatch-item eb-composer-button-preview" data-style="<?php echo $style['classname']; ?>" data-eb-composer-button-swatch-item>
                             <div class="eb-swatch-preview">
-                                <span class="btn <?php echo $style['classname']; ?>"><?php echo JText::_('Button'); ?></span>
+                                <span class="btn <?php echo $style['classname']; ?>"><?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_COLOR_BUTTON'); ?></span>
                             </div>
                             <div class="eb-swatch-label">
                                 <span><?php echo $style['label']; ?></span>

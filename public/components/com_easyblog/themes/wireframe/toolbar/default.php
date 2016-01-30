@@ -13,6 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php echo EB::renderModule('easyblog-before-toolbar'); ?>
 
+<?php if ($heading || $this->config->get('layout_headers') || ($this->config->get('layout_toolbar') && $this->acl->get('access_toolbar'))) { ?>
 <div class="eb-header">
 	<?php if ($heading || $this->config->get('layout_headers')) { ?>
 	<div class="eb-brand">
@@ -280,7 +281,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_SETTINGS');?></span>
 					 </a>
 
-					 <ul role="menu" class="eb-navbar-dropdown dropdown-menu dropdown-menu-right">
+					 <ul id="more-settings" role="menu" class="eb-navbar-dropdown dropdown-menu dropdown-menu-right">
 						<?php if ($this->config->get('toolbar_editprofile')){ ?>
 						<li>
 							<a href="<?php echo EB::getEditProfileLink();?>">
@@ -384,5 +385,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</div>
 	<?php } ?>
 </div>
+<?php } ?>
 
 <?php echo EB::renderModule('easyblog-after-toolbar'); ?>

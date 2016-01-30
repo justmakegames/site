@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<input name="video" class="form-control" type="text" placeholder="<?php echo JText::_('COM_EASYBLOG_QUICKPOST_VIDEO_PLACEHOLDER', true);?>" data-quickpost-video-source />
 					<span class="input-group-btn">
 						<button class="btn btn-default" data-quickpost-video-retrieve>
-							<i class="fa fa-video-camera"></i>&nbsp; <?php echo JText::_('Insert Video'); ?>
+							<i class="fa fa-video-camera"></i>&nbsp; <?php echo JText::_('COM_EASYBLOG_INSERT_VIDEO_BUTTON'); ?>
 							<i class="eb-loader-o size-sm hidden" style="margin: 0 0 0 10px" data-quickpost-video-loader></i>
 						</button>
 					</span>

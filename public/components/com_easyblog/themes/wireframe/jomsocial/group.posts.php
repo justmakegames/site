@@ -114,7 +114,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 								<?php if ($params->get('contents')) { ?>
 									<div class="js-blog-content">
-										<?php echo $post->getIntro(); ?>
+										<?php if ($params->get('truncate') != 0){ ?>
+											<?php echo JString::substr(strip_tags($post->getIntro()), 0, $params->get('truncate')); ?><?php echo JText::_('...');?>
+										<?php } else { ?>
+											<?php echo $post->getIntro(); ?>
+										<?php } ?>
 									</div>
 								<?php } ?>
 

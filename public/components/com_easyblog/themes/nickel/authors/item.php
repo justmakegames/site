@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="eb-authors-head row-table">
 		<div class="col-cell cell-tight">
 			<?php if ($this->config->get('layout_avatar') && $this->params->get('author_avatar', true)) { ?>
-			<a href="<?php echo $author->getPermalink();?>">
+			<a href="<?php echo $author->getProfileLink();?>">
 				<img src="<?php echo $author->getAvatar(); ?>" class="eb-authors-avatar" width="60" height="60" alt="<?php echo $author->getName(); ?>" />
 			</a>
 			<?php } ?>
@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<div class="col-cell">
 			<?php if ($this->params->get('author_name', true)) { ?>
 			<h2 class="eb-authors-name reset-heading">
-				<a href="<?php echo $author->getPermalink();?>" class="text-inherit"><?php echo $author->getName();?></a>
+				<a href="<?php echo $author->getProfileLink();?>" class="text-inherit"><?php echo $author->getName();?></a>
 				<small class="eb-authors-featured eb-star-featured<?php echo !$author->isFeatured() ? ' hide' : '';?>" data-featured-tag data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_FEATURED_BLOGGER_FEATURED', true);?>">
 					<i class="fa fa-star"></i>
 				</small>
@@ -67,23 +67,25 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</span>
 				<?php } ?>
 
-					<?php if ($this->config->get('main_bloggersubscription')) { ?>
-						<?php if (!$isBloggerSubscribed) { ?>
-						<span>
-							<a href="javascript:void(0);" data-blog-subscribe data-type="blogger" data-id="<?php echo $author->id;?>"><?php echo JText::_('COM_EASYBLOG_SUBSCRIPTION_SUBSCRIBE_TO_BLOGGER');?></a>
-						</span>
-						<?php } else { ?>
-						<span>
-							<a href="javascript:void(0);" data-blog-unsubscribe data-type="blogger" data-id="<?php echo $author->id;?>" data-email="<?php echo $this->my->email; ?>"><?php echo JText::_('COM_EASYBLOG_SUBSCRIPTION_UNSUBSCRIBE_TO_BLOGGER');?></a>
-						</span>
-						<?php } ?>
-					<?php } ?>
+				<?php if ($this->config->get('main_bloggersubscription')) { ?>
+					<?php if (!$isBloggerSubscribed) { ?>
 					<span>
-						<a href="<?php echo $author->getRssLink();?>" title="<?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_FEEDS'); ?>">
-							<?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_FEEDS'); ?>
-						</a>
+						<a href="javascript:void(0);" data-blog-subscribe data-type="blogger" data-id="<?php echo $author->id;?>"><?php echo JText::_('COM_EASYBLOG_SUBSCRIPTION_SUBSCRIBE_TO_BLOGGER');?></a>
 					</span>
-				
+					<?php } else { ?>
+					<span>
+						<a href="javascript:void(0);" data-blog-unsubscribe data-type="blogger" data-id="<?php echo $author->id;?>" data-email="<?php echo $this->my->email; ?>"><?php echo JText::_('COM_EASYBLOG_SUBSCRIPTION_UNSUBSCRIBE_TO_BLOGGER');?></a>
+					</span>
+					<?php } ?>
+				<?php } ?>
+
+				<?php if ($this->config->get('main_rss') && $this->acl->get('allow_subscription_rss')) { ?>
+				<span>
+					<a href="<?php echo $author->getRssLink();?>" title="<?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_FEEDS'); ?>">
+						<?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_FEEDS'); ?>
+					</a>
+				</span>
+				<?php } ?>
 			</div>
 		</div>
 	</div>

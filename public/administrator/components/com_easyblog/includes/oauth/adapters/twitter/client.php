@@ -321,7 +321,8 @@ class EasyBlogClientTwitter extends EasyBlogTwitterOAuth
 		if (JString::stristr($content, '{introtext}') !== false) {
 			$search[] = '{introtext}';
 			$introText = $post->getIntro(EASYBLOG_STRIP_TAGS);
-			$introText = strip_tags($introText);
+			// Prevent the introtext character more than 140
+			$introText = JString::substr(strip_tags($introText), 0, 50) . JText::_('COM_EASYBLOG_ELLIPSES');
 		    $replace[] = $introText;
 		}
 
@@ -368,7 +369,8 @@ class EasyBlogClientTwitter extends EasyBlogTwitterOAuth
 			}
 
 			// Get the remaining length that we can use.
-			$remaining = 140 - $length;
+			// Avoid 'error 186' at 136 characters or more
+			$remaining = 135 - $length;
 
 			// Split the message
 			$parts = explode('{link}', $content);

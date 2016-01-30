@@ -68,8 +68,8 @@ class EasyBlogModelSubscription extends EasyBlogAdminModel
     public function addBlogSubscription($blogId, $email, $userId = '0', $fullname = '')
     {
         $config = EB::config();
-        $acl    = EB::acl();
-        $my     = JFactory::getUser();
+        $acl = EB::acl();
+        $my = JFactory::getUser();
 
         // If user is not allowed here, skip this
         if (!$acl->get('allow_subscription') || (!$my->id && !$config->get('main_allowguestsubscribe'))) {
@@ -89,18 +89,14 @@ class EasyBlogModelSubscription extends EasyBlogAdminModel
 
         $subscriber->utype = EBLOG_SUBSCRIPTION_ENTRY;
         $subscriber->uid = $blogId;
-
-        // Set the email address
-        $subscriber->email      = $email;
-
-        // Set the subscribers name
-        $subscriber->fullname   = $fullname;
-
-        // Set the creation date
+        $subscriber->email = $email;
+        $subscriber->fullname = $fullname;
+        $subscriber->user_id = $userId;
+        
         $date = EB::date();
-        $subscriber->created    = $date->toMySQL();
+        $subscriber->created = $date->toMySQL();
 
-        // Try to save the new subscription
+
         $state = $subscriber->store();
 
         if (!$state) {
@@ -394,72 +390,50 @@ class EasyBlogModelSubscription extends EasyBlogAdminModel
 		$delimiter = ',';
 		$data = array();
 
-		//Open the csv file for reading.
-		$handle = fopen($file, "r");
+		// Open the csv file for reading.
+        $contents = JFile::read($file);
+        $data = explode("\n", $contents);
 
-		if($handle){
-			//Read each line and print the line out.
-			while (($line_array = fgetcsv($handle, 40000, $delimiter)) !== false) {
-
-			$data[] = $line_array['0'].$delimiter.$line_array['1'].$delimiter.$line_array['2'].$delimiter.$line_array['3'];
-		}
-
-		fclose($handle);
-
-		}
+        if (!$data) {
+            return false;
+        }
 
 		// Collect the list of failed and successfull items
-		$failed 	= array();
-		$success 	= array();
+		$failed = array();
+		$success = array();
+        $subscribed = array();
 
-		foreach( $data as $row )
-		{
-			$tmp	= explode(',', $row);
-			$name 	= '';
-			$email	= '';
+		foreach ($data as $row) {
+			$tmp = explode(',', $row);
+			$name = '';
+			$email = '';
 
 			// If there's only 1 item in this row, we know that it's just the email only.
-			if (count($tmp) == 2) {
-				$email 	= $tmp[0];
+			if (count($tmp) == 1) {
+				$email = $tmp[0];
 			}
 
-			if (count($tmp) == 3) {
-
+			if (count($tmp) == 2) {
 				list($name, $email)	= $tmp;
 			}
 
-            if (count($tmp) == 4) {
-
-                $email  = $tmp[3];
-                $name  = $tmp[1];
-            }
-
-            // if name is an email, assign it to tmp[1]
-            if (strpos($name, "@") == true) {
-                $split = explode("@", $x);
-                if (strpos($split['1'], ".") == true) {
-                    $email  = $name;
-                    $name   = '';
-                 }
-
-            }
-
 			// Skip this
-			if (!$email || strpos($email, "@") == false) {
-				$failed[]	= $email;
+			if (!$email || JString::strpos($email, "@") === false) {
+				$failed[] = $email;
 				continue;
 			}
 
 			// we assume the userid is always 0 (guest)
 			if ($this->isSiteSubscribedEmail($email)) {
+                $subscribed[] = $email;
 				continue;
 			}
 
 			$this->addSiteSubscription($email, '', $name);
-			$success[]	= $email;
+			$success[] = $email;
 		}
 
-	return $success;
+    	return $success;
 	}
 
 }

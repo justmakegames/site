@@ -18,7 +18,6 @@ class EasyBlogStylesheet extends FD50_Stylesheet
 	public $config = null;
 	public $doc = null;
 	public $app = null;
-
 	public $isModule = false;
 
 	public function __construct($location, $name = null, $useOverride=false)
@@ -50,6 +49,11 @@ class EasyBlogStylesheet extends FD50_Stylesheet
 			);
 		}
 
+		// Explicitly override
+		if ($location == 'site' && !is_null($name)) {
+			$defaultWorkspace['site'] = $name;
+		}
+
 		$this->workspace = $defaultWorkspace;
 
 		$workspace = array();
@@ -79,7 +83,7 @@ class EasyBlogStylesheet extends FD50_Stylesheet
 	 * @param	string
 	 * @return
 	 */
-	public function attach($minified = null, $allowOverride = true)
+	public function attach($minified = null, $allowOverride = true, $customCategoryTemplate = null)
 	{
 		$environment = $this->config->get('easyblog_css_environment');
 		$mode = $this->config->get('easyblog_css_mode');
@@ -138,6 +142,24 @@ class EasyBlogStylesheet extends FD50_Stylesheet
 		if ($isAdmin) {
 			parent::attach($minified, $allowOverride);
 			return;
+		}
+
+		// If there's a custom category theme, we need to check for it here
+		if ($customCategoryTemplate) {
+
+			// Check if there's a css file in /templates/JOOMLA_TEMPLATE/html/com_easyblog/themes/THEME_NAME/styles/style.min.css
+			$path = JPATH_ROOT . '/templates/' . $this->app->getTemplate() . '/html/com_easyblog/themes/' . $customCategoryTemplate . '/styles/custom.css';
+
+			if (JFile::exists($path)) {
+				$customURI = JURI::root() . 'templates/' . $this->app->getTemplate() . '/html/com_easyblog/themes/' . $customCategoryTemplate . '/styles/custom.css';
+				$this->doc->addStyleSheet($customURI);
+				return;
+			} else {
+
+				// If there is no css file, we should revert to the currently configured theme
+				$this->workspace['site'] = $this->config->get('theme_site');
+			}
+
 		}
 
 		// NOTE: The following code is copied and pasted from parent::stylesheet()
@@ -220,6 +242,7 @@ class EasyBlogStylesheet extends FD50_Stylesheet
 
 		// Check if custom.css exists on the site as template overrides
 		$file = JPATH_ROOT . '/templates/' . $this->app->getTemplate() . '/html/com_easyblog/styles/custom.css';
+
 		if (JFile::exists($file)) {
 			$customCssFile = rtrim(JURI::root(), '/') . '/templates/' . $this->app->getTemplate() . '/html/com_easyblog/styles/custom.css';
 			$this->doc->addStylesheet($customCssFile);

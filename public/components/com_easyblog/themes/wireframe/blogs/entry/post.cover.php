@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if ($post->image && $this->entryParams->get('post_image', true) || (!$post->image && $this->entryParams->get('post_image_placeholder', false) && $this->entryParams->get('post_image', true))) { ?>
-    <div class="eb-image eb-post-thumb<?php if ($this->config->get('cover_alignment_entry')) { echo " is-" . $this->config->get('cover_alignment_entry'); } ?> <?php if ($this->config->get('cover_width_entry_full')) { echo "is-full"; } ?>">
+    <div class="eb-image eb-post-thumb<?php echo $this->config->get('cover_width_entry_full') ? " is-full" : " is-" . $this->config->get('cover_alignment_entry')?>">
         <?php if (!$this->config->get('cover_crop_entry', false)) { ?>
             <a class="eb-post-image eb-image-popup-button"
                 href="<?php echo $post->getImage('original');?>"

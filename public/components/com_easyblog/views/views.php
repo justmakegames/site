@@ -116,12 +116,16 @@ class EasyBlogView extends JViewLegacy
         EB::init($section);
 
         // Get the theme on the site
-        $theme  = $this->config->get('theme_site');
+        $theme = $this->config->get('theme_site');
+
+        if ($this->customTheme) {
+            $theme = $this->customTheme;
+        }
 
         // @since 4.0
         // Attach the theme's css
         $stylesheet = EB::stylesheet('site', $theme);
-        $stylesheet->attach();
+        $stylesheet->attach(null, true, $this->customTheme);
     }
 
     /**
@@ -413,7 +417,7 @@ class EasyBlogView extends JViewLegacy
         $bloggerMode = EBR::isBloggerMode();
 
         // Build the return url
-        $return = base64_encode(EBR::_('index.php?option=com_easyblog', false));
+        $return = base64_encode(JURI::getInstance()->toString());
 
         // Load the theme object
         $theme 	= EB::template();
@@ -462,7 +466,7 @@ class EasyBlogView extends JViewLegacy
 	 */
 	public function canonical($url)
 	{
-		$url = EBR::_($url, false, null, true);
+		$url = EBR::_($url, false, null, false, true);
 
 		$this->doc->addHeadLink($this->escape($url), 'canonical');
 	}

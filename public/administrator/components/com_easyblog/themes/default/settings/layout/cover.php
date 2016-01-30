@@ -94,7 +94,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</div>
 				</div>
 
-				<div class="form-group">
+				<div class="form-group<?php echo $this->config->get('cover_width_full') ? ' hide' : '' ?>" data-cover-alignment>
 					<label for="page_title" class="col-md-5">
 						<?php echo JText::_('COM_EASYBLOG_SETTINGS_POST_COVER_ALIGNMENT'); ?>
 
@@ -195,7 +195,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group<?php echo $this->config->get('cover_width_entry_full') ? ' hide' : '';?>" data-cover-alignment-entry>
 					<label for="page_title" class="col-md-5">
 						<?php echo JText::_('COM_EASYBLOG_SETTINGS_POST_COVER_ALIGNMENT'); ?>
 

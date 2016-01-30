@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</a>
 		<ul class="eb-toolbar-dropdown dropdown-menu reset-list text-left">
 			<?php if ($this->config->get('layout_dashboardmain')) { ?>
-			<li class="<?php echo $current == 'display' || $current == 'default' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_STATS_TIPS');?>">
+			<li class="<?php echo $current == 'display' || $current == 'default' ? 'active' : '';?>">
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard');?>">
 					<i class="fa fa-dashboard"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_STATS_TIPS');?></span>
@@ -28,7 +28,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 
 			<?php if ($this->config->get('layout_dashboardblogs') && $this->acl->get('add_entry')) { ?>
-			<li class="<?php echo $current == 'entries' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_ENTRIES_TIPS');?>">
+			<li class="<?php echo $current == 'entries' ? 'active' : '';?>" >
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=entries');?>">
 					<i class="fa fa-file-text"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_BLOG_POSTS');?></span>
@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 
 			<?php if ($this->acl->get('publish_entry') || EB::isSiteAdmin()) { ?>
-			<li class="<?php echo $current == 'moderate' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_MODERATE');?>">
+			<li class="<?php echo $current == 'moderate' ? 'active' : '';?>">
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=moderate');?>">
 					<i class="fa fa-check-square"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_BLOG_POSTS_PENDING');?></span>
@@ -47,7 +47,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 
 			<?php if ($this->config->get('layout_dashboardcategories') && $this->acl->get('create_category')) { ?>
-			<li class="<?php echo $current == 'categories' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_CATEGORIES');?>">
+			<li class="<?php echo $current == 'categories' ? 'active' : '';?>">
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=categories');?>">
 					<i class="fa fa-folder-open"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_CATEGORIES');?></span>
@@ -56,7 +56,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 
 			<?php if ($this->config->get('layout_dashboardtags') && $this->acl->get('create_tag')) { ?>
-			<li class="<?php echo $current == 'tags' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_TAGS');?>">
+			<li class="<?php echo $current == 'tags' ? 'active' : '';?>">
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=tags');?>">
 					<i class="fa fa-tags"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_TAGS');?></span>
@@ -65,7 +65,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 
 			<?php if ($this->config->get('layout_dashboardcomments')) { ?>
-			<li class="<?php echo $current == 'comments' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_COMMENTS');?>">
+			<li class="<?php echo $current == 'comments' ? 'active' : '';?>">
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=comments');?>">
 					<i class="fa fa-comments"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_COMMENTS');?></span>
@@ -74,7 +74,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 
 			<?php if (!EB::isSiteAdmin() && !$this->acl->get('publish_entry')) { ?>
-			<li class="<?php echo $current == 'pending' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_PENDING');?>">
+			<li class="<?php echo $current == 'pending' ? 'active' : '';?>">
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=pending');?>">
 					<i class="fa fa-inbox"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_PENDING');?></span>
@@ -83,7 +83,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 
 			<?php if ((EB::isSiteAdmin() || EB::isTeamAdmin()) && $this->config->get('layout_dashboardteamrequest')) { ?>
-			<li class="<?php echo $current == 'requests' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_TEAM_REQUESTS');?>">
+			<li class="<?php echo $current == 'requests' ? 'active' : '';?>">
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=requests');?>">
 					<i class="fa fa-users"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_TEAM_REQUESTS');?></span>
@@ -92,7 +92,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</li>
 			<?php } ?>
 
-			<li class="<?php echo $current == 'revisions' ? 'active' : '';?>" data-placement="bottom" data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_REVISIONS');?>">
+			<li class="<?php echo $current == 'revisions' ? 'active' : '';?>">
 				<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=revisions');?>">
 					<i class="fa fa-files-o"></i>
 					<span class="eb-text"><?php echo JText::_('COM_EASYBLOG_DASHBOARD_TOOLBAR_REVISIONS');?></span>

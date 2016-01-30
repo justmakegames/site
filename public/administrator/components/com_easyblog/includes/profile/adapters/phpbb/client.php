@@ -38,7 +38,7 @@ class EasyBlogProfilePhpbb extends EasyBlogProfileDefault
 			return false;
 		}
 
-		require_once($file);
+		require($file);
 
 		$options = array('driver' => $dbms, 'host' => $dbhost, 'user' => $dbuser, 'password' => $dbpasswd, 'database' => $dbname, 'prefix' => $table_prefix);
 		$this->db = JDatabase::getInstance($options);
@@ -57,7 +57,7 @@ class EasyBlogProfilePhpbb extends EasyBlogProfileDefault
 	public function getLink()
 	{
 		$default = parent::getLink();
-
+		
 		// Check if phpbb exists on the site
 		if (!$this->exists()) {
 			return $default;
@@ -66,9 +66,10 @@ class EasyBlogProfilePhpbb extends EasyBlogProfileDefault
 		$query = array();
 		$query[] = 'SELECT ' . $this->db->qn('user_id');
 		$query[] = 'FROM ' . $this->db->qn('#__users');
-		$query[] = 'WHERE LOWER(' . $this->db->qn('username') . ') = LOWER(' . $db->Quote($this->profile->username) . ')';
+		$query[] = 'WHERE LOWER(' . $this->db->qn('username') . ') = LOWER(' . $this->db->Quote($this->profile->user->username) . ')';
 
 		$query = implode(' ', $query);
+
 		$this->db->setQuery($query, 0, 1);
 
 		$result = $this->db->loadResult();
@@ -77,7 +78,7 @@ class EasyBlogProfilePhpbb extends EasyBlogProfileDefault
 			return $default;
 		}
 
-		$link = JURI::root() . rtrim($this->path) . '/memberlist.php?mode=viewprofile&u=' . $this->user->id;
+		$link = JURI::root() . rtrim($this->path) . '/memberlist.php?mode=viewprofile&u=' . $result;
 
 		return $link;
 	}

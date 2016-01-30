@@ -29,7 +29,7 @@ class EasyBlogViewLogin extends EasyBlogView
 		$return = $this->input->get('return', '');
 
 		if (empty($return)) {
-			$return = base64_encode(EBR::_('index.php?option=com_easyblog', false));
+			$return = base64_encode('index.php?option=com_easyblog');
 		}
 
 		$this->set('return', $return);

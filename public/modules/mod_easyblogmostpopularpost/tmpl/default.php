@@ -25,7 +25,7 @@ EasyBlog.require()
 </script>
 <?php } ?>
 
-<div id="fd" class="eb eb-mod mod_easyblogmostpopularpost<?php echo $params->get('moduleclass_sfx'); ?>">
+<div id="fd" class="eb eb-mod mod_easyblogmostpopularpost<?php echo $params->get('moduleclass_sfx'); ?> eb-responsie">
 
     <?php if ($posts) { ?>
     <div class="eb-mod<?php if ($layout == 'horizontal') { echo " mod-items-grid clearfix"; } ?>">

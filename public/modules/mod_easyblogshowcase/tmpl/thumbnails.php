@@ -24,12 +24,12 @@ EasyBlog.require()
 </script>
 <?php } ?>
 
-<div id="fd" class="eb eb-mod st-3 mod-easyblogshowcase<?php echo $params->get('moduleclass_sfx'); ?>">
+<div id="fd" class="eb eb-mod st-3 eb-responsive mod-easyblogshowcase<?php echo $params->get('moduleclass_sfx'); ?>">
 	<div class="eb-gallery" data-autoplay="<?php echo $autoplay;?>" data-interval="<?php echo $autoplayInterval;?>">
 		<div class="eb-gallery-stage">
 			<div class="eb-gallery-viewport">
 				<?php foreach ($posts as $post) { ?><div class="eb-gallery-item"> <!--PLEASE KEEP THIS DOM THIS WAY TO REMOVE WHITESPACING-->
-					<div class="eb-gallery-box" style="background-image: url('<?php echo $post->postCover;?>');">
+					<div class="eb-gallery-box" style="background-image: url('<?php echo $post->postCover;?>') !important;">
 						<div class="eb-gallery-body">
 							<?php if ($params->get('authoravatar', true)) { ?>
 								<a href="<?php echo $post->getAuthor()->getProfileLink(); ?>" class="eb-gallery-avatar mod-avatar">

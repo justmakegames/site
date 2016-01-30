@@ -125,173 +125,6 @@ class EasyBlogModelArchive extends EasyBlogAdminModel
 		return $result;
 	}
 
-	public function getArchive( $archiveYear, $archiveMonth, $archiveDay='')
-	{
-		$db	= EB::db();
-		$my = JFactory::getUser();
-
-		$config         = EB::config();
-		$isBloggerMode  = EasyBlogRouter::isBloggerMode();
-		$excludeCats	= array();
-		$teamBlogIds    = '';
-		$queryExclude   = '';
-		$queryInclude   = '';
-
-		$catAccess = array();
-
-		$modCid			= JRequest::getVar( 'modCid', array() );
-
-		//where
-		$queryWhere	= ' WHERE a.`published` = ' . $db->Quote(EASYBLOG_POST_PUBLISHED);
-		$queryWhere	= ' AND a.`state` = ' . $db->Quote(EASYBLOG_POST_NORMAL);
-
-
-	    $isJSGrpPluginInstalled = false;
-	    $isJSGrpPluginInstalled = JPluginHelper::isEnabled( 'system', 'groupeasyblog');
-	    $isEventPluginInstalled = JPluginHelper::isEnabled( 'system' , 'eventeasyblog' );
-	    $isJSInstalled      = false; // need to check if the site installed jomsocial.
-
-	    if(JFile::exists(JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR. 'com_community' . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR .'core.php'))
-	    {
-	      $isJSInstalled = true;
-	    }
-
-	    $includeJSGrp = ($isJSGrpPluginInstalled && $isJSInstalled) ? true : false;
-	    $includeJSEvent = ($isEventPluginInstalled && $isJSInstalled ) ? true : false;
-
-	    // contribution type sql
-	    $contributor = EB::contributor();
-	    $contributeSQL = ' AND ( (a.`source_type` = ' . $db->Quote(EASYBLOG_POST_SOURCE_SITEWIDE) . ') ';
-	    if ($config->get('main_includeteamblogpost')) {
-	      $contributeSQL .= $contributor::genAccessSQL(EASYBLOG_POST_SOURCE_TEAM, 'a');
-	    }
-	    if ($includeJSEvent) {
-	      $contributeSQL .= $contributor::genAccessSQL(EASYBLOG_POST_SOURCE_JOMSOCIAL_EVENT, 'a');
-	    }
-	    if ($includeJSGrp) {
-	      $contributeSQL .= $contributor::genAccessSQL(EASYBLOG_POST_SOURCE_JOMSOCIAL_GROUP, 'a');
-	    }
-	    $contributeSQL .= ')';
-
-		$queryWhere .= $contributeSQL;
-
-
-	    //get teamblogs id.
-	    $query  = '';
-
-		if (!empty($modCid)) {
-			$catAccess['include'] = $modCid;
-		}
-
-		//do not list out protected blog in rss
-		if (JRequest::getCmd('format', '') == 'feed') {
-			if ($config->get('main_password_protect', true)) {
-				$queryWhere	.= ' AND a.`blogpassword`="" ';
-			}
-		}
-
-
-		//blog privacy setting
-		// @integrations: jomsocial privacy
-		$file		= JPATH_ROOT . '/components/com_community/libraries/core.php';
-
-		$easysocial 	= EasyBlogHelper::getHelper( 'EasySocial' );
-		if ($config->get('integrations_easysocial_privacy') && $easysocial->exists() && !EB::isSiteAdmin()) {
-
-			$esPrivacyQuery  = $easysocial->buildPrivacyQuery( 'a' );
-			$queryWhere 	.= $esPrivacyQuery;
-
-		} else if ($config->get('main_jomsocial_privacy') && JFile::exists($file) && !EB::isSiteAdmin()) {
-			require_once($file);
-
-			$my			= JFactory::getUser();
-			$jsFriends	= CFactory::getModel( 'Friends' );
-			$friends	= $jsFriends->getFriendIds( $my->id );
-
-			// Insert query here.
-			$queryWhere	.= ' AND (';
-			$queryWhere	.= ' (a.`access`= 0 ) OR';
-			$queryWhere	.= ' ( (a.`access` = 20) AND (' . $db->Quote( $my->id ) . ' > 0 ) ) OR';
-
-			if(empty($friends)) {
-				$queryWhere	.= ' ( (a.`access` = 30) AND ( 1 = 2 ) ) OR';
-			} else {
-				$queryWhere	.= ' ( (a.`access` = 30) AND ( a.' . $db->nameQuote( 'created_by' ) . ' IN (' . implode( ',' , $friends ) . ') ) ) OR';
-			}
-
-			$queryWhere	.= ' ( (a.`access` = 40) AND ( a.' . $db->nameQuote( 'created_by' ) .'=' . $my->id . ') )';
-			$queryWhere	.= ' )';
-		} else {
-			if ($my->id == 0) {
-				$queryWhere .= ' AND a.`access` = ' . $db->Quote(BLOG_PRIVACY_PUBLIC);
-			}
-		}
-
-		if (empty($archiveDay)) {
-			$fromDate	= $archiveYear.'-'.$archiveMonth.'-01 00:00:00';
-			$toDate		= $archiveYear.'-'.$archiveMonth.'-31 23:59:59';
-		} else {
-			$fromDate	= $archiveYear.'-'.$archiveMonth.'-'.$archiveDay.' 00:00:00';
-			$toDate		= $archiveYear.'-'.$archiveMonth.'-'.$archiveDay.' 23:59:59';
-		}
-
-		// When language filter is enabled, we need to detect the appropriate contents
-		$filterLanguage 	= JFactory::getApplication()->getLanguageFilter();
-		if ( $filterLanguage ) {
-			$queryWhere	.= EBR::getLanguageQuery('AND', 'a.language');
-		}
-
-
-		$tzoffset   = EB::date()->getOffSet( true );
-		$queryWhere	.= ' AND ( DATE_ADD(a.`created`, INTERVAL ' . $tzoffset . ' HOUR) >= '. $db->Quote($fromDate) .' AND DATE_ADD(a.`created`, INTERVAL ' . $tzoffset . ' HOUR) <= '. $db->Quote($toDate) . ' ) ';
-
-		if ($isBloggerMode !== false)
-		    $queryWhere .= ' AND a.`created_by` = ' . $db->Quote($isBloggerMode);
-
-
-		// category access here
-		//category access
-		$catLib = EB::category();
-		$catAccessSQL = $catLib->genAccessSQL( 'a.`id`', $catAccess);
-		$queryWhere .= ' AND (' . $catAccessSQL . ')';
-
-
-		//ordering
-		$queryOrder	= ' ORDER BY a.`created` DESC';
-
-		//limit
-		$limit		= $this->getState('limit');
-		$limitstart = $this->getState('limitstart');
-		$queryLimit	= ' LIMIT ' . $limitstart . ',' . $limit;
-
-		//set pagination
-		$query	= 'SELECT COUNT(1) FROM `#__easyblog_post` AS a';
-
-		$query	.= $queryWhere;
-		$db->setQuery( $query );
-		$this->_total	= $db->loadResult();
-		jimport('joomla.html.pagination');
-		$this->_pagination	= EB::pagination( $this->_total , $limitstart , $limit );
-
-		//get archive
-		$query	= 'SELECT a.*';
-		$query .= ' FROM `#__easyblog_post` AS a';
-
-		$query .= $queryWhere;
-		$query .= $queryExclude;
-		$query .= $queryInclude;
-		$query .= $queryOrder;
-		$query .= $queryLimit;
-
-		$db->setQuery($query);
-		if ($db->getErrorNum() > 0) {
-			JError::raiseError( $db->getErrorNum() , $db->getErrorMsg() . $db->stderr());
-		}
-
-		$result	= $db->loadObjectList();
-		return $result;
-	}
-
 	/**
 	 * Method to get a pagination object for the categories
 	 *
@@ -554,6 +387,155 @@ class EasyBlogModelArchive extends EasyBlogAdminModel
 		}
 
 		return $postCount;
+	}
+
+	/**
+	 * Retrieves a simple list of blog posts by specific month / year
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getArchivePostListByMonth($month='', $year='', $showPrivate = false, $category = '')
+	{
+		$db = EB::db();
+		$user = JFactory::getUser();
+		$config = EB::config();
+
+		// used for privacy
+		$queryWhere = '';
+		$queryExclude = '';
+		$queryExcludePending = '';
+		$excludeCats = array();
+
+		if( $user->id == 0) {
+			$showPrivate = false;
+		}
+
+		// Blog privacy setting
+		// @integrations: jomsocial privacy
+		$privateBlog = '';
+
+		if (EB::easysocial()->exists() && $config->get('integrations_easysocial_privacy') && !EB::isSiteAdmin()) {
+			$esPrivacyQuery = EB::easysocial()->buildPrivacyQuery('a');
+			$privateBlog .= $esPrivacyQuery;
+		} else if ($config->get('main_jomsocial_privacy') && EB::jomsocial()->exists() && !EB::isSiteAdmin()) {
+
+			$friendsModel = CFactory::getModel('Friends');
+			$friends = $friendsModel->getFriendIds( $user->id );
+
+			// Insert query here.
+			$privateBlog .= ' AND (';
+			$privateBlog .= ' (a.`access`= 0 ) OR';
+			$privateBlog .= ' ( (a.`access` = 20) AND (' . $db->Quote( $user->id ) . ' > 0 ) ) OR';
+
+			if (!$friends) {
+				$privateBlog .= ' ( (a.`access` = 30) AND ( 1 = 2 ) ) OR';
+			} else {
+				$privateBlog .= ' ( (a.`access` = 30) AND ( a.' . $db->nameQuote( 'created_by' ) . ' IN (' . implode( ',' , $friends ) . ') ) ) OR';
+			}
+
+			$privateBlog .= ' ( (a.`access` = 40) AND ( a.' . $db->nameQuote( 'created_by' ) .'=' . $user->id . ') )';
+			$privateBlog .= ' )';
+		} else {
+
+			if ($user->id == 0) {
+				$privateBlog .= ' AND a.`access` = ' . $db->Quote(0);
+			}
+		}
+
+		// Join the query ?
+		$privateBlog = $showPrivate? '' : $privateBlog;
+
+
+		$isJSGrpPluginInstalled	= false;
+		$isJSGrpPluginInstalled	= JPluginHelper::isEnabled( 'system', 'groupeasyblog');
+		$isEventPluginInstalled	= JPluginHelper::isEnabled( 'system' , 'eventeasyblog' );
+		$isJSInstalled			= false; // need to check if the site installed jomsocial.
+
+		if (EB::jomsocial()->exists()) {
+			$isJSInstalled = true;
+		}
+
+		$includeJSGrp	= ($isJSGrpPluginInstalled && $isJSInstalled) ? true : false;
+		$includeJSEvent	= ($isEventPluginInstalled && $isJSInstalled ) ? true : false;
+
+		// contribution type sql
+		$contributor = EB::contributor();
+		$contributeSQL = ' AND ( (a.`source_type` = ' . $db->Quote(EASYBLOG_POST_SOURCE_SITEWIDE) . ') ';
+
+		if ($config->get('main_includeteamblogpost')) {
+			$contributeSQL .= $contributor::genAccessSQL(EASYBLOG_POST_SOURCE_TEAM, 'a');
+		}
+
+		if ($includeJSEvent) {
+			$contributeSQL .= $contributor::genAccessSQL(EASYBLOG_POST_SOURCE_JOMSOCIAL_EVENT, 'a');
+		}
+
+		if ($includeJSGrp) {
+			$contributeSQL .= $contributor::genAccessSQL(EASYBLOG_POST_SOURCE_JOMSOCIAL_GROUP, 'a');
+		}
+
+		if (EB::easysocial()->exists()) {
+			$contributeSQL .= $contributor::genAccessSQL(EASYBLOG_POST_SOURCE_EASYSOCIAL_GROUP, 'a');
+			$contributeSQL .= $contributor::genAccessSQL(EASYBLOG_POST_SOURCE_EASYSOCIAL_EVENT, 'a');
+		}
+
+
+		$contributeSQL .= ')';
+
+		$queryWhere .= $contributeSQL;
+
+	    //get teamblogs id.
+	    $query  		= '';
+
+		$extraSQL   = '';
+
+		// If this is on blogger mode, we need to only pick items from the blogger.
+		$blogger = EBR::isBloggerMode();
+		if ($blogger !== false) {
+		    $extraSQL = ' AND a.`created_by` = ' . $db->Quote($blogger);
+		}
+
+		$tzoffset = EB::date()->getOffSet(true);
+
+		$query	= 'SELECT a.*, DAY( DATE_ADD(a.`created`, INTERVAL ' . $tzoffset . ' HOUR) ) AS day,';
+		$query	.= ' MONTH( DATE_ADD(a.`created`, INTERVAL ' . $tzoffset . ' HOUR) ) AS month,';
+		$query	.= ' YEAR( DATE_ADD(a.`created`, INTERVAL ' . $tzoffset . ' HOUR) ) AS year ';
+		$query  .= ' FROM '.$db->nameQuote('#__easyblog_post') . ' as a';
+		$query  .= ' WHERE a.`published` = '.$db->Quote(EASYBLOG_POST_PUBLISHED).' ';
+		$query  .= ' AND a.' . $db->quoteName('state') . ' = '.$db->Quote(EASYBLOG_POST_NORMAL).' ';
+		$query  .= $privateBlog.' ';
+		$query  .= ' AND (a.`created` > ' . $db->Quote($year.'-'.$month.'-01 00:00:00') . ' AND a.`created` < ' . $db->Quote($year.'-'.$month.'-31 23:59:59').') ';
+
+		// If do not display private posts, we need to append additional queries here.
+		if (!$showPrivate) {
+			// sql for category access
+			$catLib = EB::category();
+			$options = array();
+			
+			if ($category) {
+				$categories	= explode( ',' , $category );
+				$options['include'] = $categories;
+			}
+
+			$catAccessSQL = $catLib->genAccessSQL('a.`id`', $options);
+			$query .= ' AND (' . $catAccessSQL . ')';
+		}
+
+
+		$query  .= $extraSQL . ' ';
+		$query	.= $queryWhere;
+		$query  .= ' ORDER BY a.`created` ASC ';
+
+
+		// echo $query;exit;
+
+		$db->setQuery($query);
+		$posts = $db->loadObjectList();
+
+		return $posts;
 	}
 
 	/**

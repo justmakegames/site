@@ -18,6 +18,9 @@ EasyBlog.module('subscribe', function($){
 		var id = $(this).data('subscription-id');
 		var redirect = $(this).data('return');
 
+
+		console.log(id, redirect);
+
 		// Ask for confirmation
 		EasyBlog.dialog({
 			content: EasyBlog.ajax('site/views/subscription/confirmUnsubscribe', {

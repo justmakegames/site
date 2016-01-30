@@ -32,7 +32,7 @@ class EasyBlogVideoVimeo
 
 		if( $code )
 		{
-			return '<div class="video-container"><iframe src="http://player.vimeo.com/video/' . $code . '" width="' . $width . '" height="' . $height . '" frameborder="0"></iframe></div>';
+			return '<div class="legacy-video-container"><iframe src="http://player.vimeo.com/video/' . $code . '" width="' . $width . '" height="' . $height . '" frameborder="0"></iframe></div>';
 		}
 		return false;
 	}

@@ -94,6 +94,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<?php if ($posts) { ?>
 		<?php foreach ($posts as $post) { ?>
+
+			<!-- Determine if post custom fields should appear or not in category listings -->
+			<?php if (!$this->params->get('category_post_customfields')) { ?>
+				<?php $post->fields = '';?>
+			<?php } ?>
+
 			<?php if (!EB::isSiteAdmin() && $this->config->get('main_password_protect') && !empty($post->blogpassword) && !$post->verifyPassword()) { ?>
 				<?php echo $this->output('site/blogs/latest/default.protected', array('post' => $post)); ?>
 			<?php } else { ?>

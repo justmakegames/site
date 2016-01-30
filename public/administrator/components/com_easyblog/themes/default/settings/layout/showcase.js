@@ -34,13 +34,16 @@ EasyBlog.ready(function($){
 
         var checked = $(this).is(':checked');
         var widthSettings = $('[data-cover-width]');
+        var alignSettings = $('[data-cover-alignment]');
 
         if (checked) {
             widthSettings.attr('disabled', 'disabled');
+            alignSettings.addClass('hide');
 
             return;
         }
 
+        alignSettings.removeClass('hide');
         widthSettings.removeAttr('disabled');
     });
 
@@ -48,13 +51,16 @@ EasyBlog.ready(function($){
     $('[data-cover-full-width-entry]').on('change', function() {
         var checked = $(this).is(':checked');
         var widthSettings = $('[data-cover-width-entry]');
+        var alignSettings = $('[data-cover-alignment-entry]');
 
         if (checked) {
             widthSettings.attr('disabled', 'disabled');
+            alignSettings.addClass('hide');
 
             return;
         }
 
+        alignSettings.removeClass('hide');
         widthSettings.removeAttr('disabled');
     });
 });

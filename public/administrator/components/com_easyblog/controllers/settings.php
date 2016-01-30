@@ -99,7 +99,6 @@ class EasyBlogControllerSettings extends EasyBlogController
 			$data['social_addthis_customcode']	= JRequest::getVar( 'social_addthis_customcode', '', 'post', 'string', JREQUEST_ALLOWRAW);
 		}
 
-
 		// Try to save the settings now
 		$state = $model->save($data);
 

@@ -24,14 +24,14 @@ EasyBlog.require()
 </script>
 <?php } ?>
 
-<div id="fd" class="eb eb-mod st-5 mod-easyblogshowcase<?php echo $params->get('moduleclass_sfx'); ?>">
-	<div class="eb-gallery row-table" data-autoplay="<?php echo $autoplay;?>" data-interval="<?php echo $autoplayInterval;?>">
-		
+<div id="fd" class="eb eb-mod st-5 eb-responsive mod-easyblogshowcase<?php echo $params->get('moduleclass_sfx'); ?>">
+	<div class="eb-gallery" data-autoplay="<?php echo $autoplay;?>" data-interval="<?php echo $autoplayInterval;?>">
+		<div class="row-table">
 			<div class="col-cell">
 				<div class="eb-gallery-stage">
 					<div class="eb-gallery-viewport">
-						<?php foreach ($posts as $post) { ?><div class="eb-gallery-item"> <!--PLEASE KEEP THIS DOM THIS WAY TO REMOVE WHITESPACING-->
-							<div class="eb-gallery-box" style="background-image: url('<?php echo $post->postCover;?>');">
+						<?php foreach ($posts as $post) { ?><div class="eb-gallery-item">
+							<div class="eb-gallery-box" style="background-image: url('<?php echo $post->postCover;?>') !important;">
 								<div class="eb-gallery-body">
 									<?php if ($params->get('authoravatar', true)) { ?>
 										<a href="<?php echo $post->getAuthor()->getProfileLink(); ?>" class="eb-gallery-avatar mod-avatar">
@@ -78,7 +78,7 @@ EasyBlog.require()
 									<?php } ?>
 								</div>
 							</div>
-						</div><?php } ?> <!--PLEASE KEEP THIS DOM THIS WAY TO REMOVE WHITESPACING-->
+						</div><?php } ?>
 					</div>
 				</div>
 			</div>
@@ -92,12 +92,30 @@ EasyBlog.require()
 								<div class="eb-gallery-menu-thumb <?php echo $i == 0 ? 'active' : '';?>" style="background-image: url('<?php echo $post->postCover;?>');"></div>
 							</div>
 							<div class="col-cell">
-								<?php echo $post->title;?>
+								<div class="eb-gallery-menu-item-title">
+									<?php echo $post->title;?> 	PLEASE KEEP THIS DOM THIS WAY TO REMOVE WHITESPACING
+								</div>
+								
 							</div>
 						</div>
 					</div>
 					<?php $i++; ?>
 				<?php } ?>
 			</div>
+		</div>
+
+		<div class="eb-gallery-nav">
+		<?php if (count($posts) > 1) { ?>
+			<div class="eb-gallery-buttons">
+				<div class="eb-gallery-button eb-gallery-prev-button">
+					<i class="fa fa-angle-left"></i>
+				</div>
+				
+				<div class="eb-gallery-button eb-gallery-next-button">
+					<i class="fa fa-angle-right"></i>
+				</div>
+			</div>
+		<?php } ?>
+	</div>
 	</div>
 </div>

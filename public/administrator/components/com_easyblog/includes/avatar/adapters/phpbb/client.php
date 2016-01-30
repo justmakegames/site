@@ -19,21 +19,21 @@ class EasyBlogAvatarPhpBB
 
 	function _init()
 	{
-		$config = EasyBlogHelper::getConfig();
+		$config = EB::config();
 		$this->phpbbpath = $config->get( 'layout_phpbb_path' );
 
 		$this->files = JPATH_ROOT . DIRECTORY_SEPARATOR . $this->phpbbpath . DIRECTORY_SEPARATOR . 'config.php';
 
-	    if(!JFile::exists( $this->files ))
-		{
+	    if (!JFile::exists($this->files)) {
 			return false;
 		}
 
 		return true;
 	}
 
-	function _getAvatar($profile)
+	function getAvatar($profile)
 	{
+		$this->_init();
 		$phpbbDB = $this->_getPhpbbDBO();
 		$phpbbConfig = $this->_getPhpbbConfig();
 
@@ -54,65 +54,52 @@ class EasyBlogAvatarPhpBB
 
 		$this->phpbbuserid = empty($result->user_id)? '0' : $result->user_id;
 
-		if(!empty($result->user_avatar))
-		{
-			//avatar upload		1
-			//avatar remote		2
-			//avatar gallery	3
+		if (!empty($result->user_avatar)) {
+			
 			switch($result->user_avatar_type)
 			{
-				case '1':
-					$subpath	= $phpbbConfig->avatar_upload_path;
-					$phpEx 		= JFile::getExt(__FILE__);
-					$source		= JURI::root().$this->phpbbpath.'/download/file.'.$phpEx.'?avatar='.$result->user_avatar;
+				case 'avatar.driver.upload':
+					$subpath = $phpbbConfig->avatar_upload_path;
+					$phpEx = JFile::getExt(__FILE__);
+					$source = JURI::root().$this->phpbbpath.'/download/file.'.$phpEx.'?avatar='.$result->user_avatar;
 					break;
-				case '2':
-					$source		= $result->user_avatar;
+				case 'avatar.driver.remote':
+					$source = $result->user_avatar;
 					break;
-				case '3':
-					$subpath	= $phpbbConfig->avatar_gallery_path;
-					$source		= JURI::root().$this->phpbbpath.'/'.$subpath.'/'.$result->user_avatar;
+				case 'avatar.driver.local':
+					$subpath = $phpbbConfig->avatar_gallery_path;
+					$source = JURI::root().$this->phpbbpath.'/'.$subpath.'/'.$result->user_avatar;
 					break;
 				default:
 					$subpath = '';
 			}
-		}
-		else
-		{
-			$sql	= 'SELECT '.$phpbbDB->{$nameQuote}('theme_name').' '
-					. 'FROM '.$phpbbDB->{$nameQuote}('#__styles_theme').' '
-					. 'WHERE '.$phpbbDB->{$nameQuote}('theme_id').' = '.$phpbbDB->quote($phpbbConfig->default_style);
+		} else {
+			$sql	= 'SELECT '.$phpbbDB->{$nameQuote}('style_name').' '
+					. 'FROM '.$phpbbDB->{$nameQuote}('#__styles').' '
+					. 'WHERE '.$phpbbDB->{$nameQuote}('style_id').' = '.$phpbbDB->quote($phpbbConfig->default_style);
 			$phpbbDB->setQuery($sql);
 			$theme = $phpbbDB->loadObject();
 
-			$defaultPath	= $this->phpbbpath.'/styles/'.$theme->theme_name.'/theme/images/no_avatar.gif';
-			$source			= JURI::root().$defaultPath;
+			$defaultPath = $this->phpbbpath.'/styles/'.$theme->theme_name.'/theme/images/no_avatar.gif';
+			$source = JURI::root().$defaultPath;
 		}
 
 		$avatar = new stdClass();
 		$avatar->link	= $source;
 
-		return $avatar;
+		return $avatar->link;
 	}
 
 	function _getPhpbbDBO()
 	{
 		static $phpbbDB = null;
 
-		if($phpbbDB == null)
-		{
-			require( $this->files );
+		if ($phpbbDB == null) {
 
-			$host		= $dbhost;
-			$user		= $dbuser;
-			$password	= $dbpasswd;
-			$database	= $dbname;
-			$prefix		= $table_prefix;
-			$driver		= $dbms;
-			$debug		= 0;
+			require($this->files);
 
-			$options = array ( 'driver' => $driver, 'host' => $host, 'user' => $user, 'password' => $password, 'database' => $database, 'prefix' => $prefix );
-
+			$options = array('driver' => $dbms, 'host' => $dbhost, 'user' => $dbuser, 'password' => $dbpasswd, 'database' => $dbname, 'prefix' => $table_prefix);
+		
 			$phpbbDB = JDatabase::getInstance( $options );
 		}
 

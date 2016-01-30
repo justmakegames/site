@@ -17,7 +17,7 @@ class EasyBlogAvatarKunena
 	{
 		$file = JPATH_ROOT . '/components/com_kunena/kunena.php';
 
-		if (!JFile::exists($files)) {
+		if (!JFile::exists($file)) {
 			return false;
 		}
 
@@ -26,6 +26,10 @@ class EasyBlogAvatarKunena
 
 	public function getAvatar($profile)
 	{
+		if (!$this->exists()) {
+			return;
+		}
+		
 		$id = $profile->id;
 
 		if (!$id) {

@@ -103,9 +103,11 @@ class EasyBlogAudio extends EasyBlog
 				continue;
 			}
 
-			$audios[] = $audio;
-		}
+			$options = array();
 
+			// generate the player
+			$audios[] = EB::media()->renderAudioPlayer($audio['uri'], $options);
+		}
 
 		return $audios;
 	}

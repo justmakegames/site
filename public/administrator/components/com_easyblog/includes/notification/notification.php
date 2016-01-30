@@ -78,7 +78,7 @@ class EasyBlogNotification extends EasyBlog
 	 * @since	5.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getBlogSubscriberEmails(&$emails = array(), $blogId)
 	{
@@ -336,7 +336,7 @@ class EasyBlogNotification extends EasyBlog
 	 * @since	5.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function sendSubscribers($emailTitle, $template, $data, EasyBlogPost $post, $ignoreEmails = array())
 	{
@@ -438,7 +438,7 @@ class EasyBlogNotification extends EasyBlog
 						$command[] = '(' . $db->qn('a.uid') . ' = ' . $db->Quote('0') . ' and ' . $db->qn('a.utype') . ' = ' . $db->Quote(EBLOG_SUBSCRIPTION_SITE) . ')';
 					}
 
-					$query = 'select ' . $db->qn('a.email');
+					$query = 'select distinct ' . $db->qn('a.email');
 					$query .= '	from ' . $db->qn('#__easyblog_subscriptions') . ' as a';
 					$query .= ' where 1 = 1';
 					$query .= ' and (';
@@ -468,14 +468,13 @@ class EasyBlogNotification extends EasyBlog
 				} else {
 					$emails = '';
 					foreach ($ignoreEmails as $ignore) {
-						$emails .= ($emails) ? $db->Quote($ignore) : ',' . $db->Quote($ignore);
+						$emails .= ($emails) ? ',' . $db->Quote($ignore) : $db->Quote($ignore);
 					}
 					$tmpQuery = ' where x.email NOT IN (' . $emails . ')';
 				}
 
 				$mainQuery .= $tmpQuery;
 			}
-
 
 			// insert records into mailq here.
 			$db->setQuery($mainQuery);

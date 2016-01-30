@@ -1279,7 +1279,8 @@ class EasyBlogTableCategory extends EasyBlogTable
 
 		if (! $_cache) {
 
-			$manifest = JPATH_ROOT . '/components/com_easyblog/views/entry/tmpl/default.xml';
+			// $manifest = JPATH_ROOT . '/components/com_easyblog/views/entry/tmpl/default.xml';
+			$manifest = JPATH_ROOT . '/components/com_easyblog/views/categories/tmpl/listings.xml';
 			$fieldsets = EB::form()->getManifest($manifest);
 
 			$obj = new stdClass();

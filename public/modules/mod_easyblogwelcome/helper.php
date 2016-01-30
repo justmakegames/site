@@ -41,9 +41,14 @@ class modEasyBlogWelcomeHelper
 			// If there's a menu item
 			if ($item) {
 				$return = JRoute::_($item->link . '&Itemid=' . $itemid, false);
+			} else {
+				$return = JUri::getInstance()->toString();
 			}
-
+		} else {
+			$return = JUri::getInstance()->toString();
 		}
+
+
 
 		return base64_encode($return);
 	}

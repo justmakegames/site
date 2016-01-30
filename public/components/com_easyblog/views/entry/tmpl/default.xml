@@ -130,6 +130,14 @@
 				<option value="1">JSHOW</option>
 			</field>
 
+			<field name="post_navigation_type" default="-1" type="list" class="btn-group" label="COM_EASYBLOG_NAVIGATION_TYPE" description="COM_EASYBLOG_NAVIGATION_TYPE_DESC">
+				<option value="-1">COM_EASYBLOG_USE_DEFAULT_OPTIONS</option>
+				<option value="site">Site Wide</option>
+				<option value="author">Author</option>
+				<option value="team">Team Blog</option>
+				<option value="category">Category</option>
+			</field>
+
 			<field name="post_tags" default="-1" type="radio" class="btn-group" label="COM_EASYBLOG_SHOW_POST_TAGS" description="COM_EASYBLOG_SHOW_POST_TAGS_DESC">
 				<option value="-1">COM_EASYBLOG_USE_DEFAULT_OPTIONS</option>
 				<option value="0">JHIDE</option>
@@ -195,12 +203,6 @@
 			<field name="post_author_recent_limit" default="-1" type="textext" class="" label="COM_EASYBLOG_SHOW_RECENT_POST_AUTHOR_LIMIT" description="COM_EASYBLOG_SHOW_RECENT_POST_AUTHOR_LIMIT_DESC" />
 
 			<field name="post_author" default="-1" type="radio" class="btn-group" label="COM_EASYBLOG_SHOW_POST_AUTHOR" description="COM_EASYBLOG_SHOW_POST_AUTHOR_DESC">
-				<option value="-1">COM_EASYBLOG_USE_DEFAULT_OPTIONS</option>
-				<option value="0">JHIDE</option>
-				<option value="1">JSHOW</option>
-			</field>
-
-			<field name="post_author_avatar" default="-1" type="radio" class="btn-group" label="COM_EASYBLOG_SHOW_POST_AUTHOR_AVATAR" description="COM_EASYBLOG_SHOW_POST_AUTHOR_AVATAR_DESC">
 				<option value="-1">COM_EASYBLOG_USE_DEFAULT_OPTIONS</option>
 				<option value="0">JHIDE</option>
 				<option value="1">JSHOW</option>

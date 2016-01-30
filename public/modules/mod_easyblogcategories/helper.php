@@ -15,35 +15,6 @@ require_once(JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.p
 
 class modEasyBlogCategoriesHelper
 {
-	public static function getCategories(&$params)
-	{
-		$my = JFactory::getUser();
-		$top_level = 1;
-
-		$onlyTheseCatIds = $params->get('catid', '');
-
-		$filterCats = array();
-		if (!empty($onlyTheseCatIds)) {
-		    $filterStr = '';
-		    $filterCats = explode(',', $onlyTheseCatIds);
-		}
-
-		$sort = $params->get('order', 'latest');
-		$count = (INT)trim($params->get('count', 0));
-		$hideEmptyPost = $params->get('hideemptypost', '0');
-
-		$model = EB::model('Category');
-		$result = $model->getCategories($sort, $hideEmptyPost, $count, $filterCats, false);
-
-		$categories = array();
-		modEasyBlogCategoriesHelper::getChildCategories($result, $params, $categories, ++$top_level);
-
-		// Since running the iteration will invert the ordering, we'll need to reverse it back.
-		// $categories		= array_reverse( $categories );
-
-		return $categories;
-	}
-
 	public static function getChildCategories( &$result , $params , &$categories, $level = 1 )
 	{
 	    $db = EB::db();
@@ -94,16 +65,16 @@ class modEasyBlogCategoriesHelper
 			}
 
 			if ($order == 'ordering') {
-				$orderBy = ' ORDER BY `lft` ' . $sort;
+				$orderBy = ' ORDER BY `lft` asc';
 			}
 			if ($order == 'popular') {
-				$orderBy = ' ORDER BY `cnt` ' . $sort;
+				$orderBy = ' ORDER BY `cnt` desc';
 			}
 			if ($order == 'alphabet') {
-				$orderBy = ' ORDER BY a.`title` ' . $sort;
+				$orderBy = ' ORDER BY a.`title` asc';
 			}
 			if ($order == 'latest') {
-				$orderBy = ' ORDER BY a.`created` ' . $sort;
+				$orderBy = ' ORDER BY a.`created` desc';
 			}
 
 			$query .= $orderBy;
@@ -157,7 +128,7 @@ class modEasyBlogCategoriesHelper
 
 			if ($params->get('layouttype') == 'tree' || $params->get('layouttype') == 'flat') {
 				if (isset($category->childs) && is_array($category->childs)) {
-					
+
 					// Since running the iteration will invert the ordering, we'll need to reverse it back.
 					$category->childs = array_reverse($category->childs);
 				    modEasyBlogCategoriesHelper::accessNestedCategories( $category->childs , $selected, $params ,  $level + 1 );
@@ -165,4 +136,10 @@ class modEasyBlogCategoriesHelper
 			}
 		}
 	}
+
+	public static function accessNestedToggleCategories(&$category)
+	{
+		require(JModuleHelper::getLayoutPath('mod_easyblogcategories', 'toggle_item'));
+	}
+
 }

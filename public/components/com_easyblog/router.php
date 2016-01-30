@@ -18,10 +18,15 @@ function EasyBlogBuildRoute(&$query)
 	$segments = array();
 	$config = EB::config();
 
+	// index.php?option=com_easyblog&view=latest
+	if (isset($query['view']) && $query['view'] == 'latest') {
+		unset($query['view']);
+	}
+
 	// index.php?option=com_easyblog&view=entry
 	if (isset($query['view']) && $query['view'] == 'entry' && isset($query['id'])) {
 
-		if ($config->get('main_sef') != 'simple') {
+		if ($config->get('main_sef') != 'simple' && $config->get('main_sef') != 'simplecategory') {
 			$segments[] = EBR::translate($query['view']);
 		}
 
@@ -30,6 +35,10 @@ function EasyBlogBuildRoute(&$query)
 
 		$post = EB::post();
 		$post->load($postId);
+
+		if ($config->get('main_sef') == 'simplecategory') {
+			$segments[]= $post->getPrimaryCategory()->getAlias();
+		}
 
 		// Since the cache library is already using the post library to re-render the post table data, just use the permalink.
 		$segments[] = $post->getAlias();
@@ -55,8 +64,23 @@ function EasyBlogBuildRoute(&$query)
 			}
 		}
 
+		$includeAlias = true;
+
+		if ($itemId && isset($query['layout']) && $query['layout'] == 'listings') {
+			$includeAlias = false;
+		}
+
+		$menu = JFactory::getApplication()->getMenu();
+		$activeMenu = $menu->getActive();
+		$includeAlias = true;
+
+		// We need to know if the id should be appended to the menu
+		if ($activeMenu && isset($activeMenu->query['id']) && isset($query['id']) && $activeMenu->query['view'] == 'categories' && $activeMenu->query['layout'] == 'listings' && $activeMenu->query['id'] == $query['id']) {
+			$includeAlias = false;
+		}
+
 		// Translate the category permalink now
-		if (isset($query['id'])) {
+		if (isset($query['id']) && $includeAlias) {
 			$category = EB::cache()->get( (int) $query['id'], 'category');
 
 			if ($category) {
@@ -126,7 +150,7 @@ function EasyBlogBuildRoute(&$query)
 		if (isset($query['sort'])) {
 			$segments[]	= EBR::translate('sort');
 			$segments[]	= EBR::translate($query['sort']);
-			
+
 			unset($query['sort']);
 		}
 
@@ -314,7 +338,8 @@ function EasyBlogParseRoute(&$segments)
 	}
 
 	// If user chooses to use the simple sef setup, we need to add the proper view
-	if ($config->get('main_sef') == 'simple' && count($segments) == 1) {
+	if (($config->get('main_sef') == 'simple' && count($segments) == 1) ||
+		($config->get('main_sef') == 'simplecategory' && count($segments) == 2)) {
 		$files = JFolder::folders(JPATH_ROOT . '/components/com_easyblog/views');
 		$views = array();
 
@@ -323,10 +348,14 @@ function EasyBlogParseRoute(&$segments)
 		}
 
 		if (!in_array($segments[0], $views)) {
-			array_unshift($segments, EBR::translate('entry'));
+			if (count($segments) == 2) {
+				// if the 1st element is not a view, most likely this is simplecategory type. Lets replace the 1st element with entry view.
+				$segments[0] = EBR::translate('entry');
+			} else {
+				array_unshift($segments, EBR::translate('entry'));
+			}
 		}
 	}
-
 
 	// Composer view
 	if (isset($segments[0]) && $segments[0] == EBR::translate('composer')) {
@@ -347,6 +376,10 @@ function EasyBlogParseRoute(&$segments)
 			$index = ($count - 1);
 			$alias = $segments[$index];
 
+			// There could be instances where it has &highlight=xxx in the query string
+			$tmp = explode('&highlight', $alias);
+			$alias = $tmp[0];
+			
 			$post = EB::post();
 			$post->loadByPermalink($alias);
 

@@ -109,7 +109,13 @@ class EasyBlogViewLatest extends EasyBlogView
 			$item = new JFeedItem();
 			$item->title = $this->escape($post->title);
 			$item->link = $post->getPermalink();
-			$item->description = $image . $post->getIntro();
+
+			if ($this->config->get('main_rss_content') == 'fulltext') {
+				$item->description = $image . $post->getContent();
+			} else {
+				$item->description = $image . $post->getIntro();	
+			}
+			
 
 			// replace the image source to proper format so that feed reader can view the image correctly.
 			$item->description = str_replace('src="//', 'src="' . $scheme . '//', $item->description);

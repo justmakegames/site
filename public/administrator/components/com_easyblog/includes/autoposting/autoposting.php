@@ -44,7 +44,7 @@ class EasyBlogAutoPosting extends EasyBlog
 
 			// Load the oauth client
 			$table = EB::table('OAuth');
-			$exists = $table->load(array('user_id' => $post->created_by, 'type' => $type));
+			$exists = $table->load(array('user_id' => $post->created_by, 'type' => $type, 'system' => '0'));
 
 			// Ensure that the client exists
 			if (!$exists) {

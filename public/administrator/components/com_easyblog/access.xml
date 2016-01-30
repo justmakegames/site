@@ -7,6 +7,7 @@
 		<action name="easyblog.manage.setting" title="COM_EASYBLOG_JACL_MANAGE_SETTINGS" description="COM_EASYBLOG_JACL_MANAGE_SETTINGS_DESC" />
 		<action name="easyblog.manage.autoposting" title="COM_EASYBLOG_JACL_MANAGE_AUTOPOSTING" description="COM_EASYBLOG_JACL_MANAGE_AUTOPOSTING_DESC" />
 		<action name="easyblog.manage.blog" title="COM_EASYBLOG_JACL_MANAGE_BLOGS" description="COM_EASYBLOG_JACL_MANAGE_BLOGS_DESC" />
+		<action name="easyblog.manage.templates" title="COM_EASYBLOG_JACL_MANAGE_TEMPLATES" description="COM_EASYBLOG_JACL_MANAGE_TEMPLATES_DESC" />
 		<action name="easyblog.manage.blocks" title="COM_EASYBLOG_JACL_MANAGE_BLOCKS" description="COM_EASYBLOG_JACL_MANAGE_BLOCKS_DESC" />
 		<action name="easyblog.manage.fields" title="COM_EASYBLOG_JACL_MANAGE_FIELDS" description="COM_EASYBLOG_JACL_MANAGE_FIELDS_DESC" />
 		<action name="easyblog.manage.languages" title="COM_EASYBLOG_JACL_MANAGE_LANGUAGES" description="COM_EASYBLOG_JACL_MANAGE_LANGUAGES_DESC" />

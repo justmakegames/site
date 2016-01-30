@@ -131,7 +131,7 @@ class EasyBlogViewComposer extends EasyBlogView
 		$connector->setMethod('POST');
 		$connector->execute();
 
-		$result = $connector->getResult($url);
+		$result = $connector->getResult($url, false, true);
 		$keywords = json_decode($result);
 
 		$this->ajax->resolve($keywords->result);
@@ -274,7 +274,7 @@ class EasyBlogViewComposer extends EasyBlogView
 		// Associates may compromise of teams, groups, events etc.
 		$associates = array('teams' => array(), 'events' => array(), 'groups' => array());
 
-		// @TODO: Check if the user is really allowed to use this
+		// Check if the user is really allowed to use this
 		if (!$this->my->id) {
 			return $this->ajax->reject(JText::_('COM_EASYBLOG_NOT_ALLOWED'));
 		}

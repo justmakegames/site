@@ -322,7 +322,8 @@ class EasyBlogBlocks extends EasyBlog
 				}
 
 				// Replace nested block placeholder with nested block html
-				$blockHtml = JString::str_ireplace('<!--block' . $nestedBlock->uid . '-->', $nestedBlockHtml, $blockHtml);
+				// $blockHtml = JString::str_ireplace('<!--block' . $nestedBlock->uid . '-->', $nestedBlockHtml, $blockHtml);
+				$blockHtml = str_ireplace('<!--block' . $nestedBlock->uid . '-->', $nestedBlockHtml, $blockHtml);
 			}
 		}
 

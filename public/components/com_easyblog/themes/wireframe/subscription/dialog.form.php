@@ -82,8 +82,8 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <div class="col-cell control-label">&nbsp;</div>
                 <div class="col-cell">
                     <div class="eb-checkbox">
-                        <input type="checkbox" id="esregister" name="esregister" value="1" data-subscribe-register />
-                        <label for="esregister">
+                        <input type="checkbox" id="subscriptionregister" name="subscriptionregister" value="1" data-subscribe-register />
+                        <label for="subscriptionregister">
                             <?php echo JText::_('COM_EASYBLOG_REGISTER_AS_SITE_MEMBER'); ?>
                         </label>
                     </div>

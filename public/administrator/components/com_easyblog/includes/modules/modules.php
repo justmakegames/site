@@ -103,6 +103,15 @@ class EasyBlogModules
 				$post->summary = $post->getContentWithoutIntro('entry', $triggerPlugins);
 			}
 
+			// Checks if this post have a video embedded using legacy video. 
+			// If true, properly process the video and get the link.
+			$pattern = '/\[embed=(.*)\](.*)\[\/embed\]/uiU';
+			preg_match_all($pattern, $post->summary, $matches, PREG_SET_ORDER);
+
+			if ($matches) {
+				$post->summary = EB::videos()->processVideos($post->summary);
+			}
+
 			// Truncation settings
 			$maxLength = $params->get('textcount', 0);
 			$length = JString::strlen($post->summary);
@@ -120,6 +129,7 @@ class EasyBlogModules
 			}
 
 			$result[] = $post;
+			
 		}
 
 		return $result;

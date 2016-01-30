@@ -377,12 +377,6 @@ class EasyBlogControllerPosts extends EasyBlogController
 		// Load the blog object
 		$post = EB::post($id);
 
-		// Ensure that the current user can moderate the post.
-		if (!$post->canModerate()) {
-			$this->info->set(JText::_('COM_EASYBLOG_NO_PERMISSIONS_TO_MODERATE'), 'error');
-			return $this->app->redirect($return);
-		}
-
 		// Do not allow password protected blog posts to be featured
 		if ($this->config->get('main_password_protect') && !empty($blog->blogpassword)) {
 			EB::info()->set('COM_EASYBLOG_PASSWORD_PROTECTED_CANNOT_BE_FEATURED', 'error');

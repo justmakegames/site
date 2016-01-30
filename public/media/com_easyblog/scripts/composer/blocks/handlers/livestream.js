@@ -242,7 +242,7 @@ EasyBlog.module("composer/blocks/handlers/livestream", function($) {
                 }
 
                 // https://vimeo.com/102741745
-                var regex = /^(http|https):\/\/www\.livestream\.com\/(.*)$/;
+                var regex = /^(http|https):\/\/(www\.)?livestream\.com\/(.*)$/;
                 var valid = regex.test(url);
 
                 return valid;
@@ -289,12 +289,25 @@ EasyBlog.module("composer/blocks/handlers/livestream", function($) {
                     // Metacafe data is retrieved via opengraph
                     data.url = url;
 
-                    data.source = result.video.source;
-                    data.width = result.video.width;
-                    data.height = result.video.height;
+                    // console.log(result);
+                    // return;
+
+                    // data.source = result.video.source;
+
+                    // we need to further process the url for embeding.
+                    var regex = /play_url=http:\/\/api.new.livestream.com\/(.*).smil\&/
+                    var match = result.opengraph.video.match(regex);
+
+                    if (match) {
+                        data.source = 'http://livestream.com/' + match[1] + '/player?autoPlay=false';
+                    }
+
+                    data.width = result.opengraph.video.width;
+                    data.height = result.opengraph.video.height;
                     data.title = result.opengraph.title;
                     data.description = result.opengraph.desc;
                     data.embed = self.getPlayer(data.source).prop('outerHTML');
+
                     data.permalink = result.opengraph.url;
 
                     // Set the overlay

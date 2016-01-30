@@ -120,6 +120,7 @@ class EasyBlogThemes extends EasyBlog
 		// If there is an active menu, try to get the menu parameters.
 		if ($this->menu) {
 
+
 			// Get the params prefix
 			$prefix = isset($options['paramsPrefix']) ? $options['paramsPrefix'] : '';
 
@@ -133,7 +134,8 @@ class EasyBlogThemes extends EasyBlog
 
 			// Check the view
 			$view = $this->app->input->get('view');
-
+			$layout = $this->input->get('layout', '', 'cmd');
+			
 			// Check the id
 			$id = $this->input->get('id', 0, 'int');
 
@@ -145,8 +147,21 @@ class EasyBlogThemes extends EasyBlog
 				$this->params = EB::getMenuParams($id, 'tag');
 			}
 
-			if ($view == 'blogger') {
+			if ($view == 'blogger' && $layout == 'listings') {
 				$this->params = EB::getMenuParams($id, 'blogger');
+			}
+
+			if ($this->params->get('post_image', null) == null) {
+				// if this happen, we know the whatever menu item is created prior to 5.0. Lets just get the default listing options from config.
+				$defaultListingParams = EB::getMenuParams('0', 'listing', $this->params);
+
+				$defaultListingParams = $defaultListingParams->toArray();
+
+				if ($defaultListingParams) {
+					foreach($defaultListingParams as $key => $val) {
+						$this->params->set($key, $val);
+					}
+				}
 			}
 
 			// We will just set it here from the menu when this class first get instantiate.

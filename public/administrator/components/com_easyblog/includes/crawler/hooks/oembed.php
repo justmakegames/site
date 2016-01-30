@@ -262,8 +262,8 @@ class EasyBlogCrawlerOEmbed
 
 	public function dailymotion(&$oembed, $absoluteUrl)
 	{
-		$url = 'http://www.dailymotion.com/services/oembed/?url=' . urlencode($absoluteUrl);
-
+		$url = 'https://www.dailymotion.com/services/oembed/?url=' . urlencode($absoluteUrl);
+		
 		$connector = EB::connector();
 		$connector->addUrl($url);
 		$connector->execute();

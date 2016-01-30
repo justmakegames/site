@@ -26,6 +26,18 @@ class EasyBlogAvatar extends EasyBlog
 
 		// Try to get the avatar
 		$obj = new $class();
+
+		// so far only 2 component get the current logged in user avatar when the comment avatar as guest
+		if (($class == 'EasyBlogAvatarEasysocial' || $class == 'EasyBlogAvatarJomsocial') && $profile->id == null) {
+
+			// If we get a failed status, just render default avatar
+			$this->loadLibrary('default');
+			$obj = new EasyBlogAvatarDefault();
+			$link = $obj->getAvatar($profile);
+			
+			return $link;
+		}
+
 		$link = $obj->getAvatar($profile);
 
 		// If we get a failed status, just render default avatar

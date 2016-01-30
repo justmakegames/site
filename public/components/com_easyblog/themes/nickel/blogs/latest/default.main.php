@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 
 <?php $column = $this->params->get('post_nickel_column', 2); ?>
-<?php $grid_size = 100 / $column; ?>
+<?php $grid_size = 99 / $column; ?>
 <div class="eb-masonry-post eb-responsive" data-blog-posts style="width: <?php echo $grid_size; ?>%">
 	<div class="eb-post" itemprop="blogPosts" itemscope itemtype="http://schema.org/BlogPosting" data-blog-posts-item data-id="<?php echo $post->id;?>">
 

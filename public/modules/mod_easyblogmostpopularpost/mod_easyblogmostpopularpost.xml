@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyBlog - Most Popular Post Module</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>12th October 2015</creationDate>
+	<creationDate>19th January 2016</creationDate>
 	<copyright>Copyright 2009 - 2015 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>5.0.28</version>
+	<version>5.0.32</version>
 	<description><![CDATA[Most popular post module for your EasyBlog's component.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easyblogmostpopularpost.ini</language>
@@ -82,6 +82,10 @@
 				</field>
 
 				<field name="showcategory" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_CATEGORY" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_CATEGORY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_post_type_icon" type="radio" class="btn-group" default="1" label="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_POST_TYPE_ICON" description="MOD_EASYBLOGMOSTPOPULARPOST_SHOW_POST_TYPE_ICON_DESC">
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>

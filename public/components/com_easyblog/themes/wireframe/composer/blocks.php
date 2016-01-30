@@ -14,6 +14,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="eb-composer-view eb-composer-blocks" data-eb-composer-view data-name="blocks" data-eb-composer-blocks>
     <?php echo $this->output('site/composer/blocks/toolbar'); ?>
     <?php echo $this->output('site/composer/blocks/viewport'); ?>
+
     <div class="hide" data-eb-block-template>
         <?php echo $this->output('site/document/blocks/editable'); ?>
     </div>

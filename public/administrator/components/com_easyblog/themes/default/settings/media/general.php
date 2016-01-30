@@ -58,7 +58,7 @@ defined('_JEXEC') or die('Unauthorized Access');
     						</div>
     					</div>
 
-    					
+
     					<div><?php echo JText::sprintf( 'COM_EASYBLOG_SETTINGS_MEDIA_IMAGE_UPLOAD_PHP_MAXSIZE' , ini_get( 'upload_max_filesize') ); ?></div>
     					<div><?php echo JText::sprintf( 'COM_EASYBLOG_SETTINGS_MEDIA_IMAGE_UPLOAD_PHP_POSTMAXSIZE' , ini_get( 'post_max_size') ); ?></div>
                     </div>
@@ -297,7 +297,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     	<div class="row">
                     		<div class="col-sm-6">
                     			<div class="input-group">
-    								<input type="text" name="main_thumbnail_width" class="form-control text-center" value="<?php echo $this->config->get('main_thumbnail_width');?>" />
+    								<input type="text" name="main_image_thumbnail_width" class="form-control text-center" value="<?php echo $this->config->get('main_image_thumbnail_width');?>" />
     								<span class="input-group-addon"><?php echo JText::_( 'COM_EASYBLOG_PIXELS' ); ?></span>
     							</div>
     						</div>
@@ -317,7 +317,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     	<div class="row">
                     		<div class="col-sm-6">
                     			<div class="input-group">
-    								<input type="text" name="main_thumbnail_height" class="form-control text-center" value="<?php echo $this->config->get('main_thumbnail_height');?>" />
+    								<input type="text" name="main_image_thumbnail_height" class="form-control text-center" value="<?php echo $this->config->get('main_image_thumbnail_height');?>" />
     								<span class="input-group-addon"><?php echo JText::_( 'COM_EASYBLOG_PIXELS' ); ?></span>
     							</div>
     						</div>
@@ -346,7 +346,7 @@ defined('_JEXEC') or die('Unauthorized Access');
       							$options[]	= JHTML::_('select.option', $i , $message );
       						}
 
-    						echo JHTML::_('select.genericlist', $options, 'main_thumbnail_quality', 'class="form-control"', 'value', 'text', $this->config->get('main_thumbnail_quality' ) );
+    						echo JHTML::_('select.genericlist', $options, 'main_image_thumbnail_quality', 'class="form-control"', 'value', 'text', $this->config->get('main_image_thumbnail_quality' ) );
     					?>
     					<div class="help-block">
     					<?php echo JText::_( 'COM_EASYBLOG_SETTINGS_WORKFLOW_IMAGE_UPLOAD_QUALITY_HINTS' );?>

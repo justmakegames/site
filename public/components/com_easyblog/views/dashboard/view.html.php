@@ -254,6 +254,15 @@ class EasyBlogViewDashboard extends EasyBlogView
 
 		//check if this is coming from write layout or not.
 		$isWrite = $this->getLayout() == 'write' ? 1 : 0;
+		$defaultCategory = '';
+
+		if ($isWrite) {
+			$defaultCategory = $this->input->get('category', '', 'int');
+
+			if ($defaultCategory) {
+				$defaultCategory = '&category=' . $defaultCategory;
+			}
+		}
 
 		// Get the page title
 		$title = EB::getPageTitle(JText::_('COM_EASYBLOG_DASHBOARD_ENTRIES_PAGE_TITLE'));
@@ -366,6 +375,7 @@ class EasyBlogViewDashboard extends EasyBlogView
 		$this->set('oauthClients', $oauthClients);
 		$this->set('state', $state);
 		$this->set('isWrite', $isWrite);
+		$this->set('defaultCategory', $defaultCategory);
 
 		echo parent::display('dashboard/entries/default');
 	}

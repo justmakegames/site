@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php if ($preview) { ?>
 	<div class="eb-help-subscribe">
 		<i class="fa fa-envelope"></i>
-		<a href="javascript:void(0);"><?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_BLOG'); ?></a>
+<!-- 		<a href="javascript:void(0);"><?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_BLOG'); ?></a> -->
 	</div>
 	<?php } ?>
 
@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } else { ?>
 				<div class="eb-help-unsubscribe">
 					<i class="fa fa-envelope"></i>
-					<a href="javascript:void(0);" class="link-subscribe" data-blog-unsubscribe data-subscription-id="<?php echo $subscription->id;?>"><?php echo JText::_('COM_EASYBLOG_UNSUBSCRIBE_ENTRY'); ?></a>
+					<a href="javascript:void(0);" class="link-subscribe" data-return="<?php echo $return; ?>" data-blog-unsubscribe data-subscription-id="<?php echo $subscription->id;?>"><?php echo JText::_('COM_EASYBLOG_UNSUBSCRIBE_ENTRY'); ?></a>
 				</div>
 			<?php } ?>
 		<?php } ?>
@@ -44,11 +44,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</div>
 	<?php } ?>
 
-	<?php if (($this->config->get('layout_enablepdf') == 1 || ($this->config->get('layout_enablepdf') == 2 && !$this->my->guest)) && $this->config->get('main_phocapdf_enable') && $this->entryParams->get('post_pdf', true)) { ?>
+	<?php if ($this->config->get('main_phocapdf_enable') && $this->entryParams->get('post_pdf', true)) { ?>
 		<?php echo $this->output('site/blogs/tools/pdf'); ?>
 	<?php } ?>
 
-	<?php if (($this->config->get('layout_enableprint') == 1 || ($this->config->get('layout_enableprint') == 2 && !$this->my->guest)) && $this->entryParams->get('post_print', true)) { ?>
+	<?php if ($this->entryParams->get('post_print', true)) { ?>
 		<?php echo $this->output('site/blogs/tools/print'); ?>
 	<?php } ?>
 

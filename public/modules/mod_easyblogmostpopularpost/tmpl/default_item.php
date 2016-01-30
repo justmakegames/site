@@ -151,9 +151,11 @@ if ($layout == 'horizontal') {
 
     <div class="eb-mod-foot mod-muted mod-small">
         <!-- Source -->
+    <?php if ($params->get('show_post_type_icon', true)) { ?>
         <div class="mod-cell pr-10">
             <i class="fa fa-align-left" style="font-size: 14px;"></i>
         </div>
+    <?php } ?>
 
     <?php if ($params->get('showhits' , true)) { ?>
         <div class="mod-cell pr-10">
