@@ -715,7 +715,7 @@ class KomentoInstaller
 		{
 			require_once( JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_komento' . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'json.php' );
 
-			$json = new Services_JSON();
+			$json = new KomentoJson();
 		}
 
 		return $json;
@@ -1257,40 +1257,31 @@ class KomentoDatabaseUpdate
 
 		foreach( $result as $row )
 		{
-			if( !empty( $row->rules ) && ( substr( $row->rules, 0, 1 ) === '[' ) && ( substr( $row->rules, -1, 1 ) === ']' ) )
+			if( !empty( $row->rules ) )
 			{
-				$data = new stdClass();
-
 				$json = KomentoInstaller::getJSON();
 
 				$rules = $json->decode( $row->rules );
 
-				foreach( $rules as $rule )
-				{
-					if( empty( $rule->name ) ) {
-						continue;
-					}
+				// foreach( $rules as $rule )
+				// {
+				// 	// Migrate over some old key
+				// 	if( $rule == 'delete_attachment' )
+				// 	{
+				// 		$rule = 'delete_own_attachment';
+				// 	}
+				// 	if( $rule == 'stick_comment' )
+				// 	{
+				// 		$rule = 'stick_all_comment';
+				// 	}
 
-					if( !isset( $rule->value ) ) {
-						$rule->value = false;
-					}
+				// 	$data->$rule = $rule->value ? true : false;
+				// }
 
-					$rulename = $rule->name;
-
-					// Migrate over some old key
-					if( $rulename == 'delete_attachment' )
-					{
-						$rulename = 'delete_own_attachment';
-					}
-					if( $rulename == 'stick_comment' )
-					{
-						$rulename = 'stick_all_comment';
-					}
-
-					$data->$rulename = $rule->value ? true : false;
-				}
-
-				$row->rules = $json->encode( $data );
+				$newRule = 'read_others_comment';
+				$rules->$newRule = true;
+				
+				$row->rules = $json->encode( $rules );
 
 				$this->db->updateObject( '#__komento_acl', $row, 'id' );
 			}

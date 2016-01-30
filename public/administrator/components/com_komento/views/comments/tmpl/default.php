@@ -1,8 +1,8 @@
 <?php
 /**
-* @package		Komento
-* @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      Komento
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -31,14 +31,14 @@ Komento.ready(function($){
 
 Komento.require().script('admin.comment.actions').done();
 
-
-
 </script>
 <style>
 .comment-cell p {margin:0;}
 </style>
 <form action="index.php?option=com_komento&view=comments" method="post" name="adminForm" id="adminForm">
-<?php echo $this->loadTemplate( $this->getTheme() ); ?>
+
+<?php echo $this->loadTemplate( 'comments' ); ?>
+
 <?php echo JHTML::_( 'form.token' ); ?>
 <input type="hidden" name="affectchild" value="0" />
 <input type="hidden" name="boxchecked" value="0" />

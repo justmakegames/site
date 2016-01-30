@@ -17,6 +17,9 @@
 		<file>recaptcha.php</file>
 		<file>recaptcha.xml</file>
 	</files>
+	<languages>
+		<language type="en-GB">en-GB.plg_fields_user_recaptcha.ini</language>
+	</languages>
 	<updates>
 		<version>http://stackideas.com/updater/easysocial/fields/version</version>
 		<patch>http://stackideas.com/updater/easysocial/fields/patch</patch>

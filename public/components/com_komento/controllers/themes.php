@@ -47,9 +47,9 @@ class KomentoControllerThemes extends KomentoParentController
 			$result[]		= $obj;
 		}
 
-		Komento::getClass('json', 'Services_JSON');
+		Komento::getClass('json', 'KomentoJson');
 		header('Content-type: text/x-json; UTF-8');
-		$json = new Services_JSON();
+		$json = new KomentoJson();
 		echo $json->encode( $result );
 		exit;
 	}

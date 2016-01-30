@@ -1,8 +1,8 @@
 <?php
 /**
-* @package		Komento
-* @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      Komento
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -23,12 +23,40 @@ class KomentoViewKomento extends KomentoAdminView
 		// $slider		= JPane::getInstance( 'sliders' );
 
 		//initialise variables
+		$model = Komento::getModel('comments');
+
+		$comments = '';
+		$options = array(
+			'threaded'	=> 0,
+			'sort'		=> 'latest',
+			'limit'		=> 10
+		);
+
+		$comments = $model->getComments('all', 'all', $options);
+
+		// Set Options
+		$optionsPending['published'] = 2;
+		$optionsPending['no_tree'] = 1;
+		$optionsPending['no_child'] = 1;
+
+		$pendings = $model->getData($optionsPending);
+
+		foreach ($pendings as $pending) {
+			$pending = Komento::getHelper( 'comment' )->process( $pending, 1 );
+		}
+
+		foreach ($comments as $comment) {
+			$comment = Komento::getHelper( 'comment' )->process( $comment, 1 );
+		}
+		
 		$document	= JFactory::getDocument();
 		$user		= JFactory::getUser();
 
 		$this->assignRef( 'slider', $slider );
 		$this->assignRef( 'user', $user );
 		$this->assignRef( 'document', $document );
+		$this->assignRef( 'comments', $comments );
+		$this->assignRef( 'pendings', $pendings );
 		parent::display($tpl);
 	}
 
@@ -72,11 +100,9 @@ class KomentoViewKomento extends KomentoAdminView
 	public function registerToolbar()
 	{
 		// Set the titlebar text
-		JToolBarHelper::title( JText::_( 'COM_KOMENTO' ), 'home');
+		JToolBarHelper::title(JText::_('COM_KOMENTO'), 'home');
 
-		if( Komento::joomlaVersion() >= '1.6' )
-		{
-			JToolBarHelper::preferences('com_komento');
-		}
+		JToolBarHelper::preferences('com_komento');
+
 	}
 }

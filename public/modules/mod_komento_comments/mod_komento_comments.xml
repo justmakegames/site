@@ -19,7 +19,18 @@
 			<fieldset name="basic" addfieldpath="/administrator/components/com_komento/elements">
 				<field name="limit" type="text" default="5" label="Comments Limit" description="Max comments to display" />
 				<field name="component" type="modal_komentocomponent" default="all" label="Select Component" description="Select which component's comment to display" state="1" />
+				
+				<field name="filter" type="list" default="all" label="Filter" description="Select Filter type">
+					<option value="">No Filter</option>
+					<option value="category">Filter by Category</option>
+					<option value="article">Filter by Article</option>
+					<option value="user">Filter by User</option>
+				</field>
+				
 				<field name="category" type="text" default="" label="Filter by Category ID" description="Filter comments with category id (comma separated)" />
+				<field name="articleId" type="text" default="" label="Filter by Article ID" description="Filter comments with article id (comma separated)" />
+				<field name="userId" type="text" default="" label="Filter by User ID" description="Filter comments with user id (comma separated)" />
+				
 				<field name="sort" type="list" default="latest" label="Sort" description="Select sorting type">
 					<option value="latest">Latest First</option>
 					<option value="oldest">Oldest First</option>

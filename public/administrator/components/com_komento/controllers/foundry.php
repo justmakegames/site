@@ -52,7 +52,7 @@ class KomentoControllerFoundry extends KomentoController
 		Komento::getClass('json', 'Services_JSON');
 
 		header('Content-type: text/x-json; UTF-8');
-		$json = new Services_JSON();
+		$json = new KomentoJson();
 		echo $json->encode( $resources );
 		exit;
 	}

@@ -6,7 +6,8 @@ Komento.Controller(
 	{
 		defaults: {
 			'{migrateButton}': '.migrateButton',
-			'{deleteButton}': '.deleteButton'
+			'{deleteButton}': '.deleteButton',
+			'{migrateSettingsButton}': '.migrateSettingsButton'
 		}
 	},
 	function(self)
@@ -21,6 +22,18 @@ Komento.Controller(
 			{
 				self.migrateStart();
 			}
+		},
+
+		'{migrateSettingsButton} click': function(el) {
+			
+			Komento.ajax('admin.views.integrations.migrateSettings', {
+				component: self.element.find('#componentSettings').val(),
+				currentComponent: el.data("current-component")
+			}, {
+				success: function() {
+					self.element.find('#SettingsMigratorProgress').removeClass("hide");
+				}
+			});
 		},
 
 		migrateStart: function() {

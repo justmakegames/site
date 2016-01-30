@@ -33,7 +33,7 @@ class Komento
 	}
 
 	public static function import( $type, $filename )
-	{
+	{ // Test
 		$file = "";
 
 		if ($type == 'helper')
@@ -392,9 +392,9 @@ class Komento
 
 		if( is_null( $json ) )
 		{
-			Komento::getClass( 'json', 'Services_JSON' );
+			Komento::getClass( 'json', 'KomentoJson' );
 
-			$json = new Services_JSON();
+			$json = new KomentoJson();
 		}
 
 		return $json;
@@ -873,7 +873,7 @@ class Komento
 		$totalRating 		= 0;
 		$totalRatingCount	= 0;
 
-		if ($ratings) { 
+		if ($ratings) {
 			$totalRating		= $ratings->value;
 			$totalRatingCount 	= $ratings->total;
 		}
@@ -951,6 +951,13 @@ class Komento
 			$options['threaded'] = $config->get( 'enable_threaded' );
 
 			$profile		= Komento::getProfile();
+
+			$my	= JFactory::getUser();
+
+			if( !$profile->allow( 'read_others_comment' ) )
+			{
+				$options['userid'] = $my->id;
+			}
 
 			if( $profile->allow( 'read_comment' ) )
 			{

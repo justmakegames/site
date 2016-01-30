@@ -87,7 +87,12 @@ class KomentoViewKomento extends KomentoView
 		$commentObj->sent			= 0;
 
 		// Construct other comment data
-		$commentObj->ip			= JRequest::getVar('REMOTE_ADDR', '', 'SERVER');
+		$ipAddress = @$_SERVER['REMOTE_ADDR'];
+		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
+		    $ipAddress = array_pop(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']));
+		}
+
+		$commentObj->ip			= $ipAddress;
 		$commentObj->created_by	= $profile->id;
 		$commentObj->created	= $now;
 		$commentObj->published	= 1;
@@ -167,26 +172,27 @@ class KomentoViewKomento extends KomentoView
 				}
 			}
 
-			if( $requiresCaptcha )
-			{
-				$captchaData	= array();
-				$captchaData['recaptcha_challenge_field'] = JRequest::getVar( 'recaptchaChallenge' );
-				$captchaData['recaptcha_response_field'] = JRequest::getVar( 'recaptchaResponse' );
-				$captchaData['captcha-response'] = JRequest::getVar( 'captchaResponse' );
-				$captchaData['captcha-id'] = JRequest::getVar( 'captchaId' );
-
-				if( Komento::getCaptcha() && !Komento::getCaptcha()->verify( $captchaData ) )
-				{
-					$error  = Komento::getCaptcha()->getError();
+			if ($requiresCaptcha) {
+				
+				$captchaData = array();
+				$captchaData['recaptcha_response_field'] = JRequest::getVar('recaptchaResponse');
+				$captchaData['captcha-response'] = JRequest::getVar('captchaResponse');
+				$captchaData['captcha-id'] = JRequest::getVar('captchaId');
+				
+				if (Komento::getCaptcha() && !Komento::getCaptcha()->verify($captchaData)) {
+					$error = Komento::getCaptcha()->getError();
 					$reload = Komento::getCaptcha()->getReloadSyntax();
 
-					if($error == 'incorrect-captcha-sol')
-					{
+					if ($error == 'incorrect-captcha-sol') {
 						$error = JText::_( 'COM_KOMENTO_CAPTCHA_INVALID_RESPONSE' );
 					}
 
-					$ajax->fail( $error );
-					$ajax->captcha( $reload );
+					$ajax->fail($error);
+					
+					if ($config->get('antispam_captcha_type') == 0) {
+						$ajax->captcha($reload);
+					}
+
 					$ajax->send();
 				}
 			}

@@ -150,7 +150,7 @@ class com_KomentoInstallerScript
 		<tr>
 			<td>
 				<div style="width:700px; padding:10px; margin:10px 0; border: 3px solid red">
-					<span style="color: red; font-size: 24px; font-weight: bold;"><u>Important!</u></span> <span style="font-size: 18px;">If you are upgrading from Komento 1.0, you will have to go to the <a href="<?php echo rtrim( JURI::root(), '/' ); ?>/administrator/index.php?option=com_komento&amp;view=system&amp;active=database" style="text-decoration: underline;">Configuration Page</a> and perform a database update for Komento 1.8 to work properly.</span>
+					<span style="color: red; font-size: 24px; font-weight: bold;"><u>Important!</u></span> <span style="font-size: 18px;">If you are upgrading from Komento 1.0, you will have to go to the <a href="<?php echo rtrim( JURI::root(), '/' ); ?>/administrator/index.php?option=com_komento&amp;view=system&amp;active=database" style="text-decoration: underline;">Configuration Page</a> and perform a database update for Komento 2.0 to work properly.</span>
 				</div>
 			</td>
 		</tr>

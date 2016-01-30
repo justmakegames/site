@@ -12,8 +12,9 @@
  */
 
 defined('_JEXEC') or die('Restricted access');
-
-if( ( $system->config->get( 'show_name' ) == 2 || $system->config->get( 'show_email' ) == 2 || $system->config->get( 'show_website' ) == 2 ) || ( $system->my->guest && ( $system->config->get( 'show_name' ) == 1 || $system->config->get( 'show_email' ) == 1 || $system->config->get( 'show_website' ) == 1 ) ) ) { ?>
+?>
+<div class="kmt-form-author clearfix formAuthor">
+<?php if( ( $system->config->get( 'show_name' ) == 2 || $system->config->get( 'show_email' ) == 2 || $system->config->get( 'show_website' ) == 2 ) || ( $system->my->guest && ( $system->config->get( 'show_name' ) == 1 || $system->config->get( 'show_email' ) == 1 || $system->config->get( 'show_website' ) == 1 ) ) ) { ?>
 	<ul class="reset-ul float-li">
 		<?php
 			// Name field li.kmt-form-name
@@ -28,12 +29,11 @@ if( ( $system->config->get( 'show_name' ) == 2 || $system->config->get( 'show_em
 	</ul>
 <?php } ?>
 
-<?php if( !$system->my->guest ) { ?>
-	<?php
-		// Avatar div.kmt-avatar
-		echo $this->fetch( 'comment/form/avatar.php' );
+<?php if( !$system->my->guest ) { 
+	// Avatar div.kmt-avatar
+	echo $this->fetch( 'comment/form/avatar.php' );
 
-		// Author div.kmt-comment-detail
-		echo $this->fetch( 'comment/form/author.php' );
-	?>
-<?php }
+	// Author div.kmt-comment-detail
+	echo $this->fetch( 'comment/form/author.php' );
+} ?>
+</div>

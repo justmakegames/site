@@ -1,8 +1,8 @@
 <?php
 /**
-* @package		Komento
-* @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      Komento
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -77,32 +77,21 @@ class KomentoViewIntegrations extends KomentoAdminView
 		$mainframe = JFactory::getApplication();
 		$component	= JRequest::getString( 'component', '' );
 
-		if( $component == '' )
-		{
+		JToolBarHelper::back( 'Home' , 'index.php?option=com_komento');
+		JToolBarHelper::divider();
+
+		if( $component == '' ) {
 			JToolBarHelper::title( JText::_( 'COM_KOMENTO_INTEGRATIONS' ), 'integrations' );
-		}
-		else
-		{
+		} else {
 			$application = Komento::loadApplication( $component );
 			$name = $application->getComponentName();
 			JToolBarHelper::title( JText::_( 'COM_KOMENTO_INTEGRATIONS' ) . ': ' . $name , 'integrations' );
-		}
 
-		JToolBarHelper::back( 'Home' , 'index.php?option=com_komento');
-		JToolBarHelper::divider();
-		JToolBarHelper::apply( 'apply' );
-		JToolBarHelper::save();
-		JToolBarHelper::divider();
-		JToolBarHelper::cancel();
-	}
-
-	public function registerSubmenu()
-	{
-		if( JRequest::getString( 'component' ) == '' )
-		{
-			return '';
+			JToolBarHelper::apply( 'apply' );
+			JToolBarHelper::save();
+			JToolBarHelper::divider();
+			JToolBarHelper::cancel();
 		}
-		return 'submenu.php';
 	}
 
 	public function getEditorList( $selected )
@@ -161,7 +150,7 @@ class KomentoViewIntegrations extends KomentoAdminView
 		$editors[] = $bbcode;
 		$editors[] = $none;
 
-		return JHTML::_('select.genericlist',  $editors , 'form_editor', 'class="inputbox" size="1"', 'value', 'text', $selected );
+		return JHTML::_('select.genericlist',  $editors , 'form_editor', 'class="inputbox" .fa-', 'value', 'text', $selected );
 	}
 
 	public function renderSetting( $text, $configName, $type = 'checkbox', $options = '' )
@@ -177,17 +166,17 @@ class KomentoViewIntegrations extends KomentoAdminView
 
 		ob_start();
 	?>
-		<tr>
-			<td width="150" class="key">
+		<div class="form-group">
+			<label class="col-md-5 control-label">
 				<span class="<?php echo $configName; ?>"><?php echo JText::_( $text ); ?></span>
-			</td>
-			<td valign="top">
+			</label>
+			<div class="col-md-7">
 				<div class="has-tip">
 					<div class="tip"><i></i><?php echo JText::_( $text . '_DESC' ); ?></div>
 					<?php echo $this->$type( $configName, $state, $options );?>
 				</div>
-			</td>
-		</tr>
+			</div>
+		</div>
 
 	<?php
 		$html = ob_get_contents();

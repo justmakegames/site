@@ -139,7 +139,7 @@ class KomentoStringHelper
 		return  $source;
 	}
 
-	public static function url2link( $string )
+	public static function url2link($string)
 	{
 		$newString  = $string;
 

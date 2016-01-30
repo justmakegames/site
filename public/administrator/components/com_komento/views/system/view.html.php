@@ -1,8 +1,8 @@
 <?php
 /**
-* @package		Komento
-* @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      Komento
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -19,6 +19,8 @@ class KomentoViewSystem extends KomentoAdminView
 	{
 		// This is necessary for tabbing.
 		jimport('joomla.html.pane');
+
+		$layout = JRequest::getVar('layout');
 
 		$user		= JFactory::getUser();
 		$mainframe	= JFactory::getApplication();
@@ -38,6 +40,7 @@ class KomentoViewSystem extends KomentoAdminView
 
 		$this->assignRef( 'konfig'			, $konfig );
 		$this->assignRef( 'joomlaVersion'	, $version );
+		$this->assignRef( 'layout'	, $layout );
 
 		parent::display($tpl);
 	}
@@ -56,11 +59,6 @@ class KomentoViewSystem extends KomentoAdminView
 		JToolBarHelper::cancel();
 	}
 
-	public function registerSubmenu()
-	{
-		return 'submenu.php';
-	}
-
 	public function renderSetting( $text, $configName, $type = 'checkbox', $options = '' )
 	{
 		$type = 'render'.$type;
@@ -70,17 +68,17 @@ class KomentoViewSystem extends KomentoAdminView
 
 		ob_start();
 	?>
-		<tr>
-			<td width="300" class="key">
+		<div class="form-group">
+			<label class="col-md-5 control-label">
 				<span class="<?php echo $configName; ?>"><?php echo JText::_( $text ); ?></span>
-			</td>
-			<td valign="top">
+			</label>
+			<div class="col-md-7">
 				<div class="has-tip">
 					<div class="tip"><i></i><?php echo JText::_( $text . '_DESC' ); ?></div>
 					<?php echo $this->$type( $configName, $state, $options );?>
 				</div>
-			</td>
-		</tr>
+			</div>
+		</div>
 
 	<?php
 		$html = ob_get_contents();
@@ -104,7 +102,7 @@ class KomentoViewSystem extends KomentoAdminView
 			$options[] = $this->renderOption( $row, Komento::loadApplication( $row )->getComponentName() );
 		}
 
-		$html = JHtml::_('select.genericlist', $options, 'componentSelection', 'size="1" class="inputbox componentSelection"', 'value', 'text' );
+		$html = JHtml::_('select.genericlist', $options, 'componentSelection', '.fa- class="inputbox componentSelection"', 'value', 'text' );
 
 		return $html;
 	}
@@ -113,7 +111,7 @@ class KomentoViewSystem extends KomentoAdminView
 	{
 		$options = array( $this->renderOption( 'all', '*' ) );
 
-		$html = JHtml::_('select.genericlist', $options, 'articleSelection', 'size="1" class="inputbox articleSelection"', 'value', 'text' );
+		$html = JHtml::_('select.genericlist', $options, 'articleSelection', '.fa- class="inputbox articleSelection"', 'value', 'text' );
 
 		return $html;
 	}

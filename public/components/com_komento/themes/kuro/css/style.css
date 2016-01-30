@@ -13,6 +13,12 @@
 
 /* =reset
 ****************************************/
+.kmt-emoticon { 
+	width: 16px;
+	height: 16px;
+	vertical-align: top;
+	margin: 0 2px;
+}
 #section-kmt .small{margin:auto;padding:auto;}
 #section-kmt .reset-h{background:none;border:none;clear:none;float:none;display:block;padding:0;margin:0;width:auto}
 #section-kmt .reset-ul,
@@ -1207,7 +1213,8 @@ height: 4px;
 	display:inline-block;
 	margin:0 0 0 3px;
 }
-body div#section-kmt button.kmt-btn-submit{
+body div#section-kmt button.kmt-btn-submit,
+body div#section-kmt button.kmt-btn-cancel{
 	font-family:Arial;
 	font-size:12px;
 	font-weight:bold;
@@ -1230,7 +1237,17 @@ body div#section-kmt button.kmt-btn-submit{
 	-moz-box-shadow:0 1px 0 rgba(255,255,255,0.2) inset;
 	-webkit-box-shadow:0 1px 0 rgba(255,255,255,0.2) inset;
 }
+body div#section-kmt button.kmt-btn-submit + button.kmt-btn-cancel{
+	margin-right: 10px !important;
 
+	background:#eee;
+	color:#999;
+	text-shadow:0 1px 0 #fff;
+	border:1px solid #ccc;
+	box-shadow:0 1px 0 #fff inset;
+	-moz-box-shadow:0 1px 0 #fff inset;
+	-webkit-box-shadow:0 1px 0 #fff inset;
+}
 body div#section-kmt button.kmt-btn-submit.disabled{
 	background:#eee;
 	color:#999;
@@ -1553,7 +1570,7 @@ body #section-kmt .markItUpHeader > ul{float:left;}
 body #section-kmt .markItUpHeader ul ul a{display:block;text-indent:0;width:120px;background-position:2px 50%;padding:5px 5px 5px 25px}
 body #section-kmt .markItUpHeader ul ul a:hover{color:#FFF;background-color:#000}
 body #section-kmt .markItUpHeader ul li a{padding:4px;border:none;}
-body #section-kmt .markItUpHeader ul li a:hover{background:#fff no-repeat center;}
+body #section-kmt .markItUpHeader ul li a:hover{background-color:#fff;}
 
 /* =extend markitup : icons
 ****************************************/
@@ -1568,12 +1585,21 @@ body #section-kmt .markItUp .kmt-markitup-numeric a{background-image:url(../imag
 body #section-kmt .markItUp .kmt-markitup-list a{background-image:url(../images/markitup/list-item.png)!important}
 body #section-kmt .markItUp .kmt-markitup-quote a{background-image:url(../images/markitup/quotes.png)!important}
 body #section-kmt .markItUp .kmt-markitup-code a{background-image:url(../images/markitup/code.png)!important}
+
+body #section-kmt .markItUp .kmt-markitup-smile a,
+body #section-kmt .markItUp .kmt-markitup-happy a,
+body #section-kmt .markItUp .kmt-markitup-surprised a,
+body #section-kmt .markItUp .kmt-markitup-tongue a,
+body #section-kmt .markItUp .kmt-markitup-unhappy a,
+body #section-kmt .markItUp .kmt-markitup-wink a{background-size: 16px 16px; background-position: center;background-repeat: no-repeat;}
+
 body #section-kmt .markItUp .kmt-markitup-smile a{background-image:url(../images/markitup/emoticon-smile.png)!important}
 body #section-kmt .markItUp .kmt-markitup-happy a{background-image:url(../images/markitup/emoticon-happy.png)!important}
 body #section-kmt .markItUp .kmt-markitup-surprised a{background-image:url(../images/markitup/emoticon-surprised.png)!important}
 body #section-kmt .markItUp .kmt-markitup-tongue a{background-image:url(../images/markitup/emoticon-tongue.png)!important}
 body #section-kmt .markItUp .kmt-markitup-unhappy a{background-image:url(../images/markitup/emoticon-unhappy.png)!important}
 body #section-kmt .markItUp .kmt-markitup-wink a{background-image:url(../images/markitup/emoticon-wink.png)!important}
+
 body #section-kmt .markItUp .kmt-markitup-clean a{background-image:url(../images/markitup/clean.png)!important}
 body #section-kmt .markItUp .kmt-markitup-preview a{background-image:url(../images/markitup/preview.png)!important}
 

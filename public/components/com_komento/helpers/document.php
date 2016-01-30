@@ -37,8 +37,12 @@ class KomentoDocumentHelper
 			}
 
 			// only temporary to load development css
-			// waiting chang to finalise reset.css and comments.css
-			self::addTemplateCss( 'common.css' );
+			// waiting chang to finalise reset.css and comments.css 
+			// UPDATE: only load common.css for other themes than Wireframe.
+			if ($config->get('layout_theme') != 'wireframe') {
+				self::addTemplateCss( 'common.css' );
+			}
+			
 			// self::addTemplateCss( 'comments.css' );
 
 			// Load KomentoConfiguration class
@@ -50,17 +54,26 @@ class KomentoDocumentHelper
 			// Attach configuration to headers
 			$configuration->attach();
 
-			if( $config->get( 'layout_inherit_kuro_css', true ) )
-			{
+			if ($config->get('layout_inherit_kuro_css', 1) && $config->get('layout_theme') != 'wireframe') {
 				$document->addStylesheet( JURI::root() . 'components/com_komento/themes/kuro/css/style.css' );
 			}
 
 			// support for RTL sites
 			// forcertl = 1 for dev purposes
-			if( $document->direction == 'rtl' || JRequest::getInt( 'forcertl' ) == 1 )
-			{
-				$document->addStylesheet( JURI::root() . 'components/com_komento/themes/kuro/css/style-rtl.css' );
+			$rtlPath = rtrim(JURI::root(), '/') . '/components/com_komento/themes';
+
+			if (($document->direction == 'rtl' || JRequest::getInt('forcertl') == 1) ) {
+
+				if ($config->get('layout_theme') != 'wireframe') {
+					$rtlPath .= '/kuro/css/style-rtl.css';	
+				} else {
+					$rtlPath .= '/wireframe/css/style-rtl.css';	
+				}
+				
+				$document->addStylesheet($rtlPath);
 			}
+
+			
 
 			$document->addStylesheet(JURI::root() . 'media/foundry/3.1/styles/dialog/default.css');
 			$document->addStylesheet(JURI::root() . 'media/foundry/3.1/styles/fancybox/default.css');

@@ -172,7 +172,7 @@ class KomentoRegistry
 		{
 			require_once( JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_komento' . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'json.php' );
 
-			$json = new Services_JSON();
+			$json = new KomentoJson();
 		}
 
 		return $json;

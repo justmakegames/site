@@ -175,12 +175,11 @@ class KomentoProfileCommunitybuilder extends KomentoProfileVendor
 {
 	public function __construct($profile)
 	{
-		$this->addFile( JPATH_ROOT . DIRECTORY_SEPARATOR . 'administrator' . DIRECTORY_SEPARATOR . 'components' .DIRECTORY_SEPARATOR. 'com_comprofiler' .DIRECTORY_SEPARATOR. 'plugin.foundation.php' );
+		$this->addFile(JPATH_ADMINISTRATOR . '/components/com_comprofiler/plugin.foundation.php');
 
 		$ret = parent::__construct($profile);
 
-		if( $this->state )
-		{
+		if ($this->state) {
 			cbimport('cb.database');
 			cbimport('cb.tables');
 			cbimport('cb.tabs');
@@ -191,21 +190,27 @@ class KomentoProfileCommunitybuilder extends KomentoProfileVendor
 
 	public function getAvatar()
 	{
-		$user	= CBuser::getInstance( $this->profile->id );
-		// $field	= $user->getField( 'avatar', null, 'php', 'none', 'list' );
-		// return $field['avatar'];
 
-		$field	= $user->avatarFilePath();
-		return $field;
+		ob_start();
+		$user = CBuser::getInstance($this->profile->id);
+		$link = $user->getField('avatar', null, 'csv', 'none', 'list');
+		ob_end_clean();
+
+		if (!$link) {
+
+			$obj = new KomentoProfileGravatar($this->profile);
+
+			$link = $obj->getAvatar($this->profile->email);
+		}
+		return $link;
 	}
 
 	public function getLink()
 	{
-		if( $this->komentoprofile )
-		{
+		if ($this->komentoprofile) {
 			return JRoute::_('index.php?option=com_komento&view=profile&id=' . $this->profile->id);
 		}
-		//return JRoute::_('index.php?option=com_comprofiler&task=userProfile&user=' . $this->id, false);
+
 		return cbSef( 'index.php?option=com_comprofiler&amp;task=userProfile&amp;user='. $this->profile->id );
 	}
 }
@@ -255,21 +260,104 @@ class KomentoProfileHwdmediashare extends KomentoProfileVendor
 	}
 }
 
-class KomentoProfileEasyblog extends KomentoProfileVendor
+class KomentoProfileJoomprofile extends KomentoProfileVendor
 {
 	public function __construct($profile)
 	{
-		$this->addFile( JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR. 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'helper.php' );
+		$this->addFile(JPATH_SITE . '/components/com_joomprofile/includes/api.php');
 
 		return parent::__construct($profile);
 	}
 
 	public function getAvatar()
 	{
-		$profileEB	= EasyBlogHelper::getTable( 'Profile','Table' );
-		$profileEB->load( $this->profile->id );
+		$user = JoomProfileApi::getUser($this->profile->id);
+		$url = $user->getAvatar(0);
 
-		return $profileEB->getAvatar();
+		return $url;
+	}
+}
+
+class KomentoProfileEasyblog extends KomentoProfileVendor
+{
+	public function __construct($profile)
+	{
+		// Checking the site using which version of Easyblog 
+		$this->file = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
+
+		$this->addFile($this->file);
+		$this->addFile(JPATH_ROOT . '/components/com_easyblog/helpers/helper.php');
+	
+		return parent::__construct($profile);
+	}
+
+	public function fileExists($file)
+	{
+		return JFile::exists($file);
+	}
+
+	public function getProfileTable()
+	{
+		if ($this->fileExists($this->file)) {
+			return EB::table('Profile','Table');
+		} else {
+			return EasyBlogHelper::getTable('Profile','Table');
+		}
+	}
+
+	public function getAvatar()
+	{	
+		$profileTable = $this->getProfileTable();
+		$profileTable->load( $this->profile->id );
+
+		return $profileTable->getAvatar();
+	}
+
+	public function getLink()
+	{
+		if ($this->komentoprofile) {
+			return JRoute::_('index.php?option=com_komento&view=profile&id=' . $this->profile->id);
+		}
+
+		$profileTable = $this->getProfileTable();
+		
+		$profileTable->load($this->profile->id);
+
+		return $profileTable->getPermalink();
+	}
+}
+
+class KomentoProfileJblance extends KomentoProfileVendor
+{
+	public function __construct($profile)
+	{
+		$this->addFile(JPATH_ADMINISTRATOR.'/components/com_jblance/helpers/jblance.php');	//include this helper file to make the class accessible in all other PHP files
+		$this->addFile(JPATH_ADMINISTRATOR.'/components/com_jblance/helpers/link.php');	//include this helper file to make the class accessible in all other PHP files
+
+		return parent::__construct($profile);
+	}
+
+	public function getAvatar()
+	{
+		$avatar = '';
+		//get the JoomBri picture
+		$db = JFactory::getDBO();
+	
+		$query = "SELECT thumb FROM #__jblance_user WHERE user_id=".$db->quote($this->profile->id);
+		
+		$db->setQuery($query);
+		$jbpic = $db->loadResult();
+		
+		$imgpath = JBPROFILE_PIC_PATH.'/'.$jbpic;
+		$imgurl = JBPROFILE_PIC_URL.$jbpic.'?'.time();
+		
+		$avatar = JURI::root().'components/com_jblance/images/nophoto_sm.png';
+		
+		if(JFile::exists($imgpath)){
+			$avatar = $imgurl;
+		}
+		
+		return $avatar;
 	}
 
 	public function getLink()
@@ -278,10 +366,8 @@ class KomentoProfileEasyblog extends KomentoProfileVendor
 		{
 			return JRoute::_('index.php?option=com_komento&view=profile&id=' . $this->profile->id);
 		}
-		$profileEB	= EasyBlogHelper::getTable( 'Profile','Table' );
-		$profileEB->load( $this->profile->id );
-
-		return $profileEB->getLink();
+		
+		return LinkHelper::GetProfileLink($this->profile->id);
 	}
 }
 
@@ -472,6 +558,8 @@ class KomentoProfilePhpbb extends KomentoProfileVendor
 		$phpbbConfig	= $this->_getPhpbbConfig();
 		$phpbbuserid	= 0;
 
+		KomentoVersionHelper::getJoomlaVersion() >= '3.0' ? $nameQuote = 'quoteName' : $nameQuote = 'nameQuote';
+
 		if(empty($phpbbConfig))
 		{
 			return false;
@@ -491,15 +579,15 @@ class KomentoProfilePhpbb extends KomentoProfileVendor
 		{
 			switch($result->user_avatar_type)
 			{
-				case '1':
+				case 'avatar.driver.upload':
 					$subpath	= $phpbbConfig->avatar_upload_path;
 					$phpEx 		= JFile::getExt(__FILE__);
 					$source		= $phpbburl.'/download/file.'.$phpEx.'?avatar='.$result->user_avatar;
 					break;
-				case '2':
+				case 'avatar.driver.remote':
 					$source		= $result->user_avatar;
 					break;
-				case '3':
+				case 'avatar.driver.local':
 					$subpath	= $phpbbConfig->avatar_gallery_path;
 					$source		= $phpbburl.'/'.$subpath.'/'.$result->user_avatar;
 					break;
@@ -510,13 +598,13 @@ class KomentoProfilePhpbb extends KomentoProfileVendor
 		}
 		else
 		{
-			$sql	= 'SELECT '.$phpbbDB->nameQuote('theme_name').' '
-					. 'FROM '.$phpbbDB->nameQuote('#__styles_theme').' '
-					. 'WHERE '.$phpbbDB->nameQuote('theme_id').' = '.$phpbbDB->quote($phpbbConfig->default_style);
+			$sql	= 'SELECT '.$phpbbDB->{$nameQuote}('style_name').' '
+					. 'FROM '.$phpbbDB->{$nameQuote}('#__styles').' '
+					. 'WHERE '.$phpbbDB->{$nameQuote}('style_id').' = '.$phpbbDB->quote($phpbbConfig->default_style);
 			$phpbbDB->setQuery($sql);
 			$theme = $phpbbDB->loadObject();
 
-			$defaultPath	= 'styles/'.$theme->theme_name.'/theme/images/no_avatar.gif';
+			$defaultPath	= 'styles/'.$theme->style_name.'/theme/images/no_avatar.gif';
 			$source			= $phpbburl.'/'.$defaultPath;
 		}
 

@@ -19,7 +19,7 @@ if( $system->config->get( 'enable_lovies' ) && $system->my->allow( 'read_lovies'
 		$loves = Komento::getModel( 'comments' )->getPopularComments( $component, $cid, array( 'limit' => $system->config->get( 'max_lovies', 5 ), 'threaded' => 0 ) );
 	}
 ?>
-<div class="loveList kmt-fame-list-wrap tabs" loaded="1">
+<div class="loveList kmt-fame-list-wrap kmt-tabs" loaded="1">
 	<h3 class="kmt-title"><?php echo JText::_( 'COM_KOMENTO_LOVIES_TITLE' ); ?></h3>
 
 	<?php
@@ -29,7 +29,7 @@ if( $system->config->get( 'enable_lovies' ) && $system->my->allow( 'read_lovies'
 	?>
 </div>
 <?php } else { ?>
-<div class="loveList kmt-fame-list-wrap hidden tabs">
+<div class="loveList kmt-fame-list-wrap hidden kmt-tabs">
 	<h3 class="kmt-title"><?php echo JText::_( 'COM_KOMENTO_LOVIES_TITLE' ); ?></h3>
 </div>
 <?php }

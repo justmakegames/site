@@ -1,8 +1,8 @@
 <?php
 /**
-* @package		Komento
-* @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      Komento
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -17,9 +17,8 @@ class KomentoViewAcl extends KomentoAdminView
 {
 	public function display($tpl = null)
 	{
-
-		$user		= JFactory::getUser();
-		$mainframe	= JFactory::getApplication();
+		$user = JFactory::getUser();
+		$mainframe = JFactory::getApplication();
 
 		if( Komento::joomlaVersion() >= '1.6' )
 		{
@@ -30,18 +29,14 @@ class KomentoViewAcl extends KomentoAdminView
 			}
 		}
 
-		$component = JRequest::getString( 'component', '' );
+		$component = JRequest::getString('component', '');
 
-		if( $component == '' )
-		{
+		if ($component == '') {
 			$components = Komento::getHelper( 'components' )->getAvailableComponents();
 			$this->assignRef( 'components', $components );
 			parent::display( 'component' );
-		}
-		else
-		{
+		} else {
 			$components = $this->getComponentState( $component );
-
 			$usergroups = Komento::getUsergroups();
 
 			$this->assignRef( 'usergroups', $usergroups );
@@ -106,55 +101,37 @@ class KomentoViewAcl extends KomentoAdminView
 	public function registerToolbar()
 	{
 		$mainframe = JFactory::getApplication();
-		$component = JRequest::getString( 'component', '' );
-		$id = JRequest::getInt( 'id', '' );
+		$component = JRequest::getString('component', '');
+		$id = JRequest::getInt('id', '');
 
-		if( $component == '' )
-		{
-			JToolBarHelper::title( JText::_( 'COM_KOMENTO_ACL' ), 'acl' );
-		}
-		else
-		{
-			$application = Komento::loadApplication( $component );
+		if ($component == '') {
+			JToolBarHelper::title(JText::_('COM_KOMENTO_ACL'), 'acl');
+		} else {
+			$application = Komento::loadApplication($component);
 			$name = $application->getComponentName();
 
-			JToolBarHelper::title( JText::_( 'COM_KOMENTO_ACL' ) . ': ' . $name, 'acl' );
+			JToolBarHelper::title(JText::_('COM_KOMENTO_ACL') . ': ' . $name, 'acl');
 		}
 
-		if( $component == '' )
-		{
-			JToolBarHelper::back( JText::_( 'COM_KOMENTO_BACK' ) , 'index.php?option=com_komento');
-		}
-		else
-		{
-			if( $id == '' )
-			{
-				JToolBarHelper::back( JText::_( 'COM_KOMENTO_BACK' ) , 'index.php?option=com_komento&view=acl' );
-			}
-			else
-			{
-				JToolBarHelper::back( JText::_( 'COM_KOMENTO_BACK' ) , 'index.php?option=com_komento&view=acl&component=' . $component );
+		if ($component == '') {
+			JToolBarHelper::back(JText::_('COM_KOMENTO_BACK'), 'index.php?option=com_komento');
+		} else {
+			
+			if ($id == '') {
+				JToolBarHelper::back(JText::_('COM_KOMENTO_BACK'), 'index.php?option=com_komento&view=acl');
+			} else {
+				JToolBarHelper::back(JText::_('COM_KOMENTO_BACK'), 'index.php?option=com_komento&view=acl&component=' . $component);
 			}
 		}
 
-
-
-		if( JRequest::getCmd( 'layout' ) == 'form' )
-		{
+		if (JRequest::getCmd('layout') == 'form') {
 			JToolBarHelper::divider();
 
-			if( Komento::joomlaVersion() >= '3.0' )
-			{
-				JToolBarHelper::custom( 'enableall', 'plus', '', JText::_( 'COM_KOMENTO_ACL_ENABLE_ALL' ), false );
-				JToolBarHelper::custom( 'disableall', 'minus', '', JText::_( 'COM_KOMENTO_ACL_DISABLE_ALL' ), false );
-			}
-			else
-			{
-				JToolBarHelper::custom( 'enableall', 'kmt-enableall', '', JText::_( 'COM_KOMENTO_ACL_ENABLE_ALL' ), false );
-				JToolBarHelper::custom( 'disableall', 'kmt-disableall', '', JText::_( 'COM_KOMENTO_ACL_DISABLE_ALL' ), false );
-			}
+			JToolBarHelper::custom('enableall', 'plus', '', JText::_('COM_KOMENTO_ACL_ENABLE_ALL'), false);
+			JToolBarHelper::custom('disableall', 'minus', '', JText::_('COM_KOMENTO_ACL_DISABLE_ALL'), false);
+
 			JToolBarHelper::divider();
-			JToolBarHelper::apply( 'apply' );
+			JToolBarHelper::apply('apply');
 			JToolBarHelper::save();
 			JToolBarHelper::divider();
 			JToolBarHelper::cancel();
@@ -171,7 +148,7 @@ class KomentoViewAcl extends KomentoAdminView
 			$components[$item] = JHTML::_( 'select.option', $item, Komento::loadApplication( $item )->getComponentName() );
 		}
 
-		return JHTML::_( 'select.genericlist', $components, 'component', 'class="inputbox" size="1" onchange="submitform();"', 'value', 'text', $filter_component );
+		return JHTML::_( 'select.genericlist', $components, 'component', 'class="inputbox" .fa- onchange="submitform();"', 'value', 'text', $filter_component );
 	}
 
 	function getUsergroupState($filter_usergroup = '')
@@ -184,13 +161,8 @@ class KomentoViewAcl extends KomentoAdminView
 			$usergroups[] = JHTML::_( 'select.option', $item->id, str_repeat( '|—', $item->depth ) . ' ' . $item->title );
 		}
 
-		return JHTML::_( 'select.genericlist', $usergroups, 'id', 'class="inputbox" size="1" onchange="submitform();"', 'value', 'text', $filter_usergroup );
+		return JHTML::_( 'select.genericlist', $usergroups, 'id', 'class="inputbox" .fa- onchange="submitform();"', 'value', 'text', $filter_usergroup );
 	}
-
-	/*public function registerSubmenu()
-	{
-		return 'submenu.php';
-	}*/
 
 	public function addComponent( $component )
 	{

@@ -50,12 +50,10 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 					echo $this->fetch( 'comment/form/alert.php' );
 				?>
 
-				<div class="kmt-form-author clearfix formAuthor">
-					<?php
-						// Form header
-						echo $this->fetch( 'comment/form/header.php' );
-					?>
-				</div>
+				<?php
+					// Form header
+					echo $this->fetch( 'comment/form/header.php' );
+				?>
 
 				
 
@@ -84,8 +82,12 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 				<div class="kmt-form-submit clearfix float-wrapper">
 					<?php
+						
 						// Submit button button.kmt-btn-submit
 						echo $this->fetch( 'comment/form/submitbutton.php' );
+
+						// Submit button button.kmt-btn-cancel
+						echo $this->fetch( 'comment/form/cancelbutton.php' );
 
 						// Subscription field span.kmt-form-subscription
 						echo $this->fetch( 'comment/form/subscriptionfield.php' );

@@ -33,10 +33,10 @@ class KomentoControllerLang extends KomentoParentController
 			$result[ $key ]	= JText::_( strtoupper( $key ) );
 		}
 
-		Komento::getClass('json', 'Services_JSON');
+		Komento::getClass('json', 'KomentoJson');
 
 		header('Content-type: text/x-json; UTF-8');
-		$json = new Services_JSON();
+		$json = new KomentoJson();
 		echo $json->encode( $result );
 		exit;
 	}

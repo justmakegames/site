@@ -15,6 +15,33 @@ require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SE
 
 class KomentoAdminView extends KomentoParentView
 {
+
+	public function display( $tpl = null )
+	{
+		$advance = JRequest::getVar('advance', '');
+		$layout = JRequest::getVar('layout', '');
+		$view = JRequest::getVar('view', '');
+		
+		$this->assignRef('view', $view);
+		$this->assignRef('layout', $layout);
+		$this->assignRef( 'advance', $advance );
+
+		echo '<div id="si" class="komento master row-table cell-top">';
+		echo '<div class="container-nav">
+				<a class="nav-sidebar-toggle" data-toggle="collapse" data-target=".sidebar"><i class="fa fa-bars"></i></a>
+				<a class="nav-subhead-toggle" data-toggle="collapse" data-target=".subhead-collapse"><i class="fa fa-cog"></i></a>
+			</div>';
+	
+		include(dirname(__FILE__) . '/views/sidebar.php');
+
+			echo '<div class="content col-cell">';
+			parent::display($tpl);
+			echo '</div>';
+
+		echo '</div>';
+	}
+
+
 	public function getModel( $name = null )
 	{
 		static $model = array();
@@ -80,9 +107,11 @@ class KomentoAdminView extends KomentoParentView
 
 		ob_start();
 	?>
-		<label class="option-enable<?php echo $state == 1 ? ' selected' : '';?>"><span><?php echo JText::_( 'COM_KOMENTO_YES_OPTION' );?></span></label>
-		<label class="option-disable<?php echo $state == 0 ? ' selected' : '';?>"><span><?php echo JText::_( 'COM_KOMENTO_NO_OPTION' ); ?></span></label>
-		<input name="<?php echo $configName; ?>" value="<?php echo $state;?>" type="radio" id="<?php echo $configName; ?>" class="radiobox" checked="checked" />
+		<div class="toggle-options">
+			<label class="option-enable<?php echo $state == 1 ? ' selected' : '';?>"><span><?php echo JText::_( 'COM_KOMENTO_YES_OPTION' );?></span></label>
+			<label class="option-disable<?php echo $state == 0 ? ' selected' : '';?>"><span><?php echo JText::_( 'COM_KOMENTO_NO_OPTION' ); ?></span></label>
+			<input name="<?php echo $configName; ?>" value="<?php echo $state;?>" type="radio" id="<?php echo $configName; ?>" class="radiobox" checked="checked" />
+		</div>
 	<?php
 		$html	= ob_get_contents();
 		ob_end_clean();
@@ -105,7 +134,7 @@ class KomentoAdminView extends KomentoParentView
 
 		$this->makeListOptions( $options );
 
-		return JHtml::_('select.genericlist', $options, $configName, 'size="1" class="inputbox"', 'value', 'text', $state, $configName );
+		return JHtml::_('select.genericlist', $options, $configName, '.fa- class="form-control"', 'value', 'text', $state, $configName );
 	}
 
 	public function renderInput( $configName, $state = null, $options = null )
@@ -301,13 +330,13 @@ class KomentoAdminView extends KomentoParentView
 
 	public function renderColumnsConfiguration( $columns, $columnsConfig )
 	{
-		$html = '<button type="button" class="saveColumns" onclick="Komento.saveColumns()">' . JText::_( 'COM_KOMENTO_COMMENTS_SAVE_COLUMNS' ) . '</button>';
+		$html = '<button type="button" class="btn btn-primary" onclick="Komento.saveColumns()">' . JText::_( 'COM_KOMENTO_COMMENTS_SAVE_COLUMNS' ) . '</button>';
 
-		$html .= '<table>';
+		$html .= '<table class="table table-options">';
 
 		foreach( $columns as $column )
 		{
-			$html .= '<tr><td width="10%" style="text-align: right;">' . JText::_( 'COM_KOMENTO_COLUMN_' . strtoupper( $column ) ) . '</td><td>' . $this->renderCheckbox( 'column_' . $column, $columnsConfig->get( 'column_' . $column ) ) . '</td></tr>';
+			$html .= '<tr><td>' . JText::_( 'COM_KOMENTO_COLUMN_' . strtoupper( $column ) ) . '</td><td>' . $this->renderCheckbox( 'column_' . $column, $columnsConfig->get( 'column_' . $column ) ) . '</td></tr>';
 		}
 
 		$html .= '</table>';

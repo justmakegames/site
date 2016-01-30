@@ -81,6 +81,9 @@ Komento.require().library('dialog').script('komento.common', 'admin.language').d
 			else
 			{
 				e.find('.published-cell i').removeClass('icon-unpublish').addClass('icon-publish');
+				
+				// for joomla 3.4.3
+				e.find('.published-cell span').removeClass('icon-unpublish').addClass('icon-publish');
 			}
 
 			Komento.actions.publishParent(e);
@@ -91,6 +94,7 @@ Komento.require().library('dialog').script('komento.common', 'admin.language').d
 			if( !e.exists() ) {
 				return;
 			}
+			
 			var onclick = e.find('.published-cell a').attr('onclick').replace('unpublish', 'publish').replace('publish', 'unpublish');
 			e.find('.published-cell a').attr('onclick', onclick).attr('title', $.language( 'COM_KOMENTO_UNPUBLISH_ITEM' ) );
 
@@ -101,6 +105,9 @@ Komento.require().library('dialog').script('komento.common', 'admin.language').d
 			else
 			{
 				e.find('.published-cell i').removeClass('icon-unpublish').addClass('icon-publish');
+
+				// for joomla 3.4.3
+				e.find('.published-cell span').removeClass('icon-unpublish').addClass('icon-publish');				
 			}
 
 			if(e.attr('parentid') != 0) {
@@ -152,6 +159,9 @@ Komento.require().library('dialog').script('komento.common', 'admin.language').d
 			else
 			{
 				e.find('.published-cell i').removeClass('icon-publish').addClass('icon-unpublish');
+
+				// for joomla 3.4.3
+				e.find('.published-cell span').removeClass('icon-publish').addClass('icon-unpublish');				
 			}
 
 			if(e.attr('childs') > 0) {

@@ -1,6 +1,7 @@
 {
 	"basic": {
 		"read_comment": true,
+		"read_others_comment": true,
 		"read_stickies": true,
 		"read_lovies": true,
 		"add_comment": true,

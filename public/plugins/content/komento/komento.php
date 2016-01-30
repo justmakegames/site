@@ -86,6 +86,24 @@ class plgContentKomento extends JPlugin
 	}
 
 	/**
+	 * com_tz_portfolio
+	 *
+	 */
+	public function onTZPortfolioCommentDisplay($context, &$article, $params)
+	{
+		return $this->execute(__FUNCTION__, $context, $article, $params);
+	}
+
+	/**
+	 * com_jblance
+	 *
+	 */
+	public function onJBlanceCommentDisplay($context, &$article, $params)
+	{
+		return $this->execute(__FUNCTION__, $context, $article, $params);
+	}
+
+	/**
 	 * com_jdownloads
 	 */
 	public function onContentPrepare( $context, &$article, &$params, $page = 0 )

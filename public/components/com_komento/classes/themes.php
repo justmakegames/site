@@ -224,7 +224,7 @@ class KomentoThemes
 		if ($this->_json === null)
 		{
 			include_once( KOMENTO_CLASSES . DIRECTORY_SEPARATOR . 'json.php' );
-			$this->_json	= new Services_JSON();
+			$this->_json	= new KomentoJson();
 		}
 
 		return $this->_json->encode( $value );
@@ -235,7 +235,7 @@ class KomentoThemes
 		if ($this->_json === null)
 		{
 			include_once( KOMENTO_CLASSES . DIRECTORY_SEPARATOR . 'json.php' );
-			$this->_json	= new Services_JSON();
+			$this->_json	= new KomentoJson();
 		}
 
 		return $this->_json->decode( $value );

@@ -12,18 +12,10 @@
  */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<script type="text/javascript" src="<?php echo $server; ?>/js/recaptcha_ajax.js"></script>
+<script type="text/javascript" src="<?php echo $server; ?>"></script>
 <script type="text/javascript">
 	Komento.ready(function($) {
-		if(Komento.Recaptcha === undefined) {
-			Recaptcha.create("<?php echo $publicKey ?>", "recaptcha-image", {
-				lang: "<?php echo $language ?>",
-				theme: "<?php echo $theme ?>",
-				tabindex: 0
-			});
-
 			Komento.Recaptcha = true;
-		}
 	});
-</script>
-<div id="recaptcha-image"></div>
+ </script>
+<div class="g-recaptcha" data-theme="<?php echo $theme; ?>" data-sitekey="<?php echo $publicKey; ?>"></div>

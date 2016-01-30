@@ -22,6 +22,8 @@ class KomentoController extends KomentoParentController
 	public function __construct($config = array())
 	{
 		$document	= JFactory::getDocument();
+		//load dialog stylesheet in backend
+		KomentoDocumentHelper::loadHeaders();
 
 		$config		= Komento::getConfig();
 		$konfig		= Komento::getKonfig();
@@ -161,11 +163,11 @@ class KomentoController extends KomentoParentController
 				$view->registerToolbar();
 			}
 
-			// Override submenu if needed
-			if( method_exists( $view , 'registerSubmenu' ) && $view->registerSubmenu() != ''  )
-			{
-				$this->loadSubmenu( $view->getName() , $view->registerSubmenu() );
-			}
+			// // Override submenu if needed
+			// if( method_exists( $view , 'registerSubmenu' ) && $view->registerSubmenu() != ''  )
+			// {
+			// 	$this->loadSubmenu( $view->getName() , $view->registerSubmenu() );
+			// }
 
 			// @task: Append hidden token into the page.
 			echo '<span id="komento-token" style="display:none;"><input type="hidden" name="' . Komento::_( 'getToken' ) . '" value="1" /></span>';

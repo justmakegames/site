@@ -24,7 +24,13 @@ foreach( $items as $row )
 	<li id="kmt-<?php echo $row->id; ?>" class="kmt-<?php echo $row->id; ?>">
 
 		<div class="stream-head stream-comment">
-			<i class="stream-type"></i>
+			<i class="stream-type">
+				<div class="kmt-profile-avatar">
+					<a class="kmt-avatar">
+						<img style="width:38px;height:38px" src="<?php echo $system->my->getAvatar(); ?>">
+					</a>
+				</div>
+			</i>
 
 			<?php echo JText::_( 'COM_KOMENTO_ACTIVITY_COMMENTED_ON' ); ?>
 			<a href="<?php echo $row->extension->getContentPermalink(); ?>"><?php echo $row->extension->getContentTitle(); ?></a>

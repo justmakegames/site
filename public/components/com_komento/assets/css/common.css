@@ -154,10 +154,10 @@ body #komento-wrapper .ui-button+.ui-button{margin-left:5px}
 
 /* System Messages */
 #komento-wrapper .komento-message{line-height:16px;}
-#komento-wrapper .komento-message.error{background:#fee url(../icons/message-warn.png) no-repeat 5px 5px;border:1px solid #cd8c8c;color:#900;margin:15px 0;padding:5px 10px 5px 30px}
-#komento-wrapper .komento-message.info{background:#eceff6 url(../icons/message-info.png) no-repeat 5px 5px;border:1px solid #ccc;color:#565c6a;margin:15px 0;padding:5px 10px 5px 30px}
-#komento-wrapper .komento-message.warning{background:#fff9d7 url(../icons/message-alert.png) no-repeat 5px 5px;border:1px solid #e5d57c;color:#8c7223;margin:15px 0;padding:5px 10px 5px 30px}
-#komento-wrapper .komento-message.success{background:#e3ecd9 url(../icons/message-tick.png) no-repeat 5px 5px;border:1px solid #bad19c;color:#6d943c;margin:15px 0;padding:5px 10px 5px 30px}
+#komento-wrapper .komento-message.error{background:#fee;border:1px solid #cd8c8c;color:#900;margin:15px 0;padding:5px 10px 5px 30px}
+#komento-wrapper .komento-message.info{background:#eceff6;border:1px solid #ccc;color:#565c6a;margin:15px 0;padding:5px 10px 5px 30px}
+#komento-wrapper .komento-message.warning{background:#fff9d7;border:1px solid #e5d57c;color:#8c7223;margin:15px 0;padding:5px 10px 5px 30px}
+#komento-wrapper .komento-message.success{background:#e3ecd9;border:1px solid #bad19c;color:#6d943c;margin:15px 0;padding:5px 10px 5px 30px}
 #komento-wrapper .komento-message ul{padding:0 0 0 15px;margin:0;border:0;list-style-type:square}
 #komento-wrapper .komento-message ul li{padding:0;margin:0;border:0}
 #komento-wrapper .komento-message p{margin:0;padding:0}
@@ -178,7 +178,7 @@ body #komento-wrapper .ui-button+.ui-button{margin-left:5px}
 
 /* Dialog box */
 #komento-dialog{position:absolute;float:left;z-index:9999999}
-#komento-dialog .dialog {background:url(../images/dialog/shade.png);border:1px solid #111;z-index:1000;-webkit-box-shadow: 0 0 30px #444444;-moz-box-shadow: 0 0 30px #444444;box-shadow: 0 0 30px #444444;}
+#komento-dialog .dialog {border:1px solid #111;z-index:1000;-webkit-box-shadow: 0 0 30px #444444;-moz-box-shadow: 0 0 30px #444444;box-shadow: 0 0 30px #444444;}
 #komento-dialog .dialog * {color:#666;font-size:11px}
 #komento-dialog .dialog-wrap{background:#fff;margin:4px;border:1px solid #333;font-family:Tahoma;font-size:11px}
 #komento-dialog .dialog-wrap > div {position:relative}
@@ -189,10 +189,10 @@ body #komento-wrapper .ui-button+.ui-button{margin-left:5px}
 #komento-dialog .dialog-top h3{font:700 14px/16px Arial,sans-serif;color:#333;border:1px solid #fff;border-bottom:1px solid #ddd;padding:9px 10px;text-shadow:0 1px 0 #fff;text-align:left}
 #komento-dialog .dialog-middle{padding:8px 10px;text-align:left}
 #komento-dialog .dialog-bottom{padding:0 9px 10px}
-#komento-dialog .closeme{background:url(../images/dialog/closeme.png);position:absolute;right:8px;top:50%;width:16px;height:16px;display:block;text-indent:-9999px;margin-top:-8px;opacity:0.8}
+#komento-dialog .closeme{position:absolute;right:8px;top:50%;width:16px;height:16px;display:block;text-indent:-9999px;margin-top:-8px;opacity:0.8}
 #komento-dialog .closeme:hover{background-color:transparent;opacity:1}
 #komento-dialog .closeme:focus{outline:0 !important}
-#komento-dialog .button{background:url(../images/dialog/button.png) repeat-x scroll 0 -1px transparent !important;border:1px solid #888 !important;box-shadow:0 1px 0 #DBDBDB;color:#333 !important;cursor:pointer;display:inline-block;font-family:Tahoma !important;font-size:11px !important;font-weight:100 !important;height:auto!important;margin:0;padding:2px 5px;width:auto!important}
+#komento-dialog .button{border:1px solid #888 !important;box-shadow:0 1px 0 #DBDBDB;color:#333 !important;cursor:pointer;display:inline-block;font-family:Tahoma !important;font-size:11px !important;font-weight:100 !important;height:auto!important;margin:0;padding:2px 5px;width:auto!important}
 #komento-overlay{background: #111;filter:alpha(opacity=30);-moz-opacity:0.3;-khtml-opacity:0.3;opacity:0.3;position:fixed;top:0;left: 0;z-index:99999}
 #komento-dialog .dialog-actions{padding:9px 10px 10px;margin:8px -10px -8px;background:#f9f9f9;border-top:1px solid #666;text-align: right;}
 #komento-dialog .dialog-actions .dialog-submit{float:right}
@@ -274,7 +274,7 @@ body .stackTip.tooltip-team,
 body .stackTip.tooltip-calendar { width: 300px; z-index: 9999;}
 body .stackTip.tooltip-tags { max-width: 200px; }
 body .stackTip *{color:#666}
-body .stackTip #ezttip{padding:2px;background:url(../images/dialog/shade.png);border:1px solid #777}
+body .stackTip #ezttip{padding:2px;border:1px solid #777}
 body .stackTip #ezttip-in{border:1px solid #666}
 body .stackTip #ezttip-in-in{padding:5px;background:#fff;border:1px solid #fff;background: #fff;}
 body .stackTip #ezttip .ezttip-wrap{display:inline-block;width:100%}
@@ -284,12 +284,12 @@ body .stackTip #ezttip .ezttip-avatar{float:left;display:inline-block;border:1px
 body .stackTip #ezttip .ezttip-avatar img{border:1px solid #555}
 body .stackTip #ezttip .ezttip-avatar+.ezttip-content{display:table-cell;vertical-align:top}
 body .stackTip #ezttip .ezttip-title{font:700 12px/1.2 Arial;color:#333;margin:0 0 1px}
-body .stackTip #ezttip .ezttip-title.title-calendar{ background: url(../icons/calendar.png) no-repeat 0 center; line-height: 20px; padding: 0 0 0 20px; margin: 0 0 5px 0; border-bottom: 1px solid #ccc; }
+body .stackTip #ezttip .ezttip-title.title-calendar{line-height: 20px; padding: 0 0 0 20px; margin: 0 0 5px 0; border-bottom: 1px solid #ccc; }
 body .stackTip #ezttip .ezttip-entries-list{ list-style: none;}
-body .stackTip #ezttip .ezttip-entries-list li{background:url(../icons/arrow-right.png) no-repeat 0 center; margin: 0; padding: 0 0 0 20px;}
+body .stackTip #ezttip .ezttip-entries-list li{margin: 0; padding: 0 0 0 20px;}
 
 /* stack suggest tags */
-.stackSuggest.tag-suggestion{background:url(../images/dialog/shade.png);border:1px solid #777;width:200px!important;float:left;padding:3px}
+.stackSuggest.tag-suggestion{border:1px solid #777;width:200px!important;float:left;padding:3px}
 .stackSuggest.tag-suggestion > ul{background:#FFF;border:1px solid #666}
 .stackSuggest.tag-suggestion .common-tags-label{font-size:11px;font-weight:700;color:#777;margin:5px}
 .stackSuggestItemGroup{max-height:200px;overflow-y:auto;overflow-x:none;position:relative}
@@ -333,14 +333,9 @@ body div.komento-nbsp{height:10px;display:block}
 .button2-left a,.button2-left span{padding:0 24px 0 6px}
 .button2-right a,.button2-right span{padding:0 6px 0 24px}
 
-body #write_container .button2-left{background:url(../images/j_button2_left.png) no-repeat !important;float:left;margin-left:5px}
-body #write_container .button2-right{background:url(../images/j_button2_right.png) 100% 0 no-repeat !important;float:left;margin-left:5px}
-body #write_container .button2-left .image{background:url(../images/j_button2_image.png) 100% 0 no-repeat !important}
-body #write_container .button2-left .pagebreak{background:url(../images/j_button2_pagebreak.png) 100% 0 no-repeat !important}
-body #write_container .button2-left .blank{background:url(../images/j_button2_blank.png) 100% 0 no-repeat !important}
-body #write_container .button2-left .page{background:url(../images/j_button2_right_cap.png) no-repeat scroll 100% 0  !important}
-body #write_container .button2-left .readmore,
-body #write_container .button2-left .article{background:url(../images/j_button2_readmore.png) 100% 0 no-repeat  !important}
+body #write_container .button2-left{;float:left;margin-left:5px}
+body #write_container .button2-right{float:left;margin-left:5px}
+
 
 .category-block{border-bottom:1px solid #EEE;padding:0 0 5px}
 .category-tools{top:-1px!important;right:30px!important;font-size:13px}

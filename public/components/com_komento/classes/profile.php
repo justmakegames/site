@@ -132,12 +132,10 @@ class KomentoProfile extends JUser
 			}
 
 			$this->profileAvatar = $avatar[$email];
-		}
-		else
-		{
-			if (!$this->profileAvatar)
-			{
-				$this->profileAvatar	= $this->getVendor()->getAvatar( $email );
+		} else {
+
+			if (!$this->profileAvatar) {
+				$this->profileAvatar = $this->getVendor()->getAvatar($email);
 			}
 		}
 

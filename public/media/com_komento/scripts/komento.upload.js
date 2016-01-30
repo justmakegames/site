@@ -147,7 +147,9 @@ Komento.module('komento.upload', function($) {
 
 					html.data('fileitem', item);
 
-					self.uploadQueue().append(html);
+					$('.uploadQueue').removeClass("hide");
+
+					$('.uploadQueue').append(html);
 				});
 			},
 

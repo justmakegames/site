@@ -13,6 +13,7 @@
 // No direct access
 defined('_JEXEC') or die('Restricted access');
 
+
 // Load constants and helpers
 require_once( JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_komento' . DIRECTORY_SEPARATOR . 'bootstrap.php' );
 

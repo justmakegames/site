@@ -17,21 +17,25 @@ class KomentoControllerSystem extends KomentoController
 {
 	public function apply()
 	{
+		$layout = strtolower(JRequest::getString('current', ''));
+		$child = Jstring::strtolower(JRequest::getString('activechild', ''));
+		$advance = JRequest::getInt('advance', '');
+
 		$this->doSave();
 
-		$layout		= Jstring::strtolower(JRequest::getString( 'active' , '' ));
-		$child		= Jstring::strtolower(JRequest::getString( 'activechild' , '' ));
-		$advance	= JRequest::getInt( 'advance', '' );
+		$redirect = 'index.php?option=com_komento&view=system';
 
-		$redirect	= 'index.php?option=com_komento&view=system&active=' . $layout . '&activechild=' . $child;
+		if ($layout) {
+			$redirect .= '&layout=' . $layout;
+		}
 
-		if( $advance )
-		{
+		if ($advance) {
 			$redirect .= '&advance=' . $advance;
 		}
 
-		$mainframe	= JFactory::getApplication();
-		$mainframe->redirect( $redirect );
+
+		$mainframe = JFactory::getApplication();
+		$mainframe->redirect($redirect);
 	}
 
 	public function cancel()
@@ -63,13 +67,14 @@ class KomentoControllerSystem extends KomentoController
 
 		// Unset unecessary post data.
 		$post	= JRequest::get( 'POST' );
-		unset( $post['active'] );
-		unset( $post['activechild'] );
-		unset( $post['task'] );
-		unset( $post['option'] );
-		unset( $post['c'] );
+		unset($post['active']);
+		unset($post['activechild']);
+		unset($post['task']);
+		unset($post['option']);
+		unset($post['c']);
+		unset($post['current']);
 
-		$token = Komento::_( 'getToken' );
+		$token = Komento::_('getToken');
 		unset( $post[$token] );
 
 		// check the target component

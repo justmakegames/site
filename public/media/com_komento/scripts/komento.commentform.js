@@ -42,11 +42,9 @@ Komento.Controller(
 			'{unsubscribeButton}'		: '.unsubscribeButton',
 			'{locationForm}'			: '.locationForm',
 			'{formAlert}'				: '.formAlert',
-			'{recaptchaChallenge}'		: '#recaptcha_challenge_field',
-			'{recaptchaResponse}'		: '#recaptcha_response_field',
+			'{recaptchaResponse}'		: '#g-recaptcha-response',
 			'{captchaImage}'			: '#captcha-image',
 			'{captchaResponse}'			: '#captcha-response',
-			'{recaptchaResponse}'		: '#recaptcha_response_field',
 			'{captchaId}'				: '#captcha-id',
 			'{captchaReload}'			: '.kmt-captcha-reload',
 			'{locationInput}'			: '.locationInput',
@@ -143,7 +141,7 @@ Komento.Controller(
 			$.dialog({
 				title: $.language( 'COM_KOMENTO_FORM_TNC' ),
 				customClass: 'kmt-dialog',
-				width: 500,
+				width: 470,
 				showOverlay: false,
 				content: content
 			});
@@ -477,7 +475,6 @@ Komento.Controller(
 				subscribe: self.subscribeCheckbox().prop('checked'),
 				register: self.registerCheckbox().prop('checked'),
 				tnc: self.tncCheckbox().prop('checked'),
-				recaptchaChallenge: self.recaptchaChallenge().val(),
 				recaptchaResponse: self.recaptchaResponse().val(),
 				captchaResponse: self.captchaResponse().val(),
 				captchaId: self.captchaId().val(),
@@ -507,7 +504,7 @@ Komento.Controller(
 
 					// Reset recaptcha
 					if(self.captchaId().length != 0 || $('#recaptcha_table').length != 0) {
-						self.reloadCaptcha();
+						//self.reloadCaptcha();
 					}
 
 					// Reset reply
@@ -647,7 +644,8 @@ Komento.Controller(
 			self.element.find('h3.kmt-title').text($.language('COM_KOMENTO_FORM_REPLY'));
 			self.element.find('.submitButton').text($.language('COM_KOMENTO_FORM_REPLY'));
 
-			item.mine.append(self.element).scroll();
+			item.mine.append(self.element);
+			self.element.scroll();
 		},
 
 		cancelReply: function() {

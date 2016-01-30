@@ -116,7 +116,7 @@ Komento.require()
 						self.socialButton().each(function(index, element) {
 							if( !$(element).attr('loaded') ) {
 								var commentid = $(element).attr('commentid');
-								var permalink = url + '#kmt' + commentid;
+								var permalink = url + '#kmt-' + commentid;
 
 								$(element).attr('url', permalink);
 								$(element).parents('.kmt-share-balloon').find('.short-url').val(permalink);

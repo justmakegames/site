@@ -1,5 +1,18 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
+
+class KomentoJson
+{
+    public function encode($string) {
+        return json_encode($string);
+    }
+
+    public function decode($string) {
+        return json_decode($string);
+    }
+}
+
+if (false) {
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
@@ -803,6 +816,8 @@ if (class_exists('PEAR_Error')) {
 
         }
     }
+
+}
 
 }
 

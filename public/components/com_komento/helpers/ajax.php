@@ -70,7 +70,7 @@ class KomentoAjaxHelper
 		header('Content-type: text/x-json; UTF-8');
 
 		require_once( KOMENTO_CLASSES . DIRECTORY_SEPARATOR . 'json.php' );
-		$json 	= new Services_JSON();
+		$json 	= new KomentoJson();
 
 		$callback = JRequest::getVar('callback');
 
@@ -181,7 +181,7 @@ class KomentoAjaxHelper
 		if( !empty( $args ) )
 		{
 			require_once( KOMENTO_CLASSES . DIRECTORY_SEPARATOR . 'json.php' );
-			$json 	= new Services_JSON();
+			$json 	= new KomentoJson();
 			$args 	= $json->decode( $args );
 
 			if( !is_array( $args ) )

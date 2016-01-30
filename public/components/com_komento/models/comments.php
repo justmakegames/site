@@ -218,19 +218,22 @@ class KomentoModelComments extends KomentoModel
 			}
 		}
 
-		if( $options['published'] !== 'all' )
-		{
+		if ($options['published'] !== 'all') {
 			$queryWhere[] = $this->db->nameQuote( 'published' ) . ' = ' . $this->db->quote( $options['published'] );
 		}
 
-		if( $options['sticked'] !== 'all' )
-		{
+		if ($options['sticked'] !== 'all') {
 			$queryWhere[] = $this->db->nameQuote( 'sticked' ) . ' = ' . $this->db->quote( 1 );
 		}
 
-		if( $options['userid'] !== 'all' )
-		{
-			$queryWhere[] = $this->db->nameQuote( 'created_by' ) . ' = ' . $this->db->quote( $options['userid'] );
+		if ($options['userid'] !== 'all') {
+			
+			if (is_array($options['userid'])) {
+				$userId = implode(',', $options['userid']);
+				$queryWhere[] = $this->db->nameQuote('created_by') . ' IN (' . $userId . ')';
+			} else {
+				$queryWhere[] = $this->db->nameQuote('created_by') . ' = ' . $this->db->quote($options['userid']);
+			}
 		}
 
 		if( $options['parentid'] !== 'all' )
@@ -1216,8 +1219,8 @@ class KomentoModelComments extends KomentoModel
 	public function deleteArticleComments( $component, $cid )
 	{
 		$query  = 'DELETE FROM ' . $this->db->nameQuote( '#__komento_comments' );
-		$query .= ' WHERE ' . $this->db->nameQuote( 'component' ) . ' = ' . $component;
-		$query .= ' AND ' . $this->db->nameQuote( 'cid' ) . ' = ' . $cid;
+		$query .= ' WHERE ' . $this->db->nameQuote( 'component' ) . ' = ' . $this->db->quote( $component);
+		$query .= ' AND ' . $this->db->nameQuote( 'cid' ) . ' = ' . $this->db->quote($cid);
 
 		$this->db->setQuery( $query );
 		return $this->db->query();

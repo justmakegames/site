@@ -48,7 +48,7 @@
 	"antispam_recaptcha_theme": "",
 	"antispam_recaptcha_lang": "",
 
-	"layout_theme": "cleo",
+	"layout_theme": "wireframe",
 	"enable_responsive": "1",
 	"tabbed_comments": "1",
 	"max_threaded_level": "5",

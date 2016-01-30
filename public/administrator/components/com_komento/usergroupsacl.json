@@ -27,6 +27,7 @@
 	"rules": {
 		"public": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -56,6 +57,7 @@
 
 		"guest": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -85,6 +87,7 @@
 
 		"registered": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -114,6 +117,7 @@
 
 		"manager": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -144,6 +148,7 @@
 
 		"administrator": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -173,6 +178,7 @@
 
 		"registered": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -202,6 +208,7 @@
 
 		"author": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -231,6 +238,7 @@
 
 		"editor": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -260,6 +268,7 @@
 
 		"publisher": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,
@@ -289,6 +298,7 @@
 
 		"superadmin": {
 			"read_comment"					: true,
+			"read_others_comment"				: true,
 			"read_stickies"					: true,
 			"read_lovies"					: true,
 			"add_comment"					: true,

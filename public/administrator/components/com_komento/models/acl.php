@@ -115,6 +115,14 @@ class KomentoModelAdminAcl extends KomentoParentModel
 
 	public function getData( $component = 'com_component', $type = 'usergroup', $cid = 0 )
 	{
+		static $_cache = array();
+
+		$idx = $component . $type . $cid;
+
+		if (isset($_cache[$idx])) {
+			return $_cache[$idx];
+		}
+
 		$sql = Komento::getSql();
 
 		$sql->select( '#__komento_acl' )
@@ -149,6 +157,8 @@ class KomentoModelAdminAcl extends KomentoParentModel
 				}
 			}
 		}
+
+		$_cache[$idx] = $defaultset;
 
 		return $defaultset;
 	}

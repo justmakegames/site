@@ -73,7 +73,7 @@ class KomentoViewProfile extends KomentoView
 
 		// Set browser title
 		$document = JFactory::getDocument();
-		$document->setTitle( JText::_('COM_KOMENTO_PROFILE') . ' - ' . $profile->getName() );
+		$document->setTitle( JText::_('COM_KOMENTO_USER_PROFILE') . ' - ' . $profile->getName() );
 
 		// set component to com_komento
 		Komento::setCurrentComponent( 'com_komento' );

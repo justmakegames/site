@@ -97,7 +97,7 @@ Komento.module('admin.database', function($) {
 				'{article}'			: '.articleSelection',
 
 				'{start}'			: '.start',
-				'{status}'			: '.status',
+				'{fixstatus}'		: '.fixStatus',
 				'{total}'			: '.total',
 				'{count}'			: '.count',
 
@@ -144,7 +144,7 @@ Komento.module('admin.database', function($) {
 						self.totalWrapper().show();
 						self.countWrapper().show();
 
-						self.status().html( '<img src="' + Komento.options.spinner + '" />' + $.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_UPDATING_STAGE1'));
+						self.fixstatus().html( '<img src="' + Komento.options.spinner + '" />' + $.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_fixstatus_UPDATING_STAGE1'));
 						self.totalArticle(0);
 						self.countArticle(0);
 
@@ -160,7 +160,7 @@ Komento.module('admin.database', function($) {
 							self.articles = articles;
 							self.normalizeStructure();
 						}).fail(function() {
-							self.status().html($.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_ERROR'));
+							self.fixstatus().html($.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_ERROR'));
 						});
 					}
 				},
@@ -169,7 +169,7 @@ Komento.module('admin.database', function($) {
 					var data = self.articles[self.counter];
 
 					if(data === undefined) {
-						self.status().html( '<img src="' + Komento.options.spinner + '" />' + $.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_UPDATING_STAGE2'));
+						self.fixstatus().html( '<img src="' + Komento.options.spinner + '" />' + $.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_UPDATING_STAGE2'));
 						self.countArticle(0);
 						self.counter = 0;
 						self.fixStructure();
@@ -205,8 +205,9 @@ Komento.module('admin.database', function($) {
 						self.countArticle(parseInt(self.countArticle()) + 1);
 
 						self.fixStructure();
+						self.fixComplete();
 					}).fail(function() {
-						self.status().html($.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_ERROR'));
+						self.fixstatus().html($.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_ERROR'));
 					});
 				},
 
@@ -219,7 +220,8 @@ Komento.module('admin.database', function($) {
 				},
 
 				fixComplete: function() {
-					self.status().html($.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_COMPLETED'));
+					//console.log('a');
+					self.fixstatus().html($.language('COM_KOMENTO_SETTINGS_DATABASE_FIX_STRUCTURE_STATUS_COMPLETED'));
 					self.start().enabled(true);
 				}
 			}

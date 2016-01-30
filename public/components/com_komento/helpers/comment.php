@@ -272,7 +272,7 @@ class KomentoCommentHelper
 		$in = array( 	 '/\[b\](.*?)\[\/b\]/ms',
 						 '/\[i\](.*?)\[\/i\]/ms',
 						 '/\[u\](.*?)\[\/u\]/ms',
-						 '/\[img\](.*?)\[\/img\]/ms',
+						 '/\[img\](.*jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)+.*\[\/img\]/ms',
 						 '/\[email\](.*?)\[\/email\]/ms',
 						 '/\[size\="?(.*?)"?\](.*?)\[\/size\]/ms',
 						 '/\[color\="?(.*?)"?\](.*?)\[\/color\]/ms',
@@ -296,39 +296,35 @@ class KomentoCommentHelper
 		);
 
 		// strip out bbcode data first
-		$tmp    = preg_replace( $in , '' , $text );
+		$tmp = preg_replace( $in , '' , $text );
 
 		// strip out bbcode url data
 		$urlin = '/\[url\="?(.*?)"?\](.*?)\[\/url\]/ms';
-		$tmp	= preg_replace( $urlin, '', $tmp );
+		$tmp = preg_replace($urlin, '', $tmp);
 
 		// strip out video links too
-		$tmp	= Komento::getHelper( 'videos' )->strip( $tmp );
+		$tmp = Komento::getHelper('videos')->strip($tmp);
 
 		// replace url
-		if( $config->get( 'auto_hyperlink' ) )
-		{
-			$text	= self::replaceURL( $tmp, $text );
+		if ($config->get('auto_hyperlink')) {
+			$text = self::replaceURL($tmp, $text);
 		}
 
 		// replace video links
-		if( $config->get( 'allow_video' ) )
-		{
-			$text	= Komento::getHelper( 'videos' )->replace( $text );
-		}
-		else
-		{
-			$text	= Komento::getHelper( 'videos' )->strip( $text );
+		if ($config->get('allow_video')) {
+			$text = Komento::getHelper('Videos')->replace($text);
+		} else {
+			$text = Komento::getHelper('Videos')->strip($text);
 		}
 
 		// replace bbcode with html
-		$text	= preg_replace( $in, $out, $text );
+		$text = preg_replace($in, $out, $text);
 
-		// replace url bbcode with html
-		$text	= self::replaceBBUrl( $text );
+		// Replace url bbcode with html
+		$text = self::replaceBBUrl($text);
 
 		// manual fix for unwrapped li issue
-		$text	= self::replaceBBList( $text );
+		$text = self::replaceBBList($text);
 
 		$smileyin = array();
 		$smileyout = array();
@@ -336,32 +332,32 @@ class KomentoCommentHelper
 		if( $config->get( 'bbcode_smile' ) )
 		{
 			$smileyin[] = ':)';
-			$smileyout[] = '<img alt=":)" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-smile.png" />';
+			$smileyout[] = '<img alt=":)" style="width:16px; height:16px;" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-smile.png" />';
 		}
 		if( $config->get( 'bbcode_happy' ) )
 		{
 			$smileyin[] = ':D';
-			$smileyout[] = '<img alt=":D" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-happy.png" />';
+			$smileyout[] = '<img alt=":D" style="width:16px; height:16px;" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-happy.png" />';
 		}
 		if( $config->get( 'bbcode_surprised' ) )
 		{
 			$smileyin[] = ':o';
-			$smileyout[] = '<img alt=":o" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-surprised.png" />';
+			$smileyout[] = '<img alt=":o" style="width:16px; height:16px;" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-surprised.png" />';
 		}
 		if( $config->get( 'bbcode_tongue' ) )
 		{
 			$smileyin[] = ':p';
-			$smileyout[] = '<img alt=":p" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-tongue.png" />';
+			$smileyout[] = '<img alt=":p" style="width:16px; height:16px;" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-tongue.png" />';
 		}
 		if( $config->get( 'bbcode_unhappy' ) )
 		{
 			$smileyin[] = ':(';
-			$smileyout[] = '<img alt=":(" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-unhappy.png" />';
+			$smileyout[] = '<img alt=":(" style="width:16px; height:16px;" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-unhappy.png" />';
 		}
 		if( $config->get( 'bbcode_wink' ) )
 		{
 			$smileyin[] = ';)';
-			$smileyout[] = '<img alt=";)" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-wink.png" />';
+			$smileyout[] = '<img alt=";)" style="width:16px; height:16px;" class="kmt-emoticon" src="'.KOMENTO_EMOTICONS_DIR.'emoticon-wink.png" />';
 		}
 
 		// add in custom smileys
@@ -422,18 +418,26 @@ class KomentoCommentHelper
 		return $text;
 	}
 
-	public static function replaceBBUrl( $text )
+	/**
+	 * Replaces the bbcode url tag
+	 *
+	 * @since	2.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public static function replaceBBUrl($text)
 	{
 		$config = Komento::getConfig();
-		$nofollow = $config->get( 'links_nofollow' ) ? ' rel="nofollow"' : '';
+		$nofollow = $config->get('links_nofollow') ? ' rel="nofollow"' : '';
 
-		$pattern =  '/\[url\="?(.*?)"?\](.*?)\[\/url\]/ms';
+		$pattern = '/\[url\="?(.*?)"\](.*?)\[\/url\]/ms';
 
-		preg_match_all( $pattern, $text, $matches );
+		preg_match_all($pattern, $text, $matches);
 
-		if( !empty( $matches ) )
-		{
-			$sources = array_shift( $matches );
+		if (!empty($matches)) {
+
+			$sources = array_shift($matches);
 
 			$urls = $matches[0];
 			$txts = $matches[1];
@@ -445,6 +449,10 @@ class KomentoCommentHelper
 				if( !empty( $source ) )
 				{
 					$url = $urls[$i];
+					// prevent user add javascript in the url element
+					$segments = explode(' ', $url);
+					$url = $segments[0];
+
 					$txt = $txts[$i];
 
 					if( stripos( $url, 'http://' ) !== 0 && stripos( $url, 'https://' ) !== 0 && stripos( $url, 'ftp://' ) !== 0 )
