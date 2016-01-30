@@ -1,6 +1,13 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorEasySocialGroups extends N2GeneratorAbstract
 {
@@ -20,8 +27,7 @@ class N2GeneratorEasySocialGroups extends N2GeneratorAbstract
         $where = array(
             "a.parent_id = 0",
             "a.cluster_type = 'group'",
-            "a.state = '1'",
-            "(d.album_id IN (SELECT id FROM #__social_albums WHERE title = 'COM_EASYSOCIAL_ALBUMS_PROFILE_COVER') OR d.album_id IS NULL)"
+            "a.state = '1'"
         );
 
         $category = array_map('intval', explode('||', $this->data->get('easysocialcategories', '')));
@@ -60,7 +66,7 @@ class N2GeneratorEasySocialGroups extends N2GeneratorAbstract
                   (SELECT value FROM #__social_photos_meta WHERE photo_id = d.id AND property = 'stock') AS stock_cover
                   FROM #__social_clusters AS a
                   LEFT JOIN #__social_avatars AS c ON c.uid = a.id
-                  LEFT JOIN #__social_photos AS d ON d.uid = a.id
+                  LEFT JOIN #__social_photos AS d ON d.uid = a.id AND (d.album_id IN (SELECT id FROM #__social_albums WHERE title = 'COM_EASYSOCIAL_ALBUMS_PROFILE_COVER') OR d.album_id IS NULL)
                   WHERE " . implode(' AND ', $where) . "  ";
 
         $order = N2Parse::parse($this->data->get('easysocialorder', 'a.created|*|desc'));
@@ -75,6 +81,9 @@ class N2GeneratorEasySocialGroups extends N2GeneratorAbstract
         $avatarRoot = $root . "/media/com_easysocial/avatars/group/";
 
         if (!class_exists('FRoute')) {
+            if (file_exists(JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easysocial' . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'easysocial.php')) {
+                require_once(JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easysocial' . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'easysocial.php');
+            }
             require_once(JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easysocial' . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'router.php');
         }
 
@@ -89,9 +98,16 @@ class N2GeneratorEasySocialGroups extends N2GeneratorAbstract
             $urlOptions['id'] = $result[$i]['id'];
 
             $r = array(
-                'title'               => $result[$i]['title'],
-                'description'         => $result[$i]['description'],
-                'image'               => $this->checkImage($root, $result[$i]['original_cover']),
+                'title'       => $result[$i]['title'],
+                'description' => $result[$i]['description']
+            );
+
+            $r['image'] = $r['thumbnail'] = NextendImageFallBack::fallback($root, array(
+                @$result[$i]['original_cover'],
+                isset($result[$i]['large']) ? "/media/com_easysocial/avatars/group/" . $result[$i]['avatar_folder'] . "/" . $result[$i]['large'] : ''
+            ), array());
+
+            $r += array(
                 'thumbnail'           => $this->checkImage($root, $result[$i]['thumbnail_cover']),
                 'square_image'        => $this->checkImage($root, $result[$i]['square_cover']),
                 'featured_image'      => $this->checkImage($root, $result[$i]['featured_cover']),

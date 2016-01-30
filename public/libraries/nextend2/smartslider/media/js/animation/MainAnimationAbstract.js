@@ -23,12 +23,6 @@
         this.timeline = new NextendTimeline({
             paused: true
         });
-
-        if (!slider.isAdmin && this.slider.parameters.postBackgroundAnimations != false) {
-            this.postBackgroundAnimation = new NextendSmartSliderPostBackgroundAnimation(slider, this);
-        } else {
-            this.postBackgroundAnimation = false;
-        }
     };
 
     NextendSmartSliderMainAnimationAbstract.prototype.setTouch = function (direction) {
@@ -60,9 +54,6 @@
     };
 
     NextendSmartSliderMainAnimationAbstract.prototype.changeTo = function (currentSlideIndex, currentSlide, nextSlideIndex, nextSlide, reversed, isSystem) {
-        if (this.postBackgroundAnimation) {
-            this.postBackgroundAnimation.start(currentSlideIndex, nextSlideIndex);
-        }
 
         this._initAnimation(currentSlideIndex, currentSlide, nextSlideIndex, nextSlide, reversed);
 
@@ -83,14 +74,13 @@
         if (!this.isTouch) {
             var deferred = $.Deferred();
 
-            //deferred.done($.proxy(this.timeline.play, this.timeline));
-
             deferred.done($.proxy(function () {
-                //console.log('play');
                 this.play();
             }, this.timeline));
 
             this.preChangeToPlay(deferred, currentSlide, nextSlide);
+        } else {
+            this.slider.callOnSlide(currentSlide, 'onOutAnimationsPlayed');
         }
     };
 

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderTypeCarousel extends N2SmartSliderType
 {
@@ -12,9 +19,9 @@ class N2SmartSliderTypeCarousel extends N2SmartSliderType
             'background-size'        => 'cover',
             'background-fixed'       => 0,
             'animation'              => 'horizontal',
-            'animation-duration'     => 1500,
+            'animation-duration'     => 800,
             'animation-delay'        => 0,
-            'animation-easing'       => 'easeInOutQuint',
+            'animation-easing'       => 'easeOutQuad',
             'carousel'               => 1,
             'border-width'           => 0,
             'border-color'           => '3E3E3Eff',
@@ -46,11 +53,11 @@ class N2SmartSliderTypeCarousel extends N2SmartSliderType
             <div class="n2-ss-slider-2">
                 <div class="n2-ss-slider-pane">
                     <?php
-                    echo $this->slider->renderStaticSlide();
+                    echo $this->slider->staticHtml;
                     ?>
                     <?php
                     foreach ($this->slider->slides AS $i => $slide) {
-                        echo NHtml::tag('div', array('class' => 'n2-ss-slide-group ' . $slide->classes), NHtml::tag('div', $slide->attributes + array(
+                        echo N2Html::tag('div', array('class' => 'n2-ss-slide-group ' . $slide->classes), N2Html::tag('div', $slide->attributes + array(
                                 'class' => 'n2-ss-slide ' . $slide->classes . ' n2-ss-canvas',
                                 'style' => $slide->style . $params->get('slide-css')
                             ), $slide->background . $slide->getHTML()));
@@ -61,7 +68,7 @@ class N2SmartSliderTypeCarousel extends N2SmartSliderType
         </div>
         <?php
         $this->widgets->echoRemainder();
-        echo NHtml::closeTag('div');
+        echo N2Html::closeTag('div');
 
 
         $this->javaScriptProperties['mainanimation'] = array(
@@ -80,6 +87,6 @@ class N2SmartSliderTypeCarousel extends N2SmartSliderType
 
         N2JS::addFirstCode("new NextendSmartSliderCarousel(n2('#{$this->slider->elementId}'), " . json_encode($this->javaScriptProperties) . ");");
 
-        echo NHtml::clear();
+        echo N2Html::clear();
     }
 }

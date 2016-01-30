@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.settings.settings', 'smartslider');
 N2Loader::import('libraries.plugins.N2SliderGeneratorPluginAbstract', 'smartslider');
 
@@ -23,7 +30,7 @@ class N2SSPluginGeneratorYoutube extends N2SliderGeneratorPluginAbstract
 
         $list[self::$group]['byplaylist'] = N2GeneratorInfo::getInstance(self::$groupLabel, n2_('By playlist'), $this->getPath() . 'byplaylist')
                                                            ->setType('youtube')
-                                                           ->setConfiguration($this->configurationClass);;
+                                                           ->setConfiguration($this->configurationClass);
     }
 
     function onSmartSliderConfigurationList(&$list) {

@@ -3,6 +3,12 @@
 
     function NextendSmartSliderWidgetShadow(id, parameters) {
         this.slider = window[id];
+
+        this.slider.started($.proxy(this.start, this, id, parameters));
+    };
+
+
+    NextendSmartSliderWidgetShadow.prototype.start = function (id, parameters) {
         this.shadow = this.slider.sliderElement.find('.nextend-shadow');
         this.slider.responsive.addStaticMargin('Bottom', this);
     };

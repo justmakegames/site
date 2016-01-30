@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.image.color');
 N2Loader::import('libraries.parse.font');
 
@@ -30,7 +37,7 @@ class N2SmartSliderCSSAccordion extends N2SmartSliderCSSAbstract
         $context['border2rgba'] = 'RGBA(' . $rgba[0] . ',' . $rgba[1] . ',' . $rgba[2] . ',' . round($rgba[3] / 127, 2) . ')';
         $context['border2hex']  = '#' . substr($borderInnerColor, 0, 6);
 
-        $context['borderRadius'] = intval($params->get('border-radius'));
+        $context['borderRadius'] = intval($params->get('border-radius')) . 'px';
 
         $orientationMargin            = intval($params->get('title-margin'));
         $context['orientationmargin'] = $orientationMargin . 'px';

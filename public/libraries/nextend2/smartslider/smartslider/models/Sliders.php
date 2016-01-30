@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import("libraries.slider.abstract", "smartslider");
 
@@ -25,8 +32,8 @@ class N2SmartsliderSlidersModel extends N2Model
     /**
      * @return mixed
      */
-    public function getAll() {
-        return $this->db->findAll('time DESC');
+    public function getAll($orderBy = 'time', $orderByDirection = 'DESC') {
+        return $this->db->findAll($orderBy . ' ' . $orderByDirection);
     }
 
     public static function renderAddForm($data = array()) {
@@ -47,7 +54,8 @@ class N2SmartsliderSlidersModel extends N2Model
         $configurationXmlFile = dirname(__FILE__) . '/forms/slider.xml';
 
         N2Loader::import('libraries.form.form');
-        $form = new N2Form(N2Base::getApplication('smartslider')->getApplicationType('backend'));
+        $form = new N2Form(N2Base::getApplication('smartslider')
+                                 ->getApplicationType('backend'));
         $form->set('class', 'nextend-smart-slider-admin');
 
         $form->loadArray($data);
@@ -55,6 +63,9 @@ class N2SmartsliderSlidersModel extends N2Model
         $form->loadXMLFile($configurationXmlFile);
 
         echo $form->render('slider');
+
+        N2Loader::import('libraries.form.element.url');
+        N2JS::addFirstCode('nextend.NextendElementUrlParams=' . N2ElementUrl::getNextendElementUrlParameters() . ';');
 
         return $data;
     }
@@ -64,7 +75,21 @@ class N2SmartsliderSlidersModel extends N2Model
         $configurationXmlFile = dirname(__FILE__) . '/forms/import/upload.xml';
 
         N2Loader::import('libraries.form.form');
-        $form = new N2Form(N2Base::getApplication('smartslider')->getApplicationType('backend'));
+        $form = new N2Form(N2Base::getApplication('smartslider')
+                                 ->getApplicationType('backend'));
+
+        $form->loadXMLFile($configurationXmlFile);
+
+        echo $form->render('slider');
+    }
+
+    public static function renderRestoreByUploadForm() {
+
+        $configurationXmlFile = dirname(__FILE__) . '/forms/import/restore.xml';
+
+        N2Loader::import('libraries.form.form');
+        $form = new N2Form(N2Base::getApplication('smartslider')
+                                 ->getApplicationType('backend'));
 
         $form->loadXMLFile($configurationXmlFile);
 
@@ -76,7 +101,8 @@ class N2SmartsliderSlidersModel extends N2Model
         $configurationXmlFile = dirname(__FILE__) . '/forms/import/server.xml';
 
         N2Loader::import('libraries.form.form');
-        $form = new N2Form(N2Base::getApplication('smartslider')->getApplicationType('backend'));
+        $form = new N2Form(N2Base::getApplication('smartslider')
+                                 ->getApplicationType('backend'));
 
         $form->loadXMLFile($configurationXmlFile);
 
@@ -96,6 +122,30 @@ class N2SmartsliderSlidersModel extends N2Model
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    function restore($slider) {
+
+        if (isset($slider['id']) && $slider['id'] > 0) {
+
+            $this->delete($slider['id']);
+
+            try {
+                $this->db->insert(array(
+                    'id'     => $slider['id'],
+                    'title'  => $slider['title'],
+                    'type'   => $slider['type'],
+                    'params' => $slider['params']->toJSON(),
+                    'time'   => date('Y-m-d H:i:s', N2Platform::getTime())
+                ));
+
+                return $this->db->insertId();
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
+            }
+        }
+
+        return $this->import($slider);
     }
 
     /**
@@ -215,6 +265,7 @@ class N2SmartsliderSlidersModel extends N2Model
     }
 
     public static function markChanged($sliderid) {
-        N2SmartSliderHelper::getInstance()->setSliderChanged($sliderid, 1);
+        N2SmartSliderHelper::getInstance()
+                           ->setSliderChanged($sliderid, 1);
     }
 } 

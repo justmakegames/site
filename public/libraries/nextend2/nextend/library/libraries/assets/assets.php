@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 abstract class N2AssetsAbstract
 {
@@ -56,8 +63,12 @@ abstract class N2AssetsAbstract
         $this->urls[] = $url;
     }
 
-    public function addFirstCode($code) {
-        $this->firstCodes[] = $code;
+    public function addFirstCode($code, $unshift = false) {
+        if ($unshift) {
+            array_unshift($this->firstCodes, $code);
+        } else {
+            $this->firstCodes[] = $code;
+        }
     }
 
     public function addInline($code, $global = false) {

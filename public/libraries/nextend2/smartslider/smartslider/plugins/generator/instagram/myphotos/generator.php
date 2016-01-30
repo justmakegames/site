@@ -1,6 +1,13 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
 
 class N2GeneratorInstagramMyPhotos extends N2GeneratorAbstract
 {
@@ -17,8 +24,8 @@ class N2GeneratorInstagramMyPhotos extends N2GeneratorAbstract
 
         $username = N2Parse::parse($this->data->get('username', ''));
 
-        $user = json_decode($this->client->searchUser($username), true);
-        if ($user['meta']['code'] == 200) {
+        $user = json_decode($this->client->searchUser('%22' . $username . '%22'), true);
+        if ($user['meta']['code'] == 200 && isset($user['data'][0])) {
             $this->userId = $user['data'][0]['id'];
         } else {
             return array();
@@ -33,11 +40,11 @@ class N2GeneratorInstagramMyPhotos extends N2GeneratorAbstract
 
                 $items = $this->getPage(intval(($j + $shift) / $this->resultPerPage));
 
-                $item = $items[($j + $shift) % $this->resultPerPage];
-                if (empty($item)) {
+                if(empty($items[($j + $shift) % $this->resultPerPage])){
                     // There is no more item in the list
                     break;
                 }
+                $item = $items[($j + $shift) % $this->resultPerPage];
                 if ($item['type'] == 'image') {
                     $record                = array();
                     $record['title']       = $record['caption'] = is_array($item['caption']) ? $item['caption']['text'] : '';
@@ -57,21 +64,15 @@ class N2GeneratorInstagramMyPhotos extends N2GeneratorAbstract
 
                     $record['comments_count'] = $item['comments']['count'];
 
-                    if ($record['comments_count'] > 0) {
-                        foreach ($item['comments']['data'] AS $x => $comment) {
-                            $x++;
-                            $record['comments' . $x]                      = $comment['text'];
-                            $record['comments' . $x . '_username']        = $comment['from']['username'];
-                            $record['comments' . $x . '_profile_picture'] = $comment['from']['profile_picture'];
-                        }
-                    }
-
 
                     $data[$i] = &$record;
                     unset($record);
                 } else {
                     $shift++;
                 }
+            }
+            if (is_array($data)) {
+                $data = array_values($data);
             }
         } catch (Exception $e) {
             N2Message::error($e->getMessage());

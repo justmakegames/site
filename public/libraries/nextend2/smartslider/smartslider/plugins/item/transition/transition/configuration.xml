@@ -15,8 +15,6 @@
         <option value="_blank">Blank</option>
       </param>
     </param>
-    <param name="onmouseenter" type="text" label="Event on mouseenter" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseclick" type="text" label="Event on mouseclick" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseleave" type="text" label="Event on mouseleave" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
+    <param type="onoff" name="image-optimize" label="Optimize" default="1" class="n2-expert"/>
   </params>
 </root>

@@ -1,9 +1,8 @@
 <root>
-  <params name="html-item" label="Html item settings" hidetitle="1">
-    <param name="html" type="textarea" label="HTML" default="" style2="height: 200px; width: 230px;resize: vertical;"/>
-    <param name="css" type="textarea" label="CSS" default="" style2="height: 200px; width: 230px;resize: vertical;"/>
-    <param name="onmouseenter" type="text" label="Event on mouseenter" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseclick" type="text" label="Event on mouseclick" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseleave" type="text" label="Event on mouseleave" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-  </params>
+    <params name="html-item" label="Html item settings" hidetitle="1">
+        <param name="html" type="textarea" label="HTML" default=""
+               style2="height: 200px; width: 230px;resize: vertical;" />
+        <param name="css" type="textarea" label="CSS" default=""
+               style2="height: 200px; width: 230px;resize: vertical;" />
+    </params>
 </root>

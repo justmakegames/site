@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.plugins.N2SliderItemAbstract', 'smartslider');
 
 class N2SSPluginItemTransition extends N2SSPluginItemAbstract
@@ -8,7 +15,7 @@ class N2SSPluginItemTransition extends N2SSPluginItemAbstract
 
     protected $priority = 7;
 
-    protected $layerProperties = '{"width":200}';
+    protected $layerProperties = array("width" => 200);
 
     public function __construct() {
         $this->_title = n2_x('Transition', 'Slide item');
@@ -18,34 +25,34 @@ class N2SSPluginItemTransition extends N2SSPluginItemAbstract
 
         $this->loadResources($slider);
 
-        $html = NHtml::openTag("div", array(
+        $html = N2Html::openTag("div", array(
             "id"    => '{uid}',
             "class" => "n2-ss-item-transition"
         ));
 
-        $html .= NHtml::openTag("a", array(
+        $html .= N2Html::openTag("a", array(
             "href"    => '#',
             "onclick" => "return false;"
         ));
-        $html .= NHtml::openTag("div", array(
+        $html .= N2Html::openTag("div", array(
             "class" => "n2-ss-item-transition-inner"
         ));
 
-        $html .= NHtml::image('{image}', '', array(
+        $html .= N2Html::image('{image}', '', array(
             'class' => 'n2-ss-item-transition-image1'
         ));
 
-        $html .= NHtml::image('{image2}', '', array(
+        $html .= N2Html::image('{image2}', '', array(
             'class' => 'n2-ss-item-transition-image2'
         ));
 
-        $html .= NHtml::closeTag("div");
+        $html .= N2Html::closeTag("div");
 
-        $html .= NHtml::closeTag("a");
+        $html .= N2Html::closeTag("a");
 
-        $html .= NHtml::scriptTemplate($this->getJs($slider->elementId, "{uid}"));
+        $html .= N2Html::scriptTemplate($this->getJs($slider->elementId, "{uid}"));
 
-        $html .= NHtml::closeTag("div");
+        $html .= N2Html::closeTag("div");
 
         return $html;
     }
@@ -58,36 +65,37 @@ class N2SSPluginItemTransition extends N2SSPluginItemAbstract
     }
 
     function _render($data, $itemId, $slider, $slide) {
-        return $this->getHtml($data, $itemId, $slider, $slide, false, $this->getEventAttributes($data, $slider->elementId));
+        return $this->getHtml($data, $itemId, $slider, $slide, false);
     }
 
     function _renderAdmin($data, $itemId, $slider, $slide) {
         return $this->getHtml($data, $itemId, $slider, $slide, true);
     }
 
-    private function getHtml($data, $id, $slider, $slide, $isAdmin = false, $attributes = array()) {
+    private function getHtml($data, $id, $slider, $slide, $isAdmin = false) {
 
         $this->loadResources($slider);
-
         $slider->features->addInitCallback('new NextendSmartSliderTransitionItem(arguments[0], "' . $id . '", "' . $data->get('animation', 'Fade') . '");');
 
-        $html = NHtml::openTag("div", $attributes + array(
-                "class" => "n2-ss-item-transition-inner"
+        $html = N2Html::openTag("div", array(
+            "class" => "n2-ss-item-transition-inner"
+        ));
+        $html .= N2Html::tag('img', self::optimizeImage($slide->fill($data->get('image', '')), $data, $slider) + array(
+                'alt'   => htmlspecialchars($slide->fill($data->get('alt', ''))),
+                'class' => 'n2-ss-item-transition-image1'
             ));
-        $html .= NHtml::image(N2ImageHelper::fixed($slide->fill($data->get('image', ''))), htmlspecialchars($slide->fill($data->get('alt', ''))), array(
-            'class' => 'n2-ss-item-transition-image1'
-        ));
-        $html .= NHtml::image(N2ImageHelper::fixed($slide->fill($data->get('image2', ''))), htmlspecialchars($slide->fill($data->get('alt', ''))), array(
-            'class' => 'n2-ss-item-transition-image2'
-        ));
-        $html .= NHtml::closeTag('div');
+        $html .= N2Html::tag('img', self::optimizeImage($slide->fill($data->get('image2', '')), $data, $slider) + array(
+                'alt'   => htmlspecialchars($slide->fill($data->get('alt', ''))),
+                'class' => 'n2-ss-item-transition-image2'
+            ));
+        $html .= N2Html::closeTag('div');
 
         $linkAttributes = array();
         if ($isAdmin) {
             $linkAttributes['onclick'] = 'return false;';
         }
 
-        return NHtml::tag("div", array(
+        return N2Html::tag("div", array(
             "id"    => $id,
             "class" => "n2-ss-item-transition"
         ), $this->getLink($slide, $data, $html, $linkAttributes));
@@ -102,14 +110,12 @@ class N2SSPluginItemTransition extends N2SSPluginItemAbstract
 
     function getValues() {
         return array(
-            'animation'    => 'Fade',
-            'image'        => '$system$/images/placeholder/imagefront.svg',
-            'image2'       => '$system$/images/placeholder/imageback.svg',
-            'alt'          => n2_('Image not available'),
-            'link'         => '#|*|_self',
-            'onmouseclick' => '',
-            'onmouseenter' => '',
-            'onmouseleave' => ''
+            'animation' => 'Fade',
+            'image'     => '$system$/images/placeholder/imagefront.png',
+            'image2'    => '$system$/images/placeholder/imageback.png',
+            'alt'       => n2_('Image not available'),
+            'link'      => '#|*|_self',
+            'image-optimize' => 1
         );
     }
 
@@ -128,12 +134,14 @@ class N2SSPluginItemTransition extends N2SSPluginItemAbstract
     public function prepareExport($export, $data) {
         $export->addImage($data->get('image'));
         $export->addImage($data->get('image2'));
+        $export->addLightbox($data->get('link'));
     }
 
     public function prepareImport($import, $data) {
 
         $data->set('image', $import->fixImage($data->get('image', '')));
         $data->set('image2', $import->fixImage($data->get('image2', '')));
+        $data->set('link', $import->fixLightbox($data->get('link')));
         return $data;
     }
 }

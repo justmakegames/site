@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartsliderBackendSlidersController extends N2SmartSliderController
 {
@@ -8,7 +15,8 @@ class N2SmartsliderBackendSlidersController extends N2SmartSliderController
 
         N2Loader::import(array(
             'models.Sliders',
-            'models.Slides'
+            'models.Slides',
+            'models.generator'
         ), 'smartslider');
     }
 
@@ -22,7 +30,48 @@ class N2SmartsliderBackendSlidersController extends N2SmartSliderController
         $this->render();
     }
 
-    public function actionImportByUpload() {
+    public function actionOrderBy() {
+        $time = N2Request::getCmd('time', null);
+        if ($time == 'DESC' || $time == 'ASC') {
+            N2SmartSliderSettings::set('slidersOrder', 'time');
+            N2SmartSliderSettings::set('slidersOrderDirection', $time);
+        }
+        $title = N2Request::getCmd('title', null);
+        if ($title == 'DESC' || $title == 'ASC') {
+            N2SmartSliderSettings::set('slidersOrder', 'title');
+            N2SmartSliderSettings::set('slidersOrderDirection', $title);
+        }
+        $this->redirectToSliders();
+    }
+
+    public function actionExportAll() {
+        N2Loader::import('libraries.export', 'smartslider');
+        $slidersModel = new N2SmartsliderSlidersModel();
+        $sliders      = $slidersModel->getAll();
+        foreach ($sliders AS $slider) {
+            $export = new N2SmartSliderExport($slider['id']);
+            $export->create(true);
+        }
+
+        $folder = N2Platform::getPublicDir();
+        $folder .= '/export/';
+        $zip = new N2ZipFile();
+
+        foreach (N2Filesystem::files($folder) AS $file) {
+            $zip->addFile(file_get_contents($folder . $file), $file);
+        }
+        ob_end_clean();
+        header('Content-disposition: attachment; filename=sliders_unzip_to_import.zip');
+        header('Content-type: application/zip');
+        echo $zip->file();
+        n2_exit(true);
+    }
+
+    public function actionRestoreByUpload() {
+        $this->actionImportByUpload(true);
+    }
+
+    public function actionImportByUpload($restore = false) {
         if ($this->validatePermission('smartslider_edit')) {
             if (empty($_FILES) && empty($_POST) && isset($_SERVER['REQUEST_METHOD']) && strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
                 N2Message::error(sprintf(n2_('You were not allowed to upload this file to the server (upload limit %s). Please you this alternative method!'), @ini_get('post_max_size')));
@@ -51,6 +100,9 @@ class N2SmartsliderBackendSlidersController extends N2SmartSliderController
 
                         N2Loader::import('libraries.import', 'smartslider');
                         $import   = new N2SmartSliderImport();
+                        if($restore){
+                            $import->enableRestore();
+                        }
                         $sliderId = $import->import($_FILES['slider']['tmp_name']['import-file'], $data->get('image-mode', 'clone'), $data->get('linked-visuals', 0));
 
                         if ($sliderId !== false) {
@@ -74,7 +126,11 @@ class N2SmartsliderBackendSlidersController extends N2SmartSliderController
                 }
             }
 
-            $this->addView('importByUpload');
+            if ($restore) {
+                $this->addView('restoreByUpload');
+            } else {
+                $this->addView('importByUpload');
+            }
             $this->render();
         }
     }
@@ -125,37 +181,6 @@ class N2SmartsliderBackendSlidersController extends N2SmartSliderController
 
             $this->addView('importFromServer');
             $this->render();
-        }
-    }
-
-    public function actionImportLocal() {
-        if ($this->validatePermission('smartslider_edit')) {
-            $slider = N2Request::getCmd('slider');
-            if (!empty($slider)) {
-                $tmpHandle = tmpfile();
-                fwrite($tmpHandle, file_get_contents('http://beta.nextendweb.com/sliders/' . $slider . '.ss3'));
-                $metaData    = stream_get_meta_data($tmpHandle);
-                $tmpFilename = $metaData['uri'];
-
-                N2Loader::import('libraries.import', 'smartslider');
-                $import   = new N2SmartSliderImport();
-                $sliderId = $import->import($tmpFilename, 'clone', 1);
-                fclose($tmpHandle);
-
-                if ($sliderId !== false) {
-
-                    N2Message::success(n2_('Slider imported.'));
-                    $this->redirect(array(
-                        "slider/edit",
-                        array("sliderid" => $sliderId)
-                    ));
-                } else {
-                    N2Message::error(n2_('Import error!'));
-                    $this->redirect(array(
-                        "sliders/index"
-                    ));
-                }
-            }
         }
     }
 }

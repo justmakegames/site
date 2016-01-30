@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.mobiledetect.Mobile_Detect');
 N2Loader::import('libraries.parse.font');
@@ -65,6 +72,10 @@ abstract class N2SmartSliderAbstract
 
     /** @var  N2SmartSliderType */
     protected $sliderType;
+
+    public $staticHtml = '';
+
+    public $isStaticEdited = false;
 
     public function __construct($sliderId, $parameters) {
 
@@ -183,6 +194,7 @@ abstract class N2SmartSliderAbstract
             $this->slides[$i]->setSlidesParams();
         }
 
+        $this->renderStaticSlide();
         $slider = $this->sliderType->render();
 
         if (!$this->isAdmin) {
@@ -192,11 +204,24 @@ abstract class N2SmartSliderAbstract
             ));
         }
 
+
         $slider = str_replace('n2-ss-0', $this->elementId, $slider);
+
+        $dependency = intval($this->params->get('dependency'));
+        if (!N2Platform::$isAdmin && $dependency > 0) {
+            $slider = '<script id="' . $this->elementId . '" data-dependency="' . $dependency . '" type="rocket/slider">' . str_replace(array(
+                    '<script',
+                    '</script'
+                ), array(
+                    '<_s_c_r_i_p_t',
+                    '<_/_s_c_r_i_p_t'
+                ), $slider) . '</script>';
+        }
 
         $slider = $this->features->translateUrl->renderSlider($slider);
 
         $slider = $this->features->align->renderSlider($slider, $this->assets->sizes['width']);
+        $slider = $this->features->margin->renderSlider($slider);
 
         $slider .= $this->features->fadeOnLoad->renderPlaceholder($this->assets->sizes);
 
@@ -208,14 +233,12 @@ abstract class N2SmartSliderAbstract
     }
 
     public function renderStaticSlide() {
+        $this->staticHtml = '';
         if (count($this->staticSlides)) {
-            $layers = '';
             for ($i = 0; $i < count($this->staticSlides); $i++) {
-                $layers .= $this->staticSlides[$i]->getAsStatic();
+                $this->staticHtml .= $this->staticSlides[$i]->getAsStatic();
             }
-            return $layers;
         }
-        return '';
     }
 
     /**
@@ -244,7 +267,12 @@ abstract class N2SmartSliderAbstract
     public static function removeShortcode($content) {
         $content = preg_replace('/smartslider3\[([0-9]+)\]/', '', $content);
         $content = preg_replace('/\[smartslider3 slider="([0-9]+)"\]/', '', $content);
+        $content = preg_replace('/\[smartslider3 slider=([0-9]+)\]/', '', $content);
         return $content;
+    }
+
+    public function setStatic($isStaticEdited) {
+        $this->isStaticEdited = $isStaticEdited;
     }
 }
 

@@ -51,7 +51,7 @@
         if (!modal) {
             var getLinks = function (search) {
                 if (typeof cache[search] == 'undefined') {
-                    cache[search] = NextendAjaxHelper.ajax({
+                    cache[search] = $.ajax({
                         type: "POST",
                         url: NextendAjaxHelper.makeAjaxUrl(ajaxUrl),
                         data: {
@@ -78,12 +78,25 @@
                     fn: {
                         show: function () {
                             var button = this.controls.find('.n2-button'),
+                                chooseImages = $('<a href="#" class="n2-button n2-button-medium n2-button-green n2-uc n2-h5" style="float:right; margin-right: 20px;">' + n2_('Choose images') + '</a>'),
                                 form = this.content.find('.n2-form').on('submit', function (e) {
                                     e.preventDefault();
                                     button.trigger('click');
-                                }).append(this.createTextarea(n2_('Content list') + " - " + n2_('One per line'), 'n2-link-resource', 'width: 446px;height: 100px;')).append(this.createInputUnit(n2_('Autoplay duration'), 'n2-link-autoplay', 'ms', 'width: 40px;')),
+                                }).append(this.createTextarea(n2_('Content list') + " - " + n2_('One per line'), 'n2-link-resource', 'width: 446px;height: 100px;')).append(chooseImages).append(this.createInputUnit(n2_('Autoplay duration'), 'n2-link-autoplay', 'ms', 'width: 40px;')),
                                 resourceField = this.content.find('#n2-link-resource').focus(),
                                 autoplayField = this.content.find('#n2-link-autoplay').val(0);
+
+                            chooseImages.on('click', function (e) {
+                                e.preventDefault();
+                                nextend.imageHelper.openMultipleLightbox(function (images) {
+                                    var value = resourceField.val().replace(/\n$/, '');
+
+                                    for (var i = 0; i < images.length; i++) {
+                                        value += "\n" + images[i].image;
+                                    }
+                                    resourceField.val(value.replace(/^\n/, ''));
+                                });
+                            });
 
                             var matches = lastValue.match(/lightbox\[(.*?)\]/);
                             if (matches && matches.length == 2) {
@@ -97,10 +110,10 @@
 
                             this.content.append(this.createHeading(n2_('Examples')));
                             this.createTable([
-                                [n2_('Image'), 'http://www.nextendweb.com/static/placeholder.png'],
-                                ['YouTube', 'https://www.youtube.com/watch?v=UiyDmqO59QE'],
-                                ['Vimeo', 'http://vimeo.com/58207848'],
-                                ['Iframe', 'http://www.apple.com/iphone-6/']
+                                [n2_('Image'), 'http://smartslider3.com/image.jpg'],
+                                ['YouTube', 'https://www.youtube.com/watch?v=MKmIwHAFjSU'],
+                                ['Vimeo', 'https://vimeo.com/144598279'],
+                                ['Iframe', 'http://smartslider3.com']
                             ], ['', '']).appendTo(this.content);
 
                             button.on('click', $.proxy(function (e) {
@@ -111,7 +124,7 @@
                                     if (autoplayField.val() > 0) {
                                         autoplay = ',' + autoplayField.val();
                                     }
-                                    callback('lightbox[' + link.split("\n").join(',') + autoplay + ']');
+                                    callback('lightbox[' + link.split("\n").filter(Boolean).join(',') + autoplay + ']');
                                 }
                                 this.hide(e);
                             }, this));
@@ -302,7 +315,7 @@
                             var input = n2('#n2-slide-index').val(0);
                             button.on('click', $.proxy(function (e) {
                                 e.preventDefault();
-                                callback('GoToSlide[' + input.val() + ']');
+                                callback('ToSlide[' + input.val() + ']');
                                 this.hide(e);
                             }, this));
                         }

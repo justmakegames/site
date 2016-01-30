@@ -2,6 +2,7 @@
 
     function NextendSmartSliderAccordion(sliderElement, parameters) {
 
+        this.type = 'accordion';
         this.responsiveClass = 'NextendSmartSliderResponsiveAccordion';
 
         parameters = $.extend({

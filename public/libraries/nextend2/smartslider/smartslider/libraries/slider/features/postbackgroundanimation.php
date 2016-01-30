@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 class N2SmartSliderFeaturePostBackgroundAnimation
 {
 
@@ -20,8 +27,9 @@ class N2SmartSliderFeaturePostBackgroundAnimation
         $animations = $this->parseKenBurns($slide->parameters->get('kenburns-animation', '50|*|50|*|'));
         if ($animations) {
             $this->slideData[$slide->index] = array(
-                'data'  => $animations,
-                'speed' => $slide->parameters->get('kenburns-animation-speed', 'default')
+                'data'     => $animations,
+                'speed'    => $slide->parameters->get('kenburns-animation-speed', 'default'),
+                'strength' => $slide->parameters->get('kenburns-animation-strength', 'default')
             );
             $this->hasSlideData             = true;
         }
@@ -29,8 +37,9 @@ class N2SmartSliderFeaturePostBackgroundAnimation
 
     public function makeJavaScriptProperties(&$properties) {
         $properties['postBackgroundAnimations'] = array(
-            'data'  => $this->parseKenBurns($this->slider->params->get('kenburns-animation', '50|*|50|*|')),
-            'speed' => $this->slider->params->get('kenburns-animation-speed', 'default')
+            'data'     => $this->parseKenBurns($this->slider->params->get('kenburns-animation', '50|*|50|*|')),
+            'speed'    => $this->slider->params->get('kenburns-animation-speed', 'default'),
+            'strength' => $this->slider->params->get('kenburns-animation-strength', 'default')
         );
 
         if ($this->hasSlideData) {

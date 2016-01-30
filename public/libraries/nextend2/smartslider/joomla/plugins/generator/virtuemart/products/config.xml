@@ -1,16 +1,16 @@
 <root>
     <params name="virtuemartproducts" label="Filter">
         <param type="group" label="Source">
-            <param name="virtuemartproductssourcecategories" label="Categories" type="virtuemartcategories" default="0"
+            <param name="virtuemartcategories" label="Categories" type="virtuemartcategories" default="0"
                    multiple="1" size="10"/>
-            <param name="virtuemartproductssourcemanufacturers" label="Manufacturers" type="virtuemartmanufacturers"
+            <param name="virtuemartmanufacturers" label="Manufacturers" type="virtuemartmanufacturers"
                    default="0"
                    multiple="1" size="10"/>
         </param>
         <param type="group" label="Limit" class="n2-expert">
-            <param name="virtuemartproductssourcefeatured" label="Featured" type="filter" default="0"/>
-            <param name="virtuemartproductssourceinstock" label="In stock" type="filter" default="0"/>
-            <param name="virtuemartproductssourcelanguage" label="Language filter" type="text" default="en_gb"/>
+            <param name="virtuemartfeatured" label="Featured" type="filter" default="0"/>
+            <param name="virtuemartinstock" label="In stock" type="filter" default="0"/>
+            <param name="virtuemartlanguage" label="Language filter" type="text" default="en_gb"/>
         </param>
     </params>
     <params name="order" label="Order by">

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SystemBackendBrowseControllerAjax extends N2BackendControllerAjax
 {
@@ -94,7 +101,7 @@ class N2SystemBackendBrowseControllerAjax extends N2BackendControllerAjax
                 }
                 $upload           = new N2BulletProof();
                 $file             = $upload->uploadDir($path)
-                                           ->upload($_FILES['image'], $fileName);  // upload to folder 'pics'
+                                           ->upload($_FILES['image'], $fileName);
                 $response['name'] = basename($file);
                 $response['url']  = N2ImageHelper::dynamic(N2Filesystem::pathToAbsoluteURL($file));
             }
@@ -423,6 +430,9 @@ class N2BulletProof
     }
 
     public function moveUploadedFile($uploaded_file, $new_file) {
+        if (!is_uploaded_file($uploaded_file)) {
+            return copy($uploaded_file, $new_file);
+        }
         return move_uploaded_file($uploaded_file, $new_file);
     }
 

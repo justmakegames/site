@@ -1,9 +1,16 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 /**
- * Class NHtml
+ * Class N2Html
  */
-class NHtml
+class N2Html
 {
 
     public static $closeSingleTags = true;
@@ -189,10 +196,10 @@ class NHtml
                 "href" => $script
             );
             $options = array_merge($options, $scriptOptions);
-            return NHtml::tag('link', $options, false);
+            return N2Html::tag('link', $options, false);
         }
 
-        return NHtml::tag("style", array(
+        return N2Html::tag("style", array(
             "type" => "text/css"
         ), $script);
     }
@@ -207,7 +214,7 @@ class NHtml
      */
     public static function script($script, $file = false) {
         if ($file) {
-            return NHtml::tag('script', array(
+            return N2Html::tag('script', array(
                 'type' => 'text/javascript',
                 'src'  => $script
             ), '');
@@ -220,7 +227,7 @@ class NHtml
 
     public static function scriptTemplate($script, $file = false) {
         if ($file) {
-            return NHtml::tag('script', array(
+            return N2Html::tag('script', array(
                 'type' => 'text/javascript',
                 'src'  => $script
             ), '');

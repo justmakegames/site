@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.zip.zip_read');
 N2Loader::import('libraries.backup', 'smartslider');
 
@@ -14,9 +21,15 @@ class N2SmartSliderImport
 
     private $sliderId = 0;
 
-    public function import($file, $imageImportMode = 'clone', $linkedVisuals = 1) {
+    private $restore = false;
+
+    public function enableRestore() {
+        $this->restore = true;
+    }
+
+    public function import($filePathOrData, $imageImportMode = 'clone', $linkedVisuals = 1, $isFilePath = true) {
         $zip        = new N2ZipRead();
-        $importData = $zip->read_zip($file);
+        $importData = $zip->read_zip($filePathOrData, $isFilePath);
         if (!isset($importData['data'])) {
             return false;
         }
@@ -26,8 +39,12 @@ class N2SmartSliderImport
         $this->importVisuals($this->backup->visuals, $linkedVisuals);
 
 
-        $sliderModel    = new N2SmartsliderSlidersModel();
-        $this->sliderId = $sliderModel->import($this->backup->slider);
+        $sliderModel = new N2SmartsliderSlidersModel();
+        if ($this->restore) {
+            $this->sliderId = $sliderModel->restore($this->backup->slider);
+        } else {
+            $this->sliderId = $sliderModel->import($this->backup->slider);
+        }
         if (!$this->sliderId) {
             return false;
         }
@@ -134,6 +151,7 @@ class N2SmartSliderImport
             $slide['params']    = new N2Data($slide['params'], true);
             $slide['thumbnail'] = $this->fixImage($slide['thumbnail']);
             $slide['params']->set('backgroundImage', $this->fixImage($slide['params']->get('backgroundImage')));
+            $slide['params']->set('link', $this->fixLightbox($slide['params']->get('link')));
 
             $slide['slide'] = N2SmartSliderLayer::prepareImport($this, $slide['slide']);
 
@@ -157,6 +175,19 @@ class N2SmartSliderImport
             return $this->sectionTranslation[$idOrRaw];
         }
         return $idOrRaw;
+    }
+
+    public function fixLightbox($url) {
+        preg_match('/^([a-zA-Z]+)\[(.*)](.*)/', $url, $matches);
+        if (!empty($matches) && $matches[1] == 'lightbox') {
+            $images    = explode(',', $matches[2]);
+            $newImages = array();
+            foreach ($images AS $image) {
+                $newImages[] = $this->fixImage($image);
+            }
+            $url = 'lightbox[' . implode(',', $newImages) . ']' . $matches[3];
+        }
+        return $url;
     }
 
     private function importVisuals($records, $linkedVisuals) {

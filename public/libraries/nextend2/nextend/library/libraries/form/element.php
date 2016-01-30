@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2Element
 {
@@ -45,18 +52,9 @@ class N2Element
         } else {
             $this->_label = n2_($this->_label);
         }
-        $html = NHtml::tag('label', array(
+        $html = N2Html::tag('label', array(
             'for' => $this->_id
         ), $this->_label);
-
-        $documentation = N2XmlHelper::getAttribute($this->_xml, 'doc');
-        if (!empty($documentation)) {
-            $html .= NHtml::tag('a', array(
-                'href'    => '#',
-                'class'   => 'n2-documentation',
-                'onclick' => 'NextendModalDocumentation.show("' . $documentation . '"); return false;'
-            ), NHtml::tag('i', array('class' => 'n2-i n2-i-info')));
-        }
         return $html;
     }
 

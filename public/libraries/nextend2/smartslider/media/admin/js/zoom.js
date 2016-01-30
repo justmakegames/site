@@ -58,6 +58,8 @@
 
         this.deviceOptions = $('#n2-ss-devices .n2-panel-option');
 
+        $('#n2-ss-devices').css('width', (this.deviceOptions.length * 62) + 'px');
+
         this.deviceOptions.each($.proxy(function (i, el) {
             $(el).on('click', $.proxy(this.setDeviceMode, this));
         }, this));
@@ -74,8 +76,13 @@
 
     NextendSmartSliderAdminZoom.prototype.setDeviceMode = function (e) {
         var el = $(e.currentTarget);
-        this.responsive.setOrientation(el.data('orientation'));
-        this.responsive.setMode(el.data('device'));
+        if ((e.ctrlKey || e.metaKey) && smartSlider.layerManager) {
+            var orientation = el.data('orientation');
+            smartSlider.layerManager.copyOrResetMode(el.data('device') + orientation[0].toUpperCase() + orientation.substr(1));
+        } else {
+            this.responsive.setOrientation(el.data('orientation'));
+            this.responsive.setMode(el.data('device'));
+        }
     };
 
     NextendSmartSliderAdminZoom.prototype.switchLock = function (e) {

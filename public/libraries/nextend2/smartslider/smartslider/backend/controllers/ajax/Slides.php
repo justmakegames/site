@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartsliderBackendSlidesControllerAjax extends N2SmartSliderControllerAjax
 {
@@ -270,7 +277,7 @@ class N2SmartsliderBackendSlidesControllerAjax extends N2SmartSliderControllerAj
         $this->validateVariable($sliderId > 0, 'Slider');
 
         $slidesModel = new N2SmartsliderSlidesModel();
-        $post      = N2Request::getVar('post');
+        $post        = N2Request::getVar('post');
         $this->validateVariable($post, 'Post');
 
         $newSlideId = $slidesModel->createQuickPost($post, $sliderId);
@@ -292,5 +299,56 @@ class N2SmartsliderBackendSlidesControllerAjax extends N2SmartSliderControllerAj
         $box = ob_get_clean();
         N2Message::success(n2_('Slide created.'));
         $this->response->respond($box);
+    }
+
+    public function actionQuickEdit() {
+        $this->validateToken();
+
+        $this->validatePermission('smartslider_edit');
+
+        $sliderId = N2Request::getInt('sliderid');
+        $this->validateVariable($sliderId > 0, 'Slider');
+
+        $slidesModel = new N2SmartsliderSlidesModel();
+        $slides      = $slidesModel->getAll($sliderId);
+
+        $changed = json_decode(base64_decode(N2Request::getVar('changed')), true);
+
+        if (!$changed || !is_array($changed)) {
+            $changed = array();
+        }
+
+        foreach ($slides AS $slide) {
+            if (!empty($changed[$slide['id']])) {
+                $slidesModel->quickSlideUpdate($slide, $changed[$slide['id']]['name'], $changed[$slide['id']]['description'], $changed[$slide['id']]['link']);
+            }
+        }
+
+        $sliderObj = new N2SmartSlider($sliderId, array());
+        $slides    = $slidesModel->getAll($sliderId);
+
+        $slidesObj = array();
+        foreach ($slides AS $i => $slide) {
+            if (!empty($changed[$slide['id']])) {
+                $slidesObj[$i] = new N2SmartSliderSlide($sliderObj, $slide);
+                $slidesObj[$i]->initGenerator();
+            }
+        }
+
+        $updateSlideBox = array();
+        /** @var N2SmartSliderSlide $slideObj */
+        foreach ($slidesObj AS $slideObj) {
+            $slideObj->fillSample();
+            $updateSlideBox[$slideObj->id] = array(
+                'title'          => $slideObj->getTitle() . ($slideObj->hasGenerator() ? ' [' . $slideObj->getSlideStat() . ']' : ''),
+                'rawTitle'       => $slideObj->getRawTitle(),
+                'rawDescription' => $slideObj->getRawDescription(),
+                'rawLink'        => $slideObj->getRawLink()
+            );
+        }
+
+        N2Message::success(sprintf(n2_('%d slide(s) modified!'), count($slidesObj)));
+
+        $this->response->respond($updateSlideBox);
     }
 } 

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2AssetsCss extends N2AssetsAbstract
 {
@@ -15,20 +22,20 @@ class N2AssetsCss extends N2AssetsAbstract
         $output = "";
 
         foreach ($this->urls AS $url) {
-            $output .= NHtml::style($url, true, array(
+            $output .= N2Html::style($url, true, array(
                     'media' => 'screen, print'
                 )) . "\n";
         }
 
         foreach ($this->getFiles() AS $file) {
-            $output .= NHtml::style(N2Uri::pathToUri($file) . '?' . filemtime($file), true, array(
+            $output .= N2Html::style(N2Uri::pathToUri($file) . '?' . filemtime($file), true, array(
                     'media' => 'screen, print'
                 )) . "\n";
         }
 
         $inline = implode("\n", $this->inline);
         if (!empty($inline)) {
-            $output .= NHtml::style($inline);
+            $output .= N2Html::style($inline);
         }
 
         return $output;

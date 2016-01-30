@@ -1,96 +1,99 @@
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
 
-        function TransitionItem(slider, node, animation) {
-            this.slider = slider;
-            this.animation = animation
+(function ($, scope, undefined) {
 
-            this.node = $('#' + node)
-                .on('mouseenter', $.proxy(this['in' + animation], this))
-                .on('mouseleave', $.proxy(this['out' + animation], this));
-            this.images = this.node.find('img');
-            this.inner = this.node.find('.n2-ss-item-transition-inner');
+    function TransitionItem(slider, node, animation) {
+        this.slider = slider;
 
-            this['init' + animation]();
-        };
+        if (n2const.isIE) {
+            animation = 'Fade';
+        }
+        this.animation = animation;
 
-        TransitionItem.prototype.initFade = function () {
-            this.images.eq(1).css('opacity', 0);
-        };
+        this.node = $('#' + node)
+            .on('mouseenter', $.proxy(this['in' + animation], this))
+            .on('mouseleave', $.proxy(this['out' + animation], this));
+        this.images = this.node.find('img');
+        this.inner = this.node.find('.n2-ss-item-transition-inner');
 
-        TransitionItem.prototype.inFade = function () {
-            NextendTween.to(this.images.eq(1), 0.5, {
-                opacity: 1
-            });
-        };
+        this['init' + animation]();
+    };
 
-        TransitionItem.prototype.outFade = function () {
-            NextendTween.to(this.images.eq(1), 0.5, {
-                opacity: 0
-            });
-        };
+    TransitionItem.prototype.initFade = function () {
+        this.images.eq(1).css('opacity', 0);
+    };
 
-        TransitionItem.prototype.initVerticalFlip = function () {
-            NextendTween.set(this.node, {
-                perspective: 1000
-            });
-            NextendTween.set(this.inner, {
-                transformStyle: 'preserve-3d'
-            });
-            NextendTween.set(this.images.eq(0), {
-                backfaceVisibility: 'hidden',
-                transformStyle: 'preserve-3d'
-            });
-            NextendTween.set(this.images.eq(1), {
-                rotationX: -180,
-                transformStyle: 'preserve-3d',
-                backfaceVisibility: 'hidden'
-            });
-        };
+    TransitionItem.prototype.inFade = function () {
+        NextendTween.to(this.images.eq(1), 0.5, {
+            opacity: 1
+        });
+    };
 
-        TransitionItem.prototype.inVerticalFlip = function () {
-            NextendTween.to(this.inner, 0.5, {
-                rotationX: -180
-            });
-        };
+    TransitionItem.prototype.outFade = function () {
+        NextendTween.to(this.images.eq(1), 0.5, {
+            opacity: 0
+        });
+    };
 
-        TransitionItem.prototype.outVerticalFlip = function () {
-            NextendTween.to(this.inner, 0.5, {
-                rotationX: 0
-            });
-        };
+    TransitionItem.prototype.initVerticalFlip = function () {
+        NextendTween.set(this.node, {
+            perspective: 1000
+        });
+        NextendTween.set(this.inner, {
+            transformStyle: 'preserve-3d'
+        });
+        NextendTween.set(this.images.eq(0), {
+            backfaceVisibility: 'hidden',
+            transformStyle: 'preserve-3d'
+        });
+        NextendTween.set(this.images.eq(1), {
+            rotationX: -180,
+            transformStyle: 'preserve-3d',
+            backfaceVisibility: 'hidden'
+        });
+    };
 
-        TransitionItem.prototype.initHorizontalFlip = function () {
-            NextendTween.set(this.inner.parent(), {
-                perspective: 1000
-            });
-            NextendTween.set(this.inner, {
-                transformStyle: 'preserve-3d'
-            });
-            NextendTween.set(this.images.eq(0), {
-                backfaceVisibility: 'hidden',
-                transformStyle: 'preserve-3d'
-            });
-            NextendTween.set(this.images.eq(1), {
-                rotationY: -180,
-                transformStyle: 'preserve-3d',
-                backfaceVisibility: 'hidden'
-            });
-        };
+    TransitionItem.prototype.inVerticalFlip = function () {
+        NextendTween.to(this.inner, 0.5, {
+            rotationX: -180
+        });
+    };
 
-        TransitionItem.prototype.inHorizontalFlip = function () {
-            NextendTween.to(this.inner, 0.5, {
-                rotationY: -180
-            });
-        };
+    TransitionItem.prototype.outVerticalFlip = function () {
+        NextendTween.to(this.inner, 0.5, {
+            rotationX: 0
+        });
+    };
 
-        TransitionItem.prototype.outHorizontalFlip = function () {
-            NextendTween.to(this.inner, 0.5, {
-                rotationY: 0
-            });
-        };
+    TransitionItem.prototype.initHorizontalFlip = function () {
+        NextendTween.set(this.inner.parent(), {
+            perspective: 1000
+        });
+        NextendTween.set(this.inner, {
+            transformStyle: 'preserve-3d'
+        });
+        NextendTween.set(this.images.eq(0), {
+            backfaceVisibility: 'hidden',
+            transformStyle: 'preserve-3d'
+        });
+        NextendTween.set(this.images.eq(1), {
+            rotationY: -180,
+            transformStyle: 'preserve-3d',
+            backfaceVisibility: 'hidden'
+        });
+    };
 
-        scope.NextendSmartSliderTransitionItem = TransitionItem;
+    TransitionItem.prototype.inHorizontalFlip = function () {
+        NextendTween.to(this.inner, 0.5, {
+            rotationY: -180
+        });
+    };
 
-    })(n2, window);
-} //N2SSPRO
+    TransitionItem.prototype.outHorizontalFlip = function () {
+        NextendTween.to(this.inner, 0.5, {
+            rotationY: 0
+        });
+    };
+
+    scope.NextendSmartSliderTransitionItem = TransitionItem;
+
+})(n2, window);

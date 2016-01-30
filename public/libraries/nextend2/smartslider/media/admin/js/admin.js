@@ -11,7 +11,7 @@ var NextendSmartSliderAdminStorage = function () {
     this.generator = null;
     /** @type {NextendSmartSliderAdminSlideLayerManager} */
     this.layerManager = null;
-    /** @type {NextendSmartSliderAdminLayoutHistory} */
+    /** @type {NextendSmartSliderSlideEditorHistory} */
     this.history = null;
 
 
@@ -36,9 +36,9 @@ NextendSmartSliderAdminStorage.prototype.normalizeOffsetX = function (offsetX) {
 };
 
 
-NextendSmartSliderAdminStorage.prototype.startEditor = function (sliderElementID, slideContentElementID, staticSlide, isUploadDisabled, uploadUrl, uploadDir) {
+NextendSmartSliderAdminStorage.prototype.startEditor = function (sliderElementID, slideContentElementID, isUploadDisabled, uploadUrl, uploadDir) {
     if (this.slide === null) {
-        new SmartSliderAdminSlide(sliderElementID, slideContentElementID, staticSlide, isUploadDisabled, uploadUrl, uploadDir);
+        new SmartSliderAdminSlide(sliderElementID, slideContentElementID, isUploadDisabled, uploadUrl, uploadDir);
     }
     return this.slide;
 };

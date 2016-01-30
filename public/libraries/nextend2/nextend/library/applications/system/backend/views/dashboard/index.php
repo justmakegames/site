@@ -1,4 +1,11 @@
-<div class="n2-heading-bar">
+<?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><div class="n2-heading-bar">
     <div class="n2-h1 n2-heading"><?php n2_e('Dashboard'); ?></div>
 </div>
 

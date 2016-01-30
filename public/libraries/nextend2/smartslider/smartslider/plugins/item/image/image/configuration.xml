@@ -16,9 +16,7 @@
     <param name="style" type="style" previewmode="box" label="Style" class="n2-expert">
       <![CDATA[<div class="{styleClassName}" style="width:{nextend.activeLayer.width()}px;height:{nextend.activeLayer.height()}px;"><img style="width:100%;" src="{nextend.imageHelper.fixed($('#item_imageimage').val())}" /></div>]]>
     </param>
-    <param name="cssclass" type="text" label="CSS Class" default="" class="n2-expert" doc="#Layers-Image"/>
-    <param name="onmouseenter" type="text" label="Event on mouseenter" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseclick" type="text" label="Event on mouseclick" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseleave" type="text" label="Event on mouseleave" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
+    <param name="cssclass" type="text" label="CSS Class" default="" class="n2-expert"/>
+    <param type="onoff" name="image-optimize" label="Optimize" default="1" class="n2-expert"/>
   </params>
 </root>

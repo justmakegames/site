@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.form.element.list');
 
@@ -7,7 +14,7 @@ class N2ElementJEventsCategories extends N2ElementList
 
     function fetchElement() {
         $model     = new N2Model('jevents_categories');
-        $query     = "SELECT id, parent_id, title FROM #__assets WHERE name LIKE '%com_jevents.category%' ORDER BY parent_id";
+        $query     = "SELECT id, parent_id, title, name FROM #__assets WHERE name LIKE '%com_jevents.category%' ORDER BY parent_id";
         $menuItems = $model->db->queryAll($query, false, "object");
 
         $parentModel = new N2Model('jevents_categories_parent');
@@ -31,8 +38,9 @@ class N2ElementJEventsCategories extends N2ElementList
                    ->addAttribute('value', 0);
         if (count($options)) {
             foreach ($options AS $option) {
+                $id = explode('.',$option->name);
                 $this->_xml->addChild('option', htmlspecialchars($option->treename))
-                           ->addAttribute('value', $option->id);
+                           ->addAttribute('value', $id[2]);
             }
         }
         return parent::fetchElement();

@@ -1,4 +1,11 @@
-<?php echo NHtml::openTag('div', $attributes); ?>
+<?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php echo N2Html::openTag('div', $attributes); ?>
 <?php if ($image[0] == '<'): ?>
     <?php echo $image; ?>
 <?php else: ?>
@@ -8,22 +15,22 @@
 
 <?php
 if ($lt) {
-    echo NHtml::tag('div', $ltAttributes, $lt);
+    echo N2Html::tag('div', $ltAttributes, $lt);
 }
 if ($rt) {
-    echo NHtml::tag('div', $rtAttributes, $rt);
+    echo N2Html::tag('div', $rtAttributes, $rt);
 }
 if ($lb) {
-    echo NHtml::tag('div', $lbAttributes, $lb);
+    echo N2Html::tag('div', $lbAttributes, $lb);
 }
 if ($rb) {
-    echo NHtml::tag('div', $rbAttributes, $rb);
+    echo N2Html::tag('div', $rbAttributes, $rb);
 }
 if ($center) {
-    echo NHtml::tag('div', $centerAttributes, $center);
+    echo N2Html::tag('div', $centerAttributes, $center);
 }
 if ($overlay) {
-    echo NHtml::tag('div', array(
+    echo N2Html::tag('div', array(
         'class' => 'n2-box-overlay n2-on-hover'
     ), $rb);
 }

@@ -1,5 +1,5 @@
 <root>
-    <params name="smartslider-responsive-full-page" label="Responsive - Full page" doc="#Slider-Responsive-Fullpage">
+    <params name="smartslider-responsive-full-page" label="Responsive - Full page" >
 
         <param type="group" label="Slide width" >
             <param name="responsiveSlideWidthMax" type="numberautocomplete" label="Max" default="3000"

@@ -40,7 +40,6 @@
 
     function AdminSlideLayerManager(layerManager, staticSlide, isUploadDisabled, uploadUrl, uploadDir) {
         this.activeLayerIndex = -1;
-        this.advanced = false;
         this.snapToEnabled = true;
         this.staticSlide = staticSlide;
 
@@ -71,6 +70,9 @@
         if (!this.layerContainerElement.length) {
             this.layerContainerElement = smartSlider.$currentSlideElement;
         }
+
+        this.layerContainerElement.parent().prepend('<div class="n2-ss-slide-border n2-ss-slide-border-left" /><div class="n2-ss-slide-border n2-ss-slide-border-top" /><div class="n2-ss-slide-border n2-ss-slide-border-right" /><div class="n2-ss-slide-border n2-ss-slide-border-bottom" />');
+
 
         this.slideSize = {
             width: this.layerContainerElement.width(),
@@ -108,17 +110,37 @@
 
         this._initDeviceModeChange();
 
-        $('.n2-layers-tab-label').on('dblclick', $.proxy(function () {
-            if (this.advanced) {
-                this.switchAdvanced(false);
+        //this.initBatch();
+        this.initSnapTo();
+        this.initEditorTheme();
+        this.initAlign();
+        this.initParentLinker();
+        this.initEvents();
+
+        var globalAdaptiveFont = $('#n2-ss-adaptive-font').on('click', $.proxy(function () {
+            this.toolboxForm.adaptivefont.data('field').onoff.trigger('click');
+        }, this));
+
+        this.toolboxForm.adaptivefont.on('nextendChange', $.proxy(function () {
+            if (this.toolboxForm.adaptivefont.val() == 1) {
+                globalAdaptiveFont.addClass('n2-active');
             } else {
-                this.switchAdvanced(true);
+                globalAdaptiveFont.removeClass('n2-active');
             }
         }, this));
 
-        //this.initBatch();
-        this.initSnapTo();
-        this.initAlign();
+
+        new NextendElementNumber("n2-ss-font-size", -Number.MAX_VALUE, Number.MAX_VALUE);
+        new NextendElementAutocompleteSimple("n2-ss-font-size", ["60", "80", "100", "120", "140", "160", "180"]);
+
+        var globalFontSize = $('#n2-ss-font-size').on('outsideChange', $.proxy(function () {
+            var value = parseInt(globalFontSize.val());
+            this.toolboxForm.fontsize.val(value).trigger('change');
+        }, this));
+
+        this.toolboxForm.fontsize.on('nextendChange', $.proxy(function () {
+            globalFontSize.data('field').insideChange(this.toolboxForm.fontsize.val());
+        }, this));
 
         if (this.zIndexList.length > 0) {
             this.zIndexList[this.zIndexList.length - 1].activate();
@@ -127,12 +149,14 @@
 
         $(window).on({
             keydown: $.proxy(function (e) {
-                if (e.target.tagName != 'TEXTAREA' && e.target.tagName != 'INPUT' && !smartSlider.timelineControl.isActivated()) {
+                if (e.target.tagName != 'TEXTAREA' && e.target.tagName != 'INPUT' && (!smartSlider.timelineControl || !smartSlider.timelineControl.isActivated())) {
                     if (this.activeLayerIndex != -1) {
                         if (e.keyCode == 46) {
-                            this.layerList[this.activeLayerIndex].delete();
+                            if (typeof this.layerList[this.activeLayerIndex] !== 'undefined') {
+                                this.layerList[this.activeLayerIndex].delete();
+                            }
                         } else if (e.keyCode == 35) {
-                            this.layerList[this.activeLayerIndex].duplicate();
+                            this.layerList[this.activeLayerIndex].duplicate(true, false);
                             e.preventDefault();
                         } else if (e.keyCode == 16) {
                             keys[e.keyCode] = 1;
@@ -173,9 +197,16 @@
                             }
                             e.preventDefault();
                         } else if (e.keyCode >= 97 && e.keyCode <= 105) {
+
+                            var hAlign = horizontalAlign[e.keyCode],
+                                vAlign = verticalAlign[e.keyCode],
+                                toZero = false;
+                            if (this.toolboxForm.align.val() == hAlign && this.toolboxForm.valign.val() == vAlign) {
+                                toZero = true;
+                            }
                             // numeric pad
-                            this.horizontalAlign(horizontalAlign[e.keyCode]);
-                            this.verticalAlign(verticalAlign[e.keyCode]);
+                            this.horizontalAlign(hAlign, toZero);
+                            this.verticalAlign(vAlign, toZero);
 
                         } else if (e.keyCode == 34) {
                             e.preventDefault();
@@ -193,6 +224,14 @@
                             }
                             this.zIndexList[targetIndex].activate();
 
+                        } else if (e.ctrlKey || e.metaKey) {
+                            if (e.keyCode == 90) {
+                                if (e.shiftKey) {
+                                    smartSlider.history.redo();
+                                } else {
+                                    smartSlider.history.undo();
+                                }
+                            }
                         }
                     }
                 }
@@ -247,6 +286,10 @@
     };
 
     AdminSlideLayerManager.prototype.getMode = function () {
+        return this.mode;
+    };
+
+    AdminSlideLayerManager.prototype._getMode = function () {
         return this.responsive.getNormalizedModeString();
     };
 
@@ -260,6 +303,7 @@
     };
 
     AdminSlideLayerManager.prototype.createLayer = function (properties) {
+
         for (var k in this.layerDefault) {
             if (this.layerDefault[k] !== null) {
                 properties[k] = this.layerDefault[k];
@@ -275,6 +319,16 @@
     };
 
     AdminSlideLayerManager.prototype.addLayer = function (html, refresh) {
+        var layerObj = this._addLayer(html, refresh);
+
+        smartSlider.history.add($.proxy(function () {
+            return [layerObj, 'addLayer', 'add', 'delete', [layerObj.getData(true)]];
+        }, this));
+
+        return layerObj;
+    };
+
+    AdminSlideLayerManager.prototype._addLayer = function (html, refresh) {
         var newLayer = $(html);
         this.layerContainerElement.append(newLayer);
         var layerObj = new NextendSmartSliderLayer(this, newLayer, this.itemEditor);
@@ -310,24 +364,42 @@
         smartSlider.slide._changeView(1);
     };
 
-    AdminSlideLayerManager.prototype.switchAdvanced = function (state) {
-
-        if (state) {
-            $('#n2-admin')
-                .addClass('n2-ss-item-mode');
-        } else {
-            $('#n2-admin')
-                .removeClass('n2-ss-item-mode');
-        }
-        this.advanced = state;
-        this.itemEditor.advanced(state);
-    };
-
     //<editor-fold desc="Initialize the device mode changer">
 
+
     AdminSlideLayerManager.prototype._initDeviceModeChange = function () {
-        this.resetToDesktopTRElement = $('#layerresettodesktop').on('click', $.proxy(this.__onResetToDesktopClick, this))
-            .closest('tr');
+        var resetButton = $('#layerresettodesktop').on('click', $.proxy(this.__onResetToDesktopClick, this));
+        this.resetToDesktopTRElement = resetButton.closest('tr');
+        this.resetToDesktopGlobalElement = $('#n2-ss-reset-to-desktop').on('click', $.proxy(function () {
+            if (this.resetToDesktopTRElement.css('display') == 'table-row') {
+                resetButton.trigger('click');
+            }
+        }, this));
+
+
+        var globalShowOnDevice = $('#n2-ss-show-on-device').on('click', $.proxy(function () {
+            this.toolboxForm['showField' + this.mode.charAt(0).toUpperCase() + this.mode.substr(1)].data('field').onoff.trigger('click');
+        }, this));
+
+        this.globalShowOnDeviceCB = function (mode) {
+            if (this.mode == mode) {
+                if (this.toolboxForm['showField' + this.mode.charAt(0).toUpperCase() + this.mode.substr(1)].val() == 1) {
+                    globalShowOnDevice.addClass('n2-active');
+                } else {
+                    globalShowOnDevice.removeClass('n2-active');
+                }
+            }
+        };
+
+        this.toolboxForm.showFieldDesktopPortrait.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'desktopPortrait'));
+        this.toolboxForm.showFieldDesktopLandscape.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'desktopLandscape'));
+
+        this.toolboxForm.showFieldTabletPortrait.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'tabletPortrait'));
+        this.toolboxForm.showFieldTabletLandscape.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'tabletLandscape'));
+
+        this.toolboxForm.showFieldMobilePortrait.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'mobilePortrait'));
+        this.toolboxForm.showFieldMobileLandscape.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'mobileLandscape'));
+
         this.__onChangeDeviceOrientation();
         smartSlider.frontend.sliderElement.on('SliderDeviceOrientation', $.proxy(this.__onChangeDeviceOrientation, this));
 
@@ -353,18 +425,22 @@
      */
     AdminSlideLayerManager.prototype.__onChangeDeviceOrientation = function () {
 
-        var mode = this.getMode();
+        this.mode = this._getMode();
+        this.globalShowOnDeviceCB(this.mode);
 
-        this.resetToDesktopTRElement.css('display', (mode == 'desktopPortrait' ? 'none' : 'table-row'));
+        this.resetToDesktopTRElement.css('display', (this.mode == 'desktopPortrait' ? 'none' : 'table-row'));
+        this.resetToDesktopGlobalElement.css('display', (this.mode == 'desktopPortrait' ? 'none' : ''));
         for (var i = 0; i < this.layerList.length; i++) {
-            this.layerList[i].changeEditorMode(mode);
+            this.layerList[i].changeEditorMode(this.mode);
         }
     };
 
     AdminSlideLayerManager.prototype.__onResize = function (e, ratios) {
 
-        for (var i = 0; i < this.layerList.length; i++) {
-            this.layerList[i].resize(ratios);
+        var sortedLayerList = this.getSortedLayers();
+
+        for (var i = 0; i < sortedLayerList.length; i++) {
+            sortedLayerList[i].doLinearResize(ratios);
         }
     };
 
@@ -374,8 +450,28 @@
      */
     AdminSlideLayerManager.prototype.__onResetToDesktopClick = function () {
         if (this.activeLayerIndex != -1) {
-            this.layerList[this.activeLayerIndex].resetMode(this.getMode());
+            var mode = this.getMode();
+            this.layerList[this.activeLayerIndex].resetMode(mode, mode);
         }
+    };
+
+    AdminSlideLayerManager.prototype.copyOrResetMode = function (mode) {
+
+        var currentMode = this.getMode();
+        if (mode != 'desktopPortrait' && mode == currentMode) {
+            for (var i = 0; i < this.layerList.length; i++) {
+                this.layerList[i].resetMode(mode, currentMode);
+            }
+        } else if (mode != 'desktopPortrait' && currentMode == 'desktopPortrait') {
+            for (var i = 0; i < this.layerList.length; i++) {
+                this.layerList[i].resetMode(mode, currentMode);
+            }
+        } else if (mode != currentMode) {
+            for (var i = 0; i < this.layerList.length; i++) {
+                this.layerList[i].copyMode(currentMode, mode);
+            }
+        }
+
     };
 
     AdminSlideLayerManager.prototype.refreshSlideSize = function () {
@@ -402,8 +498,14 @@
                 stop: $.proxy(function (event, ui) {
                     var startIndex = this.zIndexList.length - $(ui.item).data("startindex") - 1,
                         newIndex = this.zIndexList.length - $(ui.item).index() - 1;
-                    this.zIndexList.splice(newIndex, 0, this.zIndexList.splice(startIndex, 1)[0]);
-                    this.reIndexLayers();
+                    if (startIndex != newIndex) {
+                        this.zIndexList.splice(newIndex, 0, this.zIndexList.splice(startIndex, 1)[0]);
+                        this.reIndexLayers();
+
+                        smartSlider.history.add($.proxy(function () {
+                            return [this, 'changeZIndex', [startIndex, newIndex], [newIndex, startIndex], []];
+                        }, this));
+                    }
                 }, this)
             });
     };
@@ -417,6 +519,38 @@
             this.zIndexList[i].setZIndex(i);
         }
     };
+
+    AdminSlideLayerManager.prototype.initEvents = function () {
+        var parent = $('#n2-tab-events'),
+            content = parent.find('> table').css('display', 'none'),
+            heading = parent.find('.n2-h3'),
+            headingLabel = heading.html(),
+            row = $('<div class="n2-sidebar-row n2-sidebar-header-bg n2-form-dark n2-sets-header"><div class="n2-table"><div class="n2-tr"><div class="n2-td"><div class="n2-h3 n2-uc">' + headingLabel + '</div></div><div style="text-align: ' + (nextend.isRTL() ? 'left' : 'right') + ';" class="n2-td"></div></div></div></div>'),
+            button = $('<a href="#" class="n2-button n2-button-medium n2-button-green n2-h5 n2-uc">' + n2_('Show') + '</a>').on('click', function (e) {
+                e.preventDefault();
+                if (button.hasClass('n2-button-green')) {
+                    content.css('display', '');
+                    button.html(n2_('Hide'));
+                    button.addClass('n2-button-grey');
+                    button.removeClass('n2-button-green');
+                    $.jStorage.set("n2-ss-events", 1);
+                } else {
+                    content.css('display', 'none');
+                    button.html(n2_('Show'));
+                    button.addClass('n2-button-green');
+                    button.removeClass('n2-button-grey');
+                    $.jStorage.set("n2-ss-events", 0);
+                }
+            });
+        if ($.jStorage.get("n2-ss-events", 0)) {
+            content.css('display', '');
+            button.html(n2_('Hide'));
+            button.addClass('n2-button-grey');
+            button.removeClass('n2-button-green');
+        }
+        heading.replaceWith(row);
+        button.appendTo(row.find('.n2-td').eq(1));
+    }
 
     AdminSlideLayerManager.prototype.initSnapTo = function () {
 
@@ -459,10 +593,26 @@
         if (!this.snapToEnabled) {
             return false;
         }
+
         if (this.staticSlide) {
-            return '.n2-ss-static-slide .n2-ss-layer:not(.n2-ss-layer-locked):visible';
+            return $('.n2-ss-static-slide .n2-ss-layer:not(.n2-ss-layer-locked):not(.n2-ss-layer-parent):visible');
         }
-        return '.n2-ss-slide.n2-ss-slide-active .n2-ss-layer:not(.n2-ss-layer-locked):visible';
+        return $('.n2-ss-slide.n2-ss-slide-active .n2-ss-layer:not(.n2-ss-layer-locked):not(.n2-ss-layer-parent):visible');
+    };
+
+    AdminSlideLayerManager.prototype.initEditorTheme = function () {
+        this.themeElement = $('#n2-tab-smartslider-editor');
+        this.themeButton = $('#n2-ss-theme').on('click', $.proxy(this.switchEditorTheme, this));
+        if ($.jStorage.get("n2-ss-theme-dark", 0)) {
+            this.themeButton.addClass('n2-active');
+            this.themeElement.addClass('n2-ss-theme-dark');
+        }
+    };
+
+    AdminSlideLayerManager.prototype.switchEditorTheme = function () {
+        $.jStorage.set("n2-ss-theme-dark", !this.themeButton.hasClass('n2-active'));
+        this.themeButton.toggleClass('n2-active');
+        this.themeElement.toggleClass('n2-ss-theme-dark');
     };
 
     AdminSlideLayerManager.prototype.initAlign = function () {
@@ -472,33 +622,33 @@
         hAlignButton.add(vAlignButton).on('click', $.proxy(function (e) {
             if (e.ctrlKey || e.metaKey) {
                 var $el = $(e.currentTarget),
-                    isActive = $el.hasClass('n2-active'),
+                    isActive = $el.hasClass('n2-sub-active'),
                     align = $el.data('align');
                 switch (align) {
                     case 'left':
                     case 'center':
                     case 'right':
-                        hAlignButton.removeClass('n2-active');
+                        hAlignButton.removeClass('n2-sub-active');
                         if (isActive) {
                             $.jStorage.set('ss-item-horizontal-align', null);
                             this.layerDefault.align = null;
                         } else {
                             $.jStorage.set('ss-item-horizontal-align', align);
                             this.layerDefault.align = align;
-                            $el.addClass('n2-active');
+                            $el.addClass('n2-sub-active');
                         }
                         break;
                     case 'top':
                     case 'middle':
                     case 'bottom':
-                        vAlignButton.removeClass('n2-active');
+                        vAlignButton.removeClass('n2-sub-active');
                         if (isActive) {
                             $.jStorage.set('ss-item-vertical-align', null);
                             this.layerDefault.valign = null;
                         } else {
                             $.jStorage.set('ss-item-vertical-align', align);
                             this.layerDefault.valign = align;
-                            $el.addClass('n2-active');
+                            $el.addClass('n2-sub-active');
                         }
                         break;
                 }
@@ -508,51 +658,104 @@
                     case 'left':
                     case 'center':
                     case 'right':
-                        this.horizontalAlign(align);
+                        this.horizontalAlign(align, true);
                         break;
                     case 'top':
                     case 'middle':
                     case 'bottom':
-                        this.verticalAlign(align);
+                        this.verticalAlign(align, true);
                         break;
                 }
             }
         }, this));
 
+        this.toolboxForm.align.on('nextendChange', $.proxy(function () {
+            hAlignButton.removeClass('n2-active');
+            switch (this.toolboxForm.align.val()) {
+                case 'left':
+                    hAlignButton.eq(0).addClass('n2-active');
+                    break;
+                case 'center':
+                    hAlignButton.eq(1).addClass('n2-active');
+                    break;
+                case 'right':
+                    hAlignButton.eq(2).addClass('n2-active');
+                    break;
+            }
+        }, this));
+        this.toolboxForm.valign.on('nextendChange', $.proxy(function () {
+            vAlignButton.removeClass('n2-active');
+            switch (this.toolboxForm.valign.val()) {
+                case 'top':
+                    vAlignButton.eq(0).addClass('n2-active');
+                    break;
+                case 'middle':
+                    vAlignButton.eq(1).addClass('n2-active');
+                    break;
+                case 'bottom':
+                    vAlignButton.eq(2).addClass('n2-active');
+                    break;
+            }
+        }, this));
+
+
         var hAlign = $.jStorage.get('ss-item-horizontal-align', null),
             vAlign = $.jStorage.get('ss-item-vertical-align', null);
         if (hAlign != null) {
-            hAlignButton.eq(nameToIndex[hAlign]).addClass('n2-active');
+            hAlignButton.eq(nameToIndex[hAlign]).addClass('n2-sub-active');
             this.layerDefault.align = hAlign;
         }
         if (vAlign != null) {
-            vAlignButton.eq(nameToIndex[vAlign]).addClass('n2-active');
+            vAlignButton.eq(nameToIndex[vAlign]).addClass('n2-sub-active');
             this.layerDefault.valign = vAlign;
         }
     };
 
-    AdminSlideLayerManager.prototype.horizontalAlign = function (align) {
-        if (this.toolboxForm.align.val() == align) {
+    AdminSlideLayerManager.prototype.horizontalAlign = function (align, toZero) {
+        if (this.toolboxForm.align.val() != align) {
+            this.toolboxForm.align.data('field').options.eq(nameToIndex[align]).trigger('click');
+        } else if (toZero) {
             this.toolboxForm.left.val(0).trigger('change');
-        } else {
-            this.toolboxForm.align.data('field').options.eq(nameToIndex[align]).trigger('click')
         }
     };
 
-    AdminSlideLayerManager.prototype.verticalAlign = function (align) {
-        if (this.toolboxForm.valign.val() == align) {
+    AdminSlideLayerManager.prototype.verticalAlign = function (align, toZero) {
+        if (this.toolboxForm.valign.val() != align) {
+            this.toolboxForm.valign.data('field').options.eq(nameToIndex[align]).trigger('click');
+        } else if (toZero) {
             this.toolboxForm.top.val(0).trigger('change');
-        } else {
-            this.toolboxForm.valign.data('field').options.eq(nameToIndex[align]).trigger('click')
         }
+    };
+
+    AdminSlideLayerManager.prototype.initParentLinker = function () {
+        var field = this.toolboxForm.parentid.data('field'),
+            parentLinker = $('#n2-ss-parent-linker').on({
+                click: function (e) {
+                    field.click(e);
+                },
+                mouseenter: function (e) {
+                    field.picker.trigger(e);
+                },
+                mouseleave: function (e) {
+                    field.picker.trigger(e);
+                }
+            });
+        this.toolboxForm.parentid.on('nextendChange', $.proxy(function () {
+            if (this.toolboxForm.parentid.val() != '') {
+                parentLinker.addClass('n2-active');
+            } else {
+                parentLinker.removeClass('n2-active');
+            }
+        }, this));
+    
     };
 
     /**
      * Delete all layers on the slide
      */
     AdminSlideLayerManager.prototype.deleteLayers = function () {
-        for (var i = this.layerList.length - 1; i >= 0; i--) {
-            this.layerList[i].delete();
+        for (var i = this.zIndexList.length - 1; i >= 0; i--) {
+            this.zIndexList[i].delete();
         }
     };
 
@@ -560,9 +763,14 @@
 
         this.reIndexLayers();
 
-        var activeLayer = this.getSelectedLayer();
-
         this.layerList.splice(index, 1);
+
+        this.afterLayerDeleted(index);
+    };
+
+    AdminSlideLayerManager.prototype.afterLayerDeleted = NextendThrottle(function (index) {
+
+        var activeLayer = this.getSelectedLayer();
 
         if (index === this.activeLayerIndex) {
             this.activeLayerIndex = -1;
@@ -574,6 +782,29 @@
         } else if (activeLayer) {
             this.activeLayerIndex = activeLayer.getIndex();
         }
+    }, 50);
+
+    AdminSlideLayerManager.prototype.getSortedLayers = function () {
+        var list = this.layerList.slice(),
+            children = {};
+        for (var i = list.length - 1; i >= 0; i--) {
+            if (typeof list[i].property.parentid !== 'undefined' && list[i].property.parentid) {
+                if (typeof children[list[i].property.parentid] == 'undefined') {
+                    children[list[i].property.parentid] = [];
+                }
+                children[list[i].property.parentid].push(list[i]);
+                list.splice(i, 1);
+            }
+        }
+        for (var i = 0; i < list.length; i++) {
+            if (typeof list[i].property.id !== 'undefined' && list[i].property.id && typeof children[list[i].property.id] !== 'undefined') {
+                children[list[i].property.id].unshift(0);
+                children[list[i].property.id].unshift(i + 1);
+                list.splice.apply(list, children[list[i].property.id]);
+                delete children[list[i].property.id];
+            }
+        }
+        return list;
     };
 
     /**
@@ -581,11 +812,11 @@
      * @returns {string} HTML
      */
     AdminSlideLayerManager.prototype.getHTML = function () {
-
         var node = $('<div></div>');
 
-        for (var i = 0; i < this.layerList.length; i++) {
-            node.append(this.layerList[i].getHTML(true, true));
+        var list = this.layerList;
+        for (var i = 0; i < list.length; i++) {
+            node.append(list[i].getHTML(true, true));
         }
 
         return node.html();
@@ -595,41 +826,83 @@
     AdminSlideLayerManager.prototype.getData = function () {
         var layers = [];
 
-        for (var i = 0; i < this.layerList.length; i++) {
-            layers.push(this.layerList[i].getData(true));
+        var list = this.layerList;
+        for (var i = 0; i < list.length; i++) {
+            layers.push(list[i].getData(true));
         }
 
         return layers;
     };
 
     AdminSlideLayerManager.prototype.loadData = function (data, overwrite) {
+
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'fixActiveLayer', '', '', []];
+        }, this));
+
         var layers = $.extend(true, [], data);
         if (overwrite) {
             this.deleteLayers();
         }
+        this._zIndexOffset = this.zIndexList.length;
+        this._idTranslation = {};
         for (var i = 0; i < layers.length; i++) {
-
-            var layerData = layers[i],
-                layer = $('<div class="n2-ss-layer"></div>')
-                    .attr('style', layerData.style);
-
-            for (var j = 0; j < layerData.items.length; j++) {
-                $('<div class="n2-ss-item n2-ss-item-' + layerData.items[j].type + '"></div>')
-                    .data('item', layerData.items[j].type)
-                    .data('itemvalues', layerData.items[j].values)
-                    .appendTo(layer);
-            }
-
-            delete layerData.style;
-            delete layerData.items;
-            layerData.animations = Base64.encode(JSON.stringify(layerData.animations));
-            for (var k in layerData) {
-                layer.data(k, layerData[k]);
-            }
-            this.addLayer(layer, false);
+            this.loadSingleData(layers[i])
         }
         this.reIndexLayers();
         this.refreshMode();
+
+        if (this.activeLayerIndex == -1 && this.layerList.length > 0) {
+            this.layerList[0].activate();
+        }
+
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'fixActiveLayer', '', '', []];
+        }, this));
+
+    };
+
+    AdminSlideLayerManager.prototype.loadSingleData = function (layerData) {
+
+        var layer = $('<div class="n2-ss-layer"></div>')
+            .attr('style', layerData.style);
+
+        var storedZIndex = layer.css('zIndex');
+        if (storedZIndex == 'auto' || storedZIndex == '') {
+            if (layerData.zIndex) {
+                storedZIndex = layerData.zIndex;
+            } else {
+                storedZIndex = 1;
+            }
+        }
+        layer.css('zIndex', storedZIndex + this._zIndexOffset);
+        if (layerData.id) {
+            var id = $.fn.uid();
+            this._idTranslation[layerData.id] = id;
+            layer.attr('id', id);
+        }
+        if (layerData.parentid) {
+            if (typeof this._idTranslation[layerData.parentid] != 'undefined') {
+                layerData.parentid = this._idTranslation[layerData.parentid];
+            } else {
+                layerData.parentid = '';
+            }
+        }
+
+        for (var j = 0; j < layerData.items.length; j++) {
+            $('<div class="n2-ss-item n2-ss-item-' + layerData.items[j].type + '"></div>')
+                .data('item', layerData.items[j].type)
+                .data('itemvalues', layerData.items[j].values)
+                .appendTo(layer);
+        }
+
+        delete layerData.style;
+        delete layerData.items;
+        layerData.animations = Base64.encode(JSON.stringify(layerData.animations));
+        for (var k in layerData) {
+            layer.data(k, layerData[k]);
+        }
+        return this.addLayer(layer, false);
     };
 
     /**
@@ -649,6 +922,10 @@
         this.toolboxElement = $('#smartslider-slide-toolbox-layer');
 
         this.toolboxForm = {
+            id: $('#layerid'),
+            parentid: $('#layerparentid'),
+            parentalign: $('#layerparentalign'),
+            parentvalign: $('#layerparentvalign'),
             left: $('#layerleft'),
             top: $('#layertop'),
             responsiveposition: $('#layerresponsive-position'),
@@ -667,7 +944,13 @@
             align: $('#layeralign'),
             valign: $('#layervalign'),
             fontsize: $('#layerfont-size'),
-            adaptivefont: $('#layeradaptive-font')
+            adaptivefont: $('#layeradaptive-font'),
+            mouseenter: $('#layeronmouseenter'),
+            click: $('#layeronclick'),
+            mouseleave: $('#layeronmouseleave'),
+            play: $('#layeronplay'),
+            pause: $('#layeronpause'),
+            stop: $('#layeronstop')
         };
 
         for (var k in this.toolboxForm) {
@@ -693,10 +976,14 @@
 
     AdminSlideLayerManager.prototype.activateLayerPropertyChanged = function (name, e) {
         if (this.activeLayerIndex != -1) {
+            //@todo  batch? throttle
             var value = this.toolboxForm[name].val();
-            this.layerList[this.activeLayerIndex].setProperty(name, value);
+            this.layerList[this.activeLayerIndex].setProperty(name, value, 'manager');
         } else {
-            this.toolboxForm[name].data('field').insideChange('');
+            var field = this.toolboxForm[name].data('field');
+            if (typeof field !== 'undefined') {
+                field.insideChange('');
+            }
         }
     };
 
@@ -746,7 +1033,10 @@
         if (typeof this['_formSet' + name] === 'function') {
             this['_formSet' + name](value, e.target);
         } else {
-            this.toolboxForm[name].data('field').insideChange(value);
+            var field = this.toolboxForm[name].data('field');
+            if (typeof field !== 'undefined') {
+                field.insideChange(value);
+            }
         }
     };
 
@@ -780,6 +1070,24 @@
 
     AdminSlideLayerManager.prototype._formSetmobileLandscape = function (value, layer) {
         this.toolboxForm.showFieldMobileLandscape.data('field').insideChange(value);
+    };
+
+    AdminSlideLayerManager.prototype.history = function (method, value, other) {
+        switch (method) {
+            case 'changeZIndex':
+                this.zIndexList.splice(value[1], 0, this.zIndexList.splice(value[0], 1)[0]);
+                this.reIndexLayers();
+                break;
+            case 'fixActiveLayer':
+                var selectedLayer = this.getSelectedLayer();
+                if (selectedLayer == false || selectedLayer.isDeleted) {
+
+                    if (this.activeLayerIndex == -1 && this.layerList.length > 0) {
+                        this.zIndexList[this.zIndexList.length - 1].activate();
+                    }
+                }
+                break;
+        }
     };
 
     scope.NextendSmartSliderAdminSlideLayerManager = AdminSlideLayerManager;

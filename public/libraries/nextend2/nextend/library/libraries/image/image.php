@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.cache.image');
 
@@ -150,8 +157,8 @@ class N2Image extends N2CacheImage
     }
 
     public static function scaleImage($group, $imageUrl, $scale = 1, $resizeRemote = false) {
-        $imageUrl = N2ImageHelper::fixed($imageUrl, true);
         $originalImageUrl = $imageUrl;
+        $imageUrl         = N2ImageHelper::fixed($imageUrl);
         if ($scale > 0 && function_exists('exif_imagetype') && function_exists('imagecreatefrompng')) {
 
             if (substr($imageUrl, 0, 2) == '//') {
@@ -173,14 +180,14 @@ class N2Image extends N2CacheImage
                 if (!$extension) {
                     return $originalImageUrl;
                 }
-                return N2Filesystem::pathToAbsoluteURL($cache->makeCache($extension, array(
+                return N2ImageHelper::dynamic(N2Filesystem::pathToAbsoluteURL($cache->makeCache($extension, array(
                     $cache,
                     '_scaleRemoteImage'
                 ), array(
                     $extension,
                     $imageUrl,
                     $scale
-                )));
+                ))));
 
             } else {
                 $extension = false;
@@ -191,12 +198,20 @@ class N2Image extends N2CacheImage
                         break;
                     case IMAGETYPE_PNG:
                         $extension = 'png';
+                        $fp        = fopen($imagePath, 'r');
+                        fseek($fp, 25);
+                        $data = fgets($fp, 2);
+                        fclose($fp);
+                        if (ord($data) == 3) {
+                            // GD cannot resize palette PNG so we return the original image
+                            return $originalImageUrl;
+                        }
                         break;
                 }
                 if (!$extension) {
                     throw new Exception('Filtype of the image is not supported: #' . $imageType . ' code  ' . $imagePath);
                 }
-                return N2Filesystem::pathToAbsoluteURL($cache->makeCache($extension, array(
+                return N2ImageHelper::dynamic(N2Filesystem::pathToAbsoluteURL($cache->makeCache($extension, array(
                     $cache,
                     '_scaleImage'
                 ), array(
@@ -204,7 +219,7 @@ class N2Image extends N2CacheImage
                     $imagePath,
                     $scale,
                     filemtime($imagePath)
-                )));
+                ))));
             }
         }
     }
@@ -234,7 +249,7 @@ class N2Image extends N2CacheImage
             $originalHeight = imagesy($image);
             $targetWidth    = $originalWidth * $scale;
             $targetHeight   = $originalHeight * $scale;
-            if ($rotated || $originalWidth != $targetWidth || $originalHeight != $targetHeight) {
+            if ((isset($rotated) && $rotated) || $originalWidth != $targetWidth || $originalHeight != $targetHeight) {
                 $newImage = imagecreatetruecolor($targetWidth, $targetHeight);
                 if ($extension == 'png') {
                     imagesavealpha($newImage, true);
@@ -343,6 +358,15 @@ class N2Image extends N2CacheImage
 
     public static function base64Transparent() {
         return 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    }
+
+    public static function base64($imagePath, $image) {
+        $pathInfo  = pathinfo(parse_url($imagePath, PHP_URL_PATH));
+        $extension = self::validateExtension($pathInfo['extension']);
+        if ($extension) {
+            return 'data:image/' . $extension . ';base64,' . base64_encode(N2Filesystem::readFile($imagePath));
+        }
+        return N2ImageHelper::fixed($image);
     }
 }
 

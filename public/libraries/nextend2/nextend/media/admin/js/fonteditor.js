@@ -63,6 +63,12 @@
         };
     };
 
+    NextendFontEditorController.prototype.getCleanVisual = function () {
+        return {
+            extra: ''
+        };
+    };
+
     NextendFontEditorController.prototype.getEmptyVisual = function () {
         return [this.getEmptyFont()];
     };
@@ -103,7 +109,7 @@
             styleClassName = nextend.fontManager.styleClassName,
             styleClassName2 = nextend.fontManager.styleClassName2;
 
-        html = html.replace(/\{(.*?)\}/g, function (match, script) {
+        html = html.replace(/\{([^]*?)\}/g, function (match, script) {
             return eval(script);
         });
 

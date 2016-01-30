@@ -1,5 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
 defined('_JEXEC') or die('Restricted access');
+?><?php
 
 define('NEXTEND_INSTALL', true);
 
@@ -56,7 +62,7 @@ if (!function_exists('NextendSS3DeleteExtensionFolder')) {
             }
 
 
-            $extensions = array_merge(JFolder::folders($pkg_path . 'components', '.', false, true), JFolder::folders($pkg_path . 'modules', '.', false, true), JFolder::folders($pkg_path . 'plugins/content', '.', false, true), JFolder::folders($pkg_path . 'plugins/system', '.', false, true));
+            $extensions = array_merge(JFolder::folders($pkg_path . 'components', '.', false, true), JFolder::folders($pkg_path . 'modules', '.', false, true), JFolder::folders($pkg_path . 'plugins/system', '.', false, true));
 
             foreach ($extensions as $path) {
                 $installer = new JInstaller();

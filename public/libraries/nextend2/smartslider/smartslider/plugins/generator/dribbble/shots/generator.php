@@ -1,6 +1,13 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
 
 class N2GeneratorDribbbleShots extends N2GeneratorAbstract
 {
@@ -20,30 +27,31 @@ class N2GeneratorDribbbleShots extends N2GeneratorAbstract
 
         $result  = null;
         $success = $client->CallAPI($url, 'GET', array('per_page' => $count + $startIndex), array('FailOnAccessError' => true), $result);
+        if (is_array($result)) {
+            $shots = array_slice($result, $startIndex, $count);
 
-        $shots = array_slice($result, $startIndex, $count);
+            foreach ($shots AS $shot) {
+                $p = array(
+                    'image'          => isset($shot->images->hidpi) ? $shot->images->hidpi : $shot->images->normal,
+                    'thumbnail'      => $shot->images->teaser,
+                    'title'          => $shot->title,
+                    'description'    => $shot->description,
+                    'url'            => $shot->html_url,
+                    'url_label'      => n2_('View'),
 
-        foreach ($shots AS $shot) {
-            $p = array(
-                'image'          => isset($shot->images->hidpi) ? $shot->images->hidpi : $shot->images->normal,
-                'thumbnail'      => $shot->images->teaser,
-                'title'          => $shot->title,
-                'description'    => $shot->description,
-                'url'            => $shot->html_url,
-                'url_label'      => n2_('View'),
+                    'image_normal'   => $shot->images->normal,
 
-                'image_normal'   => $shot->images->normal,
-
-                'views_count'    => $shot->views_count,
-                'likes_count'    => $shot->likes_count,
-                'comments_count' => $shot->comments_count,
-                'rebounds_count' => $shot->rebounds_count,
-                'buckets_count'  => $shot->buckets_count
-            );
-            foreach ($shot->tags AS $j => $tag) {
-                $p['tag_' . ($j + 1)] = $tag;
+                    'views_count'    => $shot->views_count,
+                    'likes_count'    => $shot->likes_count,
+                    'comments_count' => $shot->comments_count,
+                    'rebounds_count' => $shot->rebounds_count,
+                    'buckets_count'  => $shot->buckets_count
+                );
+                foreach ($shot->tags AS $j => $tag) {
+                    $p['tag_' . ($j + 1)] = $tag;
+                }
+                $data[] = $p;
             }
-            $data[] = $p;
         }
         return $data;
     }

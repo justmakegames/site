@@ -1,133 +1,133 @@
 <?php
 return [
     '@class' => 'Gantry\\Component\\Config\\CompiledBlueprints',
-    'timestamp' => 1454141083,
-    'checksum' => 'd63956e7689c75810ec880c9b771c89f',
+    'timestamp' => 1454144849,
+    'checksum' => 'f3da1f8782a451954117481e4d02943d',
     'files' => [
         'templates/g5_hydrogen/particles' => [
             'particles/sample' => [
                 'file' => 'templates/g5_hydrogen/particles/sample.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ]
         ],
         'media/gantry5/engines/nucleus/particles' => [
             'particles/analytics' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/analytics.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/assets' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/assets.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/branding' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/branding.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/copyright' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/copyright.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/custom' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/custom.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/date' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/date.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/logo' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/logo.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/menu' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/menu.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/mobile-menu' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/mobile-menu.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/module' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/module.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/pagecontent' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/pagecontent.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/position' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/position.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/social' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/social.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/spacer' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/spacer.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/system-messages' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/system-messages.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ],
             'particles/totop' => [
                 'file' => 'media/gantry5/engines/nucleus/particles/totop.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144812
             ]
         ],
         'templates/g5_hydrogen/blueprints' => [
             'page' => [
                 'file' => 'templates/g5_hydrogen/blueprints/page.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/accent' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/accent.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/base' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/base.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/breakpoints' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/breakpoints.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/feature' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/feature.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/footer' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/footer.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/header' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/header.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/main' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/main.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/menu' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/menu.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/navigation' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/navigation.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/offcanvas' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/offcanvas.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/showcase' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/showcase.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ],
             'styles/subfeature' => [
                 'file' => 'templates/g5_hydrogen/blueprints/styles/subfeature.yaml',
-                'modified' => 1454140449
+                'modified' => 1454144806
             ]
         ]
     ],

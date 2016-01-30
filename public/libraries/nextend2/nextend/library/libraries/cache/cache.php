@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2Cache
 {
@@ -11,11 +18,17 @@ class N2Cache
     protected $currentPath = '';
 
     public static function init() {
-        self::$accessiblePath    = N2Filesystem::getWebCachePath();
-        self::$notAccessiblePath = N2Filesystem::getNotWebCachePath();
+        static $inited;
+        if (!$inited) {
+            self::$accessiblePath    = N2Filesystem::getWebCachePath();
+            self::$notAccessiblePath = N2Filesystem::getNotWebCachePath();
+            $inited                  = true;
+        }
     }
 
     public static function clearGroup($group) {
+        N2Cache::init();
+
         if (N2Filesystem::existsFolder(self::$accessiblePath . NDS . $group)) {
             N2Filesystem::deleteFolder(self::$accessiblePath . NDS . $group);
         }
@@ -31,6 +44,7 @@ class N2Cache
     }
 
     protected function setCurrentPath() {
+        N2Cache::init();
         if ($this->isAccessible) {
             $this->currentPath = self::$accessiblePath . NDS . $this->group;
         } else {
@@ -52,5 +66,3 @@ class N2Cache
         return $this->currentPath . NDS . $fileName;
     }
 }
-
-N2Cache::init();

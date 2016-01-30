@@ -1,59 +1,58 @@
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
 
-        function ItemParserCaption() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+(function ($, scope, undefined) {
 
-        ItemParserCaption.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserCaption.prototype.constructor = ItemParserCaption;
+    function ItemParserCaption() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        ItemParserCaption.prototype.added = function () {
-            this.needFill = ['content', 'description', 'url', 'image'];
+    ItemParserCaption.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserCaption.prototype.constructor = ItemParserCaption;
 
-            this.addedFont('paragraph', 'fonttitle');
-            this.addedFont('paragraph', 'font');
+    ItemParserCaption.prototype.added = function () {
+        this.needFill = ['content', 'description', 'url', 'image'];
 
-            nextend.smartSlider.generator.registerField($('#item_captionimage'));
-            nextend.smartSlider.generator.registerField($('#item_captioncontent'));
-            nextend.smartSlider.generator.registerField($('#linkitem_captionlink_0'));
-        };
+        this.addedFont('paragraph', 'fonttitle');
+        this.addedFont('paragraph', 'font');
 
-        ItemParserCaption.prototype.getName = function (data) {
-            return data.image.split('/').pop();
-        };
+        nextend.smartSlider.generator.registerField($('#item_captionimage'));
+        nextend.smartSlider.generator.registerField($('#item_captioncontent'));
+        nextend.smartSlider.generator.registerField($('#linkitem_captionlink_0'));
+    };
 
-        ItemParserCaption.prototype.parseAll = function (data, item) {
+    ItemParserCaption.prototype.getName = function (data) {
+        return data.image.split('/').pop();
+    };
 
-            data.uid = $.fn.uid();
+    ItemParserCaption.prototype.parseAll = function (data, item) {
 
-            var link = data.link.split('|*|');
-            data.url = link[0];
-            data.target = link[1];
-            delete data.link;
+        data.uid = $.fn.uid();
 
-            data.colora = N2Color.hex2rgbaCSS(data.color);
-            data.colorhex = data.color.substr(0, 6);
+        var link = data.link.split('|*|');
+        data.url = link[0];
+        data.target = link[1];
+        delete data.link;
 
-            var animation = data.animation.split('|*|');
-            data.mode = animation[0];
-            data.direction = animation[1];
-            data.scale = parseInt(animation[2]);
+        data.colora = N2Color.hex2rgbaCSS(data.color);
+        data.colorhex = data.color.substr(0, 6);
 
-            NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+        var animation = data.animation.split('|*|');
+        data.mode = animation[0];
+        data.direction = animation[1];
+        data.scale = parseInt(animation[2]);
 
-            data.image = nextend.imageHelper.fixed(data.image);
+        NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
 
-            if (item && item.values.image == '$system$/images/placeholder/image.svg' && data.image != item.values.image) {
-                this.resizeLayerToImage(item, data.image);
-            }
-        };
+        data.image = nextend.imageHelper.fixed(data.image);
 
-        ItemParserCaption.prototype.fitLayer = function (item) {
-            this.resizeLayerToImage(item, nextend.imageHelper.fixed(item.values.image));
-            return true;
-        };
+        if (item && item.values.image == '$system$/images/placeholder/image.png' && data.image != item.values.image) {
+            this.resizeLayerToImage(item, data.image);
+        }
+    };
 
-        scope.NextendSmartSliderItemParser_caption = ItemParserCaption;
-    })(n2, window);
-} //N2SSPRO
+    ItemParserCaption.prototype.fitLayer = function (item) {
+        this.resizeLayerToImage(item, nextend.imageHelper.fixed(item.values.image));
+        return true;
+    };
+
+    scope.NextendSmartSliderItemParser_caption = ItemParserCaption;
+})(n2, window);

@@ -339,6 +339,7 @@ html[dir="rtl"] .n2-form-element-text .n2-text-unit {
     padding: 0;
     height: 24px;
     line-height: 24px;
+    margin: 0;
 }
 
 .n2-form-element-preview-fixed {
@@ -364,7 +365,8 @@ html[dir="rtl"] .n2-form-element-text .n2-text-unit {
 }
 
 .n2-form-element-autocomplete .ui-autocomplete {
-    width: 100% !important;
+    position: absolute;
+    min-width: 100% !important;
     background: #fff;
     border: 2px solid #1999e3;
     color: #7b8898;
@@ -384,6 +386,14 @@ html[dir="rtl"] .n2-form-element-text .n2-text-unit {
 
 .n2-form-element-autocomplete .ui-autocomplete .ui-menu-item.ui-state-focus {
     background: #e9edf0;
+    border: 0;
+    margin: 0;
+    color: #7b8898;
+    font-weight: normal;
+}
+
+.n2-form-element-autocomplete.ui-front{
+    z-index: auto;
 }
 
 /*
@@ -824,6 +834,10 @@ html[dir="rtl"] .n2-form-element-radio .n2-radio-option-marker {
     max-width: 94%;
 }
 
+.n2-white .n2-imagelist .n2-imagelist-option {
+    background: #fff;
+}
+
 .n2-imagelist .n2-radio-option.n2-active {
     border-color: #1999e3;
 }
@@ -1062,38 +1076,6 @@ NextendCheckbox
     margin-bottom: 40px;
 }
 
-.n2-plugin-matrix-view {
-    display: inline-block;
-    margin: 0 20px;
-    cursor: pointer;
-    vertical-align: top;
-}
-
-.n2-plugin-matrix-view.n2-active {
-    color: #1999e3;
-}
-
-.n2-plugin-matrix-view.n2-has-underline > .n2-underline:after {
-    bottom: -20px;
-}
-
-.n2-plugin-matrix-pane {
-    display: none;
-}
-
-.n2-plugin-matrix-pane.n2-active {
-    display: block;
-}
-
-.n2-plugin-matrix-pane .n2-form-tab {
-    margin: 0;
-    border-width: 0 0 1px 0;
-}
-
-.n2-plugin-matrix-pane .n2-form {
-    margin-bottom: 0;
-}
-
 .n2-subform-image {
 }
 
@@ -1171,4 +1153,67 @@ NextendCheckbox
     max-height: 360px;
     overflow: auto;
     margin: -10px -10px 0
+}
+
+.n2-form-matrix {
+    /*border-color: #343f4c;*/
+    border-bottom-width: 1px;
+    border-radius: 3px;
+}
+
+.n2-form-matrix .n2-form-tab {
+    border-radius: 0;
+}
+
+.n2-form-matrix > .n2-h2 {
+    padding: 0;
+}
+
+.n2-form-matrix .n2-form-matrix-menu {
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 20px;
+    vertical-align: top;
+    line-height: 60px;
+    font-size: 14px;
+    color: #b2bfc9;
+}
+
+.n2-form-matrix .n2-form-matrix-menu.n2-active {
+    color: #fff;
+}
+
+.n2-form-matrix .n2-form-matrix-menu.n2-has-underline > .n2-underline::after {
+    bottom: -10px;
+    color: #1999e3;
+}
+
+.n2-form-matrix-pane {
+    display: none;
+}
+
+.n2-form-matrix > .n2-form-matrix-views {
+    z-index: 4;
+    padding: 0 20px;
+    background: #343f4c;
+    margin: -1px -1px 0 -1px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.n2-form-matrix-pane.n2-active {
+    display: block;
+}
+
+.n2-form-matrix-pane .n2-form {
+    margin-bottom: 0;
+}
+
+.n2-form-matrix-pane .n2-form-tab {
+    border-width: 0 0 1px;
+    margin: 0;
+}
+
+.n2-form-matrix-pane .n2-form-tab > .n2-h2 {
+    font-size: 14px;
 }

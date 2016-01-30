@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderFeatureAlign
 {
@@ -18,15 +25,21 @@ class N2SmartSliderFeatureAlign
         $aligned = false;
 
         $htmlOptions = array(
+            "id"     => $this->slider->elementId . '-align',
             "class"  => "n2-ss-align",
             "encode" => false
+        );
+
+        $htmlOptionsPadding = array(
+            "class" => 'n2-padding'
         );
 
         if (!$this->slider->features->responsive->scaleUp && $this->align != 'normal') {
             switch ($this->align) {
                 case 'left':
                 case 'right':
-                    $htmlOptions["style"] = "float: {$this->align};";
+                    $width                = $this->slider->assets->sizes['width'];
+                    $htmlOptions["style"] = "float: {$this->align}; width: {$width}px;";
                     break;
                 case 'center':
                     $htmlOptions["style"] = "margin: 0 auto; max-width: {$maxWidth}px;";
@@ -35,13 +48,16 @@ class N2SmartSliderFeatureAlign
             $aligned = true;
         }
 
-        $sliderHTML = NHtml::tag("div", $htmlOptions, NHtml::tag("div", array('class' => 'n2-padding'), $sliderHTML));
+        $sliderHTML = N2Html::tag("div", $htmlOptions, N2Html::tag("div", $htmlOptionsPadding, $sliderHTML));
 
         if ($aligned == true) {
-            $sliderHTML .= NHtml::tag("div", array("style" => "clear: both"), "");
+            $sliderHTML .= N2Html::tag("div", array("style" => "clear: both"), "");
         }
 
         return $sliderHTML;
     }
 
+    public function makeJavaScriptProperties(&$properties) {
+        $properties['align'] = $this->align;
+    }
 }

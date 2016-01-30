@@ -4,6 +4,7 @@
 // License: MIT
 
 (function (window, $, undefined) {
+    var tinycolor = null;
     var defaultOpts = {
 
             // Events
@@ -30,7 +31,7 @@
             preferredFormat: false,
             className: "",
             showAlpha: false,
-            theme: "sp-light",
+            theme: "n2-sp-light",
             palette: ['fff', '000'],
             selectionPalette: [],
             disabled: false
@@ -48,9 +49,9 @@
             return contains(style.backgroundColor, 'rgba') || contains(style.backgroundColor, 'hsla');
         })(),
         replaceInput = [
-            "<div class='sp-replacer'>",
-            "<div class='sp-preview'><div class='sp-preview-inner'></div></div>",
-            "<div class='sp-dd'>&#9650;</div>",
+            "<div class='n2-sp-replacer'>",
+            "<div class='n2-sp-preview'><div class='n2-sp-preview-inner'></div></div>",
+            "<div class='n2-sp-dd'>&#9650;</div>",
             "</div>"
         ].join(''),
         markup = (function () {
@@ -60,40 +61,40 @@
             var gradientFix = "";
             if (IE) {
                 for (var i = 1; i <= 6; i++) {
-                    gradientFix += "<div class='sp-" + i + "'></div>";
+                    gradientFix += "<div class='n2-sp-" + i + "'></div>";
                 }
             }
 
             return [
-                "<div class='sp-container'>",
-                "<div class='sp-palette-container'>",
-                "<div class='sp-palette sp-thumb sp-cf'></div>",
+                "<div class='n2-sp-container'>",
+                "<div class='n2-sp-palette-container'>",
+                "<div class='n2-sp-palette n2-sp-thumb n2-sp-cf'></div>",
                 "</div>",
-                "<div class='sp-picker-container'>",
-                "<div class='sp-top sp-cf'>",
-                "<div class='sp-fill'></div>",
-                "<div class='sp-top-inner'>",
-                "<div class='sp-color'>",
-                "<div class='sp-sat'>",
-                "<div class='sp-val'>",
-                "<div class='sp-dragger'></div>",
+                "<div class='n2-sp-picker-container'>",
+                "<div class='n2-sp-top n2-sp-cf'>",
+                "<div class='n2-sp-fill'></div>",
+                "<div class='n2-sp-top-inner'>",
+                "<div class='n2-sp-color'>",
+                "<div class='n2-sp-sat'>",
+                "<div class='n2-sp-val'>",
+                "<div class='n2-sp-dragger'></div>",
                 "</div>",
                 "</div>",
                 "</div>",
-                "<div class='sp-hue'>",
-                "<div class='sp-slider'></div>",
+                "<div class='n2-sp-hue'>",
+                "<div class='n2-sp-slider'></div>",
                 gradientFix,
                 "</div>",
                 "</div>",
-                "<div class='sp-alpha'><div class='sp-alpha-inner'><div class='sp-alpha-handle'></div></div></div>",
+                "<div class='n2-sp-alpha'><div class='n2-sp-alpha-inner'><div class='n2-sp-alpha-handle'></div></div></div>",
                 "</div>",
-                "<div class='sp-input-container sp-cf'>",
-                "<input class='sp-input' type='text' spellcheck='false'  />",
+                "<div class='n2-sp-input-container n2-sp-cf'>",
+                "<input class='n2-sp-input' type='text' spellcheck='false'  />",
                 "</div>",
-                "<div class='sp-initial sp-thumb sp-cf'></div>",
-                "<div class='sp-button-container sp-cf'>",
-                "<a class='sp-cancel' href='#'></a>",
-                "<button class='sp-choose'></button>",
+                "<div class='n2-sp-initial n2-sp-thumb n2-sp-cf'></div>",
+                "<div class='n2-sp-button-container n2-sp-cf'>",
+                "<a class='n2-sp-cancel' href='#'></a>",
+                "<button class='n2-sp-choose'></button>",
                 "</div>",
                 "</div>",
                 "</div>"
@@ -104,13 +105,13 @@
         var html = [];
         for (var i = 0; i < p.length; i++) {
             var tiny = tinycolor(p[i]);
-            var c = tiny.toHsl().l < 0.5 ? "sp-thumb-el sp-thumb-dark" : "sp-thumb-el sp-thumb-light";
-            c += (tinycolor.equals(color, p[i])) ? " sp-thumb-active" : "";
+            var c = tiny.toHsl().l < 0.5 ? "n2-sp-thumb-el n2-sp-thumb-dark" : "n2-sp-thumb-el n2-sp-thumb-light";
+            c += (tinycolor.equals(color, p[i])) ? " n2-sp-thumb-active" : "";
 
             var swatchStyle = rgbaSupport ? ("background-color:" + tiny.toRgbString()) : "filter:" + tiny.toFilter();
-            html.push('<span title="' + tiny.toRgbString() + '" data-color="' + tiny.toRgbString() + '" class="' + c + '"><span class="sp-thumb-inner" style="' + swatchStyle + ';" /></span>');
+            html.push('<span title="' + tiny.toRgbString() + '" data-color="' + tiny.toRgbString() + '" class="' + c + '"><span class="n2-sp-thumb-inner" style="' + swatchStyle + ';" /></span>');
         }
-        return "<div class='sp-cf " + className + "'>" + html.join('') + "</div>";
+        return "<div class='n2-sp-cf " + className + "'>" + html.join('') + "</div>";
     }
 
     function hideAll() {
@@ -159,7 +160,7 @@
             palette = opts.palette.slice(0),
             paletteArray = $.isArray(palette[0]) ? palette : [palette],
             selectionPalette = opts.selectionPalette.slice(0),
-            draggingClass = "sp-dragging";
+            draggingClass = "n2-sp-dragging";
 
 
         var doc = element.ownerDocument,
@@ -167,18 +168,18 @@
             boundElement = $(element),
             disabled = false,
             container = $(markup, doc).addClass(theme),
-            dragger = container.find(".sp-color"),
-            dragHelper = container.find(".sp-dragger"),
-            slider = container.find(".sp-hue"),
-            slideHelper = container.find(".sp-slider"),
-            alphaSliderInner = container.find(".sp-alpha-inner"),
-            alphaSlider = container.find(".sp-alpha"),
-            alphaSlideHelper = container.find(".sp-alpha-handle"),
-            textInput = container.find(".sp-input"),
-            paletteContainer = container.find(".sp-palette"),
-            initialColorContainer = container.find(".sp-initial"),
-            cancelButton = container.find(".sp-cancel"),
-            chooseButton = container.find(".sp-choose"),
+            dragger = container.find(".n2-sp-color"),
+            dragHelper = container.find(".n2-sp-dragger"),
+            slider = container.find(".n2-sp-hue"),
+            slideHelper = container.find(".n2-sp-slider"),
+            alphaSliderInner = container.find(".n2-sp-alpha-inner"),
+            alphaSlider = container.find(".n2-sp-alpha"),
+            alphaSlideHelper = container.find(".n2-sp-alpha-handle"),
+            textInput = container.find(".n2-sp-input"),
+            paletteContainer = container.find(".n2-sp-palette"),
+            initialColorContainer = container.find(".n2-sp-initial"),
+            cancelButton = container.find(".n2-sp-cancel"),
+            chooseButton = container.find(".n2-sp-choose"),
             isInput = boundElement.is("input"),
             shouldReplace = isInput && !flat,
             replacer = null,
@@ -193,13 +194,13 @@
 
         function applyOptions(noReflow) {
 
-            container.toggleClass("sp-flat", flat);
-            container.toggleClass("sp-input-disabled", !opts.showInput);
-            container.toggleClass("sp-alpha-enabled", opts.showAlpha);
-            container.toggleClass("sp-buttons-disabled", !opts.showButtons || flat);
-            container.toggleClass("sp-palette-disabled", !opts.showPalette);
-            container.toggleClass("sp-palette-only", opts.showPaletteOnly);
-            container.toggleClass("sp-initial-disabled", !opts.showInitial);
+            container.toggleClass("n2-sp-flat", flat);
+            container.toggleClass("n2-sp-input-disabled", !opts.showInput);
+            container.toggleClass("n2-sp-alpha-enabled", opts.showAlpha);
+            container.toggleClass("n2-sp-buttons-disabled", !opts.showButtons || flat);
+            container.toggleClass("n2-sp-palette-disabled", !opts.showPalette);
+            container.toggleClass("n2-sp-palette-only", opts.showPaletteOnly);
+            container.toggleClass("n2-sp-initial-disabled", !opts.showInitial);
             container.addClass(opts.className);
 
             if (typeof noReflow === 'undefined') {
@@ -213,7 +214,7 @@
                 container.find("*:not(input)").attr("unselectable", "on");
             }
 
-            var customReplace = boundElement.parent().find('.sp-replacer');
+            var customReplace = boundElement.parent().find('.n2-sp-replacer');
             if (customReplace.length) {
                 replacer = customReplace;
             } else {
@@ -225,7 +226,7 @@
                 }
             }
             offsetElement = (shouldReplace) ? replacer : boundElement;
-            previewElement = replacer.find(".sp-preview-inner");
+            previewElement = replacer.find(".n2-sp-preview-inner");
 
             applyOptions(true);
 
@@ -347,8 +348,8 @@
             }
 
             var paletteEvent = IE ? "mousedown.spectrum" : "click.spectrum touchstart.spectrum";
-            paletteContainer.delegate(".sp-thumb-el", paletteEvent, palletElementClick);
-            initialColorContainer.delegate(".sp-thumb-el:nth-child(1)", paletteEvent, {ignore: true}, palletElementClick);
+            paletteContainer.delegate(".n2-sp-thumb-el", paletteEvent, palletElementClick);
+            initialColorContainer.delegate(".n2-sp-thumb-el:nth-child(1)", paletteEvent, {ignore: true}, palletElementClick);
         }
 
         function addColorToSelectionPalette(color) {
@@ -401,11 +402,11 @@
             var currentColor = get();
 
             var html = $.map(paletteArray, function (palette, i) {
-                return paletteTemplate(palette, currentColor, "sp-palette-row sp-palette-row-" + i);
+                return paletteTemplate(palette, currentColor, "n2-sp-palette-row n2-sp-palette-row-" + i);
             });
 
             if (selectionPalette) {
-                html.push(paletteTemplate(getUniqueSelectionPalette(), currentColor, "sp-palette-row sp-palette-row-selection"));
+                html.push(paletteTemplate(getUniqueSelectionPalette(), currentColor, "n2-sp-palette-row n2-sp-palette-row-selection"));
             }
 
             paletteContainer.html(html.join(""));
@@ -415,7 +416,7 @@
             if (opts.showInitial) {
                 var initial = colorOnShow;
                 var current = get();
-                initialColorContainer.html(paletteTemplate([initial, current], current, "sp-palette-row-initial"));
+                initialColorContainer.html(paletteTemplate([initial, current], current, "n2-sp-palette-row-initial"));
             }
         }
 
@@ -436,7 +437,7 @@
                 set(tiny);
             }
             else {
-                textInput.addClass("sp-validation-error");
+                textInput.addClass("n2-sp-validation-error");
             }
         }
 
@@ -461,7 +462,7 @@
 
             $(doc).bind("click.spectrum", hide);
             $(window).bind("resize.spectrum", resize);
-            replacer.addClass("sp-active");
+            replacer.addClass("n2-sp-active");
             container.show();
 
             if (opts.showPalette) {
@@ -492,7 +493,7 @@
             $(doc).unbind("click.spectrum", hide);
             $(window).unbind("resize.spectrum", resize);
 
-            replacer.removeClass("sp-active");
+            replacer.removeClass("n2-sp-active");
             container.hide();
 
             var colorHasChanged = !tinycolor.equals(get(), colorOnShow);
@@ -543,7 +544,7 @@
         }
 
         function isValid() {
-            return !textInput.hasClass("sp-validation-error");
+            return !textInput.hasClass("n2-sp-validation-error");
         }
 
         function move() {
@@ -554,7 +555,7 @@
 
         function updateUI() {
 
-            textInput.removeClass("sp-validation-error");
+            textInput.removeClass("n2-sp-validation-error");
 
             updateHelperLocations();
 
@@ -710,14 +711,14 @@
         function enable() {
             disabled = false;
             boundElement.attr("disabled", false);
-            offsetElement.removeClass("sp-disabled");
+            offsetElement.removeClass("n2-sp-disabled");
         }
 
         function disable() {
             hide();
             disabled = true;
             boundElement.attr("disabled", true);
-            offsetElement.addClass("sp-disabled");
+            offsetElement.addClass("n2-sp-disabled");
         }
 
         initialize();
@@ -866,7 +867,7 @@
                     offset = $(element).offset();
 
                     $(doc).bind(duringDragEvents);
-                    $(doc.body).addClass("sp-dragging");
+                    $(doc.body).addClass("n2-sp-dragging");
 
                     if (!hasTouch) {
                         move(e);
@@ -880,7 +881,7 @@
         function stop() {
             if (dragging) {
                 $(doc).unbind(duringDragEvents);
-                $(doc.body).removeClass("sp-dragging");
+                $(doc.body).removeClass("n2-sp-dragging");
                 onstop.apply(element, arguments);
             }
             dragging = false;
@@ -907,7 +908,7 @@
      * Define a jQuery plugin
      */
     var dataID = "spectrum.id";
-    $.fn.spectrum = function (opts, extra) {
+    $.fn.n2spectrum = function (opts, extra) {
 
         if (typeof opts == "string") {
 
@@ -946,27 +947,27 @@
         }
 
         // Initializing a new instance of spectrum
-        return this.spectrum("destroy").each(function () {
+        return this.n2spectrum("destroy").each(function () {
             var spect = spectrum(this, opts);
             $(this).data(dataID, spect.id);
         });
     };
 
-    $.fn.spectrum.load = true;
-    $.fn.spectrum.loadOpts = {};
-    $.fn.spectrum.draggable = draggable;
-    $.fn.spectrum.defaults = defaultOpts;
+    $.fn.n2spectrum.load = true;
+    $.fn.n2spectrum.loadOpts = {};
+    $.fn.n2spectrum.draggable = draggable;
+    $.fn.n2spectrum.defaults = defaultOpts;
 
-    $.spectrum = {};
-    $.spectrum.localization = {};
-    $.spectrum.palettes = {};
+    $.n2spectrum = {};
+    $.n2spectrum.localization = {};
+    $.n2spectrum.palettes = {};
 
-    $.fn.spectrum.processNativeColorInputs = function () {
+    $.fn.n2spectrum.processNativeColorInputs = function () {
         var colorInput = $("<input type='color' value='!' />")[0];
         var supportsColor = colorInput.type === "color" && colorInput.value != "!";
 
         if (!supportsColor) {
-            $("input[type=color]").spectrum({
+            $("input[type=color]").n2spectrum({
                 preferredFormat: "hex6"
             });
         }
@@ -986,7 +987,7 @@
             mathRandom = math.random,
             parseFloat = window.parseFloat;
 
-        function tinycolor(color, opts) {
+        tinycolor = function(color, opts) {
 
             // If input is already a tinycolor, return itself
             if (typeof color == "object" && color.hasOwnProperty("_tc_id")) {
@@ -1473,10 +1474,10 @@
         tinycolor.readable = function (color1, color2) {
             var a = tinycolor(color1).toRgb(), b = tinycolor(color2).toRgb();
             return (
-            (b.r - a.r) * (b.r - a.r) +
-            (b.g - a.g) * (b.g - a.g) +
-            (b.b - a.b) * (b.b - a.b)
-            ) > 0x28A4;
+                (b.r - a.r) * (b.r - a.r) +
+                (b.g - a.g) * (b.g - a.g) +
+                (b.b - a.b) * (b.b - a.b)
+                ) > 0x28A4;
         };
 
         // Big List of Colors
@@ -1795,13 +1796,13 @@
         }
 
         // Everything is ready, expose to window
-        window.tinycolor = tinycolor;
+        //tinycolor;
 
     })(this);
 
     $(function () {
-        if ($.fn.spectrum.load) {
-            $.fn.spectrum.processNativeColorInputs();
+        if ($.fn.n2spectrum.load) {
+            $.fn.n2spectrum.processNativeColorInputs();
         }
     });
 

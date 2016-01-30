@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2AjaxResponse
 {
@@ -26,9 +33,9 @@ class N2AjaxResponse
 
     public function respond($data = null, $showNotification = true) {
         $this->response['data'] = $data;
-        if (count(ob_list_handlers())) {
-            ob_clean();
-        }
+
+        self::fix_output_buffer();
+
         if ($showNotification) {
             $this->response['notification'] = N2Message::showAjax();
         }
@@ -41,11 +48,26 @@ class N2AjaxResponse
     }
 
     public function redirect($url) {
-        if (count(ob_list_handlers())) {
-            ob_clean();
-        }
+
+        self::fix_output_buffer();
+
         $this->response['redirect'] = $this->appType->router->createUrl($url);
         echo json_encode($this->response);
         n2_exit(true);
+    }
+
+    private static function fix_output_buffer() {
+
+        $ob_list_handlers       = ob_list_handlers();
+        $ob_list_handlers_count = count($ob_list_handlers);
+
+        $exclude = array(
+            'ob_gzhandler',
+            'zlib output compression'
+        );
+
+        if ($ob_list_handlers_count && !in_array($ob_list_handlers[$ob_list_handlers_count - 1], $exclude)) {
+            ob_clean();
+        }
     }
 }

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 
 class N2SmartsliderBackendSliderView extends N2ViewBase
@@ -50,7 +57,14 @@ class N2SmartsliderBackendSliderView extends N2ViewBase
         $buttons = '';
 
         if ($accessEdit) {
-            $buttons .= NHtml::tag('a', array(
+
+            $buttons .= N2Html::tag('a', array(
+                'data-label' => n2_('Quick Edit - Slides'),
+                'href'       => '#',
+                'id'         => 'n2-quick-slides-edit'
+            ), N2Html::tag('i', array('class' => 'n2-i n2-i-slideedit')));
+
+            $buttons .= N2Html::tag('a', array(
                 'data-label' => n2_('Clear slider cache'),
                 'href'       => $this->appType->router->createUrl(array(
                     'slider/clearcache',
@@ -58,9 +72,9 @@ class N2SmartsliderBackendSliderView extends N2ViewBase
                         'sliderid' => $sliderid
                     ) + N2Form::tokenizeUrl()
                 ))
-            ), NHtml::tag('i', array('class' => 'n2-i n2-i-a-refresh')));
+            ), N2Html::tag('i', array('class' => 'n2-i n2-i-a-refresh')));
 
-            $buttons .= NHtml::tag('a', array(
+            $buttons .= N2Html::tag('a', array(
                 'data-label' => n2_('Export slider as HTML'),
                 'href'       => $this->appType->router->createUrl(array(
                     'slider/exporthtml',
@@ -68,9 +82,9 @@ class N2SmartsliderBackendSliderView extends N2ViewBase
                         'sliderid' => $sliderid,
                     ) + N2Form::tokenizeUrl()
                 ))
-            ), NHtml::tag('i', array('class' => 'n2-i n2-i-a-html')));
+            ), N2Html::tag('i', array('class' => 'n2-i n2-i-a-html')));
 
-            $buttons .= NHtml::tag('a', array(
+            $buttons .= N2Html::tag('a', array(
                 'data-label' => n2_('Export'),
                 'href'       => $this->appType->router->createUrl(array(
                     'slider/export',
@@ -78,9 +92,9 @@ class N2SmartsliderBackendSliderView extends N2ViewBase
                         'sliderid' => $sliderid,
                     ) + N2Form::tokenizeUrl()
                 ))
-            ), NHtml::tag('i', array('class' => 'n2-i n2-i-a-export')));
+            ), N2Html::tag('i', array('class' => 'n2-i n2-i-a-export')));
 
-            $buttons .= NHtml::tag('a', array(
+            $buttons .= N2Html::tag('a', array(
                 'data-label' => n2_('Duplicate slider'),
                 'href'       => $this->appType->router->createUrl(array(
                     'slider/duplicate',
@@ -88,12 +102,12 @@ class N2SmartsliderBackendSliderView extends N2ViewBase
                         'sliderid' => $sliderid,
                     ) + N2Form::tokenizeUrl()
                 ))
-            ), NHtml::tag('i', array('class' => 'n2-i n2-i-a-duplicate')));
+            ), N2Html::tag('i', array('class' => 'n2-i n2-i-a-duplicate')));
 
         }
 
         if ($accessDelete) {
-            $buttons .= NHtml::tag('a', array(
+            $buttons .= N2Html::tag('a', array(
                 'data-label' => n2_('Delete slider'),
                 "onclick"    => "return NextendDeleteModalLink(this, 'slider-delete', " . json_encode($slider['title']) . ");",
                 'href'       => $this->appType->router->createUrl(array(
@@ -102,7 +116,7 @@ class N2SmartsliderBackendSliderView extends N2ViewBase
                         'sliderid' => $sliderid,
                     ) + N2Form::tokenizeUrl()
                 ))
-            ), NHtml::tag('i', array('class' => 'n2-i n2-i-a-delete')));
+            ), N2Html::tag('i', array('class' => 'n2-i n2-i-a-delete')));
         }
 
         return $buttons;

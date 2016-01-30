@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2GoogleFonts
 {
@@ -15,10 +22,7 @@ class N2GoogleFonts
 
     public static function build() {
         if (self::$enabled) {
-            $fontUrl = N2AssetsManager::$googleFonts->getFontUrl();
-            if ($fontUrl) {
-                N2CSS::addUrl($fontUrl);
-            }
+            N2AssetsManager::$googleFonts->loadFonts();
         }
     }
 }

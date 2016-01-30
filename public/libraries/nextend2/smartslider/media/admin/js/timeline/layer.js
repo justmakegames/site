@@ -1,3 +1,4 @@
+
 (function (smartSlider, $, scope, undefined) {
 
     function TimelineLayer(layer) {
@@ -27,9 +28,7 @@
         this.buttonContainer = $('<div class="n2-ss-timeline-layer-buttons"/>').appendTo(this.sidebar);
 
         $('<div class="n2-button n2-button-small n2-button-grey"><i class="n2-i n2-it n2-i-delete"></i></div>').on('click', $.proxy(function (e) {
-            this.layer.animation.clear('in');
-            this.layer.animation.clear('loop');
-            this.layer.animation.clear('out');
+            this.layer.animation.clearAll();
         }, this))
             .appendTo(this.buttonContainer);
 
@@ -81,10 +80,51 @@
             .on('layerAnimationAdded', $.proxy(this.animationAdded, this))
             .on('layerAnimationSpecialZeroInChanged', $.proxy(this.specialZeroInChanged, this));
 
+        this.initExtraAnimation();
+
+        layer.layer.triggerHandler('timelineLoadedForLayer');
+
         this.indexed();
 
         layer.timelineLayerManager = this;
 
+    };
+
+    TimelineLayer.prototype.initExtraAnimation = function () {
+        var layer = this.layer;
+
+        this.extraAnimationBar = null;
+
+        layer.layer.on('layerExtraAnimationAdded', $.proxy(function (e, delay, name, changeCallback, editCallback) {
+            if (this.extraAnimationBar) {
+                this.extraAnimationBar.css('left', smartSlider.durationToOffsetX(delay));
+            } else {
+                this.extraAnimationBar = $('<div class="n2-ss-layer-extra-animation n2-ss-layer-extra-animation-' + name + '"><span class="n2-ss-animation-duration n2-h5">' + name + '</span></div>')
+                    .css('left', smartSlider.durationToOffsetX(delay))
+                    .appendTo(this.content)
+                    .draggable({
+                        scroll: true,
+                        axis: "x",
+                        drag: function (event, ui) {
+                            ui.position.left = Math.max(0, smartSlider.normalizeOffsetX(ui.position.left))
+                        },
+                        stop: function (event, ui) {
+                            layer.activate();
+                            changeCallback(smartSlider.offsetXToDuration(ui.position.left));
+                        }
+                    })
+                    .on('click', function () {
+                        layer.activate();
+                        editCallback();
+                    });
+            }
+        }, this))
+            .on('layerExtraAnimationRemoved', $.proxy(function () {
+                if (this.extraAnimationBar) {
+                    this.extraAnimationBar.remove();
+                    this.extraAnimationBar = null;
+                }
+            }, this));
     };
 
     TimelineLayer.prototype.renamed = function (e, newName) {

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.parse.parse');
 
@@ -9,7 +16,7 @@ abstract class N2SSPluginItemAbstract extends N2PluginBase
 
     public $_title = '';
 
-    protected $layerProperties = '{}';
+    protected $layerProperties = array();
 
     protected $priority = 1;
 
@@ -32,6 +39,10 @@ abstract class N2SSPluginItemAbstract extends N2PluginBase
 
     public function onNextendSliderItemShortcode(&$list) {
         $list[$this->_identifier] = $this;
+    }
+
+    public function getLayerProperties() {
+        return $this->layerProperties;
     }
 
     /**
@@ -62,7 +73,7 @@ abstract class N2SSPluginItemAbstract extends N2PluginBase
         $this->isEditor = true;
 
         $json = $data->toJson();
-        return NHtml::tag("div", array(
+        return N2Html::tag("div", array(
             "class"           => "n2-ss-item n2-ss-item-" . $this->_identifier,
             "data-item"       => $this->_identifier,
             "data-itemvalues" => $json
@@ -125,38 +136,6 @@ abstract class N2SSPluginItemAbstract extends N2PluginBase
         return ($a[6] < $b[6]) ? -1 : 1;
     }
 
-    protected function getEventAttributes($data, $elementId) {
-        $attributes = array();
-        $click      = $this->parseEventCode($data->get('onmouseclick', ''), $elementId);
-        $enter      = $this->parseEventCode($data->get('onmouseenter', ''), $elementId);
-        $leave      = $this->parseEventCode($data->get('onmouseleave', ''), $elementId);
-        if (!empty($click)) {
-            $attributes['data-click'] = htmlspecialchars($click);
-        }
-        if (!empty($enter)) {
-            $attributes['data-enter'] = htmlspecialchars($enter);
-        }
-        if (!empty($leave)) {
-            $attributes['data-leave'] = htmlspecialchars($leave);
-        }
-        return $attributes;
-    }
-
-    protected function parseEventCode($code, $elementId) {
-        if (preg_match('/^[a-zA-Z0-9_-]+$/', $code)) {
-            if (is_numeric($code)) {
-                $code = "window['" . $elementId . "'].changeTo(" . ($code - 1) . ");";
-            } else if ($code == 'next') {
-                $code = "window['" . $elementId . "'].next();";
-            } else if ($code == 'previous') {
-                $code = "window['" . $elementId . "'].previous();";
-            } else {
-                $code = "n2(this).closest('.n2-ss-slide,.n2-ss-static-slide').triggerHandler('" . $code . "');";
-            }
-        }
-        return $code;
-    }
-
     protected function getLink($slide, $data, $content, $attributes = array(), $renderEmpty = false) {
 
         N2Loader::import('libraries.link.link');
@@ -168,7 +147,7 @@ abstract class N2SSPluginItemAbstract extends N2PluginBase
 
         if ($link != '#' || $renderEmpty === true) {
             $link = N2LinkParser::parse($slide->fill($link), $attributes, $this->isEditor);
-            return NHtml::link($content, $link, $attributes + array(
+            return N2Html::link($content, $link, $attributes + array(
                     "target" => $target
                 ));
         }
@@ -200,5 +179,37 @@ abstract class N2SSPluginItemAbstract extends N2PluginBase
      */
     public function prepareImport($import, $data) {
         return $data;
+    }
+
+    protected static function optimizeImage($image, $data, $slider) {
+        $lazyLoad = $slider->features->lazyLoad;
+
+        $imagePath = N2ImageHelper::fixed($image, true);
+        if ($imagePath[0] == '/' && $imagePath[1] != '/' && $lazyLoad->layerImageSizeBase64 && $lazyLoad->layerImageSizeBase64Size && filesize($imagePath) < $lazyLoad->layerImageSizeBase64Size) {
+            return array(
+                'src' => N2Image::base64($imagePath, $image)
+            );
+        }
+        if (!$lazyLoad->layerImageOptimize || !$data->get('image-optimize', 1)) {
+            return array(
+                'src' => N2ImageHelper::fixed($image)
+            );
+        }
+
+        $tablet = N2Image::scaleImage('image', $image, $lazyLoad->layerImageTablet);
+        $mobile = N2Image::scaleImage('image', $image, $lazyLoad->layerImageMobile);
+
+        if ($image == $tablet && $image == $mobile) {
+            return array(
+                'src' => N2ImageHelper::fixed($image)
+            );
+        }
+        return array(
+            'src'          => N2Image::base64Transparent(),
+            'data-desktop' => N2ImageHelper::fixed($image),
+            'data-tablet'  => N2ImageHelper::fixed($tablet),
+            'data-mobile'  => N2ImageHelper::fixed($mobile),
+            'data-device'  => '1'
+        );
     }
 }

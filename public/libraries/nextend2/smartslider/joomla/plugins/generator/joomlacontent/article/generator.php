@@ -1,6 +1,14 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
 require_once(JPATH_SITE . '/components/com_content/helpers/route.php');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorJoomlaContentArticle extends N2GeneratorAbstract
 {
@@ -120,14 +128,14 @@ class N2GeneratorJoomlaContentArticle extends N2GeneratorAbstract
 
             $images = (array)json_decode($result[$i]['images'], true);
 
-            if (!empty($images['image_intro'])) {
-                $r['image'] = N2ImageHelper::dynamic($uri . "/" . $images['image_intro']);
-            } else if (!empty($images['image_fulltext'])) {
-                $r['image'] = N2ImageHelper::dynamic($uri . "/" . $images['image_fulltext']);
-            }
+            $r['image'] = $r['thumbnail'] = NextendImageFallBack::fallback($uri . "/", array(
+                @$images['image_intro'],
+                @$images['image_fulltext']
+            ), array(
+                @$r['description']
+            ));
 
             $r += array(
-                'thumbnail'         => isset($r['image']) ? $r['image'] : '',
                 'url'               => ContentHelperRoute::getArticleRoute($result[$i]['id'] . ':' . $result[$i]['alias'], $result[$i]['catid'] . ':' . $result[$i]['cat_alias']),
                 'url_label'         => sprintf(n2_('View %s'), n2_('article')),
                 'category_list_url' => 'index.php?option=com_content&view=category&id=' . $result[$i]['catid'],

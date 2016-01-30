@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderFeatureResponsive
 {
@@ -27,11 +34,22 @@ class N2SmartSliderFeatureResponsive
 
     public $maximumHeight = -1;
 
-    public $maximumSlideWidth = -1;
+    public $maximumSlideWidth = 10000;
+    public $maximumSlideWidthLandscape = -1;
+
+    public $maximumSlideWidthTablet = -1;
+    public $maximumSlideWidthTabletLandscape = -1;
+
+    public $maximumSlideWidthMobile = -1;
+    public $maximumSlideWidthMobileLandscape = -1;
+
+    public $maximumSlideWidthConstrainHeight = 0;
 
     public $verticalOffsetSelectors = '';
 
     public $basedOn = 'combined';
+
+    public $desktopPortraitScreenWidth = 1200;
 
     public $tabletPortraitScreenWidth = 800;
 
@@ -42,6 +60,8 @@ class N2SmartSliderFeatureResponsive
     public $mobileLandscapeScreenWidth = 740;
 
     public $focusUser = 0, $focusAutoplay = 0;
+
+    public $orientationMode = 'width_and_height';
 
     public function __construct($slider) {
 
@@ -65,6 +85,8 @@ class N2SmartSliderFeatureResponsive
 
 
         $this->basedOn = N2SmartSliderSettings::get('responsive-basedon', 'combined');
+
+        $this->desktopPortraitScreenWidth = intval(N2SmartSliderSettings::get('responsive-screen-width-desktop-portrait', 1200));
 
         $this->tabletPortraitScreenWidth = intval(N2SmartSliderSettings::get('responsive-screen-width-tablet-portrait', 800));
         $this->mobilePortraitScreenWidth = intval(N2SmartSliderSettings::get('responsive-screen-width-mobile-portrait', 440));
@@ -170,6 +192,9 @@ class N2SmartSliderFeatureResponsive
                 }
                 $minimumFontSize['tabletLandscape'] = intval($slider->params->get('tablet-landscape-minimum-font-size', 4));
             }
+        } else {
+            $this->tabletLandscapeScreenWidth = $this->tabletPortraitScreenWidth;
+            $ratioModifiers['tabletLandscape'] = $ratioModifiers['tabletPortrait'];
         }
 
 
@@ -223,6 +248,9 @@ class N2SmartSliderFeatureResponsive
                 }
                 $minimumFontSize['mobileLandscape'] = intval($slider->params->get('mobile-landscape-minimum-font-size', 4));
             }
+        } else {
+            $this->mobileLandscapeScreenWidth = $this->mobilePortraitScreenWidth;
+            $ratioModifiers['mobileLandscape'] = $ratioModifiers['mobilePortrait'];
         }
         $this->modes                  = $modes;
         $this->sliderWidthToDevice    = $modeSwitchWidth;
@@ -252,84 +280,157 @@ class N2SmartSliderFeatureResponsive
                 'Portrait'
             )
         );
-        if (!$this->modes['desktopLandscape']) {
-            $normalizedDeviceModes['desktopLandscape'] = $normalizedDeviceModes['desktopPortrait'];
-        } else {
-            $normalizedDeviceModes['desktopLandscape'] = array(
-                'desktop',
-                'Landscape'
-            );
-        }
-        if (!$this->modes['tabletPortrait']) {
-            $normalizedDeviceModes['tabletPortrait'] = $normalizedDeviceModes['desktopPortrait'];
-        } else {
-            $normalizedDeviceModes['tabletPortrait'] = array(
-                'tablet',
-                'Portrait'
-            );
-        }
-        if (!$this->modes['tabletLandscape']) {
-            if ($normalizedDeviceModes['desktopLandscape'][1] == 'Landscape') {
-                $normalizedDeviceModes['tabletLandscape'] = $normalizedDeviceModes['desktopLandscape'];
+        if ($this->orientationMode == 'width') {
+            if (!$this->modes['desktopLandscape']) {
+                $normalizedDeviceModes['desktopLandscape'] = $normalizedDeviceModes['desktopPortrait'];
             } else {
-                $normalizedDeviceModes['tabletLandscape'] = $normalizedDeviceModes['tabletPortrait'];
+                $normalizedDeviceModes['desktopLandscape'] = array(
+                    'desktop',
+                    'Landscape'
+                );
+            }
+            if (!$this->modes['tabletLandscape']) {
+                $normalizedDeviceModes['tabletLandscape'] = $normalizedDeviceModes['desktopPortrait'];
+
+            } else {
+                $normalizedDeviceModes['tabletLandscape'] = array(
+                    'tablet',
+                    'Landscape'
+                );
+            }
+            if (!$this->modes['tabletPortrait']) {
+                $normalizedDeviceModes['tabletPortrait'] = $normalizedDeviceModes['tabletLandscape'];
+            } else {
+                $normalizedDeviceModes['tabletPortrait'] = array(
+                    'tablet',
+                    'Portrait'
+                );
+            }
+            if (!$this->modes['mobileLandscape']) {
+                $normalizedDeviceModes['mobileLandscape'] = $normalizedDeviceModes['tabletPortrait'];
+            } else {
+                $normalizedDeviceModes['mobileLandscape'] = array(
+                    'mobile',
+                    'Landscape'
+                );
+            }
+            if (!$this->modes['mobilePortrait']) {
+                $normalizedDeviceModes['mobilePortrait'] = $normalizedDeviceModes['mobileLandscape'];
+            } else {
+                $normalizedDeviceModes['mobilePortrait'] = array(
+                    'mobile',
+                    'Portrait'
+                );
             }
         } else {
-            $normalizedDeviceModes['tabletLandscape'] = array(
-                'tablet',
-                'Landscape'
-            );
-        }
-        if (!$this->modes['mobilePortrait']) {
-            $normalizedDeviceModes['mobilePortrait'] = $normalizedDeviceModes['tabletPortrait'];
-        } else {
-            $normalizedDeviceModes['mobilePortrait'] = array(
-                'mobile',
-                'Portrait'
-            );
-        }
-        if (!$this->modes['mobileLandscape']) {
-            if ($normalizedDeviceModes['tabletLandscape'][1] == 'Landscape') {
-                $normalizedDeviceModes['mobileLandscape'] = $normalizedDeviceModes['tabletLandscape'];
+            if (!$this->modes['desktopLandscape']) {
+                $normalizedDeviceModes['desktopLandscape'] = $normalizedDeviceModes['desktopPortrait'];
             } else {
-                $normalizedDeviceModes['mobileLandscape'] = $normalizedDeviceModes['mobilePortrait'];
+                $normalizedDeviceModes['desktopLandscape'] = array(
+                    'desktop',
+                    'Landscape'
+                );
             }
-        } else {
-            $normalizedDeviceModes['mobileLandscape'] = array(
-                'mobile',
-                'Landscape'
-            );
+            if (!$this->modes['tabletPortrait']) {
+                $normalizedDeviceModes['tabletPortrait'] = $normalizedDeviceModes['desktopPortrait'];
+            } else {
+                $normalizedDeviceModes['tabletPortrait'] = array(
+                    'tablet',
+                    'Portrait'
+                );
+            }
+            if (!$this->modes['tabletLandscape']) {
+                if ($normalizedDeviceModes['desktopLandscape'][1] == 'Landscape') {
+                    $normalizedDeviceModes['tabletLandscape'] = $normalizedDeviceModes['desktopLandscape'];
+                } else {
+                    $normalizedDeviceModes['tabletLandscape'] = $normalizedDeviceModes['tabletPortrait'];
+                }
+            } else {
+                $normalizedDeviceModes['tabletLandscape'] = array(
+                    'tablet',
+                    'Landscape'
+                );
+            }
+            if (!$this->modes['mobilePortrait']) {
+                $normalizedDeviceModes['mobilePortrait'] = $normalizedDeviceModes['tabletPortrait'];
+            } else {
+                $normalizedDeviceModes['mobilePortrait'] = array(
+                    'mobile',
+                    'Portrait'
+                );
+            }
+            if (!$this->modes['mobileLandscape']) {
+                if ($normalizedDeviceModes['tabletLandscape'][1] == 'Landscape') {
+                    $normalizedDeviceModes['mobileLandscape'] = $normalizedDeviceModes['tabletLandscape'];
+                } else {
+                    $normalizedDeviceModes['mobileLandscape'] = $normalizedDeviceModes['mobilePortrait'];
+                }
+            } else {
+                $normalizedDeviceModes['mobileLandscape'] = array(
+                    'mobile',
+                    'Landscape'
+                );
+            }
         }
+
+        if ($this->maximumSlideWidthLandscape <= 0) {
+            $this->maximumSlideWidthLandscape = $this->maximumSlideWidth;
+        }
+
+        if ($this->maximumSlideWidthTablet <= 0) {
+            $this->maximumSlideWidthTablet = $this->maximumSlideWidth;
+        }
+
+        if ($this->maximumSlideWidthTabletLandscape <= 0) {
+            $this->maximumSlideWidthTabletLandscape = $this->maximumSlideWidthTablet;
+        }
+
+        if ($this->maximumSlideWidthMobile <= 0) {
+            $this->maximumSlideWidthMobile = $this->maximumSlideWidth;
+        }
+
+        if ($this->maximumSlideWidthMobileLandscape <= 0) {
+            $this->maximumSlideWidthMobileLandscape = $this->maximumSlideWidthMobile;
+        }
+
+
         $properties['responsive'] = array(
-            'desktop'                    => $this->desktop,
-            'tablet'                     => $this->tablet,
-            'mobile'                     => $this->mobile,
+            'desktop'                          => $this->desktop,
+            'tablet'                           => $this->tablet,
+            'mobile'                           => $this->mobile,
 
-            'onResizeEnabled'            => $this->onResizeEnabled,
-            'type'                       => $this->type,
-            'downscale'                  => $this->scaleDown,
-            'upscale'                    => $this->scaleUp,
-            'minimumHeight'              => $this->minimumHeight,
-            'maximumHeight'              => $this->maximumHeight,
-            'maximumSlideWidth'          => $this->maximumSlideWidth,
-            'forceFull'                  => $this->forceFull,
-            'verticalOffsetSelectors'    => $this->verticalOffsetSelectors,
+            'onResizeEnabled'                  => $this->onResizeEnabled,
+            'type'                             => $this->type,
+            'downscale'                        => $this->scaleDown,
+            'upscale'                          => $this->scaleUp,
+            'minimumHeight'                    => $this->minimumHeight,
+            'maximumHeight'                    => $this->maximumHeight,
+            'maximumSlideWidth'                => $this->maximumSlideWidth,
+            'maximumSlideWidthLandscape'       => $this->maximumSlideWidthLandscape,
+            'maximumSlideWidthTablet'          => $this->maximumSlideWidthTablet,
+            'maximumSlideWidthTabletLandscape' => $this->maximumSlideWidthTabletLandscape,
+            'maximumSlideWidthMobile'          => $this->maximumSlideWidthMobile,
+            'maximumSlideWidthMobileLandscape' => $this->maximumSlideWidthMobileLandscape,
+            'maximumSlideWidthConstrainHeight' => intval($this->maximumSlideWidthConstrainHeight),
+            'forceFull'                        => $this->forceFull,
+            'verticalOffsetSelectors'          => $this->verticalOffsetSelectors,
 
-            'focusUser'                  => $this->focusUser,
-            'focusAutoplay'              => $this->focusAutoplay,
+            'focusUser'                        => $this->focusUser,
+            'focusAutoplay'                    => $this->focusAutoplay,
 
-            'deviceModes'                => $this->modes,
-            'normalizedDeviceModes'      => $normalizedDeviceModes,
-            'verticalRatioModifiers'     => $this->verticalRatioModifiers,
-            'minimumFontSizes'           => $this->minimumFontSizes,
-            'ratioToDevice'              => $this->sliderRatioToDevice,
-            'sliderWidthToDevice'        => $this->sliderWidthToDevice,
+            'deviceModes'                      => $this->modes,
+            'normalizedDeviceModes'            => $normalizedDeviceModes,
+            'verticalRatioModifiers'           => $this->verticalRatioModifiers,
+            'minimumFontSizes'                 => $this->minimumFontSizes,
+            'ratioToDevice'                    => $this->sliderRatioToDevice,
+            'sliderWidthToDevice'              => $this->sliderWidthToDevice,
 
-            'basedOn'                    => $this->basedOn,
-            'tabletPortraitScreenWidth'  => $this->tabletPortraitScreenWidth,
-            'mobilePortraitScreenWidth'  => $this->mobilePortraitScreenWidth,
-            'tabletLandscapeScreenWidth' => $this->tabletLandscapeScreenWidth,
-            'mobileLandscapeScreenWidth' => $this->mobileLandscapeScreenWidth
+            'basedOn'                          => $this->basedOn,
+            'tabletPortraitScreenWidth'        => $this->tabletPortraitScreenWidth,
+            'mobilePortraitScreenWidth'        => $this->mobilePortraitScreenWidth,
+            'tabletLandscapeScreenWidth'       => $this->tabletLandscapeScreenWidth,
+            'mobileLandscapeScreenWidth'       => $this->mobileLandscapeScreenWidth,
+            'orientationMode'                  => $this->orientationMode
         );
     }
 

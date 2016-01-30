@@ -4,12 +4,20 @@
 
         this.slider = window[id];
 
+        this.slider.started($.proxy(this.start, this, id, parameters));
+    };
+
+
+    NextendSmartSliderWidgetThumbnailDefault.prototype.start = function (id, parameters) {
+
         if (this.slider.sliderElement.data('thumbnail')) {
             return false;
         }
         this.slider.sliderElement.data('thumbnail', this);
 
         this.hidden = false;
+        this.forceHidden = false;
+        this.forceHiddenCB = null;
         this.group = 2;
         this.itemPerPane = 1;
         this.currentI = 0;
@@ -97,14 +105,15 @@
     };
 
     NextendSmartSliderWidgetThumbnailDefault.prototype.onReady = function () {
-
-        this.slider.sliderElement.on('SliderResize ', $.proxy(this.onSliderResize, this));
+        this.slider.sliderElement.on('SliderResize', $.proxy(this.onSliderResize, this));
         this.onSliderResize();
     };
 
 
     NextendSmartSliderWidgetThumbnailDefault.prototype.onSliderResize = function () {
-
+        if (this.forceHiddenCB !== null) {
+            this.forceHiddenCB.call(this);
+        }
         this.adjustScrollerSize();
 
         this.goToDot(this.dots.index(this.dots.filter('.n2-active')));
@@ -144,6 +153,9 @@
     };
 
     NextendSmartSliderWidgetThumbnailDefault.prototype.goToDot = function (i) {
+        if (this.forceHidden) {
+            return;
+        }
         var variables = this[this.orientation];
         var barDimension = this.slider.dimensions['thumbnail' + variables.prop];
 
@@ -156,6 +168,13 @@
                     this.outerBar.css('width', 0);
                 }
                 this.hidden = true;
+                this.forceHidden = true;
+                setTimeout($.proxy(function () {
+                    this.forceHiddenCB = function () {
+                        this.forceHiddenCB = null;
+                        this.forceHidden = false;
+                    };
+                }, this), 300);
                 this.slider.responsive.doNormalizedResize();
             }
         } else if (this.hidden) {
@@ -176,8 +195,10 @@
             var currentPane = Math.floor(i / this.group / itemPerPane),
                 to = {};
 
+            var min = -(this.scroller['outer' + variables.Prop]() - barDimension);
+
             if (currentPane == Math.floor((this.dots.length - 1) / this.group / itemPerPane)) {
-                to[variables.sideProp] = -(Math.min(currentPane * itemPerPane * this.thumbnailDimension[variables.prop], this.scroller['outer' + variables.Prop]() - barDimension));
+                to[variables.sideProp] = -(currentPane * itemPerPane * this.thumbnailDimension[variables.prop]);
                 if (currentPane == 0) {
                     this.previous.removeClass('n2-active');
                 } else {
@@ -193,8 +214,14 @@
                 this.previous.removeClass('n2-active');
                 this.next.addClass('n2-active');
             }
+            if (min >= to[variables.sideProp]) {
+                to[variables.sideProp] = min;
+                this.next.removeClass('n2-active');
+            }
             NextendTween.to(this.scroller, 0.5, to).play();
         }
+
+
         this.currentI = i;
         this.itemPerPane = itemPerPane;
     };

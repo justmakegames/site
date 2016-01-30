@@ -1,4 +1,4 @@
-;
+
 (function ($, scope) {
 
     function NextendLayoutEditorController() {
@@ -21,3 +21,4 @@
     scope.NextendLayoutEditorController = NextendLayoutEditorController;
 
 })(n2, window);
+

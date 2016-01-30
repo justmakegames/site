@@ -3,6 +3,7 @@
   z-index: 3;
   margin: @margin;
   position: relative;
+  text-align: left;
 
   * {
     font-size: inherit;
@@ -29,9 +30,24 @@
     }
   }
 
+  .unselectable {
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+
+    /*
+      Introduced in IE 10.
+      See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+    */
+    -ms-user-select: none;
+    user-select: none;
+  }
+
   a,
   a:focus {
     outline: none !important;
+    transition: none 0s;
+    border: 0;
   }
 
   h1,
@@ -60,6 +76,14 @@
     padding: 0;
     margin: 0;
     border: 0;
+    vertical-align: top;
+  }
+
+  ul, li, img, a, p, ol, textarea, input, button {
+    -moz-transition-property: none;
+    -webkit-transition-property: none;
+    -o-transition-property: none;
+    transition-property: none;
   }
 
   .n2-ss-slide,
@@ -144,11 +168,16 @@
     height: 100%;
   }
 
+  &.n2-ss-mobile .n2-ss-slider-1,
+  &.n2-ss-tablet .n2-ss-slider-1 {
+    background-attachment: scroll !important;
+  }
+
   .n2-ss-widget {
     display: none;
     -webkit-backface-visibility: hidden;
     -webkit-perspective: 1;
-    z-index: 10;
+    z-index: 12;
     font-size: 16px;
     -webkit-transition: opacity 0.4s ease;
     -moz-transition: opacity 0.4s ease;
@@ -187,6 +216,19 @@
   &.n2-ss-tablet .n2-ss-widget-display-tablet,
   &.n2-ss-mobile .n2-ss-widget-display-mobile {
     display: block;
+  }
+
+  .n2-ss-desktop.n2-ib,
+  &.n2-ss-desktop .n2-ss-desktop.n2-ib,
+  &.n2-ss-tablet .n2-ss-tablet.n2-ib,
+  &.n2-ss-mobile .n2-ss-mobile.n2-ib {
+    display: inline-block;
+  }
+
+  &.n2-ss-desktop .n2-ss-widget-display-desktop.n2-ib,
+  &.n2-ss-tablet .n2-ss-widget-display-tablet.n2-ib,
+  &.n2-ss-mobile .n2-ss-widget-display-mobile.n2-ib {
+    display: inline-block;
   }
 
   .n2-ss-widget-always {
@@ -241,15 +283,67 @@
   }
 
   .n2-grab {
+    cursor: url(../cursor/openhand.cur), move;
     cursor: -webkit-grab;
     cursor: -moz-grab;
     cursor: grab;
   }
 
   .n2-grabbing {
+    cursor: url(../cursor/closedhand.cur), move;
     cursor: -webkit-grabbing;
     cursor: -moz-grabbing;
     cursor: grabbing;
+  }
+
+  form {
+    margin: 0;
+    border: 0;
+    padding: 0;
+  }
+
+  .n2-fake-input,
+  input {
+    height: auto;
+    width: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    display: inline-block;
+    vertical-align: middle;
+    white-space: normal;
+    background: none;
+    line-height: 1;
+
+    /* Browsers have different default form fonts */
+    font-size: 13px;
+    font-family: Arial;
+    box-shadow: none;
+  }
+
+  input:focus {
+    outline: 0;
+  }
+
+  .n2-fake-input,
+  input[placeholder] {
+    overflow: hidden;
+    text-overflow: clip;
+  }
+  ::-moz-placeholder {
+    text-overflow: clip;
+  }
+  /* firefox 19+ */
+  input:-moz-placeholder {
+    text-overflow: clip;
+  }
+
+  table {
+    table-layout: auto;
+    margin: 0;
   }
 
 }

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 
@@ -15,6 +22,7 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract
             'widget-autoplay-responsive-tablet'  => 0.7,
             'widget-autoplay-responsive-mobile'  => 0.5,
             'widget-autoplay-play-image'         => '',
+            'widget-autoplay-play-color'         => 'ffffffcc',
             'widget-autoplay-play'               => '$ss$/plugins/widgetautoplay/image/image/play/small-light.svg',
             'widget-autoplay-style'              => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYWIiLCJwYWRkaW5nIjoiMTB8KnwxMHwqfDEwfCp8MTB8KnxweCIsImJveHNoYWRvdyI6IjB8KnwwfCp8MHwqfDB8KnwwMDAwMDBmZiIsImJvcmRlciI6IjB8Knxzb2xpZHwqfDAwMDAwMGZmIiwiYm9yZGVycmFkaXVzIjoiMyIsImV4dHJhIjoiIn0seyJiYWNrZ3JvdW5kY29sb3IiOiIwMDAwMDBhYiJ9XX0=',
             'widget-autoplay-position-mode'      => 'simple',
@@ -22,6 +30,7 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract
             'widget-autoplay-position-offset'    => 15,
             'widget-autoplay-mirror'             => 1,
             'widget-autoplay-pause-image'        => '',
+            'widget-autoplay-pause-color'        => 'ffffffcc',
             'widget-autoplay-pause'              => '$ss$/plugins/widgetautoplay/image/image/pause/small-light.svg'
         );
     }
@@ -47,7 +56,8 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract
     static function render($slider, $id, $params) {
         $html = '';
 
-        $play = $params->get(self::$key . 'play-image');
+        $play      = $params->get(self::$key . 'play-image');
+        $playColor = $params->get(self::$key . 'play-color');
         if (empty($play)) {
             $play = $params->get(self::$key . 'play');
             if ($play == -1) {
@@ -58,9 +68,11 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract
         }
 
         if ($params->get(self::$key . 'mirror')) {
-            $pause = str_replace('image/play/', 'image/pause/', $play);
+            $pause      = str_replace('image/play/', 'image/pause/', $play);
+            $pauseColor = $playColor;
         } else {
-            $pause = $params->get(self::$key . 'pause-image');
+            $pause      = $params->get(self::$key . 'pause-image');
+            $pauseColor = $params->get(self::$key . 'pause-color');
             if (empty($pause)) {
                 $pause = $params->get(self::$key . 'pause');
                 if ($pause == -1) {
@@ -69,6 +81,34 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract
                     $pause = N2Uri::pathToUri(dirname(__FILE__) . '/image/pause/' . $pause);
                 }
             }
+        }
+
+        $ext = pathinfo($play, PATHINFO_EXTENSION);
+        if (substr($play, 0, 1) == '$' && $ext == 'svg') {
+            list($color, $opacity) = N2Color::colorToSVG($playColor);
+            $play = 'data:image/svg+xml;base64,' . base64_encode(str_replace(array(
+                    'fill="#FFF"',
+                    'opacity="1"'
+                ), array(
+                    'fill="#' . $color . '"',
+                    'opacity="' . $opacity . '"'
+                ), N2Filesystem::readFile(N2ImageHelper::fixed($play, true))));
+        } else {
+            $play = N2ImageHelper::fixed($play);
+        }
+
+        $ext = pathinfo($pause, PATHINFO_EXTENSION);
+        if (substr($pause, 0, 1) == '$' && $ext == 'svg') {
+            list($color, $opacity) = N2Color::colorToSVG($pauseColor);
+            $pause = 'data:image/svg+xml;base64,' . base64_encode(str_replace(array(
+                    'fill="#FFF"',
+                    'opacity="1"'
+                ), array(
+                    'fill="#' . $color . '"',
+                    'opacity="' . $opacity . '"'
+                ), N2Filesystem::readFile(N2ImageHelper::fixed($pause, true))));
+        } else {
+            $pause = N2ImageHelper::fixed($pause);
         }
 
         if ($play && $pause) {
@@ -87,10 +127,10 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract
 
             N2JS::addInline('new NextendSmartSliderWidgetAutoplayImage("' . $id . '", ' . floatval($params->get(self::$key . 'responsive-desktop')) . ', ' . floatval($params->get(self::$key . 'responsive-tablet')) . ', ' . floatval($params->get(self::$key . 'responsive-mobile')) . ');');
 
-            $html = NHtml::tag('div', $displayAttributes + $attributes + array(
+            $html = N2Html::tag('div', $displayAttributes + $attributes + array(
                     'class' => $displayClass . $styleClass . 'nextend-autoplay nextend-autoplay-image',
                     'style' => $style
-                ), NHtml::image(N2ImageHelper::fixed($play), '', array('class' => 'nextend-autoplay-play')) . NHtml::image(N2ImageHelper::fixed($pause), '', array('class' => 'nextend-autoplay-pause')));;
+                ), N2Html::image($play, '', array('class' => 'nextend-autoplay-play')) . N2Html::image($pause, '', array('class' => 'nextend-autoplay-pause')));
         }
 
         return $html;

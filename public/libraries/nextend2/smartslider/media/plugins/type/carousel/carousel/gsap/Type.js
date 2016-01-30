@@ -1,11 +1,15 @@
 (function ($, scope, undefined) {
 
     function NextendSmartSliderCarousel(sliderElement, parameters) {
+
+        this.type = 'carousel';
         this.responsiveClass = 'NextendSmartSliderResponsiveCarousel';
 
         parameters = $.extend({
             maxPaneWidth: 980
         }, parameters);
+
+        this.hasStatic = sliderElement.find('.n2-ss-static-slide').length;
 
         NextendSmartSliderAbstract.prototype.constructor.call(this, sliderElement, parameters);
     };
@@ -67,7 +71,7 @@
             this.currentSlideIndex = 0;
 
             if (this.isAdmin) {
-                this.currentSlideIndex = this.currentSlide.parent().index();
+                this.currentSlideIndex = this.currentSlide.parent().index() - this.hasStatic;
             } else if (this.readyDeferred.state() == 'resolved') {
                 var activeSlides = this.slides.eq(this.currentSlideIndex).find('.n2-ss-slide');
                 oldActiveSlides.not(activeSlides).each(function (i, el) {
@@ -78,7 +82,7 @@
                     $(el).data('slide').playIn();
                 });
             } else {
-                this.currentSlideIndex = this.currentSlide.parent().index();
+                this.currentSlideIndex = this.currentSlide.parent().index() - this.hasStatic;
             }
             this.mainAnimation.setActiveSlide(this.slides.eq(this.currentSlideIndex));
             this.setActiveSlide(this.slides.eq(this.currentSlideIndex));
@@ -117,8 +121,8 @@
         this.directionalChangeTo(Math.floor(nextSlideIndex / this.slidesInGroup));
     };
 
-    NextendSmartSliderCarousel.prototype.adminGetCurrentSlideElement = function (isEditedStatic) {
-        if (isEditedStatic) {
+    NextendSmartSliderCarousel.prototype.adminGetCurrentSlideElement = function () {
+        if (this.parameters.isStaticEdited) {
             return this.findStaticSlide();
         }
         return this.realSlides.filter('.n2-ss-slide-active');

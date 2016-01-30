@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.form.element.list');
 
 class N2ElementSubform extends N2ElementList
@@ -22,7 +29,7 @@ class N2ElementSubform extends N2ElementList
 
         $html .= $this->renderContainer();
 
-        return NHtml::tag("div", array(
+        return N2Html::tag("div", array(
             "class" => "n2-subform " . N2XmlHelper::getAttribute($this->_xml, 'class'),
             "style" => N2XmlHelper::getAttribute($this->_xml, 'style'),
         ), $html);

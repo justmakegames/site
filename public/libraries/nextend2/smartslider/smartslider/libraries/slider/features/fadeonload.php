@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderFeatureFadeOnLoad
 {
@@ -9,12 +16,17 @@ class N2SmartSliderFeatureFadeOnLoad
 
     public $fadeOnScroll = 0;
 
+    public $playWhenVisible = 1;
+
     public function __construct($slider) {
 
         $this->slider = $slider;
 
         $this->fadeOnLoad   = intval($slider->params->get('fadeOnLoad', 1));
         $this->fadeOnScroll = intval($slider->params->get('fadeOnScroll', 0));
+        $this->playWhenVisible = intval($slider->params->get('playWhenVisible', 1));
+
+
 
         if (!empty($this->fadeOnScroll) && $this->fadeOnScroll) {
             $this->fadeOnLoad   = 1;
@@ -43,7 +55,7 @@ class N2SmartSliderFeatureFadeOnLoad
 
             if (N2SystemHelper::testMemoryLimit()) {
                 if ($sizes['width'] + $sizes['marginHorizontal'] > 0 && $sizes['height'] > 0 && function_exists('imagecreatetruecolor')) {
-                    return NHtml::tag("div", array(
+                    return N2Html::tag("div", array(
                         "id"     => $this->slider->elementId . "-placeholder",
                         "encode" => false,
                         "style"  => 'position: relative;z-index:2;'
@@ -66,16 +78,17 @@ class N2SmartSliderFeatureFadeOnLoad
             'fade'   => $this->fadeOnLoad,
             'scroll' => ($this->fadeOnScroll & !$this->slider->isAdmin)
         );
+        $properties['playWhenVisible'] = $this->playWhenVisible;
     }
 
 
     private function makeImage($sizes) {
-        $html = NHtml::image("data:image/svg+xml;base64," . $this->transparentImage($sizes['width'] + $sizes['marginHorizontal'], $sizes['height']), '', array(
+        $html = N2Html::image("data:image/svg+xml;base64," . $this->transparentImage($sizes['width'] + $sizes['marginHorizontal'], $sizes['height']), '', array(
             'style' => 'width: 100%; max-width:' . ($this->slider->features->responsive->maximumSlideWidth + $sizes['marginHorizontal']) . 'px;'
         ));
 
         if ($sizes['marginVertical'] > 0) {
-            $html .= NHtml::image("data:image/svg+xml;base64," . $this->transparentImage($sizes['width'] + $sizes['marginHorizontal'], $sizes['marginVertical']), '', array(
+            $html .= N2Html::image("data:image/svg+xml;base64," . $this->transparentImage($sizes['width'] + $sizes['marginHorizontal'], $sizes['marginVertical']), '', array(
                 'style' => 'width: 100%;'
             ));
         }

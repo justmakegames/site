@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.settings.settings', 'smartslider');
 
 class N2SSPluginGeneratorFlickr extends N2PluginBase
@@ -26,6 +33,10 @@ class N2SSPluginGeneratorFlickr extends N2PluginBase
         $list[self::$group]['peoplephotogallery'] = N2GeneratorInfo::getInstance(self::$groupLabel, n2_('My photogallery'), $this->getPath() . 'peoplephotogallery')
                                                                    ->setType('image_extended')
                                                                    ->setConfiguration($this->configurationClass);
+
+        $list[self::$group]['photossearch'] = N2GeneratorInfo::getInstance(self::$groupLabel, n2_('Search'), $this->getPath() . 'photossearch')
+                                                            ->setType('image')
+                                                            ->setConfiguration($this->configurationClass);
     }
 
     function onSmartSliderConfigurationList(&$list) {

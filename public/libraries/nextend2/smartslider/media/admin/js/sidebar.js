@@ -12,22 +12,23 @@
 
         var contentTop = sidebar.parent().siblings('.n2-td').offset().top - $('#wpadminbar, .navbar').height();
 
-        $(window).scroll($.proxy(function () {
+        var onScrollCB = $.proxy(function () {
             if ($(window).scrollTop() > contentTop) {
                 sidebar.addClass("n2-sidebar-fixed");
             } else {
                 sidebar.removeClass("n2-sidebar-fixed");
             }
-        }, this));
+        }, this);
 
         sidebar.css({
             width: sidebar.width()
         });
 
         this.lateInit();
+        $(window).scroll(onScrollCB);
+        onScrollCB();
 
         new NextendSmartSliderEditorSidebarSlides();
-        new NextendSmartSliderSidebarLayout();
     };
 
     NextendSmartSliderSidebar.prototype = Object.create(NextendAdminVerticalPane.prototype);
@@ -117,41 +118,5 @@
     };
 
     scope.NextendSmartSliderSidebarSlides = NextendSmartSliderSidebarSlides;
-
-
-    function NextendSmartSliderSidebarLayout() {
-
-        new NextendSmartSliderAdminLayoutHistory();
-
-        var tab = $('.n2-layouts-tab');
-
-        NextendAdminVerticalPane.prototype.constructor.call(this, tab, tab.find('.n2-lightbox-sidebar-list'), tab.find('.n2-ss-history-list'));
-
-        $('.n2-layouts-tab-label').on('click.n2-layout-init', $.proxy(function (e) {
-            this.lateInit();
-            $(e.target).off('click.n2-layout-init');
-        }, this));
-    }
-
-    NextendSmartSliderSidebarLayout.prototype = Object.create(NextendAdminVerticalPane.prototype);
-    NextendSmartSliderSidebarLayout.prototype.constructor = NextendSmartSliderSidebarLayout;
-
-    NextendSmartSliderSidebarLayout.prototype.loadDefaults = function () {
-
-        NextendAdminVerticalPane.prototype.loadDefaults.apply(this, arguments);
-        this.key = 'smartsliderLayoutSidebarRatio';
-    };
-
-    NextendSmartSliderSidebarLayout.prototype.getExcludedHeight = function () {
-        var h = 0;
-        h += $('#n2-ss-slide-editor-main-tab').outerHeight();
-        h += this.tab.find('.n2-sidebar-row').outerHeight() * 2;
-        h += this.tab.find(' > div > ul').outerHeight();
-        h += this.tab.find('.n2-sidebar-pane-sizer').outerHeight();
-        h += 1; // border
-        return h;
-    };
-
-    scope.NextendSmartSliderSidebarLayout = NextendSmartSliderSidebarLayout;
 
 })(nextend.smartSlider, n2, window);

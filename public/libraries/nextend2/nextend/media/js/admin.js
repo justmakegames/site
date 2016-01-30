@@ -9,7 +9,11 @@ n2.extend(window.nextend, {
         nextend.askToSave = false;
         window.location.href = url;
         return false;
-    }
+    },
+    isWordpress: false,
+    isJoomla: false,
+    isMagento: false,
+    isHTML: false
 });
 
 window.n2_ = function (text) {
@@ -174,7 +178,7 @@ window.nextendtime = n2.now();
         for (var k in NextendAjaxHelper.query) {
             queryArray[k] = NextendAjaxHelper.query[k];
         }
-        return queryString.stringify(queryArray);
+        return N2QueryString.stringify(queryArray);
     };
 
     NextendAjaxHelper.makeAjaxUrl = function (url, queries) {
@@ -182,7 +186,7 @@ window.nextendtime = n2.now();
         if (urlParts.length < 2) {
             urlParts[1] = '';
         }
-        var parsed = queryString.parse(urlParts[1]);
+        var parsed = N2QueryString.parse(urlParts[1]);
         if (typeof queries != 'undefined') {
             for (var k in queries) {
                 parsed[k] = queries[k];
@@ -196,7 +200,7 @@ window.nextendtime = n2.now();
         if (urlParts.length < 2) {
             urlParts[1] = '';
         }
-        var parsed = queryString.parse(urlParts[1]);
+        var parsed = N2QueryString.parse(urlParts[1]);
         if (typeof queries != 'undefined') {
             for (var k in queries) {
                 parsed[k] = queries[k];
@@ -342,11 +346,16 @@ window.nextendtime = n2.now();
         _listen: function () {
             if (!isListening) {
                 doc.on('keydown.n2-esc', function (e) {
-                    if ((e.keyCode == 27 || e.keyCode == 8) && !$(e.target).is("input, textarea")) {
-                        e.preventDefault();
-                        var ret = FiLo[FiLo.length - 1]();
-                        if (ret) {
-                            scope.NextendEsc.pop();
+                    if ((e.keyCode == 27 || e.keyCode == 8)) {
+                        if (!$(e.target).is("input, textarea")) {
+                            e.preventDefault();
+                            var ret = FiLo[FiLo.length - 1]();
+                            if (ret) {
+                                scope.NextendEsc.pop();
+                            }
+                        } else if (e.keyCode == 27) {
+                            e.preventDefault();
+                            $(e.target).blur();
                         }
                     }
                 });

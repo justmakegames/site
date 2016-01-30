@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/module.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454144812,
     'data' => [
         'name' => 'Module Instance',
         'description' => 'Display a module instance.',

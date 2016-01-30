@@ -16,7 +16,7 @@
 
     <params name="order" label="Order by">
         <param name="easydiscussorder" type="mixed" label="Order" default="created|*|desc">
-            <param type="list" label="Field">
+            <param type="list" label="Field" translateable="1">
                 <option value="">None</option>
                 <option value="title">Title</option>
                 <option value="ordering">Ordering</option>

@@ -6,13 +6,13 @@
     };
 
     NextendElement.prototype.triggerOutsideChange = function () {
-        this.element.trigger('outsideChange', this)
-            .trigger('nextendChange', this);
+        this.element.triggerHandler('outsideChange', this);
+        this.element.triggerHandler('nextendChange', this);
     };
 
     NextendElement.prototype.triggerInsideChange = function () {
-        this.element.trigger('insideChange', this)
-            .trigger('nextendChange', this);
+        this.element.triggerHandler('insideChange', this);
+        this.element.triggerHandler('nextendChange', this);
     };
 
     scope.NextendElement = NextendElement;

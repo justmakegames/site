@@ -1,13 +1,13 @@
 (function (smartSlider, $, scope, undefined) {
 
     function ItemManager(layerEditor) {
-        this._sortable = $([]);
         this.suppressChange = false;
-        this._itemsSortableRefreshTimeout = -1;
+
+        this.activeItemOriginalData = null;
 
         this.layerEditor = layerEditor;
 
-        this._initInstalledItemsDraggable();
+        this._initInstalledItems();
 
         this.form = {};
         this.activeForm = {
@@ -15,18 +15,10 @@
         };
     }
 
-    ItemManager.prototype.advanced = function (state) {
-        if (state) {
-            this._sortable.sortable("option", "disabled", false);
-            this.installedItems.draggable("option", "disabled", false);
-        } else {
-            this._sortable.sortable("option", "disabled", true);
-            this.installedItems.draggable("option", "disabled", true);
-        }
-    };
-
     ItemManager.prototype.setActiveItem = function (item, force) {
         if (item != this.activeItem || force) {
+            this.activeItemOriginalData = null;
+
             var type = item.type,
                 values = item.values;
 
@@ -55,20 +47,10 @@
         }
     };
 
-    ItemManager.prototype._initInstalledItemsDraggable = function () {
+    ItemManager.prototype._initInstalledItems = function () {
 
-        this.installedItems = $('#n2-ss-item-container .n2-ss-core-item')
-            .draggable({
-                disabled: !this.layerEditor.advanced,
-                helper: 'clone',
-                appendTo: document.body,
-                start: function (event, ui) {
-                    ui.helper.css({
-                        height: 40,
-                        width: $('#n2-ss-layers-items-list .ui-sortable').width()
-                    });
-                }
-            }).on('click', $.proxy(function (e) {
+        $('#n2-ss-item-container .n2-ss-core-item')
+            .on('click', $.proxy(function (e) {
                 this.createLayerItem($(e.currentTarget).data('item'));
             }, this));
     };
@@ -85,60 +67,11 @@
 
         smartSlider.sidebarManager.switchTab(0);
 
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'createLayer', 'create', 'delete', [item, type]];
+        }, this));
+
         return item;
-    };
-
-    ItemManager.prototype._makeItemsOrderable = function (layersItemList) {
-        this._sortable = this._sortable.add(layersItemList);
-
-        layersItemList
-            .sortable({
-                disabled: !this.layerEditor.advanced,
-                appendTo: $('#n2-ss-layers-items-list > ul'),
-                axis: "y",
-                helper: 'clone',
-                placeholder: "sortable-placeholder",
-                forcePlaceholderSize: true,
-                tolerance: "pointer",
-                items: '.n2-ss-item-row',
-                handle: '.n2-i-order',
-                stop: $.proxy(function (event, ui) {
-                    var itemEl = $(ui.item)
-                    if (itemEl.hasClass('n2-ss-core-item')) {
-                        // Item came from #draggableitems
-
-                        var type = itemEl.data('item');
-                        var itemData = this.getItemType(type);
-
-                        var itemNode = $('<div></div>').data('item', type).data('itemvalues', itemData.values)
-                            .addClass('n2-ss-item n2-ss-item-' + type);
-
-                        var item = new scope.NextendSmartSliderItem(itemNode, itemEl.parent().data('layer'), this, itemEl.index());
-
-                        itemEl.remove();
-                    } else {
-                        var item = itemEl.data('item');
-                        item.moveItem(itemEl.parent().data('layer'), item.row.index());
-                    }
-
-                }, this)
-            });
-        this._itemsSortableRefresh();
-    };
-
-    ItemManager.prototype._removeItemOrderable = function (layersItemList) {
-        this._sortable = this._sortable.not(layersItemList);
-    };
-
-    ItemManager.prototype._itemsSortableRefresh = function () {
-        if (this._itemsSortableRefreshTimeout) clearTimeout(this._itemsSortableRefreshTimeout);
-
-        this._itemsSortableRefreshTimeout = setTimeout($.proxy(this.__itemsSortableRefresh, this), 100);
-    };
-
-    ItemManager.prototype.__itemsSortableRefresh = function () {
-        this._sortable.sortable("option", "connectWith", this._sortable);
-        this.installedItems.draggable("option", 'connectToSortable', this._sortable);
     };
 
     /**
@@ -151,21 +84,16 @@
         if (this.form[type] === undefined) {
             var form = $('#smartslider-slide-toolbox-item-type-' + type),
                 formData = {
-                    timeOut: null,
                     form: form,
                     template: form.data('itemtemplate'),
                     values: form.data('itemvalues'),
                     fields: form.find('[name^="item_' + type + '"]'),
                     fieldNameRegexp: new RegExp('item_' + type + "\\[(.*?)\\]", "")
                 };
-            formData.fields.on('nextendChange keydown', $.proxy(function (e) {
-                if (!this.suppressChange) {
-                    if (formData.timeOut) {
-                        clearTimeout(formData.timeOut);
-                    }
-                    formData.timeOut = setTimeout($.proxy(this.updateCurrentItem, this), 100);
-                }
-            }, this));
+            formData.fields.on({
+                nextendChange: $.proxy(this.updateCurrentItem, this),
+                keydown: $.proxy(this.updateCurrentItemDeBounced, this)
+            });
 
             this.form[type] = formData;
         }
@@ -175,34 +103,66 @@
     /**
      * This function renders the current item with the current values of the related form field.
      */
-    ItemManager.prototype.updateCurrentItem = function () {
-        var data = {},
-            originalData = {},
-            form = this.form[this.activeItem.type],
-            html = form.template,
-            parser = this.activeItem.parser;
+    ItemManager.prototype.updateCurrentItem = function (e) {
+        if (!this.suppressChange) {
+            if (this.activeItemOriginalData === null) {
+                this.activeItemOriginalData = $.extend({}, this.activeItem.values);
+            }
+            var data = {},
+                originalData = {},
+                form = this.form[this.activeItem.type],
+                html = form.template,
+                parser = this.activeItem.parser;
 
-        // Get the current values of the fields
-        // Run through the related item filter
-        // Replace the variables in the template of the item type
-        form.fields.each($.proxy(function (i, field) {
-            var field = $(field),
-                name = field.attr('name').match(form.fieldNameRegexp)[1];
+            // Get the current values of the fields
+            // Run through the related item filter
+            // Replace the variables in the template of the item type
+            form.fields.each($.proxy(function (i, field) {
+                var field = $(field),
+                    name = field.attr('name').match(form.fieldNameRegexp)[1];
 
-            originalData[name] = data[name] = field.val();
+                originalData[name] = data[name] = field.val();
 
-        }, this));
+            }, this));
 
-        data = $.extend({}, parser.getDefault(), data);
+            data = $.extend({}, parser.getDefault(), data);
 
-        parser.parseAll(data, this.activeItem);
-        for (var k in data) {
-            var reg = new RegExp('\\{' + k + '\\}', 'g');
-            html = html.replace(reg, data[k]);
+            parser.parseAll(data, this.activeItem);
+            for (var k in data) {
+                var reg = new RegExp('\\{' + k + '\\}', 'g');
+                html = html.replace(reg, data[k]);
+            }
+            if (e && e.type == 'nextendChange') {
+                smartSlider.history.add($.proxy(function () {
+                    return [this.activeItem, 'updateCurrentItem', $.extend({}, originalData), this.activeItemOriginalData, []];
+                }, this));
+
+                this.activeItemOriginalData = null;
+            }
+            this.activeItem.render($(html), data, originalData);
         }
+    };
 
-        this.activeItem.render($(html), data, originalData);
+    ItemManager.prototype.updateCurrentItemDeBounced = NextendDeBounce(function (e) {
+        this.updateCurrentItem(e);
+    }, 100);
 
+
+    ItemManager.prototype.history = function (method, value, other) {
+        switch (method) {
+            case 'createLayer':
+                switch (value) {
+                    case 'delete':
+                        other[0].layer.delete();
+                        break;
+                    case 'create':
+                        var item = this.createLayerItem(other[1]);
+                        smartSlider.history.changeFuture(other[0].layer, item.layer);
+                        smartSlider.history.changeFuture(other[0], item);
+                        break;
+                }
+                break;
+        }
     };
 
     scope.NextendSmartSliderItemManager = ItemManager;

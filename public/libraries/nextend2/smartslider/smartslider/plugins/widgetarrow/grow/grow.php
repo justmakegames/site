@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 
 class N2SSPluginWidgetArrowGrow extends N2SSPluginWidgetAbstract
@@ -19,8 +26,10 @@ class N2SSPluginWidgetArrowGrow extends N2SSPluginWidgetAbstract
             'widget-arrow-style'                    => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwODAiLCJwYWRkaW5nIjoiM3wqfDN8KnwzfCp8M3wqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8MDAwMDAwZmYiLCJib3JkZXJyYWRpdXMiOiI1MCIsImV4dHJhIjoiIn0seyJiYWNrZ3JvdW5kY29sb3IiOiIwMWFkZDNmZiJ9XX0=',
             'widget-arrow-font'                     => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmZmZiIsInNpemUiOiIxMnx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwZmYiLCJhZm9udCI6Ik1vbnRzZXJyYXQiLCJsaW5laGVpZ2h0IjoiMS4zIiwiYm9sZCI6MCwiaXRhbGljIjowLCJ1bmRlcmxpbmUiOjAsImFsaWduIjoibGVmdCIsImV4dHJhIjoiIn0se31dfQ==',
             'widget-arrow-animation-delay'          => 0,
+            'widget-arrow-previous-color'           => 'ffffffcc',
             'widget-arrow-previous'                 => '$ss$/plugins/widgetarrow/grow/grow/previous/simple-horizontal.svg',
             'widget-arrow-mirror'                   => 1,
+            'widget-arrow-next-color'               => 'ffffffcc',
             'widget-arrow-next'                     => '$ss$/plugins/widgetarrow/grow/grow/next/simple-horizontal.svg'
         );
     }
@@ -57,19 +66,22 @@ class N2SSPluginWidgetArrowGrow extends N2SSPluginWidgetAbstract
 
         N2JS::addFile(N2Filesystem::translate(dirname(__FILE__) . '/grow/arrow.js'), $id);
 
-        $previous = $params->get(self::$key . 'previous');
+        $previous      = $params->get(self::$key . 'previous');
+        $previousColor = $params->get(self::$key . 'previous-color');
         if ($params->get(self::$key . 'mirror')) {
-            $next = str_replace('grow/previous/', 'grow/next/', $previous);
+            $next      = str_replace('grow/previous/', 'grow/next/', $previous);
+            $nextColor = $previousColor;
         } else {
-            $next = $params->get(self::$key . 'next');
+            $next      = $params->get(self::$key . 'next');
+            $nextColor = $params->get(self::$key . 'next-color');
         }
 
         $fontClass  = N2FontRenderer::render($params->get(self::$key . 'font'), 'hover', $slider->elementId, 'div#' . $slider->elementId . ' ', $slider->fontSize);
         $styleClass = N2StyleRenderer::render($params->get(self::$key . 'style'), 'heading', $slider->elementId, 'div#' . $slider->elementId . ' ');
 
         $html = '';
-        $html .= self::getHTML($slider, $id, $params, 'previous', N2ImageHelper::fixed($previous), $fontClass, $styleClass);
-        $html .= self::getHTML($slider, $id, $params, 'next', N2ImageHelper::fixed($next), $fontClass, $styleClass);
+        $html .= self::getHTML($slider, $id, $params, 'previous', $previous, $fontClass, $styleClass, $previousColor);
+        $html .= self::getHTML($slider, $id, $params, 'next', $next, $fontClass, $styleClass, $nextColor);
 
         $titles = array();
         foreach ($slider->slides AS $slide) {
@@ -81,19 +93,26 @@ class N2SSPluginWidgetArrowGrow extends N2SSPluginWidgetAbstract
         return $html;
     }
 
-    /**
-     * @param N2SmartSlider $slider
-     * @param               $id
-     * @param               $params
-     * @param               $side
-     *
-     * @return string
-     */
-    private static function getHTML($slider, $id, &$params, $side, $icon, $fontClass, $styleClass) {
+    private static function getHTML($slider, $id, &$params, $side, $image, $fontClass, $styleClass, $color) {
 
         list($displayClass, $displayAttributes) = self::getDisplayAttributes($params, self::$key);
 
         list($style, $attributes) = self::getPosition($params, self::$key . $side . '-');
+
+        $ext = pathinfo($image, PATHINFO_EXTENSION);
+        if (substr($image, 0, 1) == '$' && $ext == 'svg') {
+
+            list($color, $opacity) = N2Color::colorToSVG($color);
+            $image = 'data:image/svg+xml;base64,' . base64_encode(str_replace(array(
+                    'fill="#FFF"',
+                    'opacity="1"'
+                ), array(
+                    'fill="#' . $color . '"',
+                    'opacity="' . $opacity . '"'
+                ), N2Filesystem::readFile(N2ImageHelper::fixed($image, true))));
+        } else {
+            $image = N2ImageHelper::fixed($image);
+        }
 
         switch ($side) {
             case 'previous':
@@ -106,15 +125,15 @@ class N2SSPluginWidgetArrowGrow extends N2SSPluginWidgetAbstract
                 break;
         }
 
-        return NHtml::tag('div', $displayAttributes + $attributes + array(
+        return N2Html::tag('div', $displayAttributes + $attributes + array(
                 'id'    => $id . '-arrow-' . $side,
-                'class' => $displayClass . $styleClass . 'nextend-arrow nextend-arrow-grow nextend-arrow-' . $side,
+                'class' => $displayClass . $styleClass . 'nextend-arrow n2-ib nextend-arrow-grow nextend-arrow-' . $side,
                 'style' => $style
-            ), NHtml::tag('div', array(
+            ), N2Html::tag('div', array(
                 'class' => $fontClass . ' nextend-arrow-title'
-            ), $title) . NHtml::tag('div', array(
+            ), $title) . N2Html::tag('div', array(
                 'class' => 'nextend-arrow-arrow',
-                'style' => 'background-image: url(' . $icon . ');'
+                'style' => 'background-image: url(' . $image . ');'
             ), ''));
     }
 

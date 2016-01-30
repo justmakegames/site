@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartsliderBackendGeneratorController extends N2SmartSliderController
 {
@@ -55,7 +62,8 @@ class N2SmartsliderBackendGeneratorController extends N2SmartSliderController
                         $request->un_set('record-slides');
                         $generatorModel->save($generatorId, $request->toArray());
 
-                        N2Message::success(n2_('Generator updated.'));
+                        N2SmartsliderSlidesModel::markChanged($slide['slider']);
+                        N2Message::success(n2_('Generator updated and cache cleared.'));
 
                         $this->redirect(array(
                             "generator/edit",

@@ -1,6 +1,13 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorJoomShoppingProducts extends N2GeneratorAbstract
 {
@@ -87,6 +94,8 @@ class N2GeneratorJoomShoppingProducts extends N2GeneratorAbstract
 
         $data = array();
 
+        $root = N2Uri::getBaseUri();
+
         for ($i = 0; $i < count($result); $i++) {
             $product = JTable::getInstance('product', 'jshop');
             $product->load($result[$i]['product_id']);
@@ -126,6 +135,9 @@ class N2GeneratorJoomShoppingProducts extends N2GeneratorAbstract
                     'thumbnail'  => N2ImageHelper::dynamic($jShopConfig->image_product_live_path . '/thumb_' . $result[$i]['image']),
                     'image_full' => N2ImageHelper::dynamic($jShopConfig->image_product_live_path . '/full_' . $result[$i]['image'])
                 );
+            } else {
+                $image      = NextendImageFallBack::findImage($r['description']);
+                $r['image'] = $r['thumbnail'] = NextendImageFallBack::fallback($root . "/", array($image));
             }
 
             $r += array(

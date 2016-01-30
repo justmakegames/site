@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.link.link');
 
 class N2LinkNextSlide
@@ -6,7 +13,7 @@ class N2LinkNextSlide
 
     public static function parse($argument, &$attributes, $isEditor = false) {
         if (!$isEditor) {
-            $attributes['onclick'] = "n2(this).closest('.n2-ss-slider').data('ss').next(); return false";
+            $attributes['onclick'] = "n2ss.applyAction(this, 'next'); return false";
         }
         return '#';
     }
@@ -17,7 +24,7 @@ class N2LinkPreviousSlide
 
     public static function parse($argument, &$attributes, $isEditor = false) {
         if (!$isEditor) {
-            $attributes['onclick'] = "n2(this).closest('.n2-ss-slider').data('ss').next(); return false";
+            $attributes['onclick'] = "n2ss.applyAction(this, 'previous'); return false";
         }
         return '#';
     }
@@ -28,7 +35,18 @@ class N2LinkGoToSlide
 
     public static function parse($argument, &$attributes, $isEditor = false) {
         if (!$isEditor) {
-            $attributes['onclick'] = "n2(this).closest('.n2-ss-slider').data('ss').slide(" . intval($argument) . "); return false";
+            $attributes['onclick'] = "n2ss.applyAction(this, 'slide', " . intval($argument) . "); return false";
+        }
+        return '#';
+    }
+}
+
+class N2LinkToSlide
+{
+
+    public static function parse($argument, &$attributes, $isEditor = false) {
+        if (!$isEditor) {
+            $attributes['onclick'] = "n2ss.applyAction(this, 'slide', " . (intval($argument) - 1) . "); return false";
         }
         return '#';
     }
@@ -39,7 +57,7 @@ class N2LinkSlideEvent
 
     public static function parse($argument, &$attributes, $isEditor = false) {
         if (!$isEditor) {
-            $attributes['onclick'] = "n2(this).closest('.n2-ss-slide,.n2-ss-static-slide').triggerHandler('" . $argument . "'); return false";
+            $attributes['onclick'] = "n2ss.trigger(this, '" . $argument . "'); return false";
         }
         return '#';
     }

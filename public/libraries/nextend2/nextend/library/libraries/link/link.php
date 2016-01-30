@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2LinkParser
 {
@@ -33,21 +40,27 @@ class N2LinkLightbox
         if (!$inited) {
 
             N2JS::addInline('
-        $("a[n2-lightbox-urls], div[n2-lightbox-urls]").each(function(){
-            var el = $(this);
-            var group = el.data("litebox-group"),
-                parts = el.attr("n2-lightbox-urls").split(",");
-            for(var i = 0; i < parts.length; i++){
-                $("body").append("<a href=\""+parts[i]+"\" data-litebox-group=\""+group+"\" style=\"display:none;\"></a>");
-            }
-        });
-        $("a[n2-lightbox], div[n2-lightbox]").liteBox({
-            callbackBeforeOpen: function(e){
-                this.$element.trigger("mediaStarted", this);
-            },
-            callbackAfterClose: function(){
-                this.$element.trigger("mediaEnded", this);
-            }
+        var n2Lightbox = function(container){
+            container.find("a[n2-lightbox-urls], div[n2-lightbox-urls]").each(function(){
+                var el = $(this);
+                var group = el.data("litebox-group"),
+                    parts = el.attr("n2-lightbox-urls").split(",");
+                for(var i = 0; i < parts.length; i++){
+                    $("body").append("<a href=\""+parts[i]+"\" data-litebox-group=\""+group+"\" style=\"display:none;\"></a>");
+                }
+            });
+            container.find("a[n2-lightbox], div[n2-lightbox]").liteBox({
+                callbackBeforeOpen: function(e){
+                    this.$element.trigger("mediaStarted", this);
+                },
+                callbackAfterClose: function(){
+                    this.$element.trigger("mediaEnded", this);
+                }
+            });
+        }
+        n2Lightbox($("body"));
+        n2(window).on("n2Rocket", function(e, container){
+            n2Lightbox(container);
         });');
             $inited = true;
         }
@@ -60,15 +73,18 @@ class N2LinkLightbox
             $attributes['n2-lightbox'] = '';
 
             $urls     = explode(',', $argument);
+            $realUrls = array();
             $argument = N2ImageHelper::fixed(array_shift($urls));
             if (count($urls)) {
                 if (intval($urls[count($urls) - 1]) > 0) {
                     $attributes['data-autoplay'] = intval(array_pop($urls));
                 }
                 for ($i = 0; $i < count($urls); $i++) {
-                    $urls[$i] = N2ImageHelper::fixed($urls[$i]);
+                    if (!empty($urls[$i])) {
+                        $realUrls[] = N2ImageHelper::fixed($urls[$i]);
+                    }
                 }
-                $attributes['n2-lightbox-urls']   = implode(',', $urls);
+                $attributes['n2-lightbox-urls']   = implode(',', $realUrls);
                 $attributes['data-litebox-group'] = md5(uniqid(mt_rand(), true));
             }
         }
@@ -104,7 +120,7 @@ class N2LinkScrollTo
                     var els = n2(selector),
                         nextI = -1;
                     els.each(function(i, slider){
-                        if(el.is(slider) || n2.contains(slider, el)){
+                        if(n2(el).is(slider) || n2.contains(slider, el)){
                             nextI = i + 1;
                             return false;
                         }
@@ -117,7 +133,7 @@ class N2LinkScrollTo
                     var els = n2(selector),
                         prevI = -1;
                     els.each(function(i, slider){
-                        if(el.is(slider) || n2.contains(slider, el)){
+                        if(n2(el).is(slider) || n2.contains(slider, el)){
                             prevI = i - 1;
                             return false;
                         }
@@ -149,16 +165,16 @@ class N2LinkScrollTo
                     $onclick = 'n2Scroll.after(n2(this).closest(".n2-ss-slider").addBack());';
                     break;
                 case 'nextSlider':
-                    $onclick = 'n2Scroll.next(n2(this), ".n2-ss-slider");';
+                    $onclick = 'n2Scroll.next(this, ".n2-ss-slider");';
                     break;
                 case 'previousSlider':
-                    $onclick = 'n2Scroll.prev(n2(this), ".n2-ss-slider");';
+                    $onclick = 'n2Scroll.previous(this, ".n2-ss-slider");';
                     break;
                 default:
-                    $onclick = 'n2Scroll.selector("' . $argument . '");';
+                    $onclick = 'n2Scroll.element("' . $argument . '");';
                     break;
             }
-            $attributes['onclick'] = $onclick . "return false;";
+            $attributes['onclick'] = N2Html::encode($onclick . "return false;");
         }
         return '#';
     }

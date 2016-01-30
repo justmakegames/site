@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.settings.settings', 'smartslider');
 N2Loader::import('libraries.plugins.N2SliderGeneratorPluginAbstract', 'smartslider');
 
@@ -22,7 +29,9 @@ class N2SSPluginGeneratorEcwid extends N2SliderGeneratorPluginAbstract
                                                          ->setType('product')
                                                          ->setConfiguration($this->configurationClass);
 
-
+        $list[self::$group]['random_products'] = N2GeneratorInfo::getInstance(self::$groupLabel, n2_('Random products'), $this->getPath() . 'random_products')
+                                                                ->setType('product')
+                                                                ->setConfiguration($this->configurationClass);
     }
 
     function getPath() {
@@ -56,5 +65,6 @@ class N2SSPluginGeneratorEcwid extends N2SliderGeneratorPluginAbstract
 }
 
 N2Plugin::addPlugin('ssgenerator', 'N2SSPluginGeneratorEcwid');
+
 
 

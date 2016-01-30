@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderFeatureLayerMode
 {
@@ -48,11 +55,14 @@ class N2SmartSliderFeatureLayerMode
 
         $params                 = $this->slider->params;
         $properties['parallax'] = array(
-            'enabled'      => $params->get('parallax-enabled', 0),
-            'mobile'       => $params->get('parallax-enabled-mobile', 0),
-            'horizontal'   => $params->get('parallax-horizontal', 'mouse'),
-            'vertical'     => $params->get('parallax-vertical', 'mouse'),
-            'origin' => $params->get('parallax-mouse-origin', 'enter')
+            'enabled'    => intval($params->get('parallax-enabled', 1)),
+            'mobile'     => intval($params->get('parallax-enabled-mobile', 0)),
+            'is3D'       => intval($params->get('parallax-3d', 0)),
+            'animate'    => intval($params->get('parallax-animate', 1)),
+            'horizontal' => $params->get('parallax-horizontal', 'mouse'),
+            'vertical'   => $params->get('parallax-vertical', 'mouse'),
+            'origin'     => $params->get('parallax-mouse-origin', 'slider'),
+            'scrollmove' => $params->get('parallax-scroll-move', 'both')
         );
     }
 }

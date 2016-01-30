@@ -2,6 +2,7 @@
 
     function NextendSmartSliderSimple(sliderElement, parameters) {
 
+        this.type = 'simple';
         this.responsiveClass = 'NextendSmartSliderResponsiveSimple';
 
         parameters = $.extend({

@@ -9,6 +9,7 @@
             <param type="numberautocomplete" style="width: 22px;" values="0,5,10,20,30"/>
             <param type="switcher">
                 <unit value="px">px</unit>
+                <unit value="em">em</unit>
                 <unit value="%">%</unit>
             </param>
         </param>

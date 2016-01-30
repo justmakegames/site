@@ -19,6 +19,7 @@
             bar: this.sliderElement.find('.nextend-bar'),
             thumbnail: this.sliderElement.find('.nextend-thumbnail'),
             shadow: this.sliderElement.find('.nextend-shadow'),
+            fullscreen: this.sliderElement.find('.nextend-fullscreen'),
             html: this.sliderElement.find('.nextend-widget-html')
         };
 
@@ -48,25 +49,16 @@
 
     NextendSmartSliderWidgets.prototype.initHover = function () {
         var timeout = null,
-            block = false,
             widgets = this.sliderElement.find('.n2-ss-widget-hover');
         if (widgets.length > 0) {
-            this.sliderElement.on('mouseenter touchstart', function (e) {
-                if (block) return;
+            this.sliderElement.on('universalenter', function (e) {
                 var slider = $(this);
                 if (timeout) clearTimeout(timeout);
                 widgets.css('visibility', 'visible');
-                if (e.type == 'touchstart') {
-                    block = true;
-                    setTimeout(function () {
-                        block = false;
-                    }, 1000);
-                } else {
-                    setTimeout(function () {
-                        slider.addClass('n2-ss-widget-hover-show');
-                    }, 50);
-                }
-            }).on('mouseleave', function () {
+                setTimeout(function () {
+                    slider.addClass('n2-ss-widget-hover-show');
+                }, 50);
+            }).on('universalleave', function () {
                 var slide = this;
                 if (timeout) clearTimeout(timeout);
                 timeout = setTimeout(function () {

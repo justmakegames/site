@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.image.color');
 
 class N2SmartSliderCSSShowcase extends N2SmartSliderCSSAbstract
@@ -7,7 +14,7 @@ class N2SmartSliderCSSShowcase extends N2SmartSliderCSSAbstract
     protected function  renderType(&$context) {
         $params = $this->slider->params;
 
-        switch ($params->get('slide-direction')) {
+        switch ($params->get('animation-direction')) {
             case 'vertical':
                 $context['distanceh'] = 0;
                 $context['distancev'] = intval($params->get('slide-distance')) . 'px';

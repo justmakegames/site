@@ -1,7 +1,13 @@
 (function ($, scope, undefined) {
     "use strict";
     function NextendSmartSliderWidgetIndicatorPie(id, options) {
+
         this.slider = window[id];
+
+        this.slider.started($.proxy(this.start, this, id, options));
+    };
+
+    NextendSmartSliderWidgetIndicatorPie.prototype.start = function (id, options) {
 
         if (this.slider.sliderElement.data('indicator')) {
             return false;
@@ -66,7 +72,6 @@
 
             this.slider.sliderElement.on('autoplayDisabled', $.proxy(this.destroy, this))
                 .on('autoplay', $.proxy(this.onProgress, this));
-
         }
     };
 

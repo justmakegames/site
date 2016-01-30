@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.plugins.N2SliderItemAbstract', 'smartslider');
 
 class N2SSPluginItemIFrame extends N2SSPluginItemAbstract
@@ -8,14 +15,17 @@ class N2SSPluginItemIFrame extends N2SSPluginItemAbstract
 
     protected $priority = 9;
 
-    protected $layerProperties = '{"width":300,"height":300}';
+    protected $layerProperties = array(
+        "width"  => 300,
+        "height" => 300
+    );
 
     public function __construct() {
         $this->_title = n2_x('iframe', 'Slide item');
     }
 
     function getTemplate($slider) {
-        return NHtml::tag("iframe", array(
+        return N2Html::tag("iframe", array(
             "encode"      => false,
             "frameborder" => 0,
             "width"       => "{width}",
@@ -31,7 +41,7 @@ class N2SSPluginItemIFrame extends N2SSPluginItemAbstract
         if (!isset($size[0])) $size[0] = '100%';
         if (!isset($size[1])) $size[1] = '100%';
 
-        return NHtml::tag("iframe", array(
+        return N2Html::tag("iframe", array(
             "encode"      => false,
             "frameborder" => 0,
             "width"       => $size[0],

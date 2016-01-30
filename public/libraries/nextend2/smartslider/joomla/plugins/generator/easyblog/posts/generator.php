@@ -1,6 +1,13 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorEasyBlogPosts extends N2GeneratorAbstract
 {
@@ -24,7 +31,12 @@ class N2GeneratorEasyBlogPosts extends N2GeneratorAbstract
         $jnow  = JFactory::getDate();
         $now   = $jnow->toSql();
         $where = array("con.published = 1 AND (con.publish_up = '0000-00-00 00:00:00' OR con.publish_up < '" . $now . "') AND (con.publish_down = '0000-00-00 00:00:00' OR con.publish_down > '" . $now . "') ");
-
+        
+        $exclude = $this->data->get('easyblogexclude', '');
+        if(!empty($exclude)){
+          $where[] = ' con.id NOT IN (' . $exclude . ') ';
+        }
+        
         if (!in_array('0', $category)) {
             $where[] = 'con.category_id IN (' . implode(',', $category) . ') ';
         }
@@ -71,45 +83,40 @@ class N2GeneratorEasyBlogPosts extends N2GeneratorAbstract
 
         $result = $model->db->queryAll($query);
 
+        $description = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', "", $result[$i]['main_content_of_post']);
         $data = array();
-
+        $root = N2Uri::getBaseUri();
         for ($i = 0; $i < count($result); $i++) {
             $r = array(
                 'title'       => $result[$i]['title'],
-                'description' => $result[$i]['main_content_of_post'],
+                'description' => $description,
                 'url'         => 'index.php?option=com_easyblog&view=entry&id=' . $result[$i]['id'],
             );
 
-            $img = json_decode($result[$i]["image"], true);
-            if (is_array($img)) {
-                $r['image']     = N2ImageHelper::dynamic($img["url"]);
-                $r['thumbnail'] = N2ImageHelper::dynamic($img["thumbnail"]["url"]);
-                if (isset($img["url"])) {
-                    $r['blog_image'] = N2ImageHelper::dynamic($img["url"]);
-                } else
-                    $r['blog_image'] = "";
-                if (isset($img["icon"]) && isset($img["icon"]["url"])) {
-                    $r['blog_image_icon'] = N2ImageHelper::dynamic($img["icon"]["url"]);
-                } else
-                    $r['blog_image_icon'] = "";
-                if (isset($img["thumbnail"]) && isset($img["thumbnail"]["url"])) {
-                    $r['blog_image_thumbnail'] = N2ImageHelper::dynamic($img["thumbnail"]["url"]);
-                } else
-                    $r['blog_image_thumbnail'] = N2ImageHelper::dynamic($result[$i]['blog_image']);
+            $img = explode('/', $result[$i]['image']);
+            if (isset($img[1])) {
+                $path     = explode(':', $img[0]);
+                $fullRoot = $root . "/images/easyblog_articles/" . $path[1] . "/";
+                $image    = $img[1];
+            } else {
+                $fullRoot = $root;
+                $image    = '';
             }
 
+            $r['image'] = $r['thumbnail'] = NextendImageFallBack::fallback($fullRoot, array($image), array($result[$i]['content']));
+            $content = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', "", $result[$i]['content']);
+            
             $r += array(
                 'url_label'              => sprintf(n2_('View %s'), n2_('post')),
                 'category_url'           => 'index.php?option=com_easyblog&view=categories&id=' . $result[$i]['category_id'],
-                'cat_title'              => $result[$i]['cat_title'],
+                'category_title'         => $result[$i]['cat_title'],
                 'blogger'                => $result[$i]['blogger'],
                 'blogger_avatar_picture' => ($result[$i]['blogger_avatar_picture'] == "default_blogger.png" ? "components/com_easyblog/assets/images/" . $result[$i]['blogger_avatar_picture'] : "images/easyblog/avatar/" . $result[$i]['blogger_avatar_picture']),
-                'created_by'             => $result[$i]['created_by'],
-                'created'                => $result[$i]['created'],
-                'modified'               => $result[$i]['modified'],
+                'created_by_id'          => $result[$i]['created_by'],
+                'creation_time'          => $result[$i]['created'],
+                'modification_time'      => $result[$i]['modified'],
                 'permalink'              => $result[$i]['permalink'],
-                'content'                => $result[$i]['content'],
-                'vote'                   => $result[$i]['vote'],
+                'content'                => $content,
                 'latitude'               => $result[$i]['latitude'],
                 'longitude'              => $result[$i]['longitude'],
                 'address'                => $result[$i]['address'],

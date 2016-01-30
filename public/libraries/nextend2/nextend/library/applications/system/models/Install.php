@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 
 class N2SystemInstallModel extends N2Model
@@ -13,7 +20,6 @@ class N2SystemInstallModel extends N2Model
   PRIMARY KEY (`id`),
   UNIQUE KEY `hash` (`hash`)
 )
-  ENGINE = MyISAM
   DEFAULT CHARSET = utf8;",
         "CREATE TABLE IF NOT EXISTS `#__nextend2_section_storage` (
   `id`           INT(11)     NOT NULL AUTO_INCREMENT,
@@ -27,7 +33,6 @@ class N2SystemInstallModel extends N2Model
   KEY `application` (`application`, `section`, `referencekey`),
   KEY `application_2` (`application`, `section`)
 )
-  ENGINE = MyISAM
   DEFAULT CHARSET = utf8
   AUTO_INCREMENT = 10000;"
     );

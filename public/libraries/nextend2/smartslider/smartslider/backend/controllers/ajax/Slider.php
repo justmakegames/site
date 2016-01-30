@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartsliderBackendSliderControllerAjax extends N2SmartSliderControllerAjax
 {
@@ -66,11 +73,12 @@ class N2SmartsliderBackendSliderControllerAjax extends N2SmartSliderControllerAj
                 $slider['widgetbar']   = 'horizontalFull';
                 break;
             case 'horizontalaccordion':
-                $slider['type'] = 'accordion';
+                $slider['type']        = 'accordion';
+                $slider['orientation'] = 'horizontal';
                 break;
             case 'verticalaccordion':
-                $slider['type']                  = 'accordion';
-                $slider['accordion-orientation'] = 'vertical';
+                $slider['type']        = 'accordion';
+                $slider['orientation'] = 'vertical';
                 break;
             default:
                 $slider['widgetarrow'] = 'imageEmpty';
@@ -154,5 +162,65 @@ class N2SmartsliderBackendSliderControllerAjax extends N2SmartSliderControllerAj
         $response['html'] .= ob_get_clean();
 
         $this->response->respond($response);
+    }
+
+    public function actionImportDemo() {
+        $this->validateToken();
+        $this->validatePermission('smartslider_edit');
+
+        $key = 'http:' . base64_decode(N2Request::getVar('key'));
+        if (strpos($key, 'http://smartslider3.com/') !== 0) {
+            N2Message::error(sprintf(n2_('Import url is not valid: %s'), $key));
+            $this->response->error();
+        }
+        if (!N2SmartsliderLicenseModel::getInstance()
+                                      ->hasKey()
+        ) {
+            N2Message::error(n2_('License key required for premium features!'));
+            $this->response->error();
+        }
+    
+
+        $posts  = array(
+            'action' => 'asset',
+            'asset'  => $key
+        );
+        $result = N2SS3::api($posts);
+
+        if (!is_string($result)) {
+            $hasError = N2SS3::hasApiError($result['status'], array(
+                'key' => $key
+            ));
+            if (is_array($hasError)) {
+                $this->redirect($hasError);
+            } else if ($hasError !== false) {
+                $this->response->error();
+            }
+        } else {
+
+            N2Loader::import(array(
+                'models.Sliders',
+                'models.Slides'
+            ), 'smartslider');
+
+            N2Loader::import('libraries.import', 'smartslider');
+
+            $import      = new N2SmartSliderImport();
+            $sliderId    = $import->import($result, 'clone', 1, false);
+
+            if ($sliderId !== false) {
+                N2Message::success(n2_('Slider imported.'));
+
+                $this->response->redirect(array(
+                    "slider/edit",
+                    array("sliderid" => $sliderId)
+                ));
+            } else {
+                N2Message::error(n2_('Import error!'));
+                $this->response->error();
+            }
+        }
+
+        $this->response->respond();
     }
 } 

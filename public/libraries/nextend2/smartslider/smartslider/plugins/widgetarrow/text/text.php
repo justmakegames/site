@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 N2Loader::import('libraries.image.color');
 
@@ -61,19 +68,19 @@ class N2SSPluginWidgetArrowText extends N2SSPluginWidgetAbstract
 
         list($style, $attributes) = self::getPosition($params, self::$key . $side . '-');
 
-        $html = NHtml::openTag("div", $displayAttributes + $attributes + array(
+        $html = N2Html::openTag("div", $displayAttributes + $attributes + array(
                 "class" => $displayClass . "nextend-arrow nextend-arrow-{$side} {$font}",
                 "style" => "display:inline-block;" . $style
             ));
 
 
-        $html .= NHtml::link($params->get(self::$key . $side . '-label'), '#', array(
+        $html .= N2Html::link($params->get(self::$key . $side . '-label'), '#', array(
             "onclick" => $onClick,
             "style"   => "display:inline-block;",
             "class"   => $styleClass
         ));
 
-        $html .= NHtml::closeTag("div");
+        $html .= N2Html::closeTag("div");
         return $html;
     }
 

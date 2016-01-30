@@ -21,9 +21,8 @@
     function generateUniqueId() {
 
         // Return a unique ID
-        return "n2-uid-" + Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
+        return "n" + Math.floor((1 + Math.random()) * 0x1000000000000)
+                .toString(16);
     }
 
     /**
@@ -31,21 +30,10 @@
      * element has an id="" attribute
      */
     $.fn.uid = function () {
-        // We need an element! Check the selector returned something
-        if (!this.length > 0) {
-            return generateUniqueId();
-        }
-
-        // Act on only the first element. Also, fetch the element's ID attr
-        var first_element = this.first();
-
-        // No? Generate one!
-        id_attr = generateUniqueId();
-
-        // And set the ID attribute
-        first_element.attr('id', id_attr);
-
-        // Return it
-        return id_attr;
+        var id = null;
+        do {
+            id = generateUniqueId();
+        } while ($('#' + id).length > 0)
+        return id;
     };
 })(n2);

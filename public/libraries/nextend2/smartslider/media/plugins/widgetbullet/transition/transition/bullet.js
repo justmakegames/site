@@ -3,6 +3,11 @@
 
         this.slider = window[id];
 
+        this.slider.started($.proxy(this.start, this, id, parameters));
+    };
+
+    NextendSmartSliderWidgetBulletTransition.prototype.start = function (id, parameters) {
+
         if (this.slider.sliderElement.data('bullet')) {
             return false;
         }

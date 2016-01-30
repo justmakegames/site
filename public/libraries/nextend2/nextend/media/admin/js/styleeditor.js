@@ -53,6 +53,12 @@
         };
     };
 
+    NextendStyleEditorController.prototype.getCleanVisual = function () {
+        return {
+            extra: ''
+        };
+    };
+
     NextendStyleEditorController.prototype.getEmptyVisual = function () {
         return [this.getEmptyStyle()];
     };
@@ -94,7 +100,7 @@
             fontClassName2 = nextend.styleManager.fontClassName2,
             styleClassName2 = nextend.styleManager.styleClassName2;
 
-        html = html.replace(/\{(.*?)\}/g, function (match, script) {
+        html = html.replace(/\{([^]*?)\}/g, function (match, script) {
             return eval(script);
         });
 

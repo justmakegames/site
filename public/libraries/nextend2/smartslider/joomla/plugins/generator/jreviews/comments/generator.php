@@ -1,7 +1,13 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
 require_once(JPATH_SITE . '/components/com_content/helpers/route.php');
-error_reporting(E_ALL);
 
 class N2GeneratorJReviewsComments extends N2GeneratorAbstract
 {
@@ -87,32 +93,36 @@ class N2GeneratorJReviewsComments extends N2GeneratorAbstract
                 $r['image'] = $r['photo1'];
             } else if (!empty($article_images->image_intro)) {
                 $r['image'] = $this->imageUrl($article_images->image_intro);
-            } else {
+            } else if (isset($article_images->image_fulltext)) {
                 $r['image'] = $this->imageUrl($article_images->image_fulltext);
+            } else {
+                $r['image'] = '';
             }
+
             $r['thumbnail'] = $r['image'];
 
             $r += array(
-                'title'                   => $res['comment_title'],
-                'description'             => $res['comments'],
-                'url'                     => ContentHelperRoute::getArticleRoute($res['id'], $res['catid']),
-                'url_label'               => sprintf(n2_('View %s'), n2_('article')),
-                'rating'                  => round($res['rating'], 1),
-                'name'                    => $res['name'],
-                'username'                => $res['username'],
-                'email'                   => $res['email'],
-                'location'                => $res['location'],
-                'creation_time'           => $res['created'],
-                'vote_helpful'            => $res['vote_helpful'],
-                'vote_total'              => $res['vote_total'],
-                'review_note'             => $res['review_note'],
-                'article_title'           => $res['title'],
-                'article_introtext'       => $res['introtext'],
-                'article_fulltext'        => $res['fulltext'],
-                'article_introtext_image' => $this->imageUrl($article_images->image_intro),
-                'article_fulltext_image'  => $this->imageUrl($article_images->image_fulltext),
-                'article_hits'            => $res['hits']
+                'title'             => $res['comment_title'],
+                'description'       => $res['comments'],
+                'url'               => ContentHelperRoute::getArticleRoute($res['id'], $res['catid']),
+                'url_label'         => sprintf(n2_('View %s'), n2_('article')),
+                'rating'            => round($res['rating'], 1),
+                'name'              => $res['name'],
+                'username'          => $res['username'],
+                'email'             => $res['email'],
+                'location'          => $res['location'],
+                'creation_time'     => $res['created'],
+                'vote_helpful'      => $res['vote_helpful'],
+                'vote_total'        => $res['vote_total'],
+                'review_note'       => $res['review_note'],
+                'article_title'     => $res['title'],
+                'article_introtext' => $res['introtext'],
+                'article_fulltext'  => $res['fulltext'],
+                'article_hits'      => $res['hits']
             );
+
+            if (isset($article_images->image_intro)) $r['article_introtext_image'] = $this->imageUrl($article_images->image_intro);
+            if (isset($article_images->image_fulltext)) $r['article_fulltext_image'] = $this->imageUrl($article_images->image_fulltext);
 
             $data[] = $r;
         }

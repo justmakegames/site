@@ -1,5 +1,13 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
+N2Loader::import('libraries.slider.slide.slides', 'smartslider');
 
 class N2SmartSliderSlidesAdmin extends N2SmartSliderSlides
 {
@@ -69,6 +77,14 @@ class N2SmartSliderSlidesAdmin extends N2SmartSliderSlides
                         array_push($slides, $slide2);
                     }
                 } else {
+                    for ($i = 0; $i < count($slides); $i++) {
+                        if ($slides[$i]->isStatic()) {
+                            $this->slider->addStaticSlide($slides[$i]);
+                            array_splice($slides, $i, 1);
+                            $i--;
+                        }
+                    }
+
                     array_push($slides, $slide);
                     $this->slider->_activeSlide = count($slides) - 1;
                 }
@@ -82,10 +98,19 @@ class N2SmartSliderSlidesAdmin extends N2SmartSliderSlides
                     if ($slides[$i]->isStatic()) {
                         if ($slides[$i]->id == $currentlyEdited) {
                             $isStatic = true;
-                            $this->slider->addStaticSlide($slides[$i]);
                         }
+                        $this->slider->addStaticSlide($slides[$i]);
                         array_splice($slides, $i, 1);
                         $i--;
+                    }
+                }
+
+                if ($isStatic) {
+                    for ($i = 0; $i < count($this->slider->staticSlides); $i++) {
+                        if ($this->slider->staticSlides[$i]->id != $currentlyEdited) {
+                            array_splice($this->slider->staticSlides, $i, 1);
+                            $i--;
+                        }
                     }
                 }
 
@@ -145,6 +170,9 @@ class N2SmartSliderSlidesAdmin extends N2SmartSliderSlides
                         $this->slider->_activeSlide          = count($slides) - 1;
                         $slides[$this->slider->_activeSlide] = $currentlyEditedSlide;
                     }
+                }
+                if ($currentlyEditedSlide) {
+                    $currentlyEditedSlide->setCurrentlyEdited();
                 }
             }
         }

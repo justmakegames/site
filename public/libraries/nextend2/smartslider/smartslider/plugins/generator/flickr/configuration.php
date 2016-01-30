@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SliderGeneratorFlickrConfiguration
 {
@@ -23,7 +30,7 @@ class N2SliderGeneratorFlickrConfiguration
             return false;
         }
         $api = $this->getApi();
-        if ($api->auth_checkToken() === false) {
+        if ($api->test_login() === false) {
             return false;
         }
         return true;
@@ -54,7 +61,7 @@ class N2SliderGeneratorFlickrConfiguration
 
         $form->loadXMLFile(dirname(__FILE__) . '/configuration.xml');
         $api = $this->getApi();
-        if ($api->auth_checkToken() === false) {
+        if ($api->test_login() === false) {
             N2Message::error(n2_('The key and secret is not valid!'));
         }
 

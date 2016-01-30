@@ -2,13 +2,14 @@
 (function (smartSlider, $, scope, undefined) {
 
 
-    function SmartSliderAdminSlide(sliderElementID, slideContentElementID, staticSlide, isUploadDisabled, uploadUrl, uploadDir) {
+    function SmartSliderAdminSlide(sliderElementID, slideContentElementID, isUploadDisabled, uploadUrl, uploadDir) {
         this.readyDeferred = $.Deferred();
         smartSlider.slide = this;
 
         this._warnInternetExplorerUsers();
 
         this.$slideContentElement = $('#' + slideContentElementID);
+        this.slideStartValue = this.$slideContentElement.val();
         this.$sliderElement = $('#' + sliderElementID);
 
 
@@ -19,10 +20,13 @@
         nextend.fontManager.setFontSize(fontSize);
         nextend.styleManager.setFontSize(fontSize);
 
-        smartSlider.$currentSlideElement = smartSlider.frontend.adminGetCurrentSlideElement(staticSlide);
+
+        smartSlider.$currentSlideElement = smartSlider.frontend.adminGetCurrentSlideElement();
 
         new SmartSliderAdminGenerator();
 
+        smartSlider.$currentSlideElement.addClass('n2-ss-currently-edited-slide');
+        var staticSlide = smartSlider.frontend.parameters.isStaticEdited;
         new NextendSmartSliderAdminSlideLayerManager(smartSlider.$currentSlideElement.data('slide'), staticSlide, isUploadDisabled, uploadUrl, uploadDir);
 
         if (!staticSlide) {
@@ -30,15 +34,24 @@
         }
 
         this.readyDeferred.resolve();
+
+        $('#smartslider-form').on({
+            checkChanged: $.proxy(this.prepareFormForCheck, this),
+            submit: $.proxy(this.onSlideSubmit, this)
+        });
+
+        this.createHistory();
     };
 
     SmartSliderAdminSlide.prototype.ready = function (fn) {
         this.readyDeferred.done(fn);
+    };
 
-        $('#smartslider-form').on({
-            checkChanged: $.proxy(this.prepareForm, this),
-            submit: $.proxy(this.onSlideSubmit, this)
-        });
+    SmartSliderAdminSlide.prototype.prepareFormForCheck = function () {
+        var data = JSON.stringify(smartSlider.layerManager.getData()),
+            startData = JSON.stringify(JSON.parse(Base64.decode(this.slideStartValue)));
+
+        this.$slideContentElement.val(startData == data ? this.slideStartValue : Base64.encode(data));
     };
 
     SmartSliderAdminSlide.prototype.onSlideSubmit = function (e) {
@@ -85,7 +98,7 @@
         if (thumbnail.val() == '') {
             var itemImage = $('#item_imageimage'),
                 cb = $.proxy(function (image) {
-                    if (image != '' && image != '$system$/images/placeholder/image.svg') {
+                    if (image != '' && image != '$system$/images/placeholder/image.png') {
                         thumbnail.val(image).trigger('change');
                         this.background.slideBackgroundImageField.off('.slidethumbnail');
                         itemImage.off('.slidethumbnail');
@@ -179,6 +192,33 @@
             }
         }
         properties['slide'] = slide;
+    };
+
+    SmartSliderAdminSlide.prototype.createHistory = function () {
+        this.slideValues = {};
+        n2('#smartslider-form').find('input[id][name^="slide"], textarea[id][name^="slide"]').not('#slideslide').each($.proxy(function (i, el) {
+            var $input = $(el),
+                field = $input.data('field'),
+                id = $input.attr('id');
+            this.slideValues[id] = $input.val();
+            $input.on('nextendChange', $.proxy(function () {
+                var newValue = $input.val(),
+                    oldValue = this.slideValues[id];
+                this.slideValues[id] = newValue;
+                smartSlider.history.add($.proxy(function () {
+                    return [this, 'slideValueChange', newValue, oldValue, [$input, field]];
+                }, this));
+            }, this));
+        }, this));
+    };
+
+
+    SmartSliderAdminSlide.prototype.history = function (method, value, other) {
+        switch (method) {
+            case 'slideValueChange':
+                other[1].insideChange(value);
+                break;
+        }
     };
 
     scope.SmartSliderAdminSlide = SmartSliderAdminSlide;

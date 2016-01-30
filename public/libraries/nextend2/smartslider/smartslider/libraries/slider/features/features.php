@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.image.image');
 N2Loader::import('libraries.image.manager');
@@ -74,18 +81,19 @@ class N2SmartSliderFeatures
     public function __construct($slider) {
         $this->slider = $slider;
 
-        $this->fadeOnLoad           = new N2SmartSliderFeatureFadeOnLoad($slider);
-        $this->responsive           = new N2SmartSliderFeatureResponsive($slider);
-        $this->controls             = new N2SmartSliderFeatureControls($slider);
-        $this->lazyLoad             = new N2SmartSliderFeatureLazyLoad($slider);
-        $this->align                = new N2SmartSliderFeatureAlign($slider);
-        $this->blockRightClick      = new N2SmartSliderFeatureBlockRightClick($slider);
-        $this->maintainSession      = new N2SmartSliderFeatureMaintainSession($slider);
-        $this->autoplay             = new N2SmartSliderFeatureAutoplay($slider);
-        $this->translateUrl         = new N2SmartSliderFeatureTranslateUrl($slider);
-        $this->layerMode            = new N2SmartSliderFeatureLayerMode($slider);
-        $this->slideBackground      = new N2SmartSliderFeatureSlideBackground($slider);
-        $this->slideBackgroundVideo = new N2SmartSliderFeatureBackgroundVideo($slider);
+        $this->fadeOnLoad      = new N2SmartSliderFeatureFadeOnLoad($slider);
+        $this->responsive      = new N2SmartSliderFeatureResponsive($slider);
+        $this->controls        = new N2SmartSliderFeatureControls($slider);
+        $this->lazyLoad        = new N2SmartSliderFeatureLazyLoad($slider);
+        $this->margin          = new N2SmartSliderFeatureMargin($slider);
+        $this->align           = new N2SmartSliderFeatureAlign($slider);
+        $this->blockRightClick = new N2SmartSliderFeatureBlockRightClick($slider);
+        $this->maintainSession = new N2SmartSliderFeatureMaintainSession($slider);
+        $this->autoplay        = new N2SmartSliderFeatureAutoplay($slider);
+        $this->translateUrl    = new N2SmartSliderFeatureTranslateUrl($slider);
+        $this->layerMode       = new N2SmartSliderFeatureLayerMode($slider);
+        $this->slideBackground = new N2SmartSliderFeatureSlideBackground($slider);
+        $this->slideBackgroundVideo    = new N2SmartSliderFeatureBackgroundVideo($slider);
         $this->postBackgroundAnimation = new N2SmartSliderFeaturePostBackgroundAnimation($slider);
     
         $this->loadSpinner = new N2SmartSliderFeatureSpinner($slider);
@@ -94,9 +102,11 @@ class N2SmartSliderFeatures
     public function generateJSProperties() {
 
         $return = array(
-            'admin'       => $this->slider->isAdmin,
-            'translate3d' => intval(N2SmartSliderSettings::get('hardware-acceleration', 1)),
-            'randomize'   => intval(!$this->slider->isAdmin && $this->slider->params->get('randomize', 0))
+            'admin'          => $this->slider->isAdmin,
+            'isStaticEdited' => intval($this->slider->isStaticEdited),
+            'translate3d'    => intval(N2SmartSliderSettings::get('hardware-acceleration', 1)),
+            'randomize'      => intval(!$this->slider->isAdmin && $this->slider->params->get('randomize', 0)),
+            'callbacks'      => $this->slider->params->get('callbacks', '')
         );
 
         $this->makeJavaScriptProperties($return);
@@ -105,6 +115,7 @@ class N2SmartSliderFeatures
     }
 
     protected function makeJavaScriptProperties(&$properties) {
+        $this->align->makeJavaScriptProperties($properties);
         $this->fadeOnLoad->makeJavaScriptProperties($properties);
         $this->responsive->makeJavaScriptProperties($properties);
         $this->controls->makeJavaScriptProperties($properties);
@@ -138,6 +149,7 @@ class N2SmartSliderFeatures
         if (!$this->slider->isAdmin) {
             $background .= $this->slideBackgroundVideo->make($slide);
         }
+    
 
         return $background;
     }

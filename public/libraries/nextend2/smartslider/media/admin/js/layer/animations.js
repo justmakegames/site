@@ -85,11 +85,59 @@
         this[group + 'Rows'] = this[group + 'Rows'].not(animationObject.row);
     };
 
+    LayerAnimations.prototype.clearAll = function () {
+        this._startHistory();
+
+        this._clear('in');
+        this._clear('loop');
+        this._clear('out');
+
+        this._endHistory();
+    };
+
     LayerAnimations.prototype.clear = function (group) {
+        this._startHistory();
+
+        this._clear(group);
+
+        this._endHistory();
+    };
+
+    LayerAnimations.prototype._clear = function (group) {
         var rows = this[group + 'Rows'];
         for (var i = 0; i < rows.length; i++) {
             rows.eq(i).data('animation').delete();
         }
+    };
+
+    LayerAnimations.prototype.getCurrentData = function (group) {
+        var animations = [];
+        for (var i = 0; i < this[group + 'Rows'].length; i++) {
+            animations.push(this[group + 'Rows'].eq(i).data('animation').data);
+        }
+
+        var data = {
+            animations: animations,
+            transformOrigin: this.data['transformOrigin' + this.ucfirst(group)],
+            repeatable: this.data.repeatable
+        };
+
+        if (group == 'in') {
+            data.specialZero = this.data.specialZeroIn;
+
+            data.playEvent = this.data.inPlayEvent;
+        } else if (group == 'loop') {
+            data.repeatCount = this.data.repeatCount;
+            data.repeatStartDelay = this.data.repeatStartDelay;
+
+            data.playEvent = this.data.loopPlayEvent;
+            data.pauseEvent = this.data.loopPauseEvent;
+            data.stopEvent = this.data.loopStopEvent;
+        } else if (group == 'out') {
+            data.playEvent = this.data.outPlayEvent;
+            data.instantOut = this.data.instantOut;
+        }
+        return data;
     };
 
     LayerAnimations.prototype.edit = function (group, index) {
@@ -141,8 +189,7 @@
             animationManager.changeSetById(1000);
             animationManager.setTitle(n2_('Out animation'));
         }
-
-        animationManager.show(features, data, $.proxy(this.storeAnimations, this, group), {
+        animationManager.show(features, data, $.proxy(this.storeAnimations, this, group, data), {
             previewMode: false,
             previewHTML: false
         });
@@ -151,7 +198,11 @@
         }
     };
 
-    LayerAnimations.prototype.storeAnimations = function (group, e, animationStack) {
+    LayerAnimations.prototype.storeAnimations = function (group, originalAnimationStack, e, animationStack) {
+        smartSlider.history.add($.proxy(function () {
+            return [this.layer, 'storeAnimations', $.extend(true, {}, animationStack), $.extend(true, {}, originalAnimationStack), [group]];
+        }, this));
+
         var i = 0,
             rows = this[group + 'Rows'];
 
@@ -245,10 +296,36 @@
         }
     };
 
+    LayerAnimations.prototype._startHistory = function () {
+        this._oldData = {
+            in: $.extend(true, {}, this.getCurrentData('in')),
+            loop: $.extend(true, {}, this.getCurrentData('loop')),
+            out: $.extend(true, {}, this.getCurrentData('out'))
+        };
+    };
+
+    LayerAnimations.prototype._endHistory = function () {
+
+        var currentData = {
+            in: this.getCurrentData('in'),
+            loop: this.getCurrentData('loop'),
+            out: this.getCurrentData('out')
+        };
+        for (var k in currentData) {
+            smartSlider.history.add($.proxy(function () {
+                return [this.layer, 'storeAnimations', $.extend(true, {}, currentData[k]), $.extend(true, {}, this._oldData[k]), [k]];
+            }, this));
+        }
+        this._oldData = null;
+    };
+
     LayerAnimations.prototype.loadData = function (data) {
-        this.clear('in');
-        this.clear('loop');
-        this.clear('out');
+
+        this._startHistory();
+
+        this._clear('in');
+        this._clear('loop');
+        this._clear('out');
 
         this.data = {};
         $.extend(this.data, defaults);
@@ -258,6 +335,8 @@
         this._load('in');
         this._load('loop');
         this._load('out');
+
+        this._endHistory();
     };
 
     LayerAnimations.prototype.getData = function () {

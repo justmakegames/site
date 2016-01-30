@@ -2,6 +2,9 @@
 (function ($, scope) {
 
     function NextendBackgroundAnimationEditorController() {
+        this.parameters = {
+            shiftedBackgroundAnimation: 0
+        };
         NextendVisualEditorController.prototype.constructor.call(this, false);
 
         this.bgAnimationElement = $('.n2-bg-animation');

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 /* @var $this N2Layout */
 ?>
 
@@ -14,15 +21,15 @@
             'logoUrl'      => $this->appType->router->createUrl("dashboard/index"),
             'logoImageUrl' => $logoUrl,
             'views'        => array(
-                NHtml::tag('a', array(
+                N2Html::tag('a', array(
                     'href'  => $this->appType->router->createUrl("dashboard/index"),
                     'class' => 'n2-h4 n2-uc ' . ($cmd == "dashboard" ? "n2-active" : "")
                 ), n2_('Dashboard')),
-                NHtml::tag('a', array(
+                N2Html::tag('a', array(
                     'href'  => $this->appType->router->createUrl("settings/index"),
                     'class' => 'n2-h4 n2-uc ' . ($cmd == "settings" ? "n2-active" : "")
                 ), n2_('Settings')),
-                NHtml::tag('a', array(
+                N2Html::tag('a', array(
                     'href'  => $this->appType->router->createUrl("help/index"),
                     'class' => 'n2-h4 n2-uc ' . ($cmd == "help" ? "n2-active" : "")
                 ), n2_('Help'))

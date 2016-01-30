@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderWidgetHomeController extends N2Controller
 {
@@ -14,11 +21,7 @@ class N2SmartSliderWidgetHomeController extends N2Controller
     }
 
     public function actionIndex() {
-        $this->addView("index", array(
-            "module" => $this->module,
-            "params" => $this->moduleParams
-        ), "content");
-        $this->render();
+
     }
 
     public function actionJoomla($sliderid, $usage) {
@@ -28,24 +31,16 @@ class N2SmartSliderWidgetHomeController extends N2Controller
         ), "content");
 
         $this->render();
-
-        n2AddAssets();
+    
     }
 
     public function actionWordpress($sliderid, $usage) {
-        $this->addView("wordpress", array(
-            "sliderid" => $sliderid,
-            "usage"    => $usage
-        ), "content");
-        $this->render();
     }
 
     public function actionMagento($sliderid, $usage) {
-        $this->addView("magento", array(
-            "sliderid" => $sliderid,
-            "usage"    => $usage
-        ), "content");
-        $this->render();
+    }
+
+    public function actionNative($sliderid, $usage) {
     }
 
 } 

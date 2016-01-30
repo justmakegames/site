@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import(array(
     'libraries.fonts.storage'
@@ -156,7 +163,7 @@ N2FontRenderer::$mode = array(
         'preview'       => '<div class="{fontClassName}">' . n2_('Button') . '</div>',
         'selectors'     => array(
             '@pre@selector'       => '@tab0',
-            '@pre@selector:HOVER' => '@tab1'
+            '@pre@selector:HOVER, @pre@selector:ACTIVE, @pre@selector:FOCUS' => '@tab1'
         )
     ),
     'link'                => array(
@@ -172,7 +179,7 @@ N2FontRenderer::$mode = array(
         'preview'       => '<div class="{fontClassName}">' . n2_('Button') . '</div>',
         'selectors'     => array(
             '@pre@selector a'       => '@tab0',
-            '@pre@selector a:HOVER' => '@tab1'
+            '@pre@selector a:HOVER, @pre@selector a:ACTIVE, @pre@selector a:FOCUS' => '@tab1'
         )
     ),
     'accordionslidetitle' => array(
@@ -206,7 +213,7 @@ N2FontRenderer::$mode = array(
         'selectors'     => array(
             '@pre@selector'         => '@tab0',
             '@pre@selector a'       => '@tab1',
-            '@pre@selector a:HOVER' => '@tab2'
+            '@pre@selector a:HOVER, @pre@selector a:ACTIVE, @pre@selector a:FOCUS' => '@tab2'
         )
     ),
     'dot'                 => array(
@@ -222,7 +229,7 @@ N2FontRenderer::$mode = array(
         'preview'       => '',
         'selectors'     => array(
             '@pre@selector'                                => '@tab0',
-            '@pre@selector.n2-active, @pre@selector:HOVER' => '@tab1'
+            '@pre@selector.n2-active, @pre@selector:HOVER, @pre@selector:ACTIVE, @pre@selector:FOCUS' => '@tab1'
         )
     )
 );

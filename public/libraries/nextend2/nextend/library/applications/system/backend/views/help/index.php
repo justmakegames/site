@@ -1,4 +1,11 @@
-<div></div>
+<?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><div></div>
 <div class="n2-form">
     <div class="n2-form-tab " id="n2-tab-general"><div class="n2-h2 n2-content-box-title-bg">Help</div>
         <table>

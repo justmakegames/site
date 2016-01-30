@@ -17,7 +17,7 @@
     <param name="alt" type="text" label="Alt" default="Alternative text for image" class="n2-expert"/>
     <param name="content" type="text" label="Title" default="Button"/>
     <param name="fonttitle" type="font" previewmode="paragraph" label="Title font"/>
-    <param name="description" type="textarea" label="Description" default="" class="n2-expert"/>
+    <param name="description" type="textarea" label="Description" default="" style2="width: 230px;resize: vertical;" class="n2-expert"/>
     <param name="font" type="font" previewmode="paragraph" label="Description font" class="n2-expert"/>
     <param name="color" type="color" label="Caption backgound" alpha="1" default="00000080"/>
     <param name="link" type="mixed" label="Link" default="|*|_self">
@@ -27,9 +27,6 @@
         <option value="_blank">Blank</option>
       </param>
     </param>
-    <param name="customcaptionclass" type="text" label="Class" default="my-caption-custom-class" class="n2-expert"/>
-    <param name="onmouseenter" type="text" label="Event on mouseenter" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseclick" type="text" label="Event on mouseclick" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseleave" type="text" label="Event on mouseleave" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
+    <param type="onoff" name="image-optimize" label="Optimize" default="1" class="n2-expert"/>
   </params>
 </root>

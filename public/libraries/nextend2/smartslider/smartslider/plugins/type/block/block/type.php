@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderTypeBlock extends N2SmartSliderType
 {
@@ -8,6 +15,7 @@ class N2SmartSliderTypeBlock extends N2SmartSliderType
             'background'         => '',
             'background-size'    => 'cover',
             'background-fixed'   => 0,
+            'slider-css'         => '',
 
             'kenburns-animation' => ''
         );
@@ -38,10 +46,10 @@ class N2SmartSliderTypeBlock extends N2SmartSliderType
             ?>
             <div class="n2-ss-slider-2">
                 <?php
-                echo $this->slider->renderStaticSlide();
+                echo $this->slider->staticHtml;
 
                 $slide = $this->slider->slides[$this->slider->_activeSlide];
-                echo NHtml::tag('div', $slide->attributes + array(
+                echo N2Html::tag('div', $slide->attributes + array(
                         'class' => 'n2-ss-slide n2-ss-canvas ' . $slide->classes,
                         'style' => $slide->style
                     ), $slide->background . $slide->getHTML());
@@ -50,13 +58,13 @@ class N2SmartSliderTypeBlock extends N2SmartSliderType
         </div>
         <?php
         $this->widgets->echoRemainder();
-        echo NHtml::closeTag('div');
+        echo N2Html::closeTag('div');
 
         N2Plugin::callPlugin('nextendslider', 'onNextendSliderProperties', array(&$this->javaScriptProperties));
 
         N2JS::addFirstCode("new NextendSmartSliderBlock(n2('#{$this->slider->elementId}'), " . json_encode($this->javaScriptProperties) . ");");
 
-        echo NHtml::clear();
+        echo N2Html::clear();
     }
 
     private function getBackgroundVideo($params) {
@@ -71,21 +79,21 @@ class N2SmartSliderTypeBlock extends N2SmartSliderType
         $sources = '';
 
         if ($mp4) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $mp4,
                 "type" => "video/mp4"
             ));
         }
 
         if ($webm) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $webm,
                 "type" => "video/webm"
             ));
         }
 
         if ($ogg) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $ogg,
                 "type" => "video/ogg"
             ));
@@ -103,7 +111,7 @@ class N2SmartSliderTypeBlock extends N2SmartSliderType
             $attributes['loop'] = 'loop';
         }
 
-        return NHtml::tag('video', $attributes + array(
+        return N2Html::tag('video', $attributes + array(
                 'class'     => 'n2-ss-slider-background-video',
                 'data-mode' => $params->get('backgroundVideoMode', 'fill')
             ), $sources);

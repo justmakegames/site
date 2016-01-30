@@ -12,9 +12,20 @@
                     _suppressTimeout = setTimeout(function () {
                         _suppress = false;
                     }, 400);
-                };
+                },
+                startX = 0, startY = 0;
 
-            el.on('touchend.universalclick click.universalclick', function (e) {
+            el.on('touchstart.universalclick', function (e) {
+                startX = e.originalEvent.touches[0].clientX;
+                startY = e.originalEvent.touches[0].clientY;
+            }).on('touchend.universalclick', function (e) {
+                if (Math.abs(e.originalEvent.changedTouches[0].clientX - startX) < 10 && Math.abs(e.originalEvent.changedTouches[0].clientY - startY) < 10) {
+                    if (!_suppress) {
+                        suppress();
+                        handleObj.handler.apply(this, arguments);
+                    }
+                }
+            }).on('click.universalclick', function (e) {
                 if (!_suppress) {
                     suppress();
                     handleObj.handler.apply(this, arguments);

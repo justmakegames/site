@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 abstract class N2SmartSliderType
 {
@@ -15,6 +22,10 @@ abstract class N2SmartSliderType
     public function __construct($slider) {
         $this->slider     = $slider;
         $slider->fontSize = intval($slider->params->get('fontsize', '16'));
+    }
+
+    public static function getItemDefaults() {
+        return array();
     }
 
     public function render() {
@@ -35,7 +46,7 @@ abstract class N2SmartSliderType
     }
 
     protected function openSliderElement() {
-        return NHtml::openTag('div', array(
+        return N2Html::openTag('div', array(
                 'id'    => $this->slider->elementId,
                 'class' => 'n2-ss-slider ' . $this->getSliderClasses(),
 

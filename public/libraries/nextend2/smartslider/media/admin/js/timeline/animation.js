@@ -1,3 +1,4 @@
+
 (function (smartSlider, $, scope, undefined) {
 
 
@@ -94,6 +95,9 @@
     };
 
     TimelineAnimation.prototype.onBarResizeStop = function (event, ui) {
+
+        this.animation.animations._startHistory();
+
         var delay = smartSlider.offsetXToDuration(ui.position[nextend.rtl.marginLeft]),
             duration = smartSlider.offsetXToDuration(ui.size.width);
 
@@ -104,15 +108,22 @@
         this.setDuration(duration);
 
         this.fixTimelineTotalDuration();
+
+        this.animation.animations._endHistory();
     };
 
     TimelineAnimation.prototype.onBarDragStop = function (event, ui) {
+
+        this.animation.animations._startHistory();
+
         var delay = smartSlider.offsetXToDuration(ui.position[nextend.rtl.marginLeft]);
         this.animation.setDelay(delay);
 
         this.setDelay(delay);
 
         this.fixTimelineTotalDuration();
+
+        this.animation.animations._endHistory();
     };
 
     TimelineAnimation.prototype.animationChanged = function () {

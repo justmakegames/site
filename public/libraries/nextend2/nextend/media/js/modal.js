@@ -29,6 +29,8 @@
                 this.panes[k] = $.extend({
                     customClass: '',
                     fit: false,
+                    fitX: true,
+                    overflow: 'hidden',
                     size: false,
                     back: false,
                     close: true,
@@ -102,6 +104,7 @@
     };
 
     NextendModal.prototype.hide = function (e) {
+        this.apply('hide');
         $(window).off('.n2-modal-' + this.counter);
         this.notificationStack.popStack();
         if (arguments.length > 0 && e != 'esc') {
@@ -181,6 +184,10 @@
                     resize = $.proxy(function () {
                         var w = $w.width() - 2 * margin,
                             h = $w.height() - 2 * margin;
+
+                        if (!pane.fitX) {
+                            w = pane.size[0];
+                        }
                         this.window.css({
                             width: w,
                             height: h,
@@ -190,7 +197,7 @@
 
                         this.content.css({
                             height: h - 80 - (hasControls ? this.controls.parent().outerHeight(true) : 0),
-                            overflow: 'hidden'
+                            overflow: pane.overflow
                         });
                     }, this);
                 resize();
@@ -205,7 +212,7 @@
 
                 this.content.css({
                     height: pane.size[1] - 80 - (hasControls ? this.controls.parent().outerHeight(true) : 0),
-                    overflow: 'hidden'
+                    overflow: pane.overflow
                 });
 
             }
@@ -369,18 +376,17 @@
             }, true);
         }
     };
-    scope.NextendModalDocumentation = {
-        url: '',
-        show: function (anchor) {
-            var win = window.open(scope.NextendModalDocumentation.url + anchor, '_blank');
-            if (win) {
-                //Browser has allowed it to be opened
-                win.focus();
-            } else {
-                //Broswer has blocked it
-                alert('Please allow popups for this site');
+    scope.NextendModalDocumentation = function (title, url) {
+        new NextendModal({
+            zero: {
+                size: [
+                    760,
+                    700
+                ],
+                title: title,
+                content: '<iframe src="' + url + '" width="760" height="640" frameborder="0" style="margin:0 -20px -20px -20px;"></iframe>'
             }
-        }
+        }, true);
     };
 
     function NextendSimpleModal(html) {

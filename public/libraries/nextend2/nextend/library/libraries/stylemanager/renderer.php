@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import(array(
     'libraries.stylemanager.storage'
@@ -137,8 +144,8 @@ N2StyleRenderer::$mode = array(
         ),
         'preview'       => '<div class="{styleClassName}" style="width: 200px; height:100px;"></div>',
         'selectors'     => array(
-            '@pre@selector'       => '@tab0',
-            '@pre@selector:Hover' => '@tab1'
+            '@pre@selector'                             => '@tab0',
+            '@pre@selector:HOVER' => '@tab1'
         )
     ),
     'button'         => array(
@@ -154,7 +161,7 @@ N2StyleRenderer::$mode = array(
         'preview'       => '<div><a style="display:inline-block; margin:20px;" class="{styleClassName}" href="#" onclick="return false;">Button</a></div>',
         'selectors'     => array(
             '@pre@selector'       => '@tab0',
-            '@pre@selector:Hover' => '@tab1'
+            '@pre@selector:Hover, @pre@selector:ACTIVE, @pre@selector:FOCUS' => '@tab1'
         )
     ),
     'heading'        => array(
@@ -170,7 +177,7 @@ N2StyleRenderer::$mode = array(
         'preview'       => '<div class="{styleClassName}">Heading</div>',
         'selectors'     => array(
             '@pre@selector'       => '@tab0',
-            '@pre@selector:Hover' => '@tab1'
+            '@pre@selector:Hover, @pre@selector:ACTIVE, @pre@selector:FOCUS' => '@tab1'
         )
     ),
     'heading-active' => array(

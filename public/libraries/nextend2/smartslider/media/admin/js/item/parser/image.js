@@ -43,10 +43,11 @@
 
         NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
 
-        data.image = nextend.imageHelper.fixed(data.image);
-
-        if (item && item.values.image == '$system$/images/placeholder/image.svg' && data.image != item.values.image) {
+        if (item && item.values.image == '$system$/images/placeholder/image.png' && data.image != item.values.image) {
+            data.image = nextend.imageHelper.fixed(data.image);
             this.resizeLayerToImage(item, data.image);
+        } else {
+            data.image = nextend.imageHelper.fixed(data.image);
         }
 
     };

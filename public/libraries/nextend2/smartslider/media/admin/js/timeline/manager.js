@@ -1,3 +1,4 @@
+
 (function (smartSlider, $, scope, undefined) {
 
     function AdminTimelineManager(layerEditor) {
@@ -31,7 +32,34 @@
 
         this.initLayerButtons();
 
+        this.initHeight();
     };
+
+    AdminTimelineManager.prototype.initHeight = function () {
+
+        var lastHeight = $.jStorage.get('smartsliderTimelineHeight', 200),
+            pane1 = $('.n2-ss-timeline-sidebar-layers'),
+            pane2 = $('.n2-ss-timeline-content-layers-container')
+                .height(lastHeight);
+
+        pane1.on('scroll', function () {
+            pane2.scrollTop(pane1.scrollTop());
+        });
+
+        $('.n2-ss-timeline-sidebar-layers-container')
+            .height(lastHeight)
+            .resizable({
+                minHeight: 200,
+                alsoResize: pane2,
+                handles: 's',
+                create: function (ui) {
+                    $(ui.target).find('.ui-resizable-s').append('<i class="n2-i n2-it n2-i-drag"></i>');
+                },
+                stop: function (event, ui) {
+                    $.jStorage.set('smartsliderTimelineHeight', ui.size.height);
+                }
+            });
+    }
 
     AdminTimelineManager.prototype.initTimeFrame = function () {
 
@@ -108,6 +136,7 @@
                     this.setCTI(smartSlider.offsetXToDuration(ui.position.left));
                 }, this),
                 stop: $.proxy(function (event, ui) {
+                    this.control.unHold();
                     this.disablePreviewModeWidthCTI(smartSlider.offsetXToDuration(ui.position.left));
                     delete this.slideDurationPx;
                 }, this)

@@ -1,13 +1,13 @@
-<extension type="component" version="1.6.0" method="upgrade">
+<extension type="component" version="2.5.0" method="upgrade">
     <name>Smart Slider 3</name>
     <author>NEXTENDWEB</author>
     <copyright>Copyright (C) Nextendweb.com</copyright>
-    <authorEmail>info@nextendweb.com</authorEmail>
-    <authorUrl>http://www.nextendweb.com</authorUrl>
-    <creationDate>2015-06-01</creationDate>
+    <authorEmail>support@nextendweb.com</authorEmail>
+    <authorUrl>http://smartslider3.com</authorUrl>
+    <creationDate>2015-11-01</creationDate>
     <license>http://www.gnu.org/licenses/gpl-3.0.txt GNU/GPL</license>
-    <releaseDate>2015-06-01</releaseDate>
-    <version>3.0.0Beta6</version>
+    <releaseDate>2015-11-01</releaseDate>
+    <version>3.0.18</version>
     <description>Component for Smart Slider 3.</description>
     <files folder="site">
         <filename>index.html</filename>

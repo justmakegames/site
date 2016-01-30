@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderItemAbstract', 'smartslider');
 
@@ -9,7 +16,7 @@ class N2SSPluginItemImage extends N2SSPluginItemAbstract
 
     protected $priority = 1;
 
-    protected $layerProperties = '{"width":200}';
+    protected $layerProperties = array("width" => 200);
 
     private static $style = '';
 
@@ -37,64 +44,64 @@ class N2SSPluginItemImage extends N2SSPluginItemAbstract
     }
 
     function getTemplate($slider) {
-        $html = NHtml::openTag("div", array(
+        $html = N2Html::openTag("div", array(
             'class' => '{styleclass}',
             'style' => 'overflow:hidden;'
         ));
-        $html .= NHtml::openTag("a", array(
+        $html .= N2Html::openTag("a", array(
             "href"    => "{url}",
             "onclick" => 'return false;',
             "style"   => "display: block;background: none !important;"
         ));
 
-        $html .= '<img src="{image}" style="display: block; max-width: 100%;width:{width};height:{height};" class="{cssclass}">';
+        $html .= '<img src="{image}" style="display: inline-block; max-width: 100%;width:{width};height:{height};" class="{cssclass}">';
 
-        $html .= NHtml::closeTag("a");
-        $html .= NHtml::closeTag("div");
+        $html .= N2Html::closeTag("a");
+        $html .= N2Html::closeTag("div");
 
         return $html;
     }
 
     function _render($data, $itemId, $slider, $slide) {
-        return $this->getHtml($data, $itemId, $slider, $slide, $this->getEventAttributes($data, $slider->elementId));
+        return $this->getHtml($data, $itemId, $slider, $slide);
     }
 
     function _renderAdmin($data, $itemId, $slider, $slide) {
         return $this->getHtml($data, $itemId, $slider, $slide);
     }
 
-    private function getHtml($data, $id, $slider, $slide, $attributes = array()) {
+    private function getHtml($data, $id, $slider, $slide) {
 
         $size = (array)N2Parse::parse($data->get('size', ''));
         if (!isset($size[0])) $size[0] = 'auto';
         if (!isset($size[1])) $size[1] = 'auto';
 
-
-        $style = N2StyleRenderer::render($data->get('style'), 'heading', $slider->elementId, 'div#' . $slider->elementId . ' ');
-        return NHtml::tag("div", array(
-            "class" => $style,
-            'style' => 'overflow:hidden;'
-        ), $this->getLink($slide, $data, NHtml::image(N2ImageHelper::fixed($slide->fill($data->get('image', ''))), htmlspecialchars($slide->fill($data->get('alt', ''))), $attributes + array(
+        $html = N2Html::tag('img', self::optimizeImage($slide->fill($data->get('image', '')), $data, $slider) + array(
                 "id"    => $id,
-                "style" => "display: block; max-width: 100%; width: {$size[0]};height: {$size[1]};",
+                "alt"   => htmlspecialchars($slide->fill($data->get('alt', ''))),
+                "style" => "display: inline-block; max-width: 100%; width: {$size[0]};height: {$size[1]};",
                 "class" => $data->get('cssclass', ''),
                 "title" => htmlspecialchars($slide->fill($data->get('title', '')))
-            ))));
+            ));
+
+        $style = N2StyleRenderer::render($data->get('style'), 'heading', $slider->elementId, 'div#' . $slider->elementId . ' ');
+        return N2Html::tag("div", array(
+            "class" => $style,
+            'style' => 'overflow:hidden;'
+        ), $this->getLink($slide, $data, $html));
     }
 
     function getValues() {
         self::initDefaultStyle();
         return array(
-            'image'        => '$system$/images/placeholder/image.svg',
-            'alt'          => n2_('Image is not available'),
-            'title'        => '',
-            'link'         => '#|*|_self',
-            'size'         => '100%|*|auto',
-            'style'        => self::$style,
-            'cssclass'     => '',
-            'onmouseenter' => '',
-            'onmouseclick' => '',
-            'onmouseleave' => ''
+            'image'    => '$system$/images/placeholder/image.png',
+            'alt'      => n2_('Image is not available'),
+            'title'    => '',
+            'link'     => '#|*|_self',
+            'size'     => '100%|*|auto',
+            'style'    => self::$style,
+            'cssclass' => '',
+            'image-optimize' => 1
         );
     }
 
@@ -113,11 +120,13 @@ class N2SSPluginItemImage extends N2SSPluginItemAbstract
     public function prepareExport($export, $data) {
         $export->addImage($data->get('image'));
         $export->addVisual($data->get('style'));
+        $export->addLightbox($data->get('link'));
     }
 
     public function prepareImport($import, $data) {
         $data->set('image', $import->fixImage($data->get('image')));
         $data->set('style', $import->fixSection($data->get('style')));
+        $data->set('link', $import->fixLightbox($data->get('link')));
         return $data;
     }
 }

@@ -1,5 +1,12 @@
 <?php
 /**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+/**
  * Instagram PHP implementation API
  * URLs: http://www.mauriciocuenca.com/
  *
@@ -35,10 +42,10 @@ class Instagram
      * @var string
      */
     protected $_endpointUrls = array(
-        'authorize'                => 'https://api.instagram.com/oauth/authorize/?client_id=%s&redirect_uri=%s&response_type=%s',
+        'authorize'                => 'https://api.instagram.com/oauth/authorize/?client_id=%s&redirect_uri=%s&response_type=%s&scope=%s',
         'access_token'             => 'https://api.instagram.com/oauth/access_token',
         'user'                     => 'https://api.instagram.com/v1/users/%s/?access_token=%s',
-        'user_feed'                => 'https://api.instagram.com/v1/users/self/feed?%s',
+        'user_feed'                => 'https://api.instagram.com/v1/users/self/media/recent?%s',
         'user_recent'              => 'https://api.instagram.com/v1/users/%s/media/recent/?access_token=%s&max_id=%s&min_id=%s&max_timestamp=%s&min_timestamp=%s',
         'user_search'              => 'https://api.instagram.com/v1/users/search?q=%s&access_token=%s',
         'user_follows'             => 'https://api.instagram.com/v1/users/%s/follows?access_token=%s&cursor=%s',
@@ -57,7 +64,7 @@ class Instagram
         'post_like'                => 'https://api.instagram.com/v1/media/%s/likes',
         'remove_like'              => 'https://api.instagram.com/v1/media/%s/likes?access_token=%s',
         'tags'                     => 'https://api.instagram.com/v1/tags/%s?access_token=%s',
-        'tags_recent'              => 'https://api.instagram.com/v1/tags/%s/media/recent?max_id=%s&min_id=%s&count=%s&access_token=%s',
+        'tags_recent'              => 'https://api.instagram.com/v1/tags/%s/media/recent?max_tag_id=%s&min_tag_id=%s&count=%s&access_token=%s',
         'tags_search'              => 'https://api.instagram.com/v1/tags/search?q=%s&access_token=%s',
         'locations'                => 'https://api.instagram.com/v1/locations/%s?access_token=%s',
         'locations_recent'         => 'https://api.instagram.com/v1/locations/%s/media/recent/?max_id=%s&min_id=%s&max_timestamp=%s&min_timestamp=%s&access_token=%s',
@@ -230,7 +237,7 @@ class Instagram
      * @return string
      */
     public function getAuthorizationUrl() {
-        return sprintf($this->_endpointUrls['authorize'], $this->_config['client_id'], urlencode($this->_config['redirect_uri']), self::RESPONSE_CODE_PARAM);
+        return sprintf($this->_endpointUrls['authorize'], $this->_config['client_id'], urlencode($this->_config['redirect_uri']), self::RESPONSE_CODE_PARAM, urlencode($this->_config['scope']));
     }
 
     /**

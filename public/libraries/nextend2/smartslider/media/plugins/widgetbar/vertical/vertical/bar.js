@@ -3,6 +3,11 @@
     function NextendSmartSliderWidgetBarVertical(id, bars, parameters) {
 
         this.slider = window[id];
+        
+        this.slider.started($.proxy(this.start, this, id, bars, parameters));
+    };
+
+    NextendSmartSliderWidgetBarVertical.prototype.start = function (id, bars, parameters) {
 
         if (this.slider.sliderElement.data('bar')) {
             return false;
@@ -18,7 +23,7 @@
         this.innerBar = this.bar2.find('> div');
 
         this.slider.sliderElement.on('slideCountChanged', $.proxy(this.onSlideCountChanged, this));
-        
+
         if (parameters.animate) {
             this.slider.sliderElement.on('mainAnimationStart', $.proxy(this.onSliderSwitchToAnimateStart, this));
         } else {

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2Platform
 {
@@ -11,7 +18,9 @@ class N2Platform
 
     public static function init() {
         self::$isJoomla = JVERSION;
-        if (JFactory::getApplication()->isAdmin()) {
+        if (JFactory::getApplication()
+                    ->isAdmin()
+        ) {
             self::$isAdmin = true;
         }
     }
@@ -25,14 +34,19 @@ class N2Platform
     }
 
     public static function getDate() {
-        return JFactory::getDate()->toSql();
+        return JFactory::getDate()
+                       ->toSql();
     }
 
     public static function getTime() {
-        return JFactory::getDate()->toUnix();
+        return JFactory::getDate()
+                       ->toUnix();
     }
 
     public static function getPublicDir() {
+        if(defined('JPATH_MEDIA')){
+            return JPATH_SITE . JPATH_MEDIA;
+        }
         return JPATH_SITE . '/media';
     }
 
@@ -78,6 +92,30 @@ class N2Platform
                 background: transparent;
             }
         ';
+    }
+
+    public static function updateFromZip($fileRaw, $updateInfo) {
+        N2Loader::import('libraries.zip.zip_read');
+
+        $tmpHandle = tmpfile();
+        fwrite($tmpHandle, $fileRaw);
+        $metaData    = stream_get_meta_data($tmpHandle);
+        $tmpFilename = $metaData['uri'];
+        $zip         = new N2ZipRead();
+        $files       = $zip->read_zip($tmpFilename);
+
+        $updateFolder = N2Filesystem::getNotWebCachePath() . '/update/';
+        $zip->recursive_extract($files, $updateFolder);
+        fclose($tmpHandle);
+
+        $installer = JInstaller::getInstance();
+        $installer->setOverwrite(true);
+        if (!$installer->install($updateFolder)) {
+            N2Filesystem::deleteFolder($updateFolder);
+            return false;
+        }
+        N2Filesystem::deleteFolder($updateFolder);
+        return true;
     }
 
 }

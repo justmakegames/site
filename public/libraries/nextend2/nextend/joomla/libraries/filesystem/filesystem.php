@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 jimport('joomla.filesystem.file');
 jimport('joomla.filesystem.folder');
@@ -17,15 +24,20 @@ class N2Filesystem extends N2FilesystemAbstract
 
     public static function getWebCachePath() {
         $i = N2Filesystem::getInstance();
+        self::check($i->_basepath . '/media', 'nextend');
         return $i->_basepath . '/media/nextend';
     }
 
     public static function getNotWebCachePath() {
+        self::check(JPATH_CACHE, 'nextend');
         return JPATH_CACHE . '/nextend';
     }
 
     public static function getImagesFolder() {
         $i = N2Filesystem::getInstance();
+        if(defined('JPATH_NEXTEND_IMAGES')){
+            return $i->_basepath . JPATH_NEXTEND_IMAGES;
+        }
         return $i->_basepath . '/images';
     }
 

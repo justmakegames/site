@@ -1,6 +1,13 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorEasyDiscussDiscussions extends N2GeneratorAbstract
 {
@@ -86,6 +93,8 @@ class N2GeneratorEasyDiscussDiscussions extends N2GeneratorAbstract
                 'category_id'     => $result[$i]['category_id'],
                 'id'              => $result[$i]['id']
             );
+
+            $r['image'] = $r['thumbnail'] = NextendImageFallBack::fallback(N2Uri::getBaseUri(), array(), array($result[$i]['content']));
 
             $data[] = $r;
         }

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 
 class N2ImageHelperAbstract
@@ -7,23 +14,26 @@ class N2ImageHelperAbstract
     public static $imagePaths = array();
     public static $imageUrls = array();
     public static $siteKeywords = array();
+    public static $protocolRelative = 1;
 
     public static function init() {
         $parameters = array(
-            'siteKeywords' => self::$siteKeywords,
-            'imageUrls'    => self::$imageUrls
+            'siteKeywords'     => self::$siteKeywords,
+            'imageUrls'        => self::$imageUrls,
+            'protocolRelative' => self::$protocolRelative
         );
 
-        $parameters['placeholderImage']         = '$system$/images/placeholder/image.svg';
-        $parameters['placeholderRepeatedImage'] = '$system$/images/placeholder/image.svg';
+        $parameters['placeholderImage']         = '$system$/images/placeholder/image.png';
+        $parameters['placeholderRepeatedImage'] = '$system$/images/placeholder/image.png';
 
         N2JS::addFirstCode('new NextendImageHelper(' . json_encode($parameters) . ', ' . N2ImageHelper::getLightboxFunction() . ',' . N2ImageHelper::getLightboxMultipleFunction() . ', ' . N2ImageHelper::getLightboxFoldersFunction() . ');');
     }
 
     public static function dynamic($image) {
+        $_image = self::protocolRelative($image);
         foreach (self::$imageUrls AS $i => $imageUrl) {
-            if (strpos($image, $imageUrl) === 0) {
-                $image = self::$siteKeywords[$i] . substr($image, strlen($imageUrl));
+            if (strpos($_image, $imageUrl) === 0) {
+                $image = self::$siteKeywords[$i] . substr($_image, strlen($imageUrl));
                 break;
             }
         }
@@ -43,7 +53,17 @@ class N2ImageHelperAbstract
     public static function addKeyword($keyword, $path, $url) {
         array_unshift(self::$siteKeywords, $keyword);
         array_unshift(self::$imagePaths, $path);
+        if (N2Settings::get('protocol-relative', '1')) {
+            $url = self::protocolRelative($url);
+        }
         array_unshift(self::$imageUrls, $url);
+    }
+
+    public static function protocolRelative($url) {
+        if (self::$protocolRelative) {
+            return preg_replace('/^http(s)?:\/\//', '//', $url);
+        }
+        return $url;
     }
 
     public static function export() {
@@ -82,7 +102,16 @@ class N2ImageHelperAbstract
             }, true);
         }';
     }
+
+    public static function SVGToBase64($image) {
+        $ext = pathinfo($image, PATHINFO_EXTENSION);
+        if (substr($image, 0, 1) == '$' && $ext == 'svg') {
+            return 'data:image/svg+xml;base64,' . base64_encode(N2Filesystem::readFile(N2ImageHelper::fixed($image, true)));
+        }
+        return N2ImageHelper::fixed($image);
+    }
 }
 
 N2Loader::import('libraries.image.helper', 'platform');
+N2ImageHelper::$protocolRelative = N2Settings::get('protocol-relative', '1');
 N2ImageHelper::addKeyword('$', N2Filesystem::getBasePath(), N2Uri::getBaseUri());

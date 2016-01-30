@@ -1,4 +1,11 @@
-<div class="n2-sidebar-row n2-sidebar-header-bg n2-form-dark n2-sets-header">
+<?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><div class="n2-sidebar-row n2-sidebar-header-bg n2-form-dark n2-sets-header">
     <div class="n2-table">
         <div class="n2-tr">
             <div class="n2-td">

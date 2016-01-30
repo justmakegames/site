@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderItemAbstract', 'smartslider');
 
@@ -8,8 +15,6 @@ class N2SSPluginItemButton extends N2SSPluginItemAbstract
     public $_identifier = 'button';
 
     protected $priority = 4;
-
-    protected $layerProperties = '{}';
 
     private static $font = 1103;
 
@@ -56,10 +61,10 @@ class N2SSPluginItemButton extends N2SSPluginItemAbstract
     }
 
     public function getTemplate($slider) {
-        return NHtml::tag("div", array(
+        return N2Html::tag("div", array(
             "class" => "nextend-smartslider-button-container {fontclass}",
             "style" => "cursor: pointer; display: {display}; {extrastyle};"
-        ), NHtml::link("{content}", "{url}", array(
+        ), N2Html::link("{content}", "{url}", array(
             "onclick" => 'return false;',
             "target"  => "{target}",
             "style"   => "display: {display}",
@@ -68,21 +73,21 @@ class N2SSPluginItemButton extends N2SSPluginItemAbstract
     }
 
     public function _render($data, $itemId, $slider, $slide) {
-        return $this->getHtml($data, $itemId, $slider, $slide, $this->getEventAttributes($data, $slider->elementId));
+        return $this->getHtml($data, $itemId, $slider, $slide);
     }
 
     function _renderAdmin($data, $itemId, $slider, $slide) {
         return $this->getHtml($data, $itemId, $slider, $slide);
     }
 
-    private function getHtml($data, $id, $slider, $slide, $attributes = array()) {
+    private function getHtml($data, $id, $slider, $slide) {
 
         $font = N2FontRenderer::render($data->get('font'), 'link', $slider->elementId, 'div#' . $slider->elementId . ' ', $slider->fontSize);
 
-        $html = NHtml::openTag("div", $attributes + array(
-                "class" => "nextend-smartslider-button-container {$font}",
-                "style" => "cursor: pointer; display:" . ($data->get('fullwidth', 0) ? 'block' : 'inline-block') . ";" . ($data->get('nowrap', 1) ? 'white-space:nowrap;' : '')
-            ));
+        $html = N2Html::openTag("div", array(
+            "class" => "nextend-smartslider-button-container {$font}",
+            "style" => "cursor: pointer; display:" . ($data->get('fullwidth', 0) ? 'block' : 'inline-block') . ";" . ($data->get('nowrap', 1) ? 'white-space:nowrap;' : '')
+        ));
 
         $style = N2StyleRenderer::render($data->get('style'), 'heading', $slider->elementId, 'div#' . $slider->elementId . ' ');
 
@@ -91,7 +96,7 @@ class N2SSPluginItemButton extends N2SSPluginItemAbstract
             "class" => "{$style} {$data->get('class', '')}"
         ), true);
 
-        $html .= NHtml::closeTag("div");
+        $html .= N2Html::closeTag("div");
 
         return $html;
     }
@@ -107,10 +112,7 @@ class N2SSPluginItemButton extends N2SSPluginItemAbstract
             'link'         => '#|*|_self',
             'font'         => self::$font,
             'style'        => self::$style,
-            'class'        => '',
-            'onmouseclick' => '',
-            'onmouseenter' => '',
-            'onmouseleave' => ''
+            'class'        => ''
         );
     }
 
@@ -127,11 +129,13 @@ class N2SSPluginItemButton extends N2SSPluginItemAbstract
     public function prepareExport($export, $data) {
         $export->addVisual($data->get('font'));
         $export->addVisual($data->get('style'));
+        $export->addLightbox($data->get('link'));
     }
 
     public function prepareImport($import, $data) {
         $data->set('font', $import->fixSection($data->get('font')));
         $data->set('style', $import->fixSection($data->get('style')));
+        $data->set('link', $import->fixLightbox($data->get('link')));
         return $data;
     }
 }

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 
@@ -71,10 +78,10 @@ class N2SSPluginWidgetShadowShadow extends N2SSPluginWidgetAbstract
         N2JS::addInline('new NextendSmartSliderWidgetShadow("' . $id . '", ' . json_encode($parameters) . ');');
 
 
-        return NHtml::tag('div', $displayAttributes + $attributes + array(
+        return N2Html::tag('div', $displayAttributes + $attributes + array(
                 'class' => $displayClass . "nextend-shadow",
                 'style' => $style
-            ), NHtml::image(N2ImageHelper::fixed($shadow), '', array('style' => 'display: block; width:100%;max-width:none;')));
+            ), N2Html::image(N2ImageHelper::fixed($shadow), '', array('style' => 'display: block; width:100%;max-width:none;','class'=>'nextend-shadow-image')));
     }
 
     public static function prepareExport($export, $params) {

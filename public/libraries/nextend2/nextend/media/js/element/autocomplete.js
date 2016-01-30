@@ -4,10 +4,10 @@
         this.tags = tags;
         this.element = $('#' + id).data('autocomplete', this);
         this.element.on("keydown", function (event) {
-            if (event.keyCode === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
+            if (event.keyCode === $.ui.keyCode.TAB && $(this).nextendAutocomplete("instance").menu.active) {
                 event.preventDefault();
             }
-        }).autocomplete({
+        }).nextendAutocomplete({
             minLength: 0,
             position: {
                 my: "left top-2",
@@ -35,11 +35,11 @@
                 terms.push(ui.item.value);
                 terms.push("");
                 this.value = terms.join(",");
-                $(this).trigger('change').autocomplete("search");
+                $(this).trigger('change').nextendAutocomplete("search");
                 return false;
             }
         }).click(function () {
-            $(this).autocomplete("search");
+            $(this).nextendAutocomplete("search");
         });
 
         this.element.siblings('.n2-form-element-clear')
@@ -60,7 +60,7 @@
 
     function NextendElementAutocompleteSimple(id, values) {
         this.element = $('#' + id).data('autocomplete', this);
-        this.element.autocomplete({
+        this.element.nextendAutocomplete({
             appendTo: this.element.parent(),
             minLength: 0,
             position: {
@@ -76,7 +76,7 @@
                 return false;
             }
         }).click(function () {
-            $(this).autocomplete("search", "");
+            $(this).nextendAutocomplete("search", "");
         });
     };
 

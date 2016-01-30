@@ -1,32 +1,31 @@
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
 
-        function ItemParserIFrame() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+(function ($, scope, undefined) {
 
-        ItemParserIFrame.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserIFrame.prototype.constructor = ItemParserIFrame;
+    function ItemParserIFrame() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        ItemParserIFrame.prototype.added = function () {
-            this.needFill = ['url'];
+    ItemParserIFrame.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserIFrame.prototype.constructor = ItemParserIFrame;
 
-            nextend.smartSlider.generator.registerField($('#item_iframeurl'));
-        };
+    ItemParserIFrame.prototype.added = function () {
+        this.needFill = ['url'];
 
-        ItemParserIFrame.prototype.getName = function (data) {
-            return data.url;
-        };
+        nextend.smartSlider.generator.registerField($('#item_iframeurl'));
+    };
 
-        ItemParserIFrame.prototype.parseAll = function (data) {
-            var size = data.size.split('|*|');
-            data.width = size[0];
-            data.height = size[1];
-            delete data.size;
+    ItemParserIFrame.prototype.getName = function (data) {
+        return data.url;
+    };
 
-            NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
-        };
+    ItemParserIFrame.prototype.parseAll = function (data) {
+        var size = data.size.split('|*|');
+        data.width = size[0];
+        data.height = size[1];
+        delete data.size;
 
-        scope.NextendSmartSliderItemParser_iframe = ItemParserIFrame;
-    })(n2, window);
-} //N2SSPRO
+        NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+    };
+
+    scope.NextendSmartSliderItemParser_iframe = ItemParserIFrame;
+})(n2, window);

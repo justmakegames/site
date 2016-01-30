@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 
@@ -40,7 +47,7 @@ class N2SSPluginWidgetHTMLHTML extends N2SSPluginWidgetAbstract
 
         list($style, $attributes) = self::getPosition($params, self::$key);
 
-        return NHtml::tag('div', $displayAttributes + $attributes + array(
+        return N2Html::tag('div', $displayAttributes + $attributes + array(
                 "class" => "n2-widget-html {$displayClass}",
                 "style" => "{$style}z-index: 10",
             ), $params->get(self::$key . 'code'));

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2ZipRead
 {
@@ -141,18 +148,22 @@ class N2ZipRead
         $this->ctrl_dir[] = $cdrec;
     }
 
-    function read_zip($name) {
+    function read_zip($name, $isFilePath = true) {
         // Clear current file
         $this->datasec = array();
 
-        // File information
-        $this->name  = $name;
-        $this->size  = filesize($name);
+        if($isFilePath) {
+            // File information
+            $this->name = $name;
+            $this->size = filesize($name);
 
-        // Read file
-        $fh   = fopen($name, "rb");
-        $data = fread($fh, $this->size);
-        fclose($fh);
+            // Read file
+            $fh   = fopen($name, "rb");
+            $data = fread($fh, $this->size);
+            fclose($fh);
+        }else{
+            $data = $name;
+        }
 
         // Break into sections
         $filesecta = explode("\x50\x4b\x05\x06", $data);
@@ -242,7 +253,7 @@ class N2ZipRead
             }
 
             if (!empty($dir)) {
-                if (!is_array($this->files[$dir])) {
+                if (!isset($this->files[$dir])) {
                     $this->files[$dir] = array();
                 }
                 $this->files[$dir][$name] = $data;
@@ -313,5 +324,22 @@ class N2ZipRead
         pack("V", strlen($ctrldir)) . // size of central dir
         pack("V", strlen($data)) . // offset to start of central dir
         "\x00\x00"; // .zip file comment length
+    }
+
+    function recursive_extract($files, $targetFolder) {
+        foreach ($files AS $fileName => $file) {
+            if (is_array($file)) {
+                if (N2Filesystem::createFolder($targetFolder . $fileName . '/')) {
+                    $this->recursive_extract($file, $targetFolder . $fileName . '/');
+                } else {
+                    return false;
+                }
+            } else {
+                if (!N2Filesystem::createFile($targetFolder . $fileName, $file)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
