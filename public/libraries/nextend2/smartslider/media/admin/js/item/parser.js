@@ -80,6 +80,7 @@
                 if (this.width > 0 && this.height > 0) {
                     maxWidth = parseInt(Math.min(this.width, maxWidth));
                     maxHeight = parseInt(Math.min(this.height, maxHeight));
+                    nextend.smartSlider.history.off();
                     if (slideSize.width / slideSize.height <= maxWidth / maxHeight) {
                         item.layer.setProperty('width', maxWidth);
                         item.layer.setProperty('height', this.height * maxWidth / this.width);
@@ -88,6 +89,7 @@
                         item.layer.setProperty('width', width);
                         item.layer.setProperty('height', this.height * width / this.width);
                     }
+                    nextend.smartSlider.history.on();
                 }
             });
     };

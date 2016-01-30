@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.form.element');
 
 /**
@@ -83,7 +90,7 @@ class N2Tab
         $this->decorateGroupEnd();
 
         if ($this->_hide) {
-            echo NHtml::tag('div', array('style' => 'display: none;'), ob_get_clean());
+            echo N2Html::tag('div', array('style' => 'display: none;'), ob_get_clean());
         } else {
             echo ob_get_clean();
         }
@@ -93,25 +100,15 @@ class N2Tab
     function decorateTitle() {
         echo "<div id='n2-tab-" . N2XmlHelper::getAttribute($this->_xml, 'name') . "' class='n2-form-tab " . N2XmlHelper::getAttribute($this->_xml, 'class') . "'>";
         if ($this->_hidetitle != 1) {
-            $doc           = '';
-            $documentation = N2XmlHelper::getAttribute($this->_xml, 'doc');
-            if (!empty($documentation)) {
-                $doc .= NHtml::tag('a', array(
-                    'href'    => '#',
-                    'class'   => 'n2-documentation',
-                    'onclick' => 'NextendModalDocumentation.show("' . $documentation . '"); return false;'
-                ), NHtml::tag('i', array('class' => 'n2-i n2-i-info')));
-            }
-
-            echo NHtml::tag('div', array(
+            echo N2Html::tag('div', array(
                 'class' => 'n2-h2 n2-content-box-title-bg'
-            ), n2_(N2XmlHelper::getAttribute($this->_xml, 'label')) . $doc);
+            ), n2_(N2XmlHelper::getAttribute($this->_xml, 'label')));
         }
     }
 
     function decorateGroupStart() {
         echo "<table>";
-        echo NHtml::tag('colgroup', array(), NHtml::tag('col', array('class' => 'n2-label-col')) . NHtml::tag('col', array('class' => 'n2-element-col')));
+        echo N2Html::tag('colgroup', array(), N2Html::tag('col', array('class' => 'n2-label-col')) . N2Html::tag('col', array('class' => 'n2-element-col')));
     }
 
     function decorateGroupEnd() {
@@ -143,7 +140,7 @@ class N2TabDark extends N2Tab
     function decorateTitle() {
         echo "<div id='n2-tab-" . N2XmlHelper::getAttribute($this->_xml, 'name') . "' class='n2-form-tab " . N2XmlHelper::getAttribute($this->_xml, 'class') . "'>";
         if ($this->_hidetitle != 1) {
-            echo NHtml::tag('div', array(
+            echo N2Html::tag('div', array(
                 'class' => 'n2-h3 n2-sidebar-header-bg n2-uc'
             ), n2_(N2XmlHelper::getAttribute($this->_xml, 'label')));
         }

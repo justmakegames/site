@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/logo.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
-        'name' => 'Logo',
-        'description' => 'Display a logo.',
+        'name' => 'Logo / Image',
+        'description' => 'Display a logo or an image.',
         'type' => 'particle',
+        'icon' => 'fa-file-image-o',
         'form' => [
             'fields' => [
                 'enabled' => [

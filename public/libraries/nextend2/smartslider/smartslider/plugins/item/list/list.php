@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.plugins.N2SliderItemAbstract', 'smartslider');
 
 class N2SSPluginItemList extends N2SSPluginItemAbstract
@@ -8,7 +15,13 @@ class N2SSPluginItemList extends N2SSPluginItemAbstract
 
     protected $priority = 6;
 
-    protected $layerProperties = '{"left":0,"top":0,"width":400,"align":"left","valign":"top"}';
+    protected $layerProperties = array(
+        "left"   => 0,
+        "top"    => 0,
+        "width"  => 400,
+        "align"  => "left",
+        "valign" => "top"
+    );
 
     private static $font = 1304;
 
@@ -88,7 +101,10 @@ class N2SSPluginItemList extends N2SSPluginItemAbstract
             $html .= '<li class="' . $itemStyle . '">' . $li . '</li>';
         }
 
-        return NHtml::tag('ol', array('class' => $font . '' . $listStyle), $html);
+        return N2Html::tag('ol', array(
+            'class' => $font . '' . $listStyle,
+            'style' => "list-style-type:" . $data->get('type')
+        ), $html);
     }
 
     function getValues() {

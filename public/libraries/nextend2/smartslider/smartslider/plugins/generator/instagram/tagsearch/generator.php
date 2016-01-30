@@ -1,6 +1,13 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
 
 class N2GeneratorInstagramTagSearch extends N2GeneratorAbstract
 {
@@ -23,11 +30,13 @@ class N2GeneratorInstagramTagSearch extends N2GeneratorAbstract
 
                 $items = $this->getPage(intval(($j + $shift) / $this->resultPerPage));
 
-                $item = $items[($j + $shift) % $this->resultPerPage];
-                if (empty($item)) {
+                if(empty($items[($j + $shift) % $this->resultPerPage])){
                     // There is no more item in the list
                     break;
                 }
+
+                $item = $items[($j + $shift) % $this->resultPerPage];
+
                 if ($item['type'] == 'image') {
                     $record                = array();
                     $record['title']       = $record['caption'] = is_array($item['caption']) ? $item['caption']['text'] : '';
@@ -61,6 +70,9 @@ class N2GeneratorInstagramTagSearch extends N2GeneratorAbstract
                 } else {
                     $shift++;
                 }
+            }
+            if (is_array($data)) {
+                $data = array_values($data);
             }
         } catch (Exception $e) {
             N2Message::error($e->getMessage());

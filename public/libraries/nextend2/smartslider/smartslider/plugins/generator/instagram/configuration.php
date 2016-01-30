@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SliderGeneratorInstagramConfiguration
 {
@@ -42,7 +49,8 @@ class N2SliderGeneratorInstagramConfiguration
             'client_id'     => $this->configuration->get('client_id'),
             'client_secret' => $this->configuration->get('client_secret'),
             'redirect_uri'  => '',
-            'grant_type'    => 'authorization_code'
+            'grant_type'    => 'authorization_code',
+            'scope'         => 'basic public_content'
         );
         if ($needRedirectUrl) {
             $config['redirect_uri'] = N2Base::getApplication('smartslider')->router->createUrl(array(

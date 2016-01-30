@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderStorage
 {
@@ -15,7 +22,8 @@ class N2SmartSliderStorage
     }
 
     public static function styleStorage(&$sets, &$styles) {
-        N2Base::getApplicationInfo('smartslider')->loadLocale();
+        N2Base::getApplicationInfo('smartslider')
+              ->loadLocale();
 
         array_push($sets, array(
             'id'           => 1000,
@@ -503,7 +511,8 @@ class N2SmartSliderStorage
     }
 
     public static function fontStorage(&$sets, &$fonts) {
-        N2Base::getApplicationInfo('smartslider')->loadLocale();
+        N2Base::getApplicationInfo('smartslider')
+              ->loadLocale();
 
         array_push($sets, array(
             'id'           => 1000,
@@ -879,7 +888,8 @@ class N2SmartSliderStorage
     }
 
     public static function animationStorage(&$sets, &$animations) {
-        N2Base::getApplicationInfo('smartslider')->loadLocale();
+        N2Base::getApplicationInfo('smartslider')
+              ->loadLocale();
 
         array_push($sets, array(
             'id'           => 1000,
@@ -985,6 +995,78 @@ class N2SmartSliderStorage
             'id'           => 1006,
             'referencekey' => 1000,
             'value'        => array(
+                'name' => n2_('Left'),
+                'data' => array(
+                    'specialZero'     => 0,
+                    'transformOrigin' => '50|*|50|*|0',
+                    'animations'      => array(
+                        array(
+                            'name' => n2_('Left'),
+                            'x'    => 400
+                        )
+                    )
+                )
+            )
+        ));
+
+        array_push($animations, array(
+            'id'           => 1007,
+            'referencekey' => 1000,
+            'value'        => array(
+                'name' => n2_('Right'),
+                'data' => array(
+                    'specialZero'     => 0,
+                    'transformOrigin' => '50|*|50|*|0',
+                    'animations'      => array(
+                        array(
+                            'name' => n2_('Right'),
+                            'x'    => -400
+                        )
+                    )
+                )
+            )
+        ));
+
+        array_push($animations, array(
+            'id'           => 1008,
+            'referencekey' => 1000,
+            'value'        => array(
+                'name' => n2_('Top'),
+                'data' => array(
+                    'specialZero'     => 0,
+                    'transformOrigin' => '50|*|50|*|0',
+                    'animations'      => array(
+                        array(
+                            'name' => n2_('Top'),
+                            'y'    => 400,
+                        )
+                    )
+                )
+            )
+        ));
+
+        array_push($animations, array(
+            'id'           => 1009,
+            'referencekey' => 1000,
+            'value'        => array(
+                'name' => n2_('Bottom'),
+                'data' => array(
+                    'specialZero'     => 0,
+                    'transformOrigin' => '50|*|50|*|0',
+                    'animations'      => array(
+                        array(
+                            'name' => n2_('Bottom'),
+                            'y'    => -400
+                        )
+                    )
+                )
+            )
+        ));
+
+        array_push($animations, array(
+            'id'           => 1010,
+            'referencekey' => 1000,
+            'value'        => array(
                 'name' => n2_('Downscaled'),
                 'data' => array(
                     'specialZero'     => 0,
@@ -1001,7 +1083,7 @@ class N2SmartSliderStorage
         ));
 
         array_push($animations, array(
-            'id'           => 1007,
+            'id'           => 1011,
             'referencekey' => 1000,
             'value'        => array(
                 'name' => n2_('Upscaled'),
@@ -1021,7 +1103,7 @@ class N2SmartSliderStorage
         ));
 
         array_push($animations, array(
-            'id'           => 1008,
+            'id'           => 1012,
             'referencekey' => 1000,
             'value'        => array(
                 'name' => n2_('Flip left'),
@@ -1040,7 +1122,7 @@ class N2SmartSliderStorage
         ));
 
         array_push($animations, array(
-            'id'           => 1009,
+            'id'           => 1013,
             'referencekey' => 1000,
             'value'        => array(
                 'name' => n2_('Flip right'),
@@ -1059,7 +1141,7 @@ class N2SmartSliderStorage
         ));
 
         array_push($animations, array(
-            'id'           => 1010,
+            'id'           => 1014,
             'referencekey' => 1000,
             'value'        => array(
                 'name' => n2_('Flip down'),
@@ -1078,7 +1160,7 @@ class N2SmartSliderStorage
         ));
 
         array_push($animations, array(
-            'id'           => 1011,
+            'id'           => 1015,
             'referencekey' => 1000,
             'value'        => array(
                 'name' => n2_('Flip up'),
@@ -1097,7 +1179,7 @@ class N2SmartSliderStorage
         ));
 
         array_push($animations, array(
-            'id'           => 1012,
+            'id'           => 1016,
             'referencekey' => 1000,
             'value'        => array(
                 'name' => n2_('Rotate top left'),
@@ -1117,7 +1199,7 @@ class N2SmartSliderStorage
         ));
 
         array_push($animations, array(
-            'id'           => 1013,
+            'id'           => 1017,
             'referencekey' => 1000,
             'value'        => array(
                 'name' => n2_('Rotate top right'),
@@ -1137,7 +1219,7 @@ class N2SmartSliderStorage
         ));
 
         array_push($animations, array(
-            'id'           => 1014,
+            'id'           => 1018,
             'referencekey' => 1000,
             'value'        => array(
                 'name' => n2_('Roll in'),
@@ -2123,7 +2205,8 @@ class N2SmartSliderStorage
     }
 
     public static function splitTextAnimationStorage(&$sets, &$animations) {
-        N2Base::getApplicationInfo('smartslider')->loadLocale();
+        N2Base::getApplicationInfo('smartslider')
+              ->loadLocale();
 
         array_push($sets, array(
             'id'           => 1000,
@@ -2326,7 +2409,8 @@ class N2SmartSliderStorage
     }
 
     public static function backgroundAnimationStorage(&$sets, &$animations) {
-        N2Base::getApplicationInfo('smartslider')->loadLocale();
+        N2Base::getApplicationInfo('smartslider')
+              ->loadLocale();
 
         array_push($sets, array(
             'id'           => 1000,
@@ -4812,7 +4896,8 @@ class N2SmartSliderStorage
     }
 
     public static function postBackgroundAnimationStorage(&$sets, &$animations) {
-        N2Base::getApplicationInfo('smartslider')->loadLocale();
+        N2Base::getApplicationInfo('smartslider')
+              ->loadLocale();
 
         array_push($sets, array(
             'id'           => 1000,
@@ -4827,6 +4912,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Downscale'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale'),
                     'from'     => array(
                         'scale' => 1.5
                     ),
@@ -4844,6 +4930,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Downscale left'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale','x'),
                     'from'     => array(
                         'scale' => 1.5,
                         'x'     => 0
@@ -4864,6 +4951,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Downscale right'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale','x'),
                     'from'     => array(
                         'scale' => 1.5,
                         'x'     => 0
@@ -4884,6 +4972,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Downscale top'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale','y'),
                     'from'     => array(
                         'scale' => 1.5,
                         'y'     => 0
@@ -4904,6 +4993,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Downscale bottom'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale','y'),
                     'from'     => array(
                         'scale' => 1.5,
                         'y'     => 0
@@ -4924,6 +5014,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Upscale'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale'),
                     'from'     => array(
                         'scale' => 1.2
                     ),
@@ -4941,6 +5032,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Upscale left'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale','x'),
                     'from'     => array(
                         'scale' => 1.2,
                         'x'     => 0
@@ -4961,6 +5053,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Upscale right'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale','x'),
                     'from'     => array(
                         'scale' => 1.2,
                         'x'     => 0
@@ -4981,6 +5074,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Upscale top'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale','y'),
                     'from'     => array(
                         'scale' => 1.2,
                         'y'     => 0
@@ -5001,6 +5095,7 @@ class N2SmartSliderStorage
                 'name' => n2_('Upscale bottom'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('scale','y'),
                     'from'     => array(
                         'scale' => 1.2,
                         'y'     => 0
@@ -5021,6 +5116,7 @@ class N2SmartSliderStorage
                 'name' => n2_('To left'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('x'),
                     'from'     => array(
                         'scale' => 1.5,
                         'x'     => 0
@@ -5040,6 +5136,7 @@ class N2SmartSliderStorage
                 'name' => n2_('To right'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('x'),
                     'from'     => array(
                         'scale' => 1.5,
                         'x'     => 0
@@ -5059,6 +5156,7 @@ class N2SmartSliderStorage
                 'name' => n2_('To top'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('y'),
                     'from'     => array(
                         'scale' => 1.5,
                         'y'     => 0
@@ -5078,6 +5176,7 @@ class N2SmartSliderStorage
                 'name' => n2_('To bottom'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('y'),
                     'from'     => array(
                         'scale' => 1.5,
                         'y'     => 0
@@ -5097,6 +5196,7 @@ class N2SmartSliderStorage
                 'name' => n2_('To bottom left'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('x', 'y'),
                     'from'     => array(
                         'scale' => 1.5,
                         'x'     => 0,
@@ -5118,6 +5218,7 @@ class N2SmartSliderStorage
                 'name' => n2_('To top right'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('x', 'y'),
                     'from'     => array(
                         'scale' => 1.5,
                         'x'     => 0,
@@ -5139,6 +5240,7 @@ class N2SmartSliderStorage
                 'name' => n2_('To bottom left'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('x', 'y'),
                     'from'     => array(
                         'scale' => 1.5,
                         'x'     => 0,
@@ -5160,6 +5262,7 @@ class N2SmartSliderStorage
                 'name' => n2_('To bottom right'),
                 'data' => array(
                     'duration' => 5,
+                    'strength' => array('x', 'y'),
                     'from'     => array(
                         'scale' => 1.5,
                         'x'     => 0,
@@ -5176,7 +5279,8 @@ class N2SmartSliderStorage
     }
 
     public static function layoutStorage(&$sets, &$layouts) {
-        N2Base::getApplicationInfo('smartslider')->loadLocale();
+        N2Base::getApplicationInfo('smartslider')
+              ->loadLocale();
 
         array_push($sets, array(
             'id'           => 1900,

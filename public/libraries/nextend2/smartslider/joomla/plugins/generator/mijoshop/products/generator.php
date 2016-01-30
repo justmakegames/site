@@ -1,6 +1,13 @@
 <?php
-
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorMijoShopProducts extends N2GeneratorAbstract
 {
@@ -8,6 +15,7 @@ class N2GeneratorMijoShopProducts extends N2GeneratorAbstract
     protected function _getData($count, $startIndex) {
 
         require_once(JPATH_ROOT . '/components/com_mijoshop/mijoshop/mijoshop.php');
+        require_once(JPATH_ROOT . '/components/com_mijoshop/opencart/system/library/url.php');
 
         $config   = MijoShop::get('opencart')
                             ->get('config');
@@ -104,6 +112,7 @@ class N2GeneratorMijoShopProducts extends N2GeneratorAbstract
         $result = $model->db->queryAll($query);
 
         $data = array();
+        $root = N2Uri::getBaseUri();
         for ($i = 0; $i < count($result); $i++) {
 
             $pi = $p->getProduct($result[$i]['product_id']);
@@ -113,8 +122,11 @@ class N2GeneratorMijoShopProducts extends N2GeneratorAbstract
                 'url'         => $router->route('index.php?option=com_mijoshop&route=product/product&product_id=' . $pi['product_id']),
                 'description' => html_entity_decode($pi['description'])
             );
-
-            $r['image'] = N2ImageHelper::dynamic(N2Filesystem::pathToAbsoluteURL(DIR_IMAGE) . $pi['image']);
+            if (!empty($pi['image'])) {
+                $r['image'] = N2ImageHelper::dynamic(N2Filesystem::pathToAbsoluteURL(DIR_IMAGE) . $pi['image']);
+            } else {
+                $r['image'] = NextendImageFallBack::fallback($root . "/", array(), array($r['description']));
+            }
 
             $r += array(
                 'thumbnail' => $r['image'],

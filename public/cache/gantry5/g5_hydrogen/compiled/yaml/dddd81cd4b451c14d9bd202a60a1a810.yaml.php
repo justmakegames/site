@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/templates/g5_hydrogen/config/default/particles/logo.yaml',
-    'modified' => 1445417662,
+    'modified' => 1454143972,
     'data' => [
         'enabled' => '1',
         'url' => '',

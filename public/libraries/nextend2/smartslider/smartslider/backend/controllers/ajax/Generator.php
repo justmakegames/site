@@ -1,7 +1,14 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import("backend.controllers.Generator", 'smartslider');
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
 
 class N2SmartsliderBackendGeneratorControllerAjax extends N2SmartSliderControllerAjax
 {
@@ -69,7 +76,7 @@ class N2SmartsliderBackendGeneratorControllerAjax extends N2SmartSliderControlle
                 }
             }
 
-            $headingHTML = NHtml::tag('thead', array(), NHtml::tag('tr', array(), '<th>' . implode('</th><th>', $headings) . '</th>'));
+            $headingHTML = N2Html::tag('thead', array(), N2Html::tag('tr', array(), '<th>' . implode('</th><th>', $headings) . '</th>'));
 
 
             $rows = array();
@@ -79,7 +86,7 @@ class N2SmartsliderBackendGeneratorControllerAjax extends N2SmartSliderControlle
                 foreach ($records AS $g => $record) {
                     $rows[$i][] = $i + 1;
                     foreach ($record AS $k => $v) {
-                        $rows[$i][] = NHtml::tag('div', array(), htmlentities($v));
+                        $rows[$i][] = N2Html::tag('div', array(), htmlentities($v));
                     }
                 }
                 $i++;
@@ -88,10 +95,10 @@ class N2SmartsliderBackendGeneratorControllerAjax extends N2SmartSliderControlle
             for ($i = 0; $i < count($rows); $i++) {
                 $rows[$i] = '<td>' . implode('</td><td>', $rows[$i]) . '</td>';
             }
-            $recordHTML = NHtml::tag('tbody', array(), '<tr>' . implode('</tr><tr>', $rows) . '</tr>');
+            $recordHTML = N2Html::tag('tbody', array(), '<tr>' . implode('</tr><tr>', $rows) . '</tr>');
 
 
-            echo NHtml::tag('div', array('style' => 'width: 100%; height: 100%; overflow: auto;'), NHtml::tag('table', array(
+            echo N2Html::tag('div', array('style' => 'width: 100%; height: 100%; overflow: auto;'), N2Html::tag('table', array(
                 'class' => 'n2-generator-records n2-table n2-table-fancy',
                 'style' => 'margin: 10px; width: auto; table-layout: fixed;'
             ), $headingHTML . $recordHTML));

@@ -216,7 +216,7 @@
                                 videoUrlField = this.content.find('#n2-slide-video-url').focus();
 
                             this.content.append(this.createHeading(n2_('Examples')));
-                            this.content.append(this.createTable([['YouTube', 'https://www.youtube.com/watch?v=UiyDmqO59QE'], ['Vimeo', 'http://vimeo.com/58207848']], ['', '']));
+                            this.content.append(this.createTable([['YouTube', 'https://www.youtube.com/watch?v=MKmIwHAFjSU'], ['Vimeo', 'https://vimeo.com/144598279']], ['', '']));
 
                             button.on('click', $.proxy($.proxy(function (e) {
                                 e.preventDefault();
@@ -224,7 +224,8 @@
                                     youtubeRegexp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/,
                                     youtubeMatch = video.match(youtubeRegexp),
                                     vimeoRegexp = /https?:\/\/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/,
-                                    vimeoMatch = video.match(vimeoRegexp);
+                                    vimeoMatch = video.match(vimeoRegexp),
+                                    html5Video = video.match(/\.(mp4|ogv|ogg|webm)/i);
 
                                 if (youtubeMatch) {
                                     NextendAjaxHelper.getJSON('https://www.googleapis.com/youtube/v3/videos?id=' + encodeURI(youtubeMatch[2]) + '&part=snippet&key=AIzaSyC3AolfvPAPlJs-2FgyPJdEEKS6nbPHdSM').done($.proxy(function (data) {
@@ -258,6 +259,15 @@
                                         nextend.notificationCenter.error(data.responseText);
                                     });
 
+                                } else if (html5Video) {
+                                    manager._addQuickVideo(this, {
+                                        type: 'video',
+                                        title: video,
+                                        description: '',
+                                        format: html5Video[1],
+                                        video: video,
+                                        image: ''
+                                    });
                                 } else {
                                     nextend.notificationCenter.error('This video url is not supported!');
                                 }
@@ -360,6 +370,9 @@
     };
 
     NextendSmartSliderAdminSidebarSlides.prototype._addQuickPost = function (modal, post) {
+        if (!post.image) {
+            post.image = '';
+        }
         NextendAjaxHelper.ajax({
             type: 'POST',
             url: NextendAjaxHelper.makeAjaxUrl(this.ajaxUrl, {

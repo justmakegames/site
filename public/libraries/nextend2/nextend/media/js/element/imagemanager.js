@@ -24,6 +24,12 @@
 
     };
 
+    NextendElementImageManager.prototype.insideChange = function (value) {
+        this.element.val(value);
+
+        this.triggerInsideChange();
+    };
+
     scope.NextendElementImageManager = NextendElementImageManager;
 
 })(n2, window);

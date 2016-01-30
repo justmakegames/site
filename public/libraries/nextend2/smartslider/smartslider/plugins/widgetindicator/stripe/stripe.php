@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 N2Loader::import('libraries.image.color');
@@ -69,10 +76,10 @@ class N2SSPluginWidgetIndicatorStripe extends N2SSPluginWidgetAbstract
 
         N2JS::addInline('new NextendSmartSliderWidgetIndicatorStripe("' . $id . '", ' . json_encode($parameters) . ');');
 
-        return NHtml::tag('div', $displayAttributes + $attributes + array(
+        return N2Html::tag('div', $displayAttributes + $attributes + array(
                 'class' => $displayClass . "nextend-indicator nextend-indicator-stripe",
                 'style' => 'background-color:#' . $trackHex . ';background-color:' . $trackRGBA . ';' . $style
-            ), NHtml::tag('div', array(
+            ), N2Html::tag('div', array(
             'class' => "nextend-indicator-track",
             'style' => 'height: ' . $height . 'px;background-color:#' . $barHex . ';background-color:' . $barRGBA . ';'
         ), ''));

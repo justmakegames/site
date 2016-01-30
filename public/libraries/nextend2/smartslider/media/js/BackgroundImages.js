@@ -27,8 +27,8 @@
         }
 
         this.slider.sliderElement.one('SliderDevice', $.proxy(this.onSlideDeviceChangedFirst, this));
-
         this.videos = new NextendSmartSliderBackgroundVideos(slider);
+    
 
     };
 
@@ -378,6 +378,7 @@
     };
 
     scope.NextendSmartSliderBackgroundImage = NextendSmartSliderBackgroundImage;
+    var isMobile = /Mobi/.test(navigator.userAgent);
 
     function NextendSmartSliderBackgroundVideos(slider) {
         this.notResized = true;
@@ -386,9 +387,12 @@
         this.videos = [];
         var hasVideoBackground = false,
             slides = this.slider.realSlides;
-        for (var i = 0; i < slides.length; i++) {
+        for (var i = 0; i < slides.length + 1; i++) {
             var video = slides.eq(i).find('.n2-ss-slide-background-video');
-            if (video.length > 0) {
+            if (isMobile) {
+                video.remove();
+                this.videos[i] = false;
+            } else if (video.length > 0) {
                 this.videos[i] = video;
                 if (this.videos[i][0].videoWidth > 0) {
                     this.videoPlayerReady(i);
@@ -426,7 +430,13 @@
 
     NextendSmartSliderBackgroundVideos.prototype.play = function (i) {
         if (this.videos[i]) {
-            this.videos[i][0].play();
+            if (this.videos[i][0].videoWidth > 0) {
+                this.videos[i][0].play();
+            } else {
+                this.videos[i][0].addEventListener('canplay', $.proxy(function (i) {
+                    this.videos[i][0].play();
+                }, this, i));
+            }
         }
     };
 
@@ -450,6 +460,13 @@
     };
 
     NextendSmartSliderBackgroundVideos.prototype.resize = function (i) {
+        if (this.notResized) {
+            var background = this.videos[i].data('background');
+            if (background && background != '') {
+                $('<div style="position:absolute;left:0;top:0;width:100%;height:100%;' + background + ';"/>').insertAfter(this.videos[i]);
+            }
+            this.notResized = false;
+        }
         var video = this.videos[i];
         this.resizeVideo(i);
         switch (video.data('mode')) {
@@ -459,7 +476,6 @@
                 this.centerVideo(i);
                 break;
         }
-        this.notResized = false;
     };
 
     NextendSmartSliderBackgroundVideos.prototype.resizeVideo = function (i) {
@@ -507,5 +523,6 @@
     };
 
     scope.NextendSmartSliderBackgroundVideos = NextendSmartSliderBackgroundVideos;
+
 
 })(n2, window);

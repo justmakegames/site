@@ -4,6 +4,11 @@
 
         this.slider = window[id];
 
+        this.slider.started($.proxy(this.start, this, id, desktopRatio, tabletRatio, mobileRatio));
+    };
+
+    NextendSmartSliderWidgetAutoplayImage.prototype.start = function (id, desktopRatio, tabletRatio, mobileRatio) {
+
         if (this.slider.sliderElement.data('autoplay')) {
             return false;
         }
@@ -31,7 +36,7 @@
                 })
                 .trigger('addWidget', this.deferred);
 
-            this.button.on('click', $.proxy(this.switchState, this));
+            this.button.on('universalclick', $.proxy(this.switchState, this));
 
             this.desktopRatio = desktopRatio;
             this.tabletRatio = tabletRatio;
@@ -71,10 +76,11 @@
         e.stopImmediatePropagation();
         if (!this.paused) {
             this.setPaused();
-            this.slider.sliderElement.triggerHandler('autoplayExtraWait', this);
+            this.slider.sliderElement.triggerHandler('autoplayExtraWait', 'autoplayButton');
         } else {
             this.setPlaying();
-            this.slider.sliderElement.triggerHandler('autoplayExtraContinue', this);
+            this.slider.sliderElement.triggerHandler('autoplayExtraContinue', 'autoplayButton');
+            this.slider.next();
         }
     };
 

@@ -1,6 +1,13 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorFlexiContentItems extends N2GeneratorAbstract
 {
@@ -8,8 +15,6 @@ class N2GeneratorFlexiContentItems extends N2GeneratorAbstract
     protected function _getData($count, $startIndex) {
 
         $model = new N2Model('#__content');
-
-        $data = array();
 
         $query = 'SELECT ';
         $query .= 'con.id, con.images ';
@@ -106,15 +111,17 @@ class N2GeneratorFlexiContentItems extends N2GeneratorAbstract
                 'title'       => $helper['title'],
                 'description' => $helper['text']
             );
+
             if (!empty($result[$i]['images'])) {
-                $img = json_decode($result[$i]['images']);
-                if (!empty($img->image_intro)) {
-                    $r['image'] = N2ImageHelper::dynamic($root . $img->image_intro);
-                } else {
-                    $r['image'] = N2ImageHelper::dynamic($root . $img->image_fulltext);
-                }
-                $r['thumbnail'] = $r['image'];
+                $img        = json_decode($result[$i]['images']);
+                $r['image'] = $r['thumbnail'] = NextendImageFallBack::fallback($root, array(
+                    @$img->image_intro,
+                    @$img->image_fulltext
+                ), array(
+                    $helper['text']
+                ));
             }
+
             $r += array(
                 'url'               => FlexicontentHelperRoute::getItemRoute($item->id, $item->catid),
                 'url_label'         => n2_('View'),

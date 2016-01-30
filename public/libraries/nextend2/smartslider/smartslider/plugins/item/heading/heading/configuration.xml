@@ -10,11 +10,11 @@
     </param>
     <param name="heading" type="textarea" label="Text" default="Heading" style2="width: 230px;resize: vertical;"/>
     <param name="title" type="text" label="Title" default="" class="n2-expert"/>
-    <param name="font" type="font" previewmode="paragraph" set="1000" style="item_headingstyle" label="Font" css="width: 140px;">
-      <![CDATA[ <div style="width:{nextend.activeLayer.prop('style').width};"><div class="{styleClassName} {fontClassName}">{$('#item_headingheading').val();}</div></div> ]]>
+    <param name="font" type="font" previewmode="hover" set="1000" style="item_headingstyle" label="Font" css="width: 140px;">
+      <![CDATA[ <div style="width:{nextend.activeLayer.prop('style').width};"><div class="{styleClassName} {fontClassName}">{$('#item_headingheading').val().replace(/\\n/g, '<br />');}</div></div> ]]>
     </param>
     <param name="style" type="style" previewmode="heading" set="1000" font="item_headingfont" label="Style" css="width: 140px;">
-      <![CDATA[ <div style="width:{nextend.activeLayer.prop('style').width};"><div class="{styleClassName} {fontClassName}">{$('#item_headingheading').val();}</div></div> ]]>
+      <![CDATA[ <div style="width:{nextend.activeLayer.prop('style').width};"><div class="{styleClassName} {fontClassName}">{$('#item_headingheading').val().replace(/\\n/g, '<br />');}</div></div> ]]>
     </param>
     <param name="link" type="mixed" label="Link" default="#|*|_self">
       <param type="url" label="Link" style="width:140px;"/>
@@ -23,26 +23,26 @@
         <option value="_blank">Blank</option>
       </param>
     </param>
-    <param type="group" label="Sizing" doc="#Layers-Heading">
+    <param type="group" label="Sizing">
       <param name="fullwidth" type="onoff" label="Full width" default="1"/>
       <param name="nowrap" type="onoff" label="No wrap" default="1"/></param>
-    <param type="group" label="Split text - in" doc="#Layers-Heading">
+    <param type="group" label="Split text - in">
       <param type="splittextanimation" name="split-text-animation-in" label=" " default="" group="in" font="item_headingfont" style="item_headingstyle" transformorigin="item_headingsplit-text-transform-origin">
-        <![CDATA[ <div style="width:{nextend.activeLayer.prop('style').width};"><div class="{styleClassName}"><span class="{fontClassName}">{$('#item_headingheading').val();}</span></div></div> ]]>
+        <![CDATA[ <div style="width:{nextend.activeLayer.prop('style').width};"><div class="{styleClassName}"><span class="{fontClassName}">{$('#item_headingheading').val().replace(/\\n/g, "<br />");}</span></div></div> ]]>
       </param>
       <param name="split-text-delay-in" type="number" label="Delay" style="width:40px;" default="0">
         <unit>ms</unit>
       </param>
     </param>
-    <param type="group" label="Split text - out" class="n2-expert" doc="#Layers-Heading">
+    <param type="group" label="Split text - out" class="n2-expert">
       <param type="splittextanimation" name="split-text-animation-out" label=" " default="" group="out" font="item_headingfont" style="item_headingstyle" transformorigin="item_headingsplit-text-transform-origin">
-        <![CDATA[ <div style="width:{nextend.activeLayer.prop('style').width};"><div class="{styleClassName}"><span class="{fontClassName}">{$('#item_headingheading').val();}</span></div></div> ]]>
+        <![CDATA[ <div style="width:{nextend.activeLayer.prop('style').width};"><div class="{styleClassName}"><span class="{fontClassName}">{$('#item_headingheading').val().replace(/\\n/g, '<br />');}</span></div></div> ]]>
       </param>
       <param name="split-text-delay-out" type="number" label="Delay" style="width:40px;" default="0">
         <unit>ms</unit>
       </param>
     </param>
-    <param type="group" label="Split text - options" class="n2-expert" doc="#Layers-Heading">
+    <param type="group" label="Split text - options" class="n2-expert">
       <param name="split-text-backface-visibility" label="Backface visibility" type="onoff" default="1"/>
       <param name="split-text-transform-origin" label="Transform origin" type="mixed" default="50|*|50|*|0" translateable="0">
         <param type="text" sublabel="X" style="width: 22px;">
@@ -57,8 +57,5 @@
       </param>
     </param>
     <param name="class" type="text" label="Custom css class" default="" class="n2-expert"/>
-    <param name="onmouseenter" type="text" label="Event on mouseenter" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseclick" type="text" label="Event on mouseclick" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
-    <param name="onmouseleave" type="text" label="Event on mouseleave" class="n2-expert" default="" doc="#Developer-Javascript-events"/>
   </params>
 </root>

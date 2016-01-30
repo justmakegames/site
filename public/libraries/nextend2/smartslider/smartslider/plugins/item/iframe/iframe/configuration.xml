@@ -4,7 +4,7 @@
     <param name="size" type="mixed" label="Size" default="100%|*|100%" translateable="1" class="n2-expert">
       <param type="text" label="Width" style="width:40px;"/>
       <param type="text" label="Height" style="width:40px;"/></param>
-    <param type="list" name="scroll" label="Scroll" translateable="1" doc="#Layers-Iframe">
+    <param type="list" name="scroll" label="Scroll" translateable="1">
       <option value="yes">Yes</option>
       <option value="no">No</option>
       <option value="auto">Auto</option>

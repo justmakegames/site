@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderSlides
 {
@@ -20,7 +27,7 @@ class N2SmartSliderSlides
 
     private $randomize = false;
     private $randomizeFirst = false;
-    protected $maximumSlideCount = 20;
+    protected $maximumSlideCount = 100;
 
     public function __construct($slider) {
         $this->slider = $slider;
@@ -28,7 +35,7 @@ class N2SmartSliderSlides
         $params                  = $slider->params;
         $this->randomize         = intval($params->get('randomize', 0));
         $this->randomizeFirst    = intval($params->get('randomizeFirst', 0));
-        $this->maximumSlideCount = intval($params->get('maximumslidecount', '20'));
+        $this->maximumSlideCount = intval($params->get('maximumslidecount', '100'));
     }
 
     /**
@@ -50,7 +57,9 @@ class N2SmartSliderSlides
     public function hasSlides() {
         //check slide number
         if (count($this->slides) === 0) {
-            N2Message::error(n2_('0 slides available for this slider.'));
+            if (N2Platform::$isAdmin) {
+                N2Message::error(n2_('0 slides available for this slider.'));
+            }
             $this->slider->norender = true;
             return false;
         }
@@ -124,10 +133,9 @@ class N2SmartSliderSlides
 
         if (count($slideRows) == 0 && $dummy) {
             $images = array(
-                '$ss$/admin/images/dummyslide.svg',
-                '$system$/images/placeholder/image.svg',
-                '$system$/images/placeholder/imageback.svg',
-                '$system$/images/placeholder/imagefront.svg'
+                '$ss$/admin/images/dummyslide.png',
+                '$ss$/admin/images/dummyslide.png',
+                '$ss$/admin/images/dummyslide.png',
             );
             for ($i = 0; $i <= 7; $i++) {
                 $index               = $i % count($images);

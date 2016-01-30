@@ -7,9 +7,10 @@
  */
 (function () {
     'use strict';
-    var queryString = {};
+    var module, define;
+    var N2QueryString = {};
 
-    queryString.parse = function (str) {
+    N2QueryString.parse = function (str) {
         if (typeof str !== 'string') {
             return {};
         }
@@ -42,7 +43,7 @@
         }, {});
     };
 
-    queryString.stringify = function (obj) {
+    N2QueryString.stringify = function (obj) {
         return obj ? Object.keys(obj).map(function (key) {
             var val = obj[key];
 
@@ -56,11 +57,5 @@
         }).join('&') : '';
     };
 
-    if (typeof define === 'function' && define.amd) {
-        define(function() { return queryString; });
-    } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = queryString;
-    } else {
-        window.queryString = queryString;
-    }
+    window.N2QueryString = N2QueryString;
 })();

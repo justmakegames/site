@@ -1,4 +1,3 @@
-//#|empty_when_free|#
 
 (function ($, scope, undefined) {
 

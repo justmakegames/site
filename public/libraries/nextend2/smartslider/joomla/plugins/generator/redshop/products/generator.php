@@ -1,6 +1,13 @@
 <?php
-
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorRedShopProducts extends N2GeneratorAbstract
 {
@@ -114,8 +121,8 @@ class N2GeneratorRedShopProducts extends N2GeneratorAbstract
         $product = new producthelper;
         //Redconfiguration needed for REDSHOP_FRONT_IMAGES_ABSPATH
         new Redconfiguration;
-        $data   = array();
-
+        $data = array();
+        $root = N2Uri::getBaseUri();
         for ($i = 0; $i < count($result); $i++) {
 
             $r = array(
@@ -125,8 +132,17 @@ class N2GeneratorRedShopProducts extends N2GeneratorAbstract
                 'short_description' => $result[$i]['short_description'],
             );
 
-            if (!empty($result[$i]['image'])) {
-                $r['image'] = N2ImageHelper::dynamic(REDSHOP_FRONT_IMAGES_ABSPATH . "product/" . $result[$i]['image']);
+            $r['image'] = NextendImageFallBack::fallback(REDSHOP_FRONT_IMAGES_ABSPATH . "product/", array(
+                @$result[$i]['image'],
+                @$result[$i]['product_preview_image'],
+                @$result[$i]['image_thumbnail']
+            ));
+            
+            if (empty($r['image'])) {
+                $r['image'] = NextendImageFallBack::fallback($root . "/", array(), array(
+                    $r['description'],
+                    $r['short_description']
+                ));
             }
 
             if (!empty($result[$i]['image_thumbnail'])) {

@@ -20,7 +20,7 @@
     </params>
     <params name="order" label="Order by">
         <param name="easysocialorder" type="mixed" label="Order" default="b.start|*|asc">
-            <param type="list" label="Field">
+            <param type="list" label="Field" translateable="1">
                 <option value="">None</option>
                 <option value="a.title">Title</option>
                 <option value="a.created">Creation time</option>

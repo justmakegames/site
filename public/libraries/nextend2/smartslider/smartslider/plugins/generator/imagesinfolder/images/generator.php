@@ -1,6 +1,13 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
 
 class N2GeneratorInFolderimages extends N2GeneratorAbstract
 {
@@ -40,6 +47,20 @@ class N2GeneratorInFolderimages extends N2GeneratorAbstract
                 }
             }
         }
+         
+        $order = explode("|*|", $this->data->get('order', '0|*|asc'));
+        if($order[0]!=0){ 
+          usort($data, 'N2GeneratorInFolderimages::' . $order[1]);
+        }
+        
         return $data;
     }
+    
+    public static function asc($a, $b){             
+        return ($b['title'] < $a['title'] ? 1 : -1);         
+    }
+    
+    public static function desc($a, $b){             
+        return ($a['title'] < $b['title'] ? 1 : -1);         
+    }   
 }

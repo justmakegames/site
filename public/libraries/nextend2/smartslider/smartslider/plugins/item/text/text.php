@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderItemAbstract', 'smartslider');
 
@@ -11,7 +18,13 @@ class N2SSPluginItemText extends N2SSPluginItemAbstract
 
     private static $font = 1304;
 
-    protected $layerProperties = '{"left":10,"top":10,"width":400,"align":"left","valign":"top"}';
+    protected $layerProperties = array(
+        "left"   => 0,
+        "top"    => 0,
+        "width"  => 400,
+        "align"  => "left",
+        "valign" => "top"
+    );
 
     public function __construct() {
         $this->_title = n2_x('Text', 'Slide item');
@@ -60,45 +73,45 @@ class N2SSPluginItemText extends N2SSPluginItemAbstract
     }
 
     function _render($data, $id, $slider, $slide) {
-        return $this->getHTML($data, $slider, $this->getEventAttributes($data, $slider->elementId), $slide);
+        return $this->getHTML($data, $slider, $slide);
     }
 
     function _renderAdmin($data, $id, $slider, $slide) {
-        return $this->getHTML($data, $slider, array(), $slide);
+        return $this->getHTML($data, $slider, $slide);
     }
 
-    private function getHTML($data, $slider, $attributes, $slide) {
+    private function getHTML($data, $slider, $slide) {
 
         $font  = N2FontRenderer::render($data->get('font'), 'paragraph', $slider->elementId, 'div#' . $slider->elementId . ' ', $slider->fontSize);
         $style = N2StyleRenderer::render($data->get('style'), 'heading', $slider->elementId, 'div#' . $slider->elementId . ' ');
 
 
         $html          = '';
-        $content       = str_replace('<p>', '<p class="' . $font . ' ' . $style . '">', $this->wpautop($slide->fill($data->get('content', ''))));
-        $contentTablet = str_replace('<p>', '<p class="' . $font . ' ' . $style . '">', $this->wpautop($slide->fill($data->get('contenttablet', ''))));
-        $contentMobile = str_replace('<p>', '<p class="' . $font . ' ' . $style . '">', $this->wpautop($slide->fill($data->get('contentmobile', ''))));
+        $content       = str_replace('<p>', '<p class="' . $font . ' ' . $style . '">', $this->wpautop(self::closeTags($slide->fill($data->get('content', '')))));
+        $contentTablet = str_replace('<p>', '<p class="' . $font . ' ' . $style . '">', $this->wpautop(self::closeTags($slide->fill($data->get('contenttablet', '')))));
+        $contentMobile = str_replace('<p>', '<p class="' . $font . ' ' . $style . '">', $this->wpautop(self::closeTags($slide->fill($data->get('contentmobile', '')))));
         $class         = '';
 
         if ($contentMobile == '') {
             $class .= ' n2-ss-mobile';
         } else {
-            $html .= NHtml::tag('div', $attributes + array(
-                    'class' => 'n2-ss-mobile'
-                ), $contentMobile);
+            $html .= N2Html::tag('div', array(
+                'class' => 'n2-ss-mobile'
+            ), $contentMobile);
         }
 
         if ($contentTablet == '') {
             $class .= ' n2-ss-tablet';
         } else {
-            $html .= NHtml::tag('div', $attributes + array(
-                    'class' => 'n2-ss-tablet' . $class
-                ), $contentTablet);
+            $html .= N2Html::tag('div', array(
+                'class' => 'n2-ss-tablet' . $class
+            ), $contentTablet);
             $class = '';
         }
 
-        $html .= NHtml::tag('div', $attributes + array(
-                'class' => 'n2-ss-desktop' . $class
-            ), $content);
+        $html .= N2Html::tag('div', array(
+            'class' => 'n2-ss-desktop' . $class
+        ), $content);
 
         return $html;
     }
@@ -111,10 +124,7 @@ class N2SSPluginItemText extends N2SSPluginItemAbstract
             'contenttablet' => '',
             'contentmobile' => '',
             'font'          => self::$font,
-            'style'         => self::$style,
-            'onmouseclick'  => '',
-            'onmouseenter'  => '',
-            'onmouseleave'  => ''
+            'style'         => self::$style
         );
     }
 
@@ -138,6 +148,40 @@ class N2SSPluginItemText extends N2SSPluginItemAbstract
         $data->set('font', $import->fixSection($data->get('font')));
         $data->set('style', $import->fixSection($data->get('style')));
         return $data;
+    }
+
+    public static function closeTags($html) {
+        $html = str_replace(array(
+            '<>',
+            '</>'
+        ), array(
+            '',
+            ''
+        ), $html);
+        // Put all opened tags into an array
+        preg_match_all('#<([a-z]+)(?: .*)?(?<![/|/ ])>#iU', $html, $result);
+        $openedtags = $result[1];   #put all closed tags into an array
+        preg_match_all('#</([a-z]+)>#iU', $html, $result);
+        $closedtags = $result[1];
+        $len_opened = count($openedtags);
+        # Check if all tags are closed
+        if (count($closedtags) == $len_opened) {
+            return $html;
+        }
+        $openedtags = array_reverse($openedtags);
+        # close tags
+        for ($i = 0; $i < $len_opened; $i++) {
+            if (!in_array($openedtags[$i], $closedtags)) {
+                if ($openedtags[$i] != 'br') {
+                    // Ignores <br> tags to avoid unnessary spacing
+                    // at the end of the string
+                    $html .= '</' . $openedtags[$i] . '>';
+                }
+            } else {
+                unset($closedtags[array_search($openedtags[$i], $closedtags)]);
+            }
+        }
+        return $html;
     }
 
     private function wpautop($pee, $br = true) {

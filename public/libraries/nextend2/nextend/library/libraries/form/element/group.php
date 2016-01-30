@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2ElementGroup extends N2Element
 {
@@ -26,16 +33,16 @@ class N2ElementGroup extends N2Element
 
             list($label, $field) = $el->render($this->control_name, $this->_translateable);
 
-            $html .= NHtml::tag('div', array(
+            $html .= N2Html::tag('div', array(
                 'class' => 'n2-mixed-group ' . N2XmlHelper::getAttribute($element, 'class')
-            ), NHtml::tag('div', array('class' => 'n2-mixed-label'), $label) . NHtml::tag('div', array('class' => 'n2-mixed-element'), $field));
+            ), N2Html::tag('div', array('class' => 'n2-mixed-label'), $label) . N2Html::tag('div', array('class' => 'n2-mixed-element'), $field));
 
             if (N2XmlHelper::getAttribute($element, 'post') == 'break') {
                 $html .= '<br class="' . N2XmlHelper::getAttribute($element, 'class') . '" />';
             }
         }
 
-        return NHtml::tag('div', array(
+        return N2Html::tag('div', array(
             'class' => 'n2-form-element-mixed',
             'style' => N2XmlHelper::getAttribute($this->_xml, 'style')
         ), $html);

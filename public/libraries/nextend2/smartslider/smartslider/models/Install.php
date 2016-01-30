@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 
 class N2SmartsliderInstallModel extends N2Model
@@ -12,7 +19,6 @@ class N2SmartsliderInstallModel extends N2Model
   `params` TEXT         NOT NULL,
   PRIMARY KEY (`id`)
 )
-  ENGINE = MyISAM
   DEFAULT CHARSET = utf8;",
         "CREATE TABLE IF NOT EXISTS `#__nextend2_smartslider3_sliders` (
   `id`     INT(11)      NOT NULL AUTO_INCREMENT,
@@ -22,7 +28,6 @@ class N2SmartsliderInstallModel extends N2Model
   `time`   DATETIME     NOT NULL,
   PRIMARY KEY (`id`)
 )
-  ENGINE = MyISAM
   DEFAULT CHARSET = utf8;",
         "CREATE TABLE IF NOT EXISTS `#__nextend2_smartslider3_slides` (
   `id`           INT(11)      NOT NULL AUTO_INCREMENT,
@@ -40,7 +45,6 @@ class N2SmartsliderInstallModel extends N2Model
   `generator_id` INT(11)      NOT NULL,
   PRIMARY KEY (`id`)
 )
-  ENGINE = MyISAM
   DEFAULT CHARSET = utf8;"
 
     );

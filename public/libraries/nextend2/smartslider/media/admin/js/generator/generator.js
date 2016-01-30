@@ -117,11 +117,36 @@
 
         index = typeof index != 'undefined' ? parseInt(index) - 1 : 0;
 
-        while (tmp = re.exec(s)) {
+        while (tmp = re.exec(s)) {        
             if (typeof tmp[2] != 'undefined') {
                 r.push(tmp[2]);
             } else if (typeof tmp[6] != 'undefined') {
                 r.push(tmp[6]);
+            }
+        }
+
+        if (r.length) {
+            if (r.length > index) {
+                return r[index];
+            } else {
+                return r[r.length - 1];
+            }
+        } else {
+            return '';
+        }
+    };
+    
+    Generator.prototype.findlink = function (variable, index) {
+        var s = variable,
+            re = /href=["\']?([^"\'>]+)["\']?/gi,
+            r = [],
+            tmp = null;
+
+        index = typeof index != 'undefined' ? parseInt(index) - 1 : 0;
+        
+        while (tmp = re.exec(s)) {
+            if (typeof tmp[1] != 'undefined') {
+                r.push(tmp[1]);
             }
         }
 
@@ -160,12 +185,17 @@
                     splitStart: 0,
                     splitLength: 300,
                     findImage: 0,
-                    findImageIndex: 1
+                    findImageIndex: 1,
+                    findLink: 0,
+                    findLinkIndex: 1
                 },
                 getVariableString = function () {
                     var variable = active.key + '/' + active.group;
                     if (active.findImage) {
                         variable = 'findimage(' + variable + ',' + Math.max(1, active.findImageIndex) + ')';
+                    }
+                    if (active.findLink) {
+                        variable = 'findlink(' + variable + ',' + Math.max(1, active.findLinkIndex) + ')';
                     }
                     if (active.filter != 'no') {
                         variable = active.filter + '(' + variable + ')';
@@ -243,6 +273,21 @@
                 updateResult();
             }, this));
 
+
+            $('<div class="n2-mixed-group"><div class="n2-mixed-label"><label>' + n2_('Find link') + '</label></div><div class="n2-mixed-element"><div class="n2-form-element-onoff"><div class="n2-onoff-slider"><div class="n2-onoff-no"><i class="n2-i n2-i-close"></i></div><div class="n2-onoff-round"></div><div class="n2-onoff-yes"><i class="n2-i n2-i-tick"></i></div></div><input type="hidden" autocomplete="off" value="0" id="n2-generator-function-findlink"></div><div class="n2-form-element-text n2-text-has-unit n2-border-radius"><div class="n2-text-sub-label n2-h5 n2-uc">' + n2_('Index') + '</div><input type="text" autocomplete="off" style="width: 22px;" class="n2-h5" value="1" id="n2-generator-function-findlink-index"></div></div></div>')
+                .appendTo(functionsContainer);
+
+            var findLink = functionsContainer.find('#n2-generator-function-findlink');
+            findLink.on('nextendChange', $.proxy(function () {
+                active.findLink = parseInt(findLink.val());
+                updateResult();
+            }, this));
+            var findLinkIndex = functionsContainer.find('#n2-generator-function-findlink-index');
+            findLinkIndex.on('change', $.proxy(function () {
+                active.findLinkIndex = parseInt(findLinkIndex.val());
+                updateResult();
+            }, this));
+
             for (var k in this.variables[0]) {
                 $('<a href="#" class="n2-button n2-button-small n2-button-grey">' + k + '</a>')
                     .on('click', $.proxy(function (key, e) {
@@ -293,6 +338,7 @@
                         show: function () {
                             if (!inited) {
                                 new NextendElementOnoff("n2-generator-function-findimage");
+                                new NextendElementOnoff("n2-generator-function-findlink");
                                 inited = true;
                             }
                             this.controls.find('.n2-button').on('click', $.proxy(function (e) {

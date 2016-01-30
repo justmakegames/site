@@ -1,20 +1,20 @@
 [
     {
         "name": "erusev/parsedown",
-        "version": "1.5.4",
-        "version_normalized": "1.5.4.0",
+        "version": "1.6.0",
+        "version_normalized": "1.6.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/erusev/parsedown.git",
-            "reference": "0e89e3714bda18973184d30646306bb0a482bd96"
+            "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/erusev/parsedown/zipball/0e89e3714bda18973184d30646306bb0a482bd96",
-            "reference": "0e89e3714bda18973184d30646306bb0a482bd96",
+            "url": "https://api.github.com/repos/erusev/parsedown/zipball/3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
+            "reference": "3ebbd730b5c2cf5ce78bc1bf64071407fc6674b7",
             "shasum": ""
         },
-        "time": "2015-08-03 09:24:05",
+        "time": "2015-10-04 16:44:32",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -42,23 +42,23 @@
     },
     {
         "name": "erusev/parsedown-extra",
-        "version": "0.7.0",
-        "version_normalized": "0.7.0.0",
+        "version": "0.7.1",
+        "version_normalized": "0.7.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/erusev/parsedown-extra.git",
-            "reference": "11a44e076d02ffcc4021713398a60cd73f78b6f5"
+            "reference": "0db5cce7354e4b76f155d092ab5eb3981c21258c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/11a44e076d02ffcc4021713398a60cd73f78b6f5",
-            "reference": "11a44e076d02ffcc4021713398a60cd73f78b6f5",
+            "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/0db5cce7354e4b76f155d092ab5eb3981c21258c",
+            "reference": "0db5cce7354e4b76f155d092ab5eb3981c21258c",
             "shasum": ""
         },
         "require": {
             "erusev/parsedown": "~1.4"
         },
-        "time": "2015-01-25 14:52:34",
+        "time": "2015-11-01 10:19:22",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -88,17 +88,17 @@
     },
     {
         "name": "filp/whoops",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "1.x-dev",
+        "version_normalized": "1.9999999.9999999.9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/filp/whoops.git",
-            "reference": "cfe9ce209d2705fece1743f0af45f58fec840458"
+            "reference": "72538eeb70bbfb11964412a3d098d109efd012f7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/filp/whoops/zipball/cfe9ce209d2705fece1743f0af45f58fec840458",
-            "reference": "cfe9ce209d2705fece1743f0af45f58fec840458",
+            "url": "https://api.github.com/repos/filp/whoops/zipball/72538eeb70bbfb11964412a3d098d109efd012f7",
+            "reference": "72538eeb70bbfb11964412a3d098d109efd012f7",
             "shasum": ""
         },
         "require": {
@@ -107,7 +107,7 @@
         "require-dev": {
             "mockery/mockery": "0.9.*"
         },
-        "time": "2015-07-23 15:48:15",
+        "time": "2015-06-29 05:42:04",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -248,24 +248,137 @@
         ]
     },
     {
-        "name": "pimple/pimple",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "name": "symfony/yaml",
+        "version": "v2.8.2",
+        "version_normalized": "2.8.2.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/silexphp/Pimple.git",
-            "reference": "64e0f8320639b434baa073a40dd1e037e3286555"
+            "url": "https://github.com/symfony/yaml.git",
+            "reference": "34c8a4b51e751e7ea869b8262f883d008a2b81b8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/silexphp/Pimple/zipball/64e0f8320639b434baa073a40dd1e037e3286555",
-            "reference": "64e0f8320639b434baa073a40dd1e037e3286555",
+            "url": "https://api.github.com/repos/symfony/yaml/zipball/34c8a4b51e751e7ea869b8262f883d008a2b81b8",
+            "reference": "34c8a4b51e751e7ea869b8262f883d008a2b81b8",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.9"
+        },
+        "time": "2016-01-13 10:28:07",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.8-dev"
+            }
+        },
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Yaml\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Yaml Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "symfony/event-dispatcher",
+        "version": "v2.8.2",
+        "version_normalized": "2.8.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/event-dispatcher.git",
+            "reference": "ee278f7c851533e58ca307f66305ccb9188aceda"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/ee278f7c851533e58ca307f66305ccb9188aceda",
+            "reference": "ee278f7c851533e58ca307f66305ccb9188aceda",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.9"
+        },
+        "require-dev": {
+            "psr/log": "~1.0",
+            "symfony/config": "~2.0,>=2.0.5|~3.0.0",
+            "symfony/dependency-injection": "~2.6|~3.0.0",
+            "symfony/expression-language": "~2.6|~3.0.0",
+            "symfony/stopwatch": "~2.3|~3.0.0"
+        },
+        "suggest": {
+            "symfony/dependency-injection": "",
+            "symfony/http-kernel": ""
+        },
+        "time": "2016-01-13 10:28:07",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.8-dev"
+            }
+        },
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\EventDispatcher\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony EventDispatcher Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "pimple/pimple",
+        "version": "v3.0.2",
+        "version_normalized": "3.0.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/silexphp/Pimple.git",
+            "reference": "a30f7d6e57565a2e1a316e1baf2a483f788b258a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/silexphp/Pimple/zipball/a30f7d6e57565a2e1a316e1baf2a483f788b258a",
+            "reference": "a30f7d6e57565a2e1a316e1baf2a483f788b258a",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-09-11 15:11:22",
+        "time": "2015-09-11 15:10:35",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -296,135 +409,24 @@
         ]
     },
     {
-        "name": "symfony/yaml",
-        "version": "2.8.x-dev",
-        "version_normalized": "2.8.9999999.9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/symfony/yaml.git",
-            "reference": "b0a34de3306a4a5392b6d13f188d9e4bfc2ed714"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/symfony/yaml/zipball/b0a34de3306a4a5392b6d13f188d9e4bfc2ed714",
-            "reference": "b0a34de3306a4a5392b6d13f188d9e4bfc2ed714",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.9"
-        },
-        "require-dev": {
-            "symfony/phpunit-bridge": "~2.7|~3.0.0"
-        },
-        "time": "2015-10-02 06:55:39",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.8-dev"
-            }
-        },
-        "installation-source": "source",
-        "autoload": {
-            "psr-4": {
-                "Symfony\\Component\\Yaml\\": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Fabien Potencier",
-                "email": "fabien@symfony.com"
-            },
-            {
-                "name": "Symfony Community",
-                "homepage": "https://symfony.com/contributors"
-            }
-        ],
-        "description": "Symfony Yaml Component",
-        "homepage": "https://symfony.com"
-    },
-    {
-        "name": "symfony/event-dispatcher",
-        "version": "2.8.x-dev",
-        "version_normalized": "2.8.9999999.9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/symfony/event-dispatcher.git",
-            "reference": "1834bd8ece4da49a4135264044b9ac31fdebdc72"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/1834bd8ece4da49a4135264044b9ac31fdebdc72",
-            "reference": "1834bd8ece4da49a4135264044b9ac31fdebdc72",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.9"
-        },
-        "require-dev": {
-            "psr/log": "~1.0",
-            "symfony/config": "~2.0,>=2.0.5|~3.0.0",
-            "symfony/dependency-injection": "~2.6|~3.0.0",
-            "symfony/expression-language": "~2.6|~3.0.0",
-            "symfony/phpunit-bridge": "~2.7|~3.0.0",
-            "symfony/stopwatch": "~2.3|~3.0.0"
-        },
-        "suggest": {
-            "symfony/dependency-injection": "",
-            "symfony/http-kernel": ""
-        },
-        "time": "2015-09-29 12:32:55",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.8-dev"
-            }
-        },
-        "installation-source": "source",
-        "autoload": {
-            "psr-4": {
-                "Symfony\\Component\\EventDispatcher\\": ""
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Fabien Potencier",
-                "email": "fabien@symfony.com"
-            },
-            {
-                "name": "Symfony Community",
-                "homepage": "https://symfony.com/contributors"
-            }
-        ],
-        "description": "Symfony EventDispatcher Component",
-        "homepage": "https://symfony.com"
-    },
-    {
         "name": "ircmaxell/password-compat",
-        "version": "1.0.x-dev",
-        "version_normalized": "1.0.9999999.9999999-dev",
+        "version": "v1.0.4",
+        "version_normalized": "1.0.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/ircmaxell/password_compat.git",
-            "reference": "9b99377557a33a4129c9194e60a97a685fab21e0"
+            "reference": "5c5cde8822a69545767f7c7f3058cb15ff84614c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ircmaxell/password_compat/zipball/9b99377557a33a4129c9194e60a97a685fab21e0",
-            "reference": "9b99377557a33a4129c9194e60a97a685fab21e0",
+            "url": "https://api.github.com/repos/ircmaxell/password_compat/zipball/5c5cde8822a69545767f7c7f3058cb15ff84614c",
+            "reference": "5c5cde8822a69545767f7c7f3058cb15ff84614c",
             "shasum": ""
         },
         "require-dev": {
             "phpunit/phpunit": "4.*"
         },
-        "time": "2014-11-20 19:18:42",
+        "time": "2014-11-20 16:49:30",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -452,17 +454,17 @@
     },
     {
         "name": "rockettheme/toolbox",
-        "version": "dev-develop",
-        "version_normalized": "dev-develop",
+        "version": "1.2.0",
+        "version_normalized": "1.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/rockettheme/toolbox.git",
-            "reference": "24f9671b96733176dc48326b1ac9b20f9a30562d"
+            "reference": "0c7a3b4b6e4d73be8512e89f7acde6899334b7f2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/24f9671b96733176dc48326b1ac9b20f9a30562d",
-            "reference": "24f9671b96733176dc48326b1ac9b20f9a30562d",
+            "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/0c7a3b4b6e4d73be8512e89f7acde6899334b7f2",
+            "reference": "0c7a3b4b6e4d73be8512e89f7acde6899334b7f2",
             "shasum": ""
         },
         "require": {
@@ -475,7 +477,7 @@
         "require-dev": {
             "phpunit/phpunit": "4.0.*"
         },
-        "time": "2015-09-14 04:05:49",
+        "time": "2015-11-24 17:04:24",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -490,6 +492,7 @@
                 "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
             }
         },
+        "notification-url": "https://packagist.org/downloads/",
         "license": [
             "MIT"
         ],
@@ -498,25 +501,21 @@
         "keywords": [
             "php",
             "rockettheme"
-        ],
-        "support": {
-            "source": "https://github.com/rockettheme/toolbox/tree/develop",
-            "issues": "https://github.com/rockettheme/toolbox/issues"
-        }
+        ]
     },
     {
         "name": "twig/twig",
-        "version": "1.x-dev",
-        "version_normalized": "1.9999999.9999999.9999999-dev",
+        "version": "v1.23.3",
+        "version_normalized": "1.23.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/twigphp/Twig.git",
-            "reference": "d6740f36827f88a7ecda923f71ce0bb28525a9b1"
+            "reference": "ae53fc2c312fdee63773b75cb570304f85388b08"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twigphp/Twig/zipball/d6740f36827f88a7ecda923f71ce0bb28525a9b1",
-            "reference": "d6740f36827f88a7ecda923f71ce0bb28525a9b1",
+            "url": "https://api.github.com/repos/twigphp/Twig/zipball/ae53fc2c312fdee63773b75cb570304f85388b08",
+            "reference": "ae53fc2c312fdee63773b75cb570304f85388b08",
             "shasum": ""
         },
         "require": {
@@ -526,11 +525,11 @@
             "symfony/debug": "~2.7",
             "symfony/phpunit-bridge": "~2.7"
         },
-        "time": "2015-09-30 12:05:09",
+        "time": "2016-01-11 14:02:19",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.22-dev"
+                "dev-master": "1.23-dev"
             }
         },
         "installation-source": "source",

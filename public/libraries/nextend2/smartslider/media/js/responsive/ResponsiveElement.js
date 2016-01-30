@@ -334,7 +334,10 @@
 
     NextendSmartSliderResponsiveElementBackgroundImage.prototype._resize = function (responsiveDimensions, ratio, timeline, duration) {
         if (this.responsive.slider.parameters.dynamicHeight) {
-
+            this.element.css({
+                width: '100%',
+                height: '100%'
+            });
         } else {
             var slideOuter = responsiveDimensions.slideouter || responsiveDimensions.slide;
 

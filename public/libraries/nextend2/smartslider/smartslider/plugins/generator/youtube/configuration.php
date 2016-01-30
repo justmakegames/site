@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SliderGeneratorYouTubeConfiguration
 {
@@ -66,8 +73,8 @@ class N2SliderGeneratorYouTubeConfiguration
 
         $client = new Google_Client();
         $client->setAccessType('offline');
-        $client->setClientId($this->configuration->get('apiKey'));
-        $client->setClientSecret($this->configuration->get('apiSecret'));
+        $client->setClientId(trim($this->configuration->get('apiKey')));
+        $client->setClientSecret(trim($this->configuration->get('apiSecret')));
         $client->addScope(Google_Service_YouTube::YOUTUBE_READONLY);
 
 
@@ -78,7 +85,7 @@ class N2SliderGeneratorYouTubeConfiguration
             )
         )));
 
-        $token = $this->configuration->get('accessToken', null);
+        $token = base64_decode($this->configuration->get('accessToken', null));
         try {
             if ($token) {
                 $client->setAccessToken($token);
@@ -86,7 +93,7 @@ class N2SliderGeneratorYouTubeConfiguration
                     $refreshToken = $client->getRefreshToken();
                     if (!empty($refreshToken)) {
                         $client->refreshToken($refreshToken);
-                        $this->configuration->set('accessToken', $client->getAccessToken());
+                        $this->configuration->set('accessToken', base64_encode($client->getAccessToken()));
                         $this->addData($this->configuration->toArray());
                     }
                 }
@@ -110,7 +117,7 @@ class N2SliderGeneratorYouTubeConfiguration
     }
 
     public function render() {
-        $form = new N2Form();
+        $form                = new N2Form();
         $form->loadArray($this->getData());
 
         $form->loadXMLFile(dirname(__FILE__) . '/configuration.xml');
@@ -153,7 +160,7 @@ class N2SliderGeneratorYouTubeConfiguration
                 return false;
             } else {
                 $data                = $this->getData();
-                $data['accessToken'] = $accessToken;
+                $data['accessToken'] = base64_encode($accessToken);
                 $this->addData($data);
                 return true;
             }

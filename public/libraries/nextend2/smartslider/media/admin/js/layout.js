@@ -1,4 +1,4 @@
-;
+
 (function (smartSlider, $, scope) {
 
     function NextendLayoutManager() {
@@ -42,7 +42,6 @@
             e.preventDefault();
         }
         var callback = $.proxy(function (slideDataOverwrite, layerOverwrite) {
-            smartSlider.history.add();
             smartSlider.slide.loadLayout(this.value, slideDataOverwrite, layerOverwrite);
         }, this);
 
@@ -82,3 +81,4 @@
     scope.NextendSmartSliderLayout = NextendSmartSliderLayout;
 
 })(nextend.smartSlider, n2, window);
+

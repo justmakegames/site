@@ -8,10 +8,6 @@
    http://docs.gantry.org/gantry5/tutorials/adding-a-custom-style-sheet
  */
 
-/* line 8, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/mixins/_sizes.scss */
-.size-100 {
-  width: 100%;
-}
 /* line 2, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/mixins/_nav.scss */
 /* line 12, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/mixins/_nav.scss */
 /* line 2, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/mixins/_utilities.scss */
@@ -20,6 +16,11 @@
 .g-content {
   margin: 0.625rem;
   padding: 0.938rem;
+}
+/* line 6, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/_flex.scss */
+.g-flushed .g-content {
+  margin: 0;
+  padding: 0;
 }
 /* line 2, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/_typography.scss */
 body {
@@ -155,22 +156,22 @@ h1, h2, h3, h4, h5, h6, strong {
   font-family: "roboto";
   font-weight: 400;
   font-style: normal;
-  src: url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.eot?562752be');
-  src: url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.eot?562752be#iefix') format('embedded-opentype'), url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.woff?562752be') format('woff'), url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.ttf?562752be') format('truetype'), url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.svg?562752be#roboto') format('svg');
+  src: url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.eot?56ac79e4');
+  src: url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.eot?56ac79e4#iefix') format('embedded-opentype'), url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.woff?56ac79e4') format('woff'), url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.ttf?56ac79e4') format('truetype'), url('../../fonts/roboto_regular_macroman/Roboto-Regular-webfont.svg?56ac79e4#roboto') format('svg');
 }
 @font-face {
   font-family: "roboto";
   font-weight: 500;
   font-style: normal;
-  src: url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.eot?562752be');
-  src: url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.eot?562752be#iefix') format('embedded-opentype'), url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.woff?562752be') format('woff'), url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.ttf?562752be') format('truetype'), url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.svg?562752be#roboto') format('svg');
+  src: url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.eot?56ac79e4');
+  src: url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.eot?56ac79e4#iefix') format('embedded-opentype'), url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.woff?56ac79e4') format('woff'), url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.ttf?56ac79e4') format('truetype'), url('../../fonts/roboto_medium_macroman/Roboto-Medium-webfont.svg?56ac79e4#roboto') format('svg');
 }
 @font-face {
   font-family: "roboto";
   font-weight: 700;
   font-style: normal;
-  src: url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.eot?562752be');
-  src: url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.eot?562752be#iefix') format('embedded-opentype'), url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.woff?562752be') format('woff'), url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.ttf?562752be') format('truetype'), url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.svg?562752be#roboto') format('svg');
+  src: url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.eot?56ac79e4');
+  src: url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.eot?56ac79e4#iefix') format('embedded-opentype'), url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.woff?56ac79e4') format('woff'), url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.ttf?56ac79e4') format('truetype'), url('../../fonts/roboto_bold_macroman/Roboto-Bold-webfont.svg?56ac79e4#roboto') format('svg');
 }
 /* line 5, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_typography.scss */
 body {
@@ -815,73 +816,107 @@ hr {
 }
 /* line 14, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
 /* line 15, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box1 .g-content {
+.moduletable[class*="box"], .widget[class*="box"], .moduletable[class*="shadow"], .widget[class*="shadow"] {
+  padding: 0.938rem;
+  margin: 0.625rem;
+}
+/* line 21, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 22, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box1.moduletable, .box1.widget, .box1.g-outer-box, .box1 > .g-content {
   background: #fff;
 }
-/* line 20, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-/* line 21, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box2 .g-content {
+/* line 25, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 26, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box1.moduletable, .box1.widget, .box1 > .g-content, .box1.moduletable h1, .box1.widget h1, .box1 > .g-content h1, .box1.moduletable h2, .box1.widget h2, .box1 > .g-content h2, .box1.moduletable h3, .box1.widget h3, .box1 > .g-content h3, .box1.moduletable h4, .box1.widget h4, .box1 > .g-content h4, .box1.moduletable h5, .box1.widget h5, .box1 > .g-content h5, .box1.moduletable h6, .box1.widget h6, .box1 > .g-content h6, .box1.moduletable strong, .box1.widget strong, .box1 > .g-content strong, .box1.moduletable i, .box1.widget i, .box1 > .g-content i {
+  color: #595959;
+}
+/* line 32, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 33, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box2.moduletable, .box2.widget, .box2.g-outer-box, .box2 > .g-content {
   background: #e0e0e0;
 }
-/* line 26, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-/* line 27, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box3 .g-content {
+/* line 36, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 37, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box2.moduletable, .box2.widget, .box2 > .g-content, .box2.moduletable h1, .box2.widget h1, .box2 > .g-content h1, .box2.moduletable h2, .box2.widget h2, .box2 > .g-content h2, .box2.moduletable h3, .box2.widget h3, .box2 > .g-content h3, .box2.moduletable h4, .box2.widget h4, .box2 > .g-content h4, .box2.moduletable h5, .box2.widget h5, .box2 > .g-content h5, .box2.moduletable h6, .box2.widget h6, .box2 > .g-content h6, .box2.moduletable strong, .box2.widget strong, .box2 > .g-content strong, .box2.moduletable i, .box2.widget i, .box2 > .g-content i {
+  color: #6d6d6d;
+}
+/* line 43, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 44, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box3.moduletable, .box3.widget, .box3.g-outer-box, .box3 > .g-content {
   background: #3180c2;
+}
+/* line 48, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 49, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box3.moduletable, .box3.widget, .box3 > .g-content, .box3.moduletable h1, .box3.widget h1, .box3 > .g-content h1, .box3.moduletable h2, .box3.widget h2, .box3 > .g-content h2, .box3.moduletable h3, .box3.widget h3, .box3 > .g-content h3, .box3.moduletable h4, .box3.widget h4, .box3 > .g-content h4, .box3.moduletable h5, .box3.widget h5, .box3 > .g-content h5, .box3.moduletable h6, .box3.widget h6, .box3 > .g-content h6, .box3.moduletable strong, .box3.widget strong, .box3 > .g-content strong, .box3.moduletable i, .box3.widget i, .box3 > .g-content i {
   color: #fff;
 }
-/* line 30, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box3 .g-content h1, .box3 .g-content h2, .box3 .g-content h3, .box3 .g-content h4, .box3 .g-content h5, .box3 .g-content h6, .box3 .g-content strong, .box3 .g-content i {
-  color: #fff;
-}
-/* line 33, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box3 .g-content a {
+/* line 52, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box3.moduletable a, .box3.widget a, .box3 > .g-content a {
   color: #b8d5ed;
 }
-/* line 35, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box3 .g-content a:hover {
-  color: #fff;
-}
-/* line 42, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-/* line 43, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box4 .g-content {
-  background: #ef6c00;
-  color: #fff;
-}
-/* line 46, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box4 .g-content h1, .box4 .g-content h2, .box4 .g-content h3, .box4 .g-content h4, .box4 .g-content h5, .box4 .g-content h6, .box4 .g-content strong, .box4 .g-content i {
-  color: #fff;
-}
-/* line 49, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box4 .g-content a {
-  color: #ffcca3;
-}
-/* line 51, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.box4 .g-content a:hover {
+/* line 54, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box3.moduletable a:hover, .box3.widget a:hover, .box3 > .g-content a:hover {
   color: #fff;
 }
 /* line 58, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-/* line 59, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.shadow .g-content {
-  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+.box3.moduletable .button, .box3.widget .button, .box3 > .g-content .button {
+  color: #fff;
+  background: #5399d3;
 }
-/* line 64, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-/* line 65, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.shadow2 .g-content {
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+/* line 61, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box3.moduletable .button:hover, .box3.widget .button:hover, .box3 > .g-content .button:hover {
+  background: #67a5d9;
 }
-/* line 70, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-/* line 71, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.disabled .g-content {
-  opacity: 0.4;
+/* line 68, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 69, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box4.moduletable, .box4.widget, .box4.g-outer-box, .box4 > .g-content {
+  background: #ef6c00;
+}
+/* line 72, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 73, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box4.moduletable, .box4.widget, .box4 > .g-content, .box4.moduletable h1, .box4.widget h1, .box4 > .g-content h1, .box4.moduletable h2, .box4.widget h2, .box4 > .g-content h2, .box4.moduletable h3, .box4.widget h3, .box4 > .g-content h3, .box4.moduletable h4, .box4.widget h4, .box4 > .g-content h4, .box4.moduletable h5, .box4.widget h5, .box4 > .g-content h5, .box4.moduletable h6, .box4.widget h6, .box4 > .g-content h6, .box4.moduletable strong, .box4.widget strong, .box4 > .g-content strong, .box4.moduletable i, .box4.widget i, .box4 > .g-content i {
+  color: #fff;
 }
 /* line 76, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-/* line 77, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.square .g-content {
-  border-radius: none;
+.box4.moduletable a, .box4.widget a, .box4 > .g-content a {
+  color: #ffcca3;
+}
+/* line 78, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box4.moduletable a:hover, .box4.widget a:hover, .box4 > .g-content a:hover {
+  color: #fff;
 }
 /* line 82, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-/* line 83, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
-.rounded .g-content {
+.box4.moduletable .button, .box4.widget .button, .box4 > .g-content .button {
+  color: #ffe8d6;
+  background: #ff943d;
+}
+/* line 85, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.box4.moduletable .button:hover, .box4.widget .button:hover, .box4 > .g-content .button:hover {
+  background: #ff8623;
+}
+/* line 92, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 93, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.shadow.moduletable, .shadow.widget, .shadow.g-outer-box, .shadow > .g-content {
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+/* line 98, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 99, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.shadow2.moduletable, .shadow2.widget, .shadow2.g-outer-box, .shadow2 > .g-content {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+}
+/* line 104, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 105, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.disabled.moduletable, .disabled.widget, .disabled.g-outer-box, .disabled > .g-content {
+  opacity: 0.4;
+}
+/* line 110, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 111, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.square.moduletable, .square.widget, .square.g-outer-box, .square > .g-content {
+  border-radius: none;
+}
+/* line 116, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+/* line 117, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_variations.scss */
+.rounded.moduletable, .rounded.widget, .rounded.g-outer-box, .rounded > .g-content {
   border-radius: 0.1875rem;
 }
 /* line 1, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_tables.scss */
@@ -973,7 +1008,7 @@ input[type="email"]:focus, input[type="number"]:focus, input[type="password"]:fo
     height: 203px;
     position: absolute;
     z-index: 1;
-    background: url('../../images/macbook.png?562752be');
+    background: url('../../images/macbook.png?56ac79e4');
   }
   /* line 31, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_sample.scss */
   .sample-content .device-promo .macbook .macbook-color {
@@ -990,7 +1025,7 @@ input[type="email"]:focus, input[type="number"]:focus, input[type="password"]:fo
     height: 203px;
     position: absolute;
     z-index: 2;
-    background: url('../../images/ipad.png?562752be');
+    background: url('../../images/ipad.png?56ac79e4');
   }
   /* line 46, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_sample.scss */
   .sample-content .device-promo .ipad .ipad-color {
@@ -1007,7 +1042,7 @@ input[type="email"]:focus, input[type="number"]:focus, input[type="password"]:fo
     height: 203px;
     position: absolute;
     z-index: 3;
-    background: url('../../images/iphone.png?562752be');
+    background: url('../../images/iphone.png?56ac79e4');
   }
   /* line 61, /var/www/justmakegames.com/public/templates/g5_hydrogen/scss/hydrogen/_sample.scss */
   .sample-content .device-promo .iphone .iphone-color {
@@ -1254,7 +1289,11 @@ input[type="email"]:focus, input[type="number"]:focus, input[type="password"]:fo
     width: 100%;
   }
 }
-/* line 19, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
+/* line 17, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
+.g-container.g-flushed {
+  width: 100%;
+}
+/* line 23, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
 @media only all and (max-width: 47.938rem) {
   .g-block {
     -webkit-box-flex: 0;
@@ -1266,7 +1305,7 @@ input[type="email"]:focus, input[type="number"]:focus, input[type="password"]:fo
     flex: 0 100%;
   }
 }
-/* line 25, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
+/* line 29, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
 @media only all and (max-width: 47.938rem) {
   body [class*="size-"] {
     -webkit-box-flex: 0;
@@ -1280,7 +1319,7 @@ input[type="email"]:focus, input[type="number"]:focus, input[type="password"]:fo
 }
 @media only all and (max-width: 47.938rem) {
   @supports not (flex-wrap: wrap) {
-    /* line 34, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
+    /* line 38, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
     .g-grid {
       display: block;
       -webkit-box-lines: inherit;
@@ -1291,7 +1330,7 @@ input[type="email"]:focus, input[type="number"]:focus, input[type="password"]:fo
       -ms-flex-wrap: inherit;
       flex-wrap: inherit;
     }
-    /* line 38, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
+    /* line 42, /var/www/justmakegames.com/public/media/gantry5/engines/nucleus/scss/nucleus/theme/breakpoints/_flex.scss */
     .g-block {
       display: block;
       -webkit-box-flex: inherit;

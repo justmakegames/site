@@ -1,7 +1,21 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderTypeAccordion extends N2SmartSliderType
 {
+
+    public static function getItemDefaults() {
+        return array(
+            'align'  => 'left',
+            'valign' => 'top'
+        );
+    }
 
     public function getDefaults() {
         return array(
@@ -18,12 +32,12 @@ class N2SmartSliderTypeAccordion extends N2SmartSliderType
             'title-size'          => 30,
             'title-margin'        => 10,
             'title-border-radius' => 2,
-            'title-font'          => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmZmZiIsInNpemUiOiIxNHx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwZmYiLCJhZm9udCI6Imdvb2dsZShAaW1wb3J0IHVybChodHRwOi8vZm9udHMuZ29vZ2xlYXBpcy5jb20vY3NzP2ZhbWlseT1Nb250c2VycmF0KTspLEFyaWFsIiwibGluZWhlaWdodCI6IjEuMyIsImJvbGQiOjAsIml0YWxpYyI6MCwidW5kZXJsaW5lIjowLCJhbGlnbiI6ImxlZnQiLCJleHRyYSI6InRleHQtdHJhbnNmb3JtOiB1cHBlcmNhc2U7In0se31dfQ==',
+            'title-font'          => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siZXh0cmEiOiJ0ZXh0LXRyYW5zZm9ybTogdXBwZXJjYXNlOyIsImNvbG9yIjoiZmZmZmZmZmYiLCJzaXplIjoiMTR8fHB4IiwidHNoYWRvdyI6IjB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYWZvbnQiOiJNb250c2VycmF0IiwibGluZWhlaWdodCI6IjEuMyIsImJvbGQiOjAsIml0YWxpYyI6MCwidW5kZXJsaW5lIjowLCJhbGlnbiI6ImxlZnQiLCJsZXR0ZXJzcGFjaW5nIjoibm9ybWFsIiwid29yZHNwYWNpbmciOiJub3JtYWwiLCJ0ZXh0dHJhbnNmb3JtIjoibm9uZSJ9LHsiZXh0cmEiOiIifV19',
             'animation-duration'  => 1000,
             'slider-outer-css'    => '',
             'slider-inner-css'    => 'box-shadow: 0 1px 3px 1px RGBA(0, 0, 0, .3) inset;',
             'slider-title-css'    => 'box-shadow: 0 0 0 1px RGBA(255, 255, 255, .05) inset, 0 0 2px 1px RGBA(0, 0, 0, .3);',
-            'animation-easing'    => 'easeInCubic'
+            'animation-easing'    => 'easeOutQuad'
         );
     }
 
@@ -39,17 +53,17 @@ class N2SmartSliderTypeAccordion extends N2SmartSliderType
 
         echo $this->openSliderElement();
 
-        echo NHtml::openTag('div', array(
+        echo N2Html::openTag('div', array(
             'class' => 'n2-ss-slider-1',
             'style' => $params->get('slider-outer-css')
         ));
 
-        echo NHtml::openTag('div', array(
+        echo N2Html::openTag('div', array(
             'class' => 'n2-ss-slider-2',
             'style' => $params->get('slider-inner-css')
         ));
 
-        echo $this->slider->renderStaticSlide();
+        echo $this->slider->staticHtml;
 
         foreach ($this->slider->slides AS $i => $slide) {
             ?>
@@ -57,7 +71,7 @@ class N2SmartSliderTypeAccordion extends N2SmartSliderType
                 <?php
                 $font = N2FontRenderer::render($params->get('title-font'), 'accordionslidetitle', $this->slider->elementId, 'div#' . $this->slider->elementId . ' ');
 
-                echo NHtml::openTag('div', array(
+                echo N2Html::openTag('div', array(
                     'class' => 'n2-accordion-title ' . $font,
                     'style' => $params->get('slider-title-css')
                 ));
@@ -67,10 +81,10 @@ class N2SmartSliderTypeAccordion extends N2SmartSliderType
                         <?php echo $slide->getTitle(); ?>
                     </div>
                 </div>
-                <?php echo NHtml::closeTag('div'); ?>
+                <?php echo N2Html::closeTag('div'); ?>
                 <div class="n2-accordion-slide" style="<?php echo $slide->style; ?>">
                     <?php
-                    echo NHtml::tag('div', $slide->attributes + array(
+                    echo N2Html::tag('div', $slide->attributes + array(
                             'class' => 'n2-ss-canvas',
                         ), $slide->background . $slide->getHTML());
                     ?>
@@ -79,11 +93,11 @@ class N2SmartSliderTypeAccordion extends N2SmartSliderType
         <?php
         }
 
-        echo NHtml::closeTag('div');
-        echo NHtml::closeTag('div');
+        echo N2Html::closeTag('div');
+        echo N2Html::closeTag('div');
 
         $this->widgets->echoRemainder();
-        echo NHtml::closeTag('div');
+        echo N2Html::closeTag('div');
 
         $this->javaScriptProperties['carousel']      = $params->get('carousel');
         $this->javaScriptProperties['orientation']   = $params->get('orientation');
@@ -96,7 +110,7 @@ class N2SmartSliderTypeAccordion extends N2SmartSliderType
 
         N2JS::addFirstCode("new NextendSmartSliderAccordion(n2('#{$this->slider->elementId}'), " . json_encode($this->javaScriptProperties) . ");");
 
-        echo NHtml::clear();
+        echo N2Html::clear();
     }
 
     protected function getSliderClasses() {

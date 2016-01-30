@@ -8,6 +8,14 @@
             e.stopImmediatePropagation();
             this.showModal();
         }, this));
+
+        this.notificationStack = new NextendNotificationCenterStackModal($('body'));
+        $('.n2-ss-demo-slider').click($.proxy(function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            nextend.smartSlider.license.isActiveAsync().done($.proxy(this.showDemoSliders, this));
+
+        }, this));
     }
 
     NextendSmartSliderCreateSlider.prototype.showModal = function () {
@@ -141,6 +149,56 @@
             });
         }
         this.createSliderModal.show();
+    };
+
+    NextendSmartSliderCreateSlider.prototype.showDemoSliders = function () {
+        var that = this;
+        $('body').css('overflow', 'hidden');
+        var frame = $('<iframe src="//smartslider3.com/demo-import/?pro=' + (N2SSPRO ? '1' : '0') + '" frameborder="0"></iframe>').css({
+                position: 'fixed',
+                zIndex: 100000,
+                left: 0,
+                top: 0,
+                width: '100%',
+                height: '100%'
+            }).appendTo('body'),
+            closeFrame = function () {
+                $('body').css('overflow', '');
+                frame.remove();
+                window.removeEventListener("message", listener, false);
+                that.notificationStack.popStack();
+            },
+            listener = function (e) {
+                if (e.origin !== "http://smartslider3.com" && e.origin !== "https://smartslider3.com")
+                    return;
+                var msg = e.data;
+                switch (msg.key) {
+                    case 'importSlider':
+                        NextendAjaxHelper.ajax({
+                            type: "POST",
+                            url: NextendAjaxHelper.makeAjaxUrl(that.ajaxUrl, {
+                                nextendaction: 'importDemo'
+                            }),
+                            data: {
+                                key: Base64.encode(msg.data.href.replace(/^(http(s)?:)?\/\//, '//'))
+                            },
+                            dataType: 'json'
+                        }).fail(function () {
+                            //closeFrame();
+                        });
+                        break;
+                    case 'closeWindow':
+                        closeFrame();
+                }
+            };
+
+        this.notificationStack.enableStack();
+        NextendEsc.add($.proxy(function () {
+            closeFrame();
+            return true;
+        }, this));
+
+        window.addEventListener("message", listener, false);
     };
 
     scope.NextendSmartSliderCreateSlider = NextendSmartSliderCreateSlider;

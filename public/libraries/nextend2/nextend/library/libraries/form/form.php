@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.xml.helper');
 
 class N2FormAbstract extends N2Data
@@ -66,11 +73,11 @@ class N2FormAbstract extends N2Data
     }
 
     function decorateFormStart() {
-        echo NHtml::openTag("div", array("class" => "n2-form"));
+        echo N2Html::openTag("div", array("class" => "n2-form"));
     }
 
     function decorateFormEnd() {
-        echo NHtml::closeTag("div");
+        echo N2Html::closeTag("div");
         N2GoogleFonts::addFont('Open Sans');
         N2GoogleFonts::addFont('Open Sans', 600);
         N2GoogleFonts::addFont('Open Sans', 700);
@@ -94,11 +101,22 @@ class N2FormAbstract extends N2Data
         $this->_xml = $xml;
     }
 
-    function getSubform($tab, $name) {
-        $this->initTabs();
-        if (isset($this->_tabs[$tab])) {
-            if (isset($this->_tabs[$tab]->_elements[$name])) {
-                return $this->_tabs[$tab]->_elements[$name];
+    function getSubFormAjax($tab, $name) {
+        $tabsFound = $this->_xml->xpath('//params[@name="' . $tab . '"]');
+        if (count($tabsFound) > 0) {
+            if ($this->xmlFolder) {
+                N2Form::$importPaths[] = $this->xmlFolder;
+            }
+
+            $type = N2XmlHelper::getAttribute($tabsFound[0], 'type');
+            if ($type == '') {
+                $type = 'default';
+            }
+
+            $class     = self::importTab($type);
+            $tabObject = new $class($this, $tabsFound[0]);
+            if (isset($tabObject->_elements[$name])) {
+                return $tabObject->_elements[$name];
             }
         }
         return null;

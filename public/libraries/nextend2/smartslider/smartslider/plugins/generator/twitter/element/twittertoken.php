@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.form.element.text');
 
@@ -7,18 +14,15 @@ class N2ElementTwitterToken extends N2ElementText
 
     function fetchElement() {
 
+        $url = parse_url(N2Uri::getBaseUri());
+
         N2JS::addInline('new NextendElementTwitterToken("' . $this->_id . '", "' . N2Base::getApplication('smartslider')->router->createAjaxUrl(array(
                 "generator/getAuthUrl",
                 array(
                     'group' => N2Request::getVar('group'),
                     'type'  => N2Request::getVar('type')
                 )
-            )) . '", "' . N2Base::getApplication('smartslider')->router->createUrl(array(
-                "generator/finishauth",
-                array(
-                    'group' => 'twitter'
-                )
-            )) . '")');
+            )) . '", "' . $url['scheme'] . '://' . $url['host'] . '")');
 
         return parent::fetchElement();
     }

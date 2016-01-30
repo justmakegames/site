@@ -4,6 +4,15 @@
         isMobile = null;
 
     function NextendSmartSliderResponsive(slider, parameters) {
+        if (slider.isAdmin) {
+            this.doResize = NextendThrottle(this.doResize, 50);
+        }
+
+        if (typeof nextend.fontsDeferred === 'undefined') {
+            this.triggerResize = this._triggerResize;
+        }
+
+
         this.fixedEditRatio = 1;
         this.normalizeTimeout = null;
         this.delayedResizeAdded = false;
@@ -35,7 +44,13 @@
         this.slider = slider;
         this.sliderElement = slider.sliderElement;
 
+
+        this.alignElement = this.slider.sliderElement.closest('.n2-ss-align');
+
         var ready = this.ready = $.Deferred();
+
+        this.sliderElement.triggerHandler('SliderResponsiveStarted');
+
         this.sliderElement.one('SliderResize', function () {
             ready.resolve();
         });
@@ -49,14 +64,27 @@
 
             onResizeEnabled: true,
             type: 'auto',
-            downscale: false,
-            upscale: true,
+            downscale: true,
+            upscale: false,
             minimumHeight: 0,
             maximumHeight: 0,
             minimumHeightRatio: 0,
-            maximumHeightRatio: -1,
+            maximumHeightRatio: {
+                desktopLandscape: 0,
+                desktopPortrait: 0,
+                mobileLandscape: 0,
+                mobilePortrait: 0,
+                tabletLandscape: 0,
+                tabletPortrait: 0
+            },
             maximumSlideWidth: 0,
+            maximumSlideWidthLandscape: 0,
             maximumSlideWidthRatio: -1,
+            maximumSlideWidthTablet: 0,
+            maximumSlideWidthTabletLandscape: 0,
+            maximumSlideWidthMobile: 0,
+            maximumSlideWidthMobileLandscape: 0,
+            maximumSlideWidthConstrainHeight: 0,
             forceFull: 0,
             verticalOffsetSelectors: '',
 
@@ -112,11 +140,17 @@
             },
 
             basedOn: 'combined',
+            desktopPortraitScreenWidth: 1200,
             tabletPortraitScreenWidth: 800,
             mobilePortraitScreenWidth: 440,
             tabletLandscapeScreenWidth: 1024,
-            mobileLandscapeScreenWidth: 740
+            mobileLandscapeScreenWidth: 740,
+            orientationMode: 'width_and_height'
         }, parameters);
+
+        if (this.parameters.orientationMode == 'width') {
+            this.orientationMode = NextendSmartSliderResponsive.OrientationMode.SCREEN_WIDTH_ONLY;
+        }
 
         nextend.smallestZoom = Math.min(Math.max(parameters.sliderWidthToDevice.mobilePortrait, 120), 380);
 
@@ -155,21 +189,30 @@
         }
 
         if (this.parameters.maximumHeight > 0 && this.parameters.maximumHeight >= this.parameters.minimumHeight) {
-            this.parameters.maximumHeightRatio = this.parameters.maximumHeight / this.responsiveDimensions.startHeight;
+            this.parameters.maximumHeightRatio = {
+                desktopPortrait: this.parameters.maximumHeight / this.responsiveDimensions.startHeight
+            };
+            this.parameters.maximumHeightRatio.desktopLandscape = this.parameters.maximumHeightRatio.desktopPortrait;
+            this.parameters.maximumHeightRatio.tabletPortrait = this.parameters.maximumHeightRatio.desktopPortrait;
+            this.parameters.maximumHeightRatio.tabletLandscape = this.parameters.maximumHeightRatio.desktopPortrait;
+            this.parameters.maximumHeightRatio.mobilePortrait = this.parameters.maximumHeightRatio.desktopPortrait;
+            this.parameters.maximumHeightRatio.mobileLandscape = this.parameters.maximumHeightRatio.desktopPortrait;
         }
 
         if (this.parameters.maximumSlideWidth > 0) {
-            this.parameters.maximumSlideWidthRatio = this.parameters.maximumSlideWidth / this.responsiveDimensions.startSlideWidth
-        }
+            this.parameters.maximumSlideWidthRatio = {
+                desktopPortrait: this.parameters.maximumSlideWidth / this.responsiveDimensions.startSlideWidth,
+                desktopLandscape: this.parameters.maximumSlideWidthLandscape / this.responsiveDimensions.startSlideWidth,
+                tabletPortrait: this.parameters.maximumSlideWidthTablet / this.responsiveDimensions.startSlideWidth,
+                tabletLandscape: this.parameters.maximumSlideWidthTabletLandscape / this.responsiveDimensions.startSlideWidth,
+                mobilePortrait: this.parameters.maximumSlideWidthMobile / this.responsiveDimensions.startSlideWidth,
+                mobileLandscape: this.parameters.maximumSlideWidthMobileLandscape / this.responsiveDimensions.startSlideWidth
+            }
 
-        this.defaultRatios = {
-            ratio: 1,
-            w: 1,
-            h: 1,
-            slideW: 1,
-            slideH: 1
-        };
-        this._buildRatios(this.defaultRatios);
+            if (this.parameters.maximumSlideWidthConstrainHeight) {
+                this.parameters.maximumHeightRatio = this.parameters.maximumSlideWidthRatio;
+            }
+        }
 
         n2c.log('Responsive: First resize');
         if (typeof nextend !== 'undefined' && typeof nextend['ssBeforeResponsive'] !== 'undefined') {
@@ -185,7 +228,8 @@
     NextendSmartSliderResponsive.OrientationMode = {
         SCREEN: 0,
         ADMIN_LANDSCAPE: 1,
-        ADMIN_PORTRAIT: 2
+        ADMIN_PORTRAIT: 2,
+        SCREEN_WIDTH_ONLY: 3
     };
     NextendSmartSliderResponsive.DeviceOrientation = {
         UNKNOWN: 0,
@@ -306,6 +350,10 @@
         return NextendSmartSliderResponsive._DeviceMode[this.deviceMode];
     };
 
+    NextendSmartSliderResponsive.prototype.getDeviceModeOrientation = function () {
+        return NextendSmartSliderResponsive._DeviceMode[this.deviceMode] + NextendSmartSliderResponsive._DeviceOrientation[this.orientation];
+    };
+
     NextendSmartSliderResponsive.prototype.onResize = function () {
         if (this.slider.mainAnimation.getState() == 'ended') {
             this.doResize();
@@ -372,6 +420,22 @@
         return NextendSmartSliderResponsive.DeviceMode.DESKTOP;
     };
 
+    NextendSmartSliderResponsive.prototype._getDeviceAndOrientationByScreenWidth = function () {
+        var viewportWidth = window.innerWidth;
+        if (viewportWidth < this.parameters.mobilePortraitScreenWidth) {
+            return [NextendSmartSliderResponsive.DeviceMode.MOBILE, NextendSmartSliderResponsive.DeviceOrientation.PORTRAIT];
+        } else if (viewportWidth < this.parameters.mobileLandscapeScreenWidth) {
+            return [NextendSmartSliderResponsive.DeviceMode.MOBILE, NextendSmartSliderResponsive.DeviceOrientation.LANDSCAPE];
+        } else if (viewportWidth < this.parameters.tabletPortraitScreenWidth) {
+            return [NextendSmartSliderResponsive.DeviceMode.TABLET, NextendSmartSliderResponsive.DeviceOrientation.PORTRAIT];
+        } else if (viewportWidth < this.parameters.tabletLandscapeScreenWidth) {
+            return [NextendSmartSliderResponsive.DeviceMode.TABLET, NextendSmartSliderResponsive.DeviceOrientation.LANDSCAPE];
+        } else if (viewportWidth < this.parameters.desktopPortraitScreenWidth) {
+            return [NextendSmartSliderResponsive.DeviceMode.DESKTOP, NextendSmartSliderResponsive.DeviceOrientation.PORTRAIT];
+        }
+        return [NextendSmartSliderResponsive.DeviceMode.DESKTOP, NextendSmartSliderResponsive.DeviceOrientation.LANDSCAPE];
+    };
+
     NextendSmartSliderResponsive.prototype._getDeviceDevice = function (device) {
         if (isMobile === true) {
             return NextendSmartSliderResponsive.DeviceMode.MOBILE;
@@ -412,22 +476,33 @@
         // required to force recalculate if the thumbnails widget get hidden.
         this.refreshMargin();
 
-        if (!this.slider.isAdmin) {
-            if (this.parameters.type == 'fullpage') {
-                this.parameters.maximumHeightRatio = this.parameters.minimumHeightRatio = ((document.documentElement.clientHeight || document.body.clientHeight) - this.getVerticalOffsetHeight()) / this.responsiveDimensions.startHeight;
-            }
+        if (this.slider.parameters.align == 'center') {
+            this.alignElement.css('maxWidth', this.responsiveDimensions.startWidth);
+        }
 
+        if (!this.slider.isAdmin) {
             if (this.parameters.forceFull) {
                 $('body').css('overflow-x', 'hidden');
-                this.containerElement.css('marginLeft', -this.containerElement.parent().offset().left).width(document.documentElement.clientWidth || document.body.clientWidth);
+                var outerEl = this.containerElement.parent();
+                this.containerElement.css('marginLeft', -outerEl.offset().left - parseInt(outerEl.css('paddingLeft')) - parseInt(outerEl.css('borderLeftWidth'))).width(document.body.clientWidth || document.documentElement.clientWidth);
             }
         }
         var ratio = this.containerElementPadding.width() / this.getOuterWidth();
 
+
         var hasOrientationOrDeviceChange = false,
             lastOrientation = this.orientation,
             lastDevice = this.deviceMode,
-            targetOrientation = this._getOrientation();
+            targetOrientation = null,
+            targetMode = null;
+
+        if (this.orientationMode == NextendSmartSliderResponsive.OrientationMode.SCREEN_WIDTH_ONLY) {
+            var deviceOrientation = this._getDeviceAndOrientationByScreenWidth();
+            targetMode = deviceOrientation[0]
+            targetOrientation = deviceOrientation[1];
+        } else {
+            targetOrientation = this._getOrientation()
+        }
 
         if (this.orientation != targetOrientation) {
             this.orientation = targetOrientation;
@@ -443,7 +518,9 @@
         }
 
         if (!fixedMode) {
-            var targetMode = this._getDevice(ratio);
+            if (this.orientationMode != NextendSmartSliderResponsive.OrientationMode.SCREEN_WIDTH_ONLY) {
+                targetMode = this._getDevice(ratio);
+            }
 
             if (this.deviceMode != targetMode) {
                 this.deviceMode = targetMode;
@@ -458,6 +535,12 @@
                     device: NextendSmartSliderResponsive._DeviceMode[targetMode]
                 });
                 hasOrientationOrDeviceChange = true;
+            }
+        }
+
+        if (!this.slider.isAdmin) {
+            if (this.parameters.type == 'fullpage') {
+                this.parameters.maximumHeightRatio[this.getDeviceModeOrientation()] = this.parameters.minimumHeightRatio = ((document.documentElement.clientHeight || document.body.clientHeight) - this.getVerticalOffsetHeight()) / this.responsiveDimensions.startHeight;
             }
         }
 
@@ -494,6 +577,10 @@
         }
         this._doResize(ratio, timeline, nextSlideIndex, duration);
         //}
+
+        if (this.slider.parameters.align == 'center') {
+            this.alignElement.css('maxWidth', this.responsiveDimensions.slider.width);
+        }
     };
 
     NextendSmartSliderResponsive.prototype._normalizeMode = function (device, orientation) {
@@ -514,7 +601,6 @@
     };
 
     NextendSmartSliderResponsive.prototype._doResize = function (ratio, timeline, nextSlideIndex, duration) {
-
         var ratios = {
             ratio: ratio,
             w: ratio,
@@ -525,12 +611,14 @@
         };
 
         this._buildRatios(ratios, this.slider.parameters.dynamicHeight, nextSlideIndex);
+        /*
+         if (this.fixedEditRatio && this.slider.isAdmin) {
+         ratios.w = ratios.slideW;
+         ratios.h = ratios.slideH;
+         }
+         */
+        ratios.fontRatio = ratios.slideW;
 
-        if (this.fixedEditRatio && this.slider.isAdmin) {
-            ratios.w = ratios.slideW;
-            ratios.h = ratios.slideH;
-        }
-        ratios.fontRatio = 1 / this.defaultRatios.slideW * ratios.slideW;
 
         var isChanged = false;
         for (var k in ratios) {
@@ -547,14 +635,24 @@
             if (timeline) {
                 this.sliderElement.trigger('SliderAnimatedResize', [ratios, timeline, duration]);
                 timeline.eventCallback("onComplete", function () {
-                    n2c.log('Event: SliderResize', ratios);
-                    this.sliderElement.trigger('SliderResize', [ratios, this, timeline]);
+                    this.triggerResize(ratios, timeline);
                 }, [], this);
             } else {
-                n2c.log('Event: SliderResize', ratios);
-                this.sliderElement.trigger('SliderResize', [ratios, this, timeline]);
+                this.triggerResize(ratios, timeline);
             }
         }
+    };
+
+    NextendSmartSliderResponsive.prototype.triggerResize = function (ratios, timeline) {
+        nextend.fontsDeferred.done($.proxy(function () {
+            this.triggerResize = this._triggerResize;
+            this._triggerResize(ratios, timeline);
+        }, this));
+    };
+
+    NextendSmartSliderResponsive.prototype._triggerResize = function (ratios, timeline) {
+        n2c.log('Event: SliderResize', ratios);
+        this.sliderElement.trigger('SliderResize', [ratios, this, timeline]);
     };
 
     NextendSmartSliderResponsive.prototype._buildRatios = function (ratios, dynamicHeight, nextSlideIndex) {
@@ -562,29 +660,36 @@
             ratios.h = Math.max(ratios.h, this.parameters.minimumHeightRatio);
         }
 
-        if (this.parameters.maximumHeightRatio > 0) {
-            ratios.h = Math.min(ratios.h, this.parameters.maximumHeightRatio);
+        var deviceModeOrientation = this.getDeviceModeOrientation();
+
+        if (this.parameters.maximumHeightRatio[deviceModeOrientation] > 0) {
+            ratios.h = Math.min(ratios.h, this.parameters.maximumHeightRatio[deviceModeOrientation]);
         }
 
-        if (this.parameters.maximumSlideWidthRatio > 0 && ratios.slideW > this.parameters.maximumSlideWidthRatio) {
-            ratios.slideW = this.parameters.maximumSlideWidthRatio;
+        if (this.parameters.maximumSlideWidthRatio[deviceModeOrientation] > 0 && ratios.slideW > this.parameters.maximumSlideWidthRatio[deviceModeOrientation]) {
+            ratios.slideW = this.parameters.maximumSlideWidthRatio[deviceModeOrientation];
         }
 
         ratios.slideW = ratios.slideH = Math.min(ratios.slideW, ratios.slideH);
 
-        var verticalRatioModifier = this.parameters.verticalRatioModifiers[this.getDeviceMode() + NextendSmartSliderResponsive._DeviceOrientation[this.orientation]];
+        var verticalRatioModifier = this.parameters.verticalRatioModifiers[deviceModeOrientation];
         ratios.slideH *= verticalRatioModifier;
         if (this.parameters.type == 'fullpage') {
             if (ratios.slideH > ratios.h) {
                 ratios.slideW /= ratios.slideH / ratios.h;
             }
             ratios.slideH = Math.min(ratios.slideH, ratios.h);
+
+            if (this.slider.isAdmin) {
+                ratios.w = ratios.slideW;
+                ratios.h = ratios.slideH;
+            }
         } else {
             ratios.h *= verticalRatioModifier;
             ratios.slideH = Math.min(ratios.slideH, ratios.h);
             //if (this.parameters.type == 'showcase') {
             // Constrain slide ratio in showcase type
-            ratios.slideW = ratios.slideH;
+            ratios.slideW = ratios.slideH / verticalRatioModifier;
             //}
         }
 
@@ -600,6 +705,8 @@
                 ratios.h *= backgroundRatio;
             }
         }
+
+        this.sliderElement.triggerHandler('responsiveBuildRatios', [ratios]);
     };
 
     NextendSmartSliderResponsive.prototype.setOrientation = function (newOrientation) {

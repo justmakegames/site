@@ -3,14 +3,22 @@
 
     function NextendSmartSliderMainAnimationSimple(slider, parameters) {
 
+        this.postBackgroundAnimation = false;
+        this._currentBackgroundAnimation = false;
+
         parameters = $.extend({
             delay: 0,
             parallax: 0.45,
-            type: 'horinzotal'
+            type: 'horizontal',
+            shiftedBackgroundAnimation: 'auto'
         }, parameters);
         parameters.delay /= 1000;
 
         NextendSmartSliderMainAnimationAbstract.prototype.constructor.apply(this, arguments);
+        if (!slider.isAdmin && this.slider.parameters.postBackgroundAnimations != false) {
+            this.postBackgroundAnimation = new NextendSmartSliderPostBackgroundAnimation(slider, this);
+        }
+    
 
         this.setActiveSlide(this.slider.slides.eq(this.slider.currentSlideIndex));
 
@@ -48,6 +56,14 @@
     NextendSmartSliderMainAnimationSimple.prototype = Object.create(NextendSmartSliderMainAnimationAbstract.prototype);
     NextendSmartSliderMainAnimationSimple.prototype.constructor = NextendSmartSliderMainAnimationSimple;
 
+
+    NextendSmartSliderMainAnimationSimple.prototype.changeTo = function (currentSlideIndex, currentSlide, nextSlideIndex, nextSlide, reversed, isSystem) {
+        if (this.postBackgroundAnimation) {
+            this.postBackgroundAnimation.start(currentSlideIndex, nextSlideIndex);
+        }
+
+        NextendSmartSliderMainAnimationAbstract.prototype.changeTo.apply(this, arguments);
+    };
 
     /**
      * Used to hide non active slides
@@ -109,6 +125,12 @@
         var totalDuration = this.timeline.totalDuration(),
             extraDelay = this.getExtraDelay();
 
+        if (this._currentBackgroundAnimation && this.parameters.shiftedBackgroundAnimation) {
+            if (this._currentBackgroundAnimation.shiftedPreSetup) {
+                this._currentBackgroundAnimation._preSetup();
+            }
+        }
+
         if (totalDuration == 0) {
             totalDuration = 0.00001;
             extraDelay += totalDuration;
@@ -139,6 +161,32 @@
         this.slider.setActiveSlide(nextSlide);
 
         var adjustedTiming = this.adjustMainAnimation();
+
+        if (this.parameters.shiftedBackgroundAnimation != 0) {
+            var needShift = false,
+                resetShift = false;
+            if (this.parameters.shiftedBackgroundAnimation == 'auto') {
+                if (currentSlide.data('slide').$layers.length > 0) {
+                    needShift = true;
+                } else {
+                    resetShift = true;
+                }
+            } else {
+                needShift = true;
+            }
+
+            if (this._currentBackgroundAnimation && needShift) {
+                this.timeline.shiftChildren(adjustedTiming.outDuration - adjustedTiming.extraDelay);
+                if (this._currentBackgroundAnimation.shiftedPreSetup) {
+                    this._currentBackgroundAnimation._preSetup();
+                }
+            } else if (resetShift) {
+                this.timeline.shiftChildren(adjustedTiming.extraDelay);
+                if (this._currentBackgroundAnimation.shiftedPreSetup) {
+                    this._currentBackgroundAnimation._preSetup();
+                }
+            }
+        }
 
         this.timeline.to(currentSlide.get(0), adjustedTiming.outDuration, {
             opacity: 0,
@@ -195,17 +243,29 @@
             propertyValue *= -1;
         }
 
+        var inProperties = {
+                ease: this.getEase()
+            },
+            outProperties = {
+                ease: this.getEase()
+            };
+        var from = {};
         if (parallax != 1) {
             if (!reversed) {
                 currentSlide.css('zIndex', 6);
                 propertyValue *= parallax;
                 nextSlide.css(property, propertyValue);
+                from[property] = propertyValue;
             } else {
-                nextSlide.css(parallaxProperty, Math.abs(propertyValue * parallax));
-                nextSlide.css(property, propertyValue * parallax);
+                currentSlide.css('zIndex', 6);
+                inProperties[parallaxProperty] = -propertyValue;
+                propertyValue *= parallax;
+                from[property] = propertyValue;
+                from[parallaxProperty] = -propertyValue;
             }
         } else {
             nextSlide.css(property, propertyValue);
+            from[property] = propertyValue;
         }
 
         nextSlide.css('zIndex', 5);
@@ -219,23 +279,41 @@
 
         var adjustedTiming = this.adjustMainAnimation();
 
-        var inProperties = {
-            ease: this.getEase()
-        };
         inProperties[property] = 0;
-        if (reversed && parallax != 1) {
-            inProperties[parallaxProperty] = Math.abs(propertyValue);
-        }
 
-        this.timeline.to(nextSlide.get(0), adjustedTiming.inDuration, inProperties, adjustedTiming.inDelay);
-
-        var outProperties = {
-            ease: this.getEase()
-        };
+        this.timeline.fromTo(nextSlide.get(0), adjustedTiming.inDuration, from, inProperties, adjustedTiming.inDelay);
         outProperties[property] = -propertyValue;
         if (!reversed && parallax != 1) {
             outProperties[parallaxProperty] = propertyValue;
         }
+
+        if (this.parameters.shiftedBackgroundAnimation != 0) {
+            var needShift = false,
+                resetShift = false;
+            if (this.parameters.shiftedBackgroundAnimation == 'auto') {
+                if (currentSlide.data('slide').$layers.length > 0) {
+                    needShift = true;
+                } else {
+                    resetShift = true;
+                }
+            } else {
+                needShift = true;
+            }
+
+            if (this._currentBackgroundAnimation && needShift) {
+                this.timeline.shiftChildren(adjustedTiming.outDuration - adjustedTiming.extraDelay);
+                if (this._currentBackgroundAnimation.shiftedPreSetup) {
+                    this._currentBackgroundAnimation._preSetup();
+                }
+            } else if (resetShift) {
+                this.timeline.shiftChildren(adjustedTiming.extraDelay);
+                if (this._currentBackgroundAnimation.shiftedPreSetup) {
+                    this._currentBackgroundAnimation._preSetup();
+                }
+            }
+        }
+
+
         this.timeline.to(currentSlide.get(0), adjustedTiming.outDuration, outProperties, adjustedTiming.outDelay);
 
 
@@ -273,7 +351,8 @@
                     inDuration: duration,
                     outDuration: duration,
                     inDelay: backgroundAnimationDuration - duration,
-                    outDelay: extraDelay
+                    outDelay: extraDelay,
+                    extraDelay: extraDelay
                 }
             }
         } else {
@@ -283,7 +362,8 @@
             inDuration: duration,
             outDuration: duration,
             inDelay: delay,
-            outDelay: delay
+            outDelay: delay,
+            extraDelay: extraDelay
         }
     };
 

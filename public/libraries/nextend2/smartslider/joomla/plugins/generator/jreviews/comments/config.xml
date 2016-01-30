@@ -19,7 +19,7 @@
     </params>
     <params name="order" label="Order by">
         <param name="jreviewsorder" type="mixed" label="Order" default="jc.created|*|desc">
-            <param type="list" label="Field">
+            <param type="list" label="Field" translateable="1">
                 <option value="">None</option>
                 <option value="jc.created">Comment creation time</option>
                 <option value="jc.modified">Comment modification time</option>

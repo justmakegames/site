@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/templates/g5_hydrogen/blueprints/styles/main.yaml',
-    'modified' => 1445417662,
+    'modified' => 1454143972,
     'data' => [
         'name' => 'Main Colors',
         'description' => 'Main content colors for the Hydrogen theme',

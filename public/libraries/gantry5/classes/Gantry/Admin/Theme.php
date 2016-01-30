@@ -2,7 +2,7 @@
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -40,6 +40,10 @@ class Theme extends AbstractTheme
             return new Styles($c);
         };
 
+        $gantry['page'] = function ($c) {
+            return new Page($c);
+        };
+
         $gantry['defaults'] = function($c) {
             /** @var UniformResourceLocator $locator */
             $locator = $c['locator'];
@@ -49,7 +53,8 @@ class Theme extends AbstractTheme
 
             $files = (new ConfigFileFinder)->locateFiles($paths);
 
-            $config = new CompiledConfig($cache, $files, function() use ($c) {
+            $config = new CompiledConfig($cache, $files, GANTRY5_ROOT);
+            $config->setBlueprints(function() use ($c) {
                 return $c['blueprints'];
             });
 
@@ -65,7 +70,11 @@ class Theme extends AbstractTheme
         $locator = $gantry['locator'];
 
         $nucleus = $patform->getEnginePaths('nucleus')[''];
-        $relpath = Folder::getRelativePath($this->path);
+        if (strpos($this->path, '://')) {
+            $relpath = $this->path;
+        } else {
+            $relpath = Folder::getRelativePath($this->path);
+        }
         $patform->set(
             'streams.gantry-admin.prefixes', [
                 ''        => ['gantry-theme://admin', $relpath, $relpath . '/common', 'gantry-engine://admin'],
@@ -99,10 +108,14 @@ class Theme extends AbstractTheme
     /**
      * @see AbstractTheme::setTwigLoaderPaths()
      *
-     * @param \Twig_Loader_Filesystem $loader
+     * @param \Twig_LoaderInterface $loader
      */
-    protected function setTwigLoaderPaths(\Twig_Loader_Filesystem $loader)
+    protected function setTwigLoaderPaths(\Twig_LoaderInterface $loader)
     {
+        if (!($loader instanceof \Twig_Loader_Filesystem)) {
+            return;
+        }
+
         $gantry = static::gantry();
 
         /** @var UniformResourceLocator $locator */

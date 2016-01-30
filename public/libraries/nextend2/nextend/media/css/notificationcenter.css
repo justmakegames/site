@@ -121,15 +121,18 @@
     margin: 0;
 }
 
-.n2-notification-message-error {
+.n2-notification-message-error,
+.n2-notification-message-error h4 {
     color: #c44e3d;
 }
 
-.n2-notification-message-success {
+.n2-notification-message-success,
+.n2-notification-message-success h4 {
     color: #50aa31;
 }
 
-.n2-notification-message-notice {
+.n2-notification-message-notice,
+.n2-notification-message-notice h4 {
     color: #1999e3;
 }
 

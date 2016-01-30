@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 
@@ -15,6 +22,7 @@ class N2SSPluginWidgetFullScreenImage extends N2SSPluginWidgetAbstract
             'widget-fullscreen-responsive-tablet'  => 0.7,
             'widget-fullscreen-responsive-mobile'  => 0.5,
             'widget-fullscreen-tonormal-image'     => '',
+            'widget-fullscreen-tonormal-color'     => 'ffffffcc',
             'widget-fullscreen-tonormal'           => '$ss$/plugins/widgetfullscreen/image/image/tonormal/full1.svg',
             'widget-fullscreen-style'              => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYWIiLCJwYWRkaW5nIjoiMTB8KnwxMHwqfDEwfCp8MTB8KnxweCIsImJveHNoYWRvdyI6IjB8KnwwfCp8MHwqfDB8KnwwMDAwMDBmZiIsImJvcmRlciI6IjB8Knxzb2xpZHwqfDAwMDAwMGZmIiwiYm9yZGVycmFkaXVzIjoiMyIsImV4dHJhIjoiIn0seyJiYWNrZ3JvdW5kY29sb3IiOiIwMDAwMDBhYiJ9XX0=',
             'widget-fullscreen-position-mode'      => 'simple',
@@ -22,6 +30,7 @@ class N2SSPluginWidgetFullScreenImage extends N2SSPluginWidgetAbstract
             'widget-fullscreen-position-offset'    => 15,
             'widget-fullscreen-mirror'             => 1,
             'widget-fullscreen-tofull-image'       => '',
+            'widget-fullscreen-tofull-color'       => 'ffffffcc',
             'widget-fullscreen-tofull'             => '$ss$/plugins/widgetfullscreen/image/image/tofull/full1.svg'
         );
     }
@@ -47,7 +56,8 @@ class N2SSPluginWidgetFullScreenImage extends N2SSPluginWidgetAbstract
     static function render($slider, $id, $params) {
         $html = '';
 
-        $toNormal = $params->get(self::$key . 'tonormal-image');
+        $toNormal      = $params->get(self::$key . 'tonormal-image');
+        $toNormalColor = $params->get(self::$key . 'tonormal-color');
         if (empty($toNormal)) {
             $toNormal = $params->get(self::$key . 'tonormal');
             if ($toNormal == -1) {
@@ -58,9 +68,11 @@ class N2SSPluginWidgetFullScreenImage extends N2SSPluginWidgetAbstract
         }
 
         if ($params->get(self::$key . 'mirror')) {
-            $toFull = str_replace('image/tonormal/', 'image/tofull/', $toNormal);
+            $toFull      = str_replace('image/tonormal/', 'image/tofull/', $toNormal);
+            $toFullColor = $toNormalColor;
         } else {
-            $toFull = $params->get(self::$key . 'tofull-image');
+            $toFull      = $params->get(self::$key . 'tofull-image');
+            $toFullColor = $params->get(self::$key . 'tofull-color');
             if (empty($toFull)) {
                 $toFull = $params->get(self::$key . 'tofull');
                 if ($toFull == -1) {
@@ -73,6 +85,35 @@ class N2SSPluginWidgetFullScreenImage extends N2SSPluginWidgetAbstract
 
 
         if ($toNormal && $toFull) {
+
+
+            $ext = pathinfo($toNormal, PATHINFO_EXTENSION);
+            if (substr($toNormal, 0, 1) == '$' && $ext == 'svg') {
+                list($color, $opacity) = N2Color::colorToSVG($toNormalColor);
+                $toNormal = 'data:image/svg+xml;base64,' . base64_encode(str_replace(array(
+                        'fill="#FFF"',
+                        'opacity="1"'
+                    ), array(
+                        'fill="#' . $color . '"',
+                        'opacity="' . $opacity . '"'
+                    ), N2Filesystem::readFile(N2ImageHelper::fixed($toNormal, true))));
+            } else {
+                $toNormal = N2ImageHelper::fixed($toNormal);
+            }
+
+            $ext = pathinfo($toFull, PATHINFO_EXTENSION);
+            if (substr($toFull, 0, 1) == '$' && $ext == 'svg') {
+                list($color, $opacity) = N2Color::colorToSVG($toFullColor);
+                $toFull = 'data:image/svg+xml;base64,' . base64_encode(str_replace(array(
+                        'fill="#FFF"',
+                        'opacity="1"'
+                    ), array(
+                        'fill="#' . $color . '"',
+                        'opacity="' . $opacity . '"'
+                    ), N2Filesystem::readFile(N2ImageHelper::fixed($toFull, true))));
+            } else {
+                $toFull = N2ImageHelper::fixed($toFull);
+            }
 
             N2CSS::addFile(N2Filesystem::translate(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'image' . DIRECTORY_SEPARATOR . 'style.css'), $id);
 
@@ -88,10 +129,10 @@ class N2SSPluginWidgetFullScreenImage extends N2SSPluginWidgetAbstract
 
             N2JS::addInline('new NextendSmartSliderWidgetFullScreenImage("' . $id . '", ' . floatval($params->get(self::$key . 'responsive-desktop')) . ', ' . floatval($params->get(self::$key . 'responsive-tablet')) . ', ' . floatval($params->get(self::$key . 'responsive-mobile')) . ');');
 
-            $html = NHtml::tag('div', $displayAttributes + $attributes + array(
-                    'class' => $displayClass . $styleClass . 'n2-full-screen-widget n2-full-screen-widget-image',
+            $html = N2Html::tag('div', $displayAttributes + $attributes + array(
+                    'class' => $displayClass . $styleClass . 'n2-full-screen-widget n2-full-screen-widget-image nextend-fullscreen',
                     'style' => $style
-                ), NHtml::image(N2ImageHelper::fixed($toNormal), '', array('class' => 'n2-full-screen-widget-to-normal')) . NHtml::image(N2ImageHelper::fixed($toFull), '', array('class' => 'n2-full-screen-widget-to-full')));;
+                ), N2Html::image($toNormal, '', array('class' => 'n2-full-screen-widget-to-normal')) . N2Html::image($toFull, '', array('class' => 'n2-full-screen-widget-to-full')));
         }
 
         return $html;

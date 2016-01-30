@@ -3,10 +3,25 @@
 
         this.slider = window[id];
 
+        this.slider.started($.proxy(this.start, this, id, desktopRatio, tabletRatio, mobileRatio));
+    };
+
+    NextendSmartSliderWidgetFullScreenImage.prototype.start = function (id, desktopRatio, tabletRatio, mobileRatio) {
         if (this.slider.sliderElement.data('fullscreen')) {
             return false;
         }
         this.slider.sliderElement.data('fullscreen', this);
+
+        this.responsive = this.slider.responsive;
+
+        this._type = this.responsive.parameters.type;
+        this._forceFull = this.responsive.parameters.forceFull;
+        this.forceFullpage = this._type == 'auto' || this._type == 'fullwidth';
+        if (this.forceFullpage) {
+            this._upscale = this.responsive.parameters.upscale;
+            this._minimumHeightRatio = this.responsive.parameters.minimumHeightRatio;
+            this._maximumHeightRatio = this.responsive.parameters.maximumHeightRatio;
+        }
 
         this.isFullScreen = false;
 
@@ -58,14 +73,13 @@
         this.mobileRatio = mobileRatio;
 
         this.button.imagesLoaded().always($.proxy(this.loaded, this));
-
     };
 
     NextendSmartSliderWidgetFullScreenImage.prototype.loaded = function () {
         this.width = this.button.width();
         this.height = this.button.height();
 
-        this.onDevice(null, {device: this.slider.responsive.getDeviceMode()});
+        this.onDevice(null, {device: this.responsive.getDeviceMode()});
 
         this.deferred.resolve();
     };
@@ -96,6 +110,13 @@
     };
 
     NextendSmartSliderWidgetFullScreenImage.prototype.fullScreen = function () {
+
+        if (this.forceFullpage) {
+            this.responsive.parameters.type = 'fullpage';
+            this.responsive.parameters.upscale = true;
+            this.responsive.parameters.forceFull = false;
+            this.responsive.containerElement.css('marginLeft', 0);
+        }
         this.fullParent.css({
             width: '100%',
             height: '100%'
@@ -120,6 +141,14 @@
             this.button.addClass('n2-active');
         } else {
             this.button.removeClass('n2-active');
+            if (this.forceFullpage) {
+                this.responsive.parameters.type = this._type;
+                this.responsive.parameters.upscale = this._upscale;
+                this.responsive.parameters.forceFull = this._forceFull;
+                this.responsive.parameters.minimumHeightRatio = this._minimumHeightRatio;
+                this.responsive.parameters.maximumHeightRatio = this._maximumHeightRatio;
+                $(window).trigger('resize');
+            }
         }
     };
 

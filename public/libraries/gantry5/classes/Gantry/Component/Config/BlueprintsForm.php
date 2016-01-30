@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -48,11 +47,14 @@ class BlueprintsForm implements \ArrayAccess, ExportInterface
         $fields = false;
         $parts = [];
         $current = $this['form.fields'];
+        $result = [null, null, null];
 
         while (($field = current($path)) !== null) {
             if (!$fields && isset($current['fields'])) {
                 if (!empty($current['array'])) {
-                    break;
+                    $result = [$current, $parts, $path ? implode($separator, $path) : null];
+                    // Skip item offset.
+                    $parts[] = array_shift($path);
                 }
 
                 $current = $current['fields'];
@@ -63,11 +65,16 @@ class BlueprintsForm implements \ArrayAccess, ExportInterface
                 $current = $current[$field];
                 $fields = false;
 
+            } elseif (isset($current['.' . $field])) {
+                $parts[] = array_shift($path);
+                $current = $current['.' . $field];
+                $fields = false;
+
             } else {
-                return [null, null, null];
+                break;
             }
         }
 
-        return [$current, $parts, $path ? implode($separator, $path) : null];
+        return $result;
     }
 }

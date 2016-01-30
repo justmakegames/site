@@ -138,7 +138,7 @@
 
         this.currentVisual = [];
         for (var i = 0; i < visual.length; i++) {
-            this.currentVisual[i] = $.extend(true, {}, visual[i]);
+            this.currentVisual[i] = $.extend(true, this.getCleanVisual(), visual[i]);
         }
 
         this.localModePreview = {};
@@ -150,7 +150,7 @@
                 tabs = this.getTabs();
             }
             for (var i = this.currentVisual.length; i < tabs.length; i++) {
-                this.currentVisual[i] = {};
+                this.currentVisual[i] = this.getCleanVisual();
             }
             if (parameters.previewHTML !== false && parameters.previewHTML != '') {
                 this.localModePreview[parameters.previewMode] = parameters.previewHTML;
@@ -167,6 +167,10 @@
         }
 
         this.setTabs(tabs);
+    };
+
+    NextendVisualEditorController.prototype.getCleanVisual = function () {
+        return {};
     };
 
     NextendVisualEditorController.prototype.getTabs = function () {
@@ -187,6 +191,10 @@
     };
 
     NextendVisualEditorController.prototype.tabChanged = function () {
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
+
         var tab = this.tabField.element.val();
 
         this.currentTabIndex = tab;
@@ -359,16 +367,22 @@
             }
         }
 
-        if (mode.renderOptions.combined) {
-            for (var i = 0; i < visualTabs.length; i++) {
-                css = css.replace(new RegExp('@tab' + i, "g"), this.render(visualTabs[i]));
-            }
-        } else {
+
+        if (modeKey == 0) {
             var visualTab = visualTabs[parameters.activeTab];
             if (parameters.activeTab != 0) {
                 visualTab = $.extend({}, visualTabs[0], visualTab);
             }
-            css = css.replace(new RegExp('@tab', "g"), this.render(visualTab));
+            css = css.replace(new RegExp('@tab[0-9]*', "g"), this.render(visualTab));
+        } else if (mode.renderOptions.combined) {
+            for (var i = 0; i < visualTabs.length; i++) {
+                css = css.replace(new RegExp('@tab' + i, "g"), this.render(visualTabs[i]));
+            }
+        } else {
+            for (var i = 0; i < visualTabs.length; i++) {
+                visualTabs[i] = $.extend({}, visualTabs[i])
+                css = css.replace(new RegExp('@tab' + i, "g"), this.render(visualTabs[i]));
+            }
         }
         return css;
     };

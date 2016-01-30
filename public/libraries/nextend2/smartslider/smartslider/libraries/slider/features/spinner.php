@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderFeatureSpinner
 {
@@ -6,6 +13,7 @@ class N2SmartSliderFeatureSpinner
     private $slider;
 
     private static $spinners = array(
+        '-1'            => '',
         '0'             => '',
         'rectangleDark' => '<div><div class="n2-ss-spinner-rectangle-dark-container"><div class="n2-ss-spinner-rectangle-dark"><div class="n2-ss-spinner-rectangle-1"></div><div class="n2-ss-spinner-rectangle-2"></div><div class="n2-ss-spinner-rectangle-3"></div><div class="n2-ss-spinner-rectangle-4"></div></div></div>
 <style type="text/css">

@@ -1,116 +1,126 @@
 <?php
 return [
     '@class' => 'Gantry\\Component\\Config\\CompiledConfig',
-    'timestamp' => 1445417870,
-    'checksum' => 'b9377d163a83301d7bd7c52e8c5723e8',
+    'timestamp' => 1454144272,
+    'checksum' => '6003f951365c21f4968a8eb3bf5c827f',
     'files' => [
         'templates/g5_hydrogen/custom/config/_error' => [
             'index' => [
                 'file' => 'templates/g5_hydrogen/custom/config/_error/index.yaml',
-                'modified' => 1445417662
+                'modified' => 1454143972
             ]
         ],
         'templates/g5_hydrogen/config/_error' => [
             'page' => [
                 'file' => 'templates/g5_hydrogen/config/_error/page.yaml',
-                'modified' => 1445417662
+                'modified' => 1454143972
             ]
         ],
         'templates/g5_hydrogen/custom/config/default' => [
             'index' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/index.yaml',
-                'modified' => 1445417662
+                'modified' => 1454143972
             ],
             'particles/analytics' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/analytics.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/assets' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/assets.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/branding' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/branding.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/copyright' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/copyright.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/custom' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/custom.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/date' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/date.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/logo' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/logo.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/menu' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/menu.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/mobile-menu' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/mobile-menu.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/module' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/module.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/pagecontent' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/pagecontent.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/position' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/position.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/sample' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/sample.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/social' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/social.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/spacer' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/spacer.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/system-messages' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/system-messages.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'particles/totop' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/particles/totop.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ],
             'styles' => [
                 'file' => 'templates/g5_hydrogen/custom/config/default/styles.yaml',
-                'modified' => 1445198577
+                'modified' => 1454143493
             ]
         ],
         'templates/g5_hydrogen/config/default' => [
             'page' => [
                 'file' => 'templates/g5_hydrogen/config/default/page.yaml',
-                'modified' => 1445417662
+                'modified' => 1454143972
             ],
             'particles/logo' => [
                 'file' => 'templates/g5_hydrogen/config/default/particles/logo.yaml',
-                'modified' => 1445417662
+                'modified' => 1454143972
             ]
         ]
     ],
     'data' => [
         'page' => [
-            'doctype' => 'html',
+            'assets' => [
+                'in_footer' => false
+            ],
             'body' => [
+                'doctype' => 'html',
+                'attribs' => [
+                    'class' => 'gantry'
+                ],
+                'layout' => [
+                    'sections' => 0
+                ],
                 'class' => 'gantry error'
-            ]
+            ],
+            'doctype' => 'html'
         ],
         'styles' => [
             'accent' => [
@@ -212,6 +222,9 @@ float: right;
                     'class' => 'branding'
                 ]
             ],
+            'content' => [
+                'enabled' => true
+            ],
             'copyright' => [
                 'enabled' => '1',
                 'date' => [
@@ -234,6 +247,21 @@ float: right;
                     'formats' => 'l, F d, Y'
                 ]
             ],
+            'frameworks' => [
+                'enabled' => true,
+                'jquery' => [
+                    'enabled' => 0,
+                    'ui_core' => 0,
+                    'ui_sortable' => 0
+                ],
+                'bootstrap' => [
+                    'enabled' => 0
+                ],
+                'mootools' => [
+                    'enabled' => 0,
+                    'more' => 0
+                ]
+            ],
             'logo' => [
                 'enabled' => '1',
                 'url' => '',
@@ -249,6 +277,9 @@ float: right;
                 'maxLevels' => '0',
                 'renderTitles' => '0',
                 'mobileTarget' => '0'
+            ],
+            'messages' => [
+                'enabled' => true
             ],
             'mobile-menu' => [
                 'enabled' => '1'
@@ -303,11 +334,11 @@ float: right;
         ],
         'index' => [
             'name' => '_error',
-            'timestamp' => 1445417662,
+            'timestamp' => 1454143972,
             'preset' => [
                 'image' => 'gantry-admin://images/layouts/default.png',
                 'name' => '_error',
-                'timestamp' => 1445417662
+                'timestamp' => 1454143972
             ],
             'positions' => [
                 'footer' => 'Footer'

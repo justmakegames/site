@@ -1,14 +1,16 @@
 {% extends 'forms/' ~ layout|default('field') ~ '.html.twig' %}
 {# If values contains a plain list of items, we need to reindex them. #}
-{% set value = not field.key and value is iterable ? value|values : value %}
+{% set value = not field.key and value is iterable and value|length ? value|values : value|default(field.default) %}
 
 {% block field %}
     {% if field.is_current %}
         <div class="g-grid">
             {% for key, val in value %}
+                {% set title = (field.value == field.key ? key : val[field.value]) %}
                 <div class="card settings-block">
                     <h4>
-                        <span data-title-editable="{{ (field.value == field.key ? key : val[field.value])|e }}" data-collection-key="{{ (prefix ~ '.' ~ key ~ '.' ~ field.value)|fieldName|e }}" class="title">{{ (field.value == field.key ? key : val[field.value])|e }}</span> <i class="fa fa-pencil font-small"  tabindex="0" aria-label="{{ 'GANTRY5_PLATFORM_EDIT_TITLE'|trans|replace({'%s': (field.value == field.key ? key : val[field.value])|e}) }}" data-title-edit></i>
+                        <span data-title-editable="{{ title }}" data-collection-key="{{ (scope ~ '.' ~ key ~ '.' ~ field.value)|fieldName }}" class="title">{{ title }}</span>
+                        <i class="fa fa-pencil font-small"  tabindex="0" aria-label="{{ 'GANTRY5_PLATFORM_EDIT_TITLE'|trans|replace({'%s': title}) }}" data-title-edit=""></i>
                     </h4>
                     <div class="inner-params">
                         {{ block('collection_fields') }}
@@ -26,11 +28,11 @@
                 <label class="settings-param-override" for="of-{{ (scope ~ name)|e }}"></label>
             {% endif %}
             {% block contents %}
-                {% set field_route = (route ~ '.' ~ scope ~ '.' ~ field.name)|replace('.', '/') %}
-                    <span class="settings-param-title float-left">
+                {% set field_route = (route ~ '.' ~ prefix ~ '.' ~ field.name)|replace('.', '/') %}
+                <span class="settings-param-title float-left">
                     {% block label %}
                         {% if field.description %}
-                            <span class="g-tooltip" data-asTooltip-position="w" data-title="{{ field.description|e }}">{{ field.label|e }}</span>
+                            <span aria-label="{{ field.description|e }}" data-tip="{{ field.description|raw }}" data-tip-place="top-right">{{ field.label|e }}</span>
                         {% else %}
                             {{ field.label|e }}
                         {% endif %}
@@ -38,9 +40,9 @@
                     {% endblock %}
                 </span>
                 <div class="settings-param-field" data-field-name="{{ field.name|e }}">
-                    {% block input %}
+                    {% block input -%}
                         <ul>
-                        {% if field.fields %}
+                        {%- if field.fields -%}
                                 {% for key, val in value %}
                                     {% if (field.ajax == true) %}
                                         <li data-collection-item="{{ field.value|e }}">
@@ -71,7 +73,7 @@
                                                              with {name: childName, field: child, value: key} %}
                                                          {% elseif child.type %}
                                                              {% include ["forms/fields/" ~ child.type|replace('.', '/') ~ ".html.twig", 'forms/fields/unknown/unknown.html.twig']
-                                                             with {name: childName, field: child, value: childValue, default_value: childDefault} %}
+                                                             with {name: childName, field: child, value: childValue, default_value: childDefault, prefix: (prefix ? prefix ~ '.' : '') ~ childName} %}
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endfor %}
@@ -79,7 +81,7 @@
                                         {% endblock %}
                                     {% endif %}
                                 {% endfor %}
-                        {% endif %}
+                        {%- endif -%}
                     </ul>
                     <div>
                         <ul style="display: none">
@@ -91,7 +93,7 @@
                             </li>
                         </ul>
                         {% if can_addnew %}<span class="collection-addnew button button-simple" data-collection-addnew="" title="Add new item"><i class="fa fa-plus font-small"></i></span>{% endif %}
-                        <a href="{{ gantry.route(field_route)|e }}" class="collection-editall button button-simple" data-collection-editall="" title="Edit all items" {% if value|length == 0 %}style="display: none;"{% endif %}><i class="fa fa-th-large font-small"></i></a>
+                        <a href="{{ gantry.route(field_route)|e }}" class="collection-editall button button-simple" data-collection-editall="" title="Edit all items" {% if value|length <= 1 %}style="display: none;"{% endif %}><i class="fa fa-th-large font-small"></i></a>
                     </div>
                     <input data-collection-data="" name="{{ (scope ~ name ~ '._json')|fieldName|e }}" type="hidden" value="{{ value|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES'))|e('html_attr') }}"/>
                     {% endblock %}

@@ -51,6 +51,7 @@
      * @private
      */
         NextendSmartSliderFrontendBackgroundAnimation.prototype._initAnimation = function (currentSlideIndex, currentSlide, nextSlideIndex, nextSlide, reversed) {
+            this._currentBackgroundAnimation = false;
             var currentImage = this.backgroundImages[currentSlideIndex],
                 nextImage = this.backgroundImages[nextSlideIndex];
 
@@ -116,7 +117,7 @@
     };
 
     NextendSmartSliderFrontendBackgroundAnimation.prototype.hasBackgroundAnimation = function () {
-        return true;
+        return this._currentBackgroundAnimation;
     };
 
     scope.NextendSmartSliderFrontendBackgroundAnimation = NextendSmartSliderFrontendBackgroundAnimation;

@@ -1,3 +1,4 @@
+
 (function ($, scope, undefined) {
     var SPEED = {
         'default': 5,
@@ -6,15 +7,25 @@
         normal: 5,
         fast: 3,
         superFast: 1.5
+    }, STRENGTH = {
+        'default': 1,
+        superSoft: 0.3,
+        soft: 0.6,
+        normal: 1,
+        strong: 1.5,
+        superStrong: 2
     };
 
     function PostBackgroundAnimation(slider, mainAnimation) {
         this.tween = null;
         this.lastTween = null;
+        this.mainAnimation = mainAnimation;
+        this.isFirst = true;
 
         this.parameters = $.extend({
             data: 0,
             speed: 'default',
+            strength: 'default',
             slides: []
         }, mainAnimation.slider.parameters.postBackgroundAnimations);
         this.backgroundImages = slider.backgroundImages;
@@ -33,13 +44,14 @@
             this.tweens[i] = false;
         }
 
-        this.playOnce = mainAnimation.slider.parameters.layerMode.playOnce;
+        this.playOnce = slider.parameters.layerMode.playOnce;
+        this.playFirst = slider.parameters.layerMode.playFirstLayer;
 
-        var currentSlideIndex = mainAnimation.slider.currentSlideIndex;
-        if (mainAnimation.slider.parameters.layerMode.playFirstLayer) {
+        var currentSlideIndex = slider.currentSlideIndex;
+        if (this.playFirst) {
             if (this.tweens[currentSlideIndex]) {
                 this.tween = this.tweens[currentSlideIndex];
-                this.play();
+                slider.visible($.proxy(this.play, this));
             }
         } else {
             if (this.tweens[currentSlideIndex]) {
@@ -48,15 +60,16 @@
             }
         }
 
-        this.hasBackgroundAnimation = mainAnimation.hasBackgroundAnimation();
+        slider.sliderElement.on('mainAnimationStart', $.proxy(function () {
+            this.isFirst = false;
+            if (mainAnimation.hasBackgroundAnimation()) {
+                slider.sliderElement.one('mainAnimationComplete', $.proxy(this.play, this));
+            } else {
+                this.play();
+            }
+        }, this));
+        slider.sliderElement.on('mainAnimationComplete', $.proxy(this.stop, this));
 
-        if (this.hasBackgroundAnimation) {
-            slider.sliderElement.on('mainAnimationComplete', $.proxy(this.play, this));
-            slider.sliderElement.on('mainAnimationComplete', $.proxy(this.stop, this));
-        } else {
-            slider.sliderElement.on('mainAnimationStart', $.proxy(this.play, this));
-            slider.sliderElement.on('mainAnimationComplete', $.proxy(this.stop, this));
-        }
 
         slider.sliderElement.on('SliderResize', $.proxy(function (e, ratios) {
             for (var i = 0; i < this.tweens.length; i++) {
@@ -65,7 +78,11 @@
                     if (tween == this.tween) {
                         tween.pause(0);
                         this.tween = this.tweens[i] = this.getAnimation(i, images[i], ratios);
-                        this.tween.play(0);
+                        if (this.playFirst || !this.isFirst) {
+                            slider.visible($.proxy(this.play, this));
+                        } else {
+                            this.tween.progress(1);
+                        }
                     } else {
                         this.tweens[i] = this.getAnimation(i, images[i], ratios);
                     }
@@ -82,10 +99,12 @@
      */
     PostBackgroundAnimation.prototype.getAnimation = function (i, backgroundImage, ratios) {
         var animationData = this.parameters.data,
-            speed = this.parameters.speed;
+            speed = this.parameters.speed,
+            strength = this.parameters.strength;
         if (typeof this.parameters.slides[i] != 'undefined' && this.parameters.slides[i]) {
             animationData = this.parameters.slides[i].data;
             speed = this.parameters.slides[i].speed;
+            strength = this.parameters.slides[i].strength;
         }
 
         if (!animationData) {
@@ -101,6 +120,18 @@
         NextendTween.set(backgroundImage.image, {transformOrigin: properties.from.transformOrigin});
 
         properties.to.paused = true;
+
+        for (var i = 0; i < properties.strength.length; i++) {
+            var key = properties.strength[i];
+            if (key == 'scale') {
+                properties.from.scale = 1 + (properties.from.scale - 1) * STRENGTH[strength];
+                properties.to.scale = 1 + (properties.to.scale - 1) * STRENGTH[strength];
+            } else {
+                properties.from[key] *= STRENGTH[strength];
+                properties.to[key] *= STRENGTH[strength];
+            }
+        }
+
         if (typeof properties.from.x !== 'undefined') {
             properties.from.x *= ratios.slideW;
         }
@@ -120,7 +151,7 @@
     PostBackgroundAnimation.prototype.start = function (currentSlideIndex, nextSlideIndex) {
 
         if (this.tweens[currentSlideIndex]) {
-            if (this.hasBackgroundAnimation) {
+            if (this.mainAnimation.hasBackgroundAnimation()) {
                 this.tweens[currentSlideIndex].pause();
             }
             this.lastTween = this.tweens[currentSlideIndex];

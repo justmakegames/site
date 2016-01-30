@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2ElementButton extends N2Element
 {
@@ -31,7 +38,7 @@ class N2ElementButton extends N2Element
         } else {
             $app = (string)$this->_xml->app;
             if ($app) {
-                $queries = get_object_vars($this->_xml->queries);
+                $queries = (array)$this->_xml->queries;
                 $route   = $queries['controller'] . '/' . $queries['action'];
                 unset($queries['controller']);
                 unset($queries['action']);
@@ -43,6 +50,6 @@ class N2ElementButton extends N2Element
             }
         }
 
-        return NHtml::tag('a', $attributes, n2_($this->getValue()));
+        return N2Html::tag('a', $attributes, n2_($this->getValue()));
     }
 }

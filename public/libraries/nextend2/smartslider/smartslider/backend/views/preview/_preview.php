@@ -1,4 +1,11 @@
-<style type="text/css">
+<?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><style type="text/css">
 
     #n2-admin {
         margin: 0 !important;
@@ -42,7 +49,7 @@ N2JS::addFirstCode("
         n2(window).on('resize', autoHeight);
         n2('.n2-ss-slider').on('SliderResize', autoHeight)
             .data('ss').ready(autoHeight);
-", 'jquery');
+");
 
 ?>
 

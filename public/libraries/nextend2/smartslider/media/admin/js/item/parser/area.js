@@ -1,38 +1,37 @@
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
 
-        function ItemParserArea() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+(function ($, scope, undefined) {
 
-        ItemParserArea.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserArea.prototype.constructor = ItemParserArea;
+    function ItemParserArea() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        ItemParserArea.prototype.parseAll = function (data) {
+    ItemParserArea.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserArea.prototype.constructor = ItemParserArea;
 
-            if (data.width == '') {
-                data.width = '100%';
-            } else {
-                data.width += 'px';
-            }
+    ItemParserArea.prototype.parseAll = function (data) {
 
-            if (data.height == '') {
-                data.height = '100%';
-            } else {
-                data.height += 'px';
-            }
+        if (data.width == '') {
+            data.width = '100%';
+        } else {
+            data.width += 'px';
+        }
 
-            data.colora = N2Color.hex2rgbaCSS(data.color);
+        if (data.height == '') {
+            data.height = '100%';
+        } else {
+            data.height += 'px';
+        }
 
-            data.borderWidth = data.borderWidth + 'px';
-            data.borderColora = N2Color.hex2rgbaCSS(data.borderColor);
-            data.borderRadius = data.borderRadius + 'px';
-        };
+        data.colora = N2Color.hex2rgbaCSS(data.color);
 
-        ItemParserArea.prototype.fitLayer = function (item) {
-            return true;
-        };
+        data.borderWidth = data.borderWidth + 'px';
+        data.borderColora = N2Color.hex2rgbaCSS(data.borderColor);
+        data.borderRadius = data.borderRadius + 'px';
+    };
 
-        scope.NextendSmartSliderItemParser_area = ItemParserArea;
-    })(n2, window);
-} //N2SSPRO
+    ItemParserArea.prototype.fitLayer = function (item) {
+        return true;
+    };
+
+    scope.NextendSmartSliderItemParser_area = ItemParserArea;
+})(n2, window);

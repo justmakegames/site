@@ -1,6 +1,13 @@
 <?php
-
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorVirtueMartProducts extends N2GeneratorAbstract
 {
@@ -10,11 +17,11 @@ class N2GeneratorVirtueMartProducts extends N2GeneratorAbstract
         require_once(JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_virtuemart' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'config.php');
         VmConfig::loadConfig();
 
-        $language = $this->data->get('virtuemartproductssourcelanguage', 'en_gb');
+        $language = $this->data->get('virtuemartlanguage', 'en_gb');
         if (!$language) $language = VMLANG;
 
-        $categories    = array_map('intval', explode('||', $this->data->get('virtuemartproductssourcecategories', '')));
-        $manufacturers = array_map('intval', explode('||', $this->data->get('virtuemartproductssourcemanufacturers', '')));
+        $categories    = array_map('intval', explode('||', $this->data->get('virtuemartcategories', '')));
+        $manufacturers = array_map('intval', explode('||', $this->data->get('virtuemartmanufacturers', '')));
 
         $model = new N2Model('virtuemart_products');
 
@@ -72,7 +79,7 @@ class N2GeneratorVirtueMartProducts extends N2GeneratorAbstract
             $where[] = 'man.virtuemart_manufacturer_id IN (' . implode(',', $manufacturers) . ') ';
         }
 
-        switch ($this->data->get('virtuemartproductssourcefeatured', 0)) {
+        switch ($this->data->get('virtuemartfeatured', 0)) {
             case 1:
                 $where[] = ' prod.product_special = 1 ';
                 break;
@@ -81,7 +88,7 @@ class N2GeneratorVirtueMartProducts extends N2GeneratorAbstract
                 break;
         }
 
-        switch ($this->data->get('virtuemartproductssourceinstock', 0)) {
+        switch ($this->data->get('virtuemartinstock', 0)) {
             case 1:
                 $where[] = ' prod.product_in_stock > 0 ';
                 break;
@@ -105,29 +112,42 @@ class N2GeneratorVirtueMartProducts extends N2GeneratorAbstract
         $currency = CurrencyDisplay::getInstance();
 
         $data = array();
-        $url  = JURI::root(false);
+        $root = JURI::root(false);
         for ($i = 0; $i < count($result); $i++) {
             $productModel = new VirtueMartModelProduct();
             $p            = $productModel->getProduct($result[$i]['id'], TRUE, TRUE, TRUE, 1, 0);
 
-            if (!empty($result[$i]['thumbnail'])) {
-                $thumbnail = $result[$i]['thumbnail'];
-            } else {
-                $thumbnail = $result[$i]['image'];
+
+            $url = 'index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $result[$i]['id'];
+            if (!empty($catID) && $catID != 0) {
+                $url .= '&virtuemart_category_id=' . $result[$i]['category_id'];
             }
-            $thumbnail = N2ImageHelper::dynamic($url . $thumbnail);
 
             $r = array(
-                'title'                        => $result[$i]['name'],
-                'url'                          => 'index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=' . $result[$i]['id'] . '&virtuemart_category_id=' . $result[$i]['category_id'],
-                'description'                  => $result[$i]['description'],
-                'image'                        => N2ImageHelper::dynamic($url . $result[$i]['image']),
-                'thumbnail'                    => $thumbnail,
+                'title'       => $result[$i]['name'],
+                'url'         => $url,
+                'description' => $result[$i]['description']
+            );
+
+            $r['image'] = NextendImageFallBack::fallback($root, array(
+                $result[$i]['image'] == 'images/stories/virtuemart/product/cart_logo.jpg' ? '' : $result[$i]['image']
+            ), array(
+                $result[$i]['description'],
+                $result[$i]['short_description']
+            ));
+
+            if (!empty($result[$i]['thumbnail'])) {
+                $r['thumbnail'] = N2ImageHelper::dynamic($root . $result[$i]['thumbnail']);
+            } else {
+                $r['thumbnail'] = $r['image'];
+            }
+
+            $r += array(
                 'price'                        => $currency->createPriceDiv('costPrice', '', $p->prices, true),
                 'short_description'            => $result[$i]['short_description'],
                 'category_name'                => $result[$i]['category_name'],
                 'category_description'         => $result[$i]['category_description'],
-                'category_url'                 => 'index.php?option=com_virtuemart&view=category&virtuemart_category_id=' . $result[$i]['category_id'],
+                'category_url'                 => !empty($result[$i]['category_id']) ? 'index.php?option=com_virtuemart&view=category&virtuemart_category_id=' . $result[$i]['category_id'] : '',
                 'manufacturer_name'            => $result[$i]['manufacturer_name'],
                 'manufacturer_description'     => $result[$i]['manufacturer_description'],
                 'manufacturer_email'           => $result[$i]['manufacturer_email'],

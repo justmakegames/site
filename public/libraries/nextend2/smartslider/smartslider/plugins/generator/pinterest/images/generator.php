@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
 
@@ -35,8 +42,8 @@ class N2GeneratorPinterestImages extends N2GeneratorAbstract
 
                 $data[$i]['image']       = str_replace("/237x/", "/1200x/", $pin->images->$imageKey->url);
                 $data[$i]['thumbnail']   = $pin->images->$imageKey->url;
-                $data[$i]['title']       = $data[$i]['description'];
                 $data[$i]['description'] = $pin->description;
+                $data[$i]['title']       = $data[$i]['description'];
                 $data[$i]['url']         = "https://www.pinterest.com/pin/" . $pin->id;
                 $data[$i]['url_label']   = n2_("View");
 
@@ -49,7 +56,7 @@ class N2GeneratorPinterestImages extends N2GeneratorAbstract
                 $data[$i]['pinner_follower_count']  = $pin->pinner->follower_count;
                 $data[$i]['pinner_image_small_url'] = $pin->pinner->image_small_url;
                 $data[$i]['pinner_image_140_url']   = str_replace("_30.", "_140.", $data[$i]['pinner_image_small_url']);
-                $data[$i]['pinner_image_280_url']   = str_replace("_30.", "_140.", $data[$i]['pinner_image_small_url']);
+                $data[$i]['pinner_image_280_url']   = str_replace("_30.", "_280.", $data[$i]['pinner_image_small_url']);
                 $data[$i]['pinner_image_big_url']   = str_replace("_30.", ".", $data[$i]['pinner_image_small_url']);
                 $data[$i]['pinner_pin_count']       = $pin->pinner->pin_count;
                 $data[$i]['pinner_profile_url']     = $pin->pinner->profile_url;
@@ -75,7 +82,7 @@ class N2GeneratorPinterestImages extends N2GeneratorAbstract
                 $data[$i]['user_follower_count']  = $pins->data->user->follower_count;
                 $data[$i]['user_image_small_url'] = $pins->data->user->image_small_url;
                 $data[$i]['user_image_140_url']   = str_replace("_30.", "_140.", $data[$i]['user_image_small_url']);
-                $data[$i]['user_image_280_url']   = str_replace("_30.", "_140.", $data[$i]['user_image_small_url']);
+                $data[$i]['user_image_280_url']   = str_replace("_30.", "_280.", $data[$i]['user_image_small_url']);
                 $data[$i]['user_image_big_url']   = str_replace("_30.", ".", $data[$i]['user_image_small_url']);
                 $data[$i]['user_pin_count']       = $pins->data->user->pin_count;
                 $data[$i]['user_profile_url']     = $pins->data->user->profile_url;

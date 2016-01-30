@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SystemBackendAviaryControllerAjax extends N2BackendControllerAjax
 {
@@ -18,39 +25,46 @@ class N2SystemBackendAviaryControllerAjax extends N2BackendControllerAjax
         $image = N2Request::getVar('aviaryUrl');
         $this->validateVariable(!empty($image), 'image');
 
-        require_once(ABSPATH . 'wp-admin' . '/includes/image.php');
-        require_once(ABSPATH . 'wp-admin' . '/includes/file.php');
-        require_once(ABSPATH . 'wp-admin' . '/includes/media.php');
+        require_once dirname(__FILE__) . '/Browse.php';
+
+
+        $root   = N2Filesystem::getImagesFolder();
+        $folder = 'aviary';
+        $path   = N2Filesystem::realpath($root . '/' . $folder);
+
+        if ($path === false || $path == '') {
+            N2Filesystem::createFolder($root . '/' . $folder);
+            $path = N2Filesystem::realpath($root . '/' . $folder);
+        }
+
+        $tmp = tempnam(sys_get_temp_dir(), 'image-');
+        file_put_contents($tmp, file_get_contents($image));
 
         $src = null;
 
-        // Download file to temp location
-        $tmp = download_url($image);
-
         // Set variables for storage
         // fix file filename for query strings
-        preg_match('/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $image, $matches);
-        $file_array['name']     = basename($matches[0]);
+        preg_match('/([^\?]+)\.(jpe?g|gif|png)\b/i', $image, $matches);
+        $file_array['name']     = basename($matches[1]);
         $file_array['tmp_name'] = $tmp;
+        $file_array['size']     = filesize($tmp);
+        $file_array['error']    = 0;
 
-        // If error storing temporarily, unlink
-        if (is_wp_error($tmp)) {
-            @unlink($file_array['tmp_name']);
-            $file_array['tmp_name'] = '';
+        try {
+            $fileName = preg_replace('/[^a-zA-Z0-9_-]/', '', $file_array['name']);
+
+            $upload = new N2BulletProof();
+            $file   = $upload->uploadDir($path)
+                             ->upload($file_array, $fileName);
+            $src    = N2ImageHelper::dynamic(N2Filesystem::pathToAbsoluteURL($file));
+
+        } catch (Exception $e) {
+            N2Message::error($e->getMessage());
+            $this->response->error();
         }
 
-        // do the validation and storage stuff
-        $id = media_handle_sideload($file_array, 0);
-        // If error storing permanently, unlink
-        if (is_wp_error($id)) {
-            @unlink($file_array['tmp_name']);
-            $src = $id;
-        } else {
-            $src = wp_get_attachment_url($id);
-        }
 
-
-        if ($src && !is_wp_error($src)) {
+        if ($src) {
             $this->response->respond(array(
                 'image' => $src
             ));

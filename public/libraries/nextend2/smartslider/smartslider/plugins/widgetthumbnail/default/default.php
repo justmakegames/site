@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 N2Loader::import('libraries.image.color');
@@ -70,7 +77,10 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract
         }
 
         N2JS::addFile(N2Filesystem::translate(dirname(__FILE__) . '/default/thumbnail.js'), $id);
-        N2CSS::addFile(N2Filesystem::translate(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'style.css'), $id);
+
+        N2LESS::addFile(N2Filesystem::translate(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'style.less'), $slider->cacheId, array(
+            "sliderid" => $slider->elementId
+        ), NEXTEND_SMARTSLIDER_ASSETS . '/less' . NDS);
 
         list($displayClass, $displayAttributes) = self::getDisplayAttributes($params, self::$key);
         list($style, $attributes) = self::getPosition($params, self::$key);
@@ -112,7 +122,10 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract
         $group = max(1, intval($params->get(self::$key . 'group')));
 
         $orientation = self::getOrientationByPosition($params->get(self::$key . 'position-mode'), $params->get(self::$key . 'position-area'), $params->get(self::$key . 'orientation'));
-        $slides      = NHtml::openTag('table');
+        if($orientation == 'auto'){
+            $orientation = 'vertical';
+        }
+        $slides      = N2Html::openTag('table');
 
         $containerStyle    = '';
         $captionClass      = 'n2-caption-' . $captionPlacement;
@@ -158,9 +171,9 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract
             }
 
             if ($showImage) {
-                $image = NHtml::tag('div', array(
+                $image = N2Html::tag('div', array(
                     'class' => 'n2-ss-thumb-image',
-                    'style' => "background-image: url(" . $slide->getThumbnail() . "); width: {$width}px; height: {$height}px;"
+                    'style' => "background-image: URL('" . $slide->getThumbnail() . "'); width: {$width}px; height: {$height}px;"
                 ), '');
             }
 
@@ -169,18 +182,18 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract
             if ($showCaption) {
                 $html = '';
                 if ($showTitle) {
-                    $html .= NHtml::tag('div', array(
+                    $html .= N2Html::tag('div', array(
                         'class' => $titleFont
                     ), $slide->getTitle());
                 }
                 $description = $slide->getDescription();
                 if ($showDescription && !empty($description)) {
-                    $html .= NHtml::tag('div', array(
+                    $html .= N2Html::tag('div', array(
                         'class' => $descriptionFont
                     ), $description);
                 }
 
-                $inner = NHtml::tag('div', array(
+                $inner = N2Html::tag('div', array(
                     'class' => $captionStyle . 'n2-ss-caption ' . $captionClass,
                     'style' => $captionExtraStyle
                 ), $html);
@@ -194,7 +207,7 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract
                     $inner = $image . $inner;
             }
 
-            $rows[$row][] = NHtml::tag('td', array(), NHtml::tag('div', array(
+            $rows[$row][] = N2Html::tag('td', array(), N2Html::tag('div', array(
                 'class' => $slideStyle . $active,
                 'style' => $containerStyle
             ), $inner));
@@ -202,9 +215,9 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract
         }
 
         foreach ($rows AS $row) {
-            $slides .= NHtml::tag('tr', array(), implode('', $row));
+            $slides .= N2Html::tag('tr', array(), implode('', $row));
         }
-        $slides .= NHtml::closeTag('table');
+        $slides .= N2Html::closeTag('table');
 
         $parameters = array(
             'overlay'     => $params->get(self::$key . 'position-mode') != 'simple' || $params->get(self::$key . 'overlay'),
@@ -234,10 +247,10 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract
         $previous  = $next = '';
         $showArrow = intval($slider->params->get(self::$key . 'arrow', 1));
         if ($showArrow) {
-            $previous = NHtml::image(N2ImageHelper::fixed('$ss$/plugins/widgetthumbnail/default/default/thumbnail-up-arrow.svg'), '', array(
+            $previous = N2Html::image('data:image/svg+xml;base64,' . base64_encode(N2Filesystem::readFile(N2ImageHelper::fixed('$ss$/plugins/widgetthumbnail/default/default/thumbnail-up-arrow.svg', true))), '', array(
                 'class' => 'nextend-thumbnail-button nextend-thumbnail-previous'
             ));
-            $next     = NHtml::image(N2ImageHelper::fixed('$ss$/plugins/widgetthumbnail/default/default/thumbnail-down-arrow.svg'), '', array(
+            $next     = N2Html::image('data:image/svg+xml;base64,' . base64_encode(N2Filesystem::readFile(N2ImageHelper::fixed('$ss$/plugins/widgetthumbnail/default/default/thumbnail-down-arrow.svg', true))), '', array(
                 'class' => 'nextend-thumbnail-button nextend-thumbnail-next n2-active'
             ));
         }
@@ -254,12 +267,12 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract
             }
         }
 
-        return NHtml::tag('div', $displayAttributes + $attributes + array(
+        return N2Html::tag('div', $displayAttributes + $attributes + array(
                 'class' => $displayClass . 'nextend-thumbnail nextend-thumbnail-default nextend-thumbnail-' . $orientation,
                 'style' => $style
-            ), $previous . $next . NHtml::tag('div', array(
+            ), $previous . $next . N2Html::tag('div', array(
                 'class' => 'nextend-thumbnail-inner'
-            ), NHtml::tag('div', array(
+            ), N2Html::tag('div', array(
                 'class' => $barStyle . 'nextend-thumbnail-scroller',
             ), $slides)));
     }

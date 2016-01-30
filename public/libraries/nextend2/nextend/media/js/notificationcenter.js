@@ -182,8 +182,11 @@
             .prependTo(this.messageContainer);
 
         this.messages.push(messageNode);
+        if (this.messages.length > 3) {
+            this.messages.shift().remove();
+        }
 
-        if (!this.importantOnly || type == 'error') {
+        if (!this.importantOnly || type == 'error' || type == 'notice') {
             this.show();
         }
         return messageNode;
@@ -265,6 +268,9 @@
     };
 
     NextendNotificationCenterStackModal.prototype.show = function () {
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
         NextendEsc.add($.proxy(function () {
             this.clear();
             return false;

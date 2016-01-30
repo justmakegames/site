@@ -9,11 +9,11 @@
         this.createGroup('loop', n2_('loop'), '#layer-animation-chain-loop');
         this.createGroup('out', n2_('out'), '#layer-animation-chain-out');
         this.lists = this.lists.add(this.loop.list).add(this.out.list);
-        
+
 
         smartSlider.layerAnimationManager = this;
-
         new NextendSmartSliderAdminTimelineManager(layerEditor);
+    
     };
 
     LayerAnimationManager.prototype.createGroup = function (identifier, label, container) {

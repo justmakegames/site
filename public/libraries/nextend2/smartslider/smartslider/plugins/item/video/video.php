@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.plugins.N2SliderItemAbstract', 'smartslider');
 
 class N2SSPluginItemVideo extends N2SSPluginItemAbstract
@@ -6,7 +13,10 @@ class N2SSPluginItemVideo extends N2SSPluginItemAbstract
 
     public $_identifier = 'video';
 
-    protected $layerProperties = '{"width":300,"height":180}';
+    protected $layerProperties = array(
+        "width"  => 300,
+        "height" => 180
+    );
 
     protected $priority = 20;
 
@@ -15,27 +25,23 @@ class N2SSPluginItemVideo extends N2SSPluginItemAbstract
     }
 
     function getTemplate($slider) {
-        return NHtml::tag('div', array(
-            "style" => 'width: 100%; height: 100%; min-height: 50px; background: url(' . N2ImageHelper::fixed('$system$/images/placeholder/video.svg') . ') no-repeat 50% 50%; background-size: cover;'
+        return N2Html::tag('div', array(
+            "style" => 'width: 100%; height: 100%; min-height: 50px; background: url(' . N2ImageHelper::fixed('$system$/images/placeholder/video.png') . ') no-repeat 50% 50%; background-size: cover;'
         ));
     }
 
     function _render($data, $itemId, $slider, $slide) {
-        $data->set("videoplay", $this->parseEventCode($data->get('videoplay', ''), $slider->elementId));
-        $data->set("videopause", $this->parseEventCode($data->get('videopause', ''), $slider->elementId));
-        $data->set("videoend", $this->parseEventCode($data->get('videoend', ''), $slider->elementId));
-
         N2JS::addInline('window["' . $slider->elementId . '"].ready(function(){
         var video = new NextendSmartSliderVideoItem(this, "' . $itemId . '", ' . $data->toJSON() . ');
     });');
 
 
-        return NHtml::tag("video", $this->_setVideoOptions($data, $itemId), $this->_setVideoContent($slide, $data));
+        return N2Html::tag("video", $this->_setVideoOptions($data, $itemId), $this->_setVideoContent($slide, $data));
     }
 
     function _renderAdmin($data, $itemId, $slider, $slide) {
-        return NHtml::tag('div', array(
-            "style" => 'width: 100%; height: 100%; background: url(' . N2ImageHelper::fixed('$system$/images/placeholder/video.svg') . ') no-repeat 50% 50%; background-size: cover;'
+        return N2Html::tag('div', array(
+            "style" => 'width: 100%; height: 100%; background: url(' . N2ImageHelper::fixed('$system$/images/placeholder/video.png') . ') no-repeat 50% 50%; background-size: cover;'
         ));
     }
 
@@ -54,6 +60,7 @@ class N2SSPluginItemVideo extends N2SSPluginItemAbstract
             $videoOptions["controls"] = "yes";
         }
 
+        $videoOptions["preload"] = $data->get("preload","auto");
 
         return $videoOptions;
     }
@@ -62,21 +69,21 @@ class N2SSPluginItemVideo extends N2SSPluginItemAbstract
         $videoContent = "";
 
         if ($data->get("video_mp4", false)) {
-            $videoContent .= NHtml::tag("source", array(
+            $videoContent .= N2Html::tag("source", array(
                 "src"  => $slide->fill($data->get("video_mp4")),
                 "type" => "video/mp4"
             ));
         }
 
         if ($data->get("video_webm", false)) {
-            $videoContent .= NHtml::tag("source", array(
+            $videoContent .= N2Html::tag("source", array(
                 "src"  => $slide->fill($data->get("video_webm")),
                 "type" => "video/webm"
             ));
         }
 
         if ($data->get("video_ogg", false)) {
-            $videoContent .= NHtml::tag("source", array(
+            $videoContent .= N2Html::tag("source", array(
                 "src"  => $slide->fill($data->get("video_ogg")),
                 "type" => "video/ogg"
             ));

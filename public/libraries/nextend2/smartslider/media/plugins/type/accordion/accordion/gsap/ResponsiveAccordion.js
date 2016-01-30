@@ -21,12 +21,6 @@
         //this.addResponsiveElement(this.sliderElement.find('.nextend-slide-bg'), ['width']);
         //this.addResponsiveElement(this.sliderElement.find('.nextend-slide-bg'), ['height'], 'h');
 
-
-        var backgroundImages = this.slider.backgroundImages.getBackgroundImages();
-        for (var i = 0; i < backgroundImages.length; i++) {
-            this.addResponsiveElementBackgroundImageAsSingle(backgroundImages[i].image, backgroundImages[i], []);
-        }
-
         switch (this.slider.parameters.orientation) {
             case 'vertical':
                 this.vertical();
@@ -41,6 +35,11 @@
         this.addResponsiveElement(this.sliderElement.find('.n2-ss-layers-container'), ['width'], 'slideW', 'slide');
         this.addResponsiveElement(this.sliderElement.find('.n2-ss-layers-container'), ['height'], 'slideH', 'slide')
             .setCentered();
+
+        var backgroundImages = this.slider.backgroundImages.getBackgroundImages();
+        for (var i = 0; i < backgroundImages.length; i++) {
+            this.addResponsiveElementBackgroundImageAsSingle(backgroundImages[i].image, backgroundImages[i], []);
+        }
     };
 
     NextendSmartSliderResponsiveAccordion.prototype.resizeResponsiveElements = function (ratios) {

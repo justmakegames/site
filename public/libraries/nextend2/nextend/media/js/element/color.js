@@ -10,7 +10,7 @@
             this.alpha = false;
         }
 
-        this.element.spectrum({
+        this.element.n2spectrum({
             showAlpha: this.alpha,
             preferredFormat: (this.alpha == 1 ? "hex8" : "hex6"),
             showInput: false,
@@ -46,7 +46,7 @@
         var current = this.getCurrent(),
             value = this.element.val();
         if (current != value) {
-            this.element.spectrum("set", value);
+            this.element.n2spectrum("set", value);
 
             this.triggerInsideChange();
         }
@@ -60,9 +60,9 @@
 
     NextendElementColor.prototype.getCurrent = function () {
         if (this.alpha) {
-            return this.element.spectrum("get").toHexString8();
+            return this.element.n2spectrum("get").toHexString8();
         }
-        return this.element.spectrum("get").toHexString(true);
+        return this.element.n2spectrum("get").toHexString(true);
     };
 
     scope.NextendElementColor = NextendElementColor;

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SystemBackendSettingsView extends N2ViewBase
 {
@@ -9,13 +16,13 @@ class N2SystemBackendSettingsView extends N2ViewBase
         $form   = new N2Form($this->appType);
         $form->loadArray($values);
         $form->loadXMLFile(N2Loader::getPath('models', 'system') . '/forms/globalconfig.xml');
-        echo NHtml::openTag("form", array(
+        echo N2Html::openTag("form", array(
             "id"     => "nextend-config",
             "method" => "post",
             "action" => N2Request::getRequestUri()
         ));
         $form->render('global');
-        echo NHtml::closeTag("form");
+        echo N2Html::closeTag("form");
 
         N2JS::addFirstCode("
             new NextendForm(
@@ -55,13 +62,13 @@ class N2SystemBackendSettingsView extends N2ViewBase
         $form = new N2Form($this->appType);
         $form->loadArray($values);
         $form->loadXMLFile(N2Loader::getPath('models', 'system') . '/forms/aviary.xml');
-        echo NHtml::openTag("form", array(
+        echo N2Html::openTag("form", array(
             "id"     => "nextend-config",
             "method" => "post",
             "action" => N2Request::getRequestUri()
         ));
         $form->render('aviary');
-        echo NHtml::closeTag("form");
+        echo N2Html::closeTag("form");
     }
 
     public function renderFontsConfigurationForm() {
@@ -71,13 +78,13 @@ class N2SystemBackendSettingsView extends N2ViewBase
         $form->loadArray($values);
         $form->loadArray($values['plugins']->toArray());
         $form->loadXMLFile(N2Loader::getPath('models', 'system') . '/forms/fonts.xml');
-        echo NHtml::openTag("form", array(
+        echo N2Html::openTag("form", array(
             "id"     => "nextend-config",
             "method" => "post",
             "action" => N2Request::getRequestUri()
         ));
         $form->render('fonts');
-        echo NHtml::closeTag("form");
+        echo N2Html::closeTag("form");
     }
 
 }

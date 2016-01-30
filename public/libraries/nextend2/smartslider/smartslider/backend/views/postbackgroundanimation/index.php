@@ -1,5 +1,12 @@
 <?php
 /**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+/**
  * @var $model N2SystemAnimationModel
  */
 
@@ -29,7 +36,7 @@ $model->renderForm();
         <div class="n2-postbg-animation-slider">
             <div class="n2-postbg-animation-slide">
                 <img
-                    src="<?php echo N2ImageHelper::fixed('$system$/images/placeholder/imagefront.svg'); ?>"/>
+                    src="<?php echo N2ImageHelperAbstract::SVGToBase64('$system$/images/placeholder/imagefront.svg'); ?>"/>
             </div>
         </div>
 

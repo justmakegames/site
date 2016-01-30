@@ -14,7 +14,7 @@
     </params>
     <params name="orders" label="Order by">
         <param name="flexiorder" type="mixed" label="Order" default="con.created|*|desc">
-            <param type="list" label="Field">
+            <param type="list" label="Field" translateable="1">
                 <option value="">None</option>
                 <option value="con.title">Title</option>
                 <option value="cat_title">Category title</option>

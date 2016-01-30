@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -14,6 +13,7 @@
 
 namespace Gantry\Component\Layout;
 
+use Gantry\Component\Config\Config;
 use Gantry\Component\File\CompiledYamlFile;
 use Gantry\Component\Filesystem\Folder;
 use Gantry\Framework\Outlines;
@@ -23,6 +23,7 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
 use RocketTheme\Toolbox\File\JsonFile;
+use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceIterator;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -39,6 +40,8 @@ class Layout implements \ArrayAccess, \Iterator, ExportInterface
     public $name;
     public $timestamp = 0;
     public $preset = [];
+    public $equalized = [3 => 33.3, 6 => 16.7, 7 => 14.3, 8 => 12.5, 9 => 11.1, 11 => 9.1, 12 => 8.3];
+
     protected $exists;
     protected $items;
     protected $references;
@@ -185,25 +188,48 @@ class Layout implements \ArrayAccess, \Iterator, ExportInterface
     /**
      * Save layout.
      *
+     * @param bool $cascade
      * @return $this
      */
-    public function save()
+    public function save($cascade = true)
     {
         if (!$this->name) {
             throw new \LogicException('Cannot save unnamed layout');
         }
+
+        $name = strtolower(preg_replace('|[^a-z\d_-]|ui', '_', $this->name));
 
         $gantry = Gantry::instance();
 
         /** @var UniformResourceLocator $locator */
         $locator = $gantry['locator'];
 
-        $name = strtolower(preg_replace('|[^a-z\d_-]|ui', '_', $this->name));
+        // If there are atoms in the layout, copy them into outline configuration.
+        $atoms = $this->atoms();
+        if (is_array($atoms)) {
+            if ($cascade) {
+                // Save layout into custom directory for the current theme.
+                $filename = $locator->findResource("gantry-config://{$name}/page/head.yaml", true, true);
+
+                $file = YamlFile::instance($filename);
+                $config = new Config($file->content());
+
+                $file->save($config->set('atoms', json_decode(json_encode($atoms), true))->toArray());
+                $file->free();
+            }
+        }
+
+        // Remove atoms from the layout.
+        foreach ($this->items as $key => $section) {
+            if ($section->type === 'atoms') {
+                unset ($this->items[$key]);
+            }
+        }
 
         $filename = $locator->findResource("gantry-config://{$name}/layout.yaml", true, true);
         $file = CompiledYamlFile::instance($filename);
         $file->settings(['inline' => 20]);
-        $file->save(['preset' => $this->preset, 'children' => json_decode(json_encode($this->items), true)]);
+        $file->save(LayoutReader::store($this->preset, $this->items));
         $file->free();
 
         $this->exists = true;
@@ -304,6 +330,38 @@ class Layout implements \ArrayAccess, \Iterator, ExportInterface
     }
 
     /**
+     * Return atoms from the layout.
+     *
+     * @return array|null
+     * @deprecated
+     */
+    public function atoms()
+    {
+        $list   = null;
+
+        $atoms = array_filter($this->items, function ($section) {
+            return $section->type == 'atoms' && !empty($section->children);
+        });
+        $atoms = array_shift($atoms);
+
+        if (!empty($atoms->children)) {
+            $list = [];
+            foreach ($atoms->children as $grid) {
+                if (!empty($grid->children)) {
+                    foreach ($grid->children as $block) {
+                        if (isset($block->children[0])) {
+                            $item = $block->children[0];
+                            $list[] = ['title' => $item->title, 'type' => $item->subtype, 'attributes' => $item->attributes];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $list;
+    }
+
+    /**
      * @param string $id
      * @return \stdClass
      */
@@ -335,7 +393,7 @@ class Layout implements \ArrayAccess, \Iterator, ExportInterface
                 $this->children = $this->clearChildren($item->children);
             }
 
-            if (empty($item->children) && in_array($item->type, ['grid', 'block', 'particle', 'position', 'spacer', 'pagecontent'])) {
+            if (empty($item->children) && in_array($item->type, ['grid', 'block', 'particle', 'position', 'spacer', 'system'])) {
                 unset($items[$key]);
             }
         }
@@ -350,30 +408,31 @@ class Layout implements \ArrayAccess, \Iterator, ExportInterface
         }
 
         /** @var Layout $old */
-        $old = new static($this->name, $old);
+        $old = new static('tmp', $old);
 
         $leftover = [];
 
         // Copy normal sections.
-        $data = $old->referencesByType('section', 'section');
-        if (isset($this->types['section']['section'])) {
-            $sections = &$this->types['section']['section'];
+        $data = $old->referencesByType('section');
+
+        if (isset($this->types['section'])) {
+            $sections = &$this->types['section'];
 
             $this->copyData($data, $sections, $leftover);
         }
 
         // Copy offcanvas.
-        $data = $old->referencesByType('offcanvas', 'offcanvas');
-        if (isset($this->types['offcanvas']['offcanvas'])) {
-            $offcanvas = &$this->types['offcanvas']['offcanvas'];
+        $data = $old->referencesByType('offcanvas');
+        if (isset($this->types['offcanvas'])) {
+            $offcanvas = &$this->types['offcanvas'];
 
             $this->copyData($data, $offcanvas, $leftover);
         }
 
         // Copy atoms.
-        $data = $old->referencesByType('atoms', 'atoms');
-        if (isset($this->types['atoms']['atoms'])) {
-            $atoms = &$this->types['atoms']['atoms'];
+        $data = $old->referencesByType('atoms');
+        if (isset($this->types['atoms'])) {
+            $atoms = &$this->types['atoms'];
 
             $this->copyData($data, $atoms, $leftover);
         }
@@ -383,17 +442,21 @@ class Layout implements \ArrayAccess, \Iterator, ExportInterface
 
     protected function copyData(array $data, array &$sections, array &$leftover)
     {
-        foreach ($data as $item) {
-            $found = false;
-            foreach ($sections as &$section) {
-                if ($section->title === $item->title) {
-                    $found = true;
-                    $section = $item;
-                    break;
+        foreach ($data as $type => $items) {
+            foreach ($items as $item) {
+                $found = false;
+                if (isset($sections[$type])) {
+                    foreach ($sections[$type] as &$section) {
+                        if ($section->id === $item->id) {
+                            $found = true;
+                            $section->children = $item->children;
+                            break;
+                        }
+                    }
                 }
-            }
-            if (!$found && !empty($item->children)) {
-                $leftover[] = $item->title;
+                if (!$found && !empty($item->children)) {
+                    $leftover[$item->id] = $item->title;
+                }
             }
         }
     }
@@ -421,6 +484,82 @@ class Layout implements \ArrayAccess, \Iterator, ExportInterface
 
                 if (isset($item->children) && is_array($item->children)) {
                     $this->initReferences($item->children);
+                }
+            }
+        }
+    }
+
+    /**
+     * Prepare block width sizes.
+     *
+     * @return $this
+     */
+    public function prepareWidths()
+    {
+        $this->calcWidths($this->items);
+
+        return $this;
+    }
+
+    /**
+     * Recalculate block widths.
+     *
+     * @param array $items
+     * @internal
+     */
+    protected function calcWidths(array &$items)
+    {
+        foreach ($items as $i => &$item) {
+            if (empty($item->children)) {
+                continue;
+            }
+
+            $this->calcWidths($item->children);
+
+            $dynamicSize = 0;
+            $fixedSize = 0;
+            $childrenCount = 0;
+            foreach ($item->children as $child) {
+                if ($child->type !== 'block') {
+                    continue;
+                }
+                $childrenCount++;
+                if (!isset($child->attributes->size)) {
+                    $child->attributes->size = 100 / count($item->children);
+                }
+                if (empty($child->attributes->fixed)) {
+                    $dynamicSize += $child->attributes->size;
+                } else {
+                    $fixedSize += $child->attributes->size;
+                }
+            }
+
+            if (!$childrenCount) {
+                continue;
+            }
+
+            $roundSize = round($dynamicSize, 1);
+            $equalized = isset($this->equalized[$childrenCount]) ? $this->equalized[$childrenCount] : 0;
+
+            // force-casting string for testing comparison due to weird PHP behavior that returns wrong result
+            if ($roundSize != 100 && (string) $roundSize != (string) ($equalized * $childrenCount)) {
+                $fraction = 0;
+                $multiplier = (100 - $fixedSize) / ($dynamicSize ?: 1);
+                foreach ($item->children as $child) {
+                    if ($child->type !== 'block') {
+                        continue;
+                    }
+                    if (!empty($child->attributes->fixed)) {
+                        continue;
+                    }
+
+                    // Calculate size for the next item by taking account the rounding error from the last item.
+                    // This will allow us to approximate cumulating error and fix it when rounding error grows
+                    // over the rounding treshold.
+                    $size = ($child->attributes->size * $multiplier) + $fraction;
+                    $newSize = round($size);
+                    $fraction = $size - $newSize;
+                    $child->attributes->size = $newSize;
                 }
             }
         }

@@ -2,7 +2,7 @@
 /**
  * @package   Gantry 5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   GNU/GPLv2 and later
  *
  * http://www.gnu.org/licenses/gpl-2.0.html
@@ -20,14 +20,18 @@ class plgSystemGantry5 extends JPlugin
 
     public function __construct(&$subject, $config = array())
     {
+        $this->_name = isset($config['name']) ? $config['name'] : 'gantry5';
+        $this->_type = isset($config['type']) ? $config['type'] : 'system';
+
         $this->app = JFactory::getApplication();
+
+        $this->loadLanguage('plg_system_gantry5.sys');
 
         JLoader::register('Gantry5\Loader', JPATH_LIBRARIES . '/gantry5/Loader.php');
 
         // Detect Gantry Framework or fail gracefully.
         if (!class_exists('Gantry5\Loader')) {
             if ($this->app->isAdmin()) {
-                $this->loadLanguage('plg_system_gantry5.sys');
                 $this->app->enqueueMessage(
                     JText::sprintf('PLG_SYSTEM_GANTRY5_LIBRARY_MISSING', JText::_('PLG_SYSTEM_GANTRY5')),
                     'warning'
@@ -44,7 +48,7 @@ class plgSystemGantry5 extends JPlugin
      */
     public function onGantryGlobalConfig(&$global)
     {
-        $global = new \Gantry\Component\Config\Config($this->params->toArray());
+        $global = $this->params->toArray();
     }
 
     /**
@@ -94,7 +98,7 @@ class plgSystemGantry5 extends JPlugin
             $data = $db->loadObjectList();
 
             if (sizeof($data) > 0) {
-                $this->modules = [];
+                $this->modules = array();
                 $body = $this->app->getBody();
 
                 foreach ($data as $module) {
@@ -130,7 +134,14 @@ class plgSystemGantry5 extends JPlugin
 
         if (is_file($gantryPath)) {
             // Manually setup Gantry 5 Framework from the template.
-            include_once $gantryPath;
+            $gantry = include $gantryPath;
+
+            if (!$gantry) {
+                throw new \RuntimeException(
+                    JText::sprintf("GANTRY5_THEME_LOADING_FAILED", $template, JText::_('GANTRY5_THEME_INCLUDE_FAILED')),
+                    500
+                );
+            }
 
         } else {
 
@@ -243,7 +254,7 @@ class plgSystemGantry5 extends JPlugin
         }
 
         // Clean the cache.
-        $this->cleanCache();
+        \Gantry\Joomla\CacheHelper::cleanPlugin();
 
         // Trigger the onExtensionAfterSave event.
         $dispatcher->trigger('onExtensionAfterSave', array($name, &$table, false));
@@ -292,8 +303,8 @@ class plgSystemGantry5 extends JPlugin
         $template = $table->template;
 
         $gantry = $this->load($template);
-
-        $old = (int) (new Joomla\Registry\Registry($table->params))->get('configuration', 0);
+        $registry = new Joomla\Registry\Registry($table->params);
+        $old = (int) $registry->get('configuration', 0);
         $new = (int) $table->id;
 
         if ($old && $old !== $new) {
@@ -371,28 +382,6 @@ class plgSystemGantry5 extends JPlugin
         }
 
         return true;
-    }
-
-    /**
-     * Clean plugin cache just as if we were saving plugin from the plugin manager.
-     *
-     * @see JModelLegacy::cleanCache()
-     */
-    protected function cleanCache($group = 'com_plugins', $client_id = 0)
-    {
-        // Initialise variables;
-        $conf = JFactory::getConfig();
-        $dispatcher = JEventDispatcher::getInstance();
-
-        $options = array(
-            'defaultgroup' => $group,
-            'cachebase' => ($client_id) ? JPATH_ADMINISTRATOR . '/cache' : $conf->get('cache_path', JPATH_SITE . '/cache'));
-
-        $cache = JCache::getInstance('callback', $options);
-        $cache->clean();
-
-        // Trigger the onContentCleanCache event.
-        $dispatcher->trigger('onContentCleanCache', $options);
     }
 
     /**
@@ -482,7 +471,7 @@ class plgSystemGantry5 extends JPlugin
             // Initialize theme cache stream.
             $cachePath = $patform->getCachePath() . '/' . $name;
             Gantry\Component\FileSystem\Folder::create($cachePath);
-            $locator->addPath('gantry-cache', 'theme', [$cachePath], true, true);
+            $locator->addPath('gantry-cache', 'theme', array($cachePath), true, true);
             $gantry['file.yaml.cache.path'] = $locator->findResource('gantry-cache://theme/compiled/yaml', true, true);
         }
 

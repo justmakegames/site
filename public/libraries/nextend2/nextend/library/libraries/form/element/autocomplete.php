@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2ElementAutocomplete extends N2ElementText
 {
@@ -34,9 +41,9 @@ class N2ElementAutocomplete extends N2ElementText
     }
 
     protected function post() {
-        return NHtml::tag('a', array(
+        return N2Html::tag('a', array(
             'href'  => '#',
             'class' => 'n2-form-element-clear'
-        ), NHtml::tag('i', array('class' => 'n2-i n2-it n2-i-empty n2-i-grey-opacity'), ''));
+        ), N2Html::tag('i', array('class' => 'n2-i n2-it n2-i-empty n2-i-grey-opacity'), ''));
     }
 }

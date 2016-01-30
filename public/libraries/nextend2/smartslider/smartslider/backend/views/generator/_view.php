@@ -1,6 +1,11 @@
 <?php
-
-N2Loader::import("libraries.slider.NextendSmartSliderBuilder", "smartslider");
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartsliderBackendGeneratorView extends N2ViewBase
 {
@@ -70,7 +75,7 @@ class N2SmartsliderBackendGeneratorView extends N2ViewBase
                     )
                 ))] = $info->title;
             } elseif (!$info->installed) {
-                $button = NHtml::link(n2_("Visit site"), $info->readMore, array(
+                $button = N2Html::link(n2_("Visit site"), $info->readMore, array(
                     "target" => "_blank",
                     "class"  => "n2-button n2-button-big n2-button-grey"
                 ));
@@ -90,27 +95,27 @@ class N2SmartsliderBackendGeneratorView extends N2ViewBase
             if ($count == 1) {
                 reset($buttons);
                 $key    = key($buttons);
-                $button = NHtml::link($buttons[$key], $key, array(
+                $button = N2Html::link($buttons[$key], $key, array(
                     "class" => "n2-button n2-button-small n2-button-blue n2-h5"
                 ));
             } else {
                 $keys    = array_keys($buttons);
                 $actions = array();
                 for ($i = 0; $i < count($keys); $i++) {
-                    $actions[] = NHtml::link($buttons[$keys[$i]], $keys[$i], array(
+                    $actions[] = N2Html::link($buttons[$keys[$i]], $keys[$i], array(
                         'class' => 'n2-h4'
                     ));
                 }
                 ob_start();
                 $this->widget->init("buttonmenu", array(
-                    "content" => NHtml::tag('div', array(
+                    "content" => N2Html::tag('div', array(
                         'class' => 'n2-button-menu'
-                    ), NHtml::tag('div', array(
+                    ), N2Html::tag('div', array(
                         'class' => 'n2-button-menu-inner n2-border-radius'
                     ), implode('', $actions)))
                 ));
                 $buttonMenu = ob_get_clean();
-                $button     = NHtml::tag('div', array('class' => 'n2-button n2-button-with-menu n2-button-small n2-h5 n2-button-blue'), NHtml::link($buttons[$keys[0]], $keys[0], array(
+                $button     = N2Html::tag('div', array('class' => 'n2-button n2-button-with-menu n2-button-small n2-h5 n2-button-blue'), N2Html::link($buttons[$keys[0]], $keys[0], array(
                         'class' => 'n2-button-inner'
                     )) . $buttonMenu);
             }
@@ -135,7 +140,7 @@ class N2SmartsliderBackendGeneratorView extends N2ViewBase
             $options[$type] = $info->title;
 
             if ($info->hasConfiguration) {
-                $button = NHtml::link("Next", $this->appType->router->createUrl(array(
+                $button = N2Html::link("Next", $this->appType->router->createUrl(array(
                     "generator/checkConfiguration",
                     array(
                         "sliderid" => N2Request::getInt('sliderid'),
@@ -147,12 +152,12 @@ class N2SmartsliderBackendGeneratorView extends N2ViewBase
                 ));
 
             } elseif (!$info->installed) {
-                $button = NHtml::link("Check extension", $info->readMore, array(
+                $button = N2Html::link("Check extension", $info->readMore, array(
                     "target" => "_blank",
                     "class"  => "n2-button n2-button-small n2-button-grey"
                 ));
             } else {
-                $button = NHtml::link("Next", $this->appType->router->createUrl(array(
+                $button = N2Html::link("Next", $this->appType->router->createUrl(array(
                     "generator/createSettings",
                     array(
                         "sliderid" => N2Request::getInt('sliderid'),
@@ -166,16 +171,16 @@ class N2SmartsliderBackendGeneratorView extends N2ViewBase
         }
         $optionsHTML = '';
         foreach ($options AS $k => $v) {
-            $optionsHTML .= NHtml::tag('option', array('value' => $k), $v);
+            $optionsHTML .= N2Html::tag('option', array('value' => $k), $v);
         }
 
-        echo NHtml::tag('div', array('class' => 'n2-box'), NHtml::image(N2Uri::pathToUri(N2Filesystem::translate($info->path . '/../dynamic.png'))) . NHtml::tag("div", array(
+        echo N2Html::tag('div', array('class' => 'n2-box'), N2Html::image(N2Uri::pathToUri(N2Filesystem::translate($info->path . '/../dynamic.png'))) . N2Html::tag("div", array(
                 'class' => 'n2-box-placeholder'
-            ), NHtml::tag("table", array(), NHtml::tag("tr", array(), NHtml::tag("td", array(
+            ), N2Html::tag("table", array(), N2Html::tag("tr", array(), N2Html::tag("td", array(
                     'class' => 'n2-box-label'
-                ), NHtml::tag('select', array(
+                ), N2Html::tag('select', array(
                     'name' => 'generator-type'
-                ), $optionsHTML)) . NHtml::tag("td", array(
+                ), $optionsHTML)) . N2Html::tag("td", array(
                     'class' => 'n2-box-button'
                 ), $button)))));
     }

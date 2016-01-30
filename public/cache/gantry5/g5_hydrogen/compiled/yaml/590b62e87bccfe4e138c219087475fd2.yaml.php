@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/analytics.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'Google Analytics',
         'description' => 'Configure Google Analytics.',
         'type' => 'atom',
+        'icon' => 'fa-area-chart',
         'form' => [
             'fields' => [
                 'enabled' => [
@@ -17,8 +18,9 @@ return [
                 ],
                 'ua.code' => [
                     'type' => 'input.text',
-                    'description' => 'Enter the Google UA tracking code for analytics.',
-                    'label' => 'UA Code'
+                    'description' => 'Enter the Google UA tracking code for analytics (UA-XXXXXXXX-X)',
+                    'label' => 'UA Code',
+                    'placeholder' => 'UA-XXXXXXXX-X'
                 ],
                 'ua.anonym' => [
                     'type' => 'input.checkbox',

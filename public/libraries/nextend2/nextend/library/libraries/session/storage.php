@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 abstract class N2SessionStorageAbstract
 {
@@ -16,11 +23,12 @@ abstract class N2SessionStorageAbstract
     public function __construct($userIdentifier) {
 
         $this->register();
-
-        if (!isset($_COOKIE['nextendsession'])) {
-            $this->hash = md5(self::$salt . $userIdentifier);
+        if (!isset($_COOKIE['nextendsession']) || substr($_COOKIE['nextendsession'], 0, 2) != 'n2' || !preg_match('/^[a-f0-9]{32}$/', substr($_COOKIE['nextendsession'], 2))) {
+            $this->hash = 'n2' . md5(self::$salt . $userIdentifier);
             setcookie('nextendsession', $this->hash, time() + self::$expire, $_SERVER["HTTP_HOST"]);
             $_COOKIE['nextendsession'] = $this->hash;
+        } else {
+            $this->hash = $_COOKIE['nextendsession'];
         }
 
         $this->load();

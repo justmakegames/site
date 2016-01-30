@@ -7,7 +7,7 @@
         this.playerId = id;
 
         this.parameters = $.extend({
-            vimeourl: "//vimeo.com/58461689",
+            vimeourl: "//vimeo.com/144598279",
             center: 0,
             autoplay: "0",
             reset: "0",
@@ -16,10 +16,7 @@
             portrait: "0",
             loop: "0",
             color: "00adef",
-            volume: "-1",
-            videoplay: '',
-            videopause: '',
-            videoend: ''
+            volume: "-1"
         }, parameters);
 
         if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
@@ -73,25 +70,20 @@
 
             this.slider.sliderElement.on('SliderResize', $.proxy(this.onResize, this))
         }
+        var layer = this.playerElement.parent().parent();
 
         this.player.addEvent('play', $.proxy(function () {
-            this.slider.sliderElement.trigger('mediaStarted', this);
-            if (this.parameters.videoplay != '') {
-                eval(this.parameters.videoplay);
-            }
+            this.slider.sliderElement.trigger('mediaStarted', this.playerId);
+            layer.triggerHandler('n2play');
         }, this));
 
-        if (this.parameters.videopause != '') {
-            this.player.addEvent('pause', $.proxy(function () {
-                eval(this.parameters.videopause);
-            }));
-        }
+        this.player.addEvent('pause', $.proxy(function () {
+            layer.triggerHandler('n2pause');
+        }));
 
         this.player.addEvent('finish', $.proxy(function () {
-            this.slider.sliderElement.trigger('mediaEnded', this);
-            if (this.parameters.videoend != '') {
-                eval(this.parameters.videoend);
-            }
+            this.slider.sliderElement.trigger('mediaEnded', this.playerId);
+            layer.triggerHandler('n2stop');
         }, this));
 
         //pause video when slide changed
@@ -106,7 +98,7 @@
         }, this));
 
         if (this.parameters.autoplay == 1) {
-            this.initAutoplay();
+            this.slider.visible($.proxy(this.initAutoplay, this));
         }
         this.readyDeferred.resolve();
     };
@@ -148,7 +140,7 @@
     };
 
     NextendSmartSliderVimeoItem.prototype.play = function () {
-        this.slider.sliderElement.trigger('mediaStarted', this);
+        this.slider.sliderElement.trigger('mediaStarted', this.playerId);
         this.player.api("play");
     };
 

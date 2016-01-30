@@ -5,7 +5,7 @@
     function NextendBrowse(url, uploadAllowed) {
         this.url = url;
         this.uploadAllowed = parseInt(uploadAllowed);
-        this.currentPath = '';
+        this.currentPath = $.jStorage.get('browsePath', '');
         var timeout = null;
         this.node = $('<div class="n2-browse-container"/>').on('dragover', function (e) {
             if (timeout !== null) {
@@ -101,6 +101,8 @@
                     NextendAjaxHelper.notification(data.jqXHR.responseJSON);
                 }, this)
             });
+
+            $.jStorage.set('browsePath', this.getCurrentFolder());
         }
 
         if (data.path != '') {

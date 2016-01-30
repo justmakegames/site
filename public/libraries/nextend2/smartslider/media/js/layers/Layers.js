@@ -59,12 +59,28 @@
         },
         responsiveProperties = ['left', 'top', 'width', 'height'];
 
+
+    if (/(MSIE\ [0-7]\.\d+)/.test(navigator.userAgent)) {
+        function getPos($element) {
+            return $element.position();
+        }
+    } else {
+        function getPos($element) {
+            return {
+                left: $element.prop('offsetLeft'),
+                top: $element.prop('offsetTop')
+            }
+        }
+    }
+
     function Slide(slider, $slideElement, isFirstSlide, isStaticSlide) {
         if (typeof isStaticSlide === 'undefined') {
             isStaticSlide = false;
         }
+        this.isStaticSlide = isStaticSlide;
         this.status = SlideStatus.NOT_INITIALIZED;
         this.slider = slider;
+        this.slider.isFirstSlide = true;
 
         this.$slideElement = $slideElement;
 
@@ -81,7 +97,7 @@
 
         this.findLayers();
 
-        if (!this.slider.parameters.admin || !$slideElement.is(this.slider.adminGetCurrentSlideElement(false))) {
+        if (!this.slider.parameters.admin || !$slideElement.is(this.slider.adminGetCurrentSlideElement())) {
             this.initResponsiveMode();
         }
 
@@ -94,19 +110,35 @@
                 slider.sliderElement.on('SliderResize', $.proxy(this.resize, this));
             }
 
+            this.$slideElement.one('mainAnimationStartIn', $.proxy(function () {
+                this.isFirstSlide = false;
+            }, this.slider));
+
             if (!isStaticSlide) {
                 this.$slideElement.on('mainAnimationStartIn', $.proxy(this.setStart, this));
             }
 
             if (isFirstSlide && !this.slider.isAdmin) {
-                if (this.slider.parameters.layerMode.playFirstLayer) {
-                    //mainAnimationStartIn event not triggered in play on load, so we need to reset the layers manually
-                    this.setStart();
-                    this.slider.ready($.proxy(function () {
+                //mainAnimationStartIn event not triggered in play on load, so we need to reset the layers manually
+                this.slider.visible($.proxy(function () {
+                    if (this.slider.parameters.layerMode.playFirstLayer) {
                         n2c.log('Play first slide');
+                        this.setStart();
                         this.playIn();
-                    }, this));
-                }
+                    } else {
+
+                        this.setZeroAll();
+                        this.status = SlideStatus.INITIALIZED;
+                    }
+                }, this));
+            }
+        }, this));
+
+        var $deviceIMGs = this.$slideElement.find('[data-device="1"]');
+        slider.sliderElement.on('SliderDeviceOrientation', $.proxy(function (e, modes) {
+            for (var i = 0; i < $deviceIMGs.length; i++) {
+                var $el = $deviceIMGs.eq(i);
+                $el.attr('src', $el.data(modes.device));
             }
         }, this));
     
@@ -119,9 +151,19 @@
     Slide.prototype.findLayers = function () {
         this.$layers = this.$slideElement.find('.n2-ss-layer')
             .each($.proxy(function (i, el) {
+                var $el = $(el);
                 for (var j = 0; j < responsiveProperties.length; j++) {
                     var property = responsiveProperties[j];
-                    $(el).data('desktop' + property, parseFloat(el.style[property]));
+                    $el.data('desktop' + property, parseFloat(el.style[property]));
+                }
+                var parent = this.getLayerProperty($el, 'parentid');
+                if (typeof parent !== 'undefined' && parent) {
+                    parent = $('#' + parent);
+                    if (parent.length > 0) {
+                        $el.data('parent', parent);
+                    }
+                } else {
+                    $el.data('parent', false);
                 }
             }, this));
         this.$parallax = this.$layers.filter('[data-parallax]');
@@ -148,15 +190,18 @@
             this.currentMode = mode;
             this.$layers.each($.proxy(function (i, el) {
                 var layer = $(el),
-                    show = layer.data(mode);
-                if (typeof show == 'undefined' || parseInt(show)) {
+                    show = layer.data(mode),
+                    parent = layer.data('parent');
+                if ((typeof show == 'undefined' || parseInt(show))) {
                     if (this.getLayerProperty(layer, 'adaptivefont')) {
                         layer.css('font-size', (16 * this.getLayerResponsiveProperty(layer, this.currentMode, 'fontsize') / 100) + 'px');
                     } else {
                         layer.css('font-size', this.getLayerResponsiveProperty(layer, this.currentMode, 'fontsize') + '%');
                     }
+                    layer.data('shows', 1);
                     layer.css('display', 'block');
                 } else {
+                    layer.data('shows', 0);
                     layer.css('display', 'none');
                 }
             }, this));
@@ -173,12 +218,15 @@
     Slide.prototype.resize = function (e, ratios, responsive, timeline) {
         if (typeof timeline !== 'undefined') return;
         if (this.slider.slides.index(this.$slideElement) == this.slider.currentSlideIndex) {
-            //NextendThrottle(function () {
             this.layers.refresh(ratios);
             this.status = SlideStatus.INITIALIZED;
-            this.setStart();
-            this.playIn();
-            //}, 33).call(this);
+            if (this.slider.parameters.layerMode.playFirstLayer || !this.slider.isFirstSlide) {
+                this.setStart();
+                this.playIn();
+            } else {
+                this.setZeroAll();
+                this.status = SlideStatus.INITIALIZED;
+            }
         }
     };
 
@@ -194,74 +242,133 @@
     };
 
 
+    Slide.prototype.isDimensionPropertyAccepted = function (value) {
+        if ((value + '').match(/[0-9]+%/) || value == 'auto') {
+            return true;
+        }
+        return false;
+    };
+
     Slide.prototype.repositionLayer = function (layer, ratios, dimensions) {
-        var ratioPositionH = ratios.slideH,
+        var ratioPositionH = ratios.slideW,
             ratioSizeH = ratioPositionH,
-            ratioPositionV = ratios.slideW,
-            ratioSizeV = ratioPositionV
+            ratioPositionV = ratios.slideH,
+            ratioSizeV = ratioPositionV;
 
         if (!parseInt(this.getLayerProperty(layer, 'responsivesize'))) {
             ratioSizeH = ratioSizeV = 1;
         }
 
         var width = this.getLayerResponsiveProperty(layer, this.currentMode, 'width');
-        layer.css('width', width == 'auto' ? 'auto' : (width * ratioSizeH) + 'px');
+        layer.css('width', this.isDimensionPropertyAccepted(width) ? width : (width * ratioSizeH) + 'px');
         var height = this.getLayerResponsiveProperty(layer, this.currentMode, 'height');
-        layer.css('height', height == 'auto' ? 'auto' : (height * ratioSizeV) + 'px');
+        layer.css('height', this.isDimensionPropertyAccepted(height) ? height : (height * ratioSizeV) + 'px');
 
         if (!parseInt(this.getLayerProperty(layer, 'responsiveposition'))) {
             ratioPositionH = ratioPositionV = 1;
         }
 
-        var top = this.getLayerResponsiveProperty(layer, this.currentMode, 'top') * ratioPositionV;
 
-        switch (this.getLayerResponsiveProperty(layer, this.currentMode, 'valign')) {
-            case 'bottom':
-                layer.css({
-                    top: 'auto',
-                    bottom: top + 'px'
-                });
-                break;
-            case 'middle':
-                layer.css({
-                    top: (dimensions.slide.height / 2 + top - layer.height() / 2) + 'px',
-                    bottom: 'auto'
-                });
-                break;
-            default:
-                layer.css({
-                    top: top + 'px',
-                    bottom: 'auto'
-                });
+        var left = this.getLayerResponsiveProperty(layer, this.currentMode, 'left') * ratioPositionH,
+            top = this.getLayerResponsiveProperty(layer, this.currentMode, 'top') * ratioPositionV,
+            align = this.getLayerResponsiveProperty(layer, this.currentMode, 'align'),
+            valign = this.getLayerResponsiveProperty(layer, this.currentMode, 'valign');
+
+
+        var positionCSS = {
+                left: 'auto',
+                top: 'auto',
+                right: 'auto',
+                bottom: 'auto'
+            },
+            parent = this.getLayerProperty(layer, 'parent');
+
+        if (parent && parent.data('shows')) {
+            var position = getPos(parent),
+                p = {left: 0, top: 0};
+
+            switch (this.getLayerResponsiveProperty(layer, this.currentMode, 'parentalign')) {
+                case 'right':
+                    p.left = position.left + parent.width();
+                    break;
+                case 'center':
+                    p.left = position.left + parent.width() / 2;
+                    break;
+                default:
+                    p.left = position.left;
+            }
+
+            switch (align) {
+                case 'right':
+                    positionCSS.right = (layer.parent().width() - p.left - left) + 'px';
+                    break;
+                case 'center':
+                    positionCSS.left = (p.left + left - layer.width() / 2) + 'px';
+                    break;
+                default:
+                    positionCSS.left = (p.left + left) + 'px';
+                    break;
+            }
+
+
+            switch (this.getLayerResponsiveProperty(layer, this.currentMode, 'parentvalign')) {
+                case 'bottom':
+                    p.top = position.top + parent.height();
+                    break;
+                case 'middle':
+                    p.top = position.top + parent.height() / 2;
+                    break;
+                default:
+                    p.top = position.top;
+            }
+
+            switch (valign) {
+                case 'bottom':
+                    positionCSS.bottom = (layer.parent().height() - p.top - top) + 'px';
+                    break;
+                case 'middle':
+                    positionCSS.top = (p.top + top - layer.height() / 2) + 'px';
+                    break;
+                default:
+                    positionCSS.top = (p.top + top) + 'px';
+                    break;
+            }
+
+
+        } else {
+            switch (align) {
+                case 'right':
+                    positionCSS.right = -left + 'px';
+                    break;
+                case 'center':
+                    positionCSS.left = ((this.isStaticSlide ? layer.parent().width() : dimensions.slide.width) / 2 + left - layer.width() / 2) + 'px';
+                    break;
+                default:
+                    positionCSS.left = left + 'px';
+                    break;
+            }
+
+            switch (valign) {
+                case 'bottom':
+                    positionCSS.bottom = -top + 'px';
+                    break;
+                case 'middle':
+                    positionCSS.top = ((this.isStaticSlide ? layer.parent().height() : dimensions.slide.height) / 2 + top - layer.height() / 2) + 'px';
+                    break;
+                default:
+                    positionCSS.top = top + 'px';
+                    break;
+            }
         }
-
-
-        var left = this.getLayerResponsiveProperty(layer, this.currentMode, 'left') * ratioPositionH;
-
-
-        switch (this.getLayerResponsiveProperty(layer, this.currentMode, 'align')) {
-            case 'right':
-                layer.css({
-                    left: 'auto',
-                    right: left + 'px'
-                });
-                break;
-            case 'center':
-                layer.css({
-                    left: (dimensions.slide.width / 2 + left - layer.width() / 2) + 'px',
-                    right: 'auto'
-                });
-                break;
-            default:
-                layer.css({
-                    left: left + 'px',
-                    right: 'auto'
-                });
-        }
+        layer.css(positionCSS);
     };
 
     Slide.prototype.setZero = function () {
         this.$slideElement.trigger('layerSetZero', this);
+    };
+
+    Slide.prototype.setZeroAll = function () {
+        this.$slideElement.trigger('layerSetZeroAll', this);
     };
 
     Slide.prototype.setStart = function () {
@@ -403,6 +510,7 @@
             this.transformOriginOut = this.animations.transformOriginOut.split('|*|').join('% ') + 'px';
             slide.$slideElement.on({
                 "layerSetZero.n2-ss-animations": $.proxy(this.setZero, this),
+                "layerSetZeroAll.n2-ss-animations": $.proxy(this.setZeroAll, this),
                 "layerAnimationSetStart.n2-ss-animations": $.proxy(this.start, this),
                 "layerPause.n2-ss-animations": $.proxy(this.pause, this),
                 "layerReset.n2-ss-animations": $.proxy(this.reset, this),
@@ -580,6 +688,13 @@
         NextendTween.set(this.$animatableElement, $.extend({}, zero));
     };
 
+    SlideLayerAnimations.prototype.setZeroAll = function () {
+        if (this.inStatus == In.INITIALIZED) {
+            this.inTimeline.progress(1);
+        }
+        this.setZero();
+    };
+
     SlideLayerAnimations.prototype.subscribeEvent = function (eventName, callback) {
         var events = eventName.split(',');
         for (var i = 0; i < events.length; i++) {
@@ -668,6 +783,9 @@
             transformOrigin: this.transformOriginIn
         });
         if (this.outStatus != Out.NO) {
+            if (this.inStatus == In.NO) {
+                this.outTimeline.progress(0.9999);
+            }
             this.outTimeline.pause(0);
         }
         if (this.inStatus != In.NO) {
@@ -698,7 +816,7 @@
             this.$layer.one('OutComplete.n2-instant-in', $.proxy(function () {
                 this.playIn();
             }, this));
-            this.outTimeline.totalDuration(0.2);
+            this.outTimeline.totalDuration(.3);
         }
     };
 
@@ -761,6 +879,7 @@
                 });
 
                 if (this.outTimeline.progress() == 1) {
+                    this.outTimeline.timeScale(1);
                     this.outTimeline.play(0);
                 } else {
                     this.outTimeline.play();
@@ -772,7 +891,7 @@
     };
 
     SlideLayerAnimations.prototype.outComplete = function () {
-        if (this.repeatable) {
+        if (this.repeatable && (this.inStatus != In.NO || this.loopStatus != Loop.NO || this.outStatus != In.NO)) {
             this.status = LayerStatus.INITIALIZED;
             NextendTween.set(this.$animatableElement, {
                 transformOrigin: this.transformOriginIn

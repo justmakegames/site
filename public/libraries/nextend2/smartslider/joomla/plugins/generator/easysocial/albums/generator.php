@@ -1,25 +1,32 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
 
 class N2GeneratorEasySocialAlbums extends N2GeneratorAbstract
 {
 
-    private function checkImage($url, $image) {
-        if (isset($image)) {
-            return N2ImageHelper::dynamic($url . $image);
-        } else {
-            return '';
-        }
-    }
-
     protected function _getData($count, $startIndex) {
 
         $model = new N2Model('EasySocial_Albums');
 
-        $groups   = array_map('intval', explode('||', $this->data->get('easysocialgroups', '0')));
-        $events   = array_map('intval', explode('||', $this->data->get('easysocialevents', '0')));
-        $clusters = array_merge($groups, $events);
+        $groups = array_map('intval', explode('||', $this->data->get('easysocialgroups', '0')));
+        $events = array_map('intval', explode('||', $this->data->get('easysocialevents', '0')));
+
+        if (!in_array('0', $groups) && !in_array('0', $events)) {
+            $clusters = array_merge($groups, $events);
+        } else if (!in_array('0', $groups)) {
+            $clusters = $groups;
+        } else if (!in_array('0', $events)) {
+            $clusters = $events;
+        } else {
+            $clusters = '';
+        }
 
         if (in_array('0', $groups) && in_array('0', $events)) {
             $all = "OR uid IN (SELECT id FROM #__social_clusters WHERE cluster_type = 'group' OR cluster_type = 'event')";
@@ -31,10 +38,11 @@ class N2GeneratorEasySocialAlbums extends N2GeneratorAbstract
             $all = "OR uid IN (SELECT cluster_id FROM #__social_events_meta WHERE group_id IN (" . implode(',', $groups) . ") AND cluster_id IN(" . implode(',', $events) . "))";
         }
 
-        $albumWhere = array(
-            "(uid IN (" . implode(',', $clusters) . ") " . $all . ")",
-            "(type='event' OR type='group')"
-        );
+        $albumWhere = array("(type='event' OR type='group')");
+
+        if ($clusters != '') {
+            $albumWhere[] = "(uid IN (" . implode(',', $clusters) . ") " . $all . ")";
+        }
 
         if ($this->data->get('avatarandcover', '0') == '0') {
             $albumWhere[] = "title <> 'COM_EASYSOCIAL_ALBUMS_PROFILE_AVATAR' AND title <> 'COM_EASYSOCIAL_ALBUMS_PROFILE_COVER'";

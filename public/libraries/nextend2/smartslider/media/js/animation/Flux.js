@@ -1,6 +1,7 @@
 (function ($, scope, undefined) {
 
     function NextendSmartSliderBackgroundAnimationFluxAbstract() {
+        this.shiftedPreSetup = false;
         this._clonedCurrent = false;
         this._clonedNext = false;
 
@@ -38,6 +39,14 @@
     };
 
     NextendSmartSliderBackgroundAnimationFluxAbstract.prototype.preSetup = function () {
+        if (this.shiftedBackgroundAnimation != 0) {
+            this.shiftedPreSetup = true;
+        } else {
+            this._preSetup();
+        }
+    };
+
+    NextendSmartSliderBackgroundAnimationFluxAbstract.prototype._preSetup = function (skipFadeOut) {
         this.timeline.to(this.original.currentImage.get(0), this.getExtraDelay(), {
             opacity: 0
         }, 0);

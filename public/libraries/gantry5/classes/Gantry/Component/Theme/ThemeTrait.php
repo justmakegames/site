@@ -2,7 +2,7 @@
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -38,6 +38,9 @@ trait ThemeTrait
     protected $segments;
     protected $preset;
     protected $cssCache;
+    /**
+     * @var CssCompilerInterface
+     */
     protected $compiler;
     protected $equalized = [3 => 33.3, 6 => 16.7, 7 => 14.3, 8 => 12.5, 9 => 11.1, 11 => 9.1, 12 => 8.3];
 
@@ -45,6 +48,20 @@ trait ThemeTrait
      * @var ThemeDetails
      */
     protected $details;
+
+    /**
+     * Register Theme stream.
+     *
+     * @param string $savePath
+     */
+    public function registerStream($savePath = null)
+    {
+        $streamName = $this->details()->addStreams();
+
+        /** @var UniformResourceLocator $locator */
+        $locator = self::$gantry['locator'];
+        $locator->addPath('gantry-theme', '', array_merge((array) $savePath, [[$streamName, '']]));
+    }
 
     /**
      * Update all CSS files in the theme.
@@ -309,7 +326,7 @@ trait ThemeTrait
     public function hasContent()
     {
         $layout = $this->loadLayout();
-        $content = $layout->referencesByType('pagecontent', 'pagecontent');
+        $content = $layout->referencesByType('system', 'content');
 
         return !empty($content);
     }
@@ -475,7 +492,7 @@ trait ThemeTrait
 
             // TODO: remove hard coded types.
             switch ($item->type) {
-                case 'pagecontent':
+                case 'system':
                     break;
 
                 case 'atom':

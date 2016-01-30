@@ -1,10 +1,10 @@
 <root>
-  <params name="slide" label="Slide settings" doc="#Slide-settings">
+  <params name="slide" label="Slide settings">
     <param name="title" type="text" label="Name" default="Slide 1" style="width: 400px;"/>
     <param name="description" type="textarea" label="Description" default="" style="display: block;" style2="width:100%; resize: vertical; height: 50px;"/>
     <param type="group" name="Properties" class="n2-expert">
       <param name="published" type="onoff" label="Published" default="1"/>
-      <param name="first" type="onoff" label="First" default="0"/>
+      <param name="first" type="onoff" label="First" default="0" class="n2-hidden"/>
       <param type="onoff" name="static-slide" label="Static slide" default="0" class="n2-expert"/></param>
     <param name="publishdates" type="mixed" label="Published between" class="n2-expert" default="0000-00-00 00:00:00|*|0000-00-00 00:00:00">
       <param type="date" label="Publish up"/>
@@ -17,6 +17,7 @@
         <unit value="%">%</unit>
       </param>
       <param name="backgroundAlt" type="text" label="Alt" default="" class="n2-expert"/>
+      <param name="backgroundTitle" type="text" label="Title" default="" class="n2-expert"/>
       <param name="backgroundMode" type="list" label="Fill mode" default="fill" translateable="1">
         <option value="fill">Fill</option>
         <option value="fit">Fit</option>
@@ -31,6 +32,10 @@
       <param name="backgroundVideoOgg" type="text" label="OGG" default=""/>
       <param name="backgroundVideoMuted" type="onoff" label="Muted" default="1"/>
       <param name="backgroundVideoLoop" type="onoff" label="Loop" default="1"/>
+      <param name="preload" type="list" label="Preload" default="auto" translateable="1">
+        <option value="auto">auto</option>
+        <option value="metadata">metadata</option>
+      </param>
       <param name="backgroundVideoMode" type="list" label="Fill mode" default="fill" translateable="1">
         <option value="fill">Fill</option>
         <option value="fit">Fit</option>

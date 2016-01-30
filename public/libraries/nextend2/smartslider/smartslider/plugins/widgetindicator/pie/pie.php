@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 N2Loader::import('libraries.image.color');
@@ -65,7 +72,7 @@ class N2SSPluginWidgetIndicatorPie extends N2SSPluginWidgetAbstract
 
         N2JS::addInline('new NextendSmartSliderWidgetIndicatorPie("' . $id . '", ' . json_encode($parameters) . ');');
 
-        return NHtml::tag('div', $displayAttributes + $attributes + array(
+        return N2Html::tag('div', $displayAttributes + $attributes + array(
                 'class' => $displayClass . "nextend-indicator nextend-indicator-pie",
                 'style' => $style
             ));

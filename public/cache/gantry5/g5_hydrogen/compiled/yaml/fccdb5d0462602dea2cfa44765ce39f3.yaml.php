@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/branding.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'Branding',
         'description' => 'Displays powered by link to Gantry Framework',
         'type' => 'particle',
+        'icon' => 'fa-trademark',
         'form' => [
             'fields' => [
                 'enabled' => [

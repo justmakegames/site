@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2Pluggable
 {
@@ -8,6 +15,17 @@ class N2Pluggable
     static function addAction($eventName, $callable) {
         if (!isset(self::$classes[$eventName])) self::$classes[$eventName] = array();
         self::$classes[$eventName][] = $callable;
+    }
+
+    static function applyFilters($eventName, $value, $args = array()) {
+        if (self::hasAction($eventName)) {
+            foreach (self::$classes[$eventName] AS $callable) {
+                if (is_callable($callable)) {
+                    $value = call_user_func_array($callable, array_merge(array($value), $args));
+                }
+            }
+        }
+        return $value;
     }
 
     static function doAction($eventName, $args = array()) {

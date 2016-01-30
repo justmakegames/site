@@ -4,6 +4,11 @@
         this.offset = 0;
         this.slider = window[id];
 
+        this.slider.started($.proxy(this.start, this, id, parameters));
+    };
+
+    NextendSmartSliderWidgetIndicatorStripe.prototype.start = function (id, parameters) {
+
         if (this.slider.sliderElement.data('indicator')) {
             return false;
         }

@@ -1,9 +1,16 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 $actions = array();
 
 if (isset($slider)) {
-    $actions[] = NHtml::tag('a', array(
+    $actions[] = N2Html::tag('a', array(
         'href'  => $this->appType->router->createUrl(array(
             "generator/create",
             array(
@@ -14,7 +21,7 @@ if (isset($slider)) {
     ), n2_('Cancel'));
 }
 
-$actions[] = NHtml::tag('a', array(
+$actions[] = N2Html::tag('a', array(
     'href'    => '#',
     'class'   => 'n2-button n2-button-green n2-button-big n2-h4 n2-b n2-uc',
     'onclick' => 'return NextendForm.submit("#smartslider-form");'
@@ -32,3 +39,4 @@ $this->widget->init('topbar', array(
     ?>
     <input name="save" value="1" type="hidden"/>
 </form>
+<?php N2SS3::showBeacon(ucfirst(N2Request::getCmd('group')) . ' generator'); ?>

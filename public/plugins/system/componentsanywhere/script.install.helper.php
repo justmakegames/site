@@ -1,10 +1,11 @@
 <?php
 /**
- * Install script helper
- *
+ * @package         Components Anywhere
+ * @version         2.3.0
+ * 
  * @author          Peter van Westen <peter@nonumber.nl>
  * @link            http://www.nonumber.nl
- * @copyright       Copyright © 2015 NoNumber All Rights Reserved
+ * @copyright       Copyright © 2016 NoNumber All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -62,6 +63,7 @@ class PlgSystemComponentsAnywhereInstallerScriptHelper
 		}
 
 		$this->updateUpdateSites();
+		$this->removeNoNumberCache();
 
 		if ($this->onAfterInstall() === false)
 		{
@@ -278,6 +280,8 @@ class PlgSystemComponentsAnywhereInstallerScriptHelper
 			->where($this->db->quoteName('folder') . ' = ' . $this->db->quote($this->plugin_folder));
 		$this->db->setQuery($query);
 		$this->db->execute();
+
+		JFactory::getCache()->clean('_system');
 	}
 
 	public function publishModule()
@@ -543,7 +547,7 @@ class PlgSystemComponentsAnywhereInstallerScriptHelper
 		$query = $this->db->getQuery(true)
 			->select('update_site_id')
 			->from('#__update_sites')
-			->where($this->db->qn('location') . ' LIKE ' . $this->db->q('http://download.nonumber.nl%'))
+			->where($this->db->qn('location') . ' LIKE ' . $this->db->q('http://cdn.download.nonumber.nl%'))
 			->where($this->db->qn('location') . ' LIKE ' . $this->db->q('%e=' . $this->alias . '%'))
 			->where($this->db->qn('name') . ' NOT LIKE ' . $this->db->q('NoNumber%'));
 		$this->db->setQuery($query, 0, 1);
@@ -592,17 +596,22 @@ class PlgSystemComponentsAnywhereInstallerScriptHelper
 		$query->clear()
 			->update('#__update_sites')
 			->set($this->db->qn('extra_query') . ' = ' . $this->db->q(''))
-			->where($this->db->qn('location') . ' LIKE ' . $this->db->q('http://download.nonumber.nl%'));
+			->where($this->db->qn('location') . ' LIKE ' . $this->db->q('http://cdn.download.nonumber.nl%'));
 		$this->db->setQuery($query);
 		$this->db->execute();
 
 		$query->clear()
 			->update('#__update_sites')
 			->set($this->db->qn('extra_query') . ' = ' . $this->db->q('k=' . $params->key))
-			->where($this->db->qn('location') . ' LIKE ' . $this->db->q('http://download.nonumber.nl%'))
+			->where($this->db->qn('location') . ' LIKE ' . $this->db->q('http://cdn.download.nonumber.nl%'))
 			->where($this->db->qn('location') . ' LIKE ' . $this->db->q('%&pro=1%'));
 		$this->db->setQuery($query);
 		$this->db->execute();
+	}
+
+	private function removeNoNumberCache()
+	{
+		$this->deleteFolders(array(JPATH_ADMINISTRATOR . '/cache/nonumber'));
 	}
 
 	private function removeGlobalLanguageFiles()

@@ -1,5 +1,11 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 class N2SmartSliderFeatureBackgroundVideo
 {
 
@@ -27,21 +33,21 @@ class N2SmartSliderFeatureBackgroundVideo
         $sources = '';
 
         if ($mp4) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $mp4,
                 "type" => "video/mp4"
             ));
         }
 
         if ($webm) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $webm,
                 "type" => "video/webm"
             ));
         }
 
         if ($ogg) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $ogg,
                 "type" => "video/ogg"
             ));
@@ -56,10 +62,25 @@ class N2SmartSliderFeatureBackgroundVideo
         if ($slide->parameters->get('backgroundVideoLoop', 1)) {
             $attributes['loop'] = 'loop';
         }
+        
+        $attributes["preload"] = $slide->parameters->get("preload","auto");
 
-        return NHtml::tag('video', $attributes + array(
-                'class'     => 'n2-ss-slide-background-video',
-                'data-mode' => $slide->parameters->get('backgroundVideoMode', 'fill')
+        $backgroundColor = '';
+        $color           = $slide->parameters->get('backgroundColor', '');
+        if (strlen($color) == 8 && substr($color, 6, 2) != '00') {
+            if (!class_exists('N2Color')) {
+                N2Loader::import("libraries.image.color");
+            }
+
+            $rgba    = N2Color::hex2rgba($color);
+            $rgba[3] = round($rgba[3] / 127, 2);
+            $backgroundColor .= "background-color: RGBA({$rgba[0]}, {$rgba[1]}, {$rgba[2]}, {$rgba[3]});";
+        }
+
+        return N2Html::tag('video', $attributes + array(
+                'class'           => 'n2-ss-slide-background-video',
+                'data-mode'       => $slide->parameters->get('backgroundVideoMode', 'fill'),
+                'data-background' => $backgroundColor
             ), $sources);
     }
 

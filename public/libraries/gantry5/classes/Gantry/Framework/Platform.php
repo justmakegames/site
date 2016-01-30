@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   GNU/GPLv2 and later
  *
  * http://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +69,29 @@ class Platform extends BasePlatform
         return ['' => ['gantry-theme://', 'media/gantry5/assets']];
     }
 
+    /**
+     * Get preview url for individual theme.
+     *
+     * @param string $theme
+     * @return string
+     */
+    public function getThemePreviewUrl($theme)
+    {
+        return \JUri::root(false) . 'index.php?templateStyle=' . $theme;
+    }
+
+    /**
+     * Get administrator url for individual theme.
+     *
+     * @param string $theme
+     * @return string
+     */
+    public function getThemeAdminUrl($theme)
+    {
+        $token = \JSession::getFormToken();
+        return \JRoute::_("index.php?option=com_gantry5&view=configurations/default/styles&theme={$theme}&{$token}=1" , false);
+    }
+
     public function filter($text)
     {
         \JPluginHelper::importPlugin('content');
@@ -119,7 +141,7 @@ class Platform extends BasePlatform
         $frontEditing = ($app->isSite() && $app->get('frontediting', 1) && !$user->guest);
         $menusEditing = ($app->get('frontediting', 1) == 2) && $user->authorise('core.edit', 'com_menus');
 
-        if ($frontEditing && $html && $user->authorise('module.edit.frontend', 'com_modules.module.' . $module->id)) {
+        if (!$isGantry && $frontEditing && $html && $user->authorise('module.edit.frontend', 'com_modules.module.' . $module->id)) {
             $displayData = [
                 'moduleHtml' => &$html,
                 'module' => $module,

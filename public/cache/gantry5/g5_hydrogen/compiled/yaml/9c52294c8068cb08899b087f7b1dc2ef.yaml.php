@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/totop.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'To Top',
         'description' => 'Scroll back to top.',
         'type' => 'particle',
+        'icon' => 'fa-chevron-up',
         'form' => [
             'fields' => [
                 'enabled' => [

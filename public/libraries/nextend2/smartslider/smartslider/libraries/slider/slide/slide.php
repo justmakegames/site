@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderSlide
 {
@@ -18,6 +25,8 @@ class N2SmartSliderSlide
     protected $html = '';
 
     protected $visible = 1;
+
+    protected $underEdit = false;
 
     /**
      * @var bool|N2SmartSliderSlidesGenerator
@@ -43,6 +52,10 @@ class N2SmartSliderSlide
 
         $this->sliderObject = $slider;
         $this->onCreate();
+    }
+
+    public function __clone() {
+        $this->parameters = clone $this->parameters;
     }
 
     protected function onCreate() {
@@ -119,7 +132,7 @@ class N2SmartSliderSlide
     }
 
     protected function addSlideLink() {
-        list($url, $target) = (array)N2Parse::parse($this->parameters->get('link', '||'));
+        list($url, $target) = (array)N2Parse::parse($this->parameters->getIfEmpty('link', '|*|'));
 
         if (!empty($url) && $url != '#') {
 
@@ -150,6 +163,10 @@ class N2SmartSliderSlide
         }
     }
 
+    public function getRawLink() {
+        return $this->parameters->getIfEmpty('link', '|*|');
+    }
+
     protected function renderHtml() {
         if (empty($this->html)) {
 
@@ -157,12 +174,15 @@ class N2SmartSliderSlide
 
             $html   = '';
             $layers = json_decode($this->slide, true);
+            if (!$this->underEdit) {
+                $layers = N2SmartSliderLayer::translateIds($layers);
+            }
             if (is_array($layers)) {
                 foreach ($layers AS $layer) {
                     $html .= $layerRenderer->render($layer);
                 }
             }
-            $this->html = NHtml::tag('div', $this->containerAttributes, $html);
+            $this->html = N2Html::tag('div', $this->containerAttributes, $html);
         }
     }
 
@@ -176,12 +196,15 @@ class N2SmartSliderSlide
 
         $html   = '';
         $layers = json_decode($this->slide, true);
+        if (!$this->underEdit) {
+            $layers = N2SmartSliderLayer::translateIds($layers);
+        }
         if (is_array($layers)) {
             foreach ($layers AS $layer) {
                 $html .= $layerRenderer->render($layer);
             }
         }
-        return NHtml::tag('div', array('class' => 'n2-ss-static-slide'), $html);
+        return N2Html::tag('div', array('class' => 'n2-ss-static-slide'), $html);
     }
 
     public function isStatic() {
@@ -243,7 +266,7 @@ class N2SmartSliderSlide
     }
 
     private function __cleanhtml($s) {
-        return strip_tags($s, '<p><a><b><br><br/><i>');;
+        return strip_tags($s, '<p><a><b><br><br/><i>');
     }
 
     private function __removehtml($s) {
@@ -268,6 +291,17 @@ class N2SmartSliderSlide
             $s = $r[2][$index];
         } else if (isset($r[6]) && !empty($r[6][$index])) {
             $s = trim($r[6][$index], "'\" \t\n\r\0\x0B");
+        } else {
+            $s = '';
+        }
+        return $s;
+    }
+
+    private function __findlink($s, $index) {
+        $index = isset($index) ? intval($index) - 1 : 0;
+        preg_match_all('/href=["\']?([^"\'>]+)["\']?/i', $s, $r);
+        if (isset($r[1]) && !empty($r[1][$index])) {
+            $s = $r[1][$index];
         } else {
             $s = '';
         }
@@ -304,6 +338,14 @@ class N2SmartSliderSlide
         return $this->fill($this->description);
     }
 
+    public function getRawTitle() {
+        return $this->title;
+    }
+
+    public function getRawDescription() {
+        return $this->description;
+    }
+
     public function getThumbnail() {
         $image = $this->thumbnail;
         if (empty($image)) {
@@ -318,7 +360,7 @@ class N2SmartSliderSlide
             'title'        => $this->getTitle(),
             'slide'        => $this->getFilledSlide(),
             'description'  => $this->getDescription(),
-            'thumbnail'    => $this->getThumbnail(),
+            'thumbnail'    => N2ImageHelper::dynamic($this->getThumbnail()),
             'published'    => $this->published,
             'publish_up'   => $this->publish_up,
             'publish_down' => $this->publish_down,
@@ -333,6 +375,7 @@ class N2SmartSliderSlide
     public function fillParameters() {
         $this->parameters->set('backgroundImage', $this->fill($this->parameters->get('backgroundImage')));
         $this->parameters->set('backgroundAlt', $this->fill($this->parameters->get('backgroundAlt')));
+        $this->parameters->set('backgroundTitle', $this->fill($this->parameters->get('backgroundTitle')));
         $this->parameters->set('backgroundVideoMp4', $this->fill($this->parameters->get('backgroundVideoMp4')));
         $this->parameters->set('backgroundVideoWebm', $this->fill($this->parameters->get('backgroundVideoWebm')));
         $this->parameters->set('backgroundVideoOgg', $this->fill($this->parameters->get('backgroundVideoOgg')));
@@ -344,6 +387,9 @@ class N2SmartSliderSlide
 
         $rawSlide = array();
         $layers   = json_decode($this->slide, true);
+        if (!$this->underEdit) {
+            $layers = N2SmartSliderLayer::translateIds($layers);
+        }
         if (is_array($layers)) {
             foreach ($layers AS $layer) {
                 $rawSlide[] = $layerRenderer->getFilled($layer);
@@ -393,5 +439,71 @@ class N2SmartSliderSlide
             return $this->generator->getSlideCount();
         }
         return 1;
+    }
+
+    public function getSlideStat() {
+        if ($this->hasGenerator()) {
+            return $this->generator->getSlideStat();
+        }
+        return '1/1';
+    }
+
+    public function setCurrentlyEdited() {
+        $this->underEdit = true;
+    }
+}
+
+class N2SmartSliderSlideHelper
+{
+
+    public $data = array(
+        'id'                     => 0,
+        'title'                  => '',
+        'publishdates'           => '|*|',
+        'published'              => 1,
+        'first'                  => 0,
+        'slide'                  => array(),
+        'description'            => '',
+        'thumbnail'              => '',
+        'ordering'               => 0,
+        'generator_id'           => 0,
+        "static-slide"           => 0,
+        "backgroundColor"        => "ffffff00",
+        "backgroundImage"        => "",
+        "backgroundImageOpacity" => 100,
+        "backgroundAlt"          => "",
+        "backgroundTitle"        => "",
+        "backgroundMode"         => "fill",
+        "backgroundVideoMp4"     => "",
+        "backgroundVideoWebm"    => "",
+        "backgroundVideoOgg"     => "",
+        "backgroundVideoMuted"   => 1,
+        "backgroundVideoLoop"    => 1,
+        "backgroundVideoMode"    => "fill",
+        "link"                   => "|*|_self",
+        "slide-duration"         => 0
+    );
+
+    public function __construct($properties = array()) {
+        foreach ($properties as $k => $v) {
+            $this->data[$k] = $v;
+        }
+    }
+
+    public function set($key, $value) {
+        $this->data[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * @param $layer N2SmartSliderLayerHelper
+     */
+    public function addLayer($layer) {
+        $this->data['slide'][] = &$layer->data;
+        $layer->set('zIndex', count($this->data['slide']));
+    }
+
+    public function toArray() {
+        return $this->data;
     }
 }

@@ -1,7 +1,8 @@
 (function ($, scope, undefined) {
     function NextendSmartSliderControlAutoplay(slider, parameters) {
         this._inited = false;
-        this._active = false;
+        this._paused = true;
+        this._wait = false;
         this._disabled = false;
         this._currentCount = 0;
         this._progressEnabled = false;
@@ -40,7 +41,7 @@
 
             this.deferredsExtraPlaying = {};
 
-            this.slider.ready($.proxy(this.onReady, this));
+            this.slider.visible($.proxy(this.onReady, this));
 
         } else {
             this.disable();
@@ -87,15 +88,17 @@
             }
         }
         if (this.parameters.pause.click && !this.parameters.resume.click) {
-            sliderElement.on('click.autoplay', $.proxy(this.pauseAutoplayUniversal, this));
+            sliderElement.on('universalclick.autoplay', $.proxy(this.pauseAutoplayUniversal, this));
         } else if (!this.parameters.pause.click && this.parameters.resume.click) {
-            sliderElement.on('click.autoplay', $.proxy(this.continueAutoplay, this));
-        } else {
-            sliderElement.on('click.autoplay', $.proxy(function (e) {
-                if (this._active) {
+            sliderElement.on('universalclick.autoplay', $.proxy(function (e) {
+                this.pauseAutoplayExtraPlayingEnded(e, 'autoplayButton');
+            }, this));
+        } else if (this.parameters.pause.click && this.parameters.resume.click) {
+            sliderElement.on('universalclick.autoplay', $.proxy(function (e) {
+                if (!this._paused) {
                     this.pauseAutoplayUniversal(e);
                 } else {
-                    this.continueAutoplay(e);
+                    this.pauseAutoplayExtraPlayingEnded(e, 'autoplayButton');
                 }
             }, this));
         }
@@ -108,10 +111,22 @@
         if (this.parameters.resume.mouse != '0') {
             switch (this.parameters.resume.mouse) {
                 case 'enter':
-                    sliderElement.on('mouseenter.autoplay', $.proxy(this.continueAutoplay, this));
+                    if (this.parameters.pause.mouse == '0') {
+                        sliderElement.on('mouseenter.autoplay', $.proxy(function (e) {
+                            this.pauseAutoplayExtraPlayingEnded(e, 'autoplayButton');
+                        }, this));
+                    } else {
+                        sliderElement.on('mouseenter.autoplay', $.proxy(this.continueAutoplay, this));
+                    }
                     break;
                 case 'leave':
-                    sliderElement.on('mouseleave.autoplay', $.proxy(this.continueAutoplay, this));
+                    if (this.parameters.pause.mouse == '0') {
+                        sliderElement.on('mouseleave.autoplay', $.proxy(function (e) {
+                            this.pauseAutoplayExtraPlayingEnded(e, 'autoplayButton');
+                        }, this));
+                    } else {
+                        sliderElement.on('mouseleave.autoplay', $.proxy(this.continueAutoplay, this));
+                    }
                     break;
             }
         }
@@ -134,7 +149,7 @@
 
     NextendSmartSliderControlAutoplay.prototype.onMainAnimationStart = function (e, animation, previousSlideIndex, currentSlideIndex, isSystem) {
         this.mainAnimationDeferred = $.Deferred();
-        this.deActivate(0);
+        this.deActivate(0, 'wait');
     };
 
     NextendSmartSliderControlAutoplay.prototype.onMainAnimationComplete = function (e, animation, previousSlideIndex, currentSlideIndex) {
@@ -146,7 +161,7 @@
     };
 
     NextendSmartSliderControlAutoplay.prototype.getSlideDuration = function (index) {
-        var slide = this.slider.slides.eq(index).data('slide'),
+        var slide = this.slider.realSlides.eq(this.slider.getRealIndex(index)).data('slide'),
             duration = slide.minimumSlideDuration;
 
         if (duration < 0.3 && duration < this.parameters.duration) {
@@ -180,8 +195,9 @@
     };
 
     NextendSmartSliderControlAutoplay.prototype._continueAutoplay = function () {
-        if (!this._active && !this._disabled) {
-            this._active = true;
+        if ((this._paused || this._wait) && !this._disabled) {
+            this._paused = false;
+            this._wait = false;
             if (!this._inited) {
                 this.slider.sliderElement.on('mainAnimationComplete.autoplay', $.proxy(this.onMainAnimationComplete, this));
                 this._inited = true;
@@ -197,15 +213,16 @@
         }
     };
 
-    NextendSmartSliderControlAutoplay.prototype.pauseAutoplayUniversal = function () {
-        this.autoplayDeferred.reject();
-        this.deActivate(null);
+    NextendSmartSliderControlAutoplay.prototype.pauseAutoplayUniversal = function (e) {
+        //this.autoplayDeferred.reject();
+        this.pauseAutoplayExtraPlaying(e, 'autoplayButton');
+        this.deActivate(null, 'pause');
     };
 
     NextendSmartSliderControlAutoplay.prototype.pauseAutoplayMouseEnter = function () {
         this.autoplayDeferred.reject();
         this.deferredMouseEnter = $.Deferred();
-        this.deActivate(null);
+        this.deActivate(null, this.parameters.resume.mouse == 'leave' ? 'wait' : 'pause');
     };
 
     NextendSmartSliderControlAutoplay.prototype.pauseAutoplayMouseEnterEnded = function () {
@@ -217,7 +234,7 @@
     NextendSmartSliderControlAutoplay.prototype.pauseAutoplayMouseLeave = function () {
         this.autoplayDeferred.reject();
         this.deferredMouseLeave = $.Deferred();
-        this.deActivate(null);
+        this.deActivate(null, this.parameters.resume.mouse == 'enter' ? 'wait' : 'pause');
     };
 
     NextendSmartSliderControlAutoplay.prototype.pauseAutoplayMouseLeaveEnded = function () {
@@ -231,7 +248,7 @@
             this.autoplayDeferred.reject();
         }
         this.deferredsMediaPlaying[obj] = $.Deferred();
-        this.deActivate(null);
+        this.deActivate(null, 'wait');
     };
 
     NextendSmartSliderControlAutoplay.prototype.pauseAutoplayMediaPlayingEnded = function (e, obj) {
@@ -247,7 +264,7 @@
             this.autoplayDeferred.reject();
         }
         this.deferredsExtraPlaying[obj] = $.Deferred();
-        this.deActivate(null);
+        this.deActivate(null, 'pause');
     };
 
     NextendSmartSliderControlAutoplay.prototype.pauseAutoplayExtraPlayingEnded = function (e, obj) {
@@ -259,12 +276,22 @@
         this.continueAutoplay();
     };
 
-    NextendSmartSliderControlAutoplay.prototype.deActivate = function (seekTo) {
-        if (this._active) {
-            this._active = false;
-            if (seekTo !== 0) {
-                n2c.log('Event: autoplayPaused');
-                this.slider.sliderElement.triggerHandler('autoplayPaused');
+    NextendSmartSliderControlAutoplay.prototype.deActivate = function (seekTo, mode) {
+        if (mode == 'pause') {
+            if (!this._paused) {
+                this._paused = true;
+                if (seekTo !== 0) {
+                    n2c.log('Event: autoplayPaused');
+                    this.slider.sliderElement.triggerHandler('autoplayPaused');
+                }
+            }
+        } else if (mode == 'wait') {
+            if (!this._wait) {
+                this._wait = true;
+                if (seekTo !== 0) {
+                    n2c.log('Event: autoplayWait');
+                    this.slider.sliderElement.triggerHandler('autoplayWait');
+                }
             }
         }
 
@@ -274,7 +301,7 @@
     };
 
     NextendSmartSliderControlAutoplay.prototype.disable = function () {
-        this.deActivate(0);
+        this.deActivate(0, 'pause');
         this.slider.sliderElement.triggerHandler('autoplayPaused');
         this.slider.sliderElement.triggerHandler('autoplayDisabled');
         this.slider.sliderElement.off('.autoplay');
@@ -283,7 +310,7 @@
     };
 
     NextendSmartSliderControlAutoplay.prototype.startTimeout = function (time) {
-        if (this._active && !this._disabled) {
+        if (!this._paused && !this._disabled) {
             this.timeline.play(time);
         }
     };
@@ -299,7 +326,7 @@
             this.disable();
         }
 
-        this.slider.next(true);
+        this.slider.nextCarousel(true);
     };
 
     NextendSmartSliderControlAutoplay.prototype.onUpdate = function () {

@@ -18,7 +18,7 @@
     ItemParserHeading.prototype.added = function () {
         this.needFill = ['heading', 'url'];
 
-        this.addedFont('paragraph', 'font');
+        this.addedFont('hover', 'font');
         this.addedStyle('heading', 'style');
 
         nextend.smartSlider.generator.registerField($('#item_headingheading'));
@@ -48,7 +48,7 @@
 
         data.extrastyle = data.nowrap | 0 ? 'white-space: nowrap;' : '';
 
-        data.heading = $('<div>' + data.heading + '</div>').text();
+        data.heading = $('<div>' + data.heading + '</div>').text().replace(/\n/g, '<br />');
         data.splitTextIn = data['split-text-animation-in'];
         data.splitTextDelayIn = data['split-text-delay-in'] / 1000;
         data.splitTextOut = data['split-text-animation-out'];
@@ -58,6 +58,13 @@
     
 
         NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+
+        if (data['url'] == '#') {
+            data['afontclass'] = '';
+        } else {
+            data['afontclass'] = data['fontclass'];
+            data['fontclass'] = '';
+        }
     };
 
     ItemParserHeading.prototype.render = function (node, data) {

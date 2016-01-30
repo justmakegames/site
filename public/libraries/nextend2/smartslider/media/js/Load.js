@@ -22,25 +22,31 @@
         if (this.parameters.scroll) {
 
             var $window = $(window);
-            $window.on('scroll.' + this.id, $.proxy(function () {
-                if (($window.scrollTop() + $window.height() > (this.smartSlider.sliderElement.offset().top + 100))) {
-
-                    n2c.log('Fade on scroll - reached');
-
-                    this.smartSlider.backgroundImages.load.done($.proxy(this.showSlider, this));
-                    $window.off('scroll.' + this.id);
-                }
-            }, this));
+            $window.on('scroll.' + this.id, $.proxy(this.onScroll, this));
+            this.onScroll();
 
         } else if (this.parameters.fade) {
             this.loadingArea = $('#' + this.id + '-placeholder').eq(0);
             this.showSpinner('fadePlaceholder');
             n2c.log('Fade on load - start wait');
 
-            this.smartSlider.backgroundImages.load.done($.proxy(this.showSlider, this));
+            $.when(this.smartSlider.responsive.ready, this.smartSlider.backgroundImages.load).done($.proxy(this.showSlider, this));
 
         } else {
-            this.showSlider();
+            this.smartSlider.responsive.ready.done($.proxy(function () {
+                this.showSlider();
+            }, this));
+        }
+    };
+
+    NextendSmartSliderLoad.prototype.onScroll = function () {
+        var $window = $(window);
+        if (($window.scrollTop() + $window.height() > (this.smartSlider.sliderElement.offset().top + 100))) {
+
+            n2c.log('Fade on scroll - reached');
+
+            $.when(this.smartSlider.responsive.ready, this.smartSlider.backgroundImages.load).done($.proxy(this.showSlider, this));
+            $window.off('scroll.' + this.id);
         }
     };
 

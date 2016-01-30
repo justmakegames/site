@@ -1,12 +1,64 @@
 (function (smartSlider, $, scope, undefined) {
 
-    window.nextendPreventClick = false
+    var highlighted = false,
+        timeout = null;
+    window.nextendPreventClick = false;
+
+    var UNDEFINED,
+        rAFShim = (function () {
+            var timeLast = 0;
+
+            return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+                    var timeCurrent = (new Date()).getTime(),
+                        timeDelta;
+
+                    /* Dynamically set delay on a per-tick basis to match 60fps. */
+                    /* Technique by Erik Moller. MIT license: https://gist.github.com/paulirish/1579671 */
+                    timeDelta = Math.max(0, 16 - (timeCurrent - timeLast));
+                    timeLast = timeCurrent + timeDelta;
+
+                    return setTimeout(function () {
+                        callback(timeCurrent + timeDelta);
+                    }, timeDelta);
+                };
+        })(),
+        resizeCollection = {
+            raf: false,
+            ratios: null,
+            isThrottled: false,
+            layers: []
+        },
+        requestRender = function () {
+            if (resizeCollection.raf === false) {
+                resizeCollection.raf = true;
+                rAFShim(function () {
+                    for (var i = 0; i < resizeCollection.layers.length; i++) {
+                        if (!resizeCollection.layers[i].isDeleted) {
+                            resizeCollection.layers[i].doTheResize(resizeCollection.ratios, true, resizeCollection.isThrottled);
+                        }
+                    }
+                    resizeCollection = {
+                        raf: false,
+                        ratios: null,
+                        isThrottled: false,
+                        layers: []
+                    };
+                });
+            }
+        };
 
     function Layer(layerEditor, layer, itemEditor, properties) {
-        this.activeItem = null;
-        this.highlighted = null;
-        this.eye = 0;
-        this.lock = 0;
+        this.isDeleted = false;
+        //this.resize = NextendDeBounce(this.resize, 200);
+        //this.triggerLayerResized = NextendThrottle(this.triggerLayerResized, 30);
+        this._triggerLayerResizedThrottled = NextendThrottle(this._triggerLayerResized, 30);
+        //this.doThrottledTheResize = NextendThrottle(this.doTheResize, 16.6666);
+        this.markSmallLayer = NextendDeBounce(this.markSmallLayer, 500);
+        this.doThrottledTheResize = this.doTheResize;
+        this.eye = false;
+        this.lock = false;
+        this.parent = false;
+        this.parentIsVisible = true;
         this.$ = $(this);
 
         this.layerEditor = layerEditor;
@@ -15,6 +67,10 @@
             layer = $('<div class="n2-ss-layer" style="z-index: ' + layerEditor.zIndexList.length + ';"></div>')
                 .appendTo(layerEditor.layerContainerElement);
             this.property = $.extend({
+                id: null,
+                parentid: null,
+                parentalign: 'center',
+                parentvalign: 'middle',
                 name: 'New layer',
                 nameSynced: 1,
                 crop: 'visible',
@@ -35,18 +91,28 @@
                 responsiveposition: 1,
                 width: 'auto',
                 height: 'auto',
-                responsivesize: 1
+                responsivesize: 1,
+                mouseenter: UNDEFINED,
+                click: UNDEFINED,
+                mouseleave: UNDEFINED,
+                play: UNDEFINED,
+                pause: UNDEFINED,
+                stop: UNDEFINED
             }, properties);
         } else {
             this.property = {
-                name: layer.data('name'),
+                id: layer.attr('id'),
+                parentid: layer.data('parentid'),
+                parentalign: layer.data('desktopportraitparentalign'),
+                parentvalign: layer.data('desktopportraitparentvalign'),
+                name: layer.data('name') + '',
                 nameSynced: layer.data('namesynced'),
                 crop: layer.data('crop'),
                 inneralign: layer.data('inneralign'),
                 parallax: layer.data('parallax'),
                 align: layer.data('desktopportraitalign'),
                 valign: layer.data('desktopportraitvalign'),
-                fontsize: layer.data('fontsize'),
+                fontsize: layer.data('desktopportraitfontsize'),
                 adaptivefont: layer.data('adaptivefont'),
                 desktopPortrait: parseFloat(layer.data('desktopportrait')),
                 desktopLandscape: parseFloat(layer.data('desktoplandscape')),
@@ -57,22 +123,47 @@
                 left: parseInt(layer.data('desktopportraitleft')),
                 top: parseInt(layer.data('desktopportraittop')),
                 responsiveposition: parseInt(layer.data('responsiveposition')),
-                responsivesize: parseInt(layer.data('responsivesize'))
+                responsivesize: parseInt(layer.data('responsivesize')),
+                mouseenter: layer.data('mouseenter'),
+                click: layer.data('click'),
+                mouseleave: layer.data('mouseleave'),
+                play: layer.data('play'),
+                pause: layer.data('pause'),
+                stop: layer.data('stop')
             };
 
             var width = layer.data('desktopportraitwidth');
-            if (width == 'auto') {
-                this.property.width = 'auto';
+            if (this.isDimensionPropertyAccepted(width)) {
+                this.property.width = width;
             } else {
                 this.property.width = parseInt(width);
             }
 
             var height = layer.data('desktopportraitheight');
-            if (height == 'auto') {
-                this.property.height = 'auto';
+            if (this.isDimensionPropertyAccepted(height)) {
+                this.property.height = height;
             } else {
                 this.property.height = parseInt(height);
             }
+        }
+
+        if (!this.property.id) {
+            this.property.id = null;
+        }
+
+        this.subscribeParentCallbacks = {};
+        if (this.property.parentid) {
+            this.subscribeParent();
+        } else {
+            this.property.parentid = null;
+        }
+
+        if (!this.property.parentalign) {
+            this.property.parentalign = 'center';
+        }
+
+        if (!this.property.parentvalign) {
+            this.property.parentvalign = 'middle';
         }
 
         if (typeof this.property.nameSynced === 'undefined') {
@@ -117,7 +208,7 @@
         layer.attr('data-align', this.property.align);
         layer.attr('data-valign', this.property.valign);
 
-        this.layer = layer;
+        this.layer = layer.data('layerObject', this);
         this.layer.css('visibility', 'hidden');
 
         this.zIndex = parseInt(this.layer.css('zIndex'));
@@ -128,10 +219,10 @@
         var eye = layer.data('eye'),
             lock = layer.data('lock');
         if (eye !== null && typeof eye != 'undefined') {
-            this.eye = eye;
+            this.eye = !!eye;
         }
         if (lock !== null && typeof lock != 'undefined') {
-            this.lock = lock;
+            this.lock = !!lock;
         }
         this.deviceProperty = {
             desktopPortrait: {
@@ -141,6 +232,8 @@
                 height: this.property.height,
                 align: this.property.align,
                 valign: this.property.valign,
+                parentalign: this.property.parentalign,
+                parentvalign: this.property.parentvalign,
                 fontsize: this.property.fontsize
             },
             desktopLandscape: {
@@ -150,6 +243,8 @@
                 height: layer.data('desktoplandscapeheight'),
                 align: layer.data('desktoplandscapealign'),
                 valign: layer.data('desktoplandscapevalign'),
+                parentalign: layer.data('desktoplandscapeparentalign'),
+                parentvalign: layer.data('desktoplandscapeparentvalign'),
                 fontsize: layer.data('desktoplandscapefontsize')
             },
             tabletPortrait: {
@@ -159,6 +254,8 @@
                 height: layer.data('tabletportraitheight'),
                 align: layer.data('tabletportraitalign'),
                 valign: layer.data('tabletportraitvalign'),
+                parentalign: layer.data('tabletportraitparentalign'),
+                parentvalign: layer.data('tabletportraitparentvalign'),
                 fontsize: layer.data('tabletportraitfontsize')
             },
             tabletLandscape: {
@@ -168,6 +265,8 @@
                 height: layer.data('tabletlandscapeheight'),
                 align: layer.data('tabletlandscapealign'),
                 valign: layer.data('tabletlandscapevalign'),
+                parentalign: layer.data('tabletlandscapeparentalign'),
+                parentvalign: layer.data('tabletlandscapeparentvalign'),
                 fontsize: layer.data('tabletlandscapefontsize')
             },
             mobilePortrait: {
@@ -177,6 +276,8 @@
                 height: layer.data('mobileportraitheight'),
                 align: layer.data('mobileportraitalign'),
                 valign: layer.data('mobileportraitvalign'),
+                parentalign: layer.data('mobileportraitparentalign'),
+                parentvalign: layer.data('mobileportraitparentvalign'),
                 fontsize: layer.data('mobileportraitfontsize')
             },
             mobileLandscape: {
@@ -186,6 +287,8 @@
                 height: layer.data('mobilelandscapeheight'),
                 align: layer.data('mobilelandscapealign'),
                 valign: layer.data('mobilelandscapevalign'),
+                parentalign: layer.data('mobilelandscapeparentalign'),
+                parentvalign: layer.data('mobilelandscapeparentvalign'),
                 fontsize: layer.data('mobilelandscapefontsize')
             }
         };
@@ -218,7 +321,6 @@
             layerEditor.zIndexList.splice(this.zIndex, 0, this);
         }
 
-        this._eye();
         this._lock();
 
         this.animation = new NextendSmartSliderLayerAnimations(this);
@@ -237,9 +339,8 @@
         this.markSmallLayer();
 
         setTimeout($.proxy(function () {
-            this._resize();
-            //this.update();
-            this.layer.css('visibility', '');
+            this._resize(true);
+            this._eye();
         }, this), 300);
     };
 
@@ -247,11 +348,25 @@
         return this.layerEditor.layerList.indexOf(this);
     };
 
+    Layer.prototype.getParent = function () {
+        return $('#' + this.getProperty(false, 'parentid')).data('layerObject');
+    };
+
+    Layer.prototype.requestID = function () {
+        var id = this.getProperty(false, 'id');
+        if (!id) {
+            id = $.fn.uid();
+            this.setProperty('id', id, 'layer');
+        }
+        return id;
+    };
+
     Layer.prototype.createRow = function () {
         var dblClickInterval = 300,
             timeout = null,
+            unlink = $('<a class="n2-ss-parent-unlink" href="#" onclick="return false;"><i class="n2-i n2-i-layerunlink n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.unlink, this)),
             remove = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-delete n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.delete, this)),
-            duplicate = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-duplicate n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.duplicate, this));
+            duplicate = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-duplicate n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.duplicate, this, true, false));
 
         this.soloElement = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-bulb n2-i-grey-opacity"></i></a>').css('opacity', 0.3).on('click', $.proxy(this.switchSolo, this));
         this.eyeElement = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-eye n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.switchEye, this));
@@ -261,19 +376,9 @@
             .on({
                 mouseenter: $.proxy(function () {
                     this.layer.addClass('n2-highlight');
-                    if (this.activeItem) {
-                        this.highlighted = this.activeItem.item.addClass('n2-force-item-highlight');
-                    } else if (this.items.length) {
-                        // There can exists a layer without item... nothing to do there
-                        this.highlighted = this.items[0].item.addClass('n2-force-item-highlight');
-                    }
                 }, this),
                 mouseleave: $.proxy(function (e) {
                     this.layer.removeClass('n2-highlight');
-                    if (this.highlighted) {
-                        this.highlighted.removeClass('n2-force-item-highlight');
-                        this.highlighted = null;
-                    }
                 }, this)
             })
             .appendTo(this.layersItemsUlElement);
@@ -295,7 +400,7 @@
 
         this.layerTitle = $('<div class="n2-ss-layer-title"></div>')
             .append(this.layerTitleSpan)
-            .append($('<div class="n2-actions"></div>').append(duplicate).append(remove))
+            .append($('<div class="n2-actions"></div>').append(unlink).append(duplicate).append(remove))
             .append($('<div class="n2-actions-left"></div>').append(this.eyeElement).append(this.soloElement).append(this.lockElement))
             .appendTo(this.layerRow)
             .on({
@@ -305,10 +410,6 @@
                     }
                 }, this)
             });
-        this.itemsRow = $('<ul class="n2-ss-layer-items"></ul>')
-            .appendTo(this.layerRow);
-
-        this.itemsRow.data('layer', this);
 
         this.editorVisibilityChange();
     };
@@ -316,10 +417,10 @@
     Layer.prototype.editorVisibilityChange = function () {
         switch (this.layersItemsUlElement.children().length) {
             case 0:
-                this.layerEditor.toolboxElement.removeClass('n2-has-layers');
+                $('body').removeClass('n2-has-layers');
                 break;
             case 1:
-                this.layerEditor.toolboxElement.addClass('n2-has-layers');
+                $('body').addClass('n2-has-layers');
                 break;
         }
     };
@@ -335,21 +436,16 @@
      *
      * @param item {optional}
      */
-    Layer.prototype.activate = function (e, item) {
-        if (item) {
-            this.activeItem = item;
-            if (this.highlighted) {
-                this.highlighted.removeClass('n2-force-item-highlight');
-                this.highlighted = this.activeItem.item.addClass('n2-force-item-highlight');
-            }
-        } else {
-            if (this.activeItem) {
-                this.activeItem.activate();
-            } else if (this.items.length) {
-                // There can exists a layer without item... nothing to do there
-                this.items[0].activate();
-            }
+    Layer.prototype.activate = function (e) {
+        if (document.activeElement) {
+            document.activeElement.blur();
         }
+        if (this.items.length == 0) {
+            console.error('The layer do not have item on it!');
+        } else {
+            this.items[0].activate();
+        }
+
         // Set the layer active if it is not active currently
         var currentIndex = this.getIndex();
         if (this.layerEditor.activeLayerIndex !== currentIndex) {
@@ -357,7 +453,6 @@
             this.layer.triggerHandler('n2-ss-activate');
             this.layerEditor.changeActiveLayer(currentIndex);
             nextend.activeLayer = this.layer;
-            nextend.a = this;
 
             var scroll = this.layersItemsUlElement.parent(),
                 scrollTop = scroll.scrollTop(),
@@ -365,14 +460,25 @@
             if (top < scrollTop || top > scrollTop + scroll.height() - this.layerRow.height()) {
                 scroll.scrollTop(top);
             }
-        }
-        if (!this.eye) {
-            this._show(true);
+
+            if (timeout) {
+                highlighted.removeClass('n2-highlight2');
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            highlighted = this.layer.addClass('n2-highlight2');
+            timeout = setTimeout(function () {
+                highlighted.removeClass('n2-highlight2');
+                highlighted = null;
+                timeout = null;
+            }, 500);
         }
     };
 
     Layer.prototype.deActivate = function () {
-        this.animation.deActivate();
+        if (this.animation) {
+            this.animation.deActivate();
+        }
         this.layerRow.removeClass('n2-active');
         this.layer.triggerHandler('n2-ss-deactivate');
     };
@@ -382,8 +488,6 @@
 
         var slideSize = this.layerEditor.slideSize,
             position = this.layer.position();
-        var maxWidth = slideSize.width - position.left,
-            maxHeight = slideSize.height - position.top;
 
         if (layer.scrollWidth > 0 && layer.scrollHeight > 0) {
             var resized = false;
@@ -394,23 +498,13 @@
                 }
             }
             if (!resized) {
-                //this.setProperty('width', Math.min(layer.scrollWidth, maxWidth) + 'px');
-                this.setProperty('width', 'auto');
-                this.setProperty('height', 'auto');
-                /*
-                 setTimeout($.proxy(function () {
-                 if (this.layerEditor.slideSize.width < this.layer.width()) {
-                 this.setProperty('width', this.layerEditor.slideSize.width);
-                 setTimeout($.proxy(function () {
-                 if (this.layerEditor.slideSize.height < this.layer.height()) {
-                 this.setProperty('height', this.layerEditor.slideSize.height);
-                 }
-                 }, this), 100);
-                 } else if (this.layerEditor.slideSize.height < this.layer.height()) {
-                 this.setProperty('height', this.layerEditor.slideSize.height);
-                 }
-                 }, this), 100);
-                 */
+                this.setProperty('width', 'auto', 'layer');
+                this.setProperty('height', 'auto', 'layer');
+
+                var layerWidth = this.layer.width();
+                if (Math.abs(this.layerEditor.layerContainerElement.width() - this.layer.position().left - layerWidth) < 2) {
+                    this.setProperty('width', layerWidth, 'layer');
+                }
             }
         }
     };
@@ -420,11 +514,11 @@
     };
 
     Layer.prototype.hide = function (targetMode) {
-        this._setProperty(false, (targetMode ? targetMode : this.getMode()), 0, true, false);
+        this.store(false, (targetMode ? targetMode : this.getMode()), 0, true);
     };
 
     Layer.prototype.show = function (targetMode) {
-        this._setProperty(false, (targetMode ? targetMode : this.getMode()), 1, true, false);
+        this.store(false, (targetMode ? targetMode : this.getMode()), 1, true);
     };
 
     Layer.prototype.switchSolo = function () {
@@ -449,10 +543,10 @@
     Layer.prototype._eye = function () {
         if (this.eye) {
             this.eyeElement.css('opacity', 0.3);
-            this._hide();
+            this.layer.css('visibility', 'hidden');
         } else {
             this.eyeElement.css('opacity', 1);
-            this._show();
+            this.layer.css('visibility', '');
         }
     };
 
@@ -461,7 +555,7 @@
     };
 
     Layer.prototype._show = function () {
-        if (parseInt(this.property[this.layerEditor.getMode()]) && (!this.eye || (arguments.length == 1 && arguments[0]))) {
+        if (parseInt(this.property[this.layerEditor.getMode()])) {
             this.layer.css('display', 'block');
         }
     };
@@ -475,30 +569,59 @@
         if (this.lock) {
             this.lockElement.css('opacity', 1);
             this.layer.nextenddraggable("disable");
-            this.layer.resizable("disable");
+            this.layer.nextendResizable("disable");
             this.layer.addClass('n2-ss-layer-locked');
         } else {
             this.lockElement.css('opacity', 0.3);
             this.layer.nextenddraggable("enable");
-            this.layer.resizable("enable");
+            this.layer.nextendResizable("enable");
             this.layer.removeClass('n2-ss-layer-locked');
 
         }
     };
 
-    Layer.prototype.duplicate = function () {
+    Layer.prototype.duplicate = function (needActivate, newParentId, newLayers) {
         var layer = this.getHTML(true, false);
-        layer.attr('data-name', layer.attr('data-name') + ' - copy');
 
-        var newLayer = this.layerEditor.addLayer(layer, true);
+        var id = layer.attr('id');
+        if (id) {
+            id = $.fn.uid();
+            layer.attr('id', id);
+        }
+
+        if (newParentId) {
+            layer.attr('data-parentid', newParentId);
+        }
+
+        var newLayer = this.layerEditor._addLayer(layer, true);
+
+        if (typeof newLayers === 'undefined') {
+            newLayers = [];
+        } else {
+            newLayers.push(newLayer);
+        }
+
+        this.layer.triggerHandler('LayerDuplicated', [id, newLayers]);
 
         this.layerRow.trigger('mouseleave');
-        newLayer.activate();
+
+        if (needActivate) {
+            newLayer.activate();
+        }
+
+
+        if (!newParentId) {
+            smartSlider.history.add($.proxy(function () {
+                return [this, 'duplicateLayer', 'duplicate', 'delete', [newLayer]];
+            }, this));
+        }
     };
 
-    Layer.prototype.delete = function () {
+    Layer.prototype.delete = function (deleteChild, oldLayers) {
 
-        this.itemEditor._removeItemOrderable(this.itemsRow);
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'deleteLayer', 'delete', 'create', [this.getData(true)]];
+        }, this));
 
         this.deActivate();
 
@@ -508,19 +631,32 @@
 
         this.layerEditor.zIndexList.splice(this.zIndex, 1);
 
+        var parentId = this.getProperty(false, 'parentid');
+        if (parentId) {
+            this.unSubscribeParent(true);
+        }
+        // If delete happen meanwhile layer dragged or resized, we have to cancel that.
+        this.layer.trigger('mouseup');
+        this.layerEditor.layerDeleted(this.getIndex());
+        if (typeof oldLayers === 'undefined') {
+            oldLayers = [];
+        } else {
+            oldLayers.push(this);
+        }
+        this.layer.triggerHandler('LayerDeleted', [typeof deleteChild !== 'undefined' ? deleteChild : false, oldLayers]);
         this.layer.remove();
         this.layerRow.remove();
-        this.layerEditor.layerDeleted(this.getIndex());
 
         this.editorVisibilityChange();
 
         this.$.trigger('layerDeleted');
 
-        delete this.layerEditor;
+        //delete this.layerEditor;
         delete this.layer;
         delete this.itemEditor;
         delete this.animation;
-        delete this.items;
+        //delete this.items;
+        this.isDeleted = true;
     };
 
     Layer.prototype.getHTML = function (itemsIncluded, base64) {
@@ -553,11 +689,15 @@
                 layer.append(this.items[i].getHTML(base64));
             }
         }
+        var id = this.getProperty(false, 'id');
+        if (id && id != '') {
+            layer.attr('id', id);
+        }
 
         layer.attr('data-eye', this.eye);
         layer.attr('data-lock', this.lock);
 
-
+        //console.log(this.isDeleted);
         layer.attr('data-animations', this.animation.getAnimationsCode());
 
         return layer;
@@ -565,7 +705,7 @@
 
     Layer.prototype.getData = function (itemsIncluded) {
         var layer = {
-            style: 'z-index: ' + (this.zIndex + 1) + ';' + this.getStyleText(),
+            zIndex: (this.zIndex + 1),
             eye: this.eye,
             lock: this.lock,
             animations: this.animation.getData()
@@ -578,6 +718,8 @@
                 case 'top':
                 case 'align':
                 case 'valign':
+                case 'parentalign':
+                case 'parentvalign':
                 case 'fontsize':
                     break;
                 default:
@@ -592,7 +734,7 @@
                 if (typeof value === 'undefined') {
                     continue;
                 }
-                if (!(property == 'width' && value == 'auto') && !(property == 'height' && value == 'auto') && property != 'align' && property != 'valign') {
+                if (!(property == 'width' && this.isDimensionPropertyAccepted(value)) && !(property == 'height' && this.isDimensionPropertyAccepted(value)) && property != 'align' && property != 'valign' && property != 'parentalign' && property != 'parentvalign') {
                     value = parseFloat(value);
                 }
                 layer[device.toLowerCase() + property] = value;
@@ -600,27 +742,25 @@
         }
 
         // Set the default styles for the layer
-        var defaultProperties = this.deviceProperty['desktopPortrait'];
-        layer.style += 'left:' + parseFloat(defaultProperties.left) + 'px;';
-        layer.style += 'top:' + parseFloat(defaultProperties.top) + 'px;';
-        if (defaultProperties.width == 'auto') {
-            layer.style += 'width:auto;';
-        } else {
-            layer.style += 'width:' + parseFloat(defaultProperties.width) + 'px;';
-        }
-        if (defaultProperties.height == 'auto') {
-            layer.style += 'height:auto;';
-        } else {
-            layer.style += 'height:' + parseFloat(defaultProperties.height) + 'px;';
-        }
-
+        /*var defaultProperties = this.deviceProperty['desktopPortrait'];
+         layer.style += 'left:' + parseFloat(defaultProperties.left) + 'px;';
+         layer.style += 'top:' + parseFloat(defaultProperties.top) + 'px;';
+         if (this.isDimensionPropertyAccepted(defaultProperties.width)) {
+         layer.style += 'width:' + defaultProperties.width + ';';
+         } else {
+         layer.style += 'width:' + parseFloat(defaultProperties.width) + 'px;';
+         }
+         if (this.isDimensionPropertyAccepted(defaultProperties.height)) {
+         layer.style += 'height:' + defaultProperties.height + ';';
+         } else {
+         layer.style += 'height:' + parseFloat(defaultProperties.height) + 'px;';
+         }*/
         if (itemsIncluded) {
             layer.items = [];
             for (var i = 0; i < this.items.length; i++) {
                 layer.items.push(this.items[i].getData());
             }
         }
-
         return layer;
     };
 
@@ -630,8 +770,6 @@
         for (var i = 0; i < items.length; i++) {
             this.addItem(items.eq(i), false);
         }
-
-        this.itemEditor._makeItemsOrderable(this.itemsRow);
     };
 
     Layer.prototype.addItem = function (item, place) {
@@ -688,80 +826,127 @@
     };
 
     Layer.prototype.markSmallLayer = function () {
-        var w = this.layer.width(),
-            h = this.layer.height();
-        if (w < 50 || h < 50) {
-            this.layer.addClass('n2-ss-layer-small');
-        } else {
-            this.layer.removeClass('n2-ss-layer-small');
+        if (!this.isDeleted && this.layer) {
+            var w = this.layer.width(),
+                h = this.layer.height();
+            if (w < 50 || h < 50) {
+                this.layer.addClass('n2-ss-layer-small');
+            } else {
+                this.layer.removeClass('n2-ss-layer-small');
+            }
         }
     };
 
-    Layer.prototype.setProperty = function (name, value) {
+    // from: manager or other
+    Layer.prototype.setProperty = function (name, value, from) {
         switch (name) {
             case 'responsiveposition':
             case 'responsivesize':
+                value = parseInt(value);
+            case 'id':
+            case 'parentid':
             case 'inneralign':
             case 'crop':
             case 'parallax':
             case 'adaptivefont':
-                this._setProperty(false, name, value, true, false);
+            case 'mouseenter':
+            case 'click':
+            case 'mouseleave':
+            case 'play':
+            case 'pause':
+            case 'stop':
+                this.store(false, name, value, true);
                 break;
+            case 'parentalign':
+            case 'parentvalign':
             case 'align':
             case 'valign':
             case 'fontsize':
-                this._setProperty(true, name, value, true, false);
+                this.store(true, name, value, true);
                 break;
             case 'width':
                 var ratioSizeH = this.layerEditor.getResponsiveRatio('h')
                 if (!parseInt(this.getProperty(false, 'responsivesize'))) {
                     ratioSizeH = 1;
                 }
-                this._setPropertyWithModifier(name, value == 'auto' ? value : Math.round(value), ratioSizeH, true, false);
-                this._resize();
+
+                var v = value;
+                if (!this.isDimensionPropertyAccepted(value)) {
+                    v = ~~value;
+                    if (v != value) {
+                        this.$.trigger('propertyChanged', [name, v]);
+                    }
+                }
+                this.storeWithModifier(name, v, ratioSizeH, true);
+                this._resize(false);
                 break;
             case 'height':
                 var ratioSizeV = this.layerEditor.getResponsiveRatio('v')
                 if (!parseInt(this.getProperty(false, 'responsivesize'))) {
                     ratioSizeV = 1;
                 }
-                this._setPropertyWithModifier(name, value == 'auto' ? value : Math.round(value), ratioSizeV, true, false);
-                this._resize();
+
+                var v = value;
+                if (!this.isDimensionPropertyAccepted(value)) {
+                    v = ~~value;
+                    if (v != value) {
+                        this.$.trigger('propertyChanged', [name, v]);
+                    }
+                }
+
+                this.storeWithModifier(name, v, ratioSizeV, true);
+                this._resize(false);
                 break;
             case 'left':
                 var ratioPositionH = this.layerEditor.getResponsiveRatio('h')
                 if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
                     ratioPositionH = 1;
                 }
-                this._setPropertyWithModifier(name, Math.round(value), ratioPositionH, true, false);
+
+                var v = ~~value;
+                if (v != value) {
+                    this.$.trigger('propertyChanged', [name, v]);
+                }
+
+                this.storeWithModifier(name, v, ratioPositionH, true);
                 break;
             case 'top':
                 var ratioPositionV = this.layerEditor.getResponsiveRatio('v')
                 if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
                     ratioPositionV = 1;
                 }
-                this._setPropertyWithModifier(name, Math.round(value), ratioPositionV, true, false);
+
+                var v = ~~value;
+                if (v != value) {
+                    this.$.trigger('propertyChanged', [name, v]);
+                }
+
+                this.storeWithModifier(name, v, ratioPositionV, true);
                 break;
             case 'showFieldDesktopPortrait':
-                this._setProperty(false, 'desktopPortrait', value, true, false);
+                this.store(false, 'desktopPortrait', parseInt(value), true);
                 break;
             case 'showFieldDesktopLandscape':
-                this._setProperty(false, 'desktopLandscape', value, true, false);
+                this.store(false, 'desktopLandscape', parseInt(value), true);
                 break;
             case 'showFieldTabletPortrait':
-                this._setProperty(false, 'tabletPortrait', value, true, false);
+                this.store(false, 'tabletPortrait', parseInt(value), true);
                 break;
             case 'showFieldTabletLandscape':
-                this._setProperty(false, 'tabletLandscape', value, true, false);
+                this.store(false, 'tabletLandscape', parseInt(value), true);
                 break;
             case 'showFieldMobilePortrait':
-                this._setProperty(false, 'mobilePortrait', value, true, false);
+                this.store(false, 'mobilePortrait', parseInt(value), true);
                 break;
             case 'showFieldMobileLandscape':
-                this._setProperty(false, 'mobileLandscape', value, true, false);
+                this.store(false, 'mobileLandscape', parseInt(value), true);
                 break;
         }
 
+        if (from != 'manager') {
+            // jelezzuk a sidebarnak, hogy valamely property megvaltozott
+            this.$.trigger('propertyChanged', [name, value]);
+        }
     };
 
     Layer.prototype.getProperty = function (deviceBased, name) {
@@ -778,29 +963,50 @@
         return this.property[name];
     };
 
-    Layer.prototype._setProperty = function (deviceBased, name, value, sync, isReset) {
+    Layer.prototype.store = function (deviceBased, name, value, needRender) {
+
+        var oldValue = this.property[name];
+        this.property[name] = value;
+        if (deviceBased) {
+            var mode = this.getMode();
+            smartSlider.history.add($.proxy(function () {
+                return [this, 'store', value, this.deviceProperty[mode][name], [this.layer, deviceBased, name, mode]];
+            }, this));
+            this.deviceProperty[mode][name] = value;
+        } else {
+            smartSlider.history.add($.proxy(function () {
+                return [this, 'store', value, oldValue, [this.layer, deviceBased, name, this.getMode()]];
+            }, this));
+        }
+
+        if (needRender) {
+            this.render(name, value);
+        }
+
+        if (name == 'width' || name == 'height') {
+            this.markSmallLayer();
+        }
+        return;
+
         var lastLocalValue = this.property[name],
             lastValue = lastLocalValue;
 
         if (!isReset && this.property[name] != value) {
             this.property[name] = value;
-
-
             if (deviceBased) {
-                lastValue = this.getProperty(true, name);
+                lastValue = this.getProperty(deviceBased, name);
                 this.deviceProperty[this.getMode()][name] = value;
             }
         } else if (deviceBased) {
-            lastValue = this.getProperty(true, name);
-
+            lastValue = this.getProperty(deviceBased, name);
+            //this.property[name] = value;
         }
-
-        if (lastLocalValue != value) {
-            this.$.trigger('propertyChanged', [name, value]);
-        }
+        /*if (lastLocalValue != value) {
+         this.$.trigger('propertyChanged', [name, value]);
+         }*/
         // The resize usually sets px for left/top/width/height values for the original percents. So we have to force those values back.
-        if (sync) {
-            this['_sync' + name](value, lastValue);
+        if (needRender) {
+            this.render(name, value);
         }
 
         if (name == 'width' || name == 'height') {
@@ -808,31 +1014,164 @@
         }
     };
 
-    Layer.prototype._setPropertyWithModifier = function (name, value, modifier, sync, isReset) {
+    Layer.prototype.storeWithModifier = function (name, value, modifier, needRender) {
+        this.property[name] = value;
+        var mode = this.getMode();
+
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'storeWithModifier', value, this.deviceProperty[mode][name], [this.layer, name, mode]];
+        }, this));
+        this.deviceProperty[mode][name] = value;
+
+        if (needRender) {
+            this.renderWithModifier(name, value, modifier);
+        }
+
+        if (name == 'width' || name == 'height') {
+            this.markSmallLayer();
+        }
+        return;
+
+
         var lastLocalValue = this.property[name];
 
         if (!isReset && this.property[name] != value) {
             this.property[name] = value;
 
-            this.$.trigger('propertyChanged', [name, value]);
+            //this.$.trigger('propertyChanged', [name, value]);
 
             this.deviceProperty[this.getMode()][name] = value;
         }
-
-        if (lastLocalValue != value) {
-            this.$.trigger('propertyChanged', [name, value]);
-        }
-
+        /*
+         if (lastLocalValue != value) {
+         this.$.trigger('propertyChanged', [name, value]);
+         }
+         */
         // The resize usually sets px for left/top/width/height values for the original percents. So we have to force those values back.
-        if (sync) {
-            if (value == 'auto') {
-                this['_sync' + name](value);
-            } else {
-                this['_sync' + name](Math.round(value * modifier));
-            }
+        if (needRender) {
+            this.renderWithModifier(name, value, modifier);
         }
 
         this.markSmallLayer();
+    };
+
+    Layer.prototype.render = function (name, value) {
+        this['_sync' + name](value);
+    };
+
+    Layer.prototype.renderWithModifier = function (name, value, modifier) {
+        if ((name == 'width' || name == 'height') && this.isDimensionPropertyAccepted(value)) {
+            this['_sync' + name](value);
+        } else {
+            this['_sync' + name](Math.round(value * modifier));
+        }
+    };
+
+    Layer.prototype._syncid = function (value) {
+        if (!value || value == '') {
+            this.layer.removeAttr('id');
+        } else {
+            this.layer.attr('id', value);
+        }
+    };
+
+    Layer.prototype.subscribeParent = function () {
+        var that = this;
+        this.subscribeParentCallbacks = {
+            LayerResized: function () {
+                that.resizeParent.apply(that, arguments);
+            },
+            LayerParent: function () {
+                that.layer.addClass('n2-ss-layer-parent');
+                that.layer.triggerHandler('LayerParent');
+            },
+            LayerUnParent: function () {
+                that.layer.removeClass('n2-ss-layer-parent');
+                that.layer.triggerHandler('LayerUnParent');
+            },
+            LayerDeleted: function (e, deleteChild, oldLayers) {
+                if (deleteChild) {
+                    that.delete(deleteChild, oldLayers);
+                } else {
+                    that.setProperty('parentid', '', 'layer');
+                }
+            },
+            LayerDuplicated: function (e, newParentId, newLayers) {
+                that.duplicate(false, newParentId, newLayers);
+            },
+            LayerShowChange: function (e, mode, value) {
+                if (that.getMode() == mode) {
+                    that.parentIsVisible = value;
+                }
+            },
+            'n2-ss-activate': function () {
+                that.layerRow.addClass('n2-parent-active');
+            },
+            'n2-ss-deactivate': function () {
+                that.layerRow.removeClass('n2-parent-active');
+            }
+        };
+        this.parent = n2('#' + this.property.parentid).on(this.subscribeParentCallbacks);
+    };
+
+    Layer.prototype.unSubscribeParent = function (isDelete) {
+        this.layerRow.removeClass('n2-parent-active');
+        if (this.parent) {
+            this.parent.off(this.subscribeParentCallbacks);
+        }
+        this.parent = false;
+        this.subscribeParentCallbacks = {};
+        if (!isDelete) {
+            var position = this.layer.position();
+            this.setPosition(position.left, position.top);
+        }
+    };
+
+    Layer.prototype.unlink = function (e) {
+        e.preventDefault();
+        this.setProperty('parentid', '', 'layer');
+    };
+
+    Layer.prototype.parentPicked = function (parentObject, parentAlign, parentValign, align, valign) {
+        this.setProperty('parentid', '', 'layer');
+
+        this.setProperty('align', align, 'layer');
+        this.setProperty('valign', valign, 'layer');
+        this.setProperty('parentalign', parentAlign, 'layer');
+        this.setProperty('parentvalign', parentValign, 'layer');
+
+        this.setProperty('parentid', parentObject.requestID(), 'layer');
+    };
+
+    Layer.prototype._syncparentid = function (value) {
+        if (!value || value == '') {
+            this.layer.removeAttr('data-parentid');
+            this.unSubscribeParent(false);
+        } else {
+            if ($('#' + value).length == 0) {
+                this.setProperty('parentid', '', 'layer');
+            } else {
+                this.layer.attr('data-parentid', value);
+                this.subscribeParent();
+                this.setPosition(this.layer.position().left, this.layer.position().top);
+            }
+        }
+    };
+
+    Layer.prototype._syncparentalign = function (value) {
+        this.layer.data('parentalign', value);
+        var parent = this.getParent();
+        if (parent) {
+            parent._resize(false);
+        }
+    };
+
+    Layer.prototype._syncparentvalign = function (value) {
+        this.layer.data('parentvalign', value);
+        var parent = this.getParent();
+        if (parent) {
+            parent._resize(false);
+        }
     };
 
     Layer.prototype._syncinneralign = function (value) {
@@ -870,16 +1209,14 @@
 
     Layer.prototype._syncalign = function (value, lastValue) {
         if (lastValue !== 'undefined' && value != lastValue) {
-            var ratioH = this.layerEditor.getResponsiveRatio('h');
-            this._setPropertyWithModifier('left', 0, ratioH, true, false);
+            this.setPosition(this.layer.position().left, this.layer.position().top);
         }
         this.layer.attr('data-align', value);
     };
 
     Layer.prototype._syncvalign = function (value, lastValue) {
         if (lastValue !== 'undefined' && value != lastValue) {
-            var ratioV = this.layerEditor.getResponsiveRatio('v');
-            this._setPropertyWithModifier('top', 0, ratioV, true, false);
+            this.setPosition(this.layer.position().left, this.layer.position().top);
         }
         this.layer.attr('data-valign', value);
     };
@@ -907,98 +1244,188 @@
     };
 
     Layer.prototype._syncleft = function (value) {
-        switch (this.getProperty(true, 'align')) {
-            case 'right':
-                this.layer.css({
-                    left: 'auto',
-                    right: value + 'px'
-                });
-                break;
-            case 'center':
-                this.layer.css({
-                    left: (this.layer.parent().width() / 2 + value - this.layer.width() / 2) + 'px',
-                    right: 'auto'
-                });
-                break;
-            default:
-                this.layer.css({
-                    left: value + 'px',
-                    right: 'auto'
-                });
+        if (!this.parent || !this.parentIsVisible) {
+            switch (this.getProperty(true, 'align')) {
+                case 'right':
+                    this.layer.css({
+                        left: 'auto',
+                        right: -value + 'px'
+                    });
+                    break;
+                case 'center':
+                    this.layer.css({
+                        left: (this.layer.parent().width() / 2 + value - this.layer.width() / 2) + 'px',
+                        right: 'auto'
+                    });
+                    break;
+                default:
+                    this.layer.css({
+                        left: value + 'px',
+                        right: 'auto'
+                    });
+            }
+        } else {
+            var position = this.parent.position(),
+                align = this.getProperty(true, 'align'),
+                parentAlign = this.getProperty(true, 'parentalign'),
+                left = 0;
+            switch (parentAlign) {
+                case 'right':
+                    left = position.left + this.parent.width();
+                    break;
+                case 'center':
+                    left = position.left + this.parent.width() / 2;
+                    break;
+                default:
+                    left = position.left;
+            }
+
+            switch (align) {
+                case 'right':
+                    this.layer.css({
+                        left: 'auto',
+                        right: (this.layer.parent().width() - left - value) + 'px'
+                    });
+                    break;
+                case 'center':
+                    this.layer.css({
+                        left: (left + value - this.layer.width() / 2) + 'px',
+                        right: 'auto'
+                    });
+                    break;
+                default:
+                    this.layer.css({
+                        left: (left + value) + 'px',
+                        right: 'auto'
+                    });
+            }
+
         }
+
+        this.triggerLayerResized();
     };
 
     Layer.prototype._synctop = function (value) {
-        switch (this.getProperty(true, 'valign')) {
-            case 'bottom':
-                this.layer.css({
-                    top: 'auto',
-                    bottom: value + 'px'
-                });
-                break;
-            case 'middle':
-                this.layer.css({
-                    top: (this.layer.parent().height() / 2 + value - this.layer.height() / 2) + 'px',
-                    bottom: 'auto'
-                });
-                break;
-            default:
-                this.layer.css({
-                    top: value + 'px',
-                    bottom: 'auto'
-                });
+        if (!this.parent || !this.parentIsVisible) {
+            switch (this.getProperty(true, 'valign')) {
+                case 'bottom':
+                    this.layer.css({
+                        top: 'auto',
+                        bottom: -value + 'px'
+                    });
+                    break;
+                case 'middle':
+                    this.layer.css({
+                        top: (this.layer.parent().height() / 2 + value - this.layer.height() / 2) + 'px',
+                        bottom: 'auto'
+                    });
+                    break;
+                default:
+                    this.layer.css({
+                        top: value + 'px',
+                        bottom: 'auto'
+                    });
+            }
+        } else {
+            var position = this.parent.position(),
+                valign = this.getProperty(true, 'valign'),
+                parentVAlign = this.getProperty(true, 'parentvalign'),
+                top = 0;
+            switch (parentVAlign) {
+                case 'bottom':
+                    top = position.top + this.parent.height();
+                    break;
+                case 'middle':
+                    top = position.top + this.parent.height() / 2;
+                    break;
+                default:
+                    top = position.top;
+            }
+
+            switch (valign) {
+                case 'bottom':
+                    this.layer.css({
+                        top: 'auto',
+                        bottom: (this.layer.parent().height() - top - value) + 'px'
+                    });
+                    break;
+                case 'middle':
+                    this.layer.css({
+                        top: (top + value - this.layer.height() / 2) + 'px',
+                        bottom: 'auto'
+                    });
+                    break;
+                default:
+                    this.layer.css({
+                        top: (top + value) + 'px',
+                        bottom: 'auto'
+                    });
+            }
         }
+
+        this.triggerLayerResized();
     };
 
     Layer.prototype._syncresponsiveposition = function (value) {
-        this._resize();
+        this._resize(false);
     };
 
     Layer.prototype._syncwidth = function (value) {
-        this.layer.css('width', value + (value == 'auto' ? '' : 'px'));
+        this.layer.css('width', value + (this.isDimensionPropertyAccepted(value) ? '' : 'px'));
     };
 
     Layer.prototype._syncheight = function (value) {
-        this.layer.css('height', value + (value == 'auto' ? '' : 'px'));
+        this.layer.css('height', value + (this.isDimensionPropertyAccepted(value) ? '' : 'px'));
     };
 
     Layer.prototype._syncresponsivesize = function (value) {
-        this._resize();
+        this._resize(false);
     };
 
     Layer.prototype._syncdesktopPortrait = function (value) {
-        this.__syncShowOnDevice('desktop', 'Portrait', value);
+        this.__syncShowOnDevice('desktopPortrait', value);
     };
 
     Layer.prototype._syncdesktopLandscape = function (value) {
-        this.__syncShowOnDevice('desktop', 'Landscape', value);
+        this.__syncShowOnDevice('desktopLandscape', value);
     };
 
     Layer.prototype._synctabletPortrait = function (value) {
-        this.__syncShowOnDevice('tablet', 'Portrait', value);
+        this.__syncShowOnDevice('tabletPortrait', value);
     };
 
     Layer.prototype._synctabletLandscape = function (value) {
-        this.__syncShowOnDevice('tablet', 'Landscape', value);
+        this.__syncShowOnDevice('tabletLandscape', value);
     };
 
     Layer.prototype._syncmobilePortrait = function (value) {
-        this.__syncShowOnDevice('mobile', 'Portrait', value);
+        this.__syncShowOnDevice('mobilePortrait', value);
     };
 
     Layer.prototype._syncmobileLandscape = function (value) {
-        this.__syncShowOnDevice('mobile', 'Landscape', value);
+        this.__syncShowOnDevice('mobileLandscape', value);
     };
 
-    Layer.prototype.__syncShowOnDevice = function (device, orientation, value) {
-        if (this.getMode() == device + orientation) {
-            if (parseInt(value)) {
+    Layer.prototype.__syncShowOnDevice = function (mode, value) {
+        if (this.getMode() == mode) {
+            var value = parseInt(value);
+            if (value) {
                 this._show();
             } else {
                 this._hide();
             }
+            this.layer.triggerHandler('LayerShowChange', [mode, value]);
+            this.triggerLayerResized();
         }
     };
+
+    Layer.prototype._syncmouseenter =
+        Layer.prototype._syncclick =
+            Layer.prototype._syncmouseleave =
+                Layer.prototype._syncplay =
+                    Layer.prototype._syncpause =
+                        Layer.prototype._syncstop = function () {
+                        };
 
     Layer.prototype.___makeLayerAlign = function () {
         this.alignMarker = $('<div class="n2-ss-layer-align-marker" />').appendTo(this.layer);
@@ -1012,13 +1439,16 @@
      * @private
      */
     Layer.prototype.___makeLayerResizeable = function () {
-        this.layer.resizable({
+        this.layer.nextendResizable({
             handles: 'n, e, s, w, ne, se, sw, nw',
             _containment: this.layerEditor.layerContainerElement,
             start: $.proxy(this.____makeLayerResizeableStart, this),
             resize: $.proxy(this.____makeLayerResizeableResize, this),
             stop: $.proxy(this.____makeLayerResizeableStop, this),
-            smartguides: this.layerEditor.getSnap(),
+            smartguides: $.proxy(function () {
+                this.layer.triggerHandler('LayerParent');
+                return this.layerEditor.getSnap();
+            }, this),
             tolerance: 5
         })
             .on({
@@ -1055,6 +1485,7 @@
                 top: e.pageY + 10
             })
             .html('W: ' + ui.size.width + 'px<br />H: ' + ui.size.height + 'px');
+        this.triggerLayerResized();
     };
 
     Layer.prototype.____makeLayerResizeableStop = function (event, ui) {
@@ -1066,20 +1497,21 @@
 
         var isAutoWidth = false;
         if (ui.originalSize.width == ui.size.width) {
-            if (this.getProperty(true, 'width') == 'auto') {
+            var currentValue = this.getProperty(true, 'width');
+            if (this.isDimensionPropertyAccepted(currentValue)) {
                 isAutoWidth = true;
-                this['_syncwidth']('auto');
+                this['_syncwidth'](currentValue);
             }
         }
 
         var isAutoHeight = false;
         if (ui.originalSize.height == ui.size.height) {
-            if (this.getProperty(true, 'height') == 'auto') {
+            var currentValue = this.getProperty(true, 'height');
+            if (this.isDimensionPropertyAccepted(currentValue)) {
                 isAutoHeight = true;
-                this['_syncheight']('auto');
+                this['_syncheight'](currentValue);
             }
         }
-
         this.setPosition(ui.position.left, ui.position.top);
 
 
@@ -1091,11 +1523,18 @@
         }
 
         if (!isAutoWidth) {
-            this._setPropertyWithModifier('width', Math.round(ui.size.width * (1 / ratioSizeH)), ratioSizeH, false, false);
+            var value = Math.round(ui.size.width * (1 / ratioSizeH));
+            this.storeWithModifier('width', value, ratioSizeH, false);
+            this.$.trigger('propertyChanged', ['width', value]);
         }
         if (!isAutoHeight) {
-            this._setPropertyWithModifier('height', Math.round(ui.size.height * (1 / ratioSizeV)), ratioSizeV, false, false);
+            var value = Math.round(ui.size.height * (1 / ratioSizeV));
+            this.storeWithModifier('height', value, ratioSizeV, false);
+            this.$.trigger('propertyChanged', ['height', value]);
         }
+        this.triggerLayerResized();
+
+        this.layer.triggerHandler('LayerUnParent');
 
         this.layerEditor.positionDisplay.removeClass('n2-active');
     };
@@ -1115,7 +1554,10 @@
             start: $.proxy(this.____makeLayerDraggableStart, this),
             drag: $.proxy(this.____makeLayerDraggableDrag, this),
             stop: $.proxy(this.____makeLayerDraggableStop, this),
-            smartguides: this.layerEditor.getSnap(),
+            smartguides: $.proxy(function () {
+                this.layer.triggerHandler('LayerParent');
+                return this.layerEditor.getSnap();
+            }, this),
             tolerance: 5
         });
     };
@@ -1125,12 +1567,14 @@
         this.____makeLayerDraggableDrag(event, ui);
         this.layerEditor.positionDisplay.addClass('n2-active');
 
-        if (this.getProperty(true, 'width') == 'auto') {
+        var currentValue = this.getProperty(true, 'width');
+        if (this.isDimensionPropertyAccepted(currentValue)) {
             this.layer.width(this.layer.width() + 0.5); // Center positioned element can wrap the last word to a new line if this fix not added
         }
 
-        if (this.getProperty(true, 'height') == 'auto') {
-            this['_syncheight']('auto');
+        var currentValue = this.getProperty(true, 'height');
+        if (this.isDimensionPropertyAccepted(currentValue)) {
+            this['_syncheight'](currentValue);
         }
     };
 
@@ -1141,6 +1585,7 @@
                 top: e.pageY + 10
             })
             .html('L: ' + parseInt(ui.position.left | 0) + 'px<br />T: ' + parseInt(ui.position.top | 0) + 'px');
+        this.triggerLayerResized();
     };
 
     Layer.prototype.____makeLayerDraggableStop = function (event, ui) {
@@ -1152,29 +1597,32 @@
 
         this.setPosition(ui.position.left, ui.position.top);
 
-        if (this.getProperty(true, 'width') == 'auto') {
-            this['_syncwidth']('auto');
+        var currentValue = this.getProperty(true, 'width');
+        if (this.isDimensionPropertyAccepted(currentValue)) {
+            this['_syncwidth'](currentValue);
         }
 
-        if (this.getProperty(true, 'height') == 'auto') {
-            this['_syncheight']('auto');
+        var currentValue = this.getProperty(true, 'height');
+        if (this.isDimensionPropertyAccepted(currentValue)) {
+            this['_syncheight'](currentValue);
         }
 
+        this.triggerLayerResized();
+
+        this.layer.triggerHandler('LayerUnParent');
         this.layerEditor.positionDisplay.removeClass('n2-active');
     };
 
     Layer.prototype.moveX = function (x) {
-        if (this.getProperty(true, 'align') == 'right') {
-            x *= -1;
-        }
-        this._setPropertyWithModifier('left', this.getProperty(true, 'left') + x, this.layerEditor.getResponsiveRatio('h'), true);
+        this.setDeviceBasedAlign();
+        this.setProperty('left', this.getProperty(true, 'left') + x, 'layer');
+        this.triggerLayerResized();
     };
 
     Layer.prototype.moveY = function (y) {
-        if (this.getProperty(true, 'valign') == 'bottom') {
-            y *= -1;
-        }
-        this._setPropertyWithModifier('top', this.getProperty(true, 'top') + y, this.layerEditor.getResponsiveRatio('v'), true);
+        this.setDeviceBasedAlign();
+        this.setProperty('top', this.getProperty(true, 'top') + y, 'layer');
+        this.triggerLayerResized();
     };
 
     Layer.prototype.setPosition = function (left, top) {
@@ -1186,36 +1634,114 @@
             ratioH = ratioV = 1;
         }
 
-        switch (this.getProperty(true, 'align')) {
-            case 'left':
-                this._setPropertyWithModifier('left', Math.round(left * (1 / ratioH)), ratioH, false, false);
-                break;
-            case 'center':
-                this._setPropertyWithModifier('left', -Math.round((this.layer.parent().width() / 2 - left - this.layer.width() / 2) * (1 / ratioH)), ratioH, false, false);
-                break;
-            case 'right':
-                this._setPropertyWithModifier('left', Math.round((this.layer.parent().width() - left - this.layer.width()) * (1 / ratioH)), ratioH, true, false);
-                break;
+        this.setDeviceBasedAlign();
+
+        var parent = this.parent,
+            p = {
+                left: 0,
+                leftMultiplier: 1,
+                top: 0,
+                topMultiplier: 1
+            };
+        if (!parent || !parent.is(':visible')) {
+            parent = this.layer.parent();
+
+
+            switch (this.getProperty(true, 'align')) {
+                case 'center':
+                    p.left += parent.width() / 2;
+                    break;
+                case 'right':
+                    p.left += parent.width();
+                    break;
+            }
+
+            switch (this.getProperty(true, 'valign')) {
+                case 'middle':
+                    p.top += parent.height() / 2;
+                    break;
+                case 'bottom':
+                    p.top += parent.height();
+                    break;
+            }
+        } else {
+            var position = parent.position();
+            switch (this.getProperty(true, 'parentalign')) {
+                case 'right':
+                    p.left = position.left + parent.width();
+                    break;
+                case 'center':
+                    p.left = position.left + parent.width() / 2;
+                    break;
+                default:
+                    p.left = position.left;
+            }
+            switch (this.getProperty(true, 'parentvalign')) {
+                case 'bottom':
+                    p.top = position.top + parent.height();
+                    break;
+                case 'middle':
+                    p.top = position.top + parent.height() / 2;
+                    break;
+                default:
+                    p.top = position.top;
+            }
         }
 
-        switch (this.getProperty(true, 'valign')) {
-            case 'top':
-                this._setPropertyWithModifier('top', Math.round(top * (1 / ratioV)), ratioV, false, false);
+
+        var left, needRender = false;
+        switch (this.getProperty(true, 'align')) {
+            case 'left':
+                left = -Math.round((p.left - left) * (1 / ratioH));
                 break;
-            case 'middle':
-                this._setPropertyWithModifier('top', -Math.round((this.layer.parent().height() / 2 - top - this.layer.height() / 2) * (1 / ratioV)), ratioV, false, false);
+            case 'center':
+                left = -Math.round((p.left - left - this.layer.width() / 2) * (1 / ratioH))
                 break;
-            case 'bottom':
-                this._setPropertyWithModifier('top', Math.round((this.layer.parent().height() - top - this.layer.height()) * (1 / ratioV)), ratioV, true, false);
+            case 'right':
+                left = -Math.round((p.left - left - this.layer.width()) * (1 / ratioH));
+                needRender = true;
                 break;
         }
+        this.storeWithModifier('left', left, ratioH, needRender);
+        this.$.trigger('propertyChanged', ['left', left]);
+
+        var top, needRender = false;
+        switch (this.getProperty(true, 'valign')) {
+            case 'top':
+                top = -Math.round((p.top - top) * (1 / ratioV));
+                break;
+            case 'middle':
+                top = -Math.round((p.top - top - this.layer.height() / 2) * (1 / ratioV));
+                break;
+            case 'bottom':
+                top = -Math.round((p.top - top - this.layer.height()) * (1 / ratioV));
+                needRender = true;
+                break;
+        }
+        this.storeWithModifier('top', top, ratioV, needRender);
+        this.$.trigger('propertyChanged', ['top', top]);
     }
+
+    Layer.prototype.setDeviceBasedAlign = function () {
+        var mode = this.getMode();
+        if (typeof this.deviceProperty[mode]['align'] == 'undefined') {
+            this.setProperty('align', this.getProperty(true, 'align'), 'layer');
+        }
+        if (typeof this.deviceProperty[mode]['valign'] == 'undefined') {
+            this.setProperty('valign', this.getProperty(true, 'valign'), 'layer');
+        }
+    };
     //</editor-fold
 
     Layer.prototype.snap = function () {
-        var snap = this.layerEditor.getSnap();
-        this.layer.resizable("option", "smartguides", snap);
-        this.layer.nextenddraggable("option", "smartguides", snap);
+        this.layer.nextendResizable("option", "smartguides", $.proxy(function () {
+            this.layer.triggerHandler('LayerParent');
+            return this.layerEditor.getSnap();
+        }, this));
+        this.layer.nextenddraggable("option", "smartguides", $.proxy(function () {
+            this.layer.triggerHandler('LayerParent');
+            return this.layerEditor.getSnap();
+        }, this));
     };
 
     //<editor-fold desc="Makes a layer deletable">
@@ -1233,7 +1759,7 @@
                     })
                     .appendTo('body');
                 $('<div class="n2-ss-layer-quick-panel-option"><i class="n2-i n2-it n2-i-duplicate"></i></div>')
-                    .on('click', $.proxy(this.duplicate, this))
+                    .on('click', $.proxy(this.duplicate, this, true, false))
                     .appendTo(container);
                 $('<div class="n2-ss-layer-quick-panel-option n2-ss-layer-quick-panel-option-center"><i class="n2-i n2-it n2-i-more"></i></div>').appendTo(container);
                 $('<div class="n2-ss-layer-quick-panel-option"><i class="n2-i n2-it n2-i-delete"></i></div>')
@@ -1245,74 +1771,78 @@
     //</editor-fold>
 
     Layer.prototype.changeEditorMode = function (mode) {
-        this.setModeProperties(false);
-        if (parseInt(this.property[mode])) {
+        var value = parseInt(this.property[mode]);
+        if (value) {
             this._show();
         } else {
             this._hide();
         }
+
+        this.layer.triggerHandler('LayerShowChange', [mode, value]);
+
+        this._renderModeProperties(false);
     };
 
-    Layer.prototype.resetMode = function (mode) {
+    Layer.prototype.resetMode = function (mode, currentMode) {
         if (mode != 'desktopPortrait') {
             var undefined;
-            this.deviceProperty[mode] = {
-                left: undefined,
-                top: undefined,
-                width: undefined,
-                height: undefined,
-                align: undefined,
-                valign: undefined,
-                fontsize: undefined
-            };
-
-            this.setModeProperties(true);
+            for (var k in this.property) {
+                this.deviceProperty[mode][k] = undefined;
+            }
+            if (mode == currentMode) {
+                this._renderModeProperties(true);
+            }
         }
     };
 
-    Layer.prototype.setModeProperties = function (isReset) {
-        var ratioPositionH = this.layerEditor.getResponsiveRatio('h'),
-            ratioSizeH = ratioPositionH,
-            ratioPositionV = this.layerEditor.getResponsiveRatio('v'),
-            ratioSizeV = ratioPositionV;
+    Layer.prototype._renderModeProperties = function (isReset) {
 
-        if (!parseInt(this.getProperty(false, 'responsivesize'))) {
-            ratioSizeH = ratioSizeV = 1;
+        for (var k in this.property) {
+            this.property[k] = this.getProperty(true, k);
+            this.$.trigger('propertyChanged', [k, this.property[k]]);
         }
 
-        var width = this.getProperty(true, 'width'),
-            height = this.getProperty(true, 'height');
-        this._setPropertyWithModifier('width', width == 'auto' ? width : Math.round(width), ratioSizeH, true, isReset);
-        this._setPropertyWithModifier('height', height == 'auto' ? height : Math.round(height), ratioSizeV, true, isReset);
+        var fontSize = this.getProperty(true, 'fontsize');
+        this.adjustFontSize(this.getProperty(false, 'adaptivefont'), fontSize, false);
 
-        if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
-            ratioPositionH = ratioPositionV = 1;
+        this.layer.attr('data-align', this.property.align);
+        this.layer.attr('data-valign', this.property.valign);
+        if (isReset) {
+            this._resize(true);
         }
 
-        this._setPropertyWithModifier('left', Math.round(this.getProperty(true, 'left')), ratioPositionH, true, isReset);
-        this._setPropertyWithModifier('top', Math.round(this.getProperty(true, 'top')), ratioPositionV, true, isReset);
+    };
 
-
-        this._setProperty(true, 'align', this.getProperty(true, 'align'), true, isReset);
-
-        this._setProperty(true, 'valign', this.getProperty(true, 'valign'), true, isReset);
-
-        this._setProperty(true, 'fontsize', this.getProperty(true, 'fontsize'), true, isReset);
+    Layer.prototype.copyMode = function (from, to) {
+        if (from != to) {
+            this.deviceProperty[to] = $.extend({}, this.deviceProperty[to], this.deviceProperty[from]);
+        }
     };
 
     Layer.prototype.getMode = function () {
         return this.layerEditor.getMode();
     };
 
-    Layer.prototype._resize = function () {
+    Layer.prototype._resize = function (isForced) {
         this.resize({
             slideW: this.layerEditor.getResponsiveRatio('h'),
             slideH: this.layerEditor.getResponsiveRatio('v')
-        });
-    }
+        }, isForced);
+    };
 
-    Layer.prototype.resize = function (ratios) {
+    Layer.prototype.doLinearResize = function (ratios) {
+        this.doThrottledTheResize(ratios, true);
+    };
 
+    Layer.prototype.resize = function (ratios, isForced) {
+
+        if (!this.parent || isForced) {
+            //this.doThrottledTheResize(ratios, false);
+            this.addToResizeCollection(this, ratios, false);
+        }
+    };
+
+    Layer.prototype.doTheResize = function (ratios, isLinear, isThrottled) {
         var ratioPositionH = ratios.slideW,
             ratioSizeH = ratioPositionH,
             ratioPositionV = ratios.slideH,
@@ -1322,29 +1852,94 @@
             ratioSizeH = ratioSizeV = 1;
         }
 
-        var width = this.getProperty(true, 'width');
-        this._setPropertyWithModifier('width', width == 'auto' ? width : Math.round(width), ratioSizeH, true, false);
-        var height = this.getProperty(true, 'height');
-        this._setPropertyWithModifier('height', height == 'auto' ? height : Math.round(height), ratioSizeV, true, false);
-
+        //var width = this.getProperty(true, 'width');
+        //this.storeWithModifier('width', this.isDimensionPropertyAccepted(width) ? width : Math.round(width), ratioSizeH, true);
+        //var height = this.getProperty(true, 'height');
+        //this.storeWithModifier('height', this.isDimensionPropertyAccepted(height) ? height : Math.round(height), ratioSizeV, true);
+        this.renderWithModifier('width', this.getProperty(true, 'width'), ratioSizeH);
+        this.renderWithModifier('height', this.getProperty(true, 'height'), ratioSizeV);
 
         if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
             ratioPositionH = ratioPositionV = 1;
         }
-        this._setPropertyWithModifier('left', Math.round(this.getProperty(true, 'left')), ratioPositionH, true, false);
-        this._setPropertyWithModifier('top', Math.round(this.getProperty(true, 'top')), ratioPositionV, true, false);
+        //this.storeWithModifier('left', Math.round(this.getProperty(true, 'left')), ratioPositionH, true);
+        //this.storeWithModifier('top', Math.round(this.getProperty(true, 'top')), ratioPositionV, true);
+        this.renderWithModifier('left', this.getProperty(true, 'left'), ratioPositionH);
+        this.renderWithModifier('top', this.getProperty(true, 'top'), ratioPositionV);
+        if (!isLinear) {
+            this.triggerLayerResized(isThrottled, ratios);
+        }
+    };
 
+    Layer.prototype.resizeParent = function (e, ratios, isThrottled) {
+        //this.doThrottledTheResize(ratios, false, isThrottled);
+        this.addToResizeCollection(this, ratios, isThrottled);
+    };
+
+    Layer.prototype.addToResizeCollection = function (layer, ratios, isThrottled) {
+        resizeCollection.ratios = ratios;
+        resizeCollection.isThrottled = isThrottled;
+        for (var i = 0; i < resizeCollection.layers.length; i++) {
+            if (resizeCollection.layers[i] == this) {
+                resizeCollection.layers.splice(i, 1);
+                break;
+            }
+        }
+        resizeCollection.layers.push(layer);
+
+        requestRender();
+        this.triggerLayerResized(isThrottled, ratios);
     };
 
     Layer.prototype.update = function () {
+        var parent = this.parent;
+
         if (this.getProperty(true, 'align') == 'center') {
-            this.layer.css('left', (this.layer.parent().width() / 2 - this.layer.width() / 2 + this.getProperty(true, 'left') * this.layerEditor.getResponsiveRatio('h')));
+            var left = 0;
+            if (parent) {
+                left = parent.position().left + parent.width() / 2;
+            } else {
+                left = this.layer.parent().width() / 2;
+            }
+            var ratio = this.layerEditor.getResponsiveRatio('h');
+            if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
+                ratio = 1;
+            }
+            this.layer.css('left', (left - this.layer.width() / 2 + this.getProperty(true, 'left') * ratio));
         }
 
         if (this.getProperty(true, 'valign') == 'middle') {
-            this.layer.css('top', (this.layer.parent().height() / 2 - this.layer.height() / 2 + this.getProperty(true, 'top') * this.layerEditor.getResponsiveRatio('v')));
+            var top = 0;
+            if (parent) {
+                top = parent.position().top + parent.height() / 2;
+            } else {
+                top = this.layer.parent().height() / 2;
+            }
+            var ratio = this.layerEditor.getResponsiveRatio('v');
+            if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
+                ratio = 1;
+            }
+            this.layer.css('top', (top - this.layer.height() / 2 + this.getProperty(true, 'top') * ratio));
         }
-    }
+        this.triggerLayerResized();
+    };
+
+    Layer.prototype.triggerLayerResized = function (isThrottled, ratios) {
+        if (isThrottled) {
+            this._triggerLayerResized(isThrottled, ratios);
+        } else {
+            this._triggerLayerResizedThrottled(true, ratios);
+        }
+    };
+
+    Layer.prototype._triggerLayerResized = function (isThrottled, ratios) {
+        if (!this.isDeleted) {
+            this.layer.triggerHandler('LayerResized', [ratios || {
+                slideW: this.layerEditor.getResponsiveRatio('h'),
+                slideH: this.layerEditor.getResponsiveRatio('v')
+            }, isThrottled || false]);
+        }
+    };
 
     Layer.prototype.getStyleText = function () {
         var style = '';
@@ -1355,6 +1950,104 @@
         style += 'overflow:' + crop + ';';
         style += 'text-align:' + this.property.inneralign + ';';
         return style;
+    };
+
+    Layer.prototype.isDimensionPropertyAccepted = function (value) {
+        if ((value + '').match(/[0-9]+%/) || value == 'auto') {
+            return true;
+        }
+        return false;
+    };
+
+    Layer.prototype.history = function (method, value, other, context) {
+        switch (method) {
+            case 'store':
+                var mode = this.getMode();
+                if (!other[1] || other[3] == mode) {
+                    this[method](other[1], other[2], value, true);
+                } else {
+                    this.deviceProperty[other[3]][other[2]] = value;
+                }
+                this._renderModeProperties(true);
+                break;
+            case 'storeWithModifier':
+                var mode = this.getMode();
+                var ratio = 1;
+                switch (other[1]) {
+                    case 'width':
+                    case 'left':
+                        ratio = this.layerEditor.getResponsiveRatio('h');
+                        break;
+                    case 'height':
+                    case 'top':
+                        ratio = this.layerEditor.getResponsiveRatio('v');
+                        break;
+                }
+                if (other[2] == mode) {
+                    this[method](other[1], value, ratio, true);
+                } else {
+                    this.deviceProperty[other[2]][other[1]] = value;
+
+                    if (other[1] == 'width' || other[1] == 'height') {
+                        this.markSmallLayer();
+                    }
+                }
+                this._renderModeProperties(true);
+                break;
+            case 'addLayer':
+                switch (value) {
+                    case 'add':
+                        this.layerEditor._zIndexOffset = -1;
+                        this.layerEditor._idTranslation = {};
+                        var layer = this.layerEditor.loadSingleData($.extend(true, {}, other[0]));
+                        smartSlider.history.changeFuture(this, layer);
+                        smartSlider.history.changeFuture(this.items[0], layer.items[0]);
+                        this.layerEditor.reIndexLayers();
+                        this.layerEditor.refreshMode();
+                        break;
+                    case 'delete':
+                        this.delete();
+                        break;
+                }
+                break;
+            case 'duplicateLayer':
+                switch (value) {
+                    case 'duplicate':
+                        var newLayers = [];
+                        this.duplicate(true, false, newLayers);
+                        for (var i = 0; i < newLayers.length; i++) {
+                            smartSlider.history.changeFuture(context.oldLayers[i], newLayers[i]);
+                            smartSlider.history.changeFuture(context.oldLayers[i].items[0], newLayers[i].items[0]);
+                        }
+                        context.oldLayers = [];
+                        break;
+                    case 'delete':
+                        var oldLayers = [];
+                        other[0].delete(true, oldLayers);
+                        context.oldLayers = oldLayers;
+                        break;
+                }
+                break;
+            case 'deleteLayer':
+                switch (value) {
+                    case 'create':
+                        this.layerEditor._zIndexOffset = -1;
+                        this.layerEditor._idTranslation = {};
+                        var layer = this.layerEditor.loadSingleData($.extend(true, {}, other[0]));
+                        smartSlider.history.changeFuture(this, layer);
+                        smartSlider.history.changeFuture(this.items[0], layer.items[0]);
+                        this.layerEditor.reIndexLayers();
+                        this.layerEditor.refreshMode();
+                        break;
+                    case 'delete':
+                        this.delete();
+                        break;
+                }
+                break;
+            case 'storeAnimations':
+                this.animation.storeAnimations(other[0], null, null, $.extend(true, {}, value));
+                break;
+        }
     };
 
     scope.NextendSmartSliderLayer = Layer;

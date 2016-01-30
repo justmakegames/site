@@ -1,7 +1,14 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 $this->widget->init('topbar', array(
     "actions" => array(
-        NHtml::tag('a', array(
+        N2Html::tag('a', array(
             'href'  => $this->appType->router->createUrl(array(
                 "slider/edit",
                 array(
@@ -10,7 +17,7 @@ $this->widget->init('topbar', array(
             )),
             'class' => 'n2-button n2-button-red n2-button-big n2-h4 n2-b n2-uc'
         ), n2_('Cancel')),
-        NHtml::tag('a', array(
+        N2Html::tag('a', array(
             'href'    => '#',
             'class'   => 'n2-button n2-button-green n2-button-big n2-h4 n2-b n2-uc',
             'onclick' => 'return NextendForm.submit("#smartslider-form");'

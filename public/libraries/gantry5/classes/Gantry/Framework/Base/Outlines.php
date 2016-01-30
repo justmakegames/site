@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -38,6 +37,11 @@ class Outlines extends AbstractOutlineCollection
     {
         $this->path = $path;
 
+        $gantry = $this->container;
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $gantry['locator'];
+
         $iterator = $this->getFilesystemIterator($path);
 
         $files = [];
@@ -50,7 +54,7 @@ class Outlines extends AbstractOutlineCollection
         }
 
         // In case if someone removed default from custom configuration, make sure it doesn't count.
-        if (!isset($files['default']) && !is_dir($path . '/default')) {
+        if (!isset($files['default']) && !$locator->findResource("{$path}/default")) {
             throw new \RuntimeException('Fatal error: Theme does not have Base Outline');
         }
 
@@ -121,11 +125,6 @@ class Outlines extends AbstractOutlineCollection
      */
     public function create($title = 'Untitled', $preset = 'default')
     {
-        $gantry = $this->container;
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $gantry['locator'];
-
         $name = strtolower(preg_replace('|[^a-z\d_-]|ui', '_', $title));
 
         if (!$name) {
@@ -138,8 +137,11 @@ class Outlines extends AbstractOutlineCollection
 
         $name = $this->findFreeName($name);
 
+        // Load preset.
+        $preset = Layout::preset($preset);
+
         // Create index file for the new layout.
-        $layout = new Layout($name, Layout::preset($preset));
+        $layout = new Layout($name, $preset);
         $layout->saveIndex();
 
         return $name;
@@ -289,11 +291,8 @@ class Outlines extends AbstractOutlineCollection
             return $id;
         }
 
-        $gantry = $this->container;
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $gantry['locator'];
-
+        $name = $id;
+        $count = 0;
         if (preg_match('|^(?:_)?(.*?)(?:_(\d+))?$|ui', $id, $matches)) {
             $matches += ['', '', ''];
             list (, $name, $count) = $matches;

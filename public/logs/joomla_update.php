@@ -29,3 +29,11 @@
 2015-10-03T02:01:45+00:00	INFO 75.142.1.93	update	Deleting removed files and folders.
 2015-10-03T02:01:45+00:00	INFO 75.142.1.93	update	Cleaning up after installation.
 2015-10-03T02:01:45+00:00	INFO 75.142.1.93	update	Update to version 3.4.0 is complete.
+2016-01-30T08:46:27+00:00	INFO 75.142.1.93	update	Update started by user Just Make Games (42). Old version is 3.4.4.
+2016-01-30T08:46:27+00:00	INFO 75.142.1.93	update	Downloading update file from https://github.com/joomla/joomla-cms/releases/download/3.4.8/Joomla_3.4.x_to_3.4.8-Stable-Patch_Package.zip.
+2016-01-30T08:46:30+00:00	INFO 75.142.1.93	update	File Joomla_3.4.x_to_3.4.8-Stable-Patch_Package.zip successfully downloaded.
+2016-01-30T08:46:30+00:00	INFO 75.142.1.93	update	Starting installation of new version.
+2016-01-30T08:46:31+00:00	INFO 75.142.1.93	update	Finalising installation.
+2016-01-30T08:46:31+00:00	INFO 75.142.1.93	update	Deleting removed files and folders.
+2016-01-30T08:46:40+00:00	INFO 75.142.1.93	update	Cleaning up after installation.
+2016-01-30T08:46:40+00:00	INFO 75.142.1.93	update	Update to version 3.4.8 is complete.

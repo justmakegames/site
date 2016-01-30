@@ -1,7 +1,8 @@
 .n2,
 html[dir="rtl"] .n2,
 .n2 td,
-.n2 th {
+.n2 th,
+.n2 .ui-widget{
     font-family: "Montserrat", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
 

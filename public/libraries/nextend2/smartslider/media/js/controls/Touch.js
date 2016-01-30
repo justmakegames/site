@@ -20,12 +20,21 @@
             this.setHorizontal();
         }
 
-        this.swipeElement.swipe({
+        this.swipeElement.addClass('unselectable').swipe({
+            axis: this._direction.axis,
+            threshold: 10,
+            preventDefaultEvents: false,
             triggerOnTouchLeave: true,
             fallbackToMouseEvents: this.parameters.fallbackToMouseEvents,
             swipeStatus: $.proxy(this.onSwipeStatus, this),
             tap: $.proxy(this.onTap, this)
+        }).on('dragstart', function (e) {
+            e.preventDefault();
         });
+
+        if (!this.parameters.fallbackToMouseEvents) {
+            this.swipeElement.on('click', $.proxy(this.onTap, this));
+        }
 
         if (this.parameters.fallbackToMouseEvents) {
             this.swipeElement.addClass('n2-grab');
@@ -72,6 +81,7 @@
 
     NextendSmartSliderControlTouch.prototype.onSwipeStatus = function (event, phase, direction, distance, duration, fingers) {
         if (distance > 10 && direction != null && this._direction[direction] !== null) {
+            event.preventDefault();
             if (this.currentAnimation === null) {
                 if (this._animation.state != 'ended') {
                     // skip the event as the current animation is still playing
@@ -89,7 +99,6 @@
                 this.slider[this._direction[direction]](false);
 
             }
-
             if (this.currentAnimation.percent < 1 && this.currentAnimation.direction == direction) {
                 var percent = distance / this.slider.dimensions.slider[this._property];
                 if (percent <= 1) {
@@ -121,7 +130,9 @@
     };
 
     NextendSmartSliderControlTouch.prototype.onTap = function (e) {
-        $(e.target).trigger('n2click');
+        if ((e.type != 'mouseup' || e.which == 1) && e.type != 'mouseout') {
+            $(e.target).trigger('n2click');
+        }
     };
 
     scope.NextendSmartSliderControlTouch = NextendSmartSliderControlTouch;

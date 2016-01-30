@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/date.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'Date',
         'description' => 'Display a date.',
         'type' => 'particle',
+        'icon' => 'fa-calendar',
         'form' => [
             'fields' => [
                 'enabled' => [

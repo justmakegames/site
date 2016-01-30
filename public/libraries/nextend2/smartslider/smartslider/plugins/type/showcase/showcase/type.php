@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderTypeShowcase extends N2SmartSliderType
 {
@@ -17,9 +24,9 @@ class N2SmartSliderTypeShowcase extends N2SmartSliderType
             'border-radius'       => 0,
             'slider-css'          => '',
             'slide-css'           => '',
-            'animation-duration'  => 1500,
+            'animation-duration'  => 800,
             'animation-delay'     => 0,
-            'animation-easing'    => 'easeInOutQuint',
+            'animation-easing'    => 'easeOutQuad',
             'animation-direction' => 'horizontal',
             'slide-distance'      => 60,
             'perspective'         => 1000,
@@ -57,29 +64,29 @@ class N2SmartSliderTypeShowcase extends N2SmartSliderType
         <div class="n2-ss-slider-1" style="<?php echo $css; ?>">
             <div class="n2-ss-slider-2">
                 <?php
-                echo $this->slider->renderStaticSlide();
+                echo $this->slider->staticHtml;
                 ?>
                 <div class="smart-slider-pipeline"><?php
                     foreach ($this->slider->slides AS $i => $slide) {
-                        echo NHtml::tag('div', $slide->attributes + array(
+                        echo N2Html::tag('div', $slide->attributes + array(
                                 'class' => 'n2-ss-slide ' . $slide->classes . ' n2-ss-canvas',
                                 'style' => $slide->style . $params->get('slide-css')
-                            ), $slide->background . $slide->getHTML() . NHtml::tag('div', array('class' => 'smart-slider-overlay')));
+                            ), $slide->background . $slide->getHTML() . N2Html::tag('div', array('class' => 'smart-slider-overlay')));
                     }
                     ?></div>
             </div>
         </div>
         <?php
         $this->widgets->echoRemainder();
-        echo NHtml::closeTag('div');
+        echo N2Html::closeTag('div');
 
         $this->javaScriptProperties['carousel']           = intval($params->get('carousel'));
         $this->javaScriptProperties['carouselSideSlides'] = intval((max(intval($params->get('carousel-slides')), 1) - 1) / 2);
 
-        $this->javaScriptProperties['animationSettings'] = array(
+        $this->javaScriptProperties['showcase'] = array(
             'duration' => intval($params->get('animation-duration')),
             'delay'    => intval($params->get('animation-delay')),
-            'easing'   => $params->get('animation-easing')
+            'ease'   => $params->get('animation-easing')
         );
 
         $this->javaScriptProperties['layerMode']['playOnce'] = 1;
@@ -90,7 +97,7 @@ class N2SmartSliderTypeShowcase extends N2SmartSliderType
 
         N2JS::addFirstCode("new NextendSmartSliderShowcase(n2('#{$this->slider->elementId}'), " . json_encode($this->javaScriptProperties) . ");");
 
-        echo NHtml::clear();
+        echo N2Html::clear();
     }
 
     protected function getSliderClasses() {
@@ -108,7 +115,7 @@ class N2SmartSliderTypeShowcase extends N2SmartSliderType
     private function initAnimationProperties() {
         $params = $this->slider->params;
 
-        $this->javaScriptProperties['showcase'] = array(
+        $this->javaScriptProperties['showcase'] += array(
             'direction' => $this->direction,
             'distance'  => intval($params->get('slide-distance')),
             'animate'   => array(

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderItem
 {
@@ -60,13 +67,14 @@ class N2SmartSliderItem
     public function getFilled($item) {
         $type = $item['type'];
         if (isset(self::$items[$type])) {
-            $item['values'] = self::$items[$type]->getFilled($this->slide, new N2Data($item['values']))->toArray();
+            $item['values'] = self::$items[$type]->getFilled($this->slide, new N2Data($item['values']))
+                                                 ->toArray();
         }
         return $item;
     }
 
     /**
-     * @param N2SmartSliderExport $export
+     * @param N2SmartSliderExport      $export
      * @param                          $item
      */
     public static function prepareExport($export, $item) {
@@ -78,7 +86,7 @@ class N2SmartSliderItem
     }
 
     /**
-     * @param N2SmartSliderImport $import
+     * @param N2SmartSliderImport      $import
      * @param                          $item
      *
      * @return mixed
@@ -87,8 +95,58 @@ class N2SmartSliderItem
         self::_load();
         $type = $item['type'];
         if (isset(self::$items[$type])) {
-            $item['values'] = self::$items[$type]->prepareImport($import, new N2Data($item['values']))->toArray();
+            $item['values'] = self::$items[$type]->prepareImport($import, new N2Data($item['values']))
+                                                 ->toArray();
         }
         return $item;
     }
+}
+
+
+class N2SmartSliderItemHelper
+{
+
+    public $layer;
+    public $data = array(
+        'type'   => null,
+        'values' => array()
+    );
+
+    public function __construct($slide, $type, $layerProperties = array(), $properties = array()) {
+
+        $this->layer = new N2SmartSliderLayerHelper();
+        $this->set('type', $type);
+        $class      = 'N2SSPluginItem' . $type;
+        $item       = new $class();
+        $properties = array_merge($item->getValues(), $properties);
+        foreach ($properties as $k => $v) {
+            $this->setValues($k, $v);
+        }
+        foreach ($item->getLayerProperties() AS $k => $v) {
+            if ($k == 'width' || $k == 'height' || $k == 'top' || $k == 'left') {
+
+                $this->layer->set('desktopportrait' . $k, $v);
+            } else {
+                $this->layer->set($k, $v);
+            }
+        }
+        $this->layer->set('name', $item->_title . ' layer')
+                    ->set('items', array($this->data));
+
+        foreach ($layerProperties AS $k => $v) {
+            $this->layer->set($k, $v);
+        }
+        $slide->addLayer($this->layer);
+    }
+
+    public function set($key, $value) {
+        $this->data[$key] = $value;
+        return $this;
+    }
+
+    public function setValues($key, $value) {
+        $this->data['values'][$key] = $value;
+        return $this;
+    }
+
 }

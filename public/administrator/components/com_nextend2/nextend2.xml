@@ -2,12 +2,12 @@
     <name>Nextend2</name>
     <author>NEXTENDWEB</author>
     <copyright>Copyright (C) Nextendweb.com</copyright>
-    <authorEmail>roland@nextendweb.com</authorEmail>
-    <authorUrl>http://www.nextendweb.com</authorUrl>
-    <creationDate>2013-10-01</creationDate>
+    <authorEmail>support@nextendweb.com</authorEmail>
+    <authorUrl>http://nextendweb.com</authorUrl>
+    <creationDate>2015-11-01</creationDate>
     <license>http://www.gnu.org/licenses/gpl-3.0.txt GNU/GPL</license>
-    <releaseDate>2015.06.01.</releaseDate>
-    <version>2.0.0</version>
+    <releaseDate>2015.11.01.</releaseDate>
+    <version>2.0.18</version>
     <description>Nextend core services.</description>
     <files folder="site">
         <filename>index.html</filename>

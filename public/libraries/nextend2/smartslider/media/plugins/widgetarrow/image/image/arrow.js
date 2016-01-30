@@ -1,6 +1,11 @@
 (function ($, scope, undefined) {
     function NextendSmartSliderWidgetArrowImage(id, desktopRatio, tabletRatio, mobileRatio) {
-        var slider = this.slider = window[id];
+        this.slider = window[id];
+
+        this.slider.started($.proxy(this.start, this, id, desktopRatio, tabletRatio, mobileRatio));
+    };
+
+    NextendSmartSliderWidgetArrowImage.prototype.start = function (id, desktopRatio, tabletRatio, mobileRatio) {
         if (this.slider.sliderElement.data('arrow')) {
             return false;
         }
@@ -12,9 +17,10 @@
             .on('SliderDevice', $.proxy(this.onDevice, this))
             .trigger('addWidget', this.deferred);
 
-        this.previous = $('#' + id + '-arrow-previous').on('click', function () {
-            slider.previous();
-        });
+        this.previous = $('#' + id + '-arrow-previous').on('click', $.proxy(function (e) {
+            e.stopPropagation();
+            this.slider.previous();
+        }, this));
 
         this.previousResize = this.previous.find('.n2-resize');
         if (this.previousResize.length == 0) {
@@ -22,9 +28,10 @@
         }
 
 
-        this.next = $('#' + id + '-arrow-next').on('click', function () {
-            slider.next();
-        });
+        this.next = $('#' + id + '-arrow-next').on('click', $.proxy(function (e) {
+            e.stopPropagation();
+            this.slider.next();
+        }, this));
 
         this.nextResize = this.next.find('.n2-resize');
         if (this.nextResize.length == 0) {
@@ -44,7 +51,6 @@
 
         this.nextWidth = this.nextResize.width();
         this.nextHeight = this.nextResize.height();
-
         this.onDevice(null, {device: this.slider.responsive.getDeviceMode()});
 
         this.deferred.resolve();

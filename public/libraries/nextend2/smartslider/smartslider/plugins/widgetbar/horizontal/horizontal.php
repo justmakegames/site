@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 N2Loader::import('libraries.image.color');
@@ -85,11 +92,11 @@ class N2SSPluginWidgetBarHorizontal extends N2SSPluginWidgetAbstract
         $showDescription = intval($params->get(self::$key . 'show-description'));
         $slides          = array();
         for ($i = 0; $i < count($slider->slides); $i++) {
-            $slides[$i] = NHtml::tag('span', array('class' => $fontTitle), $slider->slides[$i]->getTitle());
+            $slides[$i] = N2Html::tag('span', array('class' => $fontTitle), $slider->slides[$i]->getTitle());
 
             $description = $slider->slides[$i]->getDescription();
             if ($showDescription && !empty($description)) {
-                $slides[$i] .= NHtml::tag('span', array('class' => $fontDescription), $separator . $description);
+                $slides[$i] .= N2Html::tag('span', array('class' => $fontDescription), $separator . $description);
             }
         }
 
@@ -101,10 +108,10 @@ class N2SSPluginWidgetBarHorizontal extends N2SSPluginWidgetAbstract
 
         N2JS::addInline('new NextendSmartSliderWidgetBarHorizontal("' . $id . '", ' . json_encode($slides) . ', ' . json_encode($parameters) . ');');
 
-        return NHtml::tag("div", $displayAttributes + $attributes + array(
+        return N2Html::tag("div", $displayAttributes + $attributes + array(
                 "class" => $displayClass . "nextend-bar nextend-bar-horizontal",
                 "style" => $style
-            ), NHtml::tag("div", array(
+            ), N2Html::tag("div", array(
             "class" => $styleClass,
             "style" => $innerStyle
         ), $slides[$slider->_activeSlide]));

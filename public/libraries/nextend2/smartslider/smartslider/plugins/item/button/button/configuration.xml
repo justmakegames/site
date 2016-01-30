@@ -14,12 +14,9 @@
         <option value="_blank">Blank</option>
       </param>
     </param>
-    <param type="group" label="Sizing" doc="#Layers-Button">
+    <param type="group" label="Sizing">
       <param name="fullwidth" type="onoff" label="Full width" default="1"/>
       <param name="nowrap" type="onoff" label="No wrap" default="1"/></param>
     <param name="class" type="text" label="Custom css class" default="" class="n2-expert"/>
-    <param name="onmouseenter" type="text" label="Event on mouseenter" default="" class="n2-expert" doc="#Developer-Javascript-events"/>
-    <param name="onmouseclick" type="text" label="Event on mouseclick" default="" class="n2-expert" doc="#Developer-Javascript-events"/>
-    <param name="onmouseleave" type="text" label="Event on mouseleave" default="" class="n2-expert" doc="#Developer-Javascript-events"/>
   </params>
 </root>

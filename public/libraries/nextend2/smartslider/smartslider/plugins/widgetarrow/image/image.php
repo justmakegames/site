@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 
@@ -16,6 +23,9 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract
             'widget-arrow-responsive-mobile'        => 0.5,
             'widget-arrow-previous-image'           => '',
             'widget-arrow-previous'                 => '$ss$/plugins/widgetarrow/image/image/previous/normal.svg',
+            'widget-arrow-previous-color'           => 'ffffffcc',
+            'widget-arrow-previous-hover'           => 0,
+            'widget-arrow-previous-hover-color'     => 'ffffffcc',
             'widget-arrow-style'                    => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYWIiLCJwYWRkaW5nIjoiMjB8KnwxMHwqfDIwfCp8MTB8KnxweCIsImJveHNoYWRvdyI6IjB8KnwwfCp8MHwqfDB8KnwwMDAwMDBmZiIsImJvcmRlciI6IjB8Knxzb2xpZHwqfDAwMDAwMGZmIiwiYm9yZGVycmFkaXVzIjoiNSIsImV4dHJhIjoiIn0seyJiYWNrZ3JvdW5kY29sb3IiOiIwMDAwMDBjZiJ9XX0=',
             'widget-arrow-previous-position-mode'   => 'simple',
             'widget-arrow-previous-position-area'   => 6,
@@ -26,7 +36,10 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract
             'widget-arrow-animation'                => 'fade',
             'widget-arrow-mirror'                   => 1,
             'widget-arrow-next-image'               => '',
-            'widget-arrow-next'                     => '$ss$/plugins/widgetarrow/image/image/next/normal.svg'
+            'widget-arrow-next'                     => '$ss$/plugins/widgetarrow/image/image/next/normal.svg',
+            'widget-arrow-next-color'               => 'ffffffcc',
+            'widget-arrow-next-hover'               => 0,
+            'widget-arrow-next-hover-color'         => 'ffffffcc'
         );
     }
 
@@ -72,7 +85,10 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract
     static function render($slider, $id, $params) {
         $html = '';
 
-        $previous = $params->get(self::$key . 'previous-image');
+        $previous           = $params->get(self::$key . 'previous-image');
+        $previousColor      = $params->get(self::$key . 'previous-color');
+        $previousHover      = $params->get(self::$key . 'previous-hover');
+        $previousHoverColor = $params->get(self::$key . 'previous-hover-color');
         if (empty($previous)) {
             $previous = $params->get(self::$key . 'previous');
 
@@ -84,16 +100,21 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract
         }
 
         if ($params->get(self::$key . 'mirror')) {
-            $next = str_replace('image/previous/', 'image/next/', $previous);
+            $next           = str_replace('image/previous/', 'image/next/', $previous);
+            $nextColor      = $previousColor;
+            $nextHover      = $previousHover;
+            $nextHoverColor = $previousHoverColor;
         } else {
-            $next = $params->get(self::$key . 'next-image');
+            $next           = $params->get(self::$key . 'next-image');
+            $nextColor      = $params->get(self::$key . 'next-color');
+            $nextHover      = $params->get(self::$key . 'next-hover');
+            $nextHoverColor = $params->get(self::$key . 'next-hover-color');
             if (empty($next)) {
                 $next = $params->get(self::$key . 'next');
                 if ($next == -1) {
                     $next = null;
                 } elseif ($next[0] != '$') {
                     $next = N2Uri::pathToUri(dirname(__FILE__) . '/image/next/' . $next);
-
                 }
             }
         }
@@ -116,12 +137,11 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract
             }
 
             if ($previous) {
-                $html .= self::getHTML($id, $params, $animation, 'previous', $previous, $displayClass, $displayAttributes, $styleClass);
+                $html .= self::getHTML($id, $params, $animation, 'previous', $previous, $displayClass, $displayAttributes, $styleClass, $previousColor, $previousHover, $previousHoverColor);
             }
 
             if ($next) {
-
-                $html .= self::getHTML($id, $params, $animation, 'next', $next, $displayClass, $displayAttributes, $styleClass);
+                $html .= self::getHTML($id, $params, $animation, 'next', $next, $displayClass, $displayAttributes, $styleClass, $nextColor, $nextHover, $nextHoverColor);
             }
 
             N2JS::addInline('new NextendSmartSliderWidgetArrowImage("' . $id . '", ' . floatval($params->get(self::$key . 'responsive-desktop')) . ', ' . floatval($params->get(self::$key . 'responsive-tablet')) . ', ' . floatval($params->get(self::$key . 'responsive-mobile')) . ');');
@@ -130,28 +150,62 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract
         return $html;
     }
 
-    private static function getHTML($id, &$params, $animation, $side, $image, $displayClass, $displayAttributes, $styleClass) {
+    private static function getHTML($id, &$params, $animation, $side, $image, $displayClass, $displayAttributes, $styleClass, $color = 'ffffffcc', $hover = 0, $hoverColor = 'ffffffcc') {
 
         list($style, $attributes) = self::getPosition($params, self::$key . $side . '-');
 
+        $imageHover = null;
+
+        $ext = pathinfo($image, PATHINFO_EXTENSION);
+        if (substr($image, 0, 1) == '$' && $ext == 'svg') {
+            list($color, $opacity) = N2Color::colorToSVG($color);
+            $content = N2Filesystem::readFile(N2ImageHelper::fixed($image, true));
+            $image   = 'data:image/svg+xml;base64,' . base64_encode(str_replace(array(
+                    'fill="#FFF"',
+                    'opacity="1"'
+                ), array(
+                    'fill="#' . $color . '"',
+                    'opacity="' . $opacity . '"'
+                ), $content));
+
+            if ($hover) {
+                list($color, $opacity) = N2Color::colorToSVG($hoverColor);
+                $imageHover = 'data:image/svg+xml;base64,' . base64_encode(str_replace(array(
+                        'fill="#FFF"',
+                        'opacity="1"'
+                    ), array(
+                        'fill="#' . $color . '"',
+                        'opacity="' . $opacity . '"'
+                    ), $content));
+            }
+        } else {
+            $image = N2ImageHelper::fixed($image);
+        }
+
+        if ($imageHover === null) {
+            $image = N2Html::image($image, 'arrow');
+        } else {
+            $image = N2Html::image($image, 'arrow', array('class' => 'n2-arrow-normal-img')) . N2Html::image($imageHover, 'arrow', array('class' => 'n2-arrow-hover-img'));
+        }
+
         if ($animation == 'none' || $animation == 'fade') {
-            return NHtml::tag('div', $displayAttributes + $attributes + array(
+            return N2Html::tag('div', $displayAttributes + $attributes + array(
                     'id'    => $id . '-arrow-' . $side,
-                    'class' => $displayClass . $styleClass . 'nextend-arrow nextend-arrow-' . $side . '  nextend-arrow-animated-' . $animation,
+                    'class' => $displayClass . $styleClass . 'nextend-arrow n2-ib nextend-arrow-' . $side . '  nextend-arrow-animated-' . $animation,
                     'style' => $style
-                ), NHtml::image(N2ImageHelper::fixed($image)));
+                ), $image);
         }
 
 
-        return NHtml::tag('div', $displayAttributes + $attributes + array(
+        return N2Html::tag('div', $displayAttributes + $attributes + array(
                 'id'    => $id . '-arrow-' . $side,
-                'class' => $displayClass . 'nextend-arrow nextend-arrow-animated nextend-arrow-animated-' . $animation . ' nextend-arrow-' . $side,
+                'class' => $displayClass . 'nextend-arrow n2-ib nextend-arrow-animated nextend-arrow-animated-' . $animation . ' nextend-arrow-' . $side,
                 'style' => $style
-            ), NHtml::tag('div', array(
+            ), N2Html::tag('div', array(
                 'class' => $styleClass . ' n2-resize'
-            ), NHtml::image(N2ImageHelper::fixed($image))) . NHtml::tag('div', array(
+            ), $image) . N2Html::tag('div', array(
                 'class' => $styleClass . ' n2-active n2-resize'
-            ), NHtml::image(N2ImageHelper::fixed($image))));
+            ), $image));
     }
 
     public static function prepareExport($export, $params) {

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartsliderApplicationInfo extends N2ApplicationInfo
 {
@@ -50,6 +57,7 @@ class N2SmartsliderApplicationInfo extends N2ApplicationInfo
         foreach (glob($path . "/admin/js/*.js") AS $file) {
             N2JS::addFile($file, 'smartslider-backend');
         }
+
         foreach (glob($path . "/admin/js/element/*.js") AS $file) {
             N2JS::addFile($file, 'smartslider-backend');
         }
@@ -70,14 +78,17 @@ class N2SmartsliderApplicationInfo extends N2ApplicationInfo
             'Start',
             'Length',
             'Find image',
+            'Index',
+            'Find link',
             'Index'
         ));
         foreach (glob($path . "/admin/js/generator/*.js") AS $file) {
             N2JS::addFile($file, 'smartslider-backend');
         }
-        foreach (glob($path . "/admin/js/generator/element/*.js") AS $file) {
-            N2JS::addFile($file, 'smartslider-backend');
-        }
+      foreach (glob($path . "/admin/js/generator/element/*.js") AS $file) {
+          N2JS::addFile($file, 'smartslider-backend');
+      }
+    
         foreach (glob($path . "/admin/js/item/*.js") AS $file) {
             N2JS::addFile($file, 'smartslider-backend');
         }
@@ -87,12 +98,12 @@ class N2SmartsliderApplicationInfo extends N2ApplicationInfo
         foreach (glob($path . "/admin/js/layer/*.js") AS $file) {
             N2JS::addFile($file, 'smartslider-backend');
         }
-        foreach (glob($path . "/admin/js/timeline/*.js") AS $file) {
-            N2JS::addFile($file, 'smartslider-backend');
-        }
+      foreach (glob($path . "/admin/js/timeline/*.js") AS $file) {
+          N2JS::addFile($file, 'smartslider-backend');
+      }
+    
 
-        N2Form::$documentation = 'http://beta.nextendweb.com/documentation/' . ucfirst(N2Platform::getPlatform()) . (N2SSPRO ? 'Pro' : '') . '.php';
-        N2JS::addInline('NextendModalDocumentation.url="' . N2Form::$documentation . '";');
+        N2Form::$documentation = 'http://doc.smartslider3.com/';
     }
 
     public function assetsFrontend() {

@@ -2,7 +2,7 @@
 /**
  * @package   Gantry 5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   GNU/GPLv2 and later
  *
  * http://www.gnu.org/licenses/gpl-2.0.html
@@ -70,6 +70,8 @@ if ($params->get('robots')) {
 /** @var object $params */
 $data = json_decode($params->get('particle'), true);
 if (!$data) {
+    // Some plugins which require non-empty component output to work properly.
+    echo "\n";
     return;
 }
 
@@ -78,6 +80,7 @@ $context = [
     'noConfig' => true,
     'inContent' => true,
     'segment' => [
+        'id' => 'main-particle',
         'type' => $data['type'],
         'classes' => $params->get('pageclass_sfx'),
         'subtype' => $data['particle'],

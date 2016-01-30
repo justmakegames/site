@@ -11,7 +11,7 @@ var NextendSmartSliderAdminStorage = function () {
     this.generator = null;
     /** @type {NextendSmartSliderAdminSlideLayerManager} */
     this.layerManager = null;
-    /** @type {NextendSmartSliderAdminLayoutHistory} */
+    /** @type {NextendSmartSliderSlideEditorHistory} */
     this.history = null;
 
 
@@ -36,9 +36,9 @@ NextendSmartSliderAdminStorage.prototype.normalizeOffsetX = function (offsetX) {
 };
 
 
-NextendSmartSliderAdminStorage.prototype.startEditor = function (sliderElementID, slideContentElementID, staticSlide, isUploadDisabled, uploadUrl, uploadDir) {
+NextendSmartSliderAdminStorage.prototype.startEditor = function (sliderElementID, slideContentElementID, isUploadDisabled, uploadUrl, uploadDir) {
     if (this.slide === null) {
-        new SmartSliderAdminSlide(sliderElementID, slideContentElementID, staticSlide, isUploadDisabled, uploadUrl, uploadDir);
+        new SmartSliderAdminSlide(sliderElementID, slideContentElementID, isUploadDisabled, uploadUrl, uploadDir);
     }
     return this.slide;
 };
@@ -81,6 +81,9 @@ window.nextend.smartSlider = new NextendSmartSliderAdminStorage();
 (function ($, scope) {
 
     function NextendBackgroundAnimationEditorController() {
+        this.parameters = {
+            shiftedBackgroundAnimation: 0
+        };
         NextendVisualEditorController.prototype.constructor.call(this, false);
 
         this.bgAnimationElement = $('.n2-bg-animation');
@@ -209,6 +212,14 @@ window.nextend.smartSlider = new NextendSmartSliderAdminStorage();
             e.preventDefault();
             e.stopImmediatePropagation();
             this.showModal();
+        }, this));
+
+        this.notificationStack = new NextendNotificationCenterStackModal($('body'));
+        $('.n2-ss-demo-slider').click($.proxy(function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            nextend.smartSlider.license.isActiveAsync().done($.proxy(this.showDemoSliders, this));
+
         }, this));
     }
 
@@ -345,6 +356,56 @@ window.nextend.smartSlider = new NextendSmartSliderAdminStorage();
         this.createSliderModal.show();
     };
 
+    NextendSmartSliderCreateSlider.prototype.showDemoSliders = function () {
+        var that = this;
+        $('body').css('overflow', 'hidden');
+        var frame = $('<iframe src="//smartslider3.com/demo-import/?pro=' + (N2SSPRO ? '1' : '0') + '" frameborder="0"></iframe>').css({
+                position: 'fixed',
+                zIndex: 100000,
+                left: 0,
+                top: 0,
+                width: '100%',
+                height: '100%'
+            }).appendTo('body'),
+            closeFrame = function () {
+                $('body').css('overflow', '');
+                frame.remove();
+                window.removeEventListener("message", listener, false);
+                that.notificationStack.popStack();
+            },
+            listener = function (e) {
+                if (e.origin !== "http://smartslider3.com" && e.origin !== "https://smartslider3.com")
+                    return;
+                var msg = e.data;
+                switch (msg.key) {
+                    case 'importSlider':
+                        NextendAjaxHelper.ajax({
+                            type: "POST",
+                            url: NextendAjaxHelper.makeAjaxUrl(that.ajaxUrl, {
+                                nextendaction: 'importDemo'
+                            }),
+                            data: {
+                                key: Base64.encode(msg.data.href.replace(/^(http(s)?:)?\/\//, '//'))
+                            },
+                            dataType: 'json'
+                        }).fail(function () {
+                            //closeFrame();
+                        });
+                        break;
+                    case 'closeWindow':
+                        closeFrame();
+                }
+            };
+
+        this.notificationStack.enableStack();
+        NextendEsc.add($.proxy(function () {
+            closeFrame();
+            return true;
+        }, this));
+
+        window.addEventListener("message", listener, false);
+    };
+
     scope.NextendSmartSliderCreateSlider = NextendSmartSliderCreateSlider;
 
 })(n2, window);
@@ -434,7 +495,7 @@ if (!Array.prototype.filter) {
     scope.NextendSmartSliderAdminInlineField = NextendSmartSliderAdminInlineField;
 
 })(n2, window);
-;
+
 (function (smartSlider, $, scope) {
 
     function NextendLayoutManager() {
@@ -478,7 +539,6 @@ if (!Array.prototype.filter) {
             e.preventDefault();
         }
         var callback = $.proxy(function (slideDataOverwrite, layerOverwrite) {
-            smartSlider.history.add();
             smartSlider.slide.loadLayout(this.value, slideDataOverwrite, layerOverwrite);
         }, this);
 
@@ -519,7 +579,8 @@ if (!Array.prototype.filter) {
 
 })(nextend.smartSlider, n2, window);
 
-;
+
+
 (function ($, scope) {
 
     function NextendLayoutEditorController() {
@@ -543,249 +604,619 @@ if (!Array.prototype.filter) {
 
 })(n2, window);
 
+
+
 (function (smartSlider, $, scope, undefined) {
     "use strict";
 
-    function pad2(v) {
-        return ("0" + v).slice(-2);
-    }
-
-    function NextendSmartSliderAdminLayoutHistory() {
-        this.states = 5;
-        this.$ul = $('.n2-ss-history-list > ul');
+    function NextendSmartSliderSlideEditorHistory() {
+        this.historyStates = 50;
+        this.isEnabled = this.historyStates != 0;
+        this.historyAddAllowed = true;
+        this.isBatched = false;
+        this.index = -1;
         this.history = [];
-        this._history = [];
-        for (var i = 0; i < this.states; i++) {
-            this.history[i] = false;
-            this._history[i + 1] = '';
-        }
 
-        smartSlider.history = this;
+        this.preventUndoRedo = false;
 
-        smartSlider.slide.ready($.proxy(function () {
-            var data = smartSlider.slide.getLayout();
-            this.addRow(n2_('Saved slide'), data);
-            this._history[0] = JSON.stringify(data);
-        }, this));
-    }
-
-    NextendSmartSliderAdminLayoutHistory.prototype.add = function () {
-        this.addWithCheck();
+        this.undoBTN = $('#n2-ss-undo').on('click', $.proxy(this.undo, this));
+        this.redoBTN = $('#n2-ss-redo').on('click', $.proxy(this.redo, this));
+        this.updateUI();
     };
 
-    NextendSmartSliderAdminLayoutHistory.prototype.addWithCheck = function () {
-        var data = smartSlider.slide.getLayout();
-        if (this._history.indexOf(JSON.stringify(data)) == '-1') {
-            this._add(data);
+    NextendSmartSliderSlideEditorHistory.prototype.updateUI = function () {
+        if (this.index == 0 || this.history.length == 0) {
+            this.undoBTN.removeClass('n2-active');
+        } else {
+            this.undoBTN.addClass('n2-active');
+        }
+
+        if (this.index == -1 || this.index >= this.history.length) {
+            this.redoBTN.removeClass('n2-active');
+        } else {
+            this.redoBTN.addClass('n2-active');
         }
     };
 
-    NextendSmartSliderAdminLayoutHistory.prototype._add = function (data) {
-        this.history.unshift(this.addRow(this.getFormattedDate(), data));
-        this._history.splice(1, 0, JSON.stringify(data));
-        this._history.pop();
-        var removeRow = this.history.pop();
-        if (removeRow) {
-            removeRow.remove();
+    NextendSmartSliderSlideEditorHistory.prototype.throttleUndoRedo = function () {
+        if (!this.preventUndoRedo) {
+            this.preventUndoRedo = true;
+            setTimeout($.proxy(function () {
+                this.preventUndoRedo = false;
+            }, this), 100);
+            return false;
+        }
+        return true;
+    };
+
+    NextendSmartSliderSlideEditorHistory.prototype.add = function (cb) {
+        if (!this.isEnabled || !this.historyAddAllowed) return;
+        if (this.index != -1) {
+            this.history.splice(this.index, this.history.length);
+        }
+        this.index = -1;
+        if (!this.isBatched) {
+            this.history.push([cb()]);
+            this.isBatched = true;
+            setTimeout($.proxy(function () {
+                this.isBatched = false;
+            }, this), 100);
+        } else {
+            this.history[this.history.length - 1].push(cb());
+        }
+        //this.history.push(smartSlider.slide.getLayout());
+        if (this.history.length > this.historyStates) {
+            this.history.unshift();
+        }
+        this.updateUI();
+    };
+
+    NextendSmartSliderSlideEditorHistory.prototype.off = function () {
+        this.historyAddAllowed = false;
+    };
+
+    NextendSmartSliderSlideEditorHistory.prototype.on = function () {
+        this.historyAddAllowed = true;
+    };
+
+    NextendSmartSliderSlideEditorHistory.prototype.undo = function (e) {
+        if (e) {
+            e.preventDefault();
+        }
+        if (this.throttleUndoRedo()) {
+            return false;
+        }
+        this.off();
+        if (this.index == -1) {
+            this.index = this.history.length - 1;
+        } else {
+            this.index--;
+        }
+        if (this.index >= 0) {
+            var actions = this.history[this.index];
+            for (var i = actions.length - 1; i >= 0; i--) {
+                var action = actions[i];
+                action[0].history(action[1], action[3], action[4], action);
+            }
+        } else {
+            this.index = 0;
+            // No more undo
+        }
+        this.on();
+        this.updateUI();
+    };
+
+    NextendSmartSliderSlideEditorHistory.prototype.redo = function (e) {
+        if (e) {
+            e.preventDefault();
+        }
+        if (this.throttleUndoRedo()) {
+            return false;
+        }
+        this.off();
+        if (this.index != -1) {
+            if (this.index < this.history.length) {
+                var actions = this.history[this.index];
+                this.index++;
+                for (var i = 0; i < actions.length; i++) {
+                    var action = actions[i];
+                    action[0].history(action[1], action[2], action[4], action);
+                }
+            } else {
+                // No more redo
+            }
+        } else {
+            // No redo
+        }
+        this.on();
+        this.updateUI();
+    };
+
+    NextendSmartSliderSlideEditorHistory.prototype.changeFuture = function (originalScope, newScope) {
+        for (var i = 0; i < this.history.length; i++) {
+            for (var j = 0; j < this.history[i].length; j++) {
+                if (this.history[i][j][0] === originalScope) {
+                    this.history[i][j][0] = newScope;
+                }
+                for (var k = 0; k < this.history[i][j][4].length; k++) {
+                    if (this.history[i][j][4][k] === originalScope) {
+                        this.history[i][j][4][k] = newScope;
+                    }
+                }
+            }
         }
     };
 
-    NextendSmartSliderAdminLayoutHistory.prototype.getFormattedDate = function () {
-        var date = new Date();
-        return date.getFullYear() + "-" + pad2(date.getMonth() + 1) + "-" + pad2(date.getDate()) + " " + pad2(date.getHours()) + ":" + pad2(date.getMinutes()) + ":" + pad2(date.getSeconds());
-    };
-
-    NextendSmartSliderAdminLayoutHistory.prototype.addRow = function (title, data) {
-        return $('<li></li>')
-            .append($('<a href="#">' + title + '</a>')
-                .on('click', $.proxy(function (data, e) {
-                    this.addWithCheck();
-                    smartSlider.slide.loadLayout(data, true, true);
-                    e.preventDefault();
-                }, this, data)))
-            .appendTo(this.$ul)
-    };
-
-    scope.NextendSmartSliderAdminLayoutHistory = NextendSmartSliderAdminLayoutHistory;
+    n2(window).ready(function () {
+        smartSlider.history = new NextendSmartSliderSlideEditorHistory();
+    });
 
 })(nextend.smartSlider, n2, window);
-if (N2SSPRO) {
-    (function (smartSlider, $, scope) {
-
-        function NextendPostBackgroundAnimationManager() {
-            this.type = 'postbackgroundanimation';
-            NextendVisualManagerMultipleSelection.prototype.constructor.apply(this, arguments);
-        };
-
-        NextendPostBackgroundAnimationManager.prototype = Object.create(NextendVisualManagerMultipleSelection.prototype);
-        NextendPostBackgroundAnimationManager.prototype.constructor = NextendPostBackgroundAnimationManager;
-
-        NextendPostBackgroundAnimationManager.prototype.loadDefaults = function () {
-            NextendVisualManagerMultipleSelection.prototype.loadDefaults.apply(this, arguments);
-            this.type = 'postbackgroundanimation';
-            this.labels = {
-                visual: 'Ken Burns effect',
-                visuals: 'Ken Burns effects'
-            };
-        };
-
-        NextendPostBackgroundAnimationManager.prototype.initController = function () {
-            return new NextendPostBackgroundAnimationEditorController();
-        };
-
-        NextendPostBackgroundAnimationManager.prototype.createVisual = function (visual, set) {
-            return new NextendVisualWithSetRowMultipleSelection(visual, set, this);
-        };
-
-        NextendPostBackgroundAnimationManager.prototype.show = function (data, saveCallback) {
-            var controllerParameters = [];
-            if (data != '') {
-                data = data.split('|*|');
-                controllerParameters[0] = data[0];
-                controllerParameters[1] = data[1];
-                data = data[2];
-            }
-            NextendVisualManagerMultipleSelection.prototype.show.call(this, data, saveCallback, controllerParameters);
-        };
-
-        NextendPostBackgroundAnimationManager.prototype.getAsString = function () {
-            return this.controller.transformOrigin + '|*|' + NextendVisualManagerMultipleSelection.prototype.getAsString.call(this);
-        };
-
-        scope.NextendPostBackgroundAnimationManager = NextendPostBackgroundAnimationManager;
-
-    })(nextend.smartSlider, n2, window);
-} //N2SSPRO
-
-if (N2SSPRO) {
-    (function ($, scope) {
-
-        function NextendPostBackgroundAnimationEditorController() {
-            NextendVisualEditorController.prototype.constructor.call(this, false);
-
-            this.bgAnimationElement = $('.n2-postbg-animation-slider')
-                .on('click', $.proxy(this.clickFocusPoint, this));
-            this.bgImage = this.bgAnimationElement.find('.n2-postbg-animation-slide');
-
-            if (!nModernizr.csstransforms3d) {
-                nextend.notificationCenter.error('Background animations are not available in your browser. It works if the <i>3D transform</i> feature available. ')
-            }
-
-            this.transformOriginField = $('#n2-post-backgroundtransformorigin')
-                .on('nextendChange', $.proxy(this.changeFocus, this));
-        };
-
-        NextendPostBackgroundAnimationEditorController.prototype = Object.create(NextendVisualEditorController.prototype);
-        NextendPostBackgroundAnimationEditorController.prototype.constructor = NextendPostBackgroundAnimationEditorController;
-
-        NextendPostBackgroundAnimationEditorController.prototype.loadDefaults = function () {
-            NextendVisualEditorController.prototype.loadDefaults.call(this);
-            this.type = 'postbackgroundanimation';
-            this.tween = null;
-            this.animationProperties = false;
-            this.transformOrigin = '50||50';
-        };
 
 
-        NextendPostBackgroundAnimationEditorController.prototype.clickFocusPoint = function (e) {
-            var offset = this.bgAnimationElement.offset();
-            var x = Math.round((e.pageX - offset.left) / this.bgAnimationElement.width() * 100);
-            var y = Math.round((e.pageY - offset.top) / this.bgAnimationElement.height() * 100);
 
-            this.transformOriginField.data('field').insideChange(x + '|*|' + y);
-        };
+(function ($, scope) {
 
-        NextendPostBackgroundAnimationEditorController.prototype.changeFocus = function () {
-            this.transformOrigin = this.transformOriginField.val();
-            if (this.animationProperties) {
-                this.setAnimationProperties(this.animationProperties);
-            }
-        };
+    function NextendSmartSliderLicense(hasKey, maybeActive, ajaxUrl) {
+        nextend.smartSlider.license = this;
+        this.addLicenseModal = false;
+        this.hasKey = hasKey;
+        this.maybeActive = maybeActive;
+        this.ajaxUrl = ajaxUrl;
 
-        NextendPostBackgroundAnimationEditorController.prototype.setImage = function () {
-            if (!nextend || !nextend.smartSlider || !nextend.smartSlider.frontend) {
-                return;
-            }
-            var frontendSlider = nextend.smartSlider.frontend;
-            if (typeof frontendSlider != 'undefined') {
-                var backgrounds = frontendSlider.backgroundImages.getBackgroundImages();
+        this.boxAddLicense = $('.n2-box-add-license');
+        this.boxDeAuthorize = $('.n2-box-license-activated');
 
-                this.bgImage.html('');
+        window.addLicense = $.proxy(this.addLicense, this);
+        window.checkLicense = $.proxy(this.checkLicense, this);
+    }
 
-                backgrounds[frontendSlider.currentSlideIndex].image
-                    .clone()
-                    .appendTo(this.bgImage);
+    NextendSmartSliderLicense.prototype.checkLicense = function (cacheAccepted, verbose) {
+        return NextendAjaxHelper.ajax({
+            type: "POST",
+            url: NextendAjaxHelper.makeAjaxUrl(this.ajaxUrl, {
+                nextendaction: 'check',
+                cacheAccepted: cacheAccepted + 0,
+                verbose: verbose + 0
+            }),
+            dataType: 'json'
+        });
+    };
 
-                var maxW = this.bgAnimationElement.parent().width() - 40,
-                    width = frontendSlider.dimensions.width,
-                    height = frontendSlider.dimensions.height;
-                if (width > maxW) {
-                    height = height * maxW / width;
-                    width = maxW;
+    NextendSmartSliderLicense.prototype.addLicense = function () {
+        this._deferred = $.Deferred();
+        if (!this.addLicenseModal) {
+            var that = this,
+                resolved = false;
+            this.addLicenseModal = new NextendModal({
+                zero: {
+                    size: [
+                        500, 230
+                    ],
+                    title: n2_('Add license'),
+                    back: false,
+                    close: true,
+                    content: '<form class="n2-form"></form>',
+                    controls: [
+                        '<a href="#" class="n2-button n2-button-big n2-button-green n2-uc n2-h4">' + n2_('Authorize') + '</a>'
+                    ],
+                    fn: {
+                        show: function () {
+                            resolved = false;
+
+                            var button = this.controls.find('.n2-button-green'),
+                                form = this.content.find('.n2-form').on('submit', function (e) {
+                                    e.preventDefault();
+                                    button.trigger('click');
+                                });
+
+                            form.append(this.createInput(n2_('License key'), 'license-key', 'width: 440px;'));
+
+
+                            var key = $('#license-key').val('').focus();
+
+                            button.on('click', $.proxy(function (e) {
+
+                                NextendAjaxHelper.ajax({
+                                    type: "POST",
+                                    url: NextendAjaxHelper.makeAjaxUrl(that.ajaxUrl, {
+                                        nextendaction: 'add'
+                                    }),
+                                    data: {
+                                        licenseKey: key.val()
+                                    },
+                                    dataType: 'json'
+                                }).done($.proxy(function (response) {
+                                    if (response.data.valid) {
+                                        that.boxAddLicense.addClass('n2-ss-license-has-active-key');
+                                        that.boxDeAuthorize.removeClass('n2-ss-license-no-active-key').find('code').html(key.val());
+                                        that.hasKey = true;
+                                        that.maybeActive = true;
+                                        resolved = true;
+                                        this.hide(e);
+                                        that._deferred.resolve();
+                                        nextend.notificationCenter.notice('Smart Slider 3 activated!');
+                                    }
+                                }, this));
+
+                            }, this));
+                        },
+                        hide: function () {
+                            if (!resolved && that._deferred.state() == 'pending') {
+                                that._deferred.reject();
+                            }
+                        }
+                    }
                 }
-
-                this.bgAnimationElement.css({
-                    width: width,
-                    height: height
-                });
-            }
-        };
-
-        NextendPostBackgroundAnimationEditorController.prototype.get = function () {
-            return null;
-        };
-
-        NextendPostBackgroundAnimationEditorController.prototype.load = function (visual, tabs, mode, preview) {
-            this.lightbox.addClass('n2-editor-loaded');
-        };
-
-        NextendPostBackgroundAnimationEditorController.prototype.setTabs = function (labels) {
-
-        };
-
-        NextendPostBackgroundAnimationEditorController.prototype.start = function (data) {
-            this.setImage();
-            this.transformOriginField.data('field').insideChange(data[0] + '|*|' + data[1]);
-        };
-
-        NextendPostBackgroundAnimationEditorController.prototype.pause = function () {
-            if (this.tween) {
-                this.tween.pause();
-            }
-        };
-
-        NextendPostBackgroundAnimationEditorController.prototype.next = function () {
-            var properties = $.extend(true, {}, this.animationProperties);
-
-            if (typeof properties.from.transformOrigin == 'undefined') {
-                NextendTween.set(this.bgImage, {
-                    transformOrigin: this.transformOrigin.split('|*|').join('% ') + '%'
-                });
-            }
-
-            properties.to.delay = 0.5;
-            properties.to.onComplete = $.proxy(this.next, this);
-
-            this.tween = NextendTween.fromTo(this.bgImage, properties.duration, properties.from, properties.to);
-        };
-
-        NextendPostBackgroundAnimationEditorController.prototype.setAnimationProperties = function (animationProperties) {
-            this.animationProperties = animationProperties;
-            this.pause();
-            NextendTween.set(this.bgImage, {
-                scale: 1,
-                x: 0,
-                y: 0,
-                rotationZ: 0.0001,
-                transformOrigin: '50% 50%'
             });
-            this.next();
+        }
+        this.addLicenseModal.show();
+        return this._deferred;
+    }
+
+    NextendSmartSliderLicense.prototype.isActiveAsync = function () {
+        var deferred = $.Deferred(),
+            _addLicense = $.proxy(function () {
+                this.addLicense().done(function () {
+                    deferred.resolve();
+                }).fail(function () {
+                    deferred.reject();
+                });
+            }, this);
+        if (this.hasKey) {
+            if (this.maybeActive) {
+                deferred.resolve();
+            } else {
+                this.checkLicense(true, false).done(function () {
+                    deferred.resolve();
+                }).fail(function () {
+                    _addLicense();
+                });
+            }
+        } else {
+            _addLicense();
+        }
+        deferred.fail($.proxy(function () {
+            this.maybeActive = false;
+        }, this));
+        return deferred;
+    }
+    scope.NextendSmartSliderLicense = NextendSmartSliderLicense;
+})(n2, window);
+
+
+(function (smartSlider, $, scope) {
+
+    function NextendPostBackgroundAnimationManager() {
+        this.type = 'postbackgroundanimation';
+        NextendVisualManagerMultipleSelection.prototype.constructor.apply(this, arguments);
+    };
+
+    NextendPostBackgroundAnimationManager.prototype = Object.create(NextendVisualManagerMultipleSelection.prototype);
+    NextendPostBackgroundAnimationManager.prototype.constructor = NextendPostBackgroundAnimationManager;
+
+    NextendPostBackgroundAnimationManager.prototype.loadDefaults = function () {
+        NextendVisualManagerMultipleSelection.prototype.loadDefaults.apply(this, arguments);
+        this.type = 'postbackgroundanimation';
+        this.labels = {
+            visual: 'Ken Burns effect',
+            visuals: 'Ken Burns effects'
         };
+    };
 
-        scope.NextendPostBackgroundAnimationEditorController = NextendPostBackgroundAnimationEditorController;
-    })(n2, window);
-} //N2SSPRO
+    NextendPostBackgroundAnimationManager.prototype.initController = function () {
+        return new NextendPostBackgroundAnimationEditorController();
+    };
 
+    NextendPostBackgroundAnimationManager.prototype.createVisual = function (visual, set) {
+        return new NextendVisualWithSetRowMultipleSelection(visual, set, this);
+    };
+
+    NextendPostBackgroundAnimationManager.prototype.show = function (data, saveCallback) {
+        var controllerParameters = [];
+        if (data != '') {
+            data = data.split('|*|');
+            controllerParameters[0] = data[0];
+            controllerParameters[1] = data[1];
+            data = data[2];
+        }
+        NextendVisualManagerMultipleSelection.prototype.show.call(this, data, saveCallback, controllerParameters);
+    };
+
+    NextendPostBackgroundAnimationManager.prototype.getAsString = function () {
+        return this.controller.transformOrigin + '|*|' + NextendVisualManagerMultipleSelection.prototype.getAsString.call(this);
+    };
+
+    scope.NextendPostBackgroundAnimationManager = NextendPostBackgroundAnimationManager;
+
+})(nextend.smartSlider, n2, window);
+
+
+(function ($, scope) {
+
+    function NextendPostBackgroundAnimationEditorController() {
+        NextendVisualEditorController.prototype.constructor.call(this, false);
+
+        this.bgAnimationElement = $('.n2-postbg-animation-slider')
+            .on('click', $.proxy(this.clickFocusPoint, this));
+        this.bgImage = this.bgAnimationElement.find('.n2-postbg-animation-slide');
+
+        if (!nModernizr.csstransforms3d) {
+            nextend.notificationCenter.error('Background animations are not available in your browser. It works if the <i>3D transform</i> feature available. ')
+        }
+
+        this.transformOriginField = $('#n2-post-backgroundtransformorigin')
+            .on('nextendChange', $.proxy(this.changeFocus, this));
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype = Object.create(NextendVisualEditorController.prototype);
+    NextendPostBackgroundAnimationEditorController.prototype.constructor = NextendPostBackgroundAnimationEditorController;
+
+    NextendPostBackgroundAnimationEditorController.prototype.loadDefaults = function () {
+        NextendVisualEditorController.prototype.loadDefaults.call(this);
+        this.type = 'postbackgroundanimation';
+        this.tween = null;
+        this.animationProperties = false;
+        this.transformOrigin = '50||50';
+    };
+
+
+    NextendPostBackgroundAnimationEditorController.prototype.clickFocusPoint = function (e) {
+        var offset = this.bgAnimationElement.offset();
+        var x = Math.round((e.pageX - offset.left) / this.bgAnimationElement.width() * 100);
+        var y = Math.round((e.pageY - offset.top) / this.bgAnimationElement.height() * 100);
+
+        this.transformOriginField.data('field').insideChange(x + '|*|' + y);
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.changeFocus = function () {
+        this.transformOrigin = this.transformOriginField.val();
+        if (this.animationProperties) {
+            this.setAnimationProperties(this.animationProperties);
+        }
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.setImage = function () {
+        if (!nextend || !nextend.smartSlider || !nextend.smartSlider.frontend) {
+            return;
+        }
+        var frontendSlider = nextend.smartSlider.frontend;
+        if (typeof frontendSlider != 'undefined') {
+            var backgrounds = frontendSlider.backgroundImages.getBackgroundImages();
+
+            this.bgImage.html('');
+
+            backgrounds[frontendSlider.currentSlideIndex].image
+                .clone()
+                .appendTo(this.bgImage);
+
+            var maxW = this.bgAnimationElement.parent().width() - 40,
+                width = frontendSlider.dimensions.width,
+                height = frontendSlider.dimensions.height;
+            if (width > maxW) {
+                height = height * maxW / width;
+                width = maxW;
+            }
+
+            this.bgAnimationElement.css({
+                width: width,
+                height: height
+            });
+        }
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.get = function () {
+        return null;
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.load = function (visual, tabs, mode, preview) {
+        this.lightbox.addClass('n2-editor-loaded');
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.setTabs = function (labels) {
+
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.start = function (data) {
+        this.setImage();
+        this.transformOriginField.data('field').insideChange(data[0] + '|*|' + data[1]);
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.pause = function () {
+        if (this.tween) {
+            this.tween.pause();
+        }
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.next = function () {
+        var properties = $.extend(true, {}, this.animationProperties);
+
+        if (typeof properties.from.transformOrigin == 'undefined') {
+            NextendTween.set(this.bgImage, {
+                transformOrigin: this.transformOrigin.split('|*|').join('% ') + '%'
+            });
+        }
+
+        properties.to.delay = 0.5;
+        properties.to.onComplete = $.proxy(this.next, this);
+
+        this.tween = NextendTween.fromTo(this.bgImage, properties.duration, properties.from, properties.to);
+    };
+
+    NextendPostBackgroundAnimationEditorController.prototype.setAnimationProperties = function (animationProperties) {
+        this.animationProperties = animationProperties;
+        this.pause();
+        NextendTween.set(this.bgImage, {
+            scale: 1,
+            x: 0,
+            y: 0,
+            rotationZ: 0.0001,
+            transformOrigin: '50% 50%'
+        });
+        this.next();
+    };
+
+    scope.NextendPostBackgroundAnimationEditorController = NextendPostBackgroundAnimationEditorController;
+})(n2, window);
+
+(function ($, scope, undefined) {
+
+    function QuickSlides(ajaxUrl) {
+
+        var button = $('#n2-quick-slides-edit');
+        if (button.length < 1) {
+            return;
+        }
+
+        this.ajaxUrl = ajaxUrl;
+
+        button.on('click', $.proxy(this.openEdit, this));
+    };
+
+    QuickSlides.prototype.openEdit = function (e) {
+        e.preventDefault();
+        var slides = $('#n2-ss-slides .n2-box-slide');
+
+        var that = this;
+        this.modal = new NextendModal({
+            zero: {
+                fit: true,
+                fitX: false,
+                overflow: 'auto',
+                size: [
+                    1200,
+                    700
+                ],
+                title: n2_('Quick Edit - Slides'),
+                back: false,
+                close: true,
+                content: '<form class="n2-form"><table></table></form>',
+                controls: [
+                    '<a href="#" class="n2-button n2-button-big n2-button-green n2-uc n2-h4">' + n2_('Save') + '</a>'
+                ],
+                fn: {
+                    show: function () {
+
+                        var button = this.controls.find('.n2-button-green'),
+                            form = this.content.find('.n2-form').on('submit', function (e) {
+                                e.preventDefault();
+                                button.trigger('click');
+                            }),
+                            table = form.find('table');
+
+                        slides.each($.proxy(function (i, el) {
+                            var slide = $(el),
+                                tr = $('<tr />').appendTo(table),
+                                id = slide.data('slideid');
+                            tr.append($('<td />').append('<img src="' + slide.data('image') + '" style="width:100px;"/>'));
+                            tr.append($('<td />').append(that.createInput('Name', 'title-' + id, slide.data('title'), 'width: 240px;')));
+                            tr.append($('<td />').append(that.createTextarea('Description', 'description-' + id, slide.data('description'), 'width: 330px;height:24px;')));
+                            var link = slide.data('link').split('|*|');
+                            tr.append($('<td />').append(that.createLink('Link', 'link-' + id, link[0], 'width: 180px;')));
+                            tr.append($('<td />').append(that.createTarget('Target', 'target-' + id, link.length > 1 ? link[1] : '_self', '')));
+
+                            new NextendElementUrl('link-' + id, nextend.NextendElementUrlParams);
+
+                        }, this));
+
+
+                        button.on('click', $.proxy(function (e) {
+
+                            var changed = {};
+                            slides.each($.proxy(function (i, el) {
+                                var slide = $(el),
+                                    id = slide.data('slideid'),
+                                    name = $('#title-' + id).val(),
+                                    description = $('#description-' + id).val(),
+                                    link = $('#link-' + id).val() + '|*|' + $('#target-' + id).val();
+
+                                if (name != slide.data('title') || description != slide.data('description') || link != slide.data('link')) {
+                                    changed[id] = {
+                                        name: name,
+                                        description: description,
+                                        link: link
+                                    };
+                                }
+                            }, this));
+
+                            if (jQuery.isEmptyObject(changed)) {
+                                this.hide(e);
+                            } else {
+                                this.hide(e);
+                                NextendAjaxHelper.ajax({
+                                    type: "POST",
+                                    url: NextendAjaxHelper.makeAjaxUrl(that.ajaxUrl),
+                                    data: {changed: Base64.encode(JSON.stringify(changed))},
+                                    dataType: 'json'
+                                }).done($.proxy(function (response) {
+                                    var slides = response.data;
+                                    for (var slideID in slides) {
+                                        var slideBox = $('.n2-box-slide[data-slideid="' + slideID + '"]');
+                                        slideBox.find('.n2-box-placeholder a.n2-h4').html(slides[slideID].title);
+
+                                        slideBox.attr('data-title', slides[slideID].rawTitle);
+                                        slideBox.data('title', slides[slideID].rawTitle);
+                                        slideBox.attr('data-description', slides[slideID].rawDescription);
+                                        slideBox.data('description', slides[slideID].rawDescription);
+                                        slideBox.attr('data-link', slides[slideID].rawLink);
+                                        slideBox.data('link', slides[slideID].rawLink);
+                                    }
+                                }, this));
+                            }
+                        }, this));
+                    }
+                }
+            }
+        });
+
+        this.modal.setCustomClass('n2-ss-quick-slides-edit-modal');
+        this.modal.show();
+
+    };
+
+    QuickSlides.prototype.createInput = function (label, id, value) {
+        var style = '';
+        if (arguments.length == 4) {
+            style = arguments[3];
+        }
+        var nodes = $('<div class="n2-form-element-mixed"><div class="n2-mixed-group"><div class="n2-mixed-label"><label for="' + id + '">' + label + '</label></div><div class="n2-mixed-element"><div class="n2-form-element-text n2-border-radius"><input type="text" id="' + id + '" class="n2-h5" autocomplete="off" style="' + style + '"></div></div></div></div>');
+        nodes.find('input').val(value);
+        return nodes;
+    };
+
+    QuickSlides.prototype.createTextarea = function (label, id, value) {
+        var style = '';
+        if (arguments.length == 4) {
+            style = arguments[3];
+        }
+        var nodes = $('<div class="n2-form-element-mixed"><div class="n2-mixed-group"><div class="n2-mixed-label"><label for="' + id + '">' + label + '</label></div><div class="n2-mixed-element"><div class="n2-form-element-textarea n2-border-radius"><textarea id="' + id + '" class="n2-h5" autocomplete="off" style="resize:y;' + style + '"></textarea></div></div></div></div>');
+        nodes.find('textarea').val(value);
+        return nodes;
+    };
+
+    QuickSlides.prototype.createLink = function (label, id, value) {
+        var style = '';
+        if (arguments.length == 4) {
+            style = arguments[3];
+        }
+        var nodes = $('<div class="n2-form-element-mixed"><div class="n2-mixed-group"><div class="n2-mixed-label"><label for="' + id + '">' + label + '</label></div><div class="n2-mixed-element"><div class="n2-form-element-text n2-border-radius"><input type="text" id="' + id + '" class="n2-h5" autocomplete="off" style="' + style + '"><a href="#" class="n2-form-element-clear"><i class="n2-i n2-it n2-i-empty n2-i-grey-opacity"></i></a><a id="' + id + '_button" class="n2-form-element-button n2-h5 n2-uc" href="#">Link</a></div></div></div></div>');
+        nodes.find('input').val(value);
+        return nodes;
+    };
+
+
+    QuickSlides.prototype.createTarget = function (label, id, value) {
+        var style = '';
+        if (arguments.length == 4) {
+            style = arguments[3];
+        }
+        var nodes = $('<div class="n2-form-element-mixed"><div class="n2-mixed-group"><div class="n2-mixed-label"><label for="' + id + '">' + label + '</label></div><div class="n2-mixed-element"><div class="n2-form-element-list"><select id="' + id + '" autocomplete="off" style="' + style + '"><option value="_self">Self</option><option value="_blank">Blank</option></select</div></div></div></div>');
+        nodes.find('select').val(value);
+        return nodes;
+    };
+
+    scope.NextendSmartSliderQuickSlides = QuickSlides;
+})(n2, window);
 (function ($, scope, undefined) {
 
     function NextendSmartSliderAdminSidebarSlides(ajaxUrl, contentAjaxUrl, parameters, isUploadDisabled, uploadUrl, uploadDir) {
@@ -1004,7 +1435,7 @@ if (N2SSPRO) {
                                 videoUrlField = this.content.find('#n2-slide-video-url').focus();
 
                             this.content.append(this.createHeading(n2_('Examples')));
-                            this.content.append(this.createTable([['YouTube', 'https://www.youtube.com/watch?v=UiyDmqO59QE'], ['Vimeo', 'http://vimeo.com/58207848']], ['', '']));
+                            this.content.append(this.createTable([['YouTube', 'https://www.youtube.com/watch?v=MKmIwHAFjSU'], ['Vimeo', 'https://vimeo.com/144598279']], ['', '']));
 
                             button.on('click', $.proxy($.proxy(function (e) {
                                 e.preventDefault();
@@ -1012,7 +1443,8 @@ if (N2SSPRO) {
                                     youtubeRegexp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/,
                                     youtubeMatch = video.match(youtubeRegexp),
                                     vimeoRegexp = /https?:\/\/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/,
-                                    vimeoMatch = video.match(vimeoRegexp);
+                                    vimeoMatch = video.match(vimeoRegexp),
+                                    html5Video = video.match(/\.(mp4|ogv|ogg|webm)/i);
 
                                 if (youtubeMatch) {
                                     NextendAjaxHelper.getJSON('https://www.googleapis.com/youtube/v3/videos?id=' + encodeURI(youtubeMatch[2]) + '&part=snippet&key=AIzaSyC3AolfvPAPlJs-2FgyPJdEEKS6nbPHdSM').done($.proxy(function (data) {
@@ -1046,6 +1478,15 @@ if (N2SSPRO) {
                                         nextend.notificationCenter.error(data.responseText);
                                     });
 
+                                } else if (html5Video) {
+                                    manager._addQuickVideo(this, {
+                                        type: 'video',
+                                        title: video,
+                                        description: '',
+                                        format: html5Video[1],
+                                        video: video,
+                                        image: ''
+                                    });
                                 } else {
                                     nextend.notificationCenter.error('This video url is not supported!');
                                 }
@@ -1148,6 +1589,9 @@ if (N2SSPRO) {
     };
 
     NextendSmartSliderAdminSidebarSlides.prototype._addQuickPost = function (modal, post) {
+        if (!post.image) {
+            post.image = '';
+        }
         NextendAjaxHelper.ajax({
             type: 'POST',
             url: NextendAjaxHelper.makeAjaxUrl(this.ajaxUrl, {
@@ -1497,22 +1941,23 @@ if (N2SSPRO) {
 
         var contentTop = sidebar.parent().siblings('.n2-td').offset().top - $('#wpadminbar, .navbar').height();
 
-        $(window).scroll($.proxy(function () {
+        var onScrollCB = $.proxy(function () {
             if ($(window).scrollTop() > contentTop) {
                 sidebar.addClass("n2-sidebar-fixed");
             } else {
                 sidebar.removeClass("n2-sidebar-fixed");
             }
-        }, this));
+        }, this);
 
         sidebar.css({
             width: sidebar.width()
         });
 
         this.lateInit();
+        $(window).scroll(onScrollCB);
+        onScrollCB();
 
         new NextendSmartSliderEditorSidebarSlides();
-        new NextendSmartSliderSidebarLayout();
     };
 
     NextendSmartSliderSidebar.prototype = Object.create(NextendAdminVerticalPane.prototype);
@@ -1603,54 +2048,19 @@ if (N2SSPRO) {
 
     scope.NextendSmartSliderSidebarSlides = NextendSmartSliderSidebarSlides;
 
-
-    function NextendSmartSliderSidebarLayout() {
-
-        new NextendSmartSliderAdminLayoutHistory();
-
-        var tab = $('.n2-layouts-tab');
-
-        NextendAdminVerticalPane.prototype.constructor.call(this, tab, tab.find('.n2-lightbox-sidebar-list'), tab.find('.n2-ss-history-list'));
-
-        $('.n2-layouts-tab-label').on('click.n2-layout-init', $.proxy(function (e) {
-            this.lateInit();
-            $(e.target).off('click.n2-layout-init');
-        }, this));
-    }
-
-    NextendSmartSliderSidebarLayout.prototype = Object.create(NextendAdminVerticalPane.prototype);
-    NextendSmartSliderSidebarLayout.prototype.constructor = NextendSmartSliderSidebarLayout;
-
-    NextendSmartSliderSidebarLayout.prototype.loadDefaults = function () {
-
-        NextendAdminVerticalPane.prototype.loadDefaults.apply(this, arguments);
-        this.key = 'smartsliderLayoutSidebarRatio';
-    };
-
-    NextendSmartSliderSidebarLayout.prototype.getExcludedHeight = function () {
-        var h = 0;
-        h += $('#n2-ss-slide-editor-main-tab').outerHeight();
-        h += this.tab.find('.n2-sidebar-row').outerHeight() * 2;
-        h += this.tab.find(' > div > ul').outerHeight();
-        h += this.tab.find('.n2-sidebar-pane-sizer').outerHeight();
-        h += 1; // border
-        return h;
-    };
-
-    scope.NextendSmartSliderSidebarLayout = NextendSmartSliderSidebarLayout;
-
 })(nextend.smartSlider, n2, window);
 ;
 (function (smartSlider, $, scope, undefined) {
 
 
-    function SmartSliderAdminSlide(sliderElementID, slideContentElementID, staticSlide, isUploadDisabled, uploadUrl, uploadDir) {
+    function SmartSliderAdminSlide(sliderElementID, slideContentElementID, isUploadDisabled, uploadUrl, uploadDir) {
         this.readyDeferred = $.Deferred();
         smartSlider.slide = this;
 
         this._warnInternetExplorerUsers();
 
         this.$slideContentElement = $('#' + slideContentElementID);
+        this.slideStartValue = this.$slideContentElement.val();
         this.$sliderElement = $('#' + sliderElementID);
 
 
@@ -1661,10 +2071,13 @@ if (N2SSPRO) {
         nextend.fontManager.setFontSize(fontSize);
         nextend.styleManager.setFontSize(fontSize);
 
-        smartSlider.$currentSlideElement = smartSlider.frontend.adminGetCurrentSlideElement(staticSlide);
+
+        smartSlider.$currentSlideElement = smartSlider.frontend.adminGetCurrentSlideElement();
 
         new SmartSliderAdminGenerator();
 
+        smartSlider.$currentSlideElement.addClass('n2-ss-currently-edited-slide');
+        var staticSlide = smartSlider.frontend.parameters.isStaticEdited;
         new NextendSmartSliderAdminSlideLayerManager(smartSlider.$currentSlideElement.data('slide'), staticSlide, isUploadDisabled, uploadUrl, uploadDir);
 
         if (!staticSlide) {
@@ -1672,15 +2085,24 @@ if (N2SSPRO) {
         }
 
         this.readyDeferred.resolve();
+
+        $('#smartslider-form').on({
+            checkChanged: $.proxy(this.prepareFormForCheck, this),
+            submit: $.proxy(this.onSlideSubmit, this)
+        });
+
+        this.createHistory();
     };
 
     SmartSliderAdminSlide.prototype.ready = function (fn) {
         this.readyDeferred.done(fn);
+    };
 
-        $('#smartslider-form').on({
-            checkChanged: $.proxy(this.prepareForm, this),
-            submit: $.proxy(this.onSlideSubmit, this)
-        });
+    SmartSliderAdminSlide.prototype.prepareFormForCheck = function () {
+        var data = JSON.stringify(smartSlider.layerManager.getData()),
+            startData = JSON.stringify(JSON.parse(Base64.decode(this.slideStartValue)));
+
+        this.$slideContentElement.val(startData == data ? this.slideStartValue : Base64.encode(data));
     };
 
     SmartSliderAdminSlide.prototype.onSlideSubmit = function (e) {
@@ -1727,7 +2149,7 @@ if (N2SSPRO) {
         if (thumbnail.val() == '') {
             var itemImage = $('#item_imageimage'),
                 cb = $.proxy(function (image) {
-                    if (image != '' && image != '$system$/images/placeholder/image.svg') {
+                    if (image != '' && image != '$system$/images/placeholder/image.png') {
                         thumbnail.val(image).trigger('change');
                         this.background.slideBackgroundImageField.off('.slidethumbnail');
                         itemImage.off('.slidethumbnail');
@@ -1823,523 +2245,549 @@ if (N2SSPRO) {
         properties['slide'] = slide;
     };
 
+    SmartSliderAdminSlide.prototype.createHistory = function () {
+        this.slideValues = {};
+        n2('#smartslider-form').find('input[id][name^="slide"], textarea[id][name^="slide"]').not('#slideslide').each($.proxy(function (i, el) {
+            var $input = $(el),
+                field = $input.data('field'),
+                id = $input.attr('id');
+            this.slideValues[id] = $input.val();
+            $input.on('nextendChange', $.proxy(function () {
+                var newValue = $input.val(),
+                    oldValue = this.slideValues[id];
+                this.slideValues[id] = newValue;
+                smartSlider.history.add($.proxy(function () {
+                    return [this, 'slideValueChange', newValue, oldValue, [$input, field]];
+                }, this));
+            }, this));
+        }, this));
+    };
+
+
+    SmartSliderAdminSlide.prototype.history = function (method, value, other) {
+        switch (method) {
+            case 'slideValueChange':
+                other[1].insideChange(value);
+                break;
+        }
+    };
+
     scope.SmartSliderAdminSlide = SmartSliderAdminSlide;
 
 })(nextend.smartSlider, n2, window);
-if (N2SSPRO) {
-    (function (smartSlider, $, scope) {
+
+(function (smartSlider, $, scope) {
 
 
-        function NextendSplitTextAnimationManager() {
-            NextendVisualManagerSetsAndMore.prototype.constructor.apply(this, arguments);
-            this.setFontSize(16);
+    function NextendSplitTextAnimationManager() {
+        NextendVisualManagerSetsAndMore.prototype.constructor.apply(this, arguments);
+        this.setFontSize(16);
+    };
+
+    NextendSplitTextAnimationManager.prototype = Object.create(NextendVisualManagerSetsAndMore.prototype);
+    NextendSplitTextAnimationManager.prototype.constructor = NextendSplitTextAnimationManager;
+
+    NextendSplitTextAnimationManager.prototype.loadDefaults = function () {
+        NextendVisualManagerSetsAndMore.prototype.loadDefaults.apply(this, arguments);
+        this.type = 'splittextanimation';
+        this.labels = {
+            visual: 'Split text animation',
+            visuals: 'Split text animations'
         };
 
-        NextendSplitTextAnimationManager.prototype = Object.create(NextendVisualManagerSetsAndMore.prototype);
-        NextendSplitTextAnimationManager.prototype.constructor = NextendSplitTextAnimationManager;
+        this.styleClassName = '';
+        this.fontClassName = '';
+    };
 
-        NextendSplitTextAnimationManager.prototype.loadDefaults = function () {
-            NextendVisualManagerSetsAndMore.prototype.loadDefaults.apply(this, arguments);
-            this.type = 'splittextanimation';
-            this.labels = {
-                visual: 'Split text animation',
-                visuals: 'Split text animations'
-            };
+    NextendSplitTextAnimationManager.prototype.initController = function () {
+        return new NextendSplitTextAnimationEditorController();
+    };
 
-            this.styleClassName = '';
-            this.fontClassName = '';
-        };
+    NextendSplitTextAnimationManager.prototype.createVisual = function (visual, set) {
+        return new NextendSplitTextAnimation(visual, set, this);
+    };
 
-        NextendSplitTextAnimationManager.prototype.initController = function () {
-            return new NextendSplitTextAnimationEditorController();
-        };
+    NextendSplitTextAnimationManager.prototype.setConnectedStyle = function (styleId) {
+        this.styleClassName = $('#' + styleId).data('field').renderStyle();
+    };
 
-        NextendSplitTextAnimationManager.prototype.createVisual = function (visual, set) {
-            return new NextendSplitTextAnimation(visual, set, this);
-        };
+    NextendSplitTextAnimationManager.prototype.setConnectedFont = function (fontId) {
+        this.fontClassName = $('#' + fontId).data('field').renderFont();
+    };
 
-        NextendSplitTextAnimationManager.prototype.setConnectedStyle = function (styleId) {
-            this.styleClassName = $('#' + styleId).data('field').renderStyle();
-        };
+    NextendSplitTextAnimationManager.prototype.setFontSize = function (fontSize) {
+        this.controller.setFontSize(fontSize)
+    };
 
-        NextendSplitTextAnimationManager.prototype.setConnectedFont = function (fontId) {
-            this.fontClassName = $('#' + fontId).data('field').renderFont();
-        };
+    NextendSplitTextAnimationManager.prototype.setVisualAsStatic = function (e) {
+        if (this.transformOriginElement !== null) {
+            var field = this.transformOriginElement.data('field');
+            field.insideChange(this.controller.transformOrigin);
+            field.triggerOutsideChange();
+        }
 
-        NextendSplitTextAnimationManager.prototype.setFontSize = function (fontSize) {
-            this.controller.setFontSize(fontSize)
-        };
+        e.preventDefault();
+        switch (this.mode) {
+            case 'static':
+                this.setAndClose(this.getBase64(n2_('Static')));
+                this.hide(e);
+                break;
+            default:
+                NextendVisualManagerSetsAndMore.prototype.setVisualAsStatic.call(this, e);
+        }
+    };
 
-        NextendSplitTextAnimationManager.prototype.setVisual = function (e) {
+    NextendSplitTextAnimationManager.prototype.getBase64 = function (name) {
 
-            if (this.transformOriginElement !== null) {
-                var field = this.transformOriginElement.data('field');
-                field.insideChange(this.controller.transformOrigin);
-                field.triggerOutsideChange();
-            }
+        return Base64.encode(JSON.stringify({
+            name: name,
+            data: this.controller.get('set')
+        }));
+    };
 
+    NextendSplitTextAnimationManager.prototype.show = function (data, saveCallback, showParameters) {
+        this.transformOriginElement = showParameters.transformOrigin;
+        NextendVisualManagerSetsAndMore.prototype.show.call(this, data, saveCallback, showParameters);
+
+        if (data == '') {
+            $.when(this.activeSet._loadVisuals())
+                .done($.proxy(function () {
+                    for (var k in this.activeSet.visuals) {
+                        this.activeSet.visuals[k].activate();
+                        break;
+                    }
+                }, this));
+        }
+    };
+    scope.NextendSplitTextAnimationManager = NextendSplitTextAnimationManager;
+
+    function NextendSplitTextAnimation() {
+        NextendVisualWithSetRow.prototype.constructor.apply(this, arguments);
+    };
+
+    NextendSplitTextAnimation.prototype = Object.create(NextendVisualWithSetRow.prototype);
+    NextendSplitTextAnimation.prototype.constructor = NextendSplitTextAnimation;
+
+    NextendSplitTextAnimation.prototype.activate = function (e) {
+        if (typeof e !== 'undefined') {
             e.preventDefault();
-            switch (this.mode) {
-                case 'static':
-                    this.setAndClose(this.getBase64(n2_('Static')));
-                    this.hide(e);
-                    break;
-                default:
-                    NextendVisualManagerSetsAndMore.prototype.setVisual.call(this, e);
-            }
-        };
+        }
+        this.visualManager.changeActiveVisual(this);
+        if (typeof this.value.transformOrigin !== 'undefined') {
+            this.visualManager.controller.loadTransformOrigin(this.value.transformOrigin);
+        }
+        this.visualManager.controller.load(this.value.animation, false, this.visualManager.showParameters);
+    };
 
-        NextendSplitTextAnimationManager.prototype.getBase64 = function (name) {
+    scope.NextendSplitTextAnimation = NextendSplitTextAnimation;
 
-            return Base64.encode(JSON.stringify({
-                name: name,
-                data: this.controller.get('set')
-            }));
-        };
-
-        NextendSplitTextAnimationManager.prototype.show = function (data, saveCallback, showParameters) {
-            this.transformOriginElement = showParameters.transformOrigin;
-            NextendVisualManagerSetsAndMore.prototype.show.call(this, data, saveCallback, showParameters);
-
-            if (data == '') {
-                $.when(this.activeSet._loadVisuals())
-                    .done($.proxy(function () {
-                        for (var k in this.activeSet.visuals) {
-                            this.activeSet.visuals[k].activate();
-                            break;
-                        }
-                    }, this));
-            }
-        };
-        scope.NextendSplitTextAnimationManager = NextendSplitTextAnimationManager;
-
-        function NextendSplitTextAnimation() {
-            NextendVisualWithSetRow.prototype.constructor.apply(this, arguments);
-        };
-
-        NextendSplitTextAnimation.prototype = Object.create(NextendVisualWithSetRow.prototype);
-        NextendSplitTextAnimation.prototype.constructor = NextendSplitTextAnimation;
-
-        NextendSplitTextAnimation.prototype.activate = function (e) {
-            if (typeof e !== 'undefined') {
-                e.preventDefault();
-            }
-            this.visualManager.changeActiveVisual(this);
-            if (typeof this.value.transformOrigin !== 'undefined') {
-                this.visualManager.controller.loadTransformOrigin(this.value.transformOrigin);
-            }
-            this.visualManager.controller.load(this.value.animation, false, this.visualManager.showParameters);
-        };
-
-        scope.NextendSplitTextAnimation = NextendSplitTextAnimation;
-
-    })(nextend.smartSlider, n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-
-        function NextendSplitTextAnimationEditorController() {
-
-            this.timeline = new NextendTimeline();
-
-            NextendVisualEditorControllerWithEditor.prototype.constructor.apply(this, arguments);
-
-            this.preview = $('#n2-splittextanimation-editor-preview');
-
-            this.initBackgroundColor();
-        };
-
-        NextendSplitTextAnimationEditorController.prototype = Object.create(NextendVisualEditorControllerWithEditor.prototype);
-        NextendSplitTextAnimationEditorController.prototype.constructor = NextendSplitTextAnimationEditorController;
-
-        NextendSplitTextAnimationEditorController.prototype.loadDefaults = function () {
-            NextendVisualEditorControllerWithEditor.prototype.loadDefaults.call(this);
-            this.type = 'splittextanimation';
-            this.group = 'in';
-            this.preview = null;
-            this.playing = false;
-            this.transformOrigin = '0|*|0|*|0';
-            this.mySplitText = null;
-            this.repeatTimeout = null;
-        };
+})(nextend.smartSlider, n2, window);
 
 
-        NextendSplitTextAnimationEditorController.prototype.initRenderer = function () {
-            return new NextendVisualRenderer(this);
-        };
+(function ($, scope) {
 
-        NextendSplitTextAnimationEditorController.prototype.initEditor = function () {
-            return new NextendSplitTextAnimationEditor();
-        };
+    function NextendSplitTextAnimationEditorController() {
 
-        NextendSplitTextAnimationEditorController.prototype._load = function (visual, tabs, parameters) {
+        this.timeline = new NextendTimeline();
 
-            this.group = parameters.group;
-            NextendVisualEditorControllerWithEditor.prototype._load.call(this, $.extend(true, {}, this.getEmptyVisual(), visual), tabs, parameters);
+        NextendVisualEditorControllerWithEditor.prototype.constructor.apply(this, arguments);
 
-            this.render(parameters.previewHTML);
-        };
+        this.preview = $('#n2-splittextanimation-editor-preview');
 
-        NextendSplitTextAnimationEditorController.prototype.propertyChanged = function (e, property, value) {
-            NextendVisualEditorControllerWithEditor.prototype.propertyChanged.call(this, e, property, value);
+        this.initBackgroundColor();
+    };
 
-            this.refreshTimeline();
-        };
+    NextendSplitTextAnimationEditorController.prototype = Object.create(NextendVisualEditorControllerWithEditor.prototype);
+    NextendSplitTextAnimationEditorController.prototype.constructor = NextendSplitTextAnimationEditorController;
 
-        NextendSplitTextAnimationEditorController.prototype.get = function (type) {
-            if (type == 'saveAsNew') {
-                return {
-                    transformOrigin: this.transformOrigin,
-                    animation: this.currentVisual
-                };
-            }
-            return this.currentVisual;
-        };
+    NextendSplitTextAnimationEditorController.prototype.loadDefaults = function () {
+        NextendVisualEditorControllerWithEditor.prototype.loadDefaults.call(this);
+        this.type = 'splittextanimation';
+        this.group = 'in';
+        this.preview = null;
+        this.playing = false;
+        this.transformOrigin = '0|*|0|*|0';
+        this.mySplitText = null;
+        this.repeatTimeout = null;
+    };
 
-        NextendSplitTextAnimationEditorController.prototype.getEmptyVisual = function () {
+
+    NextendSplitTextAnimationEditorController.prototype.initRenderer = function () {
+        return new NextendVisualRenderer(this);
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.initEditor = function () {
+        return new NextendSplitTextAnimationEditor();
+    };
+
+    NextendSplitTextAnimationEditorController.prototype._load = function (visual, tabs, parameters) {
+
+        this.group = parameters.group;
+        NextendVisualEditorControllerWithEditor.prototype._load.call(this, $.extend(true, {}, this.getEmptyVisual(), visual), tabs, parameters);
+
+        this.render(parameters.previewHTML);
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.propertyChanged = function (e, property, value) {
+        NextendVisualEditorControllerWithEditor.prototype.propertyChanged.call(this, e, property, value);
+
+        this.refreshTimeline();
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.get = function (type) {
+        if (type == 'saveAsNew') {
             return {
-                mode: 'chars',
-                sort: 'normal',
-                duration: 0.4,
-                stagger: 0.05,
-                ease: 'easeOutCubic',
-                opacity: 1,
-                scale: 1,
-                x: 0,
-                y: 0,
-                rotationX: 0,
-                rotationY: 0,
-                rotationZ: 0
+                transformOrigin: this.transformOrigin,
+                animation: this.currentVisual
             };
+        }
+        return this.currentVisual;
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.getEmptyVisual = function () {
+        return {
+            mode: 'chars',
+            sort: 'normal',
+            duration: 0.4,
+            stagger: 0.05,
+            ease: 'easeOutCubic',
+            opacity: 1,
+            scale: 1,
+            x: 0,
+            y: 0,
+            rotationX: 0,
+            rotationY: 0,
+            rotationZ: 0
         };
+    };
 
-        NextendSplitTextAnimationEditorController.prototype.initBackgroundColor = function () {
+    NextendSplitTextAnimationEditorController.prototype.initBackgroundColor = function () {
 
-            new NextendElementText("n2-splittextanimation-editor-background-color");
-            new NextendElementColor("n2-splittextanimation-editor-background-color", 0);
+        new NextendElementText("n2-splittextanimation-editor-background-color");
+        new NextendElementColor("n2-splittextanimation-editor-background-color", 0);
 
-            var box = this.lightbox.find('.n2-editor-preview-box');
-            $('#n2-splittextanimation-editor-background-color').on('nextendChange', function () {
-                box.css('background', '#' + $(this).val());
-            });
-        };
+        var box = this.lightbox.find('.n2-editor-preview-box');
+        $('#n2-splittextanimation-editor-background-color').on('nextendChange', function () {
+            box.css('background', '#' + $(this).val());
+        });
+    };
 
-        NextendSplitTextAnimationEditorController.prototype.render = function (html) {
-            var fontClassName = nextend.splittextanimationManager.fontClassName,
-                styleClassName = nextend.splittextanimationManager.styleClassName;
+    NextendSplitTextAnimationEditorController.prototype.render = function (html) {
+        var fontClassName = nextend.splittextanimationManager.fontClassName,
+            styleClassName = nextend.splittextanimationManager.styleClassName;
 
-            html = html.replace(/\{(.*?)\}/g, function (match, script) {
-                return eval(script);
-            });
+        html = html.replace(/\{([^]*?)\}/g, function (match, script) {
+            return eval(script);
+        });
 
-            this.preview.html(html);
+        this.preview.html(html);
 
-            if (this.visible) {
-                this.refreshTimeline();
-            }
-        };
-
-        NextendSplitTextAnimationEditorController.prototype.refreshTimeline = function () {
-            this.killPreview();
-
-            var animation = $.extend({}, this.currentVisual),
-                modeString = animation.mode;
-            if (modeString == 'chars') {
-                modeString += ',words';
-            }
-            this.mySplitText = new SplitText(this.preview.find('span'), {type: modeString})
-            var splits = [];
-            switch (animation.mode) {
-                case 'words':
-                    splits = this.mySplitText.words;
-                    break;
-                case 'lines':
-                    splits = this.mySplitText.lines;
-                    break;
-                default:
-                    splits = this.mySplitText.chars;
-            }
-            delete animation.mode;
-
-            this.timeline = new NextendTimeline({
-                repeat: -1
-            });
-
-            var duration = animation.duration,
-                stagger = animation.stagger;
-            delete animation.duration;
-            delete animation.stagger;
-
-            NextendTween.set(splits, {
-                transformOrigin: this.transformOrigin.split('|*|').join('% ') + 'px'
-            });
-
-            var splits2 = null;
-            switch (animation.sort) {
-                case 'reversed':
-                    splits.reverse();
-                    break;
-                case 'random':
-                    var rand = function (a, b, c, d) {
-                        c = a.length;
-                        while (c)b = Math.random() * c-- | 0, d = a[c], a[c] = a[b], a[b] = d;
-                    };
-                    rand(splits);
-                    break;
-                case 'side':
-                case 'center':
-                    var splitsN = [];
-                    splits2 = [];
-                    while (splits.length > 1) {
-                        splitsN.push(splits.shift());
-                        splits2.push(splits.pop());
-                    }
-                    if (splits.length == 1) {
-                        splitsN.push(splits.shift());
-                    }
-                    splits = splitsN;
-                    if (animation.sort == 'center') {
-                        splits.reverse();
-                        splits2.reverse();
-                    }
-                    break;
-                case 'sideShifted':
-                case 'centerShifted':
-                    var splitsN = [];
-                    while (splits.length > 1) {
-                        splitsN.push(splits.shift());
-                        splitsN.push(splits.pop());
-                    }
-                    if (splits.length == 1) {
-                        splitsN.push(splits.shift());
-                    }
-                    splits = splitsN;
-                    if (animation.sort == 'centerShifted') {
-                        splits.reverse();
-                    }
-                    break;
-            }
-            delete animation.sort;
-
-            if (this.group == 'out') {
-                var from = this.getEmptyVisual();
-                delete from.mode;
-                delete from.sort;
-                delete from.duration;
-                delete from.easing;
-                delete from.stagger;
-                this.timeline.staggerFromTo(splits, duration, from, animation, -stagger, 0.3);
-                if (splits2 && splits2.length) {
-                    this.timeline.staggerFromTo(splits2, duration, from, animation, -stagger, 0.3);
-                }
-            } else {
-                this.timeline.staggerFrom(splits, duration, animation, stagger, 0.3);
-                if (splits2 && splits2.length) {
-                    this.timeline.staggerFrom(splits2, duration, animation, stagger, 0.3);
-                }
-            }
-
-            this.timeline.eventCallback("onComplete", $.proxy(function () {
-                this.repeatTimeout = setTimeout($.proxy(function () {
-                    this.timeline.play(0, false);
-                }, this), 500);
-            }, this));
-
-            this.timeline.play();
-        };
-
-        NextendSplitTextAnimationEditorController.prototype.killPreview = function () {
-
-            if (this.repeatTimeout) {
-                clearTimeout(this.repeatTimeout);
-            }
-            this.timeline.pause();
-            if (this.mySplitText) {
-                this.mySplitText.revert();
-            }
-        };
-
-        NextendSplitTextAnimationEditorController.prototype.show = function () {
-            this.loadTransformOrigin(nextend.splittextanimationManager.transformOriginElement.val());
-            NextendVisualEditorControllerWithEditor.prototype.show.call(this);
+        if (this.visible) {
             this.refreshTimeline();
-        };
+        }
+    };
 
-        NextendSplitTextAnimationEditorController.prototype.close = function () {
-            this.killPreview();
-            NextendVisualEditorControllerWithEditor.prototype.close.call(this);
-        };
+    NextendSplitTextAnimationEditorController.prototype.refreshTimeline = function () {
+        this.killPreview();
 
-        NextendSplitTextAnimationEditorController.prototype.loadTransformOrigin = function (transformOrigin) {
-            this.editor.fields.transformOrigin.element.data('field').insideChange(transformOrigin);
-            this.refreshTransformOrigin(transformOrigin, false);
-        };
+        var animation = $.extend({}, this.currentVisual),
+            modeString = animation.mode;
+        if (modeString == 'chars') {
+            modeString += ',words';
+        }
+        this.mySplitText = new NextendSplitText(this.preview.find('span'), {type: modeString})
+        var splits = [];
+        switch (animation.mode) {
+            case 'words':
+                splits = this.mySplitText.words;
+                break;
+            case 'lines':
+                splits = this.mySplitText.lines;
+                break;
+            default:
+                splits = this.mySplitText.chars;
+        }
+        delete animation.mode;
 
-        NextendSplitTextAnimationEditorController.prototype.refreshTransformOrigin = function (transformOrigin, needRender) {
+        this.timeline = new NextendTimeline({
+            repeat: -1
+        });
 
-            this.transformOrigin = transformOrigin;
+        var duration = animation.duration,
+            stagger = animation.stagger;
+        delete animation.duration;
+        delete animation.stagger;
 
-            NextendTween.set(this.preview.parent().get(0), {
-                perspective: '1000px'
-            });
+        NextendTween.set(splits, {
+            transformOrigin: this.transformOrigin.split('|*|').join('% ') + 'px'
+        });
 
-            if (needRender) {
-                this.refreshTimeline();
+        var splits2 = null;
+        switch (animation.sort) {
+            case 'reversed':
+                splits.reverse();
+                break;
+            case 'random':
+                var rand = function (a, b, c, d) {
+                    c = a.length;
+                    while (c)b = Math.random() * c-- | 0, d = a[c], a[c] = a[b], a[b] = d;
+                };
+                rand(splits);
+                break;
+            case 'side':
+            case 'center':
+                var splitsN = [];
+                splits2 = [];
+                while (splits.length > 1) {
+                    splitsN.push(splits.shift());
+                    splits2.push(splits.pop());
+                }
+                if (splits.length == 1) {
+                    splitsN.push(splits.shift());
+                }
+                splits = splitsN;
+                if (animation.sort == 'center') {
+                    splits.reverse();
+                    splits2.reverse();
+                }
+                break;
+            case 'sideShifted':
+            case 'centerShifted':
+                var splitsN = [];
+                while (splits.length > 1) {
+                    splitsN.push(splits.shift());
+                    splitsN.push(splits.pop());
+                }
+                if (splits.length == 1) {
+                    splitsN.push(splits.shift());
+                }
+                splits = splitsN;
+                if (animation.sort == 'centerShifted') {
+                    splits.reverse();
+                }
+                break;
+        }
+        delete animation.sort;
+
+        if (this.group == 'out') {
+            var from = this.getEmptyVisual();
+            delete from.mode;
+            delete from.sort;
+            delete from.duration;
+            delete from.easing;
+            delete from.stagger;
+            this.timeline.staggerFromTo(splits, duration, from, animation, -stagger, 0.3);
+            if (splits2 && splits2.length) {
+                this.timeline.staggerFromTo(splits2, duration, from, animation, -stagger, 0.3);
             }
-            /*
-             NextendTween.set(this.preview.get(0), {
-             transformOrigin: transformOrigin.split('|*|').join('% ') + 'px'
-             });
-             */
-        };
+        } else {
+            this.timeline.staggerFrom(splits, duration, animation, stagger, 0.3);
+            if (splits2 && splits2.length) {
+                this.timeline.staggerFrom(splits2, duration, animation, stagger, 0.3);
+            }
+        }
 
-        NextendSplitTextAnimationEditorController.prototype.setFontSize = function (fontSize) {
-            this.preview.css('fontSize', fontSize);
-            this.preview.css('margin', '100px 30px');
-        };
+        this.timeline.eventCallback("onComplete", $.proxy(function () {
+            this.repeatTimeout = setTimeout($.proxy(function () {
+                this.timeline.play(0, false);
+            }, this), 500);
+        }, this));
 
-        scope.NextendSplitTextAnimationEditorController = NextendSplitTextAnimationEditorController;
+        this.timeline.play();
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.killPreview = function () {
+
+        if (this.repeatTimeout) {
+            clearTimeout(this.repeatTimeout);
+        }
+        this.timeline.pause();
+        if (this.mySplitText) {
+            this.mySplitText.revert();
+        }
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.show = function () {
+        this.loadTransformOrigin(nextend.splittextanimationManager.transformOriginElement.val());
+        NextendVisualEditorControllerWithEditor.prototype.show.call(this);
+        this.refreshTimeline();
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.close = function () {
+        this.killPreview();
+        NextendVisualEditorControllerWithEditor.prototype.close.call(this);
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.loadTransformOrigin = function (transformOrigin) {
+        this.editor.fields.transformOrigin.element.data('field').insideChange(transformOrigin);
+        this.refreshTransformOrigin(transformOrigin, false);
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.refreshTransformOrigin = function (transformOrigin, needRender) {
+
+        this.transformOrigin = transformOrigin;
+
+        NextendTween.set(this.preview.parent().get(0), {
+            perspective: '1000px'
+        });
+
+        if (needRender) {
+            this.refreshTimeline();
+        }
+        /*
+         NextendTween.set(this.preview.get(0), {
+         transformOrigin: transformOrigin.split('|*|').join('% ') + 'px'
+         });
+         */
+    };
+
+    NextendSplitTextAnimationEditorController.prototype.setFontSize = function (fontSize) {
+        this.preview.css('fontSize', fontSize);
+        this.preview.css('margin', '100px 30px');
+    };
+
+    scope.NextendSplitTextAnimationEditorController = NextendSplitTextAnimationEditorController;
 
 
-        function NextendSplitTextAnimationEditor() {
+    function NextendSplitTextAnimationEditor() {
 
-            NextendVisualEditor.prototype.constructor.apply(this, arguments);
+        NextendVisualEditor.prototype.constructor.apply(this, arguments);
 
-            this.fields = {
-                mode: {
-                    element: $('#n2-splittextanimation-editormode'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeMode, this)
-                    }
-                },
-                sort: {
-                    element: $('#n2-splittextanimation-editorsort'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeSort, this)
-                    }
-                },
-                duration: {
-                    element: $('#n2-splittextanimation-editorduration'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeDuration, this)
-                    }
-                },
-                stagger: {
-                    element: $('#n2-splittextanimation-editorstagger'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeStagger, this)
-                    }
-                },
-                easing: {
-                    element: $('#n2-splittextanimation-editoreasing'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeEasing, this)
-                    }
-                },
-                opacity: {
-                    element: $('#n2-splittextanimation-editoropacity'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeOpacity, this)
-                    }
-                },
-                offset: {
-                    element: $('#n2-splittextanimation-editoroffset'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeOffset, this)
-                    }
-                },
-                rotate: {
-                    element: $('#n2-splittextanimation-editorrotate'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeRotate, this)
-                    }
-                },
-                scale: {
-                    element: $('#n2-splittextanimation-editorscale'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeScale, this)
-                    }
-                },
-                transformOrigin: {
-                    element: $('#n2-splittextanimation-editortransformorigin'),
-                    events: {
-                        'outsideChange.n2-editor': $.proxy(this.changeTransformOrigin, this)
-                    }
+        this.fields = {
+            mode: {
+                element: $('#n2-splittextanimation-editormode'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeMode, this)
+                }
+            },
+            sort: {
+                element: $('#n2-splittextanimation-editorsort'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeSort, this)
+                }
+            },
+            duration: {
+                element: $('#n2-splittextanimation-editorduration'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeDuration, this)
+                }
+            },
+            stagger: {
+                element: $('#n2-splittextanimation-editorstagger'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeStagger, this)
+                }
+            },
+            easing: {
+                element: $('#n2-splittextanimation-editoreasing'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeEasing, this)
+                }
+            },
+            opacity: {
+                element: $('#n2-splittextanimation-editoropacity'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeOpacity, this)
+                }
+            },
+            offset: {
+                element: $('#n2-splittextanimation-editoroffset'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeOffset, this)
+                }
+            },
+            rotate: {
+                element: $('#n2-splittextanimation-editorrotate'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeRotate, this)
+                }
+            },
+            scale: {
+                element: $('#n2-splittextanimation-editorscale'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeScale, this)
+                }
+            },
+            transformOrigin: {
+                element: $('#n2-splittextanimation-editortransformorigin'),
+                events: {
+                    'outsideChange.n2-editor': $.proxy(this.changeTransformOrigin, this)
                 }
             }
-        };
+        }
+    };
 
-        NextendSplitTextAnimationEditor.prototype = Object.create(NextendVisualEditor.prototype);
-        NextendSplitTextAnimationEditor.prototype.constructor = NextendSplitTextAnimationEditor;
+    NextendSplitTextAnimationEditor.prototype = Object.create(NextendVisualEditor.prototype);
+    NextendSplitTextAnimationEditor.prototype.constructor = NextendSplitTextAnimationEditor;
 
-        NextendSplitTextAnimationEditor.prototype.load = function (values) {
-            this._off();
-            this.fields.mode.element.data('field').insideChange(values.mode);
-            if (!values.sort) {
-                values.sort = 'normal';
-            }
-            this.fields.sort.element.data('field').insideChange(values.sort);
-            this.fields.duration.element.data('field').insideChange(values.duration * 1000);
-            this.fields.stagger.element.data('field').insideChange(values.stagger * 1000);
-            this.fields.easing.element.data('field').insideChange(values.ease);
-            this.fields.opacity.element.data('field').insideChange(values.opacity * 100);
+    NextendSplitTextAnimationEditor.prototype.load = function (values) {
+        this._off();
+        this.fields.mode.element.data('field').insideChange(values.mode);
+        if (!values.sort) {
+            values.sort = 'normal';
+        }
+        this.fields.sort.element.data('field').insideChange(values.sort);
+        this.fields.duration.element.data('field').insideChange(values.duration * 1000);
+        this.fields.stagger.element.data('field').insideChange(values.stagger * 1000);
+        this.fields.easing.element.data('field').insideChange(values.ease);
+        this.fields.opacity.element.data('field').insideChange(values.opacity * 100);
 
-            this.fields.offset.element.data('field').insideChange(values.x + '|*|' + values.y);
-            this.fields.rotate.element.data('field').insideChange(values.rotationX + '|*|' + values.rotationY + '|*|' + values.rotationZ);
-            this.fields.scale.element.data('field').insideChange(values.scale * 100);
-            this.fields.transformOrigin.element.data('field').insideChange(nextend.splittextanimationManager.controller.transformOrigin);
+        this.fields.offset.element.data('field').insideChange(values.x + '|*|' + values.y);
+        this.fields.rotate.element.data('field').insideChange(values.rotationX + '|*|' + values.rotationY + '|*|' + values.rotationZ);
+        this.fields.scale.element.data('field').insideChange(values.scale * 100);
+        this.fields.transformOrigin.element.data('field').insideChange(nextend.splittextanimationManager.controller.transformOrigin);
 
-            this._on();
-        };
+        this._on();
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeMode = function () {
-            this.trigger('mode', this.fields.mode.element.val());
-        };
+    NextendSplitTextAnimationEditor.prototype.changeMode = function () {
+        this.trigger('mode', this.fields.mode.element.val());
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeSort = function () {
-            this.trigger('sort', this.fields.sort.element.val());
-        };
+    NextendSplitTextAnimationEditor.prototype.changeSort = function () {
+        this.trigger('sort', this.fields.sort.element.val());
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeDuration = function () {
-            this.trigger('duration', this.fields.duration.element.val() / 1000);
-        };
+    NextendSplitTextAnimationEditor.prototype.changeDuration = function () {
+        this.trigger('duration', this.fields.duration.element.val() / 1000);
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeStagger = function () {
-            this.trigger('stagger', this.fields.stagger.element.val() / 1000);
-        };
+    NextendSplitTextAnimationEditor.prototype.changeStagger = function () {
+        this.trigger('stagger', this.fields.stagger.element.val() / 1000);
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeEasing = function () {
-            this.trigger('ease', this.fields.easing.element.val());
-        };
+    NextendSplitTextAnimationEditor.prototype.changeEasing = function () {
+        this.trigger('ease', this.fields.easing.element.val());
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeOpacity = function () {
-            this.trigger('opacity', this.fields.opacity.element.val() / 100);
-        };
+    NextendSplitTextAnimationEditor.prototype.changeOpacity = function () {
+        this.trigger('opacity', this.fields.opacity.element.val() / 100);
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeOffset = function () {
-            var offset = this.fields.offset.element.val().split('|*|');
-            this.trigger('x', offset[0]);
-            this.trigger('y', offset[1]);
-        };
+    NextendSplitTextAnimationEditor.prototype.changeOffset = function () {
+        var offset = this.fields.offset.element.val().split('|*|');
+        this.trigger('x', offset[0]);
+        this.trigger('y', offset[1]);
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeRotate = function () {
-            var rotate = this.fields.rotate.element.val().split('|*|');
-            this.trigger('rotationX', rotate[0]);
-            this.trigger('rotationY', rotate[1]);
-            this.trigger('rotationZ', rotate[2]);
-        };
+    NextendSplitTextAnimationEditor.prototype.changeRotate = function () {
+        var rotate = this.fields.rotate.element.val().split('|*|');
+        this.trigger('rotationX', rotate[0]);
+        this.trigger('rotationY', rotate[1]);
+        this.trigger('rotationZ', rotate[2]);
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeScale = function () {
-            this.trigger('scale', this.fields.scale.element.val() / 100);
-        };
+    NextendSplitTextAnimationEditor.prototype.changeScale = function () {
+        this.trigger('scale', this.fields.scale.element.val() / 100);
+    };
 
-        NextendSplitTextAnimationEditor.prototype.changeTransformOrigin = function () {
-            nextend.splittextanimationManager.controller.refreshTransformOrigin(this.fields.transformOrigin.element.val(), true);
-        };
-        scope.NextendSplitTextAnimationEditor = NextendSplitTextAnimationEditor;
+    NextendSplitTextAnimationEditor.prototype.changeTransformOrigin = function () {
+        nextend.splittextanimationManager.controller.refreshTransformOrigin(this.fields.transformOrigin.element.val(), true);
+    };
+    scope.NextendSplitTextAnimationEditor = NextendSplitTextAnimationEditor;
 
-    })(n2, window);
-} //N2SSPRO
+})(n2, window);
+
 (function (smartSlider, $, scope, undefined) {
     nextend['ssBeforeResponsive'] = function () {
         new NextendSmartSliderAdminZoom(this);
@@ -2400,6 +2848,8 @@ if (N2SSPRO) {
 
         this.deviceOptions = $('#n2-ss-devices .n2-panel-option');
 
+        $('#n2-ss-devices').css('width', (this.deviceOptions.length * 62) + 'px');
+
         this.deviceOptions.each($.proxy(function (i, el) {
             $(el).on('click', $.proxy(this.setDeviceMode, this));
         }, this));
@@ -2416,8 +2866,13 @@ if (N2SSPRO) {
 
     NextendSmartSliderAdminZoom.prototype.setDeviceMode = function (e) {
         var el = $(e.currentTarget);
-        this.responsive.setOrientation(el.data('orientation'));
-        this.responsive.setMode(el.data('device'));
+        if ((e.ctrlKey || e.metaKey) && smartSlider.layerManager) {
+            var orientation = el.data('orientation');
+            smartSlider.layerManager.copyOrResetMode(el.data('device') + orientation[0].toUpperCase() + orientation.substr(1));
+        } else {
+            this.responsive.setOrientation(el.data('orientation'));
+            this.responsive.setMode(el.data('device'));
+        }
     };
 
     NextendSmartSliderAdminZoom.prototype.switchLock = function (e) {
@@ -2647,6 +3102,175 @@ if (N2SSPRO) {
     scope.NextendElementPostAnimationManager = NextendElementPostAnimationManager;
 
 })(n2, window);
+(function ($, scope) {
+
+    var STATUS = {
+            INITIALIZED: 0,
+            UNDER_PICK_PARENT: 1,
+            UNDER_PICK_CHILD: 2
+        },
+        OVERLAYS = '<div class="n2-ss-picker-overlay" data-align="left" data-valign="top" />' +
+            '<div class="n2-ss-picker-overlay" data-align="center" data-valign="top" style="left:33%;top:0;" />' +
+            '<div class="n2-ss-picker-overlay" data-align="right" data-valign="top" style="left:66%;top:0;width:34%;" />' +
+            '<div class="n2-ss-picker-overlay" data-align="left" data-valign="middle" style="left:0;top:33%;" />' +
+            '<div class="n2-ss-picker-overlay" data-align="center" data-valign="middle" style="left:33%;top:33%; " />' +
+            '<div class="n2-ss-picker-overlay" data-align="right" data-valign="middle" style="left:66%;top:33%;width:34%;" />' +
+            '<div class="n2-ss-picker-overlay" data-align="left" data-valign="bottom" style="left:0;top:66%;height:34%;" />' +
+            '<div class="n2-ss-picker-overlay" data-align="center" data-valign="bottom" style="left:33%;top:66%;height:34%;" />' +
+            '<div class="n2-ss-picker-overlay" data-align="right" data-valign="bottom" style="left:66%;top:66%;width:34%;height:34%;" />';
+
+    function NextendElementLayerPicker(id) {
+        this.status = 0;
+        this.element = $('#' + id);
+        this.overlays = null;
+
+        this.aligns = this.element.parent().parent().siblings();
+
+        this.globalPicker = $('#n2-ss-parent-linker');
+        this.picker = this.element.siblings('.n2-ss-layer-picker')
+            .on({
+                click: $.proxy(this.click, this),
+                mouseenter: $.proxy(function () {
+                    var value = this.element.val();
+                    if (value != '') {
+                        $('#' + value).addClass('n2-highlight');
+                    }
+                }, this),
+                mouseleave: $.proxy(function () {
+                    var value = this.element.val();
+                    if (value != '') {
+                        $('#' + value).removeClass('n2-highlight');
+                    }
+                }, this)
+            });
+
+
+        NextendElement.prototype.constructor.apply(this, arguments);
+    };
+
+
+    NextendElementLayerPicker.prototype = Object.create(NextendElement.prototype);
+    NextendElementLayerPicker.prototype.constructor = NextendElementLayerPicker;
+
+    NextendElementLayerPicker.prototype.click = function (e) {
+        if (this.status == STATUS.INITIALIZED) {
+            $('body').on('mousedown.n2-ss-parent-linker', $.proxy(function (e) {
+                var el = $(e.target),
+                    parent = el.parent();
+                if (!el.hasClass('n2-ss-picker-overlay') && !parent.hasClass('n2-under-pick')) {
+                    this.endSelection();
+                }
+            }, this));
+            var layers = nextend.activeLayer.parent().find('.n2-ss-layer').not(nextend.activeLayer),
+                cb = function (id) {
+                    layers.each(function () {
+                        var layer = $(this),
+                            layerObject = layer.data('layerObject');
+                        if (layerObject.getProperty(false, 'parentid') == id) {
+                            layers = layers.not(layer);
+                            var id2 = layerObject.getProperty(false, 'id');
+                            if (id2 && id2 != '') {
+                                cb(id2);
+                            }
+                        }
+                    });
+                };
+            var cID = nextend.activeLayer.data('layerObject').getProperty(false, 'id');
+            if (cID && cID != '') {
+                cb(cID);
+            }
+
+            if (layers.length > 0) {
+                this.globalPicker.addClass('n2-under-pick');
+                this.picker.addClass('n2-under-pick');
+
+                layers.addClass('n2-ss-picking-on-layer');
+                this.overlays = $(OVERLAYS).appendTo(layers);
+                this.overlays.on('mousedown', $.proxy(function (e) {
+                    var selectedOverlay = $(e.currentTarget),
+                        parentAlign = selectedOverlay.data('align'),
+                        parentValign = selectedOverlay.data('valign'),
+                        parentObject = selectedOverlay.parent().data('layerObject');
+                    this.status = STATUS.UNDER_PICK_CHILD;
+                    this.overlays.remove();
+
+                    layers.removeClass('n2-ss-picking-on-layer');
+                    nextend.activeLayer.addClass('n2-ss-picking-on-layer');
+                    this.overlays = $(OVERLAYS).appendTo(nextend.activeLayer);
+                    this.overlays.on('mousedown', $.proxy(function (e) {
+                        var selectedChildOverlay = $(e.currentTarget),
+                            align = selectedChildOverlay.data('align'),
+                            valign = selectedChildOverlay.data('valign');
+
+                        nextend.activeLayer.removeClass('n2-ss-picking-on-layer');
+                        nextend.activeLayer.data('layerObject').parentPicked(parentObject, parentAlign, parentValign, align, valign);
+
+                        //this.change(parentObject.requestID());
+
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.endSelection();
+                    }, this));
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, this));
+
+                NextendEsc.add($.proxy(function () {
+                    this.endSelection();
+                    return false;
+                }, this));
+
+                this.status = STATUS.UNDER_PICK_PARENT;
+            }
+        } else if (this.status == STATUS.UNDER_PICK_PARENT) {
+            this.change('');
+            this.endSelection();
+        } else if (this.status == STATUS.UNDER_PICK_CHILD) {
+            this.change('');
+            this.endSelection();
+        }
+    };
+
+    NextendElementLayerPicker.prototype.endSelection = function () {
+        $('body').off('mousedown.n2-ss-parent-linker');
+        nextend.activeLayer.parent().find('.n2-ss-layer').removeClass('n2-ss-picking-on-layer');
+        this.globalPicker.removeClass('n2-under-pick');
+        this.picker.removeClass('n2-under-pick');
+        if (this.overlays) {
+            this.overlays.remove();
+        }
+        this.overlays = null;
+        this.status = STATUS.INITIALIZED;
+        NextendEsc.pop();
+    };
+
+    NextendElementLayerPicker.prototype.change = function (value) {
+        this.picker.trigger('mouseleave');
+        this.element.val(value).trigger('change');
+        this._setValue(value);
+        this.triggerOutsideChange();
+    };
+
+    NextendElementLayerPicker.prototype.insideChange = function (value) {
+        this.element.val(value);
+        this._setValue(value);
+
+        this.triggerInsideChange();
+    };
+
+    NextendElementLayerPicker.prototype._setValue = function (value) {
+        if (value && value != '') {
+            this.picker.addClass('n2-active');
+            this.aligns.css('display', '');
+        } else {
+            this.picker.removeClass('n2-active');
+            this.aligns.css('display', 'none');
+        }
+    };
+
+    scope.NextendElementLayerPicker = NextendElementLayerPicker;
+
+})(n2, window);
 ;
 (function ($, scope) {
 
@@ -2713,84 +3337,84 @@ if (N2SSPRO) {
 
 })(n2, window);
 
-if (N2SSPRO) {
-    ;
-    (function ($, scope) {
 
-        function NextendElementSplitTextAnimationManager(id, parameters) {
-            this.element = $('#' + id);
+;
+(function ($, scope) {
 
-            this.parameters = parameters;
+    function NextendElementSplitTextAnimationManager(id, parameters) {
+        this.element = $('#' + id);
 
-            this.element.parent()
-                .on('click', $.proxy(this.show, this));
+        this.parameters = parameters;
 
-            this.element.siblings('.n2-form-element-clear')
-                .on('click', $.proxy(this.clear, this));
+        this.element.parent()
+            .on('click', $.proxy(this.show, this));
 
-            this.name = this.element.siblings('input');
+        this.element.siblings('.n2-form-element-clear')
+            .on('click', $.proxy(this.clear, this));
 
-            this.updateName(this.element.val());
+        this.name = this.element.siblings('input');
 
-            NextendElement.prototype.constructor.apply(this, arguments);
-        };
+        this.updateName(this.element.val());
+
+        NextendElement.prototype.constructor.apply(this, arguments);
+    };
 
 
-        NextendElementSplitTextAnimationManager.prototype = Object.create(NextendElement.prototype);
-        NextendElementSplitTextAnimationManager.prototype.constructor = NextendElementSplitTextAnimationManager;
+    NextendElementSplitTextAnimationManager.prototype = Object.create(NextendElement.prototype);
+    NextendElementSplitTextAnimationManager.prototype.constructor = NextendElementSplitTextAnimationManager;
 
-        NextendElementSplitTextAnimationManager.prototype.show = function (e) {
-            e.preventDefault();
+    NextendElementSplitTextAnimationManager.prototype.show = function (e) {
+        e.preventDefault();
 
-            if (this.parameters.font) {
-                nextend.splittextanimationManager.setConnectedFont(this.parameters.font);
-            }
-            if (this.parameters.style) {
-                nextend.splittextanimationManager.setConnectedStyle(this.parameters.style);
-            }
-            nextend.splittextanimationManager.show(this.element.val(), $.proxy(this.save, this), {
-                previewMode: '0',
-                previewHTML: this.parameters.preview,
-                group: this.parameters.group,
-                transformOrigin: $('#' + this.parameters.transformOrigin)
-            });
-        };
+        if (this.parameters.font) {
+            nextend.splittextanimationManager.setConnectedFont(this.parameters.font);
+        }
+        if (this.parameters.style) {
+            nextend.splittextanimationManager.setConnectedStyle(this.parameters.style);
+        }
+        nextend.splittextanimationManager.show(this.element.val(), $.proxy(this.save, this), {
+            previewMode: '0',
+            previewHTML: this.parameters.preview,
+            group: this.parameters.group,
+            transformOrigin: $('#' + this.parameters.transformOrigin)
+        });
+    };
 
-        NextendElementSplitTextAnimationManager.prototype.clear = function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.val('');
-        };
+    NextendElementSplitTextAnimationManager.prototype.clear = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.val('');
+    };
 
-        NextendElementSplitTextAnimationManager.prototype.save = function (e, value) {
-            this.val(value);
-        };
+    NextendElementSplitTextAnimationManager.prototype.save = function (e, value) {
+        this.val(value);
+    };
 
-        NextendElementSplitTextAnimationManager.prototype.val = function (value) {
-            this.element.val(value);
-            this.updateName(value);
-            this.triggerOutsideChange();
-        };
+    NextendElementSplitTextAnimationManager.prototype.val = function (value) {
+        this.element.val(value);
+        this.updateName(value);
+        this.triggerOutsideChange();
+    };
 
-        NextendElementSplitTextAnimationManager.prototype.insideChange = function (value) {
-            this.element.val(value);
+    NextendElementSplitTextAnimationManager.prototype.insideChange = function (value) {
+        this.element.val(value);
 
-            this.updateName(value);
+        this.updateName(value);
 
-            this.triggerInsideChange();
-        };
+        this.triggerInsideChange();
+    };
 
-        NextendElementSplitTextAnimationManager.prototype.updateName = function (value) {
-            $.when(nextend.splittextanimationManager.getVisual(value))
-                .done($.proxy(function (style) {
-                    this.name.val(style.name);
-                }, this));
-        };
+    NextendElementSplitTextAnimationManager.prototype.updateName = function (value) {
+        $.when(nextend.splittextanimationManager.getVisual(value))
+            .done($.proxy(function (style) {
+                this.name.val(style.name);
+            }, this));
+    };
 
-        scope.NextendElementSplitTextAnimationManager = NextendElementSplitTextAnimationManager;
+    scope.NextendElementSplitTextAnimationManager = NextendElementSplitTextAnimationManager;
 
-    })(n2, window);
-} //N2SSPRO
+})(n2, window);
+
 "use strict";
 (function ($, scope) {
     function NextendElementWidgetPosition(id) {
@@ -2940,11 +3564,36 @@ if (N2SSPRO) {
 
         index = typeof index != 'undefined' ? parseInt(index) - 1 : 0;
 
-        while (tmp = re.exec(s)) {
+        while (tmp = re.exec(s)) {        
             if (typeof tmp[2] != 'undefined') {
                 r.push(tmp[2]);
             } else if (typeof tmp[6] != 'undefined') {
                 r.push(tmp[6]);
+            }
+        }
+
+        if (r.length) {
+            if (r.length > index) {
+                return r[index];
+            } else {
+                return r[r.length - 1];
+            }
+        } else {
+            return '';
+        }
+    };
+    
+    Generator.prototype.findlink = function (variable, index) {
+        var s = variable,
+            re = /href=["\']?([^"\'>]+)["\']?/gi,
+            r = [],
+            tmp = null;
+
+        index = typeof index != 'undefined' ? parseInt(index) - 1 : 0;
+        
+        while (tmp = re.exec(s)) {
+            if (typeof tmp[1] != 'undefined') {
+                r.push(tmp[1]);
             }
         }
 
@@ -2983,12 +3632,17 @@ if (N2SSPRO) {
                     splitStart: 0,
                     splitLength: 300,
                     findImage: 0,
-                    findImageIndex: 1
+                    findImageIndex: 1,
+                    findLink: 0,
+                    findLinkIndex: 1
                 },
                 getVariableString = function () {
                     var variable = active.key + '/' + active.group;
                     if (active.findImage) {
                         variable = 'findimage(' + variable + ',' + Math.max(1, active.findImageIndex) + ')';
+                    }
+                    if (active.findLink) {
+                        variable = 'findlink(' + variable + ',' + Math.max(1, active.findLinkIndex) + ')';
                     }
                     if (active.filter != 'no') {
                         variable = active.filter + '(' + variable + ')';
@@ -3066,6 +3720,21 @@ if (N2SSPRO) {
                 updateResult();
             }, this));
 
+
+            $('<div class="n2-mixed-group"><div class="n2-mixed-label"><label>' + n2_('Find link') + '</label></div><div class="n2-mixed-element"><div class="n2-form-element-onoff"><div class="n2-onoff-slider"><div class="n2-onoff-no"><i class="n2-i n2-i-close"></i></div><div class="n2-onoff-round"></div><div class="n2-onoff-yes"><i class="n2-i n2-i-tick"></i></div></div><input type="hidden" autocomplete="off" value="0" id="n2-generator-function-findlink"></div><div class="n2-form-element-text n2-text-has-unit n2-border-radius"><div class="n2-text-sub-label n2-h5 n2-uc">' + n2_('Index') + '</div><input type="text" autocomplete="off" style="width: 22px;" class="n2-h5" value="1" id="n2-generator-function-findlink-index"></div></div></div>')
+                .appendTo(functionsContainer);
+
+            var findLink = functionsContainer.find('#n2-generator-function-findlink');
+            findLink.on('nextendChange', $.proxy(function () {
+                active.findLink = parseInt(findLink.val());
+                updateResult();
+            }, this));
+            var findLinkIndex = functionsContainer.find('#n2-generator-function-findlink-index');
+            findLinkIndex.on('change', $.proxy(function () {
+                active.findLinkIndex = parseInt(findLinkIndex.val());
+                updateResult();
+            }, this));
+
             for (var k in this.variables[0]) {
                 $('<a href="#" class="n2-button n2-button-small n2-button-grey">' + k + '</a>')
                     .on('click', $.proxy(function (key, e) {
@@ -3116,6 +3785,7 @@ if (N2SSPRO) {
                         show: function () {
                             if (!inited) {
                                 new NextendElementOnoff("n2-generator-function-findimage");
+                                new NextendElementOnoff("n2-generator-function-findlink");
                                 inited = true;
                             }
                             this.controls.find('.n2-button').on('click', $.proxy(function (e) {
@@ -3225,282 +3895,284 @@ if (N2SSPRO) {
 
     scope.NextendSmartSliderGeneratorRecords = GeneratorRecords;
 })(n2, window);
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElement500pxToken(id, url, callbackUrl) {
-            this.element = $('#' + id);
-            this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
-            this.url = url;
 
-            $('#generatorcallback').html(callbackUrl);
-        };
+(function ($, scope) {
+    "use strict";
+    function NextendElement500pxToken(id, url, callbackUrl) {
+        this.element = $('#' + id);
+        this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
+        this.url = url;
 
-        NextendElement500pxToken.prototype.requestToken = function (e) {
-            e.preventDefault();
+        $('#generatorcallback').html(callbackUrl);
+    };
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: $('#smartslider-form').serialize()
-            }).done(function (response) {
-                var popupWidth = 1000;
-                var popupHeight = 600;
-                var xPosition = (screen.width - popupWidth) / 2;
-                var yPosition = (screen.height - popupHeight) / 2;
+    NextendElement500pxToken.prototype.requestToken = function (e) {
+        e.preventDefault();
 
-                window.open(response.data.authUrl, "500px authentication", "width=1000,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: $('#smartslider-form').serialize()
+        }).done(function (response) {
+            var popupWidth = 1000;
+            var popupHeight = 600;
+            var xPosition = (screen.width - popupWidth) / 2;
+            var yPosition = (screen.height - popupHeight) / 2;
 
-            });
-        };
-        scope.NextendElement500pxToken = NextendElement500pxToken;
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElementDribbbleProjects(id, url) {
-            this.element = $('#' + id);
-            this.select = this.element.parent().find('select');
-            this.relatedField = $('#generatordribbble-user-id').on('nextendChange', $.proxy(this.refreshList, this));
-            this.url = url;
-        };
+            window.open(response.data.authUrl, "500px authentication", "width=1000,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
 
-        NextendElementDribbbleProjects.prototype.refreshList = function (e) {
+        });
+    };
+    scope.NextendElement500pxToken = NextendElement500pxToken;
+})(n2, window);
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: {
-                    method: 'getProjects',
-                    userID: this.relatedField.val()
-                }
-            }).done($.proxy(function (response) {
+
+(function ($, scope) {
+    "use strict";
+    function NextendElementDribbbleProjects(id, url) {
+        this.element = $('#' + id);
+        this.select = this.element.parent().find('select');
+        this.relatedField = $('#generatordribbble-user-id').on('nextendChange', $.proxy(this.refreshList, this));
+        this.url = url;
+    };
+
+    NextendElementDribbbleProjects.prototype.refreshList = function (e) {
+
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: {
+                method: 'getProjects',
+                userID: this.relatedField.val()
+            }
+        }).done($.proxy(function (response) {
+            if(response.data.length!=0) {
                 this.select.find('option').remove();
                 for (var id in response.data) {
                     this.select.append('<option value="' + id + '">' + response.data[id] + '</option>');
                 }
                 this.select.val(this.select.find("option:first").val()).trigger('change');
-            }, this));
-        };
-        scope.NextendElementDribbbleProjects = NextendElementDribbbleProjects;
-    })
-    (n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElementDribbbleToken(id, url, callbackUrl) {
-            this.element = $('#' + id);
-            this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
-            this.url = url;
+            }
+        }, this));
+    };
+    scope.NextendElementDribbbleProjects = NextendElementDribbbleProjects;
+})
+(n2, window);
 
-            $('#generatorcallback').html(callbackUrl);
-        };
 
-        NextendElementDribbbleToken.prototype.requestToken = function (e) {
-            e.preventDefault();
+(function ($, scope) {
+    "use strict";
+    function NextendElementDribbbleToken(id, url, callbackUrl) {
+        this.element = $('#' + id);
+        this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
+        this.url = url;
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: $('#smartslider-form').serialize()
-            }).done(function (response) {
-                var popupWidth = 1000;
-                var popupHeight = 600;
-                var xPosition = (screen.width - popupWidth) / 2;
-                var yPosition = (screen.height - popupHeight) / 2;
+        $('#generatorcallback').html(callbackUrl);
+    };
 
-                window.open(response.data.authUrl, "YouTube authentication", "width=1000,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+    NextendElementDribbbleToken.prototype.requestToken = function (e) {
+        e.preventDefault();
 
-            });
-        };
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: $('#smartslider-form').serialize()
+        }).done(function (response) {
+            var popupWidth = 1000;
+            var popupHeight = 600;
+            var xPosition = (screen.width - popupWidth) / 2;
+            var yPosition = (screen.height - popupHeight) / 2;
 
-        scope.NextendElementDribbbleToken = NextendElementDribbbleToken;
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElementFacebookAlbums(id, url) {
-            this.element = $('#' + id);
-            this.select = this.element.parent().find('select');
-            this.relatedField = $('#generatorfacebook-id').on('nextendChange', $.proxy(this.refreshList, this));
-            this.url = url;
-        };
+            window.open(response.data.authUrl, "YouTube authentication", "width=1000,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
 
-        NextendElementFacebookAlbums.prototype.refreshList = function (e) {
+        });
+    };
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: {
-                    method: 'getAlbums',
-                    facebookID: this.relatedField.val()
-                }
-            }).done($.proxy(function (response) {
-                this.select.find('option').remove();
-                for (var id in response.data) {
-                    this.select.append('<option value="' + id + '">' + response.data[id] + '</option>');
-                }
-                this.select.val(this.select.find("option:first").val()).trigger('change');
-            }, this));
-        };
-        scope.NextendElementFacebookAlbums = NextendElementFacebookAlbums;
-    })
-    (n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElementFacebookToken(id, url) {
-            this.element = $('#' + id);
-            this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
-            this.url = url;
+    scope.NextendElementDribbbleToken = NextendElementDribbbleToken;
+})(n2, window);
 
-            $('#generatorcallback').html(location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : ''));
-        };
 
-        NextendElementFacebookToken.prototype.requestToken = function (e) {
-            e.preventDefault();
+(function ($, scope) {
+    "use strict";
+    function NextendElementFacebookAlbums(id, url) {
+        this.element = $('#' + id);
+        this.select = this.element.parent().find('select');
+        this.relatedField = $('#generatorfacebook-id').on('nextendChange', $.proxy(this.refreshList, this));
+        this.url = url;
+    };
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: $('#smartslider-form').serialize()
-            }).done(function (response) {
-                var popupWidth = 580;
-                var popupHeight = 400;
-                var xPosition = (screen.width - popupWidth) / 2;
-                var yPosition = (screen.height - popupHeight) / 2;
+    NextendElementFacebookAlbums.prototype.refreshList = function (e) {
 
-                window.open(response.data.authUrl, "Facebook authentication", "width=580,height=400,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: {
+                method: 'getAlbums',
+                facebookID: this.relatedField.val()
+            }
+        }).done($.proxy(function (response) {
+            this.select.find('option').remove();
+            for (var id in response.data) {
+                this.select.append('<option value="' + id + '">' + response.data[id] + '</option>');
+            }
+            this.select.val(this.select.find("option:first").val()).trigger('change');
+        }, this));
+    };
+    scope.NextendElementFacebookAlbums = NextendElementFacebookAlbums;
+})
+(n2, window);
 
-            });
-        };
 
-        scope.NextendElementFacebookToken = NextendElementFacebookToken;
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElementFlickrToken(id, url, callbackUrl) {
-            this.element = $('#' + id);
-            this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
-            this.url = url;
+(function ($, scope) {
+    "use strict";
+    function NextendElementFacebookToken(id, url) {
+        this.element = $('#' + id);
+        this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
+        this.url = url;
 
-            $('#generatorcallback').html(callbackUrl);
-        };
+        $('#generatorcallback').html(location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : ''));
+    };
 
-        NextendElementFlickrToken.prototype.requestToken = function (e) {
-            e.preventDefault();
+    NextendElementFacebookToken.prototype.requestToken = function (e) {
+        e.preventDefault();
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: $('#smartslider-form').serialize()
-            }).done(function (response) {
-                var popupWidth = 1200;
-                var popupHeight = 1000;
-                var xPosition = (screen.width - popupWidth) / 2;
-                var yPosition = (screen.height - popupHeight) / 2;
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: $('#smartslider-form').serialize()
+        }).done(function (response) {
+            var popupWidth = 580;
+            var popupHeight = 400;
+            var xPosition = (screen.width - popupWidth) / 2;
+            var yPosition = (screen.height - popupHeight) / 2;
 
-                window.open(response.data.authUrl, "Flickr authentication", "width=" + popupWidth + ",height=" + popupHeight + ",toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+            window.open(response.data.authUrl, "Facebook authentication", "width=580,height=400,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
 
-            });
-        };
+        });
+    };
 
-        scope.NextendElementFlickrToken = NextendElementFlickrToken;
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElementInstagramToken(id, url, callbackUrl) {
-            this.element = $('#' + id);
-            this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
-            this.url = url;
+    scope.NextendElementFacebookToken = NextendElementFacebookToken;
+})(n2, window);
 
-            $('#generatorcallback').html(callbackUrl);
-        };
 
-        NextendElementInstagramToken.prototype.requestToken = function (e) {
-            e.preventDefault();
+(function ($, scope) {
+    "use strict";
+    function NextendElementFlickrToken(id, url, callbackUrl) {
+        this.element = $('#' + id);
+        this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
+        this.url = url;
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: $('#smartslider-form').serialize()
-            }).done(function (response) {
-                var popupWidth = 580;
-                var popupHeight = 400;
-                var xPosition = (screen.width - popupWidth) / 2;
-                var yPosition = (screen.height - popupHeight) / 2;
+        $('#generatorcallback').html(callbackUrl);
+    };
 
-                window.open(response.data.authUrl, "Instagram authentication", "width=580,height=400,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+    NextendElementFlickrToken.prototype.requestToken = function (e) {
+        e.preventDefault();
 
-            });
-        };
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: $('#smartslider-form').serialize()
+        }).done(function (response) {
+            var popupWidth = 1200;
+            var popupHeight = 1000;
+            var xPosition = (screen.width - popupWidth) / 2;
+            var yPosition = (screen.height - popupHeight) / 2;
 
-        scope.NextendElementInstagramToken = NextendElementInstagramToken;
+            window.open(response.data.authUrl, "Flickr authentication", "width=" + popupWidth + ",height=" + popupHeight + ",toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
 
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElementTwitterToken(id, url, callbackUrl) {
-            this.element = $('#' + id);
-            this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
-            this.url = url;
+        });
+    };
 
-            $('#generatorcallback').html(callbackUrl);
-        };
+    scope.NextendElementFlickrToken = NextendElementFlickrToken;
+})(n2, window);
 
-        NextendElementTwitterToken.prototype.requestToken = function (e) {
-            e.preventDefault();
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: $('#smartslider-form').serialize()
-            }).done(function (response) {
-                var popupWidth = 1000;
-                var popupHeight = 600;
-                var xPosition = (screen.width - popupWidth) / 2;
-                var yPosition = (screen.height - popupHeight) / 2;
+(function ($, scope) {
+    "use strict";
+    function NextendElementInstagramToken(id, url, callbackUrl) {
+        this.element = $('#' + id);
+        this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
+        this.url = url;
 
-                window.open(response.data.authUrl, "Twitter authentication", "width=1000,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+        $('#generatorcallback').html(callbackUrl);
+    };
 
-            });
-        };
-        scope.NextendElementTwitterToken = NextendElementTwitterToken;
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope) {
-        "use strict";
-        function NextendElementYoutubeToken(id, url, callbackUrl) {
-            this.element = $('#' + id);
-            this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
-            this.url = url;
+    NextendElementInstagramToken.prototype.requestToken = function (e) {
+        e.preventDefault();
 
-            $('#generatorcallback').html(callbackUrl);
-        };
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: $('#smartslider-form').serialize()
+        }).done(function (response) {
+            var popupWidth = 580;
+            var popupHeight = 400;
+            var xPosition = (screen.width - popupWidth) / 2;
+            var yPosition = (screen.height - popupHeight) / 2;
 
-        NextendElementYoutubeToken.prototype.requestToken = function (e) {
-            e.preventDefault();
+            window.open(response.data.authUrl, "Instagram authentication", "width=580,height=400,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
 
-            NextendAjaxHelper.ajax({
-                url: this.url,
-                data: $('#smartslider-form').serialize()
-            }).done(function (response) {
-                var popupWidth = 1000;
-                var popupHeight = 600;
-                var xPosition = (screen.width - popupWidth) / 2;
-                var yPosition = (screen.height - popupHeight) / 2;
+        });
+    };
 
-                window.open(response.data.authUrl, "YouTube authentication", "width=1000,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+    scope.NextendElementInstagramToken = NextendElementInstagramToken;
 
-            });
-        };
+})(n2, window);
 
-        scope.NextendElementYoutubeToken = NextendElementYoutubeToken;
-    })(n2, window);
-} //N2SSPRO
+
+(function ($, scope) {
+    "use strict";
+    function NextendElementTwitterToken(id, url, callbackUrl) {
+        this.element = $('#' + id);
+        this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
+        this.url = url;
+
+        $('#generatorcallback').html(callbackUrl);
+    };
+
+    NextendElementTwitterToken.prototype.requestToken = function (e) {
+        e.preventDefault();
+
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: $('#smartslider-form').serialize()
+        }).done(function (response) {
+            var popupWidth = 1000;
+            var popupHeight = 600;
+            var xPosition = (screen.width - popupWidth) / 2;
+            var yPosition = (screen.height - popupHeight) / 2;
+
+            window.open(response.data.authUrl, "Twitter authentication", "width=1000,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+
+        });
+    };
+    scope.NextendElementTwitterToken = NextendElementTwitterToken;
+})(n2, window);
+
+
+(function ($, scope) {
+    "use strict";
+    function NextendElementYoutubeToken(id, url, callbackUrl) {
+        this.element = $('#' + id);
+        this.button = $('#' + id + '_button').on('click', $.proxy(this.requestToken, this));
+        this.url = url;
+
+        $('#generatorcallback').html(callbackUrl);
+    };
+
+    NextendElementYoutubeToken.prototype.requestToken = function (e) {
+        e.preventDefault();
+
+        NextendAjaxHelper.ajax({
+            url: this.url,
+            data: $('#smartslider-form').serialize()
+        }).done(function (response) {
+            var popupWidth = 1000;
+            var popupHeight = 600;
+            var xPosition = (screen.width - popupWidth) / 2;
+            var yPosition = (screen.height - popupHeight) / 2;
+
+            window.open(response.data.authUrl, "YouTube authentication", "width=1000,height=600,toolbar=0,scrollbars=0,status=0,resizable=0,location=0,menuBar=0,left=" + xPosition + ",top=" + yPosition);
+
+        });
+    };
+
+    scope.NextendElementYoutubeToken = NextendElementYoutubeToken;
+})(n2, window);
+
 (function (smartSlider, $, scope, undefined) {
 
     function Item(item, layer, itemEditor, createPosition) {
@@ -3515,16 +4187,12 @@ if (N2SSPRO) {
             this.values = $.parseJSON(this.values);
         }
 
-        this.itemsRow = layer.itemsRow;
-
         if (scope['NextendSmartSliderItemParser_' + this.type] !== undefined) {
             this.parser = new scope['NextendSmartSliderItemParser_' + this.type](this);
         } else {
             this.parser = new scope['NextendSmartSliderItemParser'](this);
         }
         this.item.data('item', this);
-
-        this.createRow(createPosition);
 
         if (typeof createPosition !== 'undefined') {
             if (this.layer.items.length == 0 || this.layer.items.length <= createPosition) {
@@ -3550,45 +4218,7 @@ if (N2SSPRO) {
             .css('zIndex', 89)
             .appendTo(this.item);
 
-        this.item.on({
-            click: $.proxy(this.activate, this)
-        });
-
         $(window).trigger('ItemCreated');
-    };
-
-    Item.prototype.createRow = function (createPosition) {
-        var remove = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-delete n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.delete, this)),
-            duplicate = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-duplicate n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.duplicate, this));
-
-        this.row = $('<li class="n2-ss-item-row"></li>')
-            .on({
-                mouseenter: $.proxy(function () {
-                    this.item.addClass('n2-highlight');
-                    this.layer.layer.addClass('n2-item-highlight');
-                }, this),
-                mouseleave: $.proxy(function () {
-                    this.item.removeClass('n2-highlight');
-                    this.layer.layer.removeClass('n2-item-highlight');
-                }, this)
-            });
-        this.itemTitleSpan = $('<span class="n2-ucf">' + this.type + '</span>');
-        this.itemTitle = $('<div class="n2-ss-item-title"></div>')
-            .append(this.itemTitleSpan)
-            .append($('<div class="n2-actions-left"></div>').append('<a href="#" onclick="return false;"><i class="n2-i n2-i-order n2-i-grey-opacity"></i></a>'))
-            .append($('<div class="n2-actions"></div>').append(duplicate).append(remove))
-            .appendTo(this.row)
-            .on({
-                click: $.proxy(this.activate, this)
-            });
-
-        if (typeof createPosition === 'undefined' || this.layer.items.length == 0 || this.layer.items.length <= createPosition) {
-            this.row.appendTo(this.itemsRow);
-        } else {
-            this.layer.items[createPosition].row.before(this.row);
-        }
-
-        this.row.data('item', this);
     };
 
     Item.prototype.changeValue = function (property, value) {
@@ -3601,21 +4231,14 @@ if (N2SSPRO) {
     };
 
     Item.prototype.activate = function (e, force) {
-        if (window.nextendPreventClick) return;
-
-        this.layer.activate(null, this);
         this.itemEditor.setActiveItem(this, force);
-
-        this.row.addClass('n2-active');
-        this.layer.layerRow.addClass('n2-item-active');
     };
 
     Item.prototype.deActivate = function () {
-        this.row.removeClass('n2-active');
-        this.layer.layerRow.removeClass('n2-item-active');
     };
 
     Item.prototype.render = function (html, data, originalData) {
+        this.layer.layer.triggerHandler('itemRender');
         this.item.html(this.parser.render(html, data));
 
         // These will be available on the backend render
@@ -3630,7 +4253,7 @@ if (N2SSPRO) {
         if (layerName === false) {
             layerName = this.type;
         } else {
-            layerName = layerName.replace(/[^a-z0-9\-_\. ]/gi, '');
+            layerName = layerName.replace(/[<> ]/gi, '');
         }
         this.layer.rename(layerName, false);
 
@@ -3669,45 +4292,13 @@ if (N2SSPRO) {
     };
 
     Item.prototype.delete = function () {
-        this._removeItemsFromLayer();
-
         this.item.trigger('mouseleave');
-        this.row.trigger('mouseleave');
-
         this.item.remove();
-        this.row.remove();
 
         if (this.itemEditor.activeItem == this) {
             this.itemEditor.activeItem = null;
         }
 
-        delete this.itemEditor;
-        delete this.layer;
-    };
-
-    Item.prototype.moveItem = function (newLayer, position) {
-        this._removeItemsFromLayer();
-
-        var items = newLayer.items;
-
-        this.layer = newLayer;
-
-        if (items.length == 0 || items.length <= position) {
-            this.item.appendTo(this.layer.layer);
-        } else {
-            items[position].item.before(this.item);
-        }
-        items.splice(position, 0, this);
-    };
-
-    Item.prototype._removeItemsFromLayer = function () {
-        var previousIndex = $.inArray(this, this.layer.items);
-        if (previousIndex !== -1) {
-            this.layer.items.splice(previousIndex, 1);
-            if (this.layer.activeItem == this) {
-                this.layer.activeItem = null;
-            }
-        }
     };
 
     Item.prototype.getHTML = function (base64) {
@@ -3730,18 +4321,29 @@ if (N2SSPRO) {
         };
     };
 
+
+    Item.prototype.history = function (method, value, other) {
+        switch (method) {
+            case 'updateCurrentItem':
+                this.reRender($.extend(true, {}, value));
+                this.values = value;
+                this.itemEditor.setActiveItem(this, true);
+                break;
+        }
+    };
+
     scope.NextendSmartSliderItem = Item;
 })(nextend.smartSlider, n2, window);
 (function (smartSlider, $, scope, undefined) {
 
     function ItemManager(layerEditor) {
-        this._sortable = $([]);
         this.suppressChange = false;
-        this._itemsSortableRefreshTimeout = -1;
+
+        this.activeItemOriginalData = null;
 
         this.layerEditor = layerEditor;
 
-        this._initInstalledItemsDraggable();
+        this._initInstalledItems();
 
         this.form = {};
         this.activeForm = {
@@ -3749,18 +4351,10 @@ if (N2SSPRO) {
         };
     }
 
-    ItemManager.prototype.advanced = function (state) {
-        if (state) {
-            this._sortable.sortable("option", "disabled", false);
-            this.installedItems.draggable("option", "disabled", false);
-        } else {
-            this._sortable.sortable("option", "disabled", true);
-            this.installedItems.draggable("option", "disabled", true);
-        }
-    };
-
     ItemManager.prototype.setActiveItem = function (item, force) {
         if (item != this.activeItem || force) {
+            this.activeItemOriginalData = null;
+
             var type = item.type,
                 values = item.values;
 
@@ -3789,20 +4383,10 @@ if (N2SSPRO) {
         }
     };
 
-    ItemManager.prototype._initInstalledItemsDraggable = function () {
+    ItemManager.prototype._initInstalledItems = function () {
 
-        this.installedItems = $('#n2-ss-item-container .n2-ss-core-item')
-            .draggable({
-                disabled: !this.layerEditor.advanced,
-                helper: 'clone',
-                appendTo: document.body,
-                start: function (event, ui) {
-                    ui.helper.css({
-                        height: 40,
-                        width: $('#n2-ss-layers-items-list .ui-sortable').width()
-                    });
-                }
-            }).on('click', $.proxy(function (e) {
+        $('#n2-ss-item-container .n2-ss-core-item')
+            .on('click', $.proxy(function (e) {
                 this.createLayerItem($(e.currentTarget).data('item'));
             }, this));
     };
@@ -3819,60 +4403,11 @@ if (N2SSPRO) {
 
         smartSlider.sidebarManager.switchTab(0);
 
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'createLayer', 'create', 'delete', [item, type]];
+        }, this));
+
         return item;
-    };
-
-    ItemManager.prototype._makeItemsOrderable = function (layersItemList) {
-        this._sortable = this._sortable.add(layersItemList);
-
-        layersItemList
-            .sortable({
-                disabled: !this.layerEditor.advanced,
-                appendTo: $('#n2-ss-layers-items-list > ul'),
-                axis: "y",
-                helper: 'clone',
-                placeholder: "sortable-placeholder",
-                forcePlaceholderSize: true,
-                tolerance: "pointer",
-                items: '.n2-ss-item-row',
-                handle: '.n2-i-order',
-                stop: $.proxy(function (event, ui) {
-                    var itemEl = $(ui.item)
-                    if (itemEl.hasClass('n2-ss-core-item')) {
-                        // Item came from #draggableitems
-
-                        var type = itemEl.data('item');
-                        var itemData = this.getItemType(type);
-
-                        var itemNode = $('<div></div>').data('item', type).data('itemvalues', itemData.values)
-                            .addClass('n2-ss-item n2-ss-item-' + type);
-
-                        var item = new scope.NextendSmartSliderItem(itemNode, itemEl.parent().data('layer'), this, itemEl.index());
-
-                        itemEl.remove();
-                    } else {
-                        var item = itemEl.data('item');
-                        item.moveItem(itemEl.parent().data('layer'), item.row.index());
-                    }
-
-                }, this)
-            });
-        this._itemsSortableRefresh();
-    };
-
-    ItemManager.prototype._removeItemOrderable = function (layersItemList) {
-        this._sortable = this._sortable.not(layersItemList);
-    };
-
-    ItemManager.prototype._itemsSortableRefresh = function () {
-        if (this._itemsSortableRefreshTimeout) clearTimeout(this._itemsSortableRefreshTimeout);
-
-        this._itemsSortableRefreshTimeout = setTimeout($.proxy(this.__itemsSortableRefresh, this), 100);
-    };
-
-    ItemManager.prototype.__itemsSortableRefresh = function () {
-        this._sortable.sortable("option", "connectWith", this._sortable);
-        this.installedItems.draggable("option", 'connectToSortable', this._sortable);
     };
 
     /**
@@ -3885,21 +4420,16 @@ if (N2SSPRO) {
         if (this.form[type] === undefined) {
             var form = $('#smartslider-slide-toolbox-item-type-' + type),
                 formData = {
-                    timeOut: null,
                     form: form,
                     template: form.data('itemtemplate'),
                     values: form.data('itemvalues'),
                     fields: form.find('[name^="item_' + type + '"]'),
                     fieldNameRegexp: new RegExp('item_' + type + "\\[(.*?)\\]", "")
                 };
-            formData.fields.on('nextendChange keydown', $.proxy(function (e) {
-                if (!this.suppressChange) {
-                    if (formData.timeOut) {
-                        clearTimeout(formData.timeOut);
-                    }
-                    formData.timeOut = setTimeout($.proxy(this.updateCurrentItem, this), 100);
-                }
-            }, this));
+            formData.fields.on({
+                nextendChange: $.proxy(this.updateCurrentItem, this),
+                keydown: $.proxy(this.updateCurrentItemDeBounced, this)
+            });
 
             this.form[type] = formData;
         }
@@ -3909,34 +4439,66 @@ if (N2SSPRO) {
     /**
      * This function renders the current item with the current values of the related form field.
      */
-    ItemManager.prototype.updateCurrentItem = function () {
-        var data = {},
-            originalData = {},
-            form = this.form[this.activeItem.type],
-            html = form.template,
-            parser = this.activeItem.parser;
+    ItemManager.prototype.updateCurrentItem = function (e) {
+        if (!this.suppressChange) {
+            if (this.activeItemOriginalData === null) {
+                this.activeItemOriginalData = $.extend({}, this.activeItem.values);
+            }
+            var data = {},
+                originalData = {},
+                form = this.form[this.activeItem.type],
+                html = form.template,
+                parser = this.activeItem.parser;
 
-        // Get the current values of the fields
-        // Run through the related item filter
-        // Replace the variables in the template of the item type
-        form.fields.each($.proxy(function (i, field) {
-            var field = $(field),
-                name = field.attr('name').match(form.fieldNameRegexp)[1];
+            // Get the current values of the fields
+            // Run through the related item filter
+            // Replace the variables in the template of the item type
+            form.fields.each($.proxy(function (i, field) {
+                var field = $(field),
+                    name = field.attr('name').match(form.fieldNameRegexp)[1];
 
-            originalData[name] = data[name] = field.val();
+                originalData[name] = data[name] = field.val();
 
-        }, this));
+            }, this));
 
-        data = $.extend({}, parser.getDefault(), data);
+            data = $.extend({}, parser.getDefault(), data);
 
-        parser.parseAll(data, this.activeItem);
-        for (var k in data) {
-            var reg = new RegExp('\\{' + k + '\\}', 'g');
-            html = html.replace(reg, data[k]);
+            parser.parseAll(data, this.activeItem);
+            for (var k in data) {
+                var reg = new RegExp('\\{' + k + '\\}', 'g');
+                html = html.replace(reg, data[k]);
+            }
+            if (e && e.type == 'nextendChange') {
+                smartSlider.history.add($.proxy(function () {
+                    return [this.activeItem, 'updateCurrentItem', $.extend({}, originalData), this.activeItemOriginalData, []];
+                }, this));
+
+                this.activeItemOriginalData = null;
+            }
+            this.activeItem.render($(html), data, originalData);
         }
+    };
 
-        this.activeItem.render($(html), data, originalData);
+    ItemManager.prototype.updateCurrentItemDeBounced = NextendDeBounce(function (e) {
+        this.updateCurrentItem(e);
+    }, 100);
 
+
+    ItemManager.prototype.history = function (method, value, other) {
+        switch (method) {
+            case 'createLayer':
+                switch (value) {
+                    case 'delete':
+                        other[0].layer.delete();
+                        break;
+                    case 'create':
+                        var item = this.createLayerItem(other[1]);
+                        smartSlider.history.changeFuture(other[0].layer, item.layer);
+                        smartSlider.history.changeFuture(other[0], item);
+                        break;
+                }
+                break;
+        }
     };
 
     scope.NextendSmartSliderItemManager = ItemManager;
@@ -4024,6 +4586,7 @@ if (N2SSPRO) {
                 if (this.width > 0 && this.height > 0) {
                     maxWidth = parseInt(Math.min(this.width, maxWidth));
                     maxHeight = parseInt(Math.min(this.height, maxHeight));
+                    nextend.smartSlider.history.off();
                     if (slideSize.width / slideSize.height <= maxWidth / maxHeight) {
                         item.layer.setProperty('width', maxWidth);
                         item.layer.setProperty('height', this.height * maxWidth / this.width);
@@ -4032,6 +4595,7 @@ if (N2SSPRO) {
                         item.layer.setProperty('width', width);
                         item.layer.setProperty('height', this.height * width / this.width);
                     }
+                    nextend.smartSlider.history.on();
                 }
             });
     };
@@ -4043,107 +4607,134 @@ if (N2SSPRO) {
     scope.NextendSmartSliderItemParser = ItemParser;
 
 })(n2, window);
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
-        function HeadingItemSplitTextAdmin(slider, id, transformOrigin, backfaceVisibility, splittextin, delayIn, splittextout, delayOut) {
-            if (splittextin != '') {
-                try {
-                    splittextin = JSON.parse(Base64.decode(splittextin));
-                } catch (e) {
-                    splittextin = false;
-                }
-            } else {
+
+(function ($, scope, undefined) {
+    function HeadingItemSplitTextAdmin(slider, id, transformOrigin, backfaceVisibility, splittextin, delayIn, splittextout, delayOut) {
+        if (splittextin != '') {
+            try {
+                splittextin = JSON.parse(Base64.decode(splittextin));
+            } catch (e) {
                 splittextin = false;
             }
-            if (splittextout != '') {
-                try {
-                    splittextout = JSON.parse(Base64.decode(splittextout));
-                } catch (e) {
-                    splittextout = false;
-                }
-            } else {
+        } else {
+            splittextin = false;
+        }
+        if (splittextout != '') {
+            try {
+                splittextout = JSON.parse(Base64.decode(splittextout));
+            } catch (e) {
                 splittextout = false;
             }
+        } else {
+            splittextout = false;
+        }
 
-            if (!splittextin && !splittextout) {
-                return;
-            }
-            NextendSmartSliderHeadingItemSplitText.prototype.constructor.call(this, slider, id, transformOrigin, backfaceVisibility, splittextin, delayIn, splittextout, delayOut);
-            this.slide.on('layerSetZero.' + id, $.proxy(this.setZero, this))
-        };
+        if (!splittextin) {
+            $("#" + id).closest('.n2-ss-layer').triggerHandler('layerExtraAnimationRemoved');
+        }
 
-        HeadingItemSplitTextAdmin.prototype = Object.create(NextendSmartSliderHeadingItemSplitText.prototype);
-        HeadingItemSplitTextAdmin.prototype.constructor = HeadingItemSplitTextAdmin;
+        if (!splittextin && !splittextout) {
+            return;
+        }
+        NextendSmartSliderHeadingItemSplitText.prototype.constructor.call(this, slider, id, transformOrigin, backfaceVisibility, splittextin, delayIn, splittextout, delayOut);
+        this.slide.on('layerSetZero.' + id, $.proxy(this.setZero, this));
 
-        HeadingItemSplitTextAdmin.prototype.off = function () {
-            this.slide.off('.' + this.id);
-        };
+        this.layer.on('itemRender.' + id, $.proxy(function () {
+            this.layer.off('.' + id);
+        }, this))
 
-        HeadingItemSplitTextAdmin.prototype.setZero = function (e, layers) {
-            var modes = this.splitText.vars.type.split(',');
-            for (var i = 0; i < modes.length; i++) {
-                NextendTween.set(this.splitText[modes[i]], {
-                    opacity: 1,
-                    scale: 1,
-                    x: 0,
-                    y: 0,
-                    rotationX: 0,
-                    rotationY: 0,
-                    rotationZ: 0
-                });
-            }
-        };
+        if (splittextin) {
+            this.layer.on('timelineLoadedForLayer.' + id, $.proxy(function () {
+                this.layer.triggerHandler('layerExtraAnimationAdded', [delayIn, 'ST', $.proxy(this.changeIn, this), $.proxy(this.editIn, this)]);
+            }, this));
+            this.layer.triggerHandler('layerExtraAnimationAdded', [delayIn, 'ST', $.proxy(this.changeIn, this), $.proxy(this.editIn, this)]);
+        }
+    };
 
-        HeadingItemSplitTextAdmin.prototype.extendTimelines = function (e, layers) {
-            if (!n2.contains(document, this.node[0])) {
-                // item deleted
-                this.off();
-            } else {
-                NextendSmartSliderHeadingItemSplitText.prototype.extendTimelines.call(this, e, layers);
-            }
-        };
+    HeadingItemSplitTextAdmin.prototype = Object.create(NextendSmartSliderHeadingItemSplitText.prototype);
+    HeadingItemSplitTextAdmin.prototype.constructor = HeadingItemSplitTextAdmin;
 
-        scope.NextendSmartSliderHeadingItemSplitTextAdmin = HeadingItemSplitTextAdmin;
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
+    HeadingItemSplitTextAdmin.prototype.changeIn = function (value) {
+        $('#item_headingsplit-text-delay-in').val(value * 1000).trigger('change');
+    };
 
-        function ItemParserArea() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+    HeadingItemSplitTextAdmin.prototype.editIn = function (value) {
+        $('#item_headingsplit-text-animation-in').parent().find('.n2-form-element-button').trigger('click');
+    };
 
-        ItemParserArea.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserArea.prototype.constructor = ItemParserArea;
+    HeadingItemSplitTextAdmin.prototype.initSlide = function () {
+        this.slide = this.node.closest('.n2-ss-static-slide, .n2-ss-slide');
+    };
 
-        ItemParserArea.prototype.parseAll = function (data) {
+    HeadingItemSplitTextAdmin.prototype.off = function () {
+        this.slide.off('.' + this.id);
+    };
 
-            if (data.width == '') {
-                data.width = '100%';
-            } else {
-                data.width += 'px';
-            }
+    HeadingItemSplitTextAdmin.prototype.setZero = function (e, layers) {
+        var modes = this.splitText.vars.type.split(',');
+        for (var i = 0; i < modes.length; i++) {
+            NextendTween.set(this.splitText[modes[i]], {
+                opacity: 1,
+                scale: 1,
+                x: 0,
+                y: 0,
+                rotationX: 0,
+                rotationY: 0,
+                rotationZ: 0
+            });
+        }
+    };
 
-            if (data.height == '') {
-                data.height = '100%';
-            } else {
-                data.height += 'px';
-            }
+    HeadingItemSplitTextAdmin.prototype.extendTimelines = function (e, layers) {
+        if (!n2.contains(document, this.node[0])) {
+            // item deleted
+            this.off();
+        } else {
+            NextendSmartSliderHeadingItemSplitText.prototype.extendTimelines.call(this, e, layers);
+        }
+    };
 
-            data.colora = N2Color.hex2rgbaCSS(data.color);
+    scope.NextendSmartSliderHeadingItemSplitTextAdmin = HeadingItemSplitTextAdmin;
+})(n2, window);
 
-            data.borderWidth = data.borderWidth + 'px';
-            data.borderColora = N2Color.hex2rgbaCSS(data.borderColor);
-            data.borderRadius = data.borderRadius + 'px';
-        };
 
-        ItemParserArea.prototype.fitLayer = function (item) {
-            return true;
-        };
+(function ($, scope, undefined) {
 
-        scope.NextendSmartSliderItemParser_area = ItemParserArea;
-    })(n2, window);
-} //N2SSPRO
+    function ItemParserArea() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
+
+    ItemParserArea.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserArea.prototype.constructor = ItemParserArea;
+
+    ItemParserArea.prototype.parseAll = function (data) {
+
+        if (data.width == '') {
+            data.width = '100%';
+        } else {
+            data.width += 'px';
+        }
+
+        if (data.height == '') {
+            data.height = '100%';
+        } else {
+            data.height += 'px';
+        }
+
+        data.colora = N2Color.hex2rgbaCSS(data.color);
+
+        data.borderWidth = data.borderWidth + 'px';
+        data.borderColora = N2Color.hex2rgbaCSS(data.borderColor);
+        data.borderRadius = data.borderRadius + 'px';
+    };
+
+    ItemParserArea.prototype.fitLayer = function (item) {
+        return true;
+    };
+
+    scope.NextendSmartSliderItemParser_area = ItemParserArea;
+})(n2, window);
+
 (function ($, scope, undefined) {
 
     function ItemParserButton() {
@@ -4185,65 +4776,65 @@ if (N2SSPRO) {
 
     scope.NextendSmartSliderItemParser_button = ItemParserButton;
 })(n2, window);
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
 
-        function ItemParserCaption() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+(function ($, scope, undefined) {
 
-        ItemParserCaption.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserCaption.prototype.constructor = ItemParserCaption;
+    function ItemParserCaption() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        ItemParserCaption.prototype.added = function () {
-            this.needFill = ['content', 'description', 'url', 'image'];
+    ItemParserCaption.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserCaption.prototype.constructor = ItemParserCaption;
 
-            this.addedFont('paragraph', 'fonttitle');
-            this.addedFont('paragraph', 'font');
+    ItemParserCaption.prototype.added = function () {
+        this.needFill = ['content', 'description', 'url', 'image'];
 
-            nextend.smartSlider.generator.registerField($('#item_captionimage'));
-            nextend.smartSlider.generator.registerField($('#item_captioncontent'));
-            nextend.smartSlider.generator.registerField($('#linkitem_captionlink_0'));
-        };
+        this.addedFont('paragraph', 'fonttitle');
+        this.addedFont('paragraph', 'font');
 
-        ItemParserCaption.prototype.getName = function (data) {
-            return data.image.split('/').pop();
-        };
+        nextend.smartSlider.generator.registerField($('#item_captionimage'));
+        nextend.smartSlider.generator.registerField($('#item_captioncontent'));
+        nextend.smartSlider.generator.registerField($('#linkitem_captionlink_0'));
+    };
 
-        ItemParserCaption.prototype.parseAll = function (data, item) {
+    ItemParserCaption.prototype.getName = function (data) {
+        return data.image.split('/').pop();
+    };
 
-            data.uid = $.fn.uid();
+    ItemParserCaption.prototype.parseAll = function (data, item) {
 
-            var link = data.link.split('|*|');
-            data.url = link[0];
-            data.target = link[1];
-            delete data.link;
+        data.uid = $.fn.uid();
 
-            data.colora = N2Color.hex2rgbaCSS(data.color);
-            data.colorhex = data.color.substr(0, 6);
+        var link = data.link.split('|*|');
+        data.url = link[0];
+        data.target = link[1];
+        delete data.link;
 
-            var animation = data.animation.split('|*|');
-            data.mode = animation[0];
-            data.direction = animation[1];
-            data.scale = parseInt(animation[2]);
+        data.colora = N2Color.hex2rgbaCSS(data.color);
+        data.colorhex = data.color.substr(0, 6);
 
-            NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+        var animation = data.animation.split('|*|');
+        data.mode = animation[0];
+        data.direction = animation[1];
+        data.scale = parseInt(animation[2]);
 
-            data.image = nextend.imageHelper.fixed(data.image);
+        NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
 
-            if (item && item.values.image == '$system$/images/placeholder/image.svg' && data.image != item.values.image) {
-                this.resizeLayerToImage(item, data.image);
-            }
-        };
+        data.image = nextend.imageHelper.fixed(data.image);
 
-        ItemParserCaption.prototype.fitLayer = function (item) {
-            this.resizeLayerToImage(item, nextend.imageHelper.fixed(item.values.image));
-            return true;
-        };
+        if (item && item.values.image == '$system$/images/placeholder/image.png' && data.image != item.values.image) {
+            this.resizeLayerToImage(item, data.image);
+        }
+    };
 
-        scope.NextendSmartSliderItemParser_caption = ItemParserCaption;
-    })(n2, window);
-} //N2SSPRO
+    ItemParserCaption.prototype.fitLayer = function (item) {
+        this.resizeLayerToImage(item, nextend.imageHelper.fixed(item.values.image));
+        return true;
+    };
+
+    scope.NextendSmartSliderItemParser_caption = ItemParserCaption;
+})(n2, window);
+
 (function ($, scope, undefined) {
 
     function ItemParserHeading() {
@@ -4264,7 +4855,7 @@ if (N2SSPRO) {
     ItemParserHeading.prototype.added = function () {
         this.needFill = ['heading', 'url'];
 
-        this.addedFont('paragraph', 'font');
+        this.addedFont('hover', 'font');
         this.addedStyle('heading', 'style');
 
         nextend.smartSlider.generator.registerField($('#item_headingheading'));
@@ -4294,7 +4885,7 @@ if (N2SSPRO) {
 
         data.extrastyle = data.nowrap | 0 ? 'white-space: nowrap;' : '';
 
-        data.heading = $('<div>' + data.heading + '</div>').text();
+        data.heading = $('<div>' + data.heading + '</div>').text().replace(/\n/g, '<br />');
         data.splitTextIn = data['split-text-animation-in'];
         data.splitTextDelayIn = data['split-text-delay-in'] / 1000;
         data.splitTextOut = data['split-text-animation-out'];
@@ -4304,6 +4895,13 @@ if (N2SSPRO) {
     
 
         NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+
+        if (data['url'] == '#') {
+            data['afontclass'] = '';
+        } else {
+            data['afontclass'] = data['fontclass'];
+            data['fontclass'] = '';
+        }
     };
 
     ItemParserHeading.prototype.render = function (node, data) {
@@ -4316,84 +4914,89 @@ if (N2SSPRO) {
 
     scope.NextendSmartSliderItemParser_heading = ItemParserHeading;
 })(n2, window);
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
 
-        function ItemParserHTML() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+(function ($, scope, undefined) {
 
-        ItemParserHTML.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserHTML.prototype.constructor = ItemParserHTML;
+    function ItemParserHTML() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        ItemParserHTML.prototype.added = function () {
-            this.needFill = ['html'];
-            nextend.smartSlider.generator.registerField($('#item_htmlhtml'));
-        };
+    ItemParserHTML.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserHTML.prototype.constructor = ItemParserHTML;
 
-        scope.NextendSmartSliderItemParser_html = ItemParserHTML;
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
+    ItemParserHTML.prototype.added = function () {
+        this.needFill = ['html'];
+        nextend.smartSlider.generator.registerField($('#item_htmlhtml'));
+    };
 
-        function ItemParserIcon() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+    scope.NextendSmartSliderItemParser_html = ItemParserHTML;
+})(n2, window);
 
-        ItemParserIcon.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserIcon.prototype.constructor = ItemParserIcon;
 
-        ItemParserIcon.prototype.parseAll = function (data) {
-            var size = data.size.split('|*|');
-            data.width = size[0];
-            data.height = size[1];
-            delete data.size;
+(function ($, scope, undefined) {
 
-            data.opacity = N2Color.hex2alpha(data.color);
-            data.color = data.color.substr(0, 6);
-            var icon = data['icon']
-                .replace(/data\-style/g, 'style')
-                .replace(/\{style\}/g, 'fill:#' + data.color + ';fill-opacity:' + data.opacity);
-            data.image = Base64.encode(icon);
-        };
+    function ItemParserIcon() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        scope.NextendSmartSliderItemParser_icon = ItemParserIcon;
-    })(n2, window);
-} //N2SSPRO
+    ItemParserIcon.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserIcon.prototype.constructor = ItemParserIcon;
 
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
+    ItemParserIcon.prototype.added = function () {
+        this.addedStyle('box', 'style');
+    }
 
-        function ItemParserIFrame() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+    ItemParserIcon.prototype.parseAll = function (data) {
+        var size = data.size.split('|*|');
+        data.width = size[0];
+        data.height = size[1];
+        delete data.size;
 
-        ItemParserIFrame.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserIFrame.prototype.constructor = ItemParserIFrame;
+        data.opacity = N2Color.hex2alpha(data.color);
+        data.color = data.color.substr(0, 6);
+        var icon = data['icon']
+            .replace(/data\-style/g, 'style')
+            .replace(/\{style\}/g, 'fill:#' + data.color + ';fill-opacity:' + data.opacity);
+        data.image = Base64.encode(icon);
 
-        ItemParserIFrame.prototype.added = function () {
-            this.needFill = ['url'];
+        NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+    };
 
-            nextend.smartSlider.generator.registerField($('#item_iframeurl'));
-        };
+    scope.NextendSmartSliderItemParser_icon = ItemParserIcon;
+})(n2, window);
 
-        ItemParserIFrame.prototype.getName = function (data) {
-            return data.url;
-        };
 
-        ItemParserIFrame.prototype.parseAll = function (data) {
-            var size = data.size.split('|*|');
-            data.width = size[0];
-            data.height = size[1];
-            delete data.size;
+(function ($, scope, undefined) {
 
-            NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
-        };
+    function ItemParserIFrame() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        scope.NextendSmartSliderItemParser_iframe = ItemParserIFrame;
-    })(n2, window);
-} //N2SSPRO
+    ItemParserIFrame.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserIFrame.prototype.constructor = ItemParserIFrame;
+
+    ItemParserIFrame.prototype.added = function () {
+        this.needFill = ['url'];
+
+        nextend.smartSlider.generator.registerField($('#item_iframeurl'));
+    };
+
+    ItemParserIFrame.prototype.getName = function (data) {
+        return data.url;
+    };
+
+    ItemParserIFrame.prototype.parseAll = function (data) {
+        var size = data.size.split('|*|');
+        data.width = size[0];
+        data.height = size[1];
+        delete data.size;
+
+        NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+    };
+
+    scope.NextendSmartSliderItemParser_iframe = ItemParserIFrame;
+})(n2, window);
+
 (function ($, scope, undefined) {
 
     function ItemParserImage() {
@@ -4439,10 +5042,11 @@ if (N2SSPRO) {
 
         NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
 
-        data.image = nextend.imageHelper.fixed(data.image);
-
-        if (item && item.values.image == '$system$/images/placeholder/image.svg' && data.image != item.values.image) {
+        if (item && item.values.image == '$system$/images/placeholder/image.png' && data.image != item.values.image) {
+            data.image = nextend.imageHelper.fixed(data.image);
             this.resizeLayerToImage(item, data.image);
+        } else {
+            data.image = nextend.imageHelper.fixed(data.image);
         }
 
     };
@@ -4462,7 +5066,64 @@ if (N2SSPRO) {
     scope.NextendSmartSliderItemParser_image = ItemParserImage;
 })(n2, window);
 
-//#|empty_when_free|#
+(function ($, scope, undefined) {
+
+    function ItemParserInput() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
+
+    ItemParserInput.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserInput.prototype.constructor = ItemParserInput;
+
+    ItemParserInput.prototype.getDefault = function () {
+        return {
+            font: '',
+            style: ''
+        }
+    };
+
+    ItemParserInput.prototype.added = function () {
+        this.needFill = ['placeholder'];
+
+        this.addedStyle('heading', 'style');
+
+        this.addedFont('paragraph', 'inputfont');
+        this.addedStyle('heading', 'inputstyle');
+        this.addedFont('hover', 'buttonfont');
+        this.addedStyle('heading', 'buttonstyle');
+
+        nextend.smartSlider.generator.registerField($('#item_inputplaceholder'));
+
+    };
+
+    ItemParserInput.prototype.getName = function (data) {
+        return data.placeholder;
+    };
+
+    ItemParserInput.prototype.parseAll = function (data) {
+
+        data.fullwidthStyle = parseInt(data.fullwidth) ? 'width:100%;' : '';
+
+        if (data.fullwidth | 0) {
+            data.display = 'block;';
+        } else {
+            data.display = 'inline-block;';
+        }
+
+        NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+    };
+
+    ItemParserInput.prototype.render = function (node, data) {
+        if (data.buttonlabel == '') {
+            node.find('td').eq(1).remove();
+        }
+        return node;
+    };
+
+    scope.NextendSmartSliderItemParser_input = ItemParserInput;
+})(n2, window);
+
+
 
 (function ($, scope, undefined) {
 
@@ -4504,7 +5165,7 @@ if (N2SSPRO) {
 
     scope.NextendSmartSliderItemParser_list = ItemParserList;
 })(n2, window);
-//#|empty_when_free|#
+
 (function ($, scope, undefined) {
 
     function ItemParserText() {
@@ -4644,86 +5305,87 @@ if (N2SSPRO) {
         return pee;
     };
 })(n2, window);
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
 
-        function ItemParserTransition() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+(function ($, scope, undefined) {
 
-        ItemParserTransition.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserTransition.prototype.constructor = ItemParserTransition;
+    function ItemParserTransition() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        ItemParserTransition.prototype.added = function () {
-            this.needFill = ['image', 'image2'];
+    ItemParserTransition.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserTransition.prototype.constructor = ItemParserTransition;
 
-            nextend.smartSlider.generator.registerField($('#item_transitionimage'));
-            nextend.smartSlider.generator.registerField($('#item_transitionimage2'));
-            nextend.smartSlider.generator.registerField($('#item_transitionalt'));
-            nextend.smartSlider.generator.registerField($('#linkitem_transitionlink_0'));
-        };
+    ItemParserTransition.prototype.added = function () {
+        this.needFill = ['image', 'image2'];
 
-        ItemParserTransition.prototype.getName = function (data) {
-            return data.image.split('/').pop();
-        };
+        nextend.smartSlider.generator.registerField($('#item_transitionimage'));
+        nextend.smartSlider.generator.registerField($('#item_transitionimage2'));
+        nextend.smartSlider.generator.registerField($('#item_transitionalt'));
+        nextend.smartSlider.generator.registerField($('#linkitem_transitionlink_0'));
+    };
 
-        ItemParserTransition.prototype.parseAll = function (data, item) {
+    ItemParserTransition.prototype.getName = function (data) {
+        return data.image.split('/').pop();
+    };
 
-            data.uid = $.fn.uid();
-            
-            var link = data.link.split('|*|');
-            data.url = link[0];
-            data.target = link[1];
-            delete data.link;
+    ItemParserTransition.prototype.parseAll = function (data, item) {
 
-            NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
+        data.uid = $.fn.uid();
+        
+        var link = data.link.split('|*|');
+        data.url = link[0];
+        data.target = link[1];
+        delete data.link;
 
-            data.image = nextend.imageHelper.fixed(data.image);
-            data.image2 = nextend.imageHelper.fixed(data.image2);
+        NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
 
-            if (item && item.values.image == '$system$/images/placeholder/imagefront.svg' && data.image != item.values.image) {
-                this.resizeLayerToImage(item, data.image);
-            }
+        var originalImage = data.image;
+        data.image = nextend.imageHelper.fixed(data.image);
+        data.image2 = nextend.imageHelper.fixed(data.image2);
 
-        };
+        if (item && item.values.image == '$system$/images/placeholder/imagefront.png' && originalImage != item.values.image) {
+            this.resizeLayerToImage(item, data.image);
+        }
 
-        ItemParserTransition.prototype.fitLayer = function (item) {
-            this.resizeLayerToImage(item, nextend.imageHelper.fixed(item.values.image));
-            return true;
-        };
+    };
 
-        scope.NextendSmartSliderItemParser_transition = ItemParserTransition;
-    })(n2, window);
-} //N2SSPRO
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
+    ItemParserTransition.prototype.fitLayer = function (item) {
+        this.resizeLayerToImage(item, nextend.imageHelper.fixed(item.values.image));
+        return true;
+    };
 
-        function ItemParserVideo() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+    scope.NextendSmartSliderItemParser_transition = ItemParserTransition;
+})(n2, window);
 
-        ItemParserVideo.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserVideo.prototype.constructor = ItemParserVideo;
 
-        ItemParserVideo.prototype.added = function () {
-            this.needFill = ['video_mp4', 'video_webm', 'video_ogg'];
+(function ($, scope, undefined) {
 
-            nextend.smartSlider.generator.registerField($('#item_videovideo_mp4'));
-            nextend.smartSlider.generator.registerField($('#item_videovideo_webm'));
-            nextend.smartSlider.generator.registerField($('#item_videovideo_ogg'));
-        };
+    function ItemParserVideo() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        ItemParserVideo.prototype.getName = function (data) {
-            return data.video_mp4;
-        };
+    ItemParserVideo.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserVideo.prototype.constructor = ItemParserVideo;
 
-        ItemParserVideo.prototype.fitLayer = function (item) {
-            return true;
-        };
+    ItemParserVideo.prototype.added = function () {
+        this.needFill = ['video_mp4', 'video_webm', 'video_ogg'];
 
-        scope.NextendSmartSliderItemParser_video = ItemParserVideo;
-    })(n2, window);
-} //N2SSPRO
+        nextend.smartSlider.generator.registerField($('#item_videovideo_mp4'));
+        nextend.smartSlider.generator.registerField($('#item_videovideo_webm'));
+        nextend.smartSlider.generator.registerField($('#item_videovideo_ogg'));
+    };
+
+    ItemParserVideo.prototype.getName = function (data) {
+        return data.video_mp4;
+    };
+
+    ItemParserVideo.prototype.fitLayer = function (item) {
+        return true;
+    };
+
+    scope.NextendSmartSliderItemParser_video = ItemParserVideo;
+})(n2, window);
+
 (function ($, scope, undefined) {
 
     function ItemParserVimeo() {
@@ -4749,7 +5411,7 @@ if (N2SSPRO) {
         NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
 
         if (data.image == '') {
-            data.image = '$system$/images/placeholder/video.svg';
+            data.image = '$system$/images/placeholder/video.png';
         }
 
         data.image = nextend.imageHelper.fixed(data.image);
@@ -4809,7 +5471,7 @@ if (N2SSPRO) {
         NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
 
         if (data.image == '') {
-            data.image = '$system$/images/placeholder/video.svg';
+            data.image = '$system$/images/placeholder/video.png';
         }
 
         data.image = nextend.imageHelper.fixed(data.image);
@@ -4916,11 +5578,11 @@ if (N2SSPRO) {
         this.createGroup('loop', n2_('loop'), '#layer-animation-chain-loop');
         this.createGroup('out', n2_('out'), '#layer-animation-chain-out');
         this.lists = this.lists.add(this.loop.list).add(this.out.list);
-        
+
 
         smartSlider.layerAnimationManager = this;
-
         new NextendSmartSliderAdminTimelineManager(layerEditor);
+    
     };
 
     LayerAnimationManager.prototype.createGroup = function (identifier, label, container) {
@@ -5177,11 +5839,59 @@ if (N2SSPRO) {
         this[group + 'Rows'] = this[group + 'Rows'].not(animationObject.row);
     };
 
+    LayerAnimations.prototype.clearAll = function () {
+        this._startHistory();
+
+        this._clear('in');
+        this._clear('loop');
+        this._clear('out');
+
+        this._endHistory();
+    };
+
     LayerAnimations.prototype.clear = function (group) {
+        this._startHistory();
+
+        this._clear(group);
+
+        this._endHistory();
+    };
+
+    LayerAnimations.prototype._clear = function (group) {
         var rows = this[group + 'Rows'];
         for (var i = 0; i < rows.length; i++) {
             rows.eq(i).data('animation').delete();
         }
+    };
+
+    LayerAnimations.prototype.getCurrentData = function (group) {
+        var animations = [];
+        for (var i = 0; i < this[group + 'Rows'].length; i++) {
+            animations.push(this[group + 'Rows'].eq(i).data('animation').data);
+        }
+
+        var data = {
+            animations: animations,
+            transformOrigin: this.data['transformOrigin' + this.ucfirst(group)],
+            repeatable: this.data.repeatable
+        };
+
+        if (group == 'in') {
+            data.specialZero = this.data.specialZeroIn;
+
+            data.playEvent = this.data.inPlayEvent;
+        } else if (group == 'loop') {
+            data.repeatCount = this.data.repeatCount;
+            data.repeatStartDelay = this.data.repeatStartDelay;
+
+            data.playEvent = this.data.loopPlayEvent;
+            data.pauseEvent = this.data.loopPauseEvent;
+            data.stopEvent = this.data.loopStopEvent;
+        } else if (group == 'out') {
+            data.playEvent = this.data.outPlayEvent;
+            data.instantOut = this.data.instantOut;
+        }
+        return data;
     };
 
     LayerAnimations.prototype.edit = function (group, index) {
@@ -5233,8 +5943,7 @@ if (N2SSPRO) {
             animationManager.changeSetById(1000);
             animationManager.setTitle(n2_('Out animation'));
         }
-
-        animationManager.show(features, data, $.proxy(this.storeAnimations, this, group), {
+        animationManager.show(features, data, $.proxy(this.storeAnimations, this, group, data), {
             previewMode: false,
             previewHTML: false
         });
@@ -5243,7 +5952,11 @@ if (N2SSPRO) {
         }
     };
 
-    LayerAnimations.prototype.storeAnimations = function (group, e, animationStack) {
+    LayerAnimations.prototype.storeAnimations = function (group, originalAnimationStack, e, animationStack) {
+        smartSlider.history.add($.proxy(function () {
+            return [this.layer, 'storeAnimations', $.extend(true, {}, animationStack), $.extend(true, {}, originalAnimationStack), [group]];
+        }, this));
+
         var i = 0,
             rows = this[group + 'Rows'];
 
@@ -5337,10 +6050,36 @@ if (N2SSPRO) {
         }
     };
 
+    LayerAnimations.prototype._startHistory = function () {
+        this._oldData = {
+            in: $.extend(true, {}, this.getCurrentData('in')),
+            loop: $.extend(true, {}, this.getCurrentData('loop')),
+            out: $.extend(true, {}, this.getCurrentData('out'))
+        };
+    };
+
+    LayerAnimations.prototype._endHistory = function () {
+
+        var currentData = {
+            in: this.getCurrentData('in'),
+            loop: this.getCurrentData('loop'),
+            out: this.getCurrentData('out')
+        };
+        for (var k in currentData) {
+            smartSlider.history.add($.proxy(function () {
+                return [this.layer, 'storeAnimations', $.extend(true, {}, currentData[k]), $.extend(true, {}, this._oldData[k]), [k]];
+            }, this));
+        }
+        this._oldData = null;
+    };
+
     LayerAnimations.prototype.loadData = function (data) {
-        this.clear('in');
-        this.clear('loop');
-        this.clear('out');
+
+        this._startHistory();
+
+        this._clear('in');
+        this._clear('loop');
+        this._clear('out');
 
         this.data = {};
         $.extend(this.data, defaults);
@@ -5350,6 +6089,8 @@ if (N2SSPRO) {
         this._load('in');
         this._load('loop');
         this._load('out');
+
+        this._endHistory();
     };
 
     LayerAnimations.prototype.getData = function () {
@@ -5417,13 +6158,65 @@ if (N2SSPRO) {
 })(nextend.smartSlider, n2, window);
 (function (smartSlider, $, scope, undefined) {
 
-    window.nextendPreventClick = false
+    var highlighted = false,
+        timeout = null;
+    window.nextendPreventClick = false;
+
+    var UNDEFINED,
+        rAFShim = (function () {
+            var timeLast = 0;
+
+            return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+                    var timeCurrent = (new Date()).getTime(),
+                        timeDelta;
+
+                    /* Dynamically set delay on a per-tick basis to match 60fps. */
+                    /* Technique by Erik Moller. MIT license: https://gist.github.com/paulirish/1579671 */
+                    timeDelta = Math.max(0, 16 - (timeCurrent - timeLast));
+                    timeLast = timeCurrent + timeDelta;
+
+                    return setTimeout(function () {
+                        callback(timeCurrent + timeDelta);
+                    }, timeDelta);
+                };
+        })(),
+        resizeCollection = {
+            raf: false,
+            ratios: null,
+            isThrottled: false,
+            layers: []
+        },
+        requestRender = function () {
+            if (resizeCollection.raf === false) {
+                resizeCollection.raf = true;
+                rAFShim(function () {
+                    for (var i = 0; i < resizeCollection.layers.length; i++) {
+                        if (!resizeCollection.layers[i].isDeleted) {
+                            resizeCollection.layers[i].doTheResize(resizeCollection.ratios, true, resizeCollection.isThrottled);
+                        }
+                    }
+                    resizeCollection = {
+                        raf: false,
+                        ratios: null,
+                        isThrottled: false,
+                        layers: []
+                    };
+                });
+            }
+        };
 
     function Layer(layerEditor, layer, itemEditor, properties) {
-        this.activeItem = null;
-        this.highlighted = null;
-        this.eye = 0;
-        this.lock = 0;
+        this.isDeleted = false;
+        //this.resize = NextendDeBounce(this.resize, 200);
+        //this.triggerLayerResized = NextendThrottle(this.triggerLayerResized, 30);
+        this._triggerLayerResizedThrottled = NextendThrottle(this._triggerLayerResized, 30);
+        //this.doThrottledTheResize = NextendThrottle(this.doTheResize, 16.6666);
+        this.markSmallLayer = NextendDeBounce(this.markSmallLayer, 500);
+        this.doThrottledTheResize = this.doTheResize;
+        this.eye = false;
+        this.lock = false;
+        this.parent = false;
+        this.parentIsVisible = true;
         this.$ = $(this);
 
         this.layerEditor = layerEditor;
@@ -5432,6 +6225,10 @@ if (N2SSPRO) {
             layer = $('<div class="n2-ss-layer" style="z-index: ' + layerEditor.zIndexList.length + ';"></div>')
                 .appendTo(layerEditor.layerContainerElement);
             this.property = $.extend({
+                id: null,
+                parentid: null,
+                parentalign: 'center',
+                parentvalign: 'middle',
                 name: 'New layer',
                 nameSynced: 1,
                 crop: 'visible',
@@ -5452,18 +6249,28 @@ if (N2SSPRO) {
                 responsiveposition: 1,
                 width: 'auto',
                 height: 'auto',
-                responsivesize: 1
+                responsivesize: 1,
+                mouseenter: UNDEFINED,
+                click: UNDEFINED,
+                mouseleave: UNDEFINED,
+                play: UNDEFINED,
+                pause: UNDEFINED,
+                stop: UNDEFINED
             }, properties);
         } else {
             this.property = {
-                name: layer.data('name'),
+                id: layer.attr('id'),
+                parentid: layer.data('parentid'),
+                parentalign: layer.data('desktopportraitparentalign'),
+                parentvalign: layer.data('desktopportraitparentvalign'),
+                name: layer.data('name') + '',
                 nameSynced: layer.data('namesynced'),
                 crop: layer.data('crop'),
                 inneralign: layer.data('inneralign'),
                 parallax: layer.data('parallax'),
                 align: layer.data('desktopportraitalign'),
                 valign: layer.data('desktopportraitvalign'),
-                fontsize: layer.data('fontsize'),
+                fontsize: layer.data('desktopportraitfontsize'),
                 adaptivefont: layer.data('adaptivefont'),
                 desktopPortrait: parseFloat(layer.data('desktopportrait')),
                 desktopLandscape: parseFloat(layer.data('desktoplandscape')),
@@ -5474,22 +6281,47 @@ if (N2SSPRO) {
                 left: parseInt(layer.data('desktopportraitleft')),
                 top: parseInt(layer.data('desktopportraittop')),
                 responsiveposition: parseInt(layer.data('responsiveposition')),
-                responsivesize: parseInt(layer.data('responsivesize'))
+                responsivesize: parseInt(layer.data('responsivesize')),
+                mouseenter: layer.data('mouseenter'),
+                click: layer.data('click'),
+                mouseleave: layer.data('mouseleave'),
+                play: layer.data('play'),
+                pause: layer.data('pause'),
+                stop: layer.data('stop')
             };
 
             var width = layer.data('desktopportraitwidth');
-            if (width == 'auto') {
-                this.property.width = 'auto';
+            if (this.isDimensionPropertyAccepted(width)) {
+                this.property.width = width;
             } else {
                 this.property.width = parseInt(width);
             }
 
             var height = layer.data('desktopportraitheight');
-            if (height == 'auto') {
-                this.property.height = 'auto';
+            if (this.isDimensionPropertyAccepted(height)) {
+                this.property.height = height;
             } else {
                 this.property.height = parseInt(height);
             }
+        }
+
+        if (!this.property.id) {
+            this.property.id = null;
+        }
+
+        this.subscribeParentCallbacks = {};
+        if (this.property.parentid) {
+            this.subscribeParent();
+        } else {
+            this.property.parentid = null;
+        }
+
+        if (!this.property.parentalign) {
+            this.property.parentalign = 'center';
+        }
+
+        if (!this.property.parentvalign) {
+            this.property.parentvalign = 'middle';
         }
 
         if (typeof this.property.nameSynced === 'undefined') {
@@ -5534,7 +6366,7 @@ if (N2SSPRO) {
         layer.attr('data-align', this.property.align);
         layer.attr('data-valign', this.property.valign);
 
-        this.layer = layer;
+        this.layer = layer.data('layerObject', this);
         this.layer.css('visibility', 'hidden');
 
         this.zIndex = parseInt(this.layer.css('zIndex'));
@@ -5545,10 +6377,10 @@ if (N2SSPRO) {
         var eye = layer.data('eye'),
             lock = layer.data('lock');
         if (eye !== null && typeof eye != 'undefined') {
-            this.eye = eye;
+            this.eye = !!eye;
         }
         if (lock !== null && typeof lock != 'undefined') {
-            this.lock = lock;
+            this.lock = !!lock;
         }
         this.deviceProperty = {
             desktopPortrait: {
@@ -5558,6 +6390,8 @@ if (N2SSPRO) {
                 height: this.property.height,
                 align: this.property.align,
                 valign: this.property.valign,
+                parentalign: this.property.parentalign,
+                parentvalign: this.property.parentvalign,
                 fontsize: this.property.fontsize
             },
             desktopLandscape: {
@@ -5567,6 +6401,8 @@ if (N2SSPRO) {
                 height: layer.data('desktoplandscapeheight'),
                 align: layer.data('desktoplandscapealign'),
                 valign: layer.data('desktoplandscapevalign'),
+                parentalign: layer.data('desktoplandscapeparentalign'),
+                parentvalign: layer.data('desktoplandscapeparentvalign'),
                 fontsize: layer.data('desktoplandscapefontsize')
             },
             tabletPortrait: {
@@ -5576,6 +6412,8 @@ if (N2SSPRO) {
                 height: layer.data('tabletportraitheight'),
                 align: layer.data('tabletportraitalign'),
                 valign: layer.data('tabletportraitvalign'),
+                parentalign: layer.data('tabletportraitparentalign'),
+                parentvalign: layer.data('tabletportraitparentvalign'),
                 fontsize: layer.data('tabletportraitfontsize')
             },
             tabletLandscape: {
@@ -5585,6 +6423,8 @@ if (N2SSPRO) {
                 height: layer.data('tabletlandscapeheight'),
                 align: layer.data('tabletlandscapealign'),
                 valign: layer.data('tabletlandscapevalign'),
+                parentalign: layer.data('tabletlandscapeparentalign'),
+                parentvalign: layer.data('tabletlandscapeparentvalign'),
                 fontsize: layer.data('tabletlandscapefontsize')
             },
             mobilePortrait: {
@@ -5594,6 +6434,8 @@ if (N2SSPRO) {
                 height: layer.data('mobileportraitheight'),
                 align: layer.data('mobileportraitalign'),
                 valign: layer.data('mobileportraitvalign'),
+                parentalign: layer.data('mobileportraitparentalign'),
+                parentvalign: layer.data('mobileportraitparentvalign'),
                 fontsize: layer.data('mobileportraitfontsize')
             },
             mobileLandscape: {
@@ -5603,6 +6445,8 @@ if (N2SSPRO) {
                 height: layer.data('mobilelandscapeheight'),
                 align: layer.data('mobilelandscapealign'),
                 valign: layer.data('mobilelandscapevalign'),
+                parentalign: layer.data('mobilelandscapeparentalign'),
+                parentvalign: layer.data('mobilelandscapeparentvalign'),
                 fontsize: layer.data('mobilelandscapefontsize')
             }
         };
@@ -5635,7 +6479,6 @@ if (N2SSPRO) {
             layerEditor.zIndexList.splice(this.zIndex, 0, this);
         }
 
-        this._eye();
         this._lock();
 
         this.animation = new NextendSmartSliderLayerAnimations(this);
@@ -5654,9 +6497,8 @@ if (N2SSPRO) {
         this.markSmallLayer();
 
         setTimeout($.proxy(function () {
-            this._resize();
-            //this.update();
-            this.layer.css('visibility', '');
+            this._resize(true);
+            this._eye();
         }, this), 300);
     };
 
@@ -5664,11 +6506,25 @@ if (N2SSPRO) {
         return this.layerEditor.layerList.indexOf(this);
     };
 
+    Layer.prototype.getParent = function () {
+        return $('#' + this.getProperty(false, 'parentid')).data('layerObject');
+    };
+
+    Layer.prototype.requestID = function () {
+        var id = this.getProperty(false, 'id');
+        if (!id) {
+            id = $.fn.uid();
+            this.setProperty('id', id, 'layer');
+        }
+        return id;
+    };
+
     Layer.prototype.createRow = function () {
         var dblClickInterval = 300,
             timeout = null,
+            unlink = $('<a class="n2-ss-parent-unlink" href="#" onclick="return false;"><i class="n2-i n2-i-layerunlink n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.unlink, this)),
             remove = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-delete n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.delete, this)),
-            duplicate = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-duplicate n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.duplicate, this));
+            duplicate = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-duplicate n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.duplicate, this, true, false));
 
         this.soloElement = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-bulb n2-i-grey-opacity"></i></a>').css('opacity', 0.3).on('click', $.proxy(this.switchSolo, this));
         this.eyeElement = $('<a href="#" onclick="return false;"><i class="n2-i n2-i-eye n2-i-grey-opacity"></i></a>').on('click', $.proxy(this.switchEye, this));
@@ -5678,19 +6534,9 @@ if (N2SSPRO) {
             .on({
                 mouseenter: $.proxy(function () {
                     this.layer.addClass('n2-highlight');
-                    if (this.activeItem) {
-                        this.highlighted = this.activeItem.item.addClass('n2-force-item-highlight');
-                    } else if (this.items.length) {
-                        // There can exists a layer without item... nothing to do there
-                        this.highlighted = this.items[0].item.addClass('n2-force-item-highlight');
-                    }
                 }, this),
                 mouseleave: $.proxy(function (e) {
                     this.layer.removeClass('n2-highlight');
-                    if (this.highlighted) {
-                        this.highlighted.removeClass('n2-force-item-highlight');
-                        this.highlighted = null;
-                    }
                 }, this)
             })
             .appendTo(this.layersItemsUlElement);
@@ -5712,7 +6558,7 @@ if (N2SSPRO) {
 
         this.layerTitle = $('<div class="n2-ss-layer-title"></div>')
             .append(this.layerTitleSpan)
-            .append($('<div class="n2-actions"></div>').append(duplicate).append(remove))
+            .append($('<div class="n2-actions"></div>').append(unlink).append(duplicate).append(remove))
             .append($('<div class="n2-actions-left"></div>').append(this.eyeElement).append(this.soloElement).append(this.lockElement))
             .appendTo(this.layerRow)
             .on({
@@ -5722,10 +6568,6 @@ if (N2SSPRO) {
                     }
                 }, this)
             });
-        this.itemsRow = $('<ul class="n2-ss-layer-items"></ul>')
-            .appendTo(this.layerRow);
-
-        this.itemsRow.data('layer', this);
 
         this.editorVisibilityChange();
     };
@@ -5733,10 +6575,10 @@ if (N2SSPRO) {
     Layer.prototype.editorVisibilityChange = function () {
         switch (this.layersItemsUlElement.children().length) {
             case 0:
-                this.layerEditor.toolboxElement.removeClass('n2-has-layers');
+                $('body').removeClass('n2-has-layers');
                 break;
             case 1:
-                this.layerEditor.toolboxElement.addClass('n2-has-layers');
+                $('body').addClass('n2-has-layers');
                 break;
         }
     };
@@ -5752,21 +6594,16 @@ if (N2SSPRO) {
      *
      * @param item {optional}
      */
-    Layer.prototype.activate = function (e, item) {
-        if (item) {
-            this.activeItem = item;
-            if (this.highlighted) {
-                this.highlighted.removeClass('n2-force-item-highlight');
-                this.highlighted = this.activeItem.item.addClass('n2-force-item-highlight');
-            }
-        } else {
-            if (this.activeItem) {
-                this.activeItem.activate();
-            } else if (this.items.length) {
-                // There can exists a layer without item... nothing to do there
-                this.items[0].activate();
-            }
+    Layer.prototype.activate = function (e) {
+        if (document.activeElement) {
+            document.activeElement.blur();
         }
+        if (this.items.length == 0) {
+            console.error('The layer do not have item on it!');
+        } else {
+            this.items[0].activate();
+        }
+
         // Set the layer active if it is not active currently
         var currentIndex = this.getIndex();
         if (this.layerEditor.activeLayerIndex !== currentIndex) {
@@ -5774,7 +6611,6 @@ if (N2SSPRO) {
             this.layer.triggerHandler('n2-ss-activate');
             this.layerEditor.changeActiveLayer(currentIndex);
             nextend.activeLayer = this.layer;
-            nextend.a = this;
 
             var scroll = this.layersItemsUlElement.parent(),
                 scrollTop = scroll.scrollTop(),
@@ -5782,14 +6618,25 @@ if (N2SSPRO) {
             if (top < scrollTop || top > scrollTop + scroll.height() - this.layerRow.height()) {
                 scroll.scrollTop(top);
             }
-        }
-        if (!this.eye) {
-            this._show(true);
+
+            if (timeout) {
+                highlighted.removeClass('n2-highlight2');
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            highlighted = this.layer.addClass('n2-highlight2');
+            timeout = setTimeout(function () {
+                highlighted.removeClass('n2-highlight2');
+                highlighted = null;
+                timeout = null;
+            }, 500);
         }
     };
 
     Layer.prototype.deActivate = function () {
-        this.animation.deActivate();
+        if (this.animation) {
+            this.animation.deActivate();
+        }
         this.layerRow.removeClass('n2-active');
         this.layer.triggerHandler('n2-ss-deactivate');
     };
@@ -5799,8 +6646,6 @@ if (N2SSPRO) {
 
         var slideSize = this.layerEditor.slideSize,
             position = this.layer.position();
-        var maxWidth = slideSize.width - position.left,
-            maxHeight = slideSize.height - position.top;
 
         if (layer.scrollWidth > 0 && layer.scrollHeight > 0) {
             var resized = false;
@@ -5811,23 +6656,13 @@ if (N2SSPRO) {
                 }
             }
             if (!resized) {
-                //this.setProperty('width', Math.min(layer.scrollWidth, maxWidth) + 'px');
-                this.setProperty('width', 'auto');
-                this.setProperty('height', 'auto');
-                /*
-                 setTimeout($.proxy(function () {
-                 if (this.layerEditor.slideSize.width < this.layer.width()) {
-                 this.setProperty('width', this.layerEditor.slideSize.width);
-                 setTimeout($.proxy(function () {
-                 if (this.layerEditor.slideSize.height < this.layer.height()) {
-                 this.setProperty('height', this.layerEditor.slideSize.height);
-                 }
-                 }, this), 100);
-                 } else if (this.layerEditor.slideSize.height < this.layer.height()) {
-                 this.setProperty('height', this.layerEditor.slideSize.height);
-                 }
-                 }, this), 100);
-                 */
+                this.setProperty('width', 'auto', 'layer');
+                this.setProperty('height', 'auto', 'layer');
+
+                var layerWidth = this.layer.width();
+                if (Math.abs(this.layerEditor.layerContainerElement.width() - this.layer.position().left - layerWidth) < 2) {
+                    this.setProperty('width', layerWidth, 'layer');
+                }
             }
         }
     };
@@ -5837,11 +6672,11 @@ if (N2SSPRO) {
     };
 
     Layer.prototype.hide = function (targetMode) {
-        this._setProperty(false, (targetMode ? targetMode : this.getMode()), 0, true, false);
+        this.store(false, (targetMode ? targetMode : this.getMode()), 0, true);
     };
 
     Layer.prototype.show = function (targetMode) {
-        this._setProperty(false, (targetMode ? targetMode : this.getMode()), 1, true, false);
+        this.store(false, (targetMode ? targetMode : this.getMode()), 1, true);
     };
 
     Layer.prototype.switchSolo = function () {
@@ -5866,10 +6701,10 @@ if (N2SSPRO) {
     Layer.prototype._eye = function () {
         if (this.eye) {
             this.eyeElement.css('opacity', 0.3);
-            this._hide();
+            this.layer.css('visibility', 'hidden');
         } else {
             this.eyeElement.css('opacity', 1);
-            this._show();
+            this.layer.css('visibility', '');
         }
     };
 
@@ -5878,7 +6713,7 @@ if (N2SSPRO) {
     };
 
     Layer.prototype._show = function () {
-        if (parseInt(this.property[this.layerEditor.getMode()]) && (!this.eye || (arguments.length == 1 && arguments[0]))) {
+        if (parseInt(this.property[this.layerEditor.getMode()])) {
             this.layer.css('display', 'block');
         }
     };
@@ -5892,30 +6727,59 @@ if (N2SSPRO) {
         if (this.lock) {
             this.lockElement.css('opacity', 1);
             this.layer.nextenddraggable("disable");
-            this.layer.resizable("disable");
+            this.layer.nextendResizable("disable");
             this.layer.addClass('n2-ss-layer-locked');
         } else {
             this.lockElement.css('opacity', 0.3);
             this.layer.nextenddraggable("enable");
-            this.layer.resizable("enable");
+            this.layer.nextendResizable("enable");
             this.layer.removeClass('n2-ss-layer-locked');
 
         }
     };
 
-    Layer.prototype.duplicate = function () {
+    Layer.prototype.duplicate = function (needActivate, newParentId, newLayers) {
         var layer = this.getHTML(true, false);
-        layer.attr('data-name', layer.attr('data-name') + ' - copy');
 
-        var newLayer = this.layerEditor.addLayer(layer, true);
+        var id = layer.attr('id');
+        if (id) {
+            id = $.fn.uid();
+            layer.attr('id', id);
+        }
+
+        if (newParentId) {
+            layer.attr('data-parentid', newParentId);
+        }
+
+        var newLayer = this.layerEditor._addLayer(layer, true);
+
+        if (typeof newLayers === 'undefined') {
+            newLayers = [];
+        } else {
+            newLayers.push(newLayer);
+        }
+
+        this.layer.triggerHandler('LayerDuplicated', [id, newLayers]);
 
         this.layerRow.trigger('mouseleave');
-        newLayer.activate();
+
+        if (needActivate) {
+            newLayer.activate();
+        }
+
+
+        if (!newParentId) {
+            smartSlider.history.add($.proxy(function () {
+                return [this, 'duplicateLayer', 'duplicate', 'delete', [newLayer]];
+            }, this));
+        }
     };
 
-    Layer.prototype.delete = function () {
+    Layer.prototype.delete = function (deleteChild, oldLayers) {
 
-        this.itemEditor._removeItemOrderable(this.itemsRow);
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'deleteLayer', 'delete', 'create', [this.getData(true)]];
+        }, this));
 
         this.deActivate();
 
@@ -5925,19 +6789,32 @@ if (N2SSPRO) {
 
         this.layerEditor.zIndexList.splice(this.zIndex, 1);
 
+        var parentId = this.getProperty(false, 'parentid');
+        if (parentId) {
+            this.unSubscribeParent(true);
+        }
+        // If delete happen meanwhile layer dragged or resized, we have to cancel that.
+        this.layer.trigger('mouseup');
+        this.layerEditor.layerDeleted(this.getIndex());
+        if (typeof oldLayers === 'undefined') {
+            oldLayers = [];
+        } else {
+            oldLayers.push(this);
+        }
+        this.layer.triggerHandler('LayerDeleted', [typeof deleteChild !== 'undefined' ? deleteChild : false, oldLayers]);
         this.layer.remove();
         this.layerRow.remove();
-        this.layerEditor.layerDeleted(this.getIndex());
 
         this.editorVisibilityChange();
 
         this.$.trigger('layerDeleted');
 
-        delete this.layerEditor;
+        //delete this.layerEditor;
         delete this.layer;
         delete this.itemEditor;
         delete this.animation;
-        delete this.items;
+        //delete this.items;
+        this.isDeleted = true;
     };
 
     Layer.prototype.getHTML = function (itemsIncluded, base64) {
@@ -5970,11 +6847,15 @@ if (N2SSPRO) {
                 layer.append(this.items[i].getHTML(base64));
             }
         }
+        var id = this.getProperty(false, 'id');
+        if (id && id != '') {
+            layer.attr('id', id);
+        }
 
         layer.attr('data-eye', this.eye);
         layer.attr('data-lock', this.lock);
 
-
+        //console.log(this.isDeleted);
         layer.attr('data-animations', this.animation.getAnimationsCode());
 
         return layer;
@@ -5982,7 +6863,7 @@ if (N2SSPRO) {
 
     Layer.prototype.getData = function (itemsIncluded) {
         var layer = {
-            style: 'z-index: ' + (this.zIndex + 1) + ';' + this.getStyleText(),
+            zIndex: (this.zIndex + 1),
             eye: this.eye,
             lock: this.lock,
             animations: this.animation.getData()
@@ -5995,6 +6876,8 @@ if (N2SSPRO) {
                 case 'top':
                 case 'align':
                 case 'valign':
+                case 'parentalign':
+                case 'parentvalign':
                 case 'fontsize':
                     break;
                 default:
@@ -6009,7 +6892,7 @@ if (N2SSPRO) {
                 if (typeof value === 'undefined') {
                     continue;
                 }
-                if (!(property == 'width' && value == 'auto') && !(property == 'height' && value == 'auto') && property != 'align' && property != 'valign') {
+                if (!(property == 'width' && this.isDimensionPropertyAccepted(value)) && !(property == 'height' && this.isDimensionPropertyAccepted(value)) && property != 'align' && property != 'valign' && property != 'parentalign' && property != 'parentvalign') {
                     value = parseFloat(value);
                 }
                 layer[device.toLowerCase() + property] = value;
@@ -6017,27 +6900,25 @@ if (N2SSPRO) {
         }
 
         // Set the default styles for the layer
-        var defaultProperties = this.deviceProperty['desktopPortrait'];
-        layer.style += 'left:' + parseFloat(defaultProperties.left) + 'px;';
-        layer.style += 'top:' + parseFloat(defaultProperties.top) + 'px;';
-        if (defaultProperties.width == 'auto') {
-            layer.style += 'width:auto;';
-        } else {
-            layer.style += 'width:' + parseFloat(defaultProperties.width) + 'px;';
-        }
-        if (defaultProperties.height == 'auto') {
-            layer.style += 'height:auto;';
-        } else {
-            layer.style += 'height:' + parseFloat(defaultProperties.height) + 'px;';
-        }
-
+        /*var defaultProperties = this.deviceProperty['desktopPortrait'];
+         layer.style += 'left:' + parseFloat(defaultProperties.left) + 'px;';
+         layer.style += 'top:' + parseFloat(defaultProperties.top) + 'px;';
+         if (this.isDimensionPropertyAccepted(defaultProperties.width)) {
+         layer.style += 'width:' + defaultProperties.width + ';';
+         } else {
+         layer.style += 'width:' + parseFloat(defaultProperties.width) + 'px;';
+         }
+         if (this.isDimensionPropertyAccepted(defaultProperties.height)) {
+         layer.style += 'height:' + defaultProperties.height + ';';
+         } else {
+         layer.style += 'height:' + parseFloat(defaultProperties.height) + 'px;';
+         }*/
         if (itemsIncluded) {
             layer.items = [];
             for (var i = 0; i < this.items.length; i++) {
                 layer.items.push(this.items[i].getData());
             }
         }
-
         return layer;
     };
 
@@ -6047,8 +6928,6 @@ if (N2SSPRO) {
         for (var i = 0; i < items.length; i++) {
             this.addItem(items.eq(i), false);
         }
-
-        this.itemEditor._makeItemsOrderable(this.itemsRow);
     };
 
     Layer.prototype.addItem = function (item, place) {
@@ -6105,80 +6984,127 @@ if (N2SSPRO) {
     };
 
     Layer.prototype.markSmallLayer = function () {
-        var w = this.layer.width(),
-            h = this.layer.height();
-        if (w < 50 || h < 50) {
-            this.layer.addClass('n2-ss-layer-small');
-        } else {
-            this.layer.removeClass('n2-ss-layer-small');
+        if (!this.isDeleted && this.layer) {
+            var w = this.layer.width(),
+                h = this.layer.height();
+            if (w < 50 || h < 50) {
+                this.layer.addClass('n2-ss-layer-small');
+            } else {
+                this.layer.removeClass('n2-ss-layer-small');
+            }
         }
     };
 
-    Layer.prototype.setProperty = function (name, value) {
+    // from: manager or other
+    Layer.prototype.setProperty = function (name, value, from) {
         switch (name) {
             case 'responsiveposition':
             case 'responsivesize':
+                value = parseInt(value);
+            case 'id':
+            case 'parentid':
             case 'inneralign':
             case 'crop':
             case 'parallax':
             case 'adaptivefont':
-                this._setProperty(false, name, value, true, false);
+            case 'mouseenter':
+            case 'click':
+            case 'mouseleave':
+            case 'play':
+            case 'pause':
+            case 'stop':
+                this.store(false, name, value, true);
                 break;
+            case 'parentalign':
+            case 'parentvalign':
             case 'align':
             case 'valign':
             case 'fontsize':
-                this._setProperty(true, name, value, true, false);
+                this.store(true, name, value, true);
                 break;
             case 'width':
                 var ratioSizeH = this.layerEditor.getResponsiveRatio('h')
                 if (!parseInt(this.getProperty(false, 'responsivesize'))) {
                     ratioSizeH = 1;
                 }
-                this._setPropertyWithModifier(name, value == 'auto' ? value : Math.round(value), ratioSizeH, true, false);
-                this._resize();
+
+                var v = value;
+                if (!this.isDimensionPropertyAccepted(value)) {
+                    v = ~~value;
+                    if (v != value) {
+                        this.$.trigger('propertyChanged', [name, v]);
+                    }
+                }
+                this.storeWithModifier(name, v, ratioSizeH, true);
+                this._resize(false);
                 break;
             case 'height':
                 var ratioSizeV = this.layerEditor.getResponsiveRatio('v')
                 if (!parseInt(this.getProperty(false, 'responsivesize'))) {
                     ratioSizeV = 1;
                 }
-                this._setPropertyWithModifier(name, value == 'auto' ? value : Math.round(value), ratioSizeV, true, false);
-                this._resize();
+
+                var v = value;
+                if (!this.isDimensionPropertyAccepted(value)) {
+                    v = ~~value;
+                    if (v != value) {
+                        this.$.trigger('propertyChanged', [name, v]);
+                    }
+                }
+
+                this.storeWithModifier(name, v, ratioSizeV, true);
+                this._resize(false);
                 break;
             case 'left':
                 var ratioPositionH = this.layerEditor.getResponsiveRatio('h')
                 if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
                     ratioPositionH = 1;
                 }
-                this._setPropertyWithModifier(name, Math.round(value), ratioPositionH, true, false);
+
+                var v = ~~value;
+                if (v != value) {
+                    this.$.trigger('propertyChanged', [name, v]);
+                }
+
+                this.storeWithModifier(name, v, ratioPositionH, true);
                 break;
             case 'top':
                 var ratioPositionV = this.layerEditor.getResponsiveRatio('v')
                 if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
                     ratioPositionV = 1;
                 }
-                this._setPropertyWithModifier(name, Math.round(value), ratioPositionV, true, false);
+
+                var v = ~~value;
+                if (v != value) {
+                    this.$.trigger('propertyChanged', [name, v]);
+                }
+
+                this.storeWithModifier(name, v, ratioPositionV, true);
                 break;
             case 'showFieldDesktopPortrait':
-                this._setProperty(false, 'desktopPortrait', value, true, false);
+                this.store(false, 'desktopPortrait', parseInt(value), true);
                 break;
             case 'showFieldDesktopLandscape':
-                this._setProperty(false, 'desktopLandscape', value, true, false);
+                this.store(false, 'desktopLandscape', parseInt(value), true);
                 break;
             case 'showFieldTabletPortrait':
-                this._setProperty(false, 'tabletPortrait', value, true, false);
+                this.store(false, 'tabletPortrait', parseInt(value), true);
                 break;
             case 'showFieldTabletLandscape':
-                this._setProperty(false, 'tabletLandscape', value, true, false);
+                this.store(false, 'tabletLandscape', parseInt(value), true);
                 break;
             case 'showFieldMobilePortrait':
-                this._setProperty(false, 'mobilePortrait', value, true, false);
+                this.store(false, 'mobilePortrait', parseInt(value), true);
                 break;
             case 'showFieldMobileLandscape':
-                this._setProperty(false, 'mobileLandscape', value, true, false);
+                this.store(false, 'mobileLandscape', parseInt(value), true);
                 break;
         }
 
+        if (from != 'manager') {
+            // jelezzuk a sidebarnak, hogy valamely property megvaltozott
+            this.$.trigger('propertyChanged', [name, value]);
+        }
     };
 
     Layer.prototype.getProperty = function (deviceBased, name) {
@@ -6195,29 +7121,50 @@ if (N2SSPRO) {
         return this.property[name];
     };
 
-    Layer.prototype._setProperty = function (deviceBased, name, value, sync, isReset) {
+    Layer.prototype.store = function (deviceBased, name, value, needRender) {
+
+        var oldValue = this.property[name];
+        this.property[name] = value;
+        if (deviceBased) {
+            var mode = this.getMode();
+            smartSlider.history.add($.proxy(function () {
+                return [this, 'store', value, this.deviceProperty[mode][name], [this.layer, deviceBased, name, mode]];
+            }, this));
+            this.deviceProperty[mode][name] = value;
+        } else {
+            smartSlider.history.add($.proxy(function () {
+                return [this, 'store', value, oldValue, [this.layer, deviceBased, name, this.getMode()]];
+            }, this));
+        }
+
+        if (needRender) {
+            this.render(name, value);
+        }
+
+        if (name == 'width' || name == 'height') {
+            this.markSmallLayer();
+        }
+        return;
+
         var lastLocalValue = this.property[name],
             lastValue = lastLocalValue;
 
         if (!isReset && this.property[name] != value) {
             this.property[name] = value;
-
-
             if (deviceBased) {
-                lastValue = this.getProperty(true, name);
+                lastValue = this.getProperty(deviceBased, name);
                 this.deviceProperty[this.getMode()][name] = value;
             }
         } else if (deviceBased) {
-            lastValue = this.getProperty(true, name);
-
+            lastValue = this.getProperty(deviceBased, name);
+            //this.property[name] = value;
         }
-
-        if (lastLocalValue != value) {
-            this.$.trigger('propertyChanged', [name, value]);
-        }
+        /*if (lastLocalValue != value) {
+         this.$.trigger('propertyChanged', [name, value]);
+         }*/
         // The resize usually sets px for left/top/width/height values for the original percents. So we have to force those values back.
-        if (sync) {
-            this['_sync' + name](value, lastValue);
+        if (needRender) {
+            this.render(name, value);
         }
 
         if (name == 'width' || name == 'height') {
@@ -6225,31 +7172,164 @@ if (N2SSPRO) {
         }
     };
 
-    Layer.prototype._setPropertyWithModifier = function (name, value, modifier, sync, isReset) {
+    Layer.prototype.storeWithModifier = function (name, value, modifier, needRender) {
+        this.property[name] = value;
+        var mode = this.getMode();
+
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'storeWithModifier', value, this.deviceProperty[mode][name], [this.layer, name, mode]];
+        }, this));
+        this.deviceProperty[mode][name] = value;
+
+        if (needRender) {
+            this.renderWithModifier(name, value, modifier);
+        }
+
+        if (name == 'width' || name == 'height') {
+            this.markSmallLayer();
+        }
+        return;
+
+
         var lastLocalValue = this.property[name];
 
         if (!isReset && this.property[name] != value) {
             this.property[name] = value;
 
-            this.$.trigger('propertyChanged', [name, value]);
+            //this.$.trigger('propertyChanged', [name, value]);
 
             this.deviceProperty[this.getMode()][name] = value;
         }
-
-        if (lastLocalValue != value) {
-            this.$.trigger('propertyChanged', [name, value]);
-        }
-
+        /*
+         if (lastLocalValue != value) {
+         this.$.trigger('propertyChanged', [name, value]);
+         }
+         */
         // The resize usually sets px for left/top/width/height values for the original percents. So we have to force those values back.
-        if (sync) {
-            if (value == 'auto') {
-                this['_sync' + name](value);
-            } else {
-                this['_sync' + name](Math.round(value * modifier));
-            }
+        if (needRender) {
+            this.renderWithModifier(name, value, modifier);
         }
 
         this.markSmallLayer();
+    };
+
+    Layer.prototype.render = function (name, value) {
+        this['_sync' + name](value);
+    };
+
+    Layer.prototype.renderWithModifier = function (name, value, modifier) {
+        if ((name == 'width' || name == 'height') && this.isDimensionPropertyAccepted(value)) {
+            this['_sync' + name](value);
+        } else {
+            this['_sync' + name](Math.round(value * modifier));
+        }
+    };
+
+    Layer.prototype._syncid = function (value) {
+        if (!value || value == '') {
+            this.layer.removeAttr('id');
+        } else {
+            this.layer.attr('id', value);
+        }
+    };
+
+    Layer.prototype.subscribeParent = function () {
+        var that = this;
+        this.subscribeParentCallbacks = {
+            LayerResized: function () {
+                that.resizeParent.apply(that, arguments);
+            },
+            LayerParent: function () {
+                that.layer.addClass('n2-ss-layer-parent');
+                that.layer.triggerHandler('LayerParent');
+            },
+            LayerUnParent: function () {
+                that.layer.removeClass('n2-ss-layer-parent');
+                that.layer.triggerHandler('LayerUnParent');
+            },
+            LayerDeleted: function (e, deleteChild, oldLayers) {
+                if (deleteChild) {
+                    that.delete(deleteChild, oldLayers);
+                } else {
+                    that.setProperty('parentid', '', 'layer');
+                }
+            },
+            LayerDuplicated: function (e, newParentId, newLayers) {
+                that.duplicate(false, newParentId, newLayers);
+            },
+            LayerShowChange: function (e, mode, value) {
+                if (that.getMode() == mode) {
+                    that.parentIsVisible = value;
+                }
+            },
+            'n2-ss-activate': function () {
+                that.layerRow.addClass('n2-parent-active');
+            },
+            'n2-ss-deactivate': function () {
+                that.layerRow.removeClass('n2-parent-active');
+            }
+        };
+        this.parent = n2('#' + this.property.parentid).on(this.subscribeParentCallbacks);
+    };
+
+    Layer.prototype.unSubscribeParent = function (isDelete) {
+        this.layerRow.removeClass('n2-parent-active');
+        if (this.parent) {
+            this.parent.off(this.subscribeParentCallbacks);
+        }
+        this.parent = false;
+        this.subscribeParentCallbacks = {};
+        if (!isDelete) {
+            var position = this.layer.position();
+            this.setPosition(position.left, position.top);
+        }
+    };
+
+    Layer.prototype.unlink = function (e) {
+        e.preventDefault();
+        this.setProperty('parentid', '', 'layer');
+    };
+
+    Layer.prototype.parentPicked = function (parentObject, parentAlign, parentValign, align, valign) {
+        this.setProperty('parentid', '', 'layer');
+
+        this.setProperty('align', align, 'layer');
+        this.setProperty('valign', valign, 'layer');
+        this.setProperty('parentalign', parentAlign, 'layer');
+        this.setProperty('parentvalign', parentValign, 'layer');
+
+        this.setProperty('parentid', parentObject.requestID(), 'layer');
+    };
+
+    Layer.prototype._syncparentid = function (value) {
+        if (!value || value == '') {
+            this.layer.removeAttr('data-parentid');
+            this.unSubscribeParent(false);
+        } else {
+            if ($('#' + value).length == 0) {
+                this.setProperty('parentid', '', 'layer');
+            } else {
+                this.layer.attr('data-parentid', value);
+                this.subscribeParent();
+                this.setPosition(this.layer.position().left, this.layer.position().top);
+            }
+        }
+    };
+
+    Layer.prototype._syncparentalign = function (value) {
+        this.layer.data('parentalign', value);
+        var parent = this.getParent();
+        if (parent) {
+            parent._resize(false);
+        }
+    };
+
+    Layer.prototype._syncparentvalign = function (value) {
+        this.layer.data('parentvalign', value);
+        var parent = this.getParent();
+        if (parent) {
+            parent._resize(false);
+        }
     };
 
     Layer.prototype._syncinneralign = function (value) {
@@ -6287,16 +7367,14 @@ if (N2SSPRO) {
 
     Layer.prototype._syncalign = function (value, lastValue) {
         if (lastValue !== 'undefined' && value != lastValue) {
-            var ratioH = this.layerEditor.getResponsiveRatio('h');
-            this._setPropertyWithModifier('left', 0, ratioH, true, false);
+            this.setPosition(this.layer.position().left, this.layer.position().top);
         }
         this.layer.attr('data-align', value);
     };
 
     Layer.prototype._syncvalign = function (value, lastValue) {
         if (lastValue !== 'undefined' && value != lastValue) {
-            var ratioV = this.layerEditor.getResponsiveRatio('v');
-            this._setPropertyWithModifier('top', 0, ratioV, true, false);
+            this.setPosition(this.layer.position().left, this.layer.position().top);
         }
         this.layer.attr('data-valign', value);
     };
@@ -6324,98 +7402,188 @@ if (N2SSPRO) {
     };
 
     Layer.prototype._syncleft = function (value) {
-        switch (this.getProperty(true, 'align')) {
-            case 'right':
-                this.layer.css({
-                    left: 'auto',
-                    right: value + 'px'
-                });
-                break;
-            case 'center':
-                this.layer.css({
-                    left: (this.layer.parent().width() / 2 + value - this.layer.width() / 2) + 'px',
-                    right: 'auto'
-                });
-                break;
-            default:
-                this.layer.css({
-                    left: value + 'px',
-                    right: 'auto'
-                });
+        if (!this.parent || !this.parentIsVisible) {
+            switch (this.getProperty(true, 'align')) {
+                case 'right':
+                    this.layer.css({
+                        left: 'auto',
+                        right: -value + 'px'
+                    });
+                    break;
+                case 'center':
+                    this.layer.css({
+                        left: (this.layer.parent().width() / 2 + value - this.layer.width() / 2) + 'px',
+                        right: 'auto'
+                    });
+                    break;
+                default:
+                    this.layer.css({
+                        left: value + 'px',
+                        right: 'auto'
+                    });
+            }
+        } else {
+            var position = this.parent.position(),
+                align = this.getProperty(true, 'align'),
+                parentAlign = this.getProperty(true, 'parentalign'),
+                left = 0;
+            switch (parentAlign) {
+                case 'right':
+                    left = position.left + this.parent.width();
+                    break;
+                case 'center':
+                    left = position.left + this.parent.width() / 2;
+                    break;
+                default:
+                    left = position.left;
+            }
+
+            switch (align) {
+                case 'right':
+                    this.layer.css({
+                        left: 'auto',
+                        right: (this.layer.parent().width() - left - value) + 'px'
+                    });
+                    break;
+                case 'center':
+                    this.layer.css({
+                        left: (left + value - this.layer.width() / 2) + 'px',
+                        right: 'auto'
+                    });
+                    break;
+                default:
+                    this.layer.css({
+                        left: (left + value) + 'px',
+                        right: 'auto'
+                    });
+            }
+
         }
+
+        this.triggerLayerResized();
     };
 
     Layer.prototype._synctop = function (value) {
-        switch (this.getProperty(true, 'valign')) {
-            case 'bottom':
-                this.layer.css({
-                    top: 'auto',
-                    bottom: value + 'px'
-                });
-                break;
-            case 'middle':
-                this.layer.css({
-                    top: (this.layer.parent().height() / 2 + value - this.layer.height() / 2) + 'px',
-                    bottom: 'auto'
-                });
-                break;
-            default:
-                this.layer.css({
-                    top: value + 'px',
-                    bottom: 'auto'
-                });
+        if (!this.parent || !this.parentIsVisible) {
+            switch (this.getProperty(true, 'valign')) {
+                case 'bottom':
+                    this.layer.css({
+                        top: 'auto',
+                        bottom: -value + 'px'
+                    });
+                    break;
+                case 'middle':
+                    this.layer.css({
+                        top: (this.layer.parent().height() / 2 + value - this.layer.height() / 2) + 'px',
+                        bottom: 'auto'
+                    });
+                    break;
+                default:
+                    this.layer.css({
+                        top: value + 'px',
+                        bottom: 'auto'
+                    });
+            }
+        } else {
+            var position = this.parent.position(),
+                valign = this.getProperty(true, 'valign'),
+                parentVAlign = this.getProperty(true, 'parentvalign'),
+                top = 0;
+            switch (parentVAlign) {
+                case 'bottom':
+                    top = position.top + this.parent.height();
+                    break;
+                case 'middle':
+                    top = position.top + this.parent.height() / 2;
+                    break;
+                default:
+                    top = position.top;
+            }
+
+            switch (valign) {
+                case 'bottom':
+                    this.layer.css({
+                        top: 'auto',
+                        bottom: (this.layer.parent().height() - top - value) + 'px'
+                    });
+                    break;
+                case 'middle':
+                    this.layer.css({
+                        top: (top + value - this.layer.height() / 2) + 'px',
+                        bottom: 'auto'
+                    });
+                    break;
+                default:
+                    this.layer.css({
+                        top: (top + value) + 'px',
+                        bottom: 'auto'
+                    });
+            }
         }
+
+        this.triggerLayerResized();
     };
 
     Layer.prototype._syncresponsiveposition = function (value) {
-        this._resize();
+        this._resize(false);
     };
 
     Layer.prototype._syncwidth = function (value) {
-        this.layer.css('width', value + (value == 'auto' ? '' : 'px'));
+        this.layer.css('width', value + (this.isDimensionPropertyAccepted(value) ? '' : 'px'));
     };
 
     Layer.prototype._syncheight = function (value) {
-        this.layer.css('height', value + (value == 'auto' ? '' : 'px'));
+        this.layer.css('height', value + (this.isDimensionPropertyAccepted(value) ? '' : 'px'));
     };
 
     Layer.prototype._syncresponsivesize = function (value) {
-        this._resize();
+        this._resize(false);
     };
 
     Layer.prototype._syncdesktopPortrait = function (value) {
-        this.__syncShowOnDevice('desktop', 'Portrait', value);
+        this.__syncShowOnDevice('desktopPortrait', value);
     };
 
     Layer.prototype._syncdesktopLandscape = function (value) {
-        this.__syncShowOnDevice('desktop', 'Landscape', value);
+        this.__syncShowOnDevice('desktopLandscape', value);
     };
 
     Layer.prototype._synctabletPortrait = function (value) {
-        this.__syncShowOnDevice('tablet', 'Portrait', value);
+        this.__syncShowOnDevice('tabletPortrait', value);
     };
 
     Layer.prototype._synctabletLandscape = function (value) {
-        this.__syncShowOnDevice('tablet', 'Landscape', value);
+        this.__syncShowOnDevice('tabletLandscape', value);
     };
 
     Layer.prototype._syncmobilePortrait = function (value) {
-        this.__syncShowOnDevice('mobile', 'Portrait', value);
+        this.__syncShowOnDevice('mobilePortrait', value);
     };
 
     Layer.prototype._syncmobileLandscape = function (value) {
-        this.__syncShowOnDevice('mobile', 'Landscape', value);
+        this.__syncShowOnDevice('mobileLandscape', value);
     };
 
-    Layer.prototype.__syncShowOnDevice = function (device, orientation, value) {
-        if (this.getMode() == device + orientation) {
-            if (parseInt(value)) {
+    Layer.prototype.__syncShowOnDevice = function (mode, value) {
+        if (this.getMode() == mode) {
+            var value = parseInt(value);
+            if (value) {
                 this._show();
             } else {
                 this._hide();
             }
+            this.layer.triggerHandler('LayerShowChange', [mode, value]);
+            this.triggerLayerResized();
         }
     };
+
+    Layer.prototype._syncmouseenter =
+        Layer.prototype._syncclick =
+            Layer.prototype._syncmouseleave =
+                Layer.prototype._syncplay =
+                    Layer.prototype._syncpause =
+                        Layer.prototype._syncstop = function () {
+                        };
 
     Layer.prototype.___makeLayerAlign = function () {
         this.alignMarker = $('<div class="n2-ss-layer-align-marker" />').appendTo(this.layer);
@@ -6429,13 +7597,16 @@ if (N2SSPRO) {
      * @private
      */
     Layer.prototype.___makeLayerResizeable = function () {
-        this.layer.resizable({
+        this.layer.nextendResizable({
             handles: 'n, e, s, w, ne, se, sw, nw',
             _containment: this.layerEditor.layerContainerElement,
             start: $.proxy(this.____makeLayerResizeableStart, this),
             resize: $.proxy(this.____makeLayerResizeableResize, this),
             stop: $.proxy(this.____makeLayerResizeableStop, this),
-            smartguides: this.layerEditor.getSnap(),
+            smartguides: $.proxy(function () {
+                this.layer.triggerHandler('LayerParent');
+                return this.layerEditor.getSnap();
+            }, this),
             tolerance: 5
         })
             .on({
@@ -6472,6 +7643,7 @@ if (N2SSPRO) {
                 top: e.pageY + 10
             })
             .html('W: ' + ui.size.width + 'px<br />H: ' + ui.size.height + 'px');
+        this.triggerLayerResized();
     };
 
     Layer.prototype.____makeLayerResizeableStop = function (event, ui) {
@@ -6483,20 +7655,21 @@ if (N2SSPRO) {
 
         var isAutoWidth = false;
         if (ui.originalSize.width == ui.size.width) {
-            if (this.getProperty(true, 'width') == 'auto') {
+            var currentValue = this.getProperty(true, 'width');
+            if (this.isDimensionPropertyAccepted(currentValue)) {
                 isAutoWidth = true;
-                this['_syncwidth']('auto');
+                this['_syncwidth'](currentValue);
             }
         }
 
         var isAutoHeight = false;
         if (ui.originalSize.height == ui.size.height) {
-            if (this.getProperty(true, 'height') == 'auto') {
+            var currentValue = this.getProperty(true, 'height');
+            if (this.isDimensionPropertyAccepted(currentValue)) {
                 isAutoHeight = true;
-                this['_syncheight']('auto');
+                this['_syncheight'](currentValue);
             }
         }
-
         this.setPosition(ui.position.left, ui.position.top);
 
 
@@ -6508,11 +7681,18 @@ if (N2SSPRO) {
         }
 
         if (!isAutoWidth) {
-            this._setPropertyWithModifier('width', Math.round(ui.size.width * (1 / ratioSizeH)), ratioSizeH, false, false);
+            var value = Math.round(ui.size.width * (1 / ratioSizeH));
+            this.storeWithModifier('width', value, ratioSizeH, false);
+            this.$.trigger('propertyChanged', ['width', value]);
         }
         if (!isAutoHeight) {
-            this._setPropertyWithModifier('height', Math.round(ui.size.height * (1 / ratioSizeV)), ratioSizeV, false, false);
+            var value = Math.round(ui.size.height * (1 / ratioSizeV));
+            this.storeWithModifier('height', value, ratioSizeV, false);
+            this.$.trigger('propertyChanged', ['height', value]);
         }
+        this.triggerLayerResized();
+
+        this.layer.triggerHandler('LayerUnParent');
 
         this.layerEditor.positionDisplay.removeClass('n2-active');
     };
@@ -6532,7 +7712,10 @@ if (N2SSPRO) {
             start: $.proxy(this.____makeLayerDraggableStart, this),
             drag: $.proxy(this.____makeLayerDraggableDrag, this),
             stop: $.proxy(this.____makeLayerDraggableStop, this),
-            smartguides: this.layerEditor.getSnap(),
+            smartguides: $.proxy(function () {
+                this.layer.triggerHandler('LayerParent');
+                return this.layerEditor.getSnap();
+            }, this),
             tolerance: 5
         });
     };
@@ -6542,12 +7725,14 @@ if (N2SSPRO) {
         this.____makeLayerDraggableDrag(event, ui);
         this.layerEditor.positionDisplay.addClass('n2-active');
 
-        if (this.getProperty(true, 'width') == 'auto') {
+        var currentValue = this.getProperty(true, 'width');
+        if (this.isDimensionPropertyAccepted(currentValue)) {
             this.layer.width(this.layer.width() + 0.5); // Center positioned element can wrap the last word to a new line if this fix not added
         }
 
-        if (this.getProperty(true, 'height') == 'auto') {
-            this['_syncheight']('auto');
+        var currentValue = this.getProperty(true, 'height');
+        if (this.isDimensionPropertyAccepted(currentValue)) {
+            this['_syncheight'](currentValue);
         }
     };
 
@@ -6558,6 +7743,7 @@ if (N2SSPRO) {
                 top: e.pageY + 10
             })
             .html('L: ' + parseInt(ui.position.left | 0) + 'px<br />T: ' + parseInt(ui.position.top | 0) + 'px');
+        this.triggerLayerResized();
     };
 
     Layer.prototype.____makeLayerDraggableStop = function (event, ui) {
@@ -6569,29 +7755,32 @@ if (N2SSPRO) {
 
         this.setPosition(ui.position.left, ui.position.top);
 
-        if (this.getProperty(true, 'width') == 'auto') {
-            this['_syncwidth']('auto');
+        var currentValue = this.getProperty(true, 'width');
+        if (this.isDimensionPropertyAccepted(currentValue)) {
+            this['_syncwidth'](currentValue);
         }
 
-        if (this.getProperty(true, 'height') == 'auto') {
-            this['_syncheight']('auto');
+        var currentValue = this.getProperty(true, 'height');
+        if (this.isDimensionPropertyAccepted(currentValue)) {
+            this['_syncheight'](currentValue);
         }
 
+        this.triggerLayerResized();
+
+        this.layer.triggerHandler('LayerUnParent');
         this.layerEditor.positionDisplay.removeClass('n2-active');
     };
 
     Layer.prototype.moveX = function (x) {
-        if (this.getProperty(true, 'align') == 'right') {
-            x *= -1;
-        }
-        this._setPropertyWithModifier('left', this.getProperty(true, 'left') + x, this.layerEditor.getResponsiveRatio('h'), true);
+        this.setDeviceBasedAlign();
+        this.setProperty('left', this.getProperty(true, 'left') + x, 'layer');
+        this.triggerLayerResized();
     };
 
     Layer.prototype.moveY = function (y) {
-        if (this.getProperty(true, 'valign') == 'bottom') {
-            y *= -1;
-        }
-        this._setPropertyWithModifier('top', this.getProperty(true, 'top') + y, this.layerEditor.getResponsiveRatio('v'), true);
+        this.setDeviceBasedAlign();
+        this.setProperty('top', this.getProperty(true, 'top') + y, 'layer');
+        this.triggerLayerResized();
     };
 
     Layer.prototype.setPosition = function (left, top) {
@@ -6603,36 +7792,114 @@ if (N2SSPRO) {
             ratioH = ratioV = 1;
         }
 
-        switch (this.getProperty(true, 'align')) {
-            case 'left':
-                this._setPropertyWithModifier('left', Math.round(left * (1 / ratioH)), ratioH, false, false);
-                break;
-            case 'center':
-                this._setPropertyWithModifier('left', -Math.round((this.layer.parent().width() / 2 - left - this.layer.width() / 2) * (1 / ratioH)), ratioH, false, false);
-                break;
-            case 'right':
-                this._setPropertyWithModifier('left', Math.round((this.layer.parent().width() - left - this.layer.width()) * (1 / ratioH)), ratioH, true, false);
-                break;
+        this.setDeviceBasedAlign();
+
+        var parent = this.parent,
+            p = {
+                left: 0,
+                leftMultiplier: 1,
+                top: 0,
+                topMultiplier: 1
+            };
+        if (!parent || !parent.is(':visible')) {
+            parent = this.layer.parent();
+
+
+            switch (this.getProperty(true, 'align')) {
+                case 'center':
+                    p.left += parent.width() / 2;
+                    break;
+                case 'right':
+                    p.left += parent.width();
+                    break;
+            }
+
+            switch (this.getProperty(true, 'valign')) {
+                case 'middle':
+                    p.top += parent.height() / 2;
+                    break;
+                case 'bottom':
+                    p.top += parent.height();
+                    break;
+            }
+        } else {
+            var position = parent.position();
+            switch (this.getProperty(true, 'parentalign')) {
+                case 'right':
+                    p.left = position.left + parent.width();
+                    break;
+                case 'center':
+                    p.left = position.left + parent.width() / 2;
+                    break;
+                default:
+                    p.left = position.left;
+            }
+            switch (this.getProperty(true, 'parentvalign')) {
+                case 'bottom':
+                    p.top = position.top + parent.height();
+                    break;
+                case 'middle':
+                    p.top = position.top + parent.height() / 2;
+                    break;
+                default:
+                    p.top = position.top;
+            }
         }
 
-        switch (this.getProperty(true, 'valign')) {
-            case 'top':
-                this._setPropertyWithModifier('top', Math.round(top * (1 / ratioV)), ratioV, false, false);
+
+        var left, needRender = false;
+        switch (this.getProperty(true, 'align')) {
+            case 'left':
+                left = -Math.round((p.left - left) * (1 / ratioH));
                 break;
-            case 'middle':
-                this._setPropertyWithModifier('top', -Math.round((this.layer.parent().height() / 2 - top - this.layer.height() / 2) * (1 / ratioV)), ratioV, false, false);
+            case 'center':
+                left = -Math.round((p.left - left - this.layer.width() / 2) * (1 / ratioH))
                 break;
-            case 'bottom':
-                this._setPropertyWithModifier('top', Math.round((this.layer.parent().height() - top - this.layer.height()) * (1 / ratioV)), ratioV, true, false);
+            case 'right':
+                left = -Math.round((p.left - left - this.layer.width()) * (1 / ratioH));
+                needRender = true;
                 break;
         }
+        this.storeWithModifier('left', left, ratioH, needRender);
+        this.$.trigger('propertyChanged', ['left', left]);
+
+        var top, needRender = false;
+        switch (this.getProperty(true, 'valign')) {
+            case 'top':
+                top = -Math.round((p.top - top) * (1 / ratioV));
+                break;
+            case 'middle':
+                top = -Math.round((p.top - top - this.layer.height() / 2) * (1 / ratioV));
+                break;
+            case 'bottom':
+                top = -Math.round((p.top - top - this.layer.height()) * (1 / ratioV));
+                needRender = true;
+                break;
+        }
+        this.storeWithModifier('top', top, ratioV, needRender);
+        this.$.trigger('propertyChanged', ['top', top]);
     }
+
+    Layer.prototype.setDeviceBasedAlign = function () {
+        var mode = this.getMode();
+        if (typeof this.deviceProperty[mode]['align'] == 'undefined') {
+            this.setProperty('align', this.getProperty(true, 'align'), 'layer');
+        }
+        if (typeof this.deviceProperty[mode]['valign'] == 'undefined') {
+            this.setProperty('valign', this.getProperty(true, 'valign'), 'layer');
+        }
+    };
     //</editor-fold
 
     Layer.prototype.snap = function () {
-        var snap = this.layerEditor.getSnap();
-        this.layer.resizable("option", "smartguides", snap);
-        this.layer.nextenddraggable("option", "smartguides", snap);
+        this.layer.nextendResizable("option", "smartguides", $.proxy(function () {
+            this.layer.triggerHandler('LayerParent');
+            return this.layerEditor.getSnap();
+        }, this));
+        this.layer.nextenddraggable("option", "smartguides", $.proxy(function () {
+            this.layer.triggerHandler('LayerParent');
+            return this.layerEditor.getSnap();
+        }, this));
     };
 
     //<editor-fold desc="Makes a layer deletable">
@@ -6650,7 +7917,7 @@ if (N2SSPRO) {
                     })
                     .appendTo('body');
                 $('<div class="n2-ss-layer-quick-panel-option"><i class="n2-i n2-it n2-i-duplicate"></i></div>')
-                    .on('click', $.proxy(this.duplicate, this))
+                    .on('click', $.proxy(this.duplicate, this, true, false))
                     .appendTo(container);
                 $('<div class="n2-ss-layer-quick-panel-option n2-ss-layer-quick-panel-option-center"><i class="n2-i n2-it n2-i-more"></i></div>').appendTo(container);
                 $('<div class="n2-ss-layer-quick-panel-option"><i class="n2-i n2-it n2-i-delete"></i></div>')
@@ -6662,74 +7929,78 @@ if (N2SSPRO) {
     //</editor-fold>
 
     Layer.prototype.changeEditorMode = function (mode) {
-        this.setModeProperties(false);
-        if (parseInt(this.property[mode])) {
+        var value = parseInt(this.property[mode]);
+        if (value) {
             this._show();
         } else {
             this._hide();
         }
+
+        this.layer.triggerHandler('LayerShowChange', [mode, value]);
+
+        this._renderModeProperties(false);
     };
 
-    Layer.prototype.resetMode = function (mode) {
+    Layer.prototype.resetMode = function (mode, currentMode) {
         if (mode != 'desktopPortrait') {
             var undefined;
-            this.deviceProperty[mode] = {
-                left: undefined,
-                top: undefined,
-                width: undefined,
-                height: undefined,
-                align: undefined,
-                valign: undefined,
-                fontsize: undefined
-            };
-
-            this.setModeProperties(true);
+            for (var k in this.property) {
+                this.deviceProperty[mode][k] = undefined;
+            }
+            if (mode == currentMode) {
+                this._renderModeProperties(true);
+            }
         }
     };
 
-    Layer.prototype.setModeProperties = function (isReset) {
-        var ratioPositionH = this.layerEditor.getResponsiveRatio('h'),
-            ratioSizeH = ratioPositionH,
-            ratioPositionV = this.layerEditor.getResponsiveRatio('v'),
-            ratioSizeV = ratioPositionV;
+    Layer.prototype._renderModeProperties = function (isReset) {
 
-        if (!parseInt(this.getProperty(false, 'responsivesize'))) {
-            ratioSizeH = ratioSizeV = 1;
+        for (var k in this.property) {
+            this.property[k] = this.getProperty(true, k);
+            this.$.trigger('propertyChanged', [k, this.property[k]]);
         }
 
-        var width = this.getProperty(true, 'width'),
-            height = this.getProperty(true, 'height');
-        this._setPropertyWithModifier('width', width == 'auto' ? width : Math.round(width), ratioSizeH, true, isReset);
-        this._setPropertyWithModifier('height', height == 'auto' ? height : Math.round(height), ratioSizeV, true, isReset);
+        var fontSize = this.getProperty(true, 'fontsize');
+        this.adjustFontSize(this.getProperty(false, 'adaptivefont'), fontSize, false);
 
-        if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
-            ratioPositionH = ratioPositionV = 1;
+        this.layer.attr('data-align', this.property.align);
+        this.layer.attr('data-valign', this.property.valign);
+        if (isReset) {
+            this._resize(true);
         }
 
-        this._setPropertyWithModifier('left', Math.round(this.getProperty(true, 'left')), ratioPositionH, true, isReset);
-        this._setPropertyWithModifier('top', Math.round(this.getProperty(true, 'top')), ratioPositionV, true, isReset);
+    };
 
-
-        this._setProperty(true, 'align', this.getProperty(true, 'align'), true, isReset);
-
-        this._setProperty(true, 'valign', this.getProperty(true, 'valign'), true, isReset);
-
-        this._setProperty(true, 'fontsize', this.getProperty(true, 'fontsize'), true, isReset);
+    Layer.prototype.copyMode = function (from, to) {
+        if (from != to) {
+            this.deviceProperty[to] = $.extend({}, this.deviceProperty[to], this.deviceProperty[from]);
+        }
     };
 
     Layer.prototype.getMode = function () {
         return this.layerEditor.getMode();
     };
 
-    Layer.prototype._resize = function () {
+    Layer.prototype._resize = function (isForced) {
         this.resize({
             slideW: this.layerEditor.getResponsiveRatio('h'),
             slideH: this.layerEditor.getResponsiveRatio('v')
-        });
-    }
+        }, isForced);
+    };
 
-    Layer.prototype.resize = function (ratios) {
+    Layer.prototype.doLinearResize = function (ratios) {
+        this.doThrottledTheResize(ratios, true);
+    };
 
+    Layer.prototype.resize = function (ratios, isForced) {
+
+        if (!this.parent || isForced) {
+            //this.doThrottledTheResize(ratios, false);
+            this.addToResizeCollection(this, ratios, false);
+        }
+    };
+
+    Layer.prototype.doTheResize = function (ratios, isLinear, isThrottled) {
         var ratioPositionH = ratios.slideW,
             ratioSizeH = ratioPositionH,
             ratioPositionV = ratios.slideH,
@@ -6739,29 +8010,94 @@ if (N2SSPRO) {
             ratioSizeH = ratioSizeV = 1;
         }
 
-        var width = this.getProperty(true, 'width');
-        this._setPropertyWithModifier('width', width == 'auto' ? width : Math.round(width), ratioSizeH, true, false);
-        var height = this.getProperty(true, 'height');
-        this._setPropertyWithModifier('height', height == 'auto' ? height : Math.round(height), ratioSizeV, true, false);
-
+        //var width = this.getProperty(true, 'width');
+        //this.storeWithModifier('width', this.isDimensionPropertyAccepted(width) ? width : Math.round(width), ratioSizeH, true);
+        //var height = this.getProperty(true, 'height');
+        //this.storeWithModifier('height', this.isDimensionPropertyAccepted(height) ? height : Math.round(height), ratioSizeV, true);
+        this.renderWithModifier('width', this.getProperty(true, 'width'), ratioSizeH);
+        this.renderWithModifier('height', this.getProperty(true, 'height'), ratioSizeV);
 
         if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
             ratioPositionH = ratioPositionV = 1;
         }
-        this._setPropertyWithModifier('left', Math.round(this.getProperty(true, 'left')), ratioPositionH, true, false);
-        this._setPropertyWithModifier('top', Math.round(this.getProperty(true, 'top')), ratioPositionV, true, false);
+        //this.storeWithModifier('left', Math.round(this.getProperty(true, 'left')), ratioPositionH, true);
+        //this.storeWithModifier('top', Math.round(this.getProperty(true, 'top')), ratioPositionV, true);
+        this.renderWithModifier('left', this.getProperty(true, 'left'), ratioPositionH);
+        this.renderWithModifier('top', this.getProperty(true, 'top'), ratioPositionV);
+        if (!isLinear) {
+            this.triggerLayerResized(isThrottled, ratios);
+        }
+    };
 
+    Layer.prototype.resizeParent = function (e, ratios, isThrottled) {
+        //this.doThrottledTheResize(ratios, false, isThrottled);
+        this.addToResizeCollection(this, ratios, isThrottled);
+    };
+
+    Layer.prototype.addToResizeCollection = function (layer, ratios, isThrottled) {
+        resizeCollection.ratios = ratios;
+        resizeCollection.isThrottled = isThrottled;
+        for (var i = 0; i < resizeCollection.layers.length; i++) {
+            if (resizeCollection.layers[i] == this) {
+                resizeCollection.layers.splice(i, 1);
+                break;
+            }
+        }
+        resizeCollection.layers.push(layer);
+
+        requestRender();
+        this.triggerLayerResized(isThrottled, ratios);
     };
 
     Layer.prototype.update = function () {
+        var parent = this.parent;
+
         if (this.getProperty(true, 'align') == 'center') {
-            this.layer.css('left', (this.layer.parent().width() / 2 - this.layer.width() / 2 + this.getProperty(true, 'left') * this.layerEditor.getResponsiveRatio('h')));
+            var left = 0;
+            if (parent) {
+                left = parent.position().left + parent.width() / 2;
+            } else {
+                left = this.layer.parent().width() / 2;
+            }
+            var ratio = this.layerEditor.getResponsiveRatio('h');
+            if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
+                ratio = 1;
+            }
+            this.layer.css('left', (left - this.layer.width() / 2 + this.getProperty(true, 'left') * ratio));
         }
 
         if (this.getProperty(true, 'valign') == 'middle') {
-            this.layer.css('top', (this.layer.parent().height() / 2 - this.layer.height() / 2 + this.getProperty(true, 'top') * this.layerEditor.getResponsiveRatio('v')));
+            var top = 0;
+            if (parent) {
+                top = parent.position().top + parent.height() / 2;
+            } else {
+                top = this.layer.parent().height() / 2;
+            }
+            var ratio = this.layerEditor.getResponsiveRatio('v');
+            if (!parseInt(this.getProperty(false, 'responsiveposition'))) {
+                ratio = 1;
+            }
+            this.layer.css('top', (top - this.layer.height() / 2 + this.getProperty(true, 'top') * ratio));
         }
-    }
+        this.triggerLayerResized();
+    };
+
+    Layer.prototype.triggerLayerResized = function (isThrottled, ratios) {
+        if (isThrottled) {
+            this._triggerLayerResized(isThrottled, ratios);
+        } else {
+            this._triggerLayerResizedThrottled(true, ratios);
+        }
+    };
+
+    Layer.prototype._triggerLayerResized = function (isThrottled, ratios) {
+        if (!this.isDeleted) {
+            this.layer.triggerHandler('LayerResized', [ratios || {
+                slideW: this.layerEditor.getResponsiveRatio('h'),
+                slideH: this.layerEditor.getResponsiveRatio('v')
+            }, isThrottled || false]);
+        }
+    };
 
     Layer.prototype.getStyleText = function () {
         var style = '';
@@ -6772,6 +8108,104 @@ if (N2SSPRO) {
         style += 'overflow:' + crop + ';';
         style += 'text-align:' + this.property.inneralign + ';';
         return style;
+    };
+
+    Layer.prototype.isDimensionPropertyAccepted = function (value) {
+        if ((value + '').match(/[0-9]+%/) || value == 'auto') {
+            return true;
+        }
+        return false;
+    };
+
+    Layer.prototype.history = function (method, value, other, context) {
+        switch (method) {
+            case 'store':
+                var mode = this.getMode();
+                if (!other[1] || other[3] == mode) {
+                    this[method](other[1], other[2], value, true);
+                } else {
+                    this.deviceProperty[other[3]][other[2]] = value;
+                }
+                this._renderModeProperties(true);
+                break;
+            case 'storeWithModifier':
+                var mode = this.getMode();
+                var ratio = 1;
+                switch (other[1]) {
+                    case 'width':
+                    case 'left':
+                        ratio = this.layerEditor.getResponsiveRatio('h');
+                        break;
+                    case 'height':
+                    case 'top':
+                        ratio = this.layerEditor.getResponsiveRatio('v');
+                        break;
+                }
+                if (other[2] == mode) {
+                    this[method](other[1], value, ratio, true);
+                } else {
+                    this.deviceProperty[other[2]][other[1]] = value;
+
+                    if (other[1] == 'width' || other[1] == 'height') {
+                        this.markSmallLayer();
+                    }
+                }
+                this._renderModeProperties(true);
+                break;
+            case 'addLayer':
+                switch (value) {
+                    case 'add':
+                        this.layerEditor._zIndexOffset = -1;
+                        this.layerEditor._idTranslation = {};
+                        var layer = this.layerEditor.loadSingleData($.extend(true, {}, other[0]));
+                        smartSlider.history.changeFuture(this, layer);
+                        smartSlider.history.changeFuture(this.items[0], layer.items[0]);
+                        this.layerEditor.reIndexLayers();
+                        this.layerEditor.refreshMode();
+                        break;
+                    case 'delete':
+                        this.delete();
+                        break;
+                }
+                break;
+            case 'duplicateLayer':
+                switch (value) {
+                    case 'duplicate':
+                        var newLayers = [];
+                        this.duplicate(true, false, newLayers);
+                        for (var i = 0; i < newLayers.length; i++) {
+                            smartSlider.history.changeFuture(context.oldLayers[i], newLayers[i]);
+                            smartSlider.history.changeFuture(context.oldLayers[i].items[0], newLayers[i].items[0]);
+                        }
+                        context.oldLayers = [];
+                        break;
+                    case 'delete':
+                        var oldLayers = [];
+                        other[0].delete(true, oldLayers);
+                        context.oldLayers = oldLayers;
+                        break;
+                }
+                break;
+            case 'deleteLayer':
+                switch (value) {
+                    case 'create':
+                        this.layerEditor._zIndexOffset = -1;
+                        this.layerEditor._idTranslation = {};
+                        var layer = this.layerEditor.loadSingleData($.extend(true, {}, other[0]));
+                        smartSlider.history.changeFuture(this, layer);
+                        smartSlider.history.changeFuture(this.items[0], layer.items[0]);
+                        this.layerEditor.reIndexLayers();
+                        this.layerEditor.refreshMode();
+                        break;
+                    case 'delete':
+                        this.delete();
+                        break;
+                }
+                break;
+            case 'storeAnimations':
+                this.animation.storeAnimations(other[0], null, null, $.extend(true, {}, value));
+                break;
+        }
     };
 
     scope.NextendSmartSliderLayer = Layer;
@@ -6820,7 +8254,6 @@ if (N2SSPRO) {
 
     function AdminSlideLayerManager(layerManager, staticSlide, isUploadDisabled, uploadUrl, uploadDir) {
         this.activeLayerIndex = -1;
-        this.advanced = false;
         this.snapToEnabled = true;
         this.staticSlide = staticSlide;
 
@@ -6851,6 +8284,9 @@ if (N2SSPRO) {
         if (!this.layerContainerElement.length) {
             this.layerContainerElement = smartSlider.$currentSlideElement;
         }
+
+        this.layerContainerElement.parent().prepend('<div class="n2-ss-slide-border n2-ss-slide-border-left" /><div class="n2-ss-slide-border n2-ss-slide-border-top" /><div class="n2-ss-slide-border n2-ss-slide-border-right" /><div class="n2-ss-slide-border n2-ss-slide-border-bottom" />');
+
 
         this.slideSize = {
             width: this.layerContainerElement.width(),
@@ -6888,17 +8324,37 @@ if (N2SSPRO) {
 
         this._initDeviceModeChange();
 
-        $('.n2-layers-tab-label').on('dblclick', $.proxy(function () {
-            if (this.advanced) {
-                this.switchAdvanced(false);
+        //this.initBatch();
+        this.initSnapTo();
+        this.initEditorTheme();
+        this.initAlign();
+        this.initParentLinker();
+        this.initEvents();
+
+        var globalAdaptiveFont = $('#n2-ss-adaptive-font').on('click', $.proxy(function () {
+            this.toolboxForm.adaptivefont.data('field').onoff.trigger('click');
+        }, this));
+
+        this.toolboxForm.adaptivefont.on('nextendChange', $.proxy(function () {
+            if (this.toolboxForm.adaptivefont.val() == 1) {
+                globalAdaptiveFont.addClass('n2-active');
             } else {
-                this.switchAdvanced(true);
+                globalAdaptiveFont.removeClass('n2-active');
             }
         }, this));
 
-        //this.initBatch();
-        this.initSnapTo();
-        this.initAlign();
+
+        new NextendElementNumber("n2-ss-font-size", -Number.MAX_VALUE, Number.MAX_VALUE);
+        new NextendElementAutocompleteSimple("n2-ss-font-size", ["60", "80", "100", "120", "140", "160", "180"]);
+
+        var globalFontSize = $('#n2-ss-font-size').on('outsideChange', $.proxy(function () {
+            var value = parseInt(globalFontSize.val());
+            this.toolboxForm.fontsize.val(value).trigger('change');
+        }, this));
+
+        this.toolboxForm.fontsize.on('nextendChange', $.proxy(function () {
+            globalFontSize.data('field').insideChange(this.toolboxForm.fontsize.val());
+        }, this));
 
         if (this.zIndexList.length > 0) {
             this.zIndexList[this.zIndexList.length - 1].activate();
@@ -6907,12 +8363,14 @@ if (N2SSPRO) {
 
         $(window).on({
             keydown: $.proxy(function (e) {
-                if (e.target.tagName != 'TEXTAREA' && e.target.tagName != 'INPUT' && !smartSlider.timelineControl.isActivated()) {
+                if (e.target.tagName != 'TEXTAREA' && e.target.tagName != 'INPUT' && (!smartSlider.timelineControl || !smartSlider.timelineControl.isActivated())) {
                     if (this.activeLayerIndex != -1) {
                         if (e.keyCode == 46) {
-                            this.layerList[this.activeLayerIndex].delete();
+                            if (typeof this.layerList[this.activeLayerIndex] !== 'undefined') {
+                                this.layerList[this.activeLayerIndex].delete();
+                            }
                         } else if (e.keyCode == 35) {
-                            this.layerList[this.activeLayerIndex].duplicate();
+                            this.layerList[this.activeLayerIndex].duplicate(true, false);
                             e.preventDefault();
                         } else if (e.keyCode == 16) {
                             keys[e.keyCode] = 1;
@@ -6953,9 +8411,16 @@ if (N2SSPRO) {
                             }
                             e.preventDefault();
                         } else if (e.keyCode >= 97 && e.keyCode <= 105) {
+
+                            var hAlign = horizontalAlign[e.keyCode],
+                                vAlign = verticalAlign[e.keyCode],
+                                toZero = false;
+                            if (this.toolboxForm.align.val() == hAlign && this.toolboxForm.valign.val() == vAlign) {
+                                toZero = true;
+                            }
                             // numeric pad
-                            this.horizontalAlign(horizontalAlign[e.keyCode]);
-                            this.verticalAlign(verticalAlign[e.keyCode]);
+                            this.horizontalAlign(hAlign, toZero);
+                            this.verticalAlign(vAlign, toZero);
 
                         } else if (e.keyCode == 34) {
                             e.preventDefault();
@@ -6973,6 +8438,14 @@ if (N2SSPRO) {
                             }
                             this.zIndexList[targetIndex].activate();
 
+                        } else if (e.ctrlKey || e.metaKey) {
+                            if (e.keyCode == 90) {
+                                if (e.shiftKey) {
+                                    smartSlider.history.redo();
+                                } else {
+                                    smartSlider.history.undo();
+                                }
+                            }
                         }
                     }
                 }
@@ -7027,6 +8500,10 @@ if (N2SSPRO) {
     };
 
     AdminSlideLayerManager.prototype.getMode = function () {
+        return this.mode;
+    };
+
+    AdminSlideLayerManager.prototype._getMode = function () {
         return this.responsive.getNormalizedModeString();
     };
 
@@ -7040,6 +8517,7 @@ if (N2SSPRO) {
     };
 
     AdminSlideLayerManager.prototype.createLayer = function (properties) {
+
         for (var k in this.layerDefault) {
             if (this.layerDefault[k] !== null) {
                 properties[k] = this.layerDefault[k];
@@ -7055,6 +8533,16 @@ if (N2SSPRO) {
     };
 
     AdminSlideLayerManager.prototype.addLayer = function (html, refresh) {
+        var layerObj = this._addLayer(html, refresh);
+
+        smartSlider.history.add($.proxy(function () {
+            return [layerObj, 'addLayer', 'add', 'delete', [layerObj.getData(true)]];
+        }, this));
+
+        return layerObj;
+    };
+
+    AdminSlideLayerManager.prototype._addLayer = function (html, refresh) {
         var newLayer = $(html);
         this.layerContainerElement.append(newLayer);
         var layerObj = new NextendSmartSliderLayer(this, newLayer, this.itemEditor);
@@ -7090,24 +8578,42 @@ if (N2SSPRO) {
         smartSlider.slide._changeView(1);
     };
 
-    AdminSlideLayerManager.prototype.switchAdvanced = function (state) {
-
-        if (state) {
-            $('#n2-admin')
-                .addClass('n2-ss-item-mode');
-        } else {
-            $('#n2-admin')
-                .removeClass('n2-ss-item-mode');
-        }
-        this.advanced = state;
-        this.itemEditor.advanced(state);
-    };
-
     //<editor-fold desc="Initialize the device mode changer">
 
+
     AdminSlideLayerManager.prototype._initDeviceModeChange = function () {
-        this.resetToDesktopTRElement = $('#layerresettodesktop').on('click', $.proxy(this.__onResetToDesktopClick, this))
-            .closest('tr');
+        var resetButton = $('#layerresettodesktop').on('click', $.proxy(this.__onResetToDesktopClick, this));
+        this.resetToDesktopTRElement = resetButton.closest('tr');
+        this.resetToDesktopGlobalElement = $('#n2-ss-reset-to-desktop').on('click', $.proxy(function () {
+            if (this.resetToDesktopTRElement.css('display') == 'table-row') {
+                resetButton.trigger('click');
+            }
+        }, this));
+
+
+        var globalShowOnDevice = $('#n2-ss-show-on-device').on('click', $.proxy(function () {
+            this.toolboxForm['showField' + this.mode.charAt(0).toUpperCase() + this.mode.substr(1)].data('field').onoff.trigger('click');
+        }, this));
+
+        this.globalShowOnDeviceCB = function (mode) {
+            if (this.mode == mode) {
+                if (this.toolboxForm['showField' + this.mode.charAt(0).toUpperCase() + this.mode.substr(1)].val() == 1) {
+                    globalShowOnDevice.addClass('n2-active');
+                } else {
+                    globalShowOnDevice.removeClass('n2-active');
+                }
+            }
+        };
+
+        this.toolboxForm.showFieldDesktopPortrait.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'desktopPortrait'));
+        this.toolboxForm.showFieldDesktopLandscape.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'desktopLandscape'));
+
+        this.toolboxForm.showFieldTabletPortrait.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'tabletPortrait'));
+        this.toolboxForm.showFieldTabletLandscape.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'tabletLandscape'));
+
+        this.toolboxForm.showFieldMobilePortrait.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'mobilePortrait'));
+        this.toolboxForm.showFieldMobileLandscape.on('nextendChange', $.proxy(this.globalShowOnDeviceCB, this, 'mobileLandscape'));
+
         this.__onChangeDeviceOrientation();
         smartSlider.frontend.sliderElement.on('SliderDeviceOrientation', $.proxy(this.__onChangeDeviceOrientation, this));
 
@@ -7133,18 +8639,22 @@ if (N2SSPRO) {
      */
     AdminSlideLayerManager.prototype.__onChangeDeviceOrientation = function () {
 
-        var mode = this.getMode();
+        this.mode = this._getMode();
+        this.globalShowOnDeviceCB(this.mode);
 
-        this.resetToDesktopTRElement.css('display', (mode == 'desktopPortrait' ? 'none' : 'table-row'));
+        this.resetToDesktopTRElement.css('display', (this.mode == 'desktopPortrait' ? 'none' : 'table-row'));
+        this.resetToDesktopGlobalElement.css('display', (this.mode == 'desktopPortrait' ? 'none' : ''));
         for (var i = 0; i < this.layerList.length; i++) {
-            this.layerList[i].changeEditorMode(mode);
+            this.layerList[i].changeEditorMode(this.mode);
         }
     };
 
     AdminSlideLayerManager.prototype.__onResize = function (e, ratios) {
 
-        for (var i = 0; i < this.layerList.length; i++) {
-            this.layerList[i].resize(ratios);
+        var sortedLayerList = this.getSortedLayers();
+
+        for (var i = 0; i < sortedLayerList.length; i++) {
+            sortedLayerList[i].doLinearResize(ratios);
         }
     };
 
@@ -7154,8 +8664,28 @@ if (N2SSPRO) {
      */
     AdminSlideLayerManager.prototype.__onResetToDesktopClick = function () {
         if (this.activeLayerIndex != -1) {
-            this.layerList[this.activeLayerIndex].resetMode(this.getMode());
+            var mode = this.getMode();
+            this.layerList[this.activeLayerIndex].resetMode(mode, mode);
         }
+    };
+
+    AdminSlideLayerManager.prototype.copyOrResetMode = function (mode) {
+
+        var currentMode = this.getMode();
+        if (mode != 'desktopPortrait' && mode == currentMode) {
+            for (var i = 0; i < this.layerList.length; i++) {
+                this.layerList[i].resetMode(mode, currentMode);
+            }
+        } else if (mode != 'desktopPortrait' && currentMode == 'desktopPortrait') {
+            for (var i = 0; i < this.layerList.length; i++) {
+                this.layerList[i].resetMode(mode, currentMode);
+            }
+        } else if (mode != currentMode) {
+            for (var i = 0; i < this.layerList.length; i++) {
+                this.layerList[i].copyMode(currentMode, mode);
+            }
+        }
+
     };
 
     AdminSlideLayerManager.prototype.refreshSlideSize = function () {
@@ -7182,8 +8712,14 @@ if (N2SSPRO) {
                 stop: $.proxy(function (event, ui) {
                     var startIndex = this.zIndexList.length - $(ui.item).data("startindex") - 1,
                         newIndex = this.zIndexList.length - $(ui.item).index() - 1;
-                    this.zIndexList.splice(newIndex, 0, this.zIndexList.splice(startIndex, 1)[0]);
-                    this.reIndexLayers();
+                    if (startIndex != newIndex) {
+                        this.zIndexList.splice(newIndex, 0, this.zIndexList.splice(startIndex, 1)[0]);
+                        this.reIndexLayers();
+
+                        smartSlider.history.add($.proxy(function () {
+                            return [this, 'changeZIndex', [startIndex, newIndex], [newIndex, startIndex], []];
+                        }, this));
+                    }
                 }, this)
             });
     };
@@ -7197,6 +8733,38 @@ if (N2SSPRO) {
             this.zIndexList[i].setZIndex(i);
         }
     };
+
+    AdminSlideLayerManager.prototype.initEvents = function () {
+        var parent = $('#n2-tab-events'),
+            content = parent.find('> table').css('display', 'none'),
+            heading = parent.find('.n2-h3'),
+            headingLabel = heading.html(),
+            row = $('<div class="n2-sidebar-row n2-sidebar-header-bg n2-form-dark n2-sets-header"><div class="n2-table"><div class="n2-tr"><div class="n2-td"><div class="n2-h3 n2-uc">' + headingLabel + '</div></div><div style="text-align: ' + (nextend.isRTL() ? 'left' : 'right') + ';" class="n2-td"></div></div></div></div>'),
+            button = $('<a href="#" class="n2-button n2-button-medium n2-button-green n2-h5 n2-uc">' + n2_('Show') + '</a>').on('click', function (e) {
+                e.preventDefault();
+                if (button.hasClass('n2-button-green')) {
+                    content.css('display', '');
+                    button.html(n2_('Hide'));
+                    button.addClass('n2-button-grey');
+                    button.removeClass('n2-button-green');
+                    $.jStorage.set("n2-ss-events", 1);
+                } else {
+                    content.css('display', 'none');
+                    button.html(n2_('Show'));
+                    button.addClass('n2-button-green');
+                    button.removeClass('n2-button-grey');
+                    $.jStorage.set("n2-ss-events", 0);
+                }
+            });
+        if ($.jStorage.get("n2-ss-events", 0)) {
+            content.css('display', '');
+            button.html(n2_('Hide'));
+            button.addClass('n2-button-grey');
+            button.removeClass('n2-button-green');
+        }
+        heading.replaceWith(row);
+        button.appendTo(row.find('.n2-td').eq(1));
+    }
 
     AdminSlideLayerManager.prototype.initSnapTo = function () {
 
@@ -7239,10 +8807,26 @@ if (N2SSPRO) {
         if (!this.snapToEnabled) {
             return false;
         }
+
         if (this.staticSlide) {
-            return '.n2-ss-static-slide .n2-ss-layer:not(.n2-ss-layer-locked):visible';
+            return $('.n2-ss-static-slide .n2-ss-layer:not(.n2-ss-layer-locked):not(.n2-ss-layer-parent):visible');
         }
-        return '.n2-ss-slide.n2-ss-slide-active .n2-ss-layer:not(.n2-ss-layer-locked):visible';
+        return $('.n2-ss-slide.n2-ss-slide-active .n2-ss-layer:not(.n2-ss-layer-locked):not(.n2-ss-layer-parent):visible');
+    };
+
+    AdminSlideLayerManager.prototype.initEditorTheme = function () {
+        this.themeElement = $('#n2-tab-smartslider-editor');
+        this.themeButton = $('#n2-ss-theme').on('click', $.proxy(this.switchEditorTheme, this));
+        if ($.jStorage.get("n2-ss-theme-dark", 0)) {
+            this.themeButton.addClass('n2-active');
+            this.themeElement.addClass('n2-ss-theme-dark');
+        }
+    };
+
+    AdminSlideLayerManager.prototype.switchEditorTheme = function () {
+        $.jStorage.set("n2-ss-theme-dark", !this.themeButton.hasClass('n2-active'));
+        this.themeButton.toggleClass('n2-active');
+        this.themeElement.toggleClass('n2-ss-theme-dark');
     };
 
     AdminSlideLayerManager.prototype.initAlign = function () {
@@ -7252,33 +8836,33 @@ if (N2SSPRO) {
         hAlignButton.add(vAlignButton).on('click', $.proxy(function (e) {
             if (e.ctrlKey || e.metaKey) {
                 var $el = $(e.currentTarget),
-                    isActive = $el.hasClass('n2-active'),
+                    isActive = $el.hasClass('n2-sub-active'),
                     align = $el.data('align');
                 switch (align) {
                     case 'left':
                     case 'center':
                     case 'right':
-                        hAlignButton.removeClass('n2-active');
+                        hAlignButton.removeClass('n2-sub-active');
                         if (isActive) {
                             $.jStorage.set('ss-item-horizontal-align', null);
                             this.layerDefault.align = null;
                         } else {
                             $.jStorage.set('ss-item-horizontal-align', align);
                             this.layerDefault.align = align;
-                            $el.addClass('n2-active');
+                            $el.addClass('n2-sub-active');
                         }
                         break;
                     case 'top':
                     case 'middle':
                     case 'bottom':
-                        vAlignButton.removeClass('n2-active');
+                        vAlignButton.removeClass('n2-sub-active');
                         if (isActive) {
                             $.jStorage.set('ss-item-vertical-align', null);
                             this.layerDefault.valign = null;
                         } else {
                             $.jStorage.set('ss-item-vertical-align', align);
                             this.layerDefault.valign = align;
-                            $el.addClass('n2-active');
+                            $el.addClass('n2-sub-active');
                         }
                         break;
                 }
@@ -7288,51 +8872,104 @@ if (N2SSPRO) {
                     case 'left':
                     case 'center':
                     case 'right':
-                        this.horizontalAlign(align);
+                        this.horizontalAlign(align, true);
                         break;
                     case 'top':
                     case 'middle':
                     case 'bottom':
-                        this.verticalAlign(align);
+                        this.verticalAlign(align, true);
                         break;
                 }
             }
         }, this));
 
+        this.toolboxForm.align.on('nextendChange', $.proxy(function () {
+            hAlignButton.removeClass('n2-active');
+            switch (this.toolboxForm.align.val()) {
+                case 'left':
+                    hAlignButton.eq(0).addClass('n2-active');
+                    break;
+                case 'center':
+                    hAlignButton.eq(1).addClass('n2-active');
+                    break;
+                case 'right':
+                    hAlignButton.eq(2).addClass('n2-active');
+                    break;
+            }
+        }, this));
+        this.toolboxForm.valign.on('nextendChange', $.proxy(function () {
+            vAlignButton.removeClass('n2-active');
+            switch (this.toolboxForm.valign.val()) {
+                case 'top':
+                    vAlignButton.eq(0).addClass('n2-active');
+                    break;
+                case 'middle':
+                    vAlignButton.eq(1).addClass('n2-active');
+                    break;
+                case 'bottom':
+                    vAlignButton.eq(2).addClass('n2-active');
+                    break;
+            }
+        }, this));
+
+
         var hAlign = $.jStorage.get('ss-item-horizontal-align', null),
             vAlign = $.jStorage.get('ss-item-vertical-align', null);
         if (hAlign != null) {
-            hAlignButton.eq(nameToIndex[hAlign]).addClass('n2-active');
+            hAlignButton.eq(nameToIndex[hAlign]).addClass('n2-sub-active');
             this.layerDefault.align = hAlign;
         }
         if (vAlign != null) {
-            vAlignButton.eq(nameToIndex[vAlign]).addClass('n2-active');
+            vAlignButton.eq(nameToIndex[vAlign]).addClass('n2-sub-active');
             this.layerDefault.valign = vAlign;
         }
     };
 
-    AdminSlideLayerManager.prototype.horizontalAlign = function (align) {
-        if (this.toolboxForm.align.val() == align) {
+    AdminSlideLayerManager.prototype.horizontalAlign = function (align, toZero) {
+        if (this.toolboxForm.align.val() != align) {
+            this.toolboxForm.align.data('field').options.eq(nameToIndex[align]).trigger('click');
+        } else if (toZero) {
             this.toolboxForm.left.val(0).trigger('change');
-        } else {
-            this.toolboxForm.align.data('field').options.eq(nameToIndex[align]).trigger('click')
         }
     };
 
-    AdminSlideLayerManager.prototype.verticalAlign = function (align) {
-        if (this.toolboxForm.valign.val() == align) {
+    AdminSlideLayerManager.prototype.verticalAlign = function (align, toZero) {
+        if (this.toolboxForm.valign.val() != align) {
+            this.toolboxForm.valign.data('field').options.eq(nameToIndex[align]).trigger('click');
+        } else if (toZero) {
             this.toolboxForm.top.val(0).trigger('change');
-        } else {
-            this.toolboxForm.valign.data('field').options.eq(nameToIndex[align]).trigger('click')
         }
+    };
+
+    AdminSlideLayerManager.prototype.initParentLinker = function () {
+        var field = this.toolboxForm.parentid.data('field'),
+            parentLinker = $('#n2-ss-parent-linker').on({
+                click: function (e) {
+                    field.click(e);
+                },
+                mouseenter: function (e) {
+                    field.picker.trigger(e);
+                },
+                mouseleave: function (e) {
+                    field.picker.trigger(e);
+                }
+            });
+        this.toolboxForm.parentid.on('nextendChange', $.proxy(function () {
+            if (this.toolboxForm.parentid.val() != '') {
+                parentLinker.addClass('n2-active');
+            } else {
+                parentLinker.removeClass('n2-active');
+            }
+        }, this));
+    
     };
 
     /**
      * Delete all layers on the slide
      */
     AdminSlideLayerManager.prototype.deleteLayers = function () {
-        for (var i = this.layerList.length - 1; i >= 0; i--) {
-            this.layerList[i].delete();
+        for (var i = this.zIndexList.length - 1; i >= 0; i--) {
+            this.zIndexList[i].delete();
         }
     };
 
@@ -7340,9 +8977,14 @@ if (N2SSPRO) {
 
         this.reIndexLayers();
 
-        var activeLayer = this.getSelectedLayer();
-
         this.layerList.splice(index, 1);
+
+        this.afterLayerDeleted(index);
+    };
+
+    AdminSlideLayerManager.prototype.afterLayerDeleted = NextendThrottle(function (index) {
+
+        var activeLayer = this.getSelectedLayer();
 
         if (index === this.activeLayerIndex) {
             this.activeLayerIndex = -1;
@@ -7354,6 +8996,29 @@ if (N2SSPRO) {
         } else if (activeLayer) {
             this.activeLayerIndex = activeLayer.getIndex();
         }
+    }, 50);
+
+    AdminSlideLayerManager.prototype.getSortedLayers = function () {
+        var list = this.layerList.slice(),
+            children = {};
+        for (var i = list.length - 1; i >= 0; i--) {
+            if (typeof list[i].property.parentid !== 'undefined' && list[i].property.parentid) {
+                if (typeof children[list[i].property.parentid] == 'undefined') {
+                    children[list[i].property.parentid] = [];
+                }
+                children[list[i].property.parentid].push(list[i]);
+                list.splice(i, 1);
+            }
+        }
+        for (var i = 0; i < list.length; i++) {
+            if (typeof list[i].property.id !== 'undefined' && list[i].property.id && typeof children[list[i].property.id] !== 'undefined') {
+                children[list[i].property.id].unshift(0);
+                children[list[i].property.id].unshift(i + 1);
+                list.splice.apply(list, children[list[i].property.id]);
+                delete children[list[i].property.id];
+            }
+        }
+        return list;
     };
 
     /**
@@ -7361,11 +9026,11 @@ if (N2SSPRO) {
      * @returns {string} HTML
      */
     AdminSlideLayerManager.prototype.getHTML = function () {
-
         var node = $('<div></div>');
 
-        for (var i = 0; i < this.layerList.length; i++) {
-            node.append(this.layerList[i].getHTML(true, true));
+        var list = this.layerList;
+        for (var i = 0; i < list.length; i++) {
+            node.append(list[i].getHTML(true, true));
         }
 
         return node.html();
@@ -7375,41 +9040,83 @@ if (N2SSPRO) {
     AdminSlideLayerManager.prototype.getData = function () {
         var layers = [];
 
-        for (var i = 0; i < this.layerList.length; i++) {
-            layers.push(this.layerList[i].getData(true));
+        var list = this.layerList;
+        for (var i = 0; i < list.length; i++) {
+            layers.push(list[i].getData(true));
         }
 
         return layers;
     };
 
     AdminSlideLayerManager.prototype.loadData = function (data, overwrite) {
+
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'fixActiveLayer', '', '', []];
+        }, this));
+
         var layers = $.extend(true, [], data);
         if (overwrite) {
             this.deleteLayers();
         }
+        this._zIndexOffset = this.zIndexList.length;
+        this._idTranslation = {};
         for (var i = 0; i < layers.length; i++) {
-
-            var layerData = layers[i],
-                layer = $('<div class="n2-ss-layer"></div>')
-                    .attr('style', layerData.style);
-
-            for (var j = 0; j < layerData.items.length; j++) {
-                $('<div class="n2-ss-item n2-ss-item-' + layerData.items[j].type + '"></div>')
-                    .data('item', layerData.items[j].type)
-                    .data('itemvalues', layerData.items[j].values)
-                    .appendTo(layer);
-            }
-
-            delete layerData.style;
-            delete layerData.items;
-            layerData.animations = Base64.encode(JSON.stringify(layerData.animations));
-            for (var k in layerData) {
-                layer.data(k, layerData[k]);
-            }
-            this.addLayer(layer, false);
+            this.loadSingleData(layers[i])
         }
         this.reIndexLayers();
         this.refreshMode();
+
+        if (this.activeLayerIndex == -1 && this.layerList.length > 0) {
+            this.layerList[0].activate();
+        }
+
+        smartSlider.history.add($.proxy(function () {
+            return [this, 'fixActiveLayer', '', '', []];
+        }, this));
+
+    };
+
+    AdminSlideLayerManager.prototype.loadSingleData = function (layerData) {
+
+        var layer = $('<div class="n2-ss-layer"></div>')
+            .attr('style', layerData.style);
+
+        var storedZIndex = layer.css('zIndex');
+        if (storedZIndex == 'auto' || storedZIndex == '') {
+            if (layerData.zIndex) {
+                storedZIndex = layerData.zIndex;
+            } else {
+                storedZIndex = 1;
+            }
+        }
+        layer.css('zIndex', storedZIndex + this._zIndexOffset);
+        if (layerData.id) {
+            var id = $.fn.uid();
+            this._idTranslation[layerData.id] = id;
+            layer.attr('id', id);
+        }
+        if (layerData.parentid) {
+            if (typeof this._idTranslation[layerData.parentid] != 'undefined') {
+                layerData.parentid = this._idTranslation[layerData.parentid];
+            } else {
+                layerData.parentid = '';
+            }
+        }
+
+        for (var j = 0; j < layerData.items.length; j++) {
+            $('<div class="n2-ss-item n2-ss-item-' + layerData.items[j].type + '"></div>')
+                .data('item', layerData.items[j].type)
+                .data('itemvalues', layerData.items[j].values)
+                .appendTo(layer);
+        }
+
+        delete layerData.style;
+        delete layerData.items;
+        layerData.animations = Base64.encode(JSON.stringify(layerData.animations));
+        for (var k in layerData) {
+            layer.data(k, layerData[k]);
+        }
+        return this.addLayer(layer, false);
     };
 
     /**
@@ -7429,6 +9136,10 @@ if (N2SSPRO) {
         this.toolboxElement = $('#smartslider-slide-toolbox-layer');
 
         this.toolboxForm = {
+            id: $('#layerid'),
+            parentid: $('#layerparentid'),
+            parentalign: $('#layerparentalign'),
+            parentvalign: $('#layerparentvalign'),
             left: $('#layerleft'),
             top: $('#layertop'),
             responsiveposition: $('#layerresponsive-position'),
@@ -7447,7 +9158,13 @@ if (N2SSPRO) {
             align: $('#layeralign'),
             valign: $('#layervalign'),
             fontsize: $('#layerfont-size'),
-            adaptivefont: $('#layeradaptive-font')
+            adaptivefont: $('#layeradaptive-font'),
+            mouseenter: $('#layeronmouseenter'),
+            click: $('#layeronclick'),
+            mouseleave: $('#layeronmouseleave'),
+            play: $('#layeronplay'),
+            pause: $('#layeronpause'),
+            stop: $('#layeronstop')
         };
 
         for (var k in this.toolboxForm) {
@@ -7473,10 +9190,14 @@ if (N2SSPRO) {
 
     AdminSlideLayerManager.prototype.activateLayerPropertyChanged = function (name, e) {
         if (this.activeLayerIndex != -1) {
+            //@todo  batch? throttle
             var value = this.toolboxForm[name].val();
-            this.layerList[this.activeLayerIndex].setProperty(name, value);
+            this.layerList[this.activeLayerIndex].setProperty(name, value, 'manager');
         } else {
-            this.toolboxForm[name].data('field').insideChange('');
+            var field = this.toolboxForm[name].data('field');
+            if (typeof field !== 'undefined') {
+                field.insideChange('');
+            }
         }
     };
 
@@ -7526,7 +9247,10 @@ if (N2SSPRO) {
         if (typeof this['_formSet' + name] === 'function') {
             this['_formSet' + name](value, e.target);
         } else {
-            this.toolboxForm[name].data('field').insideChange(value);
+            var field = this.toolboxForm[name].data('field');
+            if (typeof field !== 'undefined') {
+                field.insideChange(value);
+            }
         }
     };
 
@@ -7562,9 +9286,28 @@ if (N2SSPRO) {
         this.toolboxForm.showFieldMobileLandscape.data('field').insideChange(value);
     };
 
+    AdminSlideLayerManager.prototype.history = function (method, value, other) {
+        switch (method) {
+            case 'changeZIndex':
+                this.zIndexList.splice(value[1], 0, this.zIndexList.splice(value[0], 1)[0]);
+                this.reIndexLayers();
+                break;
+            case 'fixActiveLayer':
+                var selectedLayer = this.getSelectedLayer();
+                if (selectedLayer == false || selectedLayer.isDeleted) {
+
+                    if (this.activeLayerIndex == -1 && this.layerList.length > 0) {
+                        this.zIndexList[this.zIndexList.length - 1].activate();
+                    }
+                }
+                break;
+        }
+    };
+
     scope.NextendSmartSliderAdminSlideLayerManager = AdminSlideLayerManager;
 
 })(nextend.smartSlider, n2, window);
+
 (function (smartSlider, $, scope, undefined) {
 
 
@@ -7661,6 +9404,9 @@ if (N2SSPRO) {
     };
 
     TimelineAnimation.prototype.onBarResizeStop = function (event, ui) {
+
+        this.animation.animations._startHistory();
+
         var delay = smartSlider.offsetXToDuration(ui.position[nextend.rtl.marginLeft]),
             duration = smartSlider.offsetXToDuration(ui.size.width);
 
@@ -7671,15 +9417,22 @@ if (N2SSPRO) {
         this.setDuration(duration);
 
         this.fixTimelineTotalDuration();
+
+        this.animation.animations._endHistory();
     };
 
     TimelineAnimation.prototype.onBarDragStop = function (event, ui) {
+
+        this.animation.animations._startHistory();
+
         var delay = smartSlider.offsetXToDuration(ui.position[nextend.rtl.marginLeft]);
         this.animation.setDelay(delay);
 
         this.setDelay(delay);
 
         this.fixTimelineTotalDuration();
+
+        this.animation.animations._endHistory();
     };
 
     TimelineAnimation.prototype.animationChanged = function () {
@@ -7864,6 +9617,8 @@ if (N2SSPRO) {
     scope.NextendSmartSliderTimelineAnimationLoop = TimelineAnimationLoop;
 
 })(nextend.smartSlider, n2, window);
+
+
 (function (smartSlider, $, scope, undefined) {
 
     function TimelineLayer(layer) {
@@ -7893,9 +9648,7 @@ if (N2SSPRO) {
         this.buttonContainer = $('<div class="n2-ss-timeline-layer-buttons"/>').appendTo(this.sidebar);
 
         $('<div class="n2-button n2-button-small n2-button-grey"><i class="n2-i n2-it n2-i-delete"></i></div>').on('click', $.proxy(function (e) {
-            this.layer.animation.clear('in');
-            this.layer.animation.clear('loop');
-            this.layer.animation.clear('out');
+            this.layer.animation.clearAll();
         }, this))
             .appendTo(this.buttonContainer);
 
@@ -7947,10 +9700,51 @@ if (N2SSPRO) {
             .on('layerAnimationAdded', $.proxy(this.animationAdded, this))
             .on('layerAnimationSpecialZeroInChanged', $.proxy(this.specialZeroInChanged, this));
 
+        this.initExtraAnimation();
+
+        layer.layer.triggerHandler('timelineLoadedForLayer');
+
         this.indexed();
 
         layer.timelineLayerManager = this;
 
+    };
+
+    TimelineLayer.prototype.initExtraAnimation = function () {
+        var layer = this.layer;
+
+        this.extraAnimationBar = null;
+
+        layer.layer.on('layerExtraAnimationAdded', $.proxy(function (e, delay, name, changeCallback, editCallback) {
+            if (this.extraAnimationBar) {
+                this.extraAnimationBar.css('left', smartSlider.durationToOffsetX(delay));
+            } else {
+                this.extraAnimationBar = $('<div class="n2-ss-layer-extra-animation n2-ss-layer-extra-animation-' + name + '"><span class="n2-ss-animation-duration n2-h5">' + name + '</span></div>')
+                    .css('left', smartSlider.durationToOffsetX(delay))
+                    .appendTo(this.content)
+                    .draggable({
+                        scroll: true,
+                        axis: "x",
+                        drag: function (event, ui) {
+                            ui.position.left = Math.max(0, smartSlider.normalizeOffsetX(ui.position.left))
+                        },
+                        stop: function (event, ui) {
+                            layer.activate();
+                            changeCallback(smartSlider.offsetXToDuration(ui.position.left));
+                        }
+                    })
+                    .on('click', function () {
+                        layer.activate();
+                        editCallback();
+                    });
+            }
+        }, this))
+            .on('layerExtraAnimationRemoved', $.proxy(function () {
+                if (this.extraAnimationBar) {
+                    this.extraAnimationBar.remove();
+                    this.extraAnimationBar = null;
+                }
+            }, this));
     };
 
     TimelineLayer.prototype.renamed = function (e, newName) {
@@ -8026,6 +9820,8 @@ if (N2SSPRO) {
     scope.NextendSmartSliderTimelineLayer = TimelineLayer;
 
 })(nextend.smartSlider, n2, window);
+
+
 (function (smartSlider, $, scope, undefined) {
 
     function AdminTimelineManager(layerEditor) {
@@ -8059,7 +9855,34 @@ if (N2SSPRO) {
 
         this.initLayerButtons();
 
+        this.initHeight();
     };
+
+    AdminTimelineManager.prototype.initHeight = function () {
+
+        var lastHeight = $.jStorage.get('smartsliderTimelineHeight', 200),
+            pane1 = $('.n2-ss-timeline-sidebar-layers'),
+            pane2 = $('.n2-ss-timeline-content-layers-container')
+                .height(lastHeight);
+
+        pane1.on('scroll', function () {
+            pane2.scrollTop(pane1.scrollTop());
+        });
+
+        $('.n2-ss-timeline-sidebar-layers-container')
+            .height(lastHeight)
+            .resizable({
+                minHeight: 200,
+                alsoResize: pane2,
+                handles: 's',
+                create: function (ui) {
+                    $(ui.target).find('.ui-resizable-s').append('<i class="n2-i n2-it n2-i-drag"></i>');
+                },
+                stop: function (event, ui) {
+                    $.jStorage.set('smartsliderTimelineHeight', ui.size.height);
+                }
+            });
+    }
 
     AdminTimelineManager.prototype.initTimeFrame = function () {
 
@@ -8136,6 +9959,7 @@ if (N2SSPRO) {
                     this.setCTI(smartSlider.offsetXToDuration(ui.position.left));
                 }, this),
                 stop: $.proxy(function (event, ui) {
+                    this.control.unHold();
                     this.disablePreviewModeWidthCTI(smartSlider.offsetXToDuration(ui.position.left));
                     delete this.slideDurationPx;
                 }, this)
@@ -8451,3 +10275,4 @@ if (N2SSPRO) {
 
 })
 (nextend.smartSlider, n2, window);
+

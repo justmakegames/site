@@ -43,6 +43,13 @@
 
         $(window).on('n2-before-unload', $.proxy(this.onBeforeUnload, this));
         registerBeforeUnload();
+
+        $('input, textarea').on('keyup', function (e) {
+            if (e.which == 27) {
+                e.target.blur();
+                e.stopPropagation();
+            }
+        });
     };
 
     NextendForm.prototype.onBeforeUnload = function (e, data) {

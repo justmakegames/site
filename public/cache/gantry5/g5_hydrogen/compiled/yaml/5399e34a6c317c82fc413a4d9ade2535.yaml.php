@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/position.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'Module Position',
         'description' => 'Display a module position.',
         'type' => 'position',
+        'icon' => 'fa-object-group',
         'hidden' => false,
         'form' => [
             'fields' => [

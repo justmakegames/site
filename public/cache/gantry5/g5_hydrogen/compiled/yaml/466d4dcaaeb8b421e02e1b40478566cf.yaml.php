@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/menu.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'Menu',
         'description' => 'Gantry menu',
         'type' => 'particle',
+        'icon' => 'fa-bars',
         'form' => [
             'fields' => [
                 'enabled' => [

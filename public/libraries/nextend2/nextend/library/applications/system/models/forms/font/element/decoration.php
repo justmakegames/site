@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.form.element.checkbox');
 
 class N2ElementDecoration extends N2ElementCheckbox
@@ -6,7 +13,7 @@ class N2ElementDecoration extends N2ElementCheckbox
 
     function fetchElement() {
 
-        return NHtml::tag('div', array(
+        return N2Html::tag('div', array(
             'class' => 'n2-form-element-decoration',
             'style' => N2XmlHelper::getAttribute($this->_xml, 'style')
         ), parent::fetchElement());
@@ -26,9 +33,9 @@ class N2ElementDecoration extends N2ElementCheckbox
         foreach ($options AS $value => $class) {
             $this->values[] = $value;
 
-            $html .= NHtml::tag('div', array(
+            $html .= N2Html::tag('div', array(
                 'class' => 'n2-checkbox-option n2-decoration-' . $value . ($this->isSelected($value) ? ' n2-active' : '') . ($i == 0 ? ' n2-first' : '') . ($i == $length ? ' n2-last' : '')
-            ), NHtml::tag('i', array('class' => $class)));
+            ), N2Html::tag('i', array('class' => $class)));
             $i++;
         }
         return $html;

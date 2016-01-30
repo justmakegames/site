@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderFeatureAutoplay
 {
@@ -19,9 +26,11 @@ class N2SmartSliderFeatureAutoplay
         $this->isEnabled = intval($params->get('autoplay', 0));
         $this->isStart   = intval($params->get('autoplayStart', 1));
         $this->duration  = intval($params->get('autoplayDuration', 8000));
-        if ($this->duration < 1500) {
+
+        if ($this->duration < 1) {
             $this->duration = 1500;
         }
+
 
         list($this->interval, $this->intervalModifier, $this->intervalSlide) = (array)N2Parse::parse($slider->params->get('autoplayfinish', '0|*|loop|*|current'));
         $this->interval = intval($this->interval);
@@ -31,7 +40,7 @@ class N2SmartSliderFeatureAutoplay
         $this->stopOnMediaStarted = intval($params->get('autoplayStopMedia', 1));
 
 
-        $this->resumeOnClick      = $params->get('autoplayResumeClick', 0);
+        $this->resumeOnClick      = intval($params->get('autoplayResumeClick', 0));
         $this->resumeOnMouse      = $params->get('autoplayResumeMouse', 0);
         $this->resumeOnMediaEnded = intval($params->get('autoplayResumeMedia', 1));
 
@@ -48,7 +57,7 @@ class N2SmartSliderFeatureAutoplay
                 }
                 break;
             default:
-                $autoplayToSlide = $this->interval * count($this->slider->slides);
+                $autoplayToSlide = $this->interval * count($this->slider->slides) - 1;
                 if ($this->intervalSlide == 'next') {
                     $autoplayToSlide++;
                 }

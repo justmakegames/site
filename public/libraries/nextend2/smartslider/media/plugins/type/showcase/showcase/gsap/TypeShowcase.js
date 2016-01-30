@@ -1,6 +1,8 @@
 (function ($, scope, undefined) {
 
     function NextendSmartSliderShowcase(sliderElement, parameters) {
+
+        this.type = 'showcase';
         this.responsiveClass = 'NextendSmartSliderResponsiveShowcase';
 
         parameters = $.extend({

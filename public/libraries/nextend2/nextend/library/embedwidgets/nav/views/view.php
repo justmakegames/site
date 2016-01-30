@@ -1,4 +1,11 @@
-<script type="text/javascript">
+<?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><script type="text/javascript">
     nextend.ready(
         function ($) {
             var n2 = $('#n2-admin'),
@@ -16,12 +23,12 @@
 </script>
 
 <?php
-echo NHtml::openTag('div', array('class' => 'n2-table n2-table-fixed'));
-echo NHtml::openTag('div', array('class' => 'n2-tr'));
+echo N2Html::openTag('div', array('class' => 'n2-table n2-table-fixed'));
+echo N2Html::openTag('div', array('class' => 'n2-tr'));
 
 if (!empty($logoUrl)):
 
-    echo NHtml::tag('div', array('class' => 'n2-td n2-blue-logo-bg n2-logo n2-border-radius-tl'), NHtml::tag('a', array('href' => $logoUrl), NHtml::image($logoImageUrl)));
+    echo N2Html::tag('div', array('class' => 'n2-td n2-blue-logo-bg n2-logo n2-border-radius-tl'), N2Html::tag('a', array('href' => $logoUrl), N2Html::image($logoImageUrl)));
 
 endif;
 ?>
@@ -51,5 +58,5 @@ endif;
 </div>
 
 <?php
-echo NHtml::closeTag('div');
-echo NHtml::closeTag('div');
+echo N2Html::closeTag('div');
+echo N2Html::closeTag('div');

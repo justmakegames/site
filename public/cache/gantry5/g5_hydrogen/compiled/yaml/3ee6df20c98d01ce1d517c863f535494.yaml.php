@@ -2,13 +2,13 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/templates/g5_hydrogen/gantry/theme.yaml',
-    'modified' => 1445417662,
+    'modified' => 1454143972,
     'data' => [
         'details' => [
             'name' => 'Hydrogen',
-            'version' => '5.1.6',
+            'version' => '5.2.8',
             'icon' => 'paper-plane',
-            'date' => 'October 14, 2015',
+            'date' => 'January 27, 2016',
             'author' => [
                 'name' => 'RocketTheme, LLC',
                 'email' => 'support@rockettheme.com',
@@ -23,7 +23,7 @@ return [
             'updates' => [
                 'link' => 'http://updates.rockettheme.com/themes/hydrogen.yaml'
             ],
-            'copyright' => '(C) 2005 - 2015 RocketTheme, LLC. All rights reserved.',
+            'copyright' => '(C) 2005 - 2016 RocketTheme, LLC. All rights reserved.',
             'license' => 'GPLv2',
             'description' => 'Hydrogen Theme',
             'images' => [

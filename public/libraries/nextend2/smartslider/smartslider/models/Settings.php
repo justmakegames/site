@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartsliderSettingsModel extends N2Model
 {
@@ -8,9 +15,6 @@ class N2SmartsliderSettingsModel extends N2Model
         /** @noinspection PhpUnusedLocalVariableInspection */
         $data = array();
         switch ($xml) {
-            case 'layout':
-                $data = NextendSmartSliderLayoutSettings::getAll();
-                break;
             case 'joomla':
                 $data = N2SmartSliderJoomlaSettings::getAll();
                 break;
@@ -33,7 +37,7 @@ class N2SmartsliderSettingsModel extends N2Model
 
         N2JS::addFirstCode('
             new NextendForm("smartslider-form", ' . json_encode($form->_data) . ', null, "' . N2Filesystem::toLinux(N2Filesystem::pathToRelativePath($xmlpath)) . '", "settings", "' . N2Uri::ajaxUri('nextend', 'smartslider') . '");
-        ', 'jquery');
+        ');
     }
 
     public function save() {

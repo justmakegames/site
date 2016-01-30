@@ -1,5 +1,12 @@
 <?php
 /**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+/**
  * @var $model N2SystemAnimationModel
  */
 
@@ -47,14 +54,14 @@ N2JS::addFirstCode("
             <div class="n2-bg-animation-slide">
                 <div class="n2-bg-animation-slide-bg">
                     <img
-                        src="<?php echo N2ImageHelper::fixed('$system$/images/placeholder/image.svg'); ?>"/>
+                        src="<?php echo N2ImageHelperAbstract::SVGToBase64('$system$/images/placeholder/image.svg'); ?>"/>
                 </div>
             </div>
 
             <div class="n2-bg-animation-slide" style="opacity: 0;">
                 <div class="n2-bg-animation-slide-bg">
                     <img
-                        src="<?php echo N2ImageHelper::fixed('$system$/images/placeholder/imageback.svg'); ?>"/>
+                        src="<?php echo N2ImageHelperAbstract::SVGToBase64('$system$/images/placeholder/imageback.svg'); ?>"/>
                 </div>
             </div>
         </div>

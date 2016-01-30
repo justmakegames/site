@@ -1,7 +1,7 @@
 <root>
     <params name="list-item" label="List item" hidetitle="1">
         <param name="content" type="textarea" label="Items" default="disc"
-               style2="height: 120px; width: 230px;resize: vertical;" doc="#Layers-List"/>
+               style2="height: 120px; width: 230px;resize: vertical;" />
         <param name="type" type="list" label="List type" translateable="1">
             <option value="none">None</option>
             <option value="disc">Disc</option>

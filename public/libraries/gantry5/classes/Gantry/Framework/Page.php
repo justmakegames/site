@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   GNU/GPLv2 and later
  *
  * http://www.gnu.org/licenses/gpl-2.0.html
@@ -43,7 +42,7 @@ class Page extends Base\Page
             }
         }
         $templateParams = $app->getTemplate(true);
-        $this->outline = $templateParams->params->get('configuration', !empty($templateParams->id) ? $templateParams->id : 0);
+        $this->outline = Gantry::instance()['configuration'];
         $this->sitename = $app->get('sitename');
         $this->theme = $templateParams->template;
         $this->baseUrl = \JUri::base(true);
@@ -90,7 +89,7 @@ class Page extends Base\Page
         if ($this->itemid) $classes[] = 'itemid-' . $this->itemid;
         if ($this->outline) $classes[] = 'outline-' . $this->outline;
 
-        $baseAttributes = (array) $this->config->get('page.body', []);
+        $baseAttributes = (array) $this->config->get('page.body.attribs', []);
         if (!empty($baseAttributes['class'])) {
             $baseAttributes['class'] = array_merge((array) $baseAttributes['class'], $classes);
         } else {

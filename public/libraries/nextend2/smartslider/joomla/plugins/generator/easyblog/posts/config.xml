@@ -10,12 +10,13 @@
             <param name="easybloguserid" label="User id" type="text" default=""/>
             <param name="easyblogfrontpage" label="Frontpage" type="filter" default="0"/>
             <param name="easyblogfeatured" label="Featured" type="filter" default="0"/>
+            <param name="easyblogexclude" label="Exclude id" type="text" default=""/>
         </param>
     </params>
 
     <params name="order" label="Order by">
         <param name="easyblogorder" type="mixed" label="Order" default="con.created|*|desc">
-            <param type="list" label="Field">
+            <param type="list" label="Field" translateable="1">
                 <option value="">None</option>
                 <option value="con.title">Title</option>
                 <option value="cattitle">Category title</option>

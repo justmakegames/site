@@ -5,7 +5,7 @@
                values="500,800,1000,1500,2000">
             <unit value="ms">ms</unit>
         </param>
-        <param name="delay" label="Delay" type="numberautocomplete" default="0" style="width: 40px;" min="0" values="0">
+        <param name="delay" label="Delay" type="numberautocomplete" default="0" style="width: 40px;" min="0" values="0,500,800,1000,1500,2000">
             <unit value="ms">ms</unit>
         </param>
         <param name="easing" label="Easing" type="jqueryeasing" default="easeOutCubic"/>

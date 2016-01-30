@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.form.element.subpluginmatrix');
 
@@ -49,9 +56,9 @@ class N2ElementWidgetPluginMatrix extends N2ElementSubPluginMatrix
     }
 
     function getOptionHtml($path, $k) {
-        return NHtml::tag('div', array(
+        return N2Html::tag('div', array(
             'class' => 'n2-subform-image-option n2-subform-image-option-simple ' . $this->isActive($k)
-        ), NHtml::tag('div', array(
+        ), N2Html::tag('div', array(
             'class' => 'n2-subform-image-element',
             'style' => 'background-image: url(' . $this->getImage($path, $k) . ');'
         )));

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 if ($fixTo) {
     ?>
     <script type="text/javascript">
@@ -53,23 +60,23 @@ if ($fixTo) {
     <?php
 
     if ($notification) {
-        array_unshift($actions, NHtml::tag('a', array(
+        array_unshift($actions, N2Html::tag('a', array(
             'class' => 'n2-button n2-button-grey n2-button-big n2-notification-button',
             'href'  => '#'
-        ), NHtml::tag('i', array('class' => 'n2-i n2-it n2-i-32 n2-i-notification'))));
+        ), N2Html::tag('i', array('class' => 'n2-i n2-it n2-i-32 n2-i-notification'))));
     }
 
     if ($expert) {
-        array_unshift($actions, NHtml::tag('a', array(
+        array_unshift($actions, N2Html::tag('a', array(
             'class' => 'n2-expert-switch',
             'href'  => '#'
-        ), NHtml::tag('span', array(
+        ), N2Html::tag('span', array(
                 'class' => 'n2-expert-expert n2-uc n2-h5'
-            ), n2_('Expert')) . '<br>' . NHtml::tag('span', array(
+            ), n2_('Expert')) . '<br>' . N2Html::tag('span', array(
                 'class' => 'n2-expert-simple n2-uc n2-h5'
-            ), n2_('Simple')) . NHtml::tag('div', array(
+            ), n2_('Simple')) . N2Html::tag('div', array(
                 'class' => 'n2-expert-bar'
-            ), NHtml::tag('div', array(
+            ), N2Html::tag('div', array(
                 'class' => 'n2-expert-dot'
             ), ''))));
     }

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 /**
  * Class N2AssetsManager
@@ -148,7 +155,7 @@ class N2AssetsManager
         self::$css->removeFiles($alreadyLoadedCSSFiles);
         */
 
-        return NHtml::style(self::$css->getAjaxOutput());
+        return N2Html::style(self::$css->getAjaxOutput());
     }
 
 

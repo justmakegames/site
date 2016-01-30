@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import("models.Layouts", "smartslider");
 N2Loader::import("models.Layers", "smartslider");
 N2Loader::import("models.Item", "smartslider");
@@ -35,6 +42,19 @@ N2Loader::import("models.Item", "smartslider");
     <div class="n2-layers-tab" style="display:block;">
 
         <div id="smartslider-slide-toolbox-layer">
+            <?php
+
+            $class = 'N2SSPluginType' . $slider['type'];
+
+            N2Loader::importPath(call_user_func(array(
+                    $class,
+                    "getPath"
+                )) . NDS . 'type');
+            $itemDefaults = call_user_func(array(
+                'N2SmartSliderType' . $slider['type'],
+                'getItemDefaults'
+            ));
+            ?>
             <script type="text/javascript">
                 window.ssitemmarker = true;
             </script>
@@ -45,11 +65,11 @@ N2Loader::import("models.Item", "smartslider");
                 N2SSPluginItemAbstract::sortItems($items);
 
                 foreach ($items AS $type => $item) {
-                    echo NHtml::tag('div', array(
+                    echo N2Html::tag('div', array(
                         'class'                => 'n2-h5 n2-ss-core-item n2-ss-core-item-' . $type,
-                        'data-layerproperties' => $item[5],
+                        'data-layerproperties' => json_encode((object)array_merge($item[5], $itemDefaults)),
                         'data-item'            => $type
-                    ), NHtml::tag('div', array(), $item[0]));
+                    ), N2Html::tag('div', array(), $item[0]));
                 }
                 ?>
             </div>

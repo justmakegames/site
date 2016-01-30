@@ -1,6 +1,6 @@
 #g5-container {//wrapper
 
-#configurations {
+#configurations, #positions {
 
     .card {
         margin: 10px 1%;
@@ -11,6 +11,18 @@
 
         .float-right.font-small {
             color: $tertiary-accent;
+        }
+
+        &:after {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: $tertiary-accent;
+            content: "Default";
+            padding: 2px 6px;
+            color: white;
+            font-size: 0.7rem;
+            border-radius: 3px 0 0 0;
         }
     }
 

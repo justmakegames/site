@@ -1,6 +1,13 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorK2Items extends N2GeneratorAbstract
 {
@@ -48,6 +55,7 @@ class N2GeneratorK2Items extends N2GeneratorAbstract
         $query .= 'con.hits, ';
         $query .= 'con.image_caption, ';
         $query .= 'con.image_credits, ';
+        $query .= 'con.video, ';
         $query .= 'con.extra_fields ';
 
         $query .= 'FROM #__k2_items AS con ';
@@ -106,10 +114,14 @@ class N2GeneratorK2Items extends N2GeneratorAbstract
         $this->loadExtraFields();
 
         require_once(JPATH_SITE . '/components/com_k2/helpers/utilities.php');
-        require_once(JPATH_SITE . '/components/com_k2/models/item.php');
+        if(!class_exists('K2ModelItem')){
+            require_once(JPATH_ADMINISTRATOR.'/components/com_k2/models/model.php');
+            require_once(JPATH_SITE . '/components/com_k2/models/item.php');
+        }
         $k2item = new K2ModelItem();
 
         $data = array();
+        $root = N2Uri::getBaseUri();
         for ($i = 0; $i < count($result); $i++) {
             $r = array(
                 'title'       => $result[$i]['title'],
@@ -124,13 +136,31 @@ class N2GeneratorK2Items extends N2GeneratorAbstract
             $image = JPATH_SITE . "/media/k2/items/cache/" . md5("Image" . $result[$i]['id']) . "_XL.jpg";
             if (N2Filesystem::fileexists($image)) {
                 $r['image'] = N2ImageHelper::dynamic(N2Uri::pathToUri($image));
-                if (!isset($r['thumbnail'])) {
-                    $r['thumbnail'] = $r['image'];
+            } else {
+                $r['image'] = NextendImageFallBack::fallback($root . "/", array(), array($r['description']));
+            }
+            if (!isset($r['thumbnail'])) {
+                $r['thumbnail'] = $r['image'];
+            }
+
+            if (!empty($result[$i]['video'])) {
+                $r['video'] = $result[$i]['video'];
+                preg_match_all('/(<source.*?src=[\'"](.*?)[\'"][^>]+>)/i', $result[$i]['video'], $video);
+                $r['video_src'] = $video[2][0];
+                preg_match_all('/(<source.*?src=[\'"](.*mp4)[\'"][^>]+>)/i', $result[$i]['video'], $mp4);
+                if (isset($mp4[2][0])) {
+                    $r['video_src_mp4'] = $mp4[2][0];
                 }
             }
 
+            $itemID = $this->data->get('k2itemsitemid', '0');
+            $url    = 'index.php?option=com_k2&view=item&id=' . $result[$i]['id'] . ':' . $result[$i]['alias'];
+            if (!empty($itemID) && $itemID != 0) {
+                $url .= '&Itemid=' . $itemID;
+            }
+
             $r += array(
-                'url'              => 'index.php?option=com_k2&view=item&id=' . $result[$i]['id'] . ':' . $result[$i]['alias'],
+                'url'              => $url,
                 'url_label'        => sprintf(n2_('View %s'), n2_('item')),
                 'category_title'   => $result[$i]['cat_title'],
                 'category_url'     => 'index.php?option=com_k2&view=itemlist&task=category&id=' . $result[$i]['catid'] . ':' . $result[$i]['cat_alias'],

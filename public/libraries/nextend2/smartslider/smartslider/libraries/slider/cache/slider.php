@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2CacheManifestSlider extends N2CacheManifest
 {
@@ -21,9 +28,12 @@ class N2CacheManifestSlider extends N2CacheManifest
 
     protected function isCacheValid(&$manifestData) {
 
-        if (N2SmartSliderHelper::getInstance()->isSliderChanged($this->parameters['slider']->sliderId, 1)) {
+        if (N2SmartSliderHelper::getInstance()
+                               ->isSliderChanged($this->parameters['slider']->sliderId, 1)
+        ) {
             $this->clearCurrentGroup();
-            N2SmartSliderHelper::getInstance()->setSliderChanged($this->parameters['slider']->sliderId, 0);
+            N2SmartSliderHelper::getInstance()
+                               ->setSliderChanged($this->parameters['slider']->sliderId, 0);
             return false;
         }
 
@@ -38,7 +48,7 @@ class N2CacheManifestSlider extends N2CacheManifest
 
     protected function addManifestData(&$manifestData) {
 
-        $manifestData['nextCacheRefresh'] = $this->parameters['slider']->slidesBuilder->getNextCacheRefresh();
+        $manifestData['nextCacheRefresh'] = N2Pluggable::applyFilters('SSNextCacheRefresh', $this->parameters['slider']->slidesBuilder->getNextCacheRefresh(), array($this->parameters['slider']));
 
         $variations = 1;
 

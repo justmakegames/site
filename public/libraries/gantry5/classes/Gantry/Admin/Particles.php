@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -55,7 +54,7 @@ class Particles
         $list = [];
         foreach ($particles as $name => $particle) {
             $type = isset($particle['type']) ? $particle['type'] : 'particle';
-            if (in_array($type, ['spacer', 'pagecontent'])) {
+            if (in_array($type, ['spacer', 'system'])) {
                 $type = 'position';
             }
             $list[$type][$name] = $particle;
@@ -93,7 +92,7 @@ class Particles
         $theme = $this->container['theme'];
         $ordering = (array) $theme->details()['admin.settings'] ?: [
                 'particle' => [],
-                'position' => ['module', 'spacer', 'pagecontent'],
+                'position' => ['position', 'spacer', 'messages', 'content'],
                 'atom' => []
             ];
 

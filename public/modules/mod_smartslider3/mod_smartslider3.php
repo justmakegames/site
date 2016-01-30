@@ -1,13 +1,10 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 $sliderId = intval($params->get('slider'));
-
-jimport("nextend2.nextend.joomla.library");
-
-N2Base::getApplication("smartslider")->getApplicationType('widget')->render(array(
-    "controller" => 'home',
-    "action"     => 'joomla',
-    "useRequest" => false
-), array(
-    $sliderId,
-    'Module - #' . $module->id
-));
+echo 'smartslider3[' . $sliderId . ']';

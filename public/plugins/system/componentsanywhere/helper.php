@@ -1,13 +1,11 @@
 <?php
 /**
- * Plugin Helper File
- *
  * @package         Components Anywhere
- * @version         2.2.1
- *
+ * @version         2.3.0
+ * 
  * @author          Peter van Westen <peter@nonumber.nl>
  * @link            http://www.nonumber.nl
- * @copyright       Copyright © 2015 NoNumber All Rights Reserved
+ * @copyright       Copyright © 2016 NoNumber All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -29,6 +27,7 @@ class PlgSystemComponentsAnywhereHelper
 	var $params = null;
 	var $aid = array();
 	var $cache = null;
+	var $credentials = null;
 
 	public function __construct(&$params)
 	{
@@ -57,17 +56,17 @@ class PlgSystemComponentsAnywhereHelper
 		$spaces                     = NNTags::getRegexSpaces();
 
 		$this->params->regex = '#'
-			. '(?<start_div>(?:'
+			. '(?P<start_div>(?:'
 			. $breaks_start
 			. $tag_start . 'div(?: ' . $inside_tag . ')?' . $tag_end
 			. $breaks_end
 			. '\s*)?)'
 
-			. '(?<pre>' . $breaks_start . ')'
-			. $tag_start . $this->params->tag . $spaces . '(?<id>' . $inside_tag . ')' . $tag_end
-			. '(?<post>' . $breaks_end . ')'
+			. '(?P<pre>' . $breaks_start . ')'
+			. $tag_start . $this->params->tag . $spaces . '(?P<id>' . $inside_tag . ')' . $tag_end
+			. '(?P<post>' . $breaks_end . ')'
 
-			. '(?<end_div>(?:\s*'
+			. '(?P<end_div>(?:\s*'
 			. $breaks_start
 			. $tag_start . '/div' . $tag_end
 			. $breaks_end
@@ -87,10 +86,8 @@ class PlgSystemComponentsAnywhereHelper
 		$this->params->disabled_components = array('com_acymailing');
 	}
 
-	public function onContentPrepare(&$article, &$context, &$params)
+	public function onContentPrepare(&$article, $context, $params)
 	{
-		$area = isset($article->created_by) ? 'articles' : 'other';
-
 
 		$area    = isset($article->created_by) ? 'articles' : 'other';
 		$context = (($params instanceof JRegistry) && $params->get('nn_search')) ? 'com_search.' . $params->get('readmore_limit') : $context;
@@ -101,7 +98,7 @@ class PlgSystemComponentsAnywhereHelper
 	public function onAfterDispatch()
 	{
 		// only in html
-		if (JFactory::getDocument()->getType() !== 'html' && JFactory::getDocument()->getType() !== 'feed')
+		if (JFactory::getDocument()->getType() !== 'html' && !NNFrameworkFunctions::isFeed())
 		{
 			return;
 		}
@@ -156,7 +153,7 @@ class PlgSystemComponentsAnywhereHelper
 	public function onAfterRender()
 	{
 		// only in html and feeds
-		if (JFactory::getDocument()->getType() !== 'html' && JFactory::getDocument()->getType() !== 'feed')
+		if (JFactory::getDocument()->getType() !== 'html' && !NNFrameworkFunctions::isFeed())
 		{
 			return;
 		}
@@ -179,7 +176,9 @@ class PlgSystemComponentsAnywhereHelper
 
 			if (strpos($pre, '</head>') !== false || strpos($body, '<!-- CA HEAD START') !== false)
 			{
-				if (preg_match_all('#<!-- CA HEAD START STYLES -->(.*?)<!-- CA HEAD END STYLES -->#s', $body, $matches, PREG_SET_ORDER) > 0)
+				preg_match_all('#<!-- CA HEAD START STYLES -->(.*?)<!-- CA HEAD END STYLES -->#s', $body, $matches, PREG_SET_ORDER);
+
+				if (!empty($matches))
 				{
 					$styles = '';
 					foreach ($matches as $match)
@@ -197,7 +196,9 @@ class PlgSystemComponentsAnywhereHelper
 					$pre = str_replace($add_before, $styles . $add_before, $pre);
 				}
 
-				if (preg_match_all('#<!-- CA HEAD START SCRIPTS -->(.*?)<!-- CA HEAD END SCRIPTS -->#s', $body, $matches, PREG_SET_ORDER) > 0)
+				preg_match_all('#<!-- CA HEAD START SCRIPTS -->(.*?)<!-- CA HEAD END SCRIPTS -->#s', $body, $matches, PREG_SET_ORDER);
+
+				if (!empty($matches))
 				{
 					$scripts = '';
 					foreach ($matches as $match)
@@ -260,7 +261,7 @@ class PlgSystemComponentsAnywhereHelper
 		$this->params->message = '';
 
 		// COMPONENT
-		if (JFactory::getDocument()->getType() == 'feed')
+		if (NNFrameworkFunctions::isFeed())
 		{
 			$s      = '#(<item[^>]*>)#s';
 			$string = preg_replace($s, '\1<!-- START: COMA_COMPONENT -->', $string);
@@ -344,10 +345,12 @@ class PlgSystemComponentsAnywhereHelper
 		}
 
 
-		if (preg_match('#\{' . $this->params->tag . '#', $string))
+		if (strpos($string, $this->params->tag_character_start . $this->params->component_tag) === false)
 		{
-			self::replace($string, $this->params->regex, $area);
+			return;
 		}
+
+		self::replace($string, $this->params->regex, $area);
 	}
 
 	function replace(&$string, $regex, $area = 'articles')
@@ -376,7 +379,7 @@ class PlgSystemComponentsAnywhereHelper
 		$count   = 0;
 
 		$protects = array();
-		while ($count++ < 10 && preg_match('#\{' . $this->params->tag . '#', $string) && preg_match_all($regex, $string, $matches, PREG_SET_ORDER) > 0)
+		while ($count++ < 10 && preg_match_all($regex, $string, $matches, PREG_SET_ORDER))
 		{
 			foreach ($matches as $match)
 			{
@@ -466,7 +469,7 @@ class PlgSystemComponentsAnywhereHelper
 
 	function processComponent($tag, $area = '')
 	{
-		$url = ltrim(html_entity_decode($tag->url), '/');
+		$url = ltrim(html_entity_decode(trim($tag->url)), '/');
 
 		$pagination_stuff = array('p', 'page', 'limitstart', 'start', 'filter', 'filter-search');
 		$full_url         = $url;
@@ -495,26 +498,7 @@ class PlgSystemComponentsAnywhereHelper
 
 		$data = $this->getByURL($full_url, $tag->caching);
 
-		if (!$data || $data == '{}')
-		{
-			if ($this->params->place_comments)
-			{
-				return $this->params->message_start . JText::_('CA_OUTPUT_REMOVED_INVALID') . $this->params->message_end;
-			}
-
-			return '';
-		}
-
-		// remove possible leading encoding  characters
-		$data = preg_replace('#^.*?\{#', '{', $data);
-
-		$data = json_decode($data);
-		if (is_null($data))
-		{
-			$data = new stdClass;
-		}
-
-		if (!isset($data->html))
+		if (!$data)
 		{
 			if ($this->params->place_comments)
 			{
@@ -708,7 +692,9 @@ class PlgSystemComponentsAnywhereHelper
 
 	function removeDuplicatesFromHead(&$head, $regex = '')
 	{
-		if (preg_match_all($regex, $head, $matches) <= 0)
+		preg_match_all($regex, $head, $matches);
+
+		if (empty($matches))
 		{
 			return;
 		}
@@ -767,10 +753,10 @@ class PlgSystemComponentsAnywhereHelper
 
 	function getByURL($url, $cache)
 	{
-		$cacheid = $cache ? $url . '_' . implode('.', $this->aid) : '';
-
 		if ($cache)
 		{
+			$cacheid = $url . '_' . JFactory::getLanguage()->getTag() . '_' . implode('.', $this->aid);
+
 			$this->cache->setCaching(1);
 			$html = $this->cache->get($cacheid);
 			if ($html)
@@ -781,27 +767,84 @@ class PlgSystemComponentsAnywhereHelper
 			}
 		}
 
-		$html = $this->getHtmlByURL($url);
-
-		if (empty($html))
-		{
-			$html = '{}';
-		}
+		$data = $this->getDataByURL($url);
 
 		if ($cache)
 		{
-			$this->cache->store($html, $cacheid);
+			$this->cache->store($data, $cacheid);
 		}
 
-		return $html;
+		return $data;
 	}
 
-	function getHtmlByURL($url)
+	function getDataByURL($url)
 	{
-		$url .= (strpos($url, '?') === false ? '?' : '&') . 'tmpl=component&rendercomponent=1';
+		$url .= (strpos($url, '?') === false ? '?' : '&')
+			. 'tmpl=component&rendercomponent=1&lang=' . JFactory::getLanguage()->getTag();
+		$cookies = $this->getCookies();
 
-		// Grab cookies
+		$data = $this->getDataByGetHttp($this->getUrl($url, $cookies));
+		$data = $this->convertHtmlToObject($data);
+
+		if (!empty($data))
+		{
+			return $data;
+		}
+
+		// Fall back on Curl if html is empty or not a json string
+		$data = $this->getDataByCurl($this->getUrl($url), $cookies);
+		$data = $this->convertHtmlToObject($data);
+
+		return $data;
+	}
+
+	function convertHtmlToObject($data)
+	{
+		if (empty($data) || $data == '{}')
+		{
+			return false;
+		}
+
+		// remove possible leading encoding characters
+		$data = preg_replace('#^.*?\{#', '{', $data);
+
+		$data = json_decode($data);
+		if (is_null($data) || empty($data))
+		{
+			return false;
+		}
+
+		return $data;
+	}
+
+	function getDataByGetHttp($url)
+	{
+		// Site uses Kerberos authentication: use curl instead
+		// Site is behind a login: use curl instead
+		if (
+			$this->params->use_negotiate_authentication
+			|| $this->getAuthenticationCredentials()
+		)
+		{
+			return false;
+		}
+
+		try
+		{
+			$data = JHttpFactory::getHttp()->get($url, null, $this->params->timeout)->body;
+		}
+		catch (RuntimeException $e)
+		{
+			return false;
+		}
+
+		return $data;
+	}
+
+	public function getCookies()
+	{
 		$cookies = array();
+
 		foreach ($_COOKIE as $k => $v)
 		{
 			// Only include hexadecimal keys
@@ -813,24 +856,23 @@ class PlgSystemComponentsAnywhereHelper
 			$cookies[] = $k . '=' . $v;
 		}
 
+		return $cookies;
+	}
+
+	public function getUrl($url, $cookies = '')
+	{
 		if (!empty($cookies))
 		{
 			$url .= '&' . implode('&', $cookies);
 		}
 
-		$url = JUri::base() . JRoute::_($url);
-		$url = preg_replace('#([^:]\/)\/#', '\1', $url);
-		
-		try
+		// Pass url through the JRoute if it is a non-SEF url
+		if (strpos($url, 'index.php?') !== false)
 		{
-			$html = JHttpFactory::getHttp()->get($url, null, $this->params->timeout)->body;
-		}
-		catch (RuntimeException $e)
-		{
-			return '';
+			$url = JRoute::_($url);
 		}
 
-		return $html;
+		return JUri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port')) . '/' . ltrim($url, '/');
 	}
 
 	public function getTagCharacters($quote = false)
@@ -857,5 +899,94 @@ class PlgSystemComponentsAnywhereHelper
 		list($tag_start, $tag_end) = $this->getTagCharacters(true);
 
 		return NNTags::getDivTags($data['start_div'], $data['end_div'], $tag_start, $tag_end);
+	}
+
+	/* CURL methods */
+	function getDataByCurl($url, $cookies = '')
+	{
+		if (!function_exists('curl_init'))
+		{
+			return false;
+		}
+
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $this->params->timeout);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->params->timeout);
+
+		curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+		if (!empty($cookies))
+		{
+			curl_setopt($ch, CURLOPT_COOKIESESSION, false); // False to keep all cookies of previous session
+			curl_setopt($ch, CURLOPT_COOKIE, implode(';', $cookies));
+		}
+
+		if (!empty($_POST))
+		{
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $_POST);
+		}
+
+		$this->setCurlAuthentication($ch);
+
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 3); // stop after 3 redirects
+		$data = curl_exec($ch);
+
+		curl_close($ch);
+
+		return $data;
+	}
+
+	private function setCurlAuthentication(&$ch)
+	{
+		if ($this->params->use_negotiate_authentication)
+		{
+			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_GSSNEGOTIATE);
+			curl_setopt($ch, CURLOPT_USERPWD, $this->params->negotiate_login . ':' . $this->params->negotiate_password);
+
+			return;
+		}
+
+		if (!$credentials = $this->getAuthenticationCredentials())
+		{
+			return;
+		}
+
+		list($username, $password) = $credentials;
+
+		// Send authentication
+		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+		curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password); // set referer on redirect
+	}
+
+	private function getAuthenticationCredentials()
+	{
+		if (!is_null($this->credentials))
+		{
+			return $this->credentials;
+		}
+
+		if (isset($_SERVER['PHP_AUTH_USER']))
+		{
+			$this->credentials = array($_SERVER['PHP_AUTH_USER'], isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : '');
+
+			return $this->credentials;
+		}
+
+		if (isset($_SERVER['HTTP_AUTHENTICATION'])
+			&& strpos(strtolower($_SERVER['HTTP_AUTHENTICATION']), 'basic') === 0
+		)
+		{
+			$this->credentials = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+
+			return $this->credentials;
+		}
+
+		return false;
 	}
 }

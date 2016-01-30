@@ -24,7 +24,7 @@
         NextendSmartSliderItemParser.prototype.parseAll.apply(this, arguments);
 
         if (data.image == '') {
-            data.image = '$system$/images/placeholder/video.svg';
+            data.image = '$system$/images/placeholder/video.png';
         }
 
         data.image = nextend.imageHelper.fixed(data.image);

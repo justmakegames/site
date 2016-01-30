@@ -1,9 +1,12 @@
 (function ($, scope, undefined) {
     "use strict";
     function NextendSmartSliderWidgetBarHorizontal(id, bars, parameters) {
-
         this.slider = window[id];
 
+        this.slider.started($.proxy(this.start, this, id, bars, parameters));
+    };
+
+    NextendSmartSliderWidgetBarHorizontal.prototype.start = function (id, bars, parameters) {
         if (this.slider.sliderElement.data('bar')) {
             return false;
         }

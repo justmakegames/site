@@ -1,6 +1,14 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorZooItems extends N2GeneratorAbstract
 {
@@ -41,7 +49,7 @@ class N2GeneratorZooItems extends N2GeneratorAbstract
         }
 
         $tags = explode('||', $this->data->get('zooitemssourcetags', 'All'));
-        if ($tags && !in_array('All', $tags)) {
+        if ($tags && !in_array('0', $tags)) {
             $where[] = 'a.id IN (SELECT item_id FROM #__zoo_tag WHERE name IN (' . implode(',', $tags) . ')) ';
         }
 
@@ -66,18 +74,22 @@ class N2GeneratorZooItems extends N2GeneratorAbstract
 
         $types        = $app->getTypes();
         $typeElements = $types[$typeAlias]->getElements();
-
+        $skip = array('supercontact', 'linkpro', 'downloadpro');
         foreach ($items AS $item) {
             $data[$i]          = array();
             $data[$i]['title'] = $item->name;
             $data[$i]['url']   = $this->zoo->route->item($item);
             $data[$i]['hits']  = $item->hits;
 
+            $fields = array();            
             foreach ($typeElements AS $k => $el) {
+                $type = $el->config->get('type');
+                if(in_array($type, $skip)) continue;
                 $el->setItem($item);
-                $name            = str_replace('-', '', $el->config->get('type') . '_' . $k);
-                $data[$i][$name] = $el->render();
+                $name     = str_replace('-', '', $type . '_' . $k);
+                $fields[] = $data[$i][$name] = $el->render();
             }
+            $data[$i]['image'] = $data[$i]['thumbnail'] = NextendImageFallBack::fallback('', array(), $fields);
 
             $i++;
         }

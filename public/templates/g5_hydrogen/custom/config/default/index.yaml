@@ -1,9 +1,9 @@
 name: default
-timestamp: 1445417662
+timestamp: 1454143972
 preset:
   image: 'gantry-admin://images/layouts/default.png'
   name: default
-  timestamp: 1445417662
+  timestamp: 1454143972
 positions:
   header: Header
   breadcrumbs: Breadcrumbs

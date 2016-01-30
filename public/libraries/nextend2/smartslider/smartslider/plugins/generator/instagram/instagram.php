@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.settings.settings', 'smartslider');
 
 class N2SSPluginGeneratorInstagram extends N2PluginBase
@@ -22,11 +29,11 @@ class N2SSPluginGeneratorInstagram extends N2PluginBase
 
         $list[self::$group]['tagsearch'] = N2GeneratorInfo::getInstance(self::$groupLabel, n2_('Search by tag'), $this->getPath() . 'tagsearch')
                                                           ->setType('image_extended')
-                                                          ->setConfiguration($this->configurationClass);;
+                                                          ->setConfiguration($this->configurationClass);
 
         $list[self::$group]['myphotos'] = N2GeneratorInfo::getInstance(self::$groupLabel, n2_('Photos by user'), $this->getPath() . 'myphotos')
                                                          ->setType('image_extended')
-                                                         ->setConfiguration($this->configurationClass);;
+                                                         ->setConfiguration($this->configurationClass);
 
     }
 

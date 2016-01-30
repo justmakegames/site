@@ -1,5 +1,12 @@
 <?php
 /**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+/**
  * @var $_class N2SmartsliderBackendSliderView
  */
 
@@ -7,23 +14,12 @@
 N2Loader::import('libraries.backgroundanimation.manager', 'smartslider');
 N2Loader::import('libraries.postbackgroundanimation.manager', 'smartslider');
 
-$menu = array(
-    NHtml::tag('a', array(
-        'href'  => '#',
-        'class' => 'n2-tab-heading n2-h4 n2-uc'
-    ), n2_('Slider settings')),
-    NHtml::tag('a', array(
-        'href'  => '#',
-        'class' => 'n2-tab-heading n2-h4 n2-uc'
-    ), n2_('Controls'))
-);
-$menu[] = NHtml::tag('a', array(
-    'href'  => '#',
-    'class' => 'n2-tab-heading n2-h4 n2-uc'
-), n2_('Responsive'));
+N2JS::addInline("new NextendSmartSliderQuickSlides('" . $this->appType->router->createUrl(array(
+        'slides/quickedit',
+        array('sliderid' => $slider['id'])
+    )) . "');");
 
-
-$menu[] = NHtml::tag('a', array(
+$menu[] = N2Html::tag('a', array(
     'id'    => 'n2-ss-preview',
     'href'  => '#',
     'class' => 'n2-h3 n2-uc n2-has-underline n2-button n2-button-blue n2-button-big',
@@ -34,14 +30,14 @@ $this->widget->init('topbar', array(
     /*'back'    => $back,*/
     'menu'    => $menu,
     "actions" => array(
-        NHtml::tag('a', array(
+        N2Html::tag('a', array(
             'href'    => $this->appType->router->createUrl(array(
                 "sliders/index"
             )),
             'onclick' => 'return nextend.cancel(this.href);',
             'class'   => 'n2-button n2-button-red n2-button-big n2-h4 n2-b n2-uc',
         ), n2_('Cancel')),
-        NHtml::tag('a', array(
+        N2Html::tag('a', array(
             'href'    => '#',
             'class'   => 'n2-button n2-button-green n2-button-big n2-h4 n2-b n2-uc',
             'onclick' => 'return NextendForm.submit("#smartslider-form");'
@@ -53,7 +49,7 @@ $this->widget->init('heading', array(
     'actions' => $_class->getDashboardButtons($slider)
 ));
 ?>
-<script type="text/javascript">
+    <script type="text/javascript">
     function selectText(container) {
         if (document.selection) {
             var range = document.body.createTextRange();
@@ -68,9 +64,9 @@ $this->widget->init('heading', array(
     }
 </script>
 
-<div class="n2-form-tab " style="display: block;">
+    <div class="n2-form-tab " style="display: block;">
     <?php
-    echo NHtml::tag('div', array('class' => 'n2-h2 n2-content-box-title-bg'), n2_('Publish slider'));
+    echo N2Html::tag('div', array('class' => 'n2-h2 n2-content-box-title-bg'), n2_('Publish slider'));
 
     $this->renderInlineInNamespace("publish", 'backend.inline', 'smartslider.platform', array(
         'sliderid' => $slider['id']
@@ -80,7 +76,7 @@ $this->widget->init('heading', array(
 
 </div>
 
-<script type="text/javascript">
+    <script type="text/javascript">
     nextend.ready(
         function ($) {
 
@@ -136,16 +132,21 @@ $this->widget->init('heading', array(
             ], 'ss-slider-edit');
 
 
-            $('#n2-plugin-matrix-views-sliderwidgets').fixTo('#n2-tab-widgets', {
+            $('#n2-form-matrix-slider-settings .n2-form-matrix-views').fixTo('#n2-form-matrix-slider-settings', {
+                top: $('#wpadminbar, .navbar-fixed-top').height() + $('.n2-main-top-bar').height()
+            });
+
+            $('#n2-form-matrix-sliderwidgets .n2-form-matrix-views').fixTo('#n2-form-matrix-sliderwidgets', {
                 top: $('#wpadminbar, .navbar-fixed-top').height() + $('.n2-main-top-bar').height()
             });
         }
     );
 </script>
 
-<form id="smartslider-form" action="" method="post">
+    <form id="smartslider-form" action="" method="post">
     <?php
     $_class->renderForm($slider);
     ?>
-    <input name="save" value="1" type="hidden"/>
+        <input name="save" value="1" type="hidden"/>
 </form>
+<?php N2SS3::showBeacon('Slider settings'); ?>

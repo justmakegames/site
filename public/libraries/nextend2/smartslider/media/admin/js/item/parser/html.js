@@ -1,18 +1,17 @@
-if (N2SSPRO) {
-    (function ($, scope, undefined) {
 
-        function ItemParserHTML() {
-            NextendSmartSliderItemParser.apply(this, arguments);
-        };
+(function ($, scope, undefined) {
 
-        ItemParserHTML.prototype = Object.create(NextendSmartSliderItemParser.prototype);
-        ItemParserHTML.prototype.constructor = ItemParserHTML;
+    function ItemParserHTML() {
+        NextendSmartSliderItemParser.apply(this, arguments);
+    };
 
-        ItemParserHTML.prototype.added = function () {
-            this.needFill = ['html'];
-            nextend.smartSlider.generator.registerField($('#item_htmlhtml'));
-        };
+    ItemParserHTML.prototype = Object.create(NextendSmartSliderItemParser.prototype);
+    ItemParserHTML.prototype.constructor = ItemParserHTML;
 
-        scope.NextendSmartSliderItemParser_html = ItemParserHTML;
-    })(n2, window);
-} //N2SSPRO
+    ItemParserHTML.prototype.added = function () {
+        this.needFill = ['html'];
+        nextend.smartSlider.generator.registerField($('#item_htmlhtml'));
+    };
+
+    scope.NextendSmartSliderItemParser_html = ItemParserHTML;
+})(n2, window);

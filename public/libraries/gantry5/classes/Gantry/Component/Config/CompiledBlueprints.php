@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -25,7 +24,7 @@ class CompiledBlueprints extends CompiledBase
     /**
      * @var int Version number for the compiled file.
      */
-    public $version = 1;
+    public $version = 2;
 
     /**
      * @var Blueprints  Blueprints object.
@@ -41,6 +40,11 @@ class CompiledBlueprints extends CompiledBase
     {
         $this->object = new Blueprints($data);
     }
+
+    /**
+     * Finalize configuration object.
+     */
+    protected function finalizeObject() {}
 
     /**
      * Load single configuration file and append it to the correct position.

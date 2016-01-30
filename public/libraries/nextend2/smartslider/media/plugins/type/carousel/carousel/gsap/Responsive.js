@@ -59,9 +59,6 @@
 
         var sliderWidth = this.responsiveDimensions.startWidth * ratios.paneW - 40;
 
-        this.slideInGroup = Math.max(1, Math.floor(sliderWidth / this.responsiveDimensions.startSlideWidth));
-        this.slider.calibrateGroup(this.slideInGroup);
-
         if (sliderWidth < this.responsiveDimensions.startSlideWidth) {
             var test = sliderWidth / this.responsiveDimensions.startSlideWidth;
             ratios.h = test;
@@ -75,9 +72,12 @@
 
 
         var wH = $(window).height() - 100;
-        if (ratios.h * this.responsiveDimensions.startSlideHeight > wH) {
-            ratios.slideW = ratios.slideH = ratios.h = wH / this.responsiveDimensions.startSlideHeight;
+        if (ratios.h * this.responsiveDimensions.startHeight > wH) {
+            ratios.slideW = ratios.slideH = ratios.h = wH / this.responsiveDimensions.startHeight;
         }
+
+        this.slideInGroup = Math.max(1, Math.floor(sliderWidth / (this.responsiveDimensions.startSlideWidth * ratios.slideW)));
+        this.slider.calibrateGroup(this.slideInGroup);
 
         NextendSmartSliderResponsive.prototype._buildRatios.apply(this, arguments);
     };

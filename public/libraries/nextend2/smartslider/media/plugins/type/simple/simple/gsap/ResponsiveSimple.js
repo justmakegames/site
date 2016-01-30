@@ -1,6 +1,7 @@
 (function ($, scope, undefined) {
 
     function NextendSmartSliderResponsiveSimple() {
+        this.round = 1;
         NextendSmartSliderResponsive.prototype.constructor.apply(this, arguments);
     };
 
@@ -21,8 +22,9 @@
 
         this.addResponsiveElement(this.sliderElement.find('.n2-ss-slide'), ['height'], 'h', 'slideouter');
 
-        this.addResponsiveElement(this.sliderElement.find('.n2-ss-layers-container'), ['width'], 'slideW', 'slide');
-        this.addResponsiveElement(this.sliderElement.find('.n2-ss-layers-container'), ['height'], 'slideH', 'slide').setCentered();
+        var layerContainers = this.sliderElement.find('.n2-ss-layers-container');
+        this.addResponsiveElement(layerContainers, ['width'], 'slideW', 'slide');
+        this.addResponsiveElement(layerContainers, ['height'], 'slideH', 'slide').setCentered();
 
         var parallax = this.slider.parameters.mainanimation.parallax;
         var backgroundImages = this.slider.backgroundImages.getBackgroundImages();

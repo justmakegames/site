@@ -1,6 +1,13 @@
 <?php
-
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorEShopProducts extends N2GeneratorAbstract
 {
@@ -34,6 +41,9 @@ class N2GeneratorEShopProducts extends N2GeneratorAbstract
     }
 
     protected function _getData($count, $startIndex) {
+
+        require_once(JPATH_SITE . '/components/com_eshop/helpers/helper.php');
+        require_once(JPATH_SITE . '/components/com_eshop/helpers/route.php');
 
         $model = new N2Model('eshop_products');
 
@@ -115,11 +125,14 @@ class N2GeneratorEShopProducts extends N2GeneratorAbstract
             $this->setCurrencyDetails($res['left_symbol'], $res['right_symbol'], $res['decimal_place'], $now);
             $r = array(
                 'title'             => $res['product_name'],
-                'url'               => 'index.php?option=com_eshop&view=product&id=' . $res['id'] . '&catid=' . $res['category_id'],
+                'url'               => JRoute::_(EshopRoute::getProductRoute($res['id'], $res['category_id'])),
                 'description'       => $res['product_desc'],
-                'short_description' => $res['product_short_desc'],
-                'image'             => !empty($res['product_image']) ? N2ImageHelper::dynamic($root . 'media/com_eshop/products/' . $res['product_image']) : ''
+                'short_description' => $res['product_short_desc']
             );
+
+            $r['image'] = NextendImageFallBack::fallback($root, array(
+                !empty($res['product_image']) ? 'media/com_eshop/products/' . $res['product_image'] : ''
+            ), array($res['product_desc']));
 
             $reSized = explode('.', $res['product_image']);
             if (count($reSized) == 2 && file_exists(JPATH_ROOT . '/media/com_eshop/products/resized/' . $reSized[0] . '-' . $res['image_thumb_width'] . 'x' . $res['image_thumb_height'] . '.' . $reSized[1])) {
@@ -129,7 +142,7 @@ class N2GeneratorEShopProducts extends N2GeneratorAbstract
             }
 
             $r += array(
-                'full_price'                => $this->createPrice($res['product_price']),
+                'price'                     => $this->createPrice($res['product_price']),
                 'discount_price'            => $this->createPrice($res['price']),
                 'id'                        => $res['id'],
                 'product_sku'               => $res['product_sku'],
@@ -154,7 +167,7 @@ class N2GeneratorEShopProducts extends N2GeneratorAbstract
                 'category_name'             => $res['category_name'],
                 'category_desc'             => $res['category_desc'],
                 'category_image'            => !empty($res['category_image']) ? N2ImageHelper::dynamic($root . 'media/com_eshop/categories/' . $res['category_image']) : '',
-                'category_url'              => 'index.php?option=com_eshop&view=category&id=' . $res['category_id'],
+                'category_url'              => JRoute::_(EshopRoute::getCategoryRoute($res['category_id'])),
                 'manufacturer_email'        => $res['manufacturer_email'],
                 'manufacturer_url'          => $res['manufacturer_url'],
                 'manufacturer_site_url'     => 'index.php?option=com_eshop&view=manufacturer&id=' . $res['manufacturer_id'],
@@ -164,6 +177,8 @@ class N2GeneratorEShopProducts extends N2GeneratorAbstract
                 'manufacturer_page_title'   => $res['manufacturer_page_title'],
                 'manufacturer_page_heading' => $res['manufacturer_page_heading']
             );
+
+            $r['full_price'] = $r['price'];
 
             $data[] = $r;
         }

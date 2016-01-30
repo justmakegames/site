@@ -1,6 +1,13 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorCobaltRecords extends N2GeneratorAbstract
 {
@@ -126,10 +133,12 @@ class N2GeneratorCobaltRecords extends N2GeneratorAbstract
                 $r['created_by_alias'] = 'Guest';
             }
             if (is_array($rec->fields_by_id) && count($rec->fields_by_id) > 0) {
+                $fields = array();
                 foreach ($rec->fields_by_id AS $id => $field) {
-                    $r_name     = 'extra' . $id . '_' . preg_replace("/\W|_/", "", $field->getLabelName());
-                    $r[$r_name] = $field->result;
+                    $r_name   = 'extra' . $id . '_' . preg_replace("/\W|_/", "", $field->getLabelName());
+                    $fields[] = $r[$r_name] = $field->result;
                 }
+                $r['image'] = $r['thumbnail'] = NextendImageFallBack::fallback(N2Uri::getBaseUri(), array(), $fields);
             }
 
             $data[] = $r;

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.plugins.N2SliderWidgetAbstract', 'smartslider');
 N2Loader::import('libraries.image.color');
 
@@ -73,7 +80,7 @@ class N2SSPluginWidgetBulletNumbers extends N2SSPluginWidgetAbstract
         $i    = 1;
         foreach ($slider->slides AS $slide) {
             $label  = $i;
-            $dots[] = NHtml::tag('div', array(
+            $dots[] = N2Html::tag('div', array(
                 'class' => $bulletStyle . $bulletFont . ($slide->isActive() ? 'n2-active' : ''),
             ), $label);
 
@@ -81,6 +88,9 @@ class N2SSPluginWidgetBulletNumbers extends N2SSPluginWidgetAbstract
         }
 
         $orientation = self::getOrientationByPosition($params->get(self::$key . 'position-mode'), $params->get(self::$key . 'position-area'), $params->get(self::$key . 'orientation'));
+        if($orientation == 'auto'){
+            $orientation = 'horizontal';
+        }
         $html        = '';
         switch ($orientation) {
             case 'vertical':
@@ -132,7 +142,7 @@ class N2SSPluginWidgetBulletNumbers extends N2SSPluginWidgetAbstract
             $displayClass .= "n2-bullet-bar-full-size ";
         }
 
-        return NHtml::tag("div", $displayAttributes + $attributes + array(
+        return N2Html::tag("div", $displayAttributes + $attributes + array(
                 "class" => $displayClass . $barStyle . "nextend-bullet-bar nextend-bullet-bar-" . $orientation,
                 "style" => "text-align: " . $params->get(self::$key . 'align') . ";" . $style
             ), $html);

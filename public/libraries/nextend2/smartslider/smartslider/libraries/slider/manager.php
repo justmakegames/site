@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderManager
 {
@@ -50,7 +57,6 @@ class N2SmartSliderManager
         if ($cachedSlider === false) {
             return '<h3>Smart Slider with ID #' . $this->slider->sliderId . ' does NOT EXIST or has NO SLIDES!</h3><h4>Usage: ' . $this->usage . '</h4>';
         }
-
         N2AssetsManager::loadFromArray($cachedSlider['assets']);
 
         return $cachedSlider['html'];

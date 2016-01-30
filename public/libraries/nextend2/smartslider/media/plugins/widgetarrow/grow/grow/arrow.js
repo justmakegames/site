@@ -4,14 +4,20 @@
         this.sidePadding = 25;
         this.delay = delay;
 
-        var slider = this.slider = window[id];
+        this.slider = window[id];
+
+        this.slider.started($.proxy(this.start, this, id, titles, delay));
+    };
+
+    NextendSmartSliderWidgetArrowGrow.prototype.start = function (id, titles, delay) {
         if (this.slider.sliderElement.data('arrow')) {
             return false;
         }
 
-        this.previous = $('#' + id + '-arrow-previous').on('click', function () {
-            slider.previous();
-        });
+        this.previous = $('#' + id + '-arrow-previous').on('click', $.proxy(function (e) {
+            e.stopPropagation();
+            this.slider.previous();
+        }, this));
 
         var previousTitle = this.previous.find('.nextend-arrow-title');
 
@@ -21,9 +27,10 @@
         });
 
 
-        this.next = $('#' + id + '-arrow-next').on('click', function () {
-            slider.next();
-        });
+        this.next = $('#' + id + '-arrow-next').on('click', $.proxy(function (e) {
+            e.stopPropagation();
+            this.slider.next();
+        }, this));
         var nextTitle = this.next.find('.nextend-arrow-title');
 
         this.next.on({
@@ -53,7 +60,6 @@
                     this.next.width(this.size + this.sidePadding + nextTitle.width())
                 }
             }, this));
-
     };
 
     NextendSmartSliderWidgetArrowGrow.prototype.mouseEnter = function (arrow, title, e) {

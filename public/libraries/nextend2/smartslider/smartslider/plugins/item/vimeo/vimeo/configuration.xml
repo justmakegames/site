@@ -11,15 +11,12 @@
       <option value="-1">Default</option>
     </param>
     <param name="autoplay" type="onoff" label="Autoplay" default="0"/>
-    <param name="center" type="onoff" label="Centered" default="0" class="n2-hidden" doc="#Layers-Vimeo"/>
+    <param name="center" type="onoff" label="Centered" default="0" class="n2-hidden"/>
     <param name="loop" type="onoff" label="Loop" default="0" class="n2-expert"/>
-    <param name="reset" type="onoff" label="Reset video when lose focus" default="0" doc="#Layers-Vimeo"/>
+    <param name="reset" type="onoff" label="Reset video when lose focus" default="0"/>
     <param name="title" type="onoff" label="Title" default="1"/>
-    <param name="byline" type="onoff" label="Users byline" default="1" doc="#Layers-Vimeo"/>
-    <param name="portrait" type="onoff" label="Portrait" default="1" doc="#Layers-Vimeo"/>
+    <param name="byline" type="onoff" label="Users byline" default="1"/>
+    <param name="portrait" type="onoff" label="Portrait" default="1"/>
     <param name="color" type="color" label="Color" default="00adef"/>
-    <param name="videoplay" type="text" label="Event on video play" default="" class="n2-expert" doc="#Layers-Vimeo"/>
-    <param name="videopause" type="text" label="Event on video pause" default="" class="n2-expert" doc="#Layers-Vimeo"/>
-    <param name="videoend" type="text" label="Event on video ends" default="" class="n2-expert" doc="#Layers-Vimeo"/>
   </params>
 </root>

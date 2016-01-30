@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 N2Loader::import('libraries.plugins.N2SliderItemAbstract', 'smartslider');
 
@@ -9,14 +16,17 @@ class N2SSPluginItemYouTube extends N2SSPluginItemAbstract
 
     protected $priority = 20;
 
-    protected $layerProperties = '{"width":300,"height":180}';
+    protected $layerProperties = array(
+        "width"  => 300,
+        "height" => 180
+    );
 
     public function __construct() {
         $this->_title = n2_x('YouTube', 'Slide item');
     }
 
     function getTemplate($slider) {
-        return NHtml::tag('div', array(
+        return N2Html::tag('div', array(
             "style" => 'width: 100%; height: 100%; min-height: 50px; background: url({image}) no-repeat 50% 50%; background-size: cover;'
         ));
     }
@@ -30,6 +40,7 @@ class N2SSPluginItemYouTube extends N2SSPluginItemAbstract
             'start'    => 0,
             'volume'   => -1,
             'autoplay' => 0,
+            'controls' => 1,
             'center'   => 0,
             'loop'     => 0,
             'theme'    => 'dark',
@@ -38,9 +49,6 @@ class N2SSPluginItemYouTube extends N2SSPluginItemAbstract
         ));
         $youTubeUrl = $this->parseYoutubeUrl($slide->fill($data->get('youtubeurl', '')));
         $data->set("youtubecode", $youTubeUrl);
-        $data->set("videoplay", $this->parseEventCode($data->get('videoplay', ''), $slider->elementId));
-        $data->set("videopause", $this->parseEventCode($data->get('videopause', ''), $slider->elementId));
-        $data->set("videoend", $this->parseEventCode($data->get('videoend', ''), $slider->elementId));
 
         $style = '';
 
@@ -55,15 +63,15 @@ class N2SSPluginItemYouTube extends N2SSPluginItemAbstract
             new NextendSmartSliderYouTubeItem(this, "' . $itemId . '", ' . $data->toJSON() . ', ' . $hasImage . ');
         });');
 
-        return NHtml::tag('div', array(
+        return N2Html::tag('div', array(
             'id'    => $itemId,
             'style' => 'position: absolute; top: 0; left: 0; width: 100%; height: 100%;' . $style
         ));
     }
 
     function _renderAdmin($data, $itemId, $slider, $slide) {
-        return NHtml::tag('div', array(
-            "style" => 'width: 100%; height: 100%; background: url(' . N2ImageHelper::fixed($data->getIfEmpty('image', '$system$/images/placeholder/video.svg')) . ') no-repeat 50% 50%; background-size: cover;'
+        return N2Html::tag('div', array(
+            "style" => 'width: 100%; height: 100%; background: url(' . N2ImageHelper::fixed($data->getIfEmpty('image', '$system$/images/placeholder/video.png')) . ') no-repeat 50% 50%; background-size: cover;'
         ));
     }
 
@@ -80,17 +88,15 @@ class N2SSPluginItemYouTube extends N2SSPluginItemAbstract
     function getValues() {
         return array(
             'code'         => 'qesNtYIBDfs',
-            'youtubeurl'   => 'http://www.youtube.com/watch?v=qesNtYIBDfs',
-            'image'        => '$system$/images/placeholder/video.svg',
+            'youtubeurl'   => 'https://www.youtube.com/watch?v=MKmIwHAFjSU',
+            'image'        => '$system$/images/placeholder/video.png',
             'autoplay'     => 0,
+            'controls'     => 1,
             'defaultimage' => 'maxresdefault',
             'related'      => '0',
             'vq'           => 'default',
             'center'       => 0,
-            'loop'         => 0,
-            'videoplay'    => '',
-            'videopause'   => '',
-            'videoend'     => ''
+            'loop'         => 0
         );
     }
 

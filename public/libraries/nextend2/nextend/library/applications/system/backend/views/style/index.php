@@ -1,5 +1,12 @@
 <?php
 /**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+/**
  * @var $model N2SystemStyleModel
  */
 
@@ -35,7 +42,7 @@ N2JS::addFirstCode("
                     </div>
 
                     <div class="n2-td n2-last n2-visual-editor-tabs">
-                        <a class="n2-button n2-button-v n2-button-medium n2-button-grey n2-editor-clear-tab n2-h5 n2-uc"
+                        <a href="#" class="n2-button n2-button-v n2-button-medium n2-button-grey n2-editor-clear-tab n2-h5 n2-uc"
                            style="display: none;"><?php n2_e('Clear tab'); ?></a>
 
                         <div class="n2-form-element-radio-tab">
@@ -75,11 +82,11 @@ N2JS::addFirstCode("
                         </div>
                         <div class="n2-editor-background-color">
                             <div style="" class="n2-form-element-text n2-form-element-color n2-border-radius">
-                                <div class="sp-replacer">
-                                    <div class="sp-preview">
-                                        <div class="sp-preview-inner"></div>
+                                <div class="n2-sp-replacer">
+                                    <div class="n2-sp-preview">
+                                        <div class="n2-sp-preview-inner"></div>
                                     </div>
-                                    <div class="sp-dd">▲</div>
+                                    <div class="n2-sp-dd">▲</div>
                                 </div>
                                 <input type="text" autocomplete="off" class="n2-h5" value="ced3d5"
                                        name="n2-style-editor-background-color" id="n2-style-editor-background-color">

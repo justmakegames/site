@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/assets.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'Custom CSS / JS',
         'description' => 'Configure custom CSS and Javascript.',
         'type' => 'atom',
+        'icon' => 'fa-file-code-o',
         'form' => [
             'fields' => [
                 'enabled' => [

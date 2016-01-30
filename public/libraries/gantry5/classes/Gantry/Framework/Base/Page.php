@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -46,7 +45,7 @@ abstract class Page
 
     public function bodyAttributes($attributes = [])
     {
-        return $this->getAttributes($this->config->get('page.body'), $attributes);
+        return $this->getAttributes($this->config->get('page.body.attribs'), $attributes);
     }
 
     protected function getAttributes($params, $extra = [])
@@ -55,8 +54,18 @@ abstract class Page
 
         $list = [];
         foreach ($params as $param => $value) {
-            $value = array_filter(array_unique((array) $value));
-            $list[] = $param . '="' . implode(' ', $value) . '"';
+            if (!$value) { continue; }
+            if (!is_array($value) || !count(array_filter($value, 'is_array'))) {
+                $value = array_filter(array_unique((array) $value));
+                $list[] = $param . '="' . implode(' ', $value) . '"';
+            } else {
+                $values = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($value));
+                foreach ($values as $iparam => $ivalue) {
+                    $ivalue = array_filter(array_unique((array) $ivalue));
+                    $list[] = $iparam . '="' . implode(' ', $ivalue) . '"';
+                }
+            }
+
         }
 
         return $list ? ' ' . implode(' ', $list) : '';

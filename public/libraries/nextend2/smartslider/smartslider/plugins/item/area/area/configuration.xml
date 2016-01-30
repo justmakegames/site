@@ -2,6 +2,7 @@
     <params name="area-item" hidetitle="1">
         <param name="color" type="color" label="Background color" default="00000000" alpha="1"
                 />
+        <param name="css" type="textarea" label="Custom CSS" default="" class="n2-expert"/>
         <param type="group" label="Size">
             <param name="width" type="text" label="Width" default="" style="width:32px;">
                 <unit value="px">px</unit>
@@ -27,11 +28,5 @@
                 <option value="_blank">Blank</option>
             </param>
         </param>
-        <param name="onmouseenter" type="text" label="Event on mouseenter" default=""
-               doc="#Developer-Javascript-events"/>
-        <param name="onmouseclick" type="text" label="Event on mouseclick" default=""
-               doc="#Developer-Javascript-events"/>
-        <param name="onmouseleave" type="text" label="Event on mouseleave" default=""
-               doc="#Developer-Javascript-events"/>
     </params>
 </root>

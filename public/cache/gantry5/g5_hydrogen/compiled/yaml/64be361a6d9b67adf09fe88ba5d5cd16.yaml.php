@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/pagecontent.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143492,
     'data' => [
         'name' => 'Page Content',
         'description' => 'Display the main page content in the layout.',

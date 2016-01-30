@@ -2,6 +2,7 @@
 
     function NextendSmartSliderBlock(sliderElement, parameters) {
 
+        this.type = 'block';
         this.responsiveClass = 'NextendSmartSliderResponsiveBlock';
 
         NextendSmartSliderAbstract.prototype.constructor.call(this, sliderElement, parameters);

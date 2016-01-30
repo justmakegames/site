@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 define('N2_DS_INV', DIRECTORY_SEPARATOR == '/' ? '\\' : '/');
 
@@ -23,6 +30,23 @@ abstract class N2FilesystemAbstract
         return $instance;
     }
 
+    public static function check($base, $folder) {
+        static $checked = array();
+        if (!isset($checked[$base . '/' . $folder])) {
+            $cacheFolder = $base . '/' . $folder;
+            if (!self::existsFolder($cacheFolder)) {
+                if (self::is_writable($base)) {
+                    self::createFolder($cacheFolder);
+                } else {
+                    die('<div style="position:fixed;background:#fff;width:100%;height:100%;top:0;left:0;z-index:100000;">' . sprintf('<h2><b>%s</b> is not writable.</h2>', $base) . '<br><br><iframe style="width:100%;max-width:760px;height:100%;" src="http://doc.smartslider3.com/article/482-cache-folder-is-not-writable"></iframe></div>');
+                }
+            } else if (!self::is_writable($cacheFolder)) {
+                die('<div style="position:fixed;background:#fff;width:100%;height:100%;top:0;left:0;z-index:100000;">' . sprintf('<h2><b>%s</b> is not writable.</h2>', $cacheFolder) . '<br><br><iframe style="width:100%;max-width:760px;height:100%;" src="http://doc.smartslider3.com/article/482-cache-folder-is-not-writable"></iframe></div>');
+            }
+            $checked[$base . '/' . $folder] = true;
+        }
+    }
+
     /**
      * @param $path
      *
@@ -41,6 +65,7 @@ abstract class N2FilesystemAbstract
     }
 
     public static function getWebCachePath() {
+        self::check(self::getBasePath(), 'cache');
         return self::getBasePath() . '/cache/nextend/web';
     }
 

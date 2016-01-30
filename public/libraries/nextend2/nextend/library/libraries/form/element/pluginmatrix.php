@@ -1,5 +1,12 @@
 <?php
 /**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+/**
  * @todo: Refactor with fragments
  */
 N2Loader::import('libraries.form.element.hidden');
@@ -12,9 +19,11 @@ class N2ElementPluginMatrix extends N2ElementHidden
     function fetchElement() {
         $widgetTypes = $this->getOptions();
 
-        $html = NHtml::openTag("div", array(
-            'id'    => 'n2-plugin-matrix-views-' . $this->_id,
-            "class" => "n2-h2 n2-content-box-title-bg n2-plugin-matrix-views"
+        $id = 'n2-form-matrix-' . $this->_id;
+
+        $html = N2Html::openTag("div", array(
+            'id'    => $id,
+            "class" => "n2-form-matrix"
         ));
 
         $value = $this->getValue();
@@ -30,36 +39,30 @@ class N2ElementPluginMatrix extends N2ElementHidden
 
         if (!$test) $value = 'arrow';
 
+        $html .= N2Html::openTag('div', array('class' => 'n2-h2 n2-content-box-title-bg n2-form-matrix-views'));
+
+        $class = 'n2-underline n2-h4 n2-uc n2-has-underline n2-form-matrix-menu';
         foreach ($widgetTypes AS $type => $v) {
 
-            if ($value == $type) {
-                $active = 'n2-active';
-            } else {
-                $active = '';
-            }
-
-            $html .= NHtml::tag("div", array(
+            $html .= N2Html::tag("div", array(
                 "onclick" => "n2('#{$this->_id}').val('{$type}');",
-                "class"   => $active . " n2-h4 n2-uc n2-has-underline n2-plugin-matrix-view n2-pluginmatrix-view-" . $type
-            ), NHtml::tag("span", array("class" => "n2-underline"), $v[0]));
+                "class"   => $class . ($value == $type ? ' n2-active' : '')
+            ), N2Html::tag("span", array("class" => "n2-underline"), $v[0]));
 
         }
-        $html .= NHtml::closeTag("div");
+        $html .= N2Html::closeTag("div");
 
 
-        $html .= NHtml::openTag("div", array(
-            'id'    => 'n2-plugin-matrix-panes-' . $this->_id,
-            "class" => "n2-plugin-matrix-panes"
+        $html .= N2Html::openTag("div", array(
+            "class" => "n2-tabs"
         ));
 
         foreach ($widgetTypes AS $type => $v) {
-            if ($value == $type) {
-                $active = 'n2-active';
-            } else {
-                $active = '';
-            }
 
-            $html .= NHtml::openTag("div", array("class" => "{$active} n2-plugin-matrix-pane nextend-plugin-matrix-pane-{$type}"));
+
+            $html .= N2Html::openTag('div', array(
+                'class' => 'n2-form-matrix-pane' . ($value == $type ? ' n2-active' : '')
+            ));
 
             $GLOBALS['nextendbuffer'] = '';
             $form                     = new N2Form($this->_form->appType);
@@ -74,21 +77,25 @@ class N2ElementPluginMatrix extends N2ElementHidden
 
             $html .= $GLOBALS['nextendbuffer'];
 
-            $html .= NHtml::closeTag("div");
+            $html .= N2Html::closeTag("div");
         }
 
-        $html .= NHtml::closeTag("div");
+        $html .= N2Html::closeTag("div");
+
+        $html .= N2Html::closeTag("div");
         N2JS::addInline('
-                var views = $("#n2-plugin-matrix-views-' . $this->_id . ' > div"),
-                    panes = $("#n2-plugin-matrix-panes-' . $this->_id . ' > div");
+            (function(){
+                var matrix = $("#' . $id . '"),
+                    views = matrix.find("> .n2-form-matrix-views > div"),
+                    panes = matrix.find("> .n2-tabs > div");
                 views.on("click", function(){
                     views.removeClass("n2-active");
                     panes.removeClass("n2-active");
                     var i = views.index(this);
                     views.eq(i).addClass("n2-active");
                     panes.eq(i).addClass("n2-active");
-                    //n2(window).trigger("resize");
                 });
+            })()
         ');
 
         return $html . parent::fetchElement();

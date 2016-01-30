@@ -496,7 +496,11 @@ n2.extend(window.nextend, {
         nextend.askToSave = false;
         window.location.href = url;
         return false;
-    }
+    },
+    isWordpress: false,
+    isJoomla: false,
+    isMagento: false,
+    isHTML: false
 });
 
 window.n2_ = function (text) {
@@ -661,7 +665,7 @@ window.nextendtime = n2.now();
         for (var k in NextendAjaxHelper.query) {
             queryArray[k] = NextendAjaxHelper.query[k];
         }
-        return queryString.stringify(queryArray);
+        return N2QueryString.stringify(queryArray);
     };
 
     NextendAjaxHelper.makeAjaxUrl = function (url, queries) {
@@ -669,7 +673,7 @@ window.nextendtime = n2.now();
         if (urlParts.length < 2) {
             urlParts[1] = '';
         }
-        var parsed = queryString.parse(urlParts[1]);
+        var parsed = N2QueryString.parse(urlParts[1]);
         if (typeof queries != 'undefined') {
             for (var k in queries) {
                 parsed[k] = queries[k];
@@ -683,7 +687,7 @@ window.nextendtime = n2.now();
         if (urlParts.length < 2) {
             urlParts[1] = '';
         }
-        var parsed = queryString.parse(urlParts[1]);
+        var parsed = N2QueryString.parse(urlParts[1]);
         if (typeof queries != 'undefined') {
             for (var k in queries) {
                 parsed[k] = queries[k];
@@ -829,11 +833,16 @@ window.nextendtime = n2.now();
         _listen: function () {
             if (!isListening) {
                 doc.on('keydown.n2-esc', function (e) {
-                    if ((e.keyCode == 27 || e.keyCode == 8) && !$(e.target).is("input, textarea")) {
-                        e.preventDefault();
-                        var ret = FiLo[FiLo.length - 1]();
-                        if (ret) {
-                            scope.NextendEsc.pop();
+                    if ((e.keyCode == 27 || e.keyCode == 8)) {
+                        if (!$(e.target).is("input, textarea")) {
+                            e.preventDefault();
+                            var ret = FiLo[FiLo.length - 1]();
+                            if (ret) {
+                                scope.NextendEsc.pop();
+                            }
+                        } else if (e.keyCode == 27) {
+                            e.preventDefault();
+                            $(e.target).blur();
                         }
                     }
                 });
@@ -903,6 +912,14 @@ window.N2Color = {
     hex2alpha: function (str) {
         var num = parseInt(str, 16); // Convert to a number
         return ((num & 255) / 255).toFixed(3);
+    },
+    colorizeSVG: function (str, color) {
+        var parts = str.split('base64,');
+        if (parts.length == 1) {
+            return str;
+        }
+        parts[1] = Base64.encode(Base64.decode(parts[1]).replace('fill="#FFF"', 'fill="#' + color.substr(0, 6) + '"').replace('opacity="1"', 'opacity="' + N2Color.hex2alpha(color) + '"'));
+        return parts.join('base64,');
     }
 };
 /*!
@@ -914,9 +931,10 @@ window.N2Color = {
  */
 (function () {
     'use strict';
-    var queryString = {};
+    var module, define;
+    var N2QueryString = {};
 
-    queryString.parse = function (str) {
+    N2QueryString.parse = function (str) {
         if (typeof str !== 'string') {
             return {};
         }
@@ -949,7 +967,7 @@ window.N2Color = {
         }, {});
     };
 
-    queryString.stringify = function (obj) {
+    N2QueryString.stringify = function (obj) {
         return obj ? Object.keys(obj).map(function (key) {
             var val = obj[key];
 
@@ -963,13 +981,7 @@ window.N2Color = {
         }).join('&') : '';
     };
 
-    if (typeof define === 'function' && define.amd) {
-        define(function() { return queryString; });
-    } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = queryString;
-    } else {
-        window.queryString = queryString;
-    }
+    window.N2QueryString = N2QueryString;
 })();
 
 ;
@@ -1348,8 +1360,16 @@ window.N2Color = {
             imageUrls: [],
             wordpressUrl: '',
             placeholderImage: '',
-            placeholderRepeatedImage: ''
+            placeholderRepeatedImage: '',
+            protocolRelative: 1
         }, parameters);
+    }
+
+    NextendImageHelper.prototype.protocolRelative = function (image) {
+        if (this.parameters.protocolRelative) {
+            return image.replace(/^http(s)?:\/\//, '//');
+        }
+        return image;
     }
 
 
@@ -1359,10 +1379,11 @@ window.N2Color = {
 
     NextendImageHelper.prototype.dynamic = function (image) {
         var imageUrls = this.parameters.imageUrls,
-            keywords = this.parameters.siteKeywords;
+            keywords = this.parameters.siteKeywords,
+            _image = this.protocolRelative(image);
         for (var i = 0; i < keywords.length; i++) {
-            if (image.indexOf(imageUrls[i]) === 0) {
-                image = keywords[i] + image.slice(imageUrls[i].length);
+            if (_image.indexOf(imageUrls[i]) === 0) {
+                image = keywords[i] + _image.slice(imageUrls[i].length);
             }
         }
         return image;
@@ -1431,6 +1452,8 @@ window.N2Color = {
                 this.panes[k] = $.extend({
                     customClass: '',
                     fit: false,
+                    fitX: true,
+                    overflow: 'hidden',
                     size: false,
                     back: false,
                     close: true,
@@ -1504,6 +1527,7 @@ window.N2Color = {
     };
 
     NextendModal.prototype.hide = function (e) {
+        this.apply('hide');
         $(window).off('.n2-modal-' + this.counter);
         this.notificationStack.popStack();
         if (arguments.length > 0 && e != 'esc') {
@@ -1583,6 +1607,10 @@ window.N2Color = {
                     resize = $.proxy(function () {
                         var w = $w.width() - 2 * margin,
                             h = $w.height() - 2 * margin;
+
+                        if (!pane.fitX) {
+                            w = pane.size[0];
+                        }
                         this.window.css({
                             width: w,
                             height: h,
@@ -1592,7 +1620,7 @@ window.N2Color = {
 
                         this.content.css({
                             height: h - 80 - (hasControls ? this.controls.parent().outerHeight(true) : 0),
-                            overflow: 'hidden'
+                            overflow: pane.overflow
                         });
                     }, this);
                 resize();
@@ -1607,7 +1635,7 @@ window.N2Color = {
 
                 this.content.css({
                     height: pane.size[1] - 80 - (hasControls ? this.controls.parent().outerHeight(true) : 0),
-                    overflow: 'hidden'
+                    overflow: pane.overflow
                 });
 
             }
@@ -1771,18 +1799,17 @@ window.N2Color = {
             }, true);
         }
     };
-    scope.NextendModalDocumentation = {
-        url: '',
-        show: function (anchor) {
-            var win = window.open(scope.NextendModalDocumentation.url + anchor, '_blank');
-            if (win) {
-                //Browser has allowed it to be opened
-                win.focus();
-            } else {
-                //Broswer has blocked it
-                alert('Please allow popups for this site');
+    scope.NextendModalDocumentation = function (title, url) {
+        new NextendModal({
+            zero: {
+                size: [
+                    760,
+                    700
+                ],
+                title: title,
+                content: '<iframe src="' + url + '" width="760" height="640" frameborder="0" style="margin:0 -20px -20px -20px;"></iframe>'
             }
-        }
+        }, true);
     };
 
     function NextendSimpleModal(html) {
@@ -2094,8 +2121,11 @@ window.N2Color = {
             .prependTo(this.messageContainer);
 
         this.messages.push(messageNode);
+        if (this.messages.length > 3) {
+            this.messages.shift().remove();
+        }
 
-        if (!this.importantOnly || type == 'error') {
+        if (!this.importantOnly || type == 'error' || type == 'notice') {
             this.show();
         }
         return messageNode;
@@ -2177,6 +2207,9 @@ window.N2Color = {
     };
 
     NextendNotificationCenterStackModal.prototype.show = function () {
+        if (document.activeElement) {
+            document.activeElement.blur();
+        }
         NextendEsc.add($.proxy(function () {
             this.clear();
             return false;
@@ -2208,6 +2241,7 @@ window.N2Color = {
 // License: MIT
 
 (function (window, $, undefined) {
+    var tinycolor = null;
     var defaultOpts = {
 
             // Events
@@ -2234,7 +2268,7 @@ window.N2Color = {
             preferredFormat: false,
             className: "",
             showAlpha: false,
-            theme: "sp-light",
+            theme: "n2-sp-light",
             palette: ['fff', '000'],
             selectionPalette: [],
             disabled: false
@@ -2252,9 +2286,9 @@ window.N2Color = {
             return contains(style.backgroundColor, 'rgba') || contains(style.backgroundColor, 'hsla');
         })(),
         replaceInput = [
-            "<div class='sp-replacer'>",
-            "<div class='sp-preview'><div class='sp-preview-inner'></div></div>",
-            "<div class='sp-dd'>&#9650;</div>",
+            "<div class='n2-sp-replacer'>",
+            "<div class='n2-sp-preview'><div class='n2-sp-preview-inner'></div></div>",
+            "<div class='n2-sp-dd'>&#9650;</div>",
             "</div>"
         ].join(''),
         markup = (function () {
@@ -2264,40 +2298,40 @@ window.N2Color = {
             var gradientFix = "";
             if (IE) {
                 for (var i = 1; i <= 6; i++) {
-                    gradientFix += "<div class='sp-" + i + "'></div>";
+                    gradientFix += "<div class='n2-sp-" + i + "'></div>";
                 }
             }
 
             return [
-                "<div class='sp-container'>",
-                "<div class='sp-palette-container'>",
-                "<div class='sp-palette sp-thumb sp-cf'></div>",
+                "<div class='n2-sp-container'>",
+                "<div class='n2-sp-palette-container'>",
+                "<div class='n2-sp-palette n2-sp-thumb n2-sp-cf'></div>",
                 "</div>",
-                "<div class='sp-picker-container'>",
-                "<div class='sp-top sp-cf'>",
-                "<div class='sp-fill'></div>",
-                "<div class='sp-top-inner'>",
-                "<div class='sp-color'>",
-                "<div class='sp-sat'>",
-                "<div class='sp-val'>",
-                "<div class='sp-dragger'></div>",
+                "<div class='n2-sp-picker-container'>",
+                "<div class='n2-sp-top n2-sp-cf'>",
+                "<div class='n2-sp-fill'></div>",
+                "<div class='n2-sp-top-inner'>",
+                "<div class='n2-sp-color'>",
+                "<div class='n2-sp-sat'>",
+                "<div class='n2-sp-val'>",
+                "<div class='n2-sp-dragger'></div>",
                 "</div>",
                 "</div>",
                 "</div>",
-                "<div class='sp-hue'>",
-                "<div class='sp-slider'></div>",
+                "<div class='n2-sp-hue'>",
+                "<div class='n2-sp-slider'></div>",
                 gradientFix,
                 "</div>",
                 "</div>",
-                "<div class='sp-alpha'><div class='sp-alpha-inner'><div class='sp-alpha-handle'></div></div></div>",
+                "<div class='n2-sp-alpha'><div class='n2-sp-alpha-inner'><div class='n2-sp-alpha-handle'></div></div></div>",
                 "</div>",
-                "<div class='sp-input-container sp-cf'>",
-                "<input class='sp-input' type='text' spellcheck='false'  />",
+                "<div class='n2-sp-input-container n2-sp-cf'>",
+                "<input class='n2-sp-input' type='text' spellcheck='false'  />",
                 "</div>",
-                "<div class='sp-initial sp-thumb sp-cf'></div>",
-                "<div class='sp-button-container sp-cf'>",
-                "<a class='sp-cancel' href='#'></a>",
-                "<button class='sp-choose'></button>",
+                "<div class='n2-sp-initial n2-sp-thumb n2-sp-cf'></div>",
+                "<div class='n2-sp-button-container n2-sp-cf'>",
+                "<a class='n2-sp-cancel' href='#'></a>",
+                "<button class='n2-sp-choose'></button>",
                 "</div>",
                 "</div>",
                 "</div>"
@@ -2308,13 +2342,13 @@ window.N2Color = {
         var html = [];
         for (var i = 0; i < p.length; i++) {
             var tiny = tinycolor(p[i]);
-            var c = tiny.toHsl().l < 0.5 ? "sp-thumb-el sp-thumb-dark" : "sp-thumb-el sp-thumb-light";
-            c += (tinycolor.equals(color, p[i])) ? " sp-thumb-active" : "";
+            var c = tiny.toHsl().l < 0.5 ? "n2-sp-thumb-el n2-sp-thumb-dark" : "n2-sp-thumb-el n2-sp-thumb-light";
+            c += (tinycolor.equals(color, p[i])) ? " n2-sp-thumb-active" : "";
 
             var swatchStyle = rgbaSupport ? ("background-color:" + tiny.toRgbString()) : "filter:" + tiny.toFilter();
-            html.push('<span title="' + tiny.toRgbString() + '" data-color="' + tiny.toRgbString() + '" class="' + c + '"><span class="sp-thumb-inner" style="' + swatchStyle + ';" /></span>');
+            html.push('<span title="' + tiny.toRgbString() + '" data-color="' + tiny.toRgbString() + '" class="' + c + '"><span class="n2-sp-thumb-inner" style="' + swatchStyle + ';" /></span>');
         }
-        return "<div class='sp-cf " + className + "'>" + html.join('') + "</div>";
+        return "<div class='n2-sp-cf " + className + "'>" + html.join('') + "</div>";
     }
 
     function hideAll() {
@@ -2363,7 +2397,7 @@ window.N2Color = {
             palette = opts.palette.slice(0),
             paletteArray = $.isArray(palette[0]) ? palette : [palette],
             selectionPalette = opts.selectionPalette.slice(0),
-            draggingClass = "sp-dragging";
+            draggingClass = "n2-sp-dragging";
 
 
         var doc = element.ownerDocument,
@@ -2371,18 +2405,18 @@ window.N2Color = {
             boundElement = $(element),
             disabled = false,
             container = $(markup, doc).addClass(theme),
-            dragger = container.find(".sp-color"),
-            dragHelper = container.find(".sp-dragger"),
-            slider = container.find(".sp-hue"),
-            slideHelper = container.find(".sp-slider"),
-            alphaSliderInner = container.find(".sp-alpha-inner"),
-            alphaSlider = container.find(".sp-alpha"),
-            alphaSlideHelper = container.find(".sp-alpha-handle"),
-            textInput = container.find(".sp-input"),
-            paletteContainer = container.find(".sp-palette"),
-            initialColorContainer = container.find(".sp-initial"),
-            cancelButton = container.find(".sp-cancel"),
-            chooseButton = container.find(".sp-choose"),
+            dragger = container.find(".n2-sp-color"),
+            dragHelper = container.find(".n2-sp-dragger"),
+            slider = container.find(".n2-sp-hue"),
+            slideHelper = container.find(".n2-sp-slider"),
+            alphaSliderInner = container.find(".n2-sp-alpha-inner"),
+            alphaSlider = container.find(".n2-sp-alpha"),
+            alphaSlideHelper = container.find(".n2-sp-alpha-handle"),
+            textInput = container.find(".n2-sp-input"),
+            paletteContainer = container.find(".n2-sp-palette"),
+            initialColorContainer = container.find(".n2-sp-initial"),
+            cancelButton = container.find(".n2-sp-cancel"),
+            chooseButton = container.find(".n2-sp-choose"),
             isInput = boundElement.is("input"),
             shouldReplace = isInput && !flat,
             replacer = null,
@@ -2397,13 +2431,13 @@ window.N2Color = {
 
         function applyOptions(noReflow) {
 
-            container.toggleClass("sp-flat", flat);
-            container.toggleClass("sp-input-disabled", !opts.showInput);
-            container.toggleClass("sp-alpha-enabled", opts.showAlpha);
-            container.toggleClass("sp-buttons-disabled", !opts.showButtons || flat);
-            container.toggleClass("sp-palette-disabled", !opts.showPalette);
-            container.toggleClass("sp-palette-only", opts.showPaletteOnly);
-            container.toggleClass("sp-initial-disabled", !opts.showInitial);
+            container.toggleClass("n2-sp-flat", flat);
+            container.toggleClass("n2-sp-input-disabled", !opts.showInput);
+            container.toggleClass("n2-sp-alpha-enabled", opts.showAlpha);
+            container.toggleClass("n2-sp-buttons-disabled", !opts.showButtons || flat);
+            container.toggleClass("n2-sp-palette-disabled", !opts.showPalette);
+            container.toggleClass("n2-sp-palette-only", opts.showPaletteOnly);
+            container.toggleClass("n2-sp-initial-disabled", !opts.showInitial);
             container.addClass(opts.className);
 
             if (typeof noReflow === 'undefined') {
@@ -2417,7 +2451,7 @@ window.N2Color = {
                 container.find("*:not(input)").attr("unselectable", "on");
             }
 
-            var customReplace = boundElement.parent().find('.sp-replacer');
+            var customReplace = boundElement.parent().find('.n2-sp-replacer');
             if (customReplace.length) {
                 replacer = customReplace;
             } else {
@@ -2429,7 +2463,7 @@ window.N2Color = {
                 }
             }
             offsetElement = (shouldReplace) ? replacer : boundElement;
-            previewElement = replacer.find(".sp-preview-inner");
+            previewElement = replacer.find(".n2-sp-preview-inner");
 
             applyOptions(true);
 
@@ -2551,8 +2585,8 @@ window.N2Color = {
             }
 
             var paletteEvent = IE ? "mousedown.spectrum" : "click.spectrum touchstart.spectrum";
-            paletteContainer.delegate(".sp-thumb-el", paletteEvent, palletElementClick);
-            initialColorContainer.delegate(".sp-thumb-el:nth-child(1)", paletteEvent, {ignore: true}, palletElementClick);
+            paletteContainer.delegate(".n2-sp-thumb-el", paletteEvent, palletElementClick);
+            initialColorContainer.delegate(".n2-sp-thumb-el:nth-child(1)", paletteEvent, {ignore: true}, palletElementClick);
         }
 
         function addColorToSelectionPalette(color) {
@@ -2605,11 +2639,11 @@ window.N2Color = {
             var currentColor = get();
 
             var html = $.map(paletteArray, function (palette, i) {
-                return paletteTemplate(palette, currentColor, "sp-palette-row sp-palette-row-" + i);
+                return paletteTemplate(palette, currentColor, "n2-sp-palette-row n2-sp-palette-row-" + i);
             });
 
             if (selectionPalette) {
-                html.push(paletteTemplate(getUniqueSelectionPalette(), currentColor, "sp-palette-row sp-palette-row-selection"));
+                html.push(paletteTemplate(getUniqueSelectionPalette(), currentColor, "n2-sp-palette-row n2-sp-palette-row-selection"));
             }
 
             paletteContainer.html(html.join(""));
@@ -2619,7 +2653,7 @@ window.N2Color = {
             if (opts.showInitial) {
                 var initial = colorOnShow;
                 var current = get();
-                initialColorContainer.html(paletteTemplate([initial, current], current, "sp-palette-row-initial"));
+                initialColorContainer.html(paletteTemplate([initial, current], current, "n2-sp-palette-row-initial"));
             }
         }
 
@@ -2640,7 +2674,7 @@ window.N2Color = {
                 set(tiny);
             }
             else {
-                textInput.addClass("sp-validation-error");
+                textInput.addClass("n2-sp-validation-error");
             }
         }
 
@@ -2665,7 +2699,7 @@ window.N2Color = {
 
             $(doc).bind("click.spectrum", hide);
             $(window).bind("resize.spectrum", resize);
-            replacer.addClass("sp-active");
+            replacer.addClass("n2-sp-active");
             container.show();
 
             if (opts.showPalette) {
@@ -2696,7 +2730,7 @@ window.N2Color = {
             $(doc).unbind("click.spectrum", hide);
             $(window).unbind("resize.spectrum", resize);
 
-            replacer.removeClass("sp-active");
+            replacer.removeClass("n2-sp-active");
             container.hide();
 
             var colorHasChanged = !tinycolor.equals(get(), colorOnShow);
@@ -2747,7 +2781,7 @@ window.N2Color = {
         }
 
         function isValid() {
-            return !textInput.hasClass("sp-validation-error");
+            return !textInput.hasClass("n2-sp-validation-error");
         }
 
         function move() {
@@ -2758,7 +2792,7 @@ window.N2Color = {
 
         function updateUI() {
 
-            textInput.removeClass("sp-validation-error");
+            textInput.removeClass("n2-sp-validation-error");
 
             updateHelperLocations();
 
@@ -2914,14 +2948,14 @@ window.N2Color = {
         function enable() {
             disabled = false;
             boundElement.attr("disabled", false);
-            offsetElement.removeClass("sp-disabled");
+            offsetElement.removeClass("n2-sp-disabled");
         }
 
         function disable() {
             hide();
             disabled = true;
             boundElement.attr("disabled", true);
-            offsetElement.addClass("sp-disabled");
+            offsetElement.addClass("n2-sp-disabled");
         }
 
         initialize();
@@ -3070,7 +3104,7 @@ window.N2Color = {
                     offset = $(element).offset();
 
                     $(doc).bind(duringDragEvents);
-                    $(doc.body).addClass("sp-dragging");
+                    $(doc.body).addClass("n2-sp-dragging");
 
                     if (!hasTouch) {
                         move(e);
@@ -3084,7 +3118,7 @@ window.N2Color = {
         function stop() {
             if (dragging) {
                 $(doc).unbind(duringDragEvents);
-                $(doc.body).removeClass("sp-dragging");
+                $(doc.body).removeClass("n2-sp-dragging");
                 onstop.apply(element, arguments);
             }
             dragging = false;
@@ -3111,7 +3145,7 @@ window.N2Color = {
      * Define a jQuery plugin
      */
     var dataID = "spectrum.id";
-    $.fn.spectrum = function (opts, extra) {
+    $.fn.n2spectrum = function (opts, extra) {
 
         if (typeof opts == "string") {
 
@@ -3150,27 +3184,27 @@ window.N2Color = {
         }
 
         // Initializing a new instance of spectrum
-        return this.spectrum("destroy").each(function () {
+        return this.n2spectrum("destroy").each(function () {
             var spect = spectrum(this, opts);
             $(this).data(dataID, spect.id);
         });
     };
 
-    $.fn.spectrum.load = true;
-    $.fn.spectrum.loadOpts = {};
-    $.fn.spectrum.draggable = draggable;
-    $.fn.spectrum.defaults = defaultOpts;
+    $.fn.n2spectrum.load = true;
+    $.fn.n2spectrum.loadOpts = {};
+    $.fn.n2spectrum.draggable = draggable;
+    $.fn.n2spectrum.defaults = defaultOpts;
 
-    $.spectrum = {};
-    $.spectrum.localization = {};
-    $.spectrum.palettes = {};
+    $.n2spectrum = {};
+    $.n2spectrum.localization = {};
+    $.n2spectrum.palettes = {};
 
-    $.fn.spectrum.processNativeColorInputs = function () {
+    $.fn.n2spectrum.processNativeColorInputs = function () {
         var colorInput = $("<input type='color' value='!' />")[0];
         var supportsColor = colorInput.type === "color" && colorInput.value != "!";
 
         if (!supportsColor) {
-            $("input[type=color]").spectrum({
+            $("input[type=color]").n2spectrum({
                 preferredFormat: "hex6"
             });
         }
@@ -3190,7 +3224,7 @@ window.N2Color = {
             mathRandom = math.random,
             parseFloat = window.parseFloat;
 
-        function tinycolor(color, opts) {
+        tinycolor = function(color, opts) {
 
             // If input is already a tinycolor, return itself
             if (typeof color == "object" && color.hasOwnProperty("_tc_id")) {
@@ -3677,10 +3711,10 @@ window.N2Color = {
         tinycolor.readable = function (color1, color2) {
             var a = tinycolor(color1).toRgb(), b = tinycolor(color2).toRgb();
             return (
-            (b.r - a.r) * (b.r - a.r) +
-            (b.g - a.g) * (b.g - a.g) +
-            (b.b - a.b) * (b.b - a.b)
-            ) > 0x28A4;
+                (b.r - a.r) * (b.r - a.r) +
+                (b.g - a.g) * (b.g - a.g) +
+                (b.b - a.b) * (b.b - a.b)
+                ) > 0x28A4;
         };
 
         // Big List of Colors
@@ -3999,13 +4033,13 @@ window.N2Color = {
         }
 
         // Everything is ready, expose to window
-        window.tinycolor = tinycolor;
+        //tinycolor;
 
     })(this);
 
     $(function () {
-        if ($.fn.spectrum.load) {
-            $.fn.spectrum.processNativeColorInputs();
+        if ($.fn.n2spectrum.load) {
+            $.fn.n2spectrum.processNativeColorInputs();
         }
     });
 
@@ -4172,6 +4206,13 @@ window.N2Color = {
 
         $(window).on('n2-before-unload', $.proxy(this.onBeforeUnload, this));
         registerBeforeUnload();
+
+        $('input, textarea').on('keyup', function (e) {
+            if (e.which == 27) {
+                e.target.blur();
+                e.stopPropagation();
+            }
+        });
     };
 
     NextendForm.prototype.onBeforeUnload = function (e, data) {
@@ -4213,13 +4254,13 @@ window.N2Color = {
     };
 
     NextendElement.prototype.triggerOutsideChange = function () {
-        this.element.trigger('outsideChange', this)
-            .trigger('nextendChange', this);
+        this.element.triggerHandler('outsideChange', this);
+        this.element.triggerHandler('nextendChange', this);
     };
 
     NextendElement.prototype.triggerInsideChange = function () {
-        this.element.trigger('insideChange', this)
-            .trigger('nextendChange', this);
+        this.element.triggerHandler('insideChange', this);
+        this.element.triggerHandler('nextendChange', this);
     };
 
     scope.NextendElement = NextendElement;
@@ -4284,10 +4325,10 @@ window.N2Color = {
         this.tags = tags;
         this.element = $('#' + id).data('autocomplete', this);
         this.element.on("keydown", function (event) {
-            if (event.keyCode === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
+            if (event.keyCode === $.ui.keyCode.TAB && $(this).nextendAutocomplete("instance").menu.active) {
                 event.preventDefault();
             }
-        }).autocomplete({
+        }).nextendAutocomplete({
             minLength: 0,
             position: {
                 my: "left top-2",
@@ -4315,11 +4356,11 @@ window.N2Color = {
                 terms.push(ui.item.value);
                 terms.push("");
                 this.value = terms.join(",");
-                $(this).trigger('change').autocomplete("search");
+                $(this).trigger('change').nextendAutocomplete("search");
                 return false;
             }
         }).click(function () {
-            $(this).autocomplete("search");
+            $(this).nextendAutocomplete("search");
         });
 
         this.element.siblings('.n2-form-element-clear')
@@ -4340,7 +4381,7 @@ window.N2Color = {
 
     function NextendElementAutocompleteSimple(id, values) {
         this.element = $('#' + id).data('autocomplete', this);
-        this.element.autocomplete({
+        this.element.nextendAutocomplete({
             appendTo: this.element.parent(),
             minLength: 0,
             position: {
@@ -4356,7 +4397,7 @@ window.N2Color = {
                 return false;
             }
         }).click(function () {
-            $(this).autocomplete("search", "");
+            $(this).nextendAutocomplete("search", "");
         });
     };
 
@@ -4452,7 +4493,7 @@ window.N2Color = {
             this.alpha = false;
         }
 
-        this.element.spectrum({
+        this.element.n2spectrum({
             showAlpha: this.alpha,
             preferredFormat: (this.alpha == 1 ? "hex8" : "hex6"),
             showInput: false,
@@ -4488,7 +4529,7 @@ window.N2Color = {
         var current = this.getCurrent(),
             value = this.element.val();
         if (current != value) {
-            this.element.spectrum("set", value);
+            this.element.n2spectrum("set", value);
 
             this.triggerInsideChange();
         }
@@ -4502,9 +4543,9 @@ window.N2Color = {
 
     NextendElementColor.prototype.getCurrent = function () {
         if (this.alpha) {
-            return this.element.spectrum("get").toHexString8();
+            return this.element.n2spectrum("get").toHexString8();
         }
-        return this.element.spectrum("get").toHexString(true);
+        return this.element.n2spectrum("get").toHexString(true);
     };
 
     scope.NextendElementColor = NextendElementColor;
@@ -4922,6 +4963,12 @@ function LZWDecompress(compressed) {
 
     NextendElementImageManager.prototype.save = function () {
 
+    };
+
+    NextendElementImageManager.prototype.insideChange = function (value) {
+        this.element.val(value);
+
+        this.triggerInsideChange();
     };
 
     scope.NextendElementImageManager = NextendElementImageManager;
@@ -5700,7 +5747,7 @@ function LZWDecompress(compressed) {
         if (!modal) {
             var getLinks = function (search) {
                 if (typeof cache[search] == 'undefined') {
-                    cache[search] = NextendAjaxHelper.ajax({
+                    cache[search] = $.ajax({
                         type: "POST",
                         url: NextendAjaxHelper.makeAjaxUrl(ajaxUrl),
                         data: {
@@ -5727,12 +5774,25 @@ function LZWDecompress(compressed) {
                     fn: {
                         show: function () {
                             var button = this.controls.find('.n2-button'),
+                                chooseImages = $('<a href="#" class="n2-button n2-button-medium n2-button-green n2-uc n2-h5" style="float:right; margin-right: 20px;">' + n2_('Choose images') + '</a>'),
                                 form = this.content.find('.n2-form').on('submit', function (e) {
                                     e.preventDefault();
                                     button.trigger('click');
-                                }).append(this.createTextarea(n2_('Content list') + " - " + n2_('One per line'), 'n2-link-resource', 'width: 446px;height: 100px;')).append(this.createInputUnit(n2_('Autoplay duration'), 'n2-link-autoplay', 'ms', 'width: 40px;')),
+                                }).append(this.createTextarea(n2_('Content list') + " - " + n2_('One per line'), 'n2-link-resource', 'width: 446px;height: 100px;')).append(chooseImages).append(this.createInputUnit(n2_('Autoplay duration'), 'n2-link-autoplay', 'ms', 'width: 40px;')),
                                 resourceField = this.content.find('#n2-link-resource').focus(),
                                 autoplayField = this.content.find('#n2-link-autoplay').val(0);
+
+                            chooseImages.on('click', function (e) {
+                                e.preventDefault();
+                                nextend.imageHelper.openMultipleLightbox(function (images) {
+                                    var value = resourceField.val().replace(/\n$/, '');
+
+                                    for (var i = 0; i < images.length; i++) {
+                                        value += "\n" + images[i].image;
+                                    }
+                                    resourceField.val(value.replace(/^\n/, ''));
+                                });
+                            });
 
                             var matches = lastValue.match(/lightbox\[(.*?)\]/);
                             if (matches && matches.length == 2) {
@@ -5746,10 +5806,10 @@ function LZWDecompress(compressed) {
 
                             this.content.append(this.createHeading(n2_('Examples')));
                             this.createTable([
-                                [n2_('Image'), 'http://www.nextendweb.com/static/placeholder.png'],
-                                ['YouTube', 'https://www.youtube.com/watch?v=UiyDmqO59QE'],
-                                ['Vimeo', 'http://vimeo.com/58207848'],
-                                ['Iframe', 'http://www.apple.com/iphone-6/']
+                                [n2_('Image'), 'http://smartslider3.com/image.jpg'],
+                                ['YouTube', 'https://www.youtube.com/watch?v=MKmIwHAFjSU'],
+                                ['Vimeo', 'https://vimeo.com/144598279'],
+                                ['Iframe', 'http://smartslider3.com']
                             ], ['', '']).appendTo(this.content);
 
                             button.on('click', $.proxy(function (e) {
@@ -5760,7 +5820,7 @@ function LZWDecompress(compressed) {
                                     if (autoplayField.val() > 0) {
                                         autoplay = ',' + autoplayField.val();
                                     }
-                                    callback('lightbox[' + link.split("\n").join(',') + autoplay + ']');
+                                    callback('lightbox[' + link.split("\n").filter(Boolean).join(',') + autoplay + ']');
                                 }
                                 this.hide(e);
                             }, this));
@@ -5951,7 +6011,7 @@ function LZWDecompress(compressed) {
                             var input = n2('#n2-slide-index').val(0);
                             button.on('click', $.proxy(function (e) {
                                 e.preventDefault();
-                                callback('GoToSlide[' + input.val() + ']');
+                                callback('ToSlide[' + input.val() + ']');
                                 this.hide(e);
                             }, this));
                         }
@@ -7726,6 +7786,7 @@ var fixto = (function ($, window, document) {
 /*global document,window,jQuery,setTimeout,clearTimeout*/
 
 (function(jQuery){
+    var module, define;
 (function ($) {
     'use strict';
     var default_options  = {
@@ -9545,7 +9606,6 @@ var fixto = (function ($, window, document) {
     $.fn.datetimepicker.defaults = default_options;
 }(jQuery));
 (function () {
-
     /*! Copyright (c) 2013 Brandon Aaron (http://brandon.aaron.sh)
      * Licensed under the MIT License (LICENSE.txt).
      *
@@ -9786,9 +9846,8 @@ var fixto = (function ($, window, document) {
     function generateUniqueId() {
 
         // Return a unique ID
-        return "n2-uid-" + Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
+        return "n" + Math.floor((1 + Math.random()) * 0x1000000000000)
+                .toString(16);
     }
 
     /**
@@ -9796,22 +9855,11 @@ var fixto = (function ($, window, document) {
      * element has an id="" attribute
      */
     $.fn.uid = function () {
-        // We need an element! Check the selector returned something
-        if (!this.length > 0) {
-            return generateUniqueId();
-        }
-
-        // Act on only the first element. Also, fetch the element's ID attr
-        var first_element = this.first();
-
-        // No? Generate one!
-        id_attr = generateUniqueId();
-
-        // And set the ID attribute
-        first_element.attr('id', id_attr);
-
-        // Return it
-        return id_attr;
+        var id = null;
+        do {
+            id = generateUniqueId();
+        } while ($('#' + id).length > 0)
+        return id;
     };
 })(n2);
 (function (smartSlider, $, scope, undefined) {
@@ -9945,200 +9993,31 @@ var fixto = (function ($, window, document) {
 })(n2, n2);
 (function ($) {
 
-    $.ui.plugin.add("draggable", "smartguides", {
-        start: function (event, ui) {
-            var i = $(this).data("uiNextenddraggable"), o = i.options;
-            i.gridH = $('<div class="n2-grid n2-grid-h"></div>').appendTo(o._containment);
-            i.gridV = $('<div class="n2-grid n2-grid-v"></div>').appendTo(o._containment);
-            i.elements = [];
-            $(o.smartguides.constructor != String ? ( o.smartguides.items || ':data(draggable)' ) : o.smartguides).each(function () {
-                var $t = $(this);
-                var $o = $t.offset();
-                if (this != i.element[0]) i.elements.push({
-                    item: this,
-                    width: $t.outerWidth(), height: $t.outerHeight(),
-                    top: $o.top, left: $o.left,
-                    backgroundColor: ''
-                });
+    var versionParts = $.ui.version.match(/([0-9]+)\.([0-9]+)/),
+        isOld = false;
+    if (versionParts && versionParts[1] <= 1 && versionParts[2] <= 10) {
+        isOld = true;
+    }
+
+    $.widget("ui.nextendAutocomplete", $.ui.autocomplete, {
+        _renderMenu: function (ul, items) {
+            ul.removeAttr('tabindex');
+            var that = this;
+            $.each(items, function (index, item) {
+                that._renderItemData(ul, item);
             });
-            var $o = o._containment.offset();
-            i.elements.push({
-                width: o._containment.width(), height: o._containment.height(),
-                top: $o.top, left: $o.left,
-                backgroundColor: '#ff4aff'
-            });
-        },
-        stop: function (event, ui) {
-            var i = $(this).data("uiNextenddraggable");
-            i.gridH.remove();
-            i.gridV.remove();
-        },
-        drag: function (event, ui) {
-            var vElement = false,
-                hElement = false;
-            var inst = $(this).data("uiNextenddraggable"), o = inst.options;
-            var d = o.tolerance;
-            inst.gridH.css({"display": "none"});
-            inst.gridV.css({"display": "none"});
-
-            var ctrlKey = event.ctrlKey || event.metaKey,
-                altKey = event.altKey;
-            if (ctrlKey && altKey) {
-                return;
-            } else if (ctrlKey) {
-                vElement = true;
-            } else if (altKey) {
-                hElement = true;
-            }
-
-
-            var x1 = ui.offset.left, x2 = x1 + inst.helperProportions.width,
-                y1 = ui.offset.top, y2 = y1 + inst.helperProportions.height,
-                xc = (x1 + x2) / 2,
-                yc = (y1 + y2) / 2;
-            for (var i = inst.elements.length - 1; i >= 0; i--) {
-
-                if (!vElement) {
-                    var l = inst.elements[i].left,
-                        r = l + inst.elements[i].width,
-                        hc = (l + r) / 2;
-
-                    var v = true;
-                    if (Math.abs(l - x2) <= d) {
-                        ui.position.left = inst._convertPositionTo("relative", {
-                            top: 0,
-                            left: l - inst.helperProportions.width
-                        }).left - inst.margins.left;
-                        inst.gridV.css({"left": ui.position.left + inst.helperProportions.width, "display": "block"});
-                    } else if (Math.abs(l - x1) <= d) {
-                        ui.position.left = inst._convertPositionTo("relative", {
-                            top: 0,
-                            left: l
-                        }).left - inst.margins.left;
-                        inst.gridV.css({"left": ui.position.left, "display": "block"});
-                    } else if (Math.abs(r - x1) <= d) {
-                        ui.position.left = inst._convertPositionTo("relative", {
-                            top: 0,
-                            left: r
-                        }).left - inst.margins.left;
-                        inst.gridV.css({"left": ui.position.left, "display": "block"});
-                    } else if (Math.abs(r - x2) <= d) {
-                        ui.position.left = inst._convertPositionTo("relative", {
-                            top: 0,
-                            left: r - inst.helperProportions.width
-                        }).left - inst.margins.left;
-                        inst.gridV.css({"left": ui.position.left + inst.helperProportions.width, "display": "block"});
-                    } else if (Math.abs(hc - x2) <= d) {
-                        ui.position.left = inst._convertPositionTo("relative", {
-                            top: 0,
-                            left: hc - inst.helperProportions.width
-                        }).left - inst.margins.left;
-                        inst.gridV.css({
-                            "left": ui.position.left + inst.helperProportions.width,
-                            "display": "block"
-                        });
-                    } else if (Math.abs(hc - x1) <= d) {
-                        ui.position.left = inst._convertPositionTo("relative", {
-                            top: 0,
-                            left: hc
-                        }).left - inst.margins.left;
-                        inst.gridV.css({
-                            "left": ui.position.left,
-                            "display": "block"
-                        });
-                    } else if (Math.abs(hc - xc) <= d) {
-                        ui.position.left = inst._convertPositionTo("relative", {
-                            top: 0,
-                            left: hc - inst.helperProportions.width / 2
-                        }).left - inst.margins.left;
-                        inst.gridV.css({
-                            "left": ui.position.left + inst.helperProportions.width / 2,
-                            "display": "block"
-                        });
-                    } else {
-                        v = false;
-                    }
-
-                    if (v) {
-                        vElement = inst.elements[i];
-                    }
-                }
-
-                if (!hElement) {
-                    var t = inst.elements[i].top,
-                        b = t + inst.elements[i].height,
-                        vc = (t + b) / 2;
-
-                    var h = true;
-                    if (Math.abs(t - y2) <= d) {
-                        ui.position.top = inst._convertPositionTo("relative", {
-                            top: t - inst.helperProportions.height,
-                            left: 0
-                        }).top - inst.margins.top;
-                        inst.gridH.css({"top": ui.position.top + inst.helperProportions.height, "display": "block"});
-                    } else if (Math.abs(t - y1) <= d) {
-                        ui.position.top = inst._convertPositionTo("relative", {
-                            top: t,
-                            left: 0
-                        }).top - inst.margins.top;
-                        inst.gridH.css({"top": ui.position.top, "display": "block"});
-                    } else if (Math.abs(b - y1) <= d) {
-                        ui.position.top = inst._convertPositionTo("relative", {top: b, left: 0}).top - inst.margins.top;
-                        inst.gridH.css({"top": ui.position.top, "display": "block"});
-                    } else if (Math.abs(b - y2) <= d) {
-                        ui.position.top = inst._convertPositionTo("relative", {
-                            top: b - inst.helperProportions.height,
-                            left: 0
-                        }).top - inst.margins.top;
-                        inst.gridH.css({"top": ui.position.top + inst.helperProportions.height, "display": "block"});
-                    } else if (Math.abs(vc - y2) <= d) {
-                        ui.position.top = inst._convertPositionTo("relative", {
-                            top: vc - inst.helperProportions.height,
-                            left: 0
-                        }).top - inst.margins.top;
-                        inst.gridH.css({
-                            "top": ui.position.top + inst.helperProportions.height,
-                            "display": "block"
-                        });
-                    } else if (Math.abs(vc - y1) <= d) {
-                        ui.position.top = inst._convertPositionTo("relative", {
-                            top: vc,
-                            left: 0
-                        }).top - inst.margins.top;
-                        inst.gridH.css({
-                            "top": ui.position.top,
-                            "display": "block"
-                        });
-                    } else if (Math.abs(vc - yc) <= d) {
-                        ui.position.top = inst._convertPositionTo("relative", {
-                            top: vc - inst.helperProportions.height / 2,
-                            left: 0
-                        }).top - inst.margins.top;
-                        inst.gridH.css({
-                            "top": ui.position.top + inst.helperProportions.height / 2,
-                            "display": "block"
-                        });
-                    } else {
-                        h = false;
-                    }
-
-                    if (h) {
-                        hElement = inst.elements[i];
-                    }
-                }
-            }
-            if (vElement && vElement !== true) {
-                inst.gridV.css('backgroundColor', vElement.backgroundColor);
-            }
-            if (hElement && hElement !== true) {
-                inst.gridH.css('backgroundColor', hElement.backgroundColor);
-            }
         }
     });
 
-    $.widget("ui.nextenddraggable", $.ui.draggable, {
-        _setContainment: function () {
 
+    $.widget("ui.nextenddraggable", $.ui.draggable, {
+        _create: function () {
+            if (isOld) {
+                this.element.data('ui-draggable', this);
+            }
+            return this._superApply(arguments);
+        },
+        _setContainment: function () {
             var isUserScrollable, c, ce,
                 o = this.options,
                 document = this.document[0];
@@ -10205,44 +10084,268 @@ var fixto = (function ($, window, document) {
             this.relativeContainer = c;
         }
     });
-    $.ui.plugin.add("resizable", "smartguides", {
+
+
+    $.ui.plugin.add("nextenddraggable", "smartguides", {
         start: function (event, ui) {
-            var i = $(this).data("uiResizable"), o = i.options;
+            var i = $(this).data("uiNextenddraggable"), o = i.options;
+            i.gridH = $('<div class="n2-grid n2-grid-h"></div>').appendTo(o._containment);
+            i.gridV = $('<div class="n2-grid n2-grid-v"></div>').appendTo(o._containment);
+            i.elements = [];
+            if (typeof o.smartguides == 'function') {
+                var guides = o.smartguides();
+                if (guides) {
+                    guides.each(function () {
+                        var $t = $(this);
+                        var $o = $t.offset();
+                        if (this != i.element[0]) i.elements.push({
+                            item: this,
+                            width: $t.outerWidth(), height: $t.outerHeight(),
+                            top: $o.top, left: $o.left,
+                            backgroundColor: ''
+                        });
+                    });
+                    var $o = o._containment.offset();
+                    i.elements.push({
+                        width: o._containment.width(), height: o._containment.height(),
+                        top: $o.top, left: $o.left,
+                        backgroundColor: '#ff4aff'
+                    });
+                }
+            }
+        },
+        stop: function (event, ui) {
+            var i = $(this).data("uiNextenddraggable");
+            i.gridH.remove();
+            i.gridV.remove();
+        },
+        drag: function (event, ui) {
+            var vElement = false,
+                hElement = false;
+            var inst = $(this).data("uiNextenddraggable"), o = inst.options;
+            var d = o.tolerance;
+            inst.gridH.css({"display": "none"});
+            inst.gridV.css({"display": "none"});
+
+            var container = inst.elements[inst.elements.length - 1];
+
+            function setGridV(left) {
+                inst.gridV.css({left: Math.min(left, container.width - 1), display: "block"});
+            };
+            function setGridH(top) {
+                inst.gridH.css({top: Math.min(top, container.height - 1), display: "block"});
+            };
+
+            var ctrlKey = event.ctrlKey || event.metaKey,
+                altKey = event.altKey;
+            if (ctrlKey && altKey) {
+                return;
+            } else if (ctrlKey) {
+                vElement = true;
+            } else if (altKey) {
+                hElement = true;
+            }
+
+
+            var x1 = ui.offset.left, x2 = x1 + inst.helperProportions.width,
+                y1 = ui.offset.top, y2 = y1 + inst.helperProportions.height,
+                xc = (x1 + x2) / 2,
+                yc = (y1 + y2) / 2;
+            for (var i = inst.elements.length - 1; i >= 0; i--) {
+
+                if (!vElement) {
+                    var l = inst.elements[i].left,
+                        r = l + inst.elements[i].width,
+                        hc = (l + r) / 2;
+
+                    var v = true;
+                    if (Math.abs(l - x2) <= d) {
+                        ui.position.left = inst._convertPositionTo("relative", {
+                            top: 0,
+                            left: l - inst.helperProportions.width
+                        }).left - inst.margins.left;
+                        setGridV(ui.position.left + inst.helperProportions.width);
+                    } else if (Math.abs(l - x1) <= d) {
+                        ui.position.left = inst._convertPositionTo("relative", {
+                            top: 0,
+                            left: l
+                        }).left - inst.margins.left;
+                        setGridV(ui.position.left);
+                    } else if (Math.abs(r - x1) <= d) {
+                        ui.position.left = inst._convertPositionTo("relative", {
+                            top: 0,
+                            left: r
+                        }).left - inst.margins.left;
+                        setGridV(ui.position.left);
+                    } else if (Math.abs(r - x2) <= d) {
+                        ui.position.left = inst._convertPositionTo("relative", {
+                            top: 0,
+                            left: r - inst.helperProportions.width
+                        }).left - inst.margins.left;
+                        setGridV(ui.position.left + inst.helperProportions.width);
+                    } else if (Math.abs(hc - x2) <= d) {
+                        ui.position.left = inst._convertPositionTo("relative", {
+                            top: 0,
+                            left: hc - inst.helperProportions.width
+                        }).left - inst.margins.left;
+                        setGridV(ui.position.left + inst.helperProportions.width);
+                    } else if (Math.abs(hc - x1) <= d) {
+                        ui.position.left = inst._convertPositionTo("relative", {
+                            top: 0,
+                            left: hc
+                        }).left - inst.margins.left;
+                        setGridV(ui.position.left);
+                    } else if (Math.abs(hc - xc) <= d) {
+                        ui.position.left = inst._convertPositionTo("relative", {
+                            top: 0,
+                            left: hc - inst.helperProportions.width / 2
+                        }).left - inst.margins.left;
+                        setGridV(ui.position.left + inst.helperProportions.width / 2);
+                    } else {
+                        v = false;
+                    }
+
+                    if (v) {
+                        vElement = inst.elements[i];
+                    }
+                }
+
+                if (!hElement) {
+                    var t = inst.elements[i].top,
+                        b = t + inst.elements[i].height,
+                        vc = (t + b) / 2;
+
+                    var h = true;
+                    if (Math.abs(t - y2) <= d) {
+                        ui.position.top = inst._convertPositionTo("relative", {
+                            top: t - inst.helperProportions.height,
+                            left: 0
+                        }).top - inst.margins.top;
+                        setGridH(ui.position.top + inst.helperProportions.height);
+                    } else if (Math.abs(t - y1) <= d) {
+                        ui.position.top = inst._convertPositionTo("relative", {
+                            top: t,
+                            left: 0
+                        }).top - inst.margins.top;
+                        setGridH(ui.position.top);
+                    } else if (Math.abs(b - y1) <= d) {
+                        ui.position.top = inst._convertPositionTo("relative", {top: b, left: 0}).top - inst.margins.top;
+                        setGridH(ui.position.top);
+                    } else if (Math.abs(b - y2) <= d) {
+                        ui.position.top = inst._convertPositionTo("relative", {
+                            top: b - inst.helperProportions.height,
+                            left: 0
+                        }).top - inst.margins.top;
+                        setGridH(ui.position.top + inst.helperProportions.height);
+                    } else if (Math.abs(vc - y2) <= d) {
+                        ui.position.top = inst._convertPositionTo("relative", {
+                            top: vc - inst.helperProportions.height,
+                            left: 0
+                        }).top - inst.margins.top;
+                        setGridH(ui.position.top + inst.helperProportions.height);
+                    } else if (Math.abs(vc - y1) <= d) {
+                        ui.position.top = inst._convertPositionTo("relative", {
+                            top: vc,
+                            left: 0
+                        }).top - inst.margins.top;
+                        setGridH(ui.position.top);
+                    } else if (Math.abs(vc - yc) <= d) {
+                        ui.position.top = inst._convertPositionTo("relative", {
+                            top: vc - inst.helperProportions.height / 2,
+                            left: 0
+                        }).top - inst.margins.top;
+                        setGridH(ui.position.top + inst.helperProportions.height / 2);
+                    } else {
+                        h = false;
+                    }
+
+                    if (h) {
+                        hElement = inst.elements[i];
+                    }
+                }
+            }
+            if (vElement && vElement !== true) {
+                inst.gridV.css('backgroundColor', vElement.backgroundColor);
+            }
+            if (hElement && hElement !== true) {
+                inst.gridH.css('backgroundColor', hElement.backgroundColor);
+            }
+        }
+    });
+
+
+    $.widget("ui.nextendResizable", $.ui.resizable, {
+        _mouseStart: function (t) {
+            var position = this.element.position();
+            this.element.css({
+                left: position.left,
+                top: position.top,
+                right: 'auto',
+                bottom: 'auto'
+            });
+            return this._superApply(arguments);
+        }
+    });
+
+    $.ui.plugin.add("nextendResizable", "smartguides", {
+        start: function (event, ui) {
+            var i = $(this).data("uiNextendResizable"), o = i.options;
             i.gridH = $('<div class="n2-grid n2-grid-h"></div>').appendTo(o._containment);
             i.gridV = $('<div class="n2-grid n2-grid-v"></div>').appendTo(o._containment);
             i.gridH2 = $('<div class="n2-grid n2-grid-h"></div>').appendTo(o._containment);
             i.gridV2 = $('<div class="n2-grid n2-grid-v"></div>').appendTo(o._containment);
             i.elements = [];
-            $(o.smartguides.constructor != String ? ( o.smartguides.items || ':data(draggable)' ) : o.smartguides).each(function () {
-                var $t = $(this);
-                var $o = $t.position();
-                if (this != i.element[0]) i.elements.push({
-                    item: this,
-                    width: $t.outerWidth(), height: $t.outerHeight(),
-                    top: $o.top, left: $o.left
-                });
-            });
-            var $o = o._containment.offset();
-            i.elements.push({
-                item: o._containment,
-                width: o._containment.width(), height: o._containment.height(),
-                top: 0, left: 0
-            });
+            if (typeof o.smartguides == 'function') {
+                var guides = o.smartguides();
+                if (guides) {
+                    guides.each(function () {
+                        var $t = $(this);
+                        var $o = $t.position();
+                        if (this != i.element[0]) i.elements.push({
+                            item: this,
+                            width: $t.outerWidth(), height: $t.outerHeight(),
+                            top: $o.top, left: $o.left
+                        });
+                    });
+                    var $o = o._containment.offset();
+                    i.elements.push({
+                        item: o._containment,
+                        width: o._containment.width(), height: o._containment.height(),
+                        top: 0, left: 0
+                    });
+                }
+            }
         },
         stop: function (event, ui) {
-            var i = $(this).data("uiResizable");
+            var i = $(this).data("uiNextendResizable");
             i.gridH.remove();
             i.gridV.remove();
             i.gridH2.remove();
             i.gridV2.remove();
         },
         resize: function (event, ui) {
-            var inst = $(this).data("uiResizable"), o = inst.options;
+            var inst = $(this).data("uiNextendResizable"), o = inst.options;
             var d = o.tolerance;
             inst.gridV.css({"display": "none"});
             inst.gridH.css({"display": "none"});
             inst.gridV2.css({"display": "none"});
             inst.gridH2.css({"display": "none"});
+
+
+            var container = inst.elements[inst.elements.length - 1];
+
+            function setGridV(left) {
+                inst.gridV.css({left: Math.min(left, container.width - 1), display: "block"});
+            };
+            function setGridV2(left) {
+                inst.gridV2.css({left: Math.min(left, container.width - 1), display: "block"});
+            };
+            function setGridH(top) {
+                inst.gridH.css({top: Math.min(top, container.height - 1), display: "block"});
+            };
+            function setGridH2(top) {
+                inst.gridH2.css({top: Math.min(top, container.height - 1), display: "block"});
+            };
 
             var ctrlKey = event.ctrlKey || event.metaKey,
                 altKey = event.altKey;
@@ -10261,48 +10364,30 @@ var fixto = (function ($, window, document) {
 
                     if (Math.abs(l - x2) <= d) {
                         ui.size.width = l - ui.position.left;
-                        inst.gridV.css({
-                            "left": ui.position.left + ui.size.width,
-                            "display": "block"
-                        });
+                        setGridV(ui.position.left + ui.size.width);
                     } else if (Math.abs(l - x1) <= d) {
                         var diff = ui.position.left - l;
                         ui.position.left = l;
                         ui.size.width += diff;
-                        inst.gridV.css({
-                            "left": ui.position.left,
-                            "display": "block"
-                        });
+                        setGridV(ui.position.left);
                     } else if (Math.abs(hc - x1) <= d) {
                         var diff = ui.position.left - hc;
                         ui.position.left = hc;
                         ui.size.width += diff;
-                        inst.gridV.css({
-                            "left": ui.position.left,
-                            "display": "block"
-                        });
+                        setGridV(ui.position.left);
                     }
 
                     if (Math.abs(r - x1) <= d) {
                         var diff = ui.position.left - r;
                         ui.position.left = r;
                         ui.size.width += diff;
-                        inst.gridV2.css({
-                            "left": ui.position.left,
-                            "display": "block"
-                        });
+                        setGridV2(ui.position.left);
                     } else if (Math.abs(r - x2) <= d) {
                         ui.size.width = r - ui.position.left;
-                        inst.gridV2.css({
-                            "left": ui.position.left + ui.size.width,
-                            "display": "block"
-                        });
+                        setGridV2(ui.position.left + ui.size.width);
                     } else if (Math.abs(hc - x2) <= d) {
                         ui.size.width = hc - ui.position.left;
-                        inst.gridV2.css({
-                            "left": ui.position.left + ui.size.width,
-                            "display": "block"
-                        });
+                        setGridV2(ui.position.left + ui.size.width);
                     }
                 }
 
@@ -10311,48 +10396,30 @@ var fixto = (function ($, window, document) {
 
                     if (Math.abs(t - y2) <= d) {
                         ui.size.height = t - ui.position.top;
-                        inst.gridH.css({
-                            "top": t,
-                            "display": "block"
-                        });
+                        setGridH(t);
                     } else if (Math.abs(t - y1) <= d) {
                         var diff = ui.position.top - t;
                         ui.position.top = t;
                         ui.size.height += diff;
-                        inst.gridH.css({
-                            "top": ui.position.top,
-                            "display": "block"
-                        });
+                        setGridH(ui.position.top);
                     } else if (Math.abs(vc - y1) <= d) {
                         var diff = ui.position.top - vc;
                         ui.position.top = vc;
                         ui.size.height += diff;
-                        inst.gridH.css({
-                            "top": ui.position.top,
-                            "display": "block"
-                        });
+                        setGridH(ui.position.top);
                     }
 
                     if (Math.abs(b - y1) <= d) {
                         var diff = ui.position.top - b;
                         ui.position.top = b;
                         ui.size.height += diff;
-                        inst.gridH2.css({
-                            "top": ui.position.top,
-                            "display": "block"
-                        });
+                        setGridH2(ui.position.top);
                     } else if (Math.abs(b - y2) <= d) {
                         ui.size.height = b - ui.position.top;
-                        inst.gridH2.css({
-                            "top": ui.position.top + ui.size.height,
-                            "display": "block"
-                        });
+                        setGridH2(ui.position.top + ui.size.height);
                     } else if (Math.abs(vc - y2) <= d) {
                         ui.size.height = vc - ui.position.top;
-                        inst.gridH2.css({
-                            "top": ui.position.top + ui.size.height,
-                            "display": "block"
-                        });
+                        setGridH2(ui.position.top + ui.size.height);
                     }
                 }
             }

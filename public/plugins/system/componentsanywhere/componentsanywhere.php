@@ -1,13 +1,11 @@
 <?php
 /**
- * Main File
- *
  * @package         Components Anywhere
- * @version         2.2.1
- *
+ * @version         2.3.0
+ * 
  * @author          Peter van Westen <peter@nonumber.nl>
  * @link            http://www.nonumber.nl
- * @copyright       Copyright © 2015 NoNumber All Rights Reserved
+ * @copyright       Copyright © 2016 NoNumber All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 

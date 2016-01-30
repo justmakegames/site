@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2SmartSliderTypeSimple extends N2SmartSliderType
 {
@@ -7,23 +14,24 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType
 
     public function getDefaults() {
         return array(
-            'background'           => '',
-            'background-size'      => 'cover',
-            'background-fixed'     => 0,
-            'padding'              => '0|*|0|*|0|*|0',
-            'border-width'         => 0,
-            'border-color'         => '3E3E3Eff',
-            'border-radius'        => 0,
-            'slider-css'           => '',
-            'animation'            => 'horizontal',
-            'animation-duration'   => 1500,
-            'animation-delay'      => 0,
-            'animation-easing'     => 'easeInOutQuint',
-            'animation-parallax'   => 1,
-            'carousel'             => 1,
+            'background'                             => '',
+            'background-size'                        => 'cover',
+            'background-fixed'                       => 0,
+            'padding'                                => '0|*|0|*|0|*|0',
+            'border-width'                           => 0,
+            'border-color'                           => '3E3E3Eff',
+            'border-radius'                          => 0,
+            'slider-css'                             => '',
+            'animation'                              => 'horizontal',
+            'animation-duration'                     => 800,
+            'animation-delay'                        => 0,
+            'animation-easing'                       => 'easeOutQuad',
+            'animation-parallax'                     => 1,
+            'animation-shifted-background-animation' => 'auto',
+            'carousel'                               => 1,
 
-            'background-animation' => '',
-            'kenburns-animation'   => ''
+            'background-animation'                   => '',
+            'kenburns-animation'                     => ''
         );
     }
 
@@ -67,14 +75,10 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType
                 <div class="n2-ss-slider-3">
 
                     <?php
-                    $staticSlideEdit = false;
-                    if ($this->slider->isAdmin && count($this->slider->staticSlides)) {
-                        $staticSlideEdit = true;
-                    }
-                    echo $this->slider->renderStaticSlide();
+                    echo $this->slider->staticHtml;
                     foreach ($this->slider->slides AS $i => $slide) {
 
-                        echo NHtml::tag('div', $slide->attributes + array(
+                        echo N2Html::tag('div', $slide->attributes + array(
                                 'class' => 'n2-ss-slide n2-ss-canvas ' . $slide->classes,
                                 'style' => $slide->style
                             ), $slide->background . $slide->getHTML());
@@ -85,14 +89,15 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType
         </div>
         <?php
         $this->widgets->echoRemainder();
-        echo NHtml::closeTag('div');
+        echo N2Html::closeTag('div');
 
         $this->javaScriptProperties['mainanimation'] = array(
-            'type'     => $params->get('animation'),
-            'duration' => intval($params->get('animation-duration')),
-            'delay'    => intval($params->get('animation-delay')),
-            'ease'     => $params->get('animation-easing'),
-            'parallax' => floatval($params->get('animation-parallax'))
+            'type'                       => $params->get('animation'),
+            'duration'                   => intval($params->get('animation-duration')),
+            'delay'                      => intval($params->get('animation-delay')),
+            'ease'                       => $params->get('animation-easing'),
+            'parallax'                   => floatval($params->get('animation-parallax')),
+            'shiftedBackgroundAnimation' => $params->get('animation-shifted-background-animation')
         );
 
         $this->javaScriptProperties['carousel'] = intval($params->get('carousel'));
@@ -103,7 +108,7 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType
 
         N2JS::addFirstCode("new NextendSmartSliderSimple(n2('#{$this->slider->elementId}'), " . json_encode($this->javaScriptProperties) . ");");
 
-        echo NHtml::clear();
+        echo N2Html::clear();
     }
 
     private function initBackgroundAnimation() {
@@ -175,21 +180,21 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType
         $sources = '';
 
         if ($mp4) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $mp4,
                 "type" => "video/mp4"
             ));
         }
 
         if ($webm) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $webm,
                 "type" => "video/webm"
             ));
         }
 
         if ($ogg) {
-            $sources .= NHtml::tag("source", array(
+            $sources .= N2Html::tag("source", array(
                 "src"  => $ogg,
                 "type" => "video/ogg"
             ));
@@ -207,7 +212,7 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType
             $attributes['loop'] = 'loop';
         }
 
-        return NHtml::tag('video', $attributes + array(
+        return N2Html::tag('video', $attributes + array(
                 'class'     => 'n2-ss-slider-background-video',
                 'data-mode' => $params->get('backgroundVideoMode', 'fill')
             ), $sources);

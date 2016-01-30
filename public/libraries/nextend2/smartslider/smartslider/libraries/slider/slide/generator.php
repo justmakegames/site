@@ -1,5 +1,12 @@
 <?php
-N2Loader::import('libraries.slider.generator.NextendSmartSliderGeneratorAbstract', 'smartslider');
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
+N2Loader::import('libraries.slider.generator.abstract', 'smartslider');
 
 class N2SmartSliderSlidesGenerator
 {
@@ -57,7 +64,9 @@ class N2SmartSliderSlidesGenerator
 
     public function fillSample() {
         $data = $this->getData();
-        $this->slide->setVariables($data[0]);
+        if (count($data) > 0) {
+            $this->slide->setVariables($data[0]);
+        }
     }
 
     private function getData() {
@@ -81,7 +90,7 @@ class N2SmartSliderSlidesGenerator
         /** @var N2GeneratorAbstract $dataSource */
         $dataSource = new $class($info, $this->currentGenerator['params']);
 
-        return $dataSource->getData(max($this->slide->parameters->get('record-slides'), 1), max($this->currentGenerator['params']->get('record-start'), 1), max($this->currentGenerator['params']->get('record-group'), 1));
+        return $dataSource->getData(max($this->slide->parameters->get('record-slides'), 1), max($this->currentGenerator['params']->get('record-start'), 1), $this->getSlideGroup());
     }
 
     public function setNextCacheRefresh($time) {
@@ -90,5 +99,13 @@ class N2SmartSliderSlidesGenerator
 
     public function getSlideCount() {
         return max($this->slide->parameters->get('record-slides'), 1);
+    }
+
+    public function getSlideGroup() {
+        return max($this->currentGenerator['params']->get('record-group'), 1);
+    }
+
+    public function getSlideStat() {
+        return count($this->getData()) . '/' . $this->getSlideCount();
     }
 }

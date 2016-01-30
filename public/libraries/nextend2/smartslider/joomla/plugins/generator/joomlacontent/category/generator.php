@@ -1,6 +1,13 @@
 <?php
-
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 N2Loader::import('libraries.slider.generator.N2SmartSliderGeneratorAbstract', 'smartslider');
+require_once(dirname(__FILE__) . '/../../imagefallback.php');
 
 class N2GeneratorJoomlaContentCategory extends N2GeneratorAbstract
 {
@@ -76,11 +83,11 @@ class N2GeneratorJoomlaContentCategory extends N2GeneratorAbstract
             } else {
                 $r['description'] = '';
             }
-            $params     = (array)json_decode($result[$i]['params'], true);
-            $r['image'] = !empty($params['image']) ? N2ImageHelper::dynamic($uri . $params['image']) : '';
+            $params = (array)json_decode($result[$i]['params'], true);
+
+            $r['image'] = $r['thumbnail'] = NextendImageFallBack::fallback($uri, array(@$params['image']), array($r['description']));
 
             $r += array(
-                'thumbnail' => $r['image'],
                 'url'       => 'index.php?option=com_content&view=category&id=' . $result[$i]['id'],
                 'url_label' => sprintf(n2_('View %s'), n2_('category')),
                 'url_blog'  => 'index.php?option=com_content&view=category&layout=blog&id=' . $result[$i]['id']

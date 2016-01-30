@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2ImageAviary
 {
@@ -52,7 +59,11 @@ class N2ImageAviary
                             }
                         },
                         onError: function(error){
-                            nextend.notificationCenter.error(error.message);
+                            if(error.code == 8){
+                                nextend.notificationCenter.error("Aviary not set up. <a target=\"_blank\" href=\"' . N2Base::getApplication('system')->router->createUrl('settings/aviary') . '\">Click here to setup!</a>");
+                            }else{
+                                nextend.notificationCenter.error(error.message);
+                            }
                             if(typeof error.args !== "undefined" && typeof error.args[1] !== "undefined"){
                                 nextend.notificationCenter.error(error.args[1].Error);
                             }
@@ -82,7 +93,8 @@ class N2ImageAviary
                             }
                         }
                     });
-                    window.nextend.featherEditor.ajaxUrl = "' . N2Base::getApplication('system')->getApplicationType('backend')->router->createAjaxUrl(array('aviary/index')) . '";
+                    window.nextend.featherEditor.ajaxUrl = "' . N2Base::getApplication('system')
+                                                                      ->getApplicationType('backend')->router->createAjaxUrl(array('aviary/index')) . '";
                 });
                 return deferred;
             };

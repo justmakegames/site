@@ -12,18 +12,20 @@
             <param name="ended" label="Ended" type="filter" default="-1"/>
             <param name="noendtime" label="Specified end time" type="filter" default="0"/>
             <param name="location" label="Location" type="text" default="*"/>
+            <param name="itemid" label="Item ID" type="text" default="0"/>
         </param>
     </params>
     <params name="order" label="Order by">
-        <param name="jeventsorder" type="mixed" label="Order" default="a.event_start|*|asc">
+        <param name="jeventsorder" type="mixed" label="Order" default="a.dtstart|*|asc">
             <param type="list" label="Field" translateable="1">
                 <option value="">None</option>
-                <option value="a.event_start">Start date</option>
-                <option value="a.event_end">End date</option>
+                <option value="a.dtstart">Start date</option>
+                <option value="a.dtend">End date</option>
                 <option value="a.modified">Modification date</option>
+                <option value="b.created">Creation date</option>
                 <option value="a.summary">Title</option>
                 <option value="a.hits">Hits</option>
-                <option value="a.evdet_id">ID</option>
+                <option value="b.ev_id">ID</option>
             </param>
             <param type="radio" label="order">
                 <option value="asc">Ascending</option>

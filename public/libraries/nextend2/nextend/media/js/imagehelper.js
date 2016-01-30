@@ -10,8 +10,16 @@
             imageUrls: [],
             wordpressUrl: '',
             placeholderImage: '',
-            placeholderRepeatedImage: ''
+            placeholderRepeatedImage: '',
+            protocolRelative: 1
         }, parameters);
+    }
+
+    NextendImageHelper.prototype.protocolRelative = function (image) {
+        if (this.parameters.protocolRelative) {
+            return image.replace(/^http(s)?:\/\//, '//');
+        }
+        return image;
     }
 
 
@@ -21,10 +29,11 @@
 
     NextendImageHelper.prototype.dynamic = function (image) {
         var imageUrls = this.parameters.imageUrls,
-            keywords = this.parameters.siteKeywords;
+            keywords = this.parameters.siteKeywords,
+            _image = this.protocolRelative(image);
         for (var i = 0; i < keywords.length; i++) {
-            if (image.indexOf(imageUrls[i]) === 0) {
-                image = keywords[i] + image.slice(imageUrls[i].length);
+            if (_image.indexOf(imageUrls[i]) === 0) {
+                image = keywords[i] + _image.slice(imageUrls[i].length);
             }
         }
         return image;

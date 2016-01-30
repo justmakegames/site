@@ -6,18 +6,15 @@
         this.playerId = id;
 
         this.parameters = $.extend({
-            youtubeurl: "//www.youtube.com/watch?v=qesNtYIBDfs",
-            youtubecode: "qesNtYIBDfs",
+            youtubeurl: "//www.youtube.com/watch?v=MKmIwHAFjSU",
+            youtubecode: "MKmIwHAFjSU",
             center: 0,
             autoplay: "1",
             theme: "dark",
             related: "1",
             vq: "default",
             volume: "-1",
-            loop: 0,
-            videoplay: '',
-            videopause: '',
-            videoend: ''
+            loop: 0
         }, parameters);
 
         if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
@@ -50,8 +47,8 @@
 
 
     NextendSmartSliderYouTubeItem.prototype.initYoutubePlayer = function () {
-        var player = $("#" + this.playerId),
-            parent = player.closest(".n2-ss-layer");
+        var player = $("#" + this.playerId);
+        var layer = player.closest(".n2-ss-layer");
 
         var vars = {
             enablejsapi: 1,
@@ -68,6 +65,11 @@
             vars.controls = 0;
             vars.showinfo = 0;
         }
+        if (this.parameters.controls != 1) {
+            vars.autohide = 1;
+            vars.controls = 0;
+            vars.showinfo = 0;
+        }
 
         if (+(navigator.platform.toUpperCase().indexOf('MAC') >= 0 && navigator.userAgent.search("Firefox") > -1))
             vars.html5 = 1;
@@ -81,25 +83,19 @@
                 onStateChange: $.proxy(function (state) {
                     switch (state.data) {
                         case YT.PlayerState.PLAYING:
-                            this.slider.sliderElement.trigger('mediaStarted', this);
-                            if (this.parameters.videoplay != '') {
-                                eval(this.parameters.videoplay);
-                            }
+                            this.slider.sliderElement.trigger('mediaStarted', this.playerId);
+                            layer.triggerHandler('n2play');
                             break;
                         case YT.PlayerState.PAUSED:
-                            if (this.parameters.videopause != '') {
-                                eval(this.parameters.videopause);
-                            }
+                            layer.triggerHandler('n2pause');
                             break;
                         case YT.PlayerState.ENDED:
                             if (this.parameters.loop == 1) {
                                 this.player.seekTo(0);
                                 this.player.playVideo();
                             } else {
-                                this.slider.sliderElement.trigger('mediaEnded', this);
-                            }
-                            if (this.parameters.videoend != '') {
-                                eval(this.parameters.videoend);
+                                this.slider.sliderElement.trigger('mediaEnded', this.playerId);
+                                layer.triggerHandler('n2stop');
                             }
                             break;
 
@@ -127,7 +123,7 @@
         }
 
         if (this.parameters.autoplay == 1) {
-            this.initAutoplay();
+            this.slider.visible($.proxy(this.initAutoplay, this));
         }
 
         //pause video when slide changed
@@ -177,7 +173,7 @@
 
     NextendSmartSliderYouTubeItem.prototype.play = function () {
         if (this.isStopped()) {
-            this.slider.sliderElement.trigger('mediaStarted', this);
+            this.slider.sliderElement.trigger('mediaStarted', this.playerId);
             this.player.playVideo();
         }
     };

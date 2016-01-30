@@ -16,6 +16,8 @@
 
         this.containerElement = sliderBackgroundAnimation.bgAnimationElement;
 
+        this.shiftedBackgroundAnimation = sliderBackgroundAnimation.parameters.shiftedBackgroundAnimation;
+
         this.clonedImages = {};
 
     };

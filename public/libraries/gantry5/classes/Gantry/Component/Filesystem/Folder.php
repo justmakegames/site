@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -137,6 +136,8 @@ abstract class Folder
         $levels = isset($params['levels']) ? $params['levels'] : -1;
         $key = isset($params['key']) ? 'get' . $params['key'] : null;
         $value = isset($params['value']) ? 'get' . $params['value'] : ($recursive ? 'getSubPathname' : 'getFilename');
+        $folders = isset($params['folders']) ? $params['folders'] : true;
+        $files = isset($params['files']) ? $params['files'] : true;
 
         if ($recursive) {
             $directory = new \RecursiveDirectoryIterator($path,
@@ -153,6 +154,12 @@ abstract class Folder
         foreach ($iterator as $file) {
             // Ignore hidden files.
             if ($file->getFilename()[0] == '.') {
+                continue;
+            }
+            if (!$folders && $file->isDir()) {
+                continue;
+            }
+            if (!$files && $file->isFile()) {
                 continue;
             }
             if ($compare && $pattern && !preg_match($pattern, $file->{$compare}())) {

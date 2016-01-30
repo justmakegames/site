@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/spacer.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'Spacer',
         'description' => 'Add empty column to the row.',
         'type' => 'spacer',
+        'icon' => 'fa-arrows-h',
         'hidden' => false,
         'form' => [
             'fields' => [

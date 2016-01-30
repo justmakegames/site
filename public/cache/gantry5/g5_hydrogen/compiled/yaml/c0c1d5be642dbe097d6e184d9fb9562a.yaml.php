@@ -2,7 +2,7 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/templates/g5_hydrogen/blueprints/styles/base.yaml',
-    'modified' => 1445417662,
+    'modified' => 1454143972,
     'data' => [
         'name' => 'Base Styles',
         'description' => 'Base styles for the Hydrogen theme',
@@ -28,11 +28,6 @@ return [
                     'type' => 'input.fonts',
                     'label' => 'Heading Font',
                     'default' => 'roboto, sans-serif'
-                ],
-                'favicon' => [
-                    'type' => 'input.imagepicker',
-                    'label' => 'Favicon',
-                    'filter' => '.(jpe?g|gif|png|svg|ico)$'
                 ]
             ]
         ]

@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2AssetsPredefined
 {
@@ -67,13 +74,13 @@ class N2AssetsPredefined
             "vertical-pane.js"
         ), "nextend-backend");
 
-
         N2JS::addFiles(N2LIBRARYASSETS . "/js/core/jquery/ui", array(
             'jquery-ui.min.js',
             'jquery-ui.nextend.js',
             'jquery.iframe-transport.js',
             'jquery.fileupload.js'
         ), "nextend-backend");
+    
 
         N2Base::getApplication('system')->info->assetsBackend();
         N2JS::addFirstCode("NextendAjaxHelper.addAjaxArray(" . json_encode(N2Form::tokenizeUrl()) . ");");
@@ -87,14 +94,17 @@ class N2AssetsPredefined
             return;
         }
         $once = true;
+        N2AssetsManager::getInstance();
 
         N2JS::addInline('window.N2PRO=' . N2PRO . ';', true);
 
         N2JS::addInline('window.N2GSAP=' . N2GSAP . ';', true);
 
-        N2JS::addInline('window.nextend={localization: {}, deferreds:[], loadScript: function(url){nextend.deferreds.push(n2.ajax({url:url,dataType:"script",cache:true,error:function(){console.log(arguments)}}))}, ready: function(cb){n2.when.apply(n2, nextend.deferreds).done(function(){cb.call(window,n2)})}};', true);
+        N2JS::addInline('window.N2PLATFORM="' . N2Platform::getPlatform() . '";', true);
 
-        N2JS::jQuery();
+        N2JS::addInline('window.nextend={localization: {}, deferreds:[], loadScript: function(url){n2jQuery.ready(function () {nextend.deferreds.push(n2.ajax({url:url,dataType:"script",cache:true,error:function(){console.log(arguments)}}))})}, ready: function(cb){n2.when.apply(n2, nextend.deferreds).done(function(){cb.call(window,n2)})}};', true);
+
+        N2JS::jQuery($force);
         N2JS::addFiles(N2LIBRARYASSETS . "/js", array(
             'consts.js',
             'class.js',
@@ -158,21 +168,15 @@ class N2AssetsPredefined
         } else {
             if (N2Settings::get('gsap')) {
                 N2JS::addFiles(N2LIBRARYASSETS . "/js/core/gsap", array(
-                    "EasePack.js",
-                    "CSSPlugin.js",
-                    "TweenLite.js",
-                    "TimelineLite.js",
-                    "NextendTimeline.js",
-                    "SplitText.js"
+                    "gsap.js"
                 ), "nextend-frontend");
             } else if (N2Platform::$isAdmin) {
                 N2JS::addFiles(N2LIBRARYASSETS . "/js/core/gsap", array(
-                    "EasePack.js",
-                    "CSSPlugin.js",
-                    "TweenLite.js",
-                    "TimelineLite.js",
-                    "NextendTimeline.js",
-                    "SplitText.js"
+                    "gsap.js"
+                ), "nextend-gsap");
+            } else {
+                N2JS::addFiles(N2LIBRARYASSETS . "/js/core/gsap", array(
+                    "NextendTimeline.js"
                 ), "nextend-gsap");
             }
         }

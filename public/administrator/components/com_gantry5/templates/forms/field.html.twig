@@ -25,7 +25,7 @@
             <span class="settings-param-title float-left">
                 {% block label %}
                     {% if field.description %}
-                        <span class="g-tooltip" data-title="{{ field.description|e }}">{{ field.label|e }}</span>
+                        <span data-tip="{{ field.description|raw }}" data-tip-place="top-right" aria-label="{{ field.description|e }}" data-title="{{ field.description|e }}">{{ field.label|e }}</span>
                     {% else %}
                         {{ field.label|e }}
                     {% endif %}
@@ -45,6 +45,7 @@
                                     {% if field.id is defined %} id="{{ field.id|e }}" {% endif %}
                                     {% if field.style is defined %} style="{{ field.style|e }}" {% endif %}
                                     {% if field.title is defined %} title="{{ field.title|e }}" {% endif %}
+                                    {% if field.override_target is defined %} data-override-target="{{ field.override_target|e('html_attr') }}" {% endif %}
                                     aria-label="{{ (scope ~ name)|replace({'.': ' '})|title|trim }}"
                                 {% endblock %}
                                 />

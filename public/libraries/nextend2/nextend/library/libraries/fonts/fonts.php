@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 
 class N2Fonts
 {
@@ -11,7 +18,7 @@ class N2Fonts
             $inited       = true;
             self::$config = array(
                 'default-family'  => n2_x('Montserrat,Arial', 'Default font'),
-                'preset-families' => n2_x("Montserrat,Arial\nPacifico,Arial\n'Open Sans',Arial\nLato,Arial\nBevan,Arial\nOxygen,Arial\n'Pt Sans',Arial\nAverage,Arial\nRoboto,Arial\nOswald,Arial\n'Droid Sans',Arial\nRaleway,Arial\nLobster,Arial\n'Titillium Web',Arial\nCabin,Arial\n'Varela Round',Arial\nVollkorn,Arial\nQuicksand,Arial", 'Default font family list'),
+                'preset-families' => n2_x("'Montserrat',Arial\n'Pacifico',Arial\n'Open Sans',Arial\n'Lato',Arial\n'Bevan',Arial\n'Oxygen',Arial\n'Pt Sans',Arial\n'Average',Arial\n'Roboto',Arial\n'Roboto Slab',Arial\n'Oswald',Arial\n'Droid Sans',Arial\n'Raleway',Arial\n'Lobster',Arial\n'Titillium Web',Arial\n'Cabin',Arial\n'Varela Round',Arial\n'Vollkorn',Arial\n'Quicksand',Arial\n'Source Sans Pro',Arial\n'Asap',Arial\n'Merriweather',Arial", 'Default font family list'),
                 'plugins'         => array()
             );
             foreach (N2StorageSectionAdmin::getAll('system', 'fonts') AS $data) {

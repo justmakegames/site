@@ -1,4 +1,11 @@
 <?php
+/**
+* @author    Roland Soos
+* @copyright (C) 2015 Nextendweb.com
+* @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+**/
+defined('_JEXEC') or die('Restricted access');
+?><?php
 /* @var $this N2Layout */
 ?>
 
@@ -9,23 +16,24 @@
         /**
          * @see Nav
          */
+        $views = array(
+            N2Html::tag('a', array(
+                'href'  => $this->appType->router->createUrl("sliders/index"),
+                'class' => 'n2-h4 n2-uc ' . ($cmd == "sliders" ? "n2-active" : "")
+            ), n2_('Sliders')),
+            N2Html::tag('a', array(
+                'href'  => $this->appType->router->createUrl("settings/default"),
+                'class' => 'n2-h4 n2-uc ' . ($cmd == "settings" ? "n2-active" : "")
+            ), n2_('Settings')),
+            N2Html::tag('a', array(
+                'href'  => N2Base::getApplication('system')->router->createUrl("dashboard/index"),
+                'class' => 'n2-h4 n2-uc ' . ($cmd == "settings" ? "n2-active" : "")
+            ), n2_('Nextend'))
+        );
         $this->widget->init('nav', array(
             'logoUrl'      => $this->appType->router->createUrl("sliders/index"),
             'logoImageUrl' => $this->appType->app->getLogo(),
-            'views'        => array(
-                NHtml::tag('a', array(
-                    'href'  => $this->appType->router->createUrl("sliders/index"),
-                    'class' => 'n2-h4 n2-uc ' . ($cmd == "sliders" ? "n2-active" : "")
-                ), n2_('Sliders')),
-                NHtml::tag('a', array(
-                    'href'  => $this->appType->router->createUrl("settings/default"),
-                    'class' => 'n2-h4 n2-uc ' . ($cmd == "settings" ? "n2-active" : "")
-                ), n2_('Settings')),
-                NHtml::tag('a', array(
-                    'href'  => $this->appType->router->createUrl("help/index"),
-                    'class' => 'n2-h4 n2-uc ' . ($cmd == "help" ? "n2-active" : "")
-                ), n2_('Help'))
-            ),
+            'views'        => $views,
             'actions'      => $this->getFragmentValue('actions')
         ));
         ?>

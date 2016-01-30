@@ -3,6 +3,6 @@
 
         <param name="widget-html-position" type="widgetposition" label="Position" />
 
-        <param type="textarea" name="widget-html-code" label="HTML" style2="width: 600px; height: 600px;" />
+        <param type="textarea" name="widget-html-code" label="HTML" style2="width: 600px; height: 600px;resize: vertical;" />
     </params>
 </root>

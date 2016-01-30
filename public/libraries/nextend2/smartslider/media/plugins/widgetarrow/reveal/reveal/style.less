@@ -1,8 +1,7 @@
 (~'div#@{sliderid}') {
   .nextend-arrow-reveal {
     cursor: pointer;
-    z-index: 10;
-    display: inline-block;
+    z-index: 12;
     position: relative;
     height: 115px;
     width: 32px;
@@ -63,5 +62,7 @@
     box-sizing: border-box;
     background-color: @titleBackgroundHex;
     background-color: @titleBackgroundRGBA;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 }

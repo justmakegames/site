@@ -1,36 +1,61 @@
 (function ($, scope, undefined) {
 
     function NextendSmartSliderAbstract(sliderElement, parameters) {
+        this.startedDeferred = $.Deferred();
+
+        var id = sliderElement.attr('id');
+        if (window[id] && window[id] instanceof NextendSmartSliderAbstract) {
+            return false;
+        }
+        // Register our object to a global variable
+        window[id] = this;
+
+        // Store them as we might need to change them back
+        this.nextCarousel = this.next;
+        this.previousCarousel = this.previous;
+
+        if (sliderElement.prop('tagName') == 'SCRIPT') {
+            var dependency = sliderElement.data('dependency'),
+                rocketLoad = $.proxy(function () {
+                    var rocketSlider = $(sliderElement.html().replace(/<_s_c_r_i_p_t/g, '<script').replace(/<_\/_s_c_r_i_p_t/g, '</script'));
+                    sliderElement.replaceWith(rocketSlider);
+                    this.postInit(id, $('#' + id), parameters);
+                    $(window).triggerHandler('n2Rocket', [this.sliderElement]);
+                }, this);
+            if ($('#n2-ss-' + dependency).length) {
+                n2ss.ready(dependency, $.proxy(function (slider) {
+                    slider.ready(rocketLoad);
+                }, this));
+            } else {
+                rocketLoad();
+            }
+        } else {
+            this.postInit(id, sliderElement, parameters);
+        }
+    }
+
+    NextendSmartSliderAbstract.prototype.postInit = function (id, sliderElement, parameters) {
         this.killed = false;
         this.isAdmin = false;
         this.currentSlideIndex = 0;
         this.responsive = false;
         this.layerMode = true;
         this._lastChangeTime = 0;
-
-        var id = sliderElement.attr('id');
-        if (window[id] && window[id] instanceof NextendSmartSliderAbstract) {
-            return false;
-        }
         n2c.log('Slider init: ', id);
-        // Register our object to a global variable
-        window[id] = this;
         this.id = parseInt(id.replace('n2-ss-', ''));
-        n2ss.makeReady(this.id, this);
-        sliderElement.data('ss', this);
 
+        this.sliderElement = sliderElement.data('ss', this);
         this.readyDeferred = $.Deferred();
-
-        this.sliderElement = sliderElement;
-
-        this.widgetDeferreds = [];
-        this.sliderElement.on('addWidget', $.proxy(this.addWidget, this));
 
         this.parameters = $.extend({
             admin: false,
+            playWhenVisible: 1,
+            isStaticEdited: false,
+            callbacks: '',
             autoplay: {},
             blockrightclick: false,
             maintainSession: 0,
+            align: 'normal',
             controls: {
                 drag: false,
                 touch: 'horizontal',
@@ -63,6 +88,19 @@
             initCallbacks: [],
             dynamicHeight: 0
         }, parameters);
+
+        try {
+            eval(this.parameters.callbacks);
+        } catch (e) {
+            console.error(e);
+        }
+
+        this.startVisibilityCheck();
+        n2ss.makeReady(this.id, this);
+
+
+        this.widgetDeferreds = [];
+        this.sliderElement.on('addWidget', $.proxy(this.addWidget, this));
 
         this.isAdmin = !!this.parameters.admin;
         if (this.isAdmin) {
@@ -143,34 +181,73 @@
 
         this.initControls();
 
-        var event = 'click';
-        if (this.parameters.controls.touch != '0' && this.parameters.controls.touch) {
-            event = 'n2click';
+        this.startedDeferred.resolve(this);
+
+        if (!this.isAdmin) {
+            var event = 'click';
+            if (this.parameters.controls.touch != '0' && this.parameters.controls.touch) {
+                event = 'n2click';
+            }
+            this.sliderElement.find('[n2click]').each(function (i, el) {
+                var el = $(el);
+                el.on(event, function () {
+                    eval(el.attr('n2click'));
+                });
+            });
+
+            this.sliderElement.find('[data-click]').each(function (i, el) {
+                var el = $(el).on('click', function () {
+                    eval(el.data('click'));
+                }).css('cursor', 'pointer');
+            });
+
+            this.sliderElement.find('[data-mouseenter]').each(function (i, el) {
+                var el = $(el).on('mouseenter', function () {
+                    eval(el.data('mouseenter'));
+                });
+            });
+
+            this.sliderElement.find('[data-mouseleave]').each(function (i, el) {
+                var el = $(el).on('mouseleave', function () {
+                    eval(el.data('mouseleave'));
+                });
+            });
+
+            this.sliderElement.find('[data-play]').each(function (i, el) {
+                var el = $(el).on('n2play', function () {
+                    eval(el.data('play'));
+                });
+            });
+
+            this.sliderElement.find('[data-pause]').each(function (i, el) {
+                var el = $(el).on('n2pause', function () {
+                    eval(el.data('pause'));
+                });
+            });
+
+            this.sliderElement.find('[data-stop]').each(function (i, el) {
+                var el = $(el).on('n2stop', function () {
+                    eval(el.data('stop'));
+                });
+            });
+
+            var preventFocus = false;
+            this.slides.find('a').on('mousedown', function (e) {
+                preventFocus = true;
+                setTimeout(function () {
+                    preventFocus = false;
+                }, 100);
+            });
+
+            this.slides.find('a').on('focus', $.proxy(function (e) {
+                if (!preventFocus) {
+                    var slideIndex = this.findSlideIndexByElement(e.currentTarget);
+                    if (slideIndex != -1 && slideIndex != this.currentSlideIndex) {
+                        this.changeTo(slideIndex, false, false);
+                    }
+                }
+            }, this));
         }
-        this.sliderElement.find('[n2click]').each(function (i, el) {
-            var el = $(el);
-            el.on(event, function () {
-                eval(el.attr('n2click'));
-            });
-        });
-
-        this.sliderElement.find('[data-click]').each(function (i, el) {
-            var el = $(el).on('click', function () {
-                eval(el.data('click'));
-            });
-        });
-
-        this.sliderElement.find('[data-enter]').each(function (i, el) {
-            var el = $(el).on('mouseenter', function () {
-                eval(el.data('enter'));
-            });
-        });
-
-        this.sliderElement.find('[data-leave]').each(function (i, el) {
-            var el = $(el).on('mouseleave', function () {
-                eval(el.data('leave'));
-            });
-        });
 
         this.preReadyResolve();
 
@@ -179,7 +256,7 @@
 
     NextendSmartSliderAbstract.prototype.initSlides = function () {
         if (this.layerMode) {
-            if (this.isAdmin) {
+            if (this.isAdmin && this.type != 'showcase') {
                 new NextendSmartSliderSlide(this, this.slides.eq(this.currentSlideIndex), 1);
             } else {
                 for (var i = 0; i < this.slides.length; i++) {
@@ -228,6 +305,10 @@
         this.widgetDeferreds.push(deferred);
     };
 
+    NextendSmartSliderAbstract.prototype.started = function (fn) {
+        this.startedDeferred.done($.proxy(fn, this));
+    };
+
     NextendSmartSliderAbstract.prototype.preReadyResolve = function () {
         // Hack to allow time to widgets to register
         setTimeout($.proxy(this._preReadyResolve, this), 1);
@@ -241,12 +322,41 @@
 
     NextendSmartSliderAbstract.prototype.readyResolve = function () {
         n2c.log('Slider ready');
+        $(window).scroll(); // To force other sliders to recalculate the scroll position
 
         this.readyDeferred.resolve();
     };
 
     NextendSmartSliderAbstract.prototype.ready = function (fn) {
         this.readyDeferred.done($.proxy(fn, this));
+    };
+
+    NextendSmartSliderAbstract.prototype.startVisibilityCheck = function () {
+        this.visibleDeferred = $.Deferred();
+        if (this.parameters.playWhenVisible) {
+            this.ready($.proxy(function () {
+                $(window).on('scroll.n2-ss-visible' + this.id + ' resize.n2-ss-visible' + this.id, $.proxy(this.checkIfVisible, this));
+                this.checkIfVisible();
+            }, this));
+        } else {
+            this.ready($.proxy(function () {
+                this.visibleDeferred.resolve();
+            }, this));
+        }
+    };
+
+    NextendSmartSliderAbstract.prototype.checkIfVisible = function () {
+        var TopView = $(window).scrollTop(),
+            BotView = TopView + $(window).height(),
+            middlePoint = this.sliderElement.offset().top + this.sliderElement.height() / 2;
+        if (TopView <= middlePoint && BotView >= middlePoint) {
+            $(window).off('scroll.n2-ss-visible' + this.id + ' resize.n2-ss-visible' + this.id, $.proxy(this.checkIfVisible, this));
+            this.visibleDeferred.resolve();
+        }
+    };
+
+    NextendSmartSliderAbstract.prototype.visible = function (fn) {
+        this.visibleDeferred.done($.proxy(fn, this));
     };
 
     NextendSmartSliderAbstract.prototype.isPlaying = function () {
@@ -262,7 +372,7 @@
             isSystem = 0;
         }
         if (this.responsive.parameters.focusUser && !isSystem || this.responsive.parameters.focusAutoplay && isSystem) {
-            var top = this.sliderElement.offset().top;
+            var top = this.sliderElement.offset().top - this.responsive.verticalOffsetSelectors.height();
             if ($(window).scrollTop() != top) {
                 $("html, body").animate({scrollTop: top}, 400, $.proxy(function () {
                     deferred.resolve();
@@ -277,10 +387,7 @@
     };
 
     NextendSmartSliderAbstract.prototype.initCarousel = function () {
-        if (!this.parameters.carousel) {
-            // Store them as we might need to change them back
-            this.nextCarousel = this.next;
-            this.previousCarousel = this.previous;
+        if (!parseInt(this.parameters.carousel)) {
             // Replace the methods
             this.next = this.nextNotCarousel;
             this.previous = this.previousNotCarousel;
@@ -486,6 +593,7 @@
                 return i;
             }
         }
+        return -1;
     };
 
     NextendSmartSliderAbstract.prototype.initMainAnimation = function () {
@@ -534,8 +642,9 @@
         return false;
     };
 
-    NextendSmartSliderAbstract.prototype.adminGetCurrentSlideElement = function (isEditedStatic) {
-        if (isEditedStatic) {
+    NextendSmartSliderAbstract.prototype.adminGetCurrentSlideElement = function () {
+
+        if (this.parameters.isStaticEdited) {
             return this.findStaticSlide();
         }
         return this.slides.eq(this.currentSlideIndex);

@@ -10,6 +10,9 @@
             direction: 'horizontal',
             distance: 60,
             animate: {},
+            duration: 1500,
+            delay: 0,
+            ease: 'easeInOutQuint',
             carousel: slider.parameters.carousel,
             carouselSideSlides: slider.parameters.carouselSideSlides
         }, parameters);
@@ -20,9 +23,15 @@
         this.border2 = this.pipeline.parent();
 
         this.showcase = {
-            before: {},
-            active: {},
-            after: {}
+            before: {
+                ease: this.parameters.ease
+            },
+            active: {
+                ease: this.parameters.ease
+            },
+            after: {
+                ease: this.parameters.ease
+            }
         };
 
         if (!slider.parameters.admin) {
@@ -201,16 +210,16 @@
             // do before-s
             for (var i = 0; i < nextSlideIndex; i++) {
                 var diff = i - nextSlideIndex;
-                this.timeline.to(slides[i], 2, this.adjustXY(this.showcase.before, centerH + diff * deltaX, 0), 0);
+                this.timeline.to(slides[i], this.parameters.duration, this.adjustXY(this.showcase.before, centerH + diff * deltaX, 0), this.parameters.delay);
             }
             //do current
-            this.timeline.to(slides[i], 2, this.adjustXY(this.showcase.active, centerH, 0), 0);
+            this.timeline.to(slides[i], this.parameters.duration, this.adjustXY(this.showcase.active, centerH, 0), 0);
             i++;
 
             // do afters
             for (; i < slides.length; i++) {
                 var diff = i - nextSlideIndex;
-                this.timeline.to(slides[i], 2, this.adjustXY(this.showcase.after, centerH + diff * deltaX, 0), 0);
+                this.timeline.to(slides[i], this.parameters.duration, this.adjustXY(this.showcase.after, centerH + diff * deltaX, 0), this.parameters.delay);
             }
 
         } else if (this.parameters.direction == 'vertical') {
@@ -220,22 +229,22 @@
             // do before-s
             for (var i = 0; i < nextSlideIndex; i++) {
                 var diff = i - nextSlideIndex;
-                this.timeline.to(slides[i], 2, this.adjustXY(this.showcase.before, 0, centerV + diff * deltaY), 0);
+                this.timeline.to(slides[i], this.parameters.duration, this.adjustXY(this.showcase.before, 0, centerV + diff * deltaY), this.parameters.delay);
             }
             //do current
-            this.timeline.to(slides[i], 2, this.adjustXY(this.showcase.active, 0, centerV), 0);
+            this.timeline.to(slides[i], this.parameters.duration, this.adjustXY(this.showcase.active, 0, centerV), 0);
             i++;
 
             // do afters
             for (; i < slides.length; i++) {
                 var diff = i - nextSlideIndex;
-                this.timeline.to(slides[i], 2, this.adjustXY(this.showcase.after, 0, centerV + diff * deltaY), 0);
+                this.timeline.to(slides[i], this.parameters.duration, this.adjustXY(this.showcase.after, 0, centerV + diff * deltaY), this.parameters.delay);
             }
         }
     };
 
     NextendSmartSliderMainAnimationShowcase.prototype.adjustXY = function (props, x, y) {
-        var ps = n2.extend({}, props);
+        var ps = n2.extend({ease: this.parameters.ease}, props);
 
         if (typeof ps.x === 'undefined') {
             ps.x = 0;
@@ -317,9 +326,10 @@
                 centerH = sliderW / 2 - slideW / 2,
                 deltaX = slideW + this.parameters.distance;
 
-            this.timeline.to(this.pipeline.get(0), 2, {
-                x: centerH - nextSlideIndex * deltaX
-            }, 0);
+            this.timeline.to(this.pipeline.get(0), this.parameters.duration, {
+                x: centerH - nextSlideIndex * deltaX,
+                ease: this.parameters.ease
+            }, this.parameters.delay);
 
         } else if (this.parameters.direction == 'vertical') {
             var sliderH = this.border2.height(),
@@ -327,23 +337,24 @@
                 centerV = sliderH / 2 - slideH / 2,
                 deltaY = slideH + this.parameters.distance;
 
-            this.timeline.to(this.pipeline.get(0), 2, {
-                y: centerV - nextSlideIndex * deltaY
-            }, 0);
+            this.timeline.to(this.pipeline.get(0), this.parameters.duration, {
+                y: centerV - nextSlideIndex * deltaY,
+                ease: this.parameters.ease
+            }, this.parameters.delay);
         }
 
         // do before-s
         for (var i = 0; i < nextSlideIndex; i++) {
-            this.timeline.to(slides[i], 2, this.showcase.before, 0);
+            this.timeline.to(slides[i], this.parameters.duration, this.showcase.before, this.parameters.delay);
         }
         //do current
-        this.timeline.to(slides[i], 2, this.showcase.active, 0);
+        this.timeline.to(slides[i], this.parameters.duration, this.showcase.active, this.parameters.delay);
         i++;
 
         // do afters
         for (; i < slides.length; i++) {
             var diff = i - nextSlideIndex;
-            this.timeline.to(slides[i], 2, this.showcase.after, 0);
+            this.timeline.to(slides[i], this.parameters.duration, this.showcase.after, this.parameters.delay);
         }
     };
 

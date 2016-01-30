@@ -1,9 +1,8 @@
 <?php
-
 /**
  * @package   Gantry5
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
  * @license   Dual License: MIT or GNU/GPLv2 and later
  *
  * http://opensource.org/licenses/MIT
@@ -329,8 +328,8 @@ class Menu extends HtmlController
         $particles = [
             'position'    => [],
             'spacer'      => [],
-            'pagecontent' => [],
-            'particle' => [],
+            'system'      => [],
+            'particle'    => [],
         ];
 
         $particles = array_replace($particles, $this->getParticles());
@@ -514,7 +513,8 @@ class Menu extends HtmlController
         foreach ($particles as $name => $particle) {
             $type = isset($particle['type']) ? $particle['type'] : 'particle';
             $particleName = isset($particle['name']) ? $particle['name'] : $name;
-            $list[$type][$name] = $particleName;
+            $particleIcon = isset($particle['icon']) ? $particle['icon'] : null;
+            $list[$type][$name] = ['name' => $particleName, 'icon' => $particleIcon];
         }
 
         return $list;

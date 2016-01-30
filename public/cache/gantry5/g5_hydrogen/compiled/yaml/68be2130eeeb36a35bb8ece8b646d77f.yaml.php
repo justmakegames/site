@@ -2,11 +2,12 @@
 return [
     '@class' => 'Gantry\\Component\\File\\CompiledYamlFile',
     'filename' => '/var/www/justmakegames.com/public/media/gantry5/engines/nucleus/particles/social.yaml',
-    'modified' => 1445417667,
+    'modified' => 1454143963,
     'data' => [
         'name' => 'Social',
         'description' => 'Display social buttons.',
         'type' => 'particle',
+        'icon' => 'fa-share-alt',
         'form' => [
             'fields' => [
                 'enabled' => [
