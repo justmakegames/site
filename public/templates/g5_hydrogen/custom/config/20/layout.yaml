@@ -91,7 +91,9 @@ children:
     subtype: false
     title: Main
     attributes:
-      boxed: 0
+      boxed: '0'
+      class: ''
+      extra: {  }
     children:
       -
         id: 5719973f-4ec7-a46a-2993-b51df17f51b4
@@ -106,7 +108,10 @@ children:
             subtype: false
             title: Untitled
             attributes:
-              size: 67
+              class: breadcrumb-left
+              extra: {  }
+              fixed: '0'
+              size: 72
             children:
               -
                 id: 22950900-0f55-c6fb-01e1-486a83110c67
@@ -116,7 +121,6 @@ children:
                 attributes:
                   enabled: 1
                   key: breadcrumbs
-                  title: Breadcrumbs
                 children: {  }
           -
             id: 8efafa88-efbd-4d9e-b6fa-0f925718f3a2
@@ -124,9 +128,10 @@ children:
             subtype: false
             title: Untitled
             attributes:
-              size: 33
+              class: breadcrumb-right
               extra: {  }
               fixed: '0'
+              size: 28
             children:
               -
                 id: 1982d7db-e66f-4742-8ae0-94621d9ef3cf
@@ -136,7 +141,6 @@ children:
                 attributes:
                   enabled: 1
                   key: breadcrumb-right
-                  title: 'Breadcrumb Right'
                 children: {  }
       -
         id: 430bbadc-76c3-fa9d-9064-1c88d20260ad
@@ -174,7 +178,7 @@ children:
             subtype: false
             title: Untitled
             attributes:
-              size: 70
+              size: 72
               extra: {  }
               fixed: '0'
             children:
@@ -194,7 +198,7 @@ children:
             subtype: false
             title: Untitled
             attributes:
-              size: 30
+              size: 28
               extra: {  }
               fixed: '0'
             children:
@@ -221,7 +225,7 @@ children:
             subtype: false
             title: Untitled
             attributes:
-              size: 70
+              size: 72
             children:
               -
                 id: ddab46fe-a017-80e7-c258-af1a20009689
@@ -237,7 +241,7 @@ children:
             subtype: false
             title: Untitled
             attributes:
-              size: 30
+              size: 28
               extra: {  }
               fixed: '0'
             children:

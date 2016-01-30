@@ -1,0 +1,235 @@
+@import "bootstrap/mixins";
+.discuss-mod,
+.dc-clearfix {
+  *zoom: 1;
+}
+.discuss-mod:before,
+.discuss-mod:after,
+.dc-clearfix:before,
+.dc-clearfix:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.discuss-mod:after,
+.dc-clearfix:after {
+  clear: both;
+}
+.discuss-mod {
+  font-family: 'Lucida Grande', 'Gisha', 'Lucida Sans Unicode', 'Lucida Sans', Lucida, Arial, Verdana, sans-serif;
+}
+.discuss-mod [class^="icon-dc-mod-"],
+.discuss-mod [class*=" icon-dc-mod-"] {
+  background-repeat: no-repeat;
+  display: inline-block;
+  vertical-align: text-top;
+}
+.discuss-mod .icon-dc-mod-list {
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  background-image: url('../../../media/com_easydiscuss/styles/../images/mod/icon-list.png');
+}
+.discuss-mod .btn {
+  text-decoration: none !important;
+  text-shadow: none !important;
+}
+.discuss-mod .btn-link {
+  border-color: transparent !important;
+  cursor: pointer !important;
+  color: #08C !important;
+  -webkit-border-radius: 0 !important;
+  -moz-border-radius: 0 !important;
+  border-radius: 0 !important;
+}
+.discuss-mod .pa-10 {
+  padding: 10px;
+}
+.discuss-mod ul.unstyled,
+.discuss-mod ol.unstyled {
+  list-style: none outside none;
+}
+#discuss-welcome .btn {
+  -moz-border-bottom-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-top-colors: none;
+  background-color: #F5F5F5;
+  background-image: linear-gradient(to bottom,#FFFFFF,#E6E6E6);
+  background-repeat: repeat-x;
+  border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) #A2A2A2;
+  border-image: none;
+  border-radius: 2px;
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 1px 2px rgba(0,0,0,0.05);
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  line-height: 20px;
+  margin-bottom: 0;
+  padding: 4px 12px;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255,255,255,0.75);
+  vertical-align: middle;
+}
+#discuss-welcome .btn-primary {
+  background-color: #006DCC;
+  background-image: linear-gradient(to bottom,#0088CC,#0044CC);
+  background-repeat: repeat-x;
+  border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+  color: #FFFFFF;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+}
+#ed-your-discussions .discuss-post-title {
+  margin-bottom: 4px;
+}
+#ed-your-discussions .item {
+  padding: 0px;
+}
+#ed-your-discussions .item-title {
+  font-weight: bold;
+  margin-right: 0;
+  text-decoration: none;
+}
+#ed-your-discussions .discuss-last-replied img {
+  width: 16px;
+  height: 16px;
+  vertical-align: top;
+}
+#ed-your-discussions .discuss-last-replied a {
+  text-decoration: none;
+}
+#ed-your-discussions .list-item .item + .item {
+  padding-top: 10px;
+  margin-top: 14px;
+  border-top: 1px solid #ddd;
+}
+#ed-your-discussions .small {
+  font-size: 11px;
+  margin: 0;
+  padding: 0;
+}
+#ed-your-discussions .label {
+  border-radius: 3px 3px 3px 3px;
+  padding: 1px 4px 2px;
+}
+#ed-your-discussions .label,
+#ed-your-discussions .badge {
+  background-color: #999999;
+  color: #FFFFFF;
+  font-size: 10.998px;
+  font-weight: bold;
+  line-height: 14px;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+#ed-your-discussions .label-info {
+  background-color: #3A87AD;
+}
+#ed-your-discussions .label-warning {
+  background-color: #F89406;
+}
+#ed-your-discussions .dc-mod-bd {
+  padding: 5px 0 5px;
+}
+#ed-your-discussions .dc-mod-ft {
+  background: rgba(0,0,0,0.05);
+  padding: 4px 6px;
+}
+#ed-your-discussions .discuss-statistic {
+  float: left;
+}
+#ed-your-discussions .discuss-statistic > a {
+  color: #a8a8a8;
+  margin-right: 5px;
+  text-decoration: none;
+}
+#ed-your-discussions .discuss-last-replied {
+  float: right;
+}
+#ed-your-discussions [class^="edy-icon-"],
+#ed-your-discussions [class*=" edy-icon-"] {
+  background-image: none;
+  vertical-align: baseline;
+  height: auto;
+}
+#ed-your-discussions [class^="edy-icon-"],
+#ed-your-discussions [class*=" edy-icon-"] {
+  width: 12px;
+  height: 12px;
+  line-height: 12px;
+  background-image: url('../images/icons.png') !important;
+  background-repeat: no-repeat;
+  display: inline-block;
+  vertical-align: text-top;
+}
+#ed-your-discussions .edy-icon-locked {
+  background-position: 0px 0px;
+}
+#ed-your-discussions .edy-icon-resolved {
+  background-position: -12px 0px;
+}
+#ed-your-discussions .edy-icon-featured {
+  background-position: -24px 0px;
+}
+#ed-your-discussions .edy-icon-favorited {
+  background-position: -36px 0px;
+}
+#ed-your-discussions .edy-icon-category {
+  background-position: -48px 0px;
+}
+#ed-your-discussions .edy-icon-clock {
+  background-position: -60px 0px;
+}
+#ed-your-discussions .edy-icon-views {
+  background-position: -72px 0px;
+}
+#ed-your-discussions .edy-icon-replies {
+  background-position: -84px 0px;
+}
+#ed-your-discussions .edy-icon-favors {
+  background-position: -96px 0px;
+}
+#ed-your-discussions .edy-icon-votes {
+  background-position: -108px 0px;
+}
+#ed-your-discussions .discuss-status {
+  display: inline-block;
+}
+#ed-your-discussions .item .edy-state,
+#ed-your-discussions .item .label-post_type,
+#ed-your-discussions .item .label-post_status,
+#ed-your-discussions .item .dc-discuss-status {
+  display: none;
+}
+#ed-your-discussions .item.is-read .label-unread {
+  display: none;
+}
+#ed-your-discussions .item.is-post_type .label-post_type {
+  display: inline-block;
+}
+#ed-your-discussions .item.is-post_status .label-post_status {
+  display: inline-block;
+}
+#ed-your-discussions .item.is-locked .edy-icon-locked.edy-state {
+  display: inline-block;
+}
+#ed-your-discussions .item.is-resolved .edy-icon-resolved.edy-state {
+  display: inline-block;
+}
+#ed-your-discussions .item.is-featured .edy-icon-featured.edy-state {
+  display: inline-block;
+}
+#ed-your-discussions .item.is-favourited .edy-icon-favorited.edy-state {
+  display: inline-block;
+}
+#ed-your-discussions .item.is-post_status .dc-discuss-status,
+#ed-your-discussions .item.is-locked .dc-discuss-status,
+#ed-your-discussions .item.is-resolved .dc-discuss-status,
+#ed-your-discussions .item.is-featured .dc-discuss-status,
+#ed-your-discussions .item.is-favourited .dc-discuss-status {
+  display: block;
+}
