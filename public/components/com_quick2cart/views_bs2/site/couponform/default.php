@@ -227,7 +227,7 @@ $document->addScriptDeclaration($customValidation);
 				{
 					if (typeof qtc_base_url != 'undefined')
 					{
-						qtc_base_url = "<?php echo JUri::root() ?> ";
+						qtc_base_url = "<?php echo JUri::root() ?>";
 					}
 					var cid=<?php if (isset($this->item->id)) echo $this->item->id; else echo "0"; ?>;
 
@@ -419,7 +419,7 @@ $document->addScriptDeclaration($customValidation);
 							$options[] = JHtml::_('select.option', $value["id"],$value['title']);//submitAction('deletecoupon');
 						}
 
-						echo $this->dropdown = JHtml::_('select.genericlist',$options,'store_ID','class=" qtc_putmargintop10px required" size="0"   ','value','text',$default,'store_ID');
+						echo $this->dropdown = JHtml::_('select.genericlist',$options,'store_ID','class=" qtc_putmargintop10px required"  ','value','text',$default,'store_ID');
 						?>
 					</div>
 				</div>
@@ -431,7 +431,7 @@ $document->addScriptDeclaration($customValidation);
 			<div class="control-group">
 				<label for="value" class="control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPAN_VALUE_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_VALUE'), '', JText::_('COM_QUICK2CART_COUPON_VALUE') . ' *');?></label>
 				<div class="controls">
-					<input class="inputbox required validate-name" type="text" name="value" id="value" Onkeyup= "checkforalpha(this,46,<?php echo $entered_numerics; ?>);" size="20" value="<?php if($this->item){ echo $this->item->value; } ?>" />
+					<input class="inputbox required validate-name" type="text" name="value" id="value" Onkeyup= "checkforalpha(this,46,<?php echo $entered_numerics; ?>);"  value="<?php if($this->item){ echo $this->item->value; } ?>" />
 				</div>
 			</div>
 
@@ -481,7 +481,7 @@ $document->addScriptDeclaration($customValidation);
 
 					<div class="controls">
 						<ul class='selections q2c-margin-zero' id='selections.item_id'>
-							<input type="text" id="item_id" class="auto_fields inputbox validate-item_id_hidden qtc_product_cop_txtbox" size="20"
+							<input type="text" id="item_id" class="auto_fields inputbox validate-item_id_hidden qtc_product_cop_txtbox"
 								value="<?php echo ($this->item) ? $this->item->item_id : JText::_('ITEMID_START_TYP_MSG'); ?>"  />
 							<input type="hidden" class="auto_fields_hidden" name="item_id" id="item_id_hidden" value="" autocomplete='off' />
 						</ul>
@@ -499,14 +499,14 @@ $document->addScriptDeclaration($customValidation);
 			<div class="control-group">
 				<label for="max_use" class="control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_MAXUSES_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_MAXUSES'), '', JText::_('COM_QUICK2CART_COUPON_MAXUSES'));?></label>
 				<div class="controls">
-					<input type="text" name="max_use" id="max_use" class="inputbox" Onkeyup= "checkforalpha(this,'',<?php echo $entered_numerics; ?>);" size="20" value="<?php if($this->item){ echo $this->item->max_use; } ?>"  />
+					<input type="text" name="max_use" id="max_use" class="inputbox" Onkeyup= "checkforalpha(this,'',<?php echo $entered_numerics; ?>);"  value="<?php if($this->item){ echo $this->item->max_use; } ?>"  />
 				</div>
 			</div>
 
 			<div class="control-group">
 				<label for="max_per_user" class="control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER'), '', JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER'));?></label>
 				<div class="controls">
-					<input type="text" name="max_per_user" id="max_per_user" class="inputbox" Onkeyup= "checkforalpha(this,'',<?php echo $entered_numerics; ?>);" size="20" value="<?php if($this->item){  echo $this->item->max_per_user; } ?>"  />
+					<input type="text" name="max_per_user" id="max_per_user" class="inputbox" Onkeyup= "checkforalpha(this,'',<?php echo $entered_numerics; ?>);"  value="<?php if($this->item){  echo $this->item->max_per_user; } ?>"  />
 				</div>
 			</div>
 
@@ -563,14 +563,14 @@ $document->addScriptDeclaration($customValidation);
 			<div class="control-group">
 				<label for="description" class="control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_DESCRIPTION_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_DESCRIPTION'), '', JText::_('COM_QUICK2CART_COUPON_DESCRIPTION'));?></label>
 				<div class="controls">
-					<textarea   size="28" rows="3" name="description" id="description" class="inputbox" ><?php if($this->item){  echo trim($this->item->description); } ?></textarea>
+					<textarea    rows="3" name="description" id="description" class="inputbox" ><?php if($this->item){  echo trim($this->item->description); } ?></textarea>
 				</div>
 			</div>
 
 			<div class="control-group">
 				<label for="params" class="control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_PARAMETERS_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_PARAMETERS'), '', JText::_('COM_QUICK2CART_COUPON_PARAMETERS'));?></label>
 				<div class="controls">
-					<textarea  size="28" rows="3" name="params" id="params" class="inputbox" ><?php if($this->item){  echo trim($this->item->extra_params); } ?></textarea>
+					<textarea   rows="3" name="params" id="params" class="inputbox" ><?php if($this->item){  echo trim($this->item->extra_params); } ?></textarea>
 				</div>
 			</div>
 
@@ -579,7 +579,7 @@ $document->addScriptDeclaration($customValidation);
 		<!--sj change -->
 		<div class="form-actions">
 			<input type="button" class="btn btn-success" value="<?php echo JText::_('QTC_COUPON_SAVE');?>" onclick="Joomla.submitbutton('couponform.save');"/>
-			<input type="button" class="btn btn-inverse" value="<?php echo JText::_('QTC_COUPON_CANCEL');?>" onclick="Joomla.submitbutton('couponform.cancel');"/>
+			<input type="button" class="btn " value="<?php echo JText::_('QTC_COUPON_CANCEL');?>" onclick="Joomla.submitbutton('couponform.cancel');"/>
 		</div>
 		<input type="hidden" name="coupon_id" id="coupon_id" value="<?php if($this->item){ echo $this->item->id; } ?>" />
 		<input type="hidden" name="id1" id="id1" value="<?php if($this->item){ echo $this->item->id; } ?>" />

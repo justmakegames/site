@@ -11,7 +11,7 @@
 defined('_JEXEC') or die();
 
 $helperobj=new comquick2cartHelper;
-$storeHelper=new storeHelper();
+$storeHelper=new storeHelper;
 $store_link   = $storeHelper->getStoreLink($data['id']);
 //$store_link= JRoute::_('index.php?option=com_quick2cart&view=vendor&layout=store&store_id='.$data['id'].'&Itemid='.$addProd_Itemid);
 $com_params = JComponentHelper::getParams('com_quick2cart');
@@ -41,7 +41,7 @@ $img_width=$com_params->get('storeavatar_width');
 
 				if (empty($img))
 				{
-					$img=JUri::base().'components/com_quick2cart/assets/images/default_store_image.png';
+					$img = $storeHelper->getDefaultStoreImage();
 				}
 			?>
 				<a href="<?php echo $store_link; ?>">

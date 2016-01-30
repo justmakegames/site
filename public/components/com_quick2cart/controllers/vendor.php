@@ -186,4 +186,36 @@ class Quick2cartControllerVendor extends quick2cartController
 
 		jexit();
 	}
+
+	public function getRegions()
+	{
+		$app = JFactory::getApplication();
+		$input =JFactory::getApplication()->input;
+		$country_id = 101;//$input->get('country_id', '0', 'int');
+		$Quick2cartModelZone = $this->getModel('zone');
+		$Quick2cartModelZone = new Quick2cartModelZone;
+
+		if (!empty($country_id))
+		{
+			$stateList = $Quick2cartModelZone->getRegionList($country_id);
+
+			$options = array();
+			$options[] = JHtml::_('select.option', 0, JTEXT::_('COM_QUICK2CART_ZONE_ALL_STATES'));
+
+			if ($stateList)
+			{
+				foreach ($stateList as $state)
+				{
+					// This is only to generate the <option> tag inside select tag
+					$options[] = JHtml::_('select.option', $state->region_id,$state->region);
+				}
+			}
+
+			// Now generate the select list and echo that
+			$stateList = JHtml::_('select.genericlist', $options, 'qtcstorestate' ,' class="qtc_store_state"', 'value', 'text');
+			echo $stateList;
+		}
+
+		$app->close();
+	}
 }

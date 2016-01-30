@@ -29,7 +29,9 @@ if (!JFactory::getUser()->authorise('core.manage', 'com_quick2cart'))
 {
 	return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));
 }
+
 comquick2cartHelper::defineIcons("ADMIN");
+
 // Lib load
 if (JVERSION < '3.0')
 {
@@ -85,8 +87,31 @@ if (!empty($multivendor_enable))
 	{
 		$link    = JText::_('COM_QUICK2CART_ALLPRODUCTSMENU');
 		$not_msg = JText::sprintf('VANITY_REQ_MENU_WARNING', $link);
-		JError::raiseNotice(100, $not_msg);
 
+		// Get messages in queue
+		$messages = JFactory::getApplication()->getMessageQueue();
+
+		// Flag for duplicate message
+		$mgsExists = 0;
+
+		// If we have messages
+		if (is_array($messages) && count($messages))
+		{
+			// Check each message for the one we want
+			foreach ($messages as $message)
+			{
+				if ($message['message'] == $not_msg)
+				{
+					$mgsExists = 1;
+				}
+			}
+		}
+
+		// Enqueu message only if message is not present
+		if ($mgsExists == 0)
+		{
+			JError::raiseNotice(100, $not_msg);
+		}
 	}
 }
 

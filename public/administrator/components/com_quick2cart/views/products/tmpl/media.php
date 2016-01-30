@@ -48,6 +48,7 @@ $prodMedia='prodMedia';
 							<input type="checkbox" class="qtcMediaStatus" name="prodMedia[<?php echo $m ?>][status]>" autocomplete="off" <?php echo $mediastatus;?> ><?php echo JText::_('COM_QUICK2CART_PROD_PAGE_MEDIA_PUBLISHED')?>
 						</label>
 					</div>
+					<div class="qtcClearBoth"></div>
 				</div>
 
 				<!-- upload mode-->
@@ -220,7 +221,7 @@ $prodMedia='prodMedia';
 					<label class="control-label" for=""><?php echo JText::_( "COM_QUICK2CART_PROD_EXPIRARY")?></label>
 					<div class="controls">
 						<div class="input-append">
-							<input id=""  name="prodMedia[<?php echo $m ?>][expirary]" value="<?php echo $expValue; ?>" class="input-mini qtcMediaExp" placeholder="" type="text">
+							<input id=""  name="prodMedia[<?php echo $m ?>][expirary]" value="<?php echo $expValue; ?>" class="input-small qtcMediaExp" placeholder="" type="text">
 							<span class="add-on"><?php echo $expFormat;?></span>
 						</div>
 					</div>

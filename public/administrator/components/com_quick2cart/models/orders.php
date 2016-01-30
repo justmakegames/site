@@ -743,7 +743,6 @@ class Quick2cartModelOrders extends JModelLegacy
 
 			// Get cart items attribute details
 			$item->prodAttributeDetails = $productHelper->getItemCompleteAttrDetail($item->item_id);
-
 			$product_attributes = explode(',', $item->product_attributes);
 
 			/* E.g data

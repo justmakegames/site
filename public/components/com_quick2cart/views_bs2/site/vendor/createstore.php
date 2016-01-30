@@ -21,7 +21,7 @@ jimport('joomla.html.pane');
 // 1.check user is logged or not
 $user = JFactory::getUser();
 $mainframe = JFactory::getApplication();
-
+$storeHelper=new storeHelper;
 //added by aniket
 $entered_numerics = "'" . JText::_('QTC_ENTER_NUMERICS') . "'";
 
@@ -69,7 +69,6 @@ if (!$mainframe->isAdmin())
 // 3.CHECK MAX CREATE STORE LIMIT
 if (empty($this->allowToCreateStore))
 {
-	$storeHelper=new storeHelper();
 	$userStoreCount=$storeHelper->getUserStoreCount();
 	?>
 	<div class="<?php echo Q2C_WRAPPER_CLASS;?>">
@@ -134,6 +133,38 @@ $qtcshiphelper = new qtcshiphelper;
 			return status;
 		});
 	});
+
+
+	techjoomla.jQuery(document).ready(function() {
+		generateStoreState(<?php echo isset($this->storeinfo[0]->country)?$this->storeinfo[0]->country:0;?>, <?php echo !empty($this->storeinfo[0]->region)?$this->storeinfo[0]->region:"0";?>);
+	});
+
+	function generateStoreState(field_name, valToSelect)
+	{
+		var countryId = 'storecountry';
+		var country_value=techjoomla.jQuery('#'+countryId).val();
+
+		if (valToSelect == 0)
+		{
+			var e = document.getElementById("qtcstorestate");
+			var valToSelect = e.options[e.selectedIndex].value;
+		}
+
+		techjoomla.jQuery.ajax({
+			type : "POST",
+			url : "index.php?option=com_quick2cart&task=vendor.getRegions&country_id="+country_value,
+			success : function(response)
+			{
+				console.log(response);
+				techjoomla.jQuery('#qtcstorestate').html(response);
+
+				if (valToSelect > 0)
+				{
+					techjoomla.jQuery("#qtcstorestate option[value='" + valToSelect + "']").attr("selected", "true");
+				}
+			}
+		});
+	}
 
 	function myValidate(f)
 	{
@@ -264,8 +295,7 @@ $qtcshiphelper = new qtcshiphelper;
 		<?php
 		$active = 'create_store';
 		$comquick2cartHelper = new comquick2cartHelper;
-		$storehelper = new storehelper();
-		$user_stores=$storehelper->getuserStoreList();
+		$user_stores=$storeHelper->getuserStoreList();
 
 		if (count($user_stores) >0)
 		{
@@ -290,7 +320,7 @@ $qtcshiphelper = new qtcshiphelper;
 			<!--<div class="control-group">
 				<label for="vendor_name" class="control-label"><?php // echo JHtml::tooltip(JText::_('VENDER_NAME_TOOLTIP'), JText::_('VENDER_NAME'), '', JText::_('VENDER_NAME'));?></label>
 				<div class="controls">
-					<input type="text" name="vendor_name" id="vendor_name" class="inputbox required validate-name"  size="20" value="<?php //if ($this->storeinfo){  echo stripslashes($this->storeinfo[0]->name); } ?>" />
+					<input type="text" name="vendor_name" id="vendor_name" class="inputbox required validate-name"   value="<?php //if ($this->storeinfo){  echo stripslashes($this->storeinfo[0]->name); } ?>" />
 				</div>
 			</div>
 			-->
@@ -298,7 +328,7 @@ $qtcshiphelper = new qtcshiphelper;
 			<div class="control-group">
 				<label for="title" class="control-label"><?php echo JHtml::tooltip(JText::_('VENDER_TITLE_TOOLTIP'), JText::_('VENDER_TITLE'), '', '* '.JText::_('VENDER_TITLE'));?></label>
 				<div class="controls">
-					<input type="text" name="title" id="title" class="inputbox required" size="20" value="<?php if (!empty($this->storeinfo)){ echo $this->escape( stripslashes( $this->storeinfo[0]->title ) ); } ?>" />
+					<input type="text" name="title" id="title" class="inputbox required"  value="<?php if (!empty($this->storeinfo)){ echo $this->escape( stripslashes( $this->storeinfo[0]->title ) ); } ?>" />
 					<!--<div class="text-warning">
 						<p><?php //echo JText::_('COM_Q2C_ALPHANUM_NOTE'); ?></p>
 					</div> -->
@@ -329,7 +359,7 @@ $qtcshiphelper = new qtcshiphelper;
 						?>
 
 						<input type="text" name="storeVanityUrl" id="storeVanityUrl"
-							class="inputbox validate-qtc_alphanum " size="20"
+							class="inputbox validate-qtc_alphanum "
 							value="<?php if (!empty($this->storeinfo[0]->vanityurl)){ echo stripslashes($this->storeinfo[0]->vanityurl);}?>" placeholder="<?php echo JText::_("COM_QUICK2CART_VANITY_URL_HINT"); ?>" />
 
 						<?php
@@ -402,9 +432,9 @@ $qtcshiphelper = new qtcshiphelper;
 				</label>
 				<div class="controls">
 					<!--
-					<input type="text" name="description" id="description" class="inputbox required validate-name"   size="20" value="<?php //if ($this->storeinfo){ echo $this->escape( stripslashes( $this->storeinfo[0]->code ) ); } ?>" />
+					<input type="text" name="description" id="description" class="inputbox required validate-name"    value="<?php //if ($this->storeinfo){ echo $this->escape( stripslashes( $this->storeinfo[0]->code ) ); } ?>" />
 					-->
-					<textarea  size="28" rows="3" name="description" id="description" class="inputbox" ><?php if (!empty($this->storeinfo)){ echo trim($this->storeinfo[0]->description);}?></textarea>
+					<textarea   rows="3" name="description" id="description" class="inputbox" ><?php if (!empty($this->storeinfo)){ echo trim($this->storeinfo[0]->description);}?></textarea>
 				</div>
 			</div>
 
@@ -413,7 +443,7 @@ $qtcshiphelper = new qtcshiphelper;
 				<label for="companyname" class="control-label"><?php echo JHtml::tooltip(JText::_('VENDER_COMPANY_NAME_TOOLTIP'), JText::_('COMPANY_NAME'), '',JText::_('COMPANY_NAME'));?></label>
 				<div class="controls">
 					<input type="text" name="companyname" id="companyname"
-						class="inputbox" size="20"
+						class="inputbox"
 						value="<?php if (!empty($this->storeinfo[0]->company_name)){ echo stripslashes($this->storeinfo[0]->company_name); } ?>" />
 				</div>
 			</div>
@@ -423,10 +453,10 @@ $qtcshiphelper = new qtcshiphelper;
 				</label>
 				<div class="controls">
 					<!--
-					<input type="email" name="email" id="email" class="inputbox required validate-email"  size="20" value="<?php /*if (!$mainframe->isAdmin() && !empty($this->storeinfo)){  echo stripslashes($this->storeinfo[0]->store_email); } elseif (!$mainframe->isAdmin() && !empty($user->email)){echo $user->email;}*/?>" />
+					<input type="email" name="email" id="email" class="inputbox required validate-email"   value="<?php /*if (!$mainframe->isAdmin() && !empty($this->storeinfo)){  echo stripslashes($this->storeinfo[0]->store_email); } elseif (!$mainframe->isAdmin() && !empty($user->email)){echo $user->email;}*/?>" />
 					-->
 					<input type="email" name="email" id="email"
-						class="inputbox required validate-email" size="20"
+						class="inputbox required validate-email"
 						value="<?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->store_email); } elseif (!empty($user->email)){echo $user->email;}?>" />
 				</div>
 			</div>
@@ -438,7 +468,71 @@ $qtcshiphelper = new qtcshiphelper;
 				<label for="address" class="control-label"><?php echo JHtml::tooltip(JText::_('VENDER_ADDRESS_TOOLTIP'), JText::_('VENDER_ADDRESS'), '','* '.JText::_('VENDER_ADDRESS'));?>
 				</label>
 				<div class="controls">
-					<textarea  size="28" rows="3" name="address" id="address" class="inputbox required" ><?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->address);}?></textarea>
+					<textarea   rows="3" name="address" id="address" class="inputbox required" ><?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->address);}?></textarea>
+				</div>
+			</div>
+			<!--Country-->
+			<div class="control-group">
+				<label for="storecountry" class="control-label"><?php echo "* " . JText::_('QTC_BILLIN_COUNTRY')?></label>
+				<div class="controls">
+				<?php
+					$country = $this->countrys;
+					$options = array();
+					$options[] = JHtml::_('select.option', "", JText::_('QTC_BILLIN_SELECT_COUNTRY'));
+
+					foreach ($country as $key=>$value)
+					{
+						$options[] = JHtml::_('select.option', $value['id'], $value['country']);
+					}
+
+					if (!empty($this->storeinfo[0]->country))
+					{
+						$country = $this->storeinfo[0]->country;
+					}
+					else
+					{
+						$country = "";
+					}
+
+					echo $this->dropdown = JHtml::_('select.genericlist',$options,'storecountry','required="required  " onchange=\'generateStoreState(id,"1")\' ','value','text', $country);
+				?>
+
+				</div>
+			</div>
+
+			<!--State-->
+			<div class="control-group" >
+				<label for="qtcstorestate" class=" control-label"><?php echo "* " .  JText::_('QTC_BILLIN_STATE')?></label>
+				<div class="controls">
+					<select name="qtcstorestate" id="qtcstorestate" class="" >
+						<option selected="selected"><?php echo JText::_('QTC_BILLIN_SELECT_STATE')?></option>
+					</select>
+				</div>
+				<div class="qtcClearBoth"></div>
+			</div>
+
+			<!--City-->
+			<div class="control-group">
+				<label for="city" class="control-label "><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_VENDER_CITY_TOOLTIP'), JText::_('COM_QUICK2CART_VENDER_CITY'), '','* '.JText::_('COM_QUICK2CART_VENDER_CITY'));?>
+				</label>
+				<div class="controls">
+					<input type="text" name="city" id="city" class=" inputbox required" value="<?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->city);}?>"></input>
+				</div>
+			</div>
+
+			<!--Land Mark-->
+			<div class="control-group">
+				<label for="land_mark" class="control-label "><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_VENDER_LAND_MARK_CITY_TOOLTIP'), JText::_('COM_QUICK2CART_VENDER_LAND_MARK_CITY'), '','* '.JText::_('COM_QUICK2CART_VENDER_LAND_MARK_CITY'));?>
+				</label>
+				<div class="controls">
+					<input type="text" name="land_mark" id="land_mark" class=" inputbox required" value="<?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->land_mark);}?>"></input>
+				</div>
+			</div>
+			<div class="control-group">
+				<label for="pincode" class="control-label "><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_VENDER_PINCODE_TOOLTIP'), JText::_('COM_QUICK2CART_VENDER_PINCODE'), '','* '.JText::_('COM_QUICK2CART_VENDER_PINCODE'));?>
+				</label>
+				<div class="controls">
+					<input type="text" name="pincode" id="pincode" class=" inputbox required" value="<?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->pincode);}?>"></input>
 				</div>
 			</div>
 
@@ -489,7 +583,7 @@ $qtcshiphelper = new qtcshiphelper;
 
 							if (empty($img))
 							{
-								$img = JUri::base() . 'components/com_quick2cart/assets/images/default_store_image.png';
+								$img = $storeHelper->getDefaultStoreImage();
 							}
 							?>
 
@@ -603,7 +697,7 @@ $qtcshiphelper = new qtcshiphelper;
 					<?php echo JHtml::tooltip(JText::_('VENDER_PAYPAL_EMAIL_TOOLTIP'), JText::_('PAYPAL_EMAIL'), '', '* '.JText::_('PAYPAL_EMAIL'));?>
 				</label>
 				<div class="controls">
-					<input type="text" name="paypalemail" id="paypalemail" class="inputbox validate-email <?php echo $paypalEmailClass ;?>"  size="30" value="<?php echo !empty($paypalMode) ? $pay_details : ''; ?>" />
+					<input type="text" name="paypalemail" id="paypalemail" class="inputbox validate-email <?php echo $paypalEmailClass ;?>"   value="<?php echo !empty($paypalMode) ? $pay_details : ''; ?>" />
 				</div>
 			</div>
 
@@ -613,7 +707,7 @@ $qtcshiphelper = new qtcshiphelper;
 					<?php echo JHtml::tooltip(JText::_('VENDER_OTHER_PAY_METHOD_TOOLTIP'), JText::_('OTHER_PAY_METHOD'), '','* '. JText::_('OTHER_PAY_METHOD'));?>
 				</label>
 				<div class="controls">
-					<textarea  size="28" rows="3" name="otherPayMethod" id="otherPayMethod" class="inputbox" ><?php if (!empty($this->storeinfo[0]->payment_mode)){ echo stripslashes($this->storeinfo[0]->pay_detail);}?></textarea>
+					<textarea   rows="3" name="otherPayMethod" id="otherPayMethod" class="inputbox" ><?php if (!empty($this->storeinfo[0]->payment_mode)){ echo stripslashes($this->storeinfo[0]->pay_detail);}?></textarea>
 				</div>
 			</div>
 

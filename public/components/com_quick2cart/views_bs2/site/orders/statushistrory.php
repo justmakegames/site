@@ -61,7 +61,7 @@ defined('_JEXEC') or die();
 									<?php
 									//if ($orders_site)
 									{
-										echo JHtml::_('select.genericlist', $this->vendorstatus, "status",  'class="pad_status" size="1" ', "value", "text", $this->orderinfo->status);
+										echo JHtml::_('select.genericlist', $this->vendorstatus, "status",  'class="pad_status"  ', "value", "text", $this->orderinfo->status);
 									}
 
 									?>
@@ -72,7 +72,7 @@ defined('_JEXEC') or die();
 								<td class=" hidden-xs"><?php echo JText::_('QTC_NOTIFY');?></td>
 								<td class="textAlignCenter" data-title="<?php echo JText::_('QTC_NOTIFY');?>">
 									<div>
-										<input type="checkbox" id="notify_chk" name="notify_chk" size="10" checked />
+										<input type="checkbox" id="notify_chk" name="notify_chk"  checked />
 									</div>
 								</td>
 							</tr>
@@ -80,7 +80,7 @@ defined('_JEXEC') or die();
 							<tr>
 								<td class=" hidden-xs"><?php echo JText::_('QTC_COMMENT');?></td>
 								<td data-title="<?php echo JText::_('QTC_COMMENT');?>">
-									<textarea id="" name="order_note" rows="3" size="28" value=""></textarea>
+									<textarea id="" name="order_note" rows="3"  value=""></textarea>
 								</td>
 							</tr>
 							<tr>
@@ -265,3 +265,4 @@ defined('_JEXEC') or die();
 		<?php
 	} ?>
 </form>
+</div>

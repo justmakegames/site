@@ -11,6 +11,7 @@
 defined('_JEXEC') or die();
 
 ?>
+<div class="clearfix"></div>
 <div class="">
 
 	<!-- for Length & weight class option -->
@@ -29,6 +30,7 @@ defined('_JEXEC') or die();
 			</label>
 			<div class="controls taxprofile">
 			</div>
+			<div class="clearfix"></div>
 		</div>
 	<?php
 	} 	?>

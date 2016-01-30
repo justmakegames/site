@@ -213,13 +213,13 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 			<fieldset class="adminform">
 				<legend><?php echo JText::_('COM_QUICK2CART_SHIPPROFILE'); ?></legend>
 				<div class="form-group">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('name'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('name'); ?></div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('name'); ?></div>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('name'); ?></div>
 				</div>
 
 				<div class="form-group" style="display:none;">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('id'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('id'); ?></div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('id'); ?></div>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('id'); ?></div>
 				</div>
 
 				<?php
@@ -227,10 +227,10 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 				{
 					?>
 					<div class="form-group">
-						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('store_id'); ?>
+						<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('store_id'); ?>
 							<span class="help-block">
-								<i class="icon-hand-right"></i>
+								<i class="<?php echo Q2C_TOOLBAR_ICON_HOME; ?>"></i>
 								<?php echo JText::_('COM_QUICK2CART_TAXPROFILE_CAN_NOT_CAHGNE_STORE_MSG'); ?></span>
 						</div>
 					</div>
@@ -240,14 +240,14 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 				{
 					?>
 					<div class="form-group">
-						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo ucfirst($this->storeDetails['title']); ?></div>
+						<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo ucfirst($this->storeDetails['title']); ?></div>
 					</div>
 					<?php
 				} ?>
 				<div class="form-group">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('state'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('state'); ?></div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('state'); ?></div>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('state'); ?></div>
 				</div>
 				<input type="hidden" name="jform[ordering]" value="<?php echo $this->item->ordering; ?>" />
 				<div class="alert alert-info">
@@ -284,7 +284,7 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 							$options = array();
 							$options[] = JHtml::_('select.option', "", JText::_("COM_QUICK2CART_SHIPPLUGIN_SELECT_SHIP_METH"));
 
-							echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_shipMethod','class=""  aria-invalid="false" data-chosen="qtc" size="1"  autocomplete="off" ','value','text',$default,'qtc_shipMethod');
+							echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_shipMethod','class=""  aria-invalid="false" data-chosen="qtc"   autocomplete="off" ','value','text',$default,'qtc_shipMethod');
 							?>
 						</span>
 						<span class="com_quick2cart_ajax_loading" style="display:none;">
@@ -302,7 +302,7 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 				<div class="row">
 					<div class="error alert alert-danger qtcError" style="display: none;">
 						<?php echo JText::_('COM_QUICK2CART_ZONE_ERROR'); ?>
-						<i class="icon-cancel pull-right" style="align: right;"
+						<i class="<?php echo QTC_ICON_REMOVE; ?> pull-right" style="align: right;"
 							onclick="techjoomla.jQuery(this).parent().fadeOut();"> </i> <br />
 						<hr />
 						<div id="qtcErrorContentDiv"></div>

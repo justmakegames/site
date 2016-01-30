@@ -618,7 +618,7 @@ class com_tjfieldsInstallerScript
 			</tfoot>
 			<tbody>
 				<tr class="row0">
-					<td class="key" colspan="2"><?php echo 'Quick2Cart '.JText::_('Component'); ?></td>
+					<td class="key" colspan="2"><?php echo 'TjFields '.JText::_('Component'); ?></td>
 					<td><strong style="color: green"><?php echo JText::_('Removed'); ?></strong></td>
 				</tr>
 				<?php if (count($status->modules)) : ?>

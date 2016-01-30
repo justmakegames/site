@@ -12,95 +12,145 @@ defined('_JEXEC') or die();
 
 jimport('joomla.application.component.view');
 
-class quick2cartViewProductpage extends JViewLegacy
+/**
+ * View class for Product detail page.
+ *
+ * @package     Quick2cart
+ * @subpackage  com_quick2cart
+ * @since       2.2
+ */
+class Quick2cartViewProductpage extends JViewLegacy
 {
-	function display($tpl = null)
+	/**
+	 * Display the view
+	 *
+	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+	 *
+	 * @return  void
+	 */
+	public function display($tpl = null)
 	{
-		$comquick2cartHelper=new comquick2cartHelper;
-		$input=JFactory::getApplication()->input;
-		$layout		= $input->get( 'layout','default' );
-		$option		= $input->get( 'option','' );
+		$comquick2cartHelper = new comquick2cartHelper;
+		$input               = JFactory::getApplication()->input;
+		$layout              = $input->get('layout', 'default');
+		$option              = $input->get('option', '');
 
 		$this->params = JFactory::getApplication()->getParams('com_quick2cart');
-		// check for multivender COMPONENT PARAM
-		// vm: commented for task #20773
-	/*	$isMultivenderOFFmsg=$comquick2cartHelper->isMultivenderOFF();
-		if(!empty($isMultivenderOFFmsg))
+
+		// Load helper file
+		$product_path = JPATH_SITE . '/components/com_quick2cart/helpers/product.php';
+
+		if (!class_exists('productHelper'))
 		{
-			print $isMultivenderOFFmsg;
-			return false;
-		}*/
-		if($layout=='default')
-		{ // product page
-				//DECLARATION SECTION
-				$this->client=$client="com_quick2cart";
-				$this->pid=0;
-				$this->item_id=$item_id		= $input->get( 'item_id','' );
-				JLoader::import('cart', JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'models');
-				$model =  new Quick2cartModelcart;
+			JLoader::register('productHelper', $product_path);
+			JLoader::load('productHelper');
+		}
 
-				if(empty($item_id)) // # if entry is not present in kart_item
-					return false;
+		$productHelper = new productHelper;
 
-					// retrun store_id,role etc with order by role,store_id
-				$this->store_role_list=$comquick2cartHelper->getStoreIds();
-				// GETTING AUTHORIZED STORE ID
-				$storeHelper=new storeHelper();
-				$this->store_list=$storeHelper->getuserStoreList();
-				// GETTING PRICE
-				$this->price=$price = $model->getPrice($item_id,1);	   // return array of price
+		if ($layout == 'default')
+		{
+			// DECLARATION SECTION
+			$this->client  = $client = "com_quick2cart";
+			$this->pid     = 0;
+			$this->item_id = $item_id = $input->get('item_id', '');
+			JLoader::import('cart', JPATH_SITE . '/components/com_quick2cart/models');
+			$model = new Quick2cartModelcart;
 
-				//GETTING ITEM COMPLEATE DETAIL (attributes and its option wil get)
-				//$itemDetail=$model->getItemCompleteDetail($item_id);
+			if (empty($item_id))
+			{
+				return false;
+			}
 
-				//getting stock min max,cat,store_id
-				$this->itemdetail = $model->getItemRec($item_id);
+			// Retrun store_id,role etc with order by role,store_id
+			$this->store_role_list = $comquick2cartHelper->getStoreIds();
 
-				if(!empty($this->itemdetail))
+			// GETTING AUTHORIZED STORE ID
+			$storeHelper      = new storeHelper;
+			$this->store_list = $storeHelper->getuserStoreList();
+
+			// GETTING PRICE @TODO : DONT SHOW THE PRODUCT WHEN DOESN'T FOUND PRICE FOR CURRENT CURRENCY
+			$this->price = $price = $model->getPrice($item_id, 1);
+
+			// Getting stock min max,cat,store_id
+			$this->itemdetail = $model->getItemRec($item_id);
+
+			if (!empty($this->itemdetail))
+			{
+				// Get attributes
+				// $this->attributes = $model->getAttributes($item_id);
+				$this->attributes = $productHelper->getItemCompleteAttrDetail($item_id);
+
+				if (!empty($this->attributes))
 				{
-					///get attributes
-					$this->attributes = $model->getAttributes($item_id);
-
-					// for RELEATED PROD FROM CATEGORY
-					$product_path = JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'helpers'.DS.'product.php';
-					if(!class_exists('productHelper'))
-					{ //require_once $path;
-						 JLoader::register('productHelper', $product_path );
-						 JLoader::load('productHelper');
-					}
-					$productHelper =  new productHelper();
-
-					// get free products media file
-					$this->mediaFiles = $productHelper->getProdmediaFiles($item_id);
-
-					$this->prodFromCat=$productHelper->getSimilarProdFromCat($this->itemdetail->category,$this->item_id, "com_quick2cart");
-					$this->prodFromSameStore=$productHelper->prodFromSameStore($this->itemdetail->store_id,$this->item_id, "com_quick2cart");
-					$this->peopleAlsoBought=$productHelper->peopleAlsoBought($this->item_id);
-					$this->peopleWhoBought=$productHelper->peopleWhoBought($this->item_id);
-
-					$social_options= '';
-					$route = $comquick2cartHelper->getProductLink($this->item_id);
-
-					// Jilke
-					$dispatcher = JDispatcher::getInstance();
-					JPluginHelper::importPlugin('system');
-					$result=$dispatcher->trigger('onProductDisplaySocialOptions',array($this->item_id,'com_quick2cart.productpage',$this->itemdetail->name,$route) );//Call the plugin and get the result
-					if(!empty($result)){
-						$social_options=$result[0];
-					}
-					$this->social_options=$social_options;
-					$this->showBuyNowBtn = $productHelper->isInStockProduct($this->itemdetail);
+					$this->itemdetail->itemAttributes = $this->attributes;
 				}
 
-		}// END OF default layout
-		elseif($layout=='popupslide')
-		{
-				$this->item_id=$item_id		= $input->get( 'qtc_prod_id','' );
-				JLoader::import('cart', JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'models');
-				$model =  new Quick2cartModelcart;
+				$this->showBuyNowBtn = $productHelper->isInStockProduct($this->itemdetail);
 
-				if(empty($item_id)) // # if entry is not present in kart_item
-					return false;
+				// Get free products media file
+				$this->mediaFiles = $productHelper->getProdmediaFiles($item_id);
+
+				$this->prodFromCat       = $productHelper->getSimilarProdFromCat($this->itemdetail->category, $this->item_id, "com_quick2cart");
+				$this->prodFromSameStore = $productHelper->prodFromSameStore($this->itemdetail->store_id, $this->item_id, "com_quick2cart");
+				$this->peopleAlsoBought  = $productHelper->peopleAlsoBought($this->item_id);
+				$this->peopleWhoBought   = $productHelper->peopleWhoBought($this->item_id);
+
+				$social_options = '';
+				$route          = $comquick2cartHelper->getProductLink($this->item_id);
+
+				// Trigger data
+				$triggerData               = array();
+				$triggerData['context']    = "com_quick2cart.productpage";
+				$triggerData['itemDetail'] = $this->itemdetail;
+
+				$dispatcher = JDispatcher::getInstance();
+				JPluginHelper::importPlugin('content');
+				$this->afterProductDisplay = $dispatcher->trigger('onQ2cAfterProductDisplay', array($triggerData));
+
+				if (!empty($this->afterProductDisplay))
+				{
+					$this->afterProductDisplay = trim(implode("\n", $this->afterProductDisplay));
+				}
+
+				// Get avg rating html
+				$dispatcher = JDispatcher::getInstance();
+				JPluginHelper::importPlugin('content');
+				$this->productRating = $dispatcher->trigger('onQ2cProductAvgRating', array($triggerData));
+
+				if (!empty($this->productRating))
+				{
+					$this->productRating = trim(implode("\n", $this->productRating));
+				}
+
+				// Trigger for like dislike buttons
+				$dispatcher = JDispatcher::getInstance();
+				JPluginHelper::importPlugin('content');
+				$this->addLikeButtons = $dispatcher->trigger('onQ2cAddLikeButtons', array($triggerData));
+
+				// Trigger for pincode check
+
+				/*			$dispatcher = JDispatcher::getInstance();
+				JPluginHelper::importPlugin('tjshipping');
+				$this->getPincodeCheckAvailability = $dispatcher->trigger('getPincodeCheckAvailability');
+				*/
+
+				if (!empty($this->addLikeButtons))
+				{
+					$this->addLikeButtons = trim(implode("\n", $this->addLikeButtons));
+				}
+			}
+		}
+		elseif ($layout == 'popupslide')
+		{
+			$this->item_id = $item_id = $input->get('qtc_prod_id', '');
+			JLoader::import('cart', JPATH_SITE . '/components/com_quick2cart/models');
+			$model = new Quick2cartModelcart;
+
+			if (empty($item_id))
+			{
+				return false;
+			}
 
 			$this->itemdetail = $model->getItemRec($item_id);
 		}
@@ -114,32 +164,36 @@ class quick2cartViewProductpage extends JViewLegacy
 
 	/**
 	 * Prepares the document
+	 *
+	 * @return  void
 	 */
 	protected function _prepareDocument()
 	{
-		$app	= JFactory::getApplication();
-		$menus	= $app->getMenu();
-		$title	= null;
+		$app   = JFactory::getApplication();
+		$menus = $app->getMenu();
+		$title = null;
 
-		// Because the application sets a default page title,
-		// we need to get it from the menu item itself
-		//@TODO Need to uncomment this when a menu for single product item can be created.
+		/* Because the application sets a default page title,
+		 we need to get it from the menu item itself
+		 @TODO Need to uncomment this when a menu for single product item can be created.
+		 */
+
 		/*
 		$menu = $menus->getActive();
 
 		if($menu)
 		{
-			$this->params->def('page_heading', $this->params->get('page_title', $menu->title));
+		$this->params->def('page_heading', $this->params->get('page_title', $menu->title));
 		}
 		else
 		{
-			$this->params->def('page_heading', JText::_('QTC_PRODUCTPAGE_PAGE'));
+		$this->params->def('page_heading', JText::_('QTC_PRODUCTPAGE_PAGE'));
 		}
 
 		$title = $this->params->get('page_title', '');
 		*/
 
-		//@TODO Need to comment this if when a menu for single product item can be created.
+		// @TODO Need to comment this if when a menu for single product item can be created.
 		if (empty($title))
 		{
 			$title = $this->itemdetail->name . ' - ' . JText::_('QTC_PRODUCTPAGE_PAGE');

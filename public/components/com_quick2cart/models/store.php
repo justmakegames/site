@@ -76,11 +76,13 @@ class Quick2cartModelstore extends JModelLegacy
 		$where = array();
 		//PRODUCT WHICH ARE PUBLISHED
 		$where[]=' a.`state`=1';
+		$where[]=' a.`display_in_product_catlog`=1';
 		// 	CHECK FOR parent
 		if(!empty($parent))
 		{
 			$where[] = " a.parent='".$parent."' ";
 		}
+
 		if(!empty($store_id))
 		{
 			$where[]=' a.`store_id`=\''.$store_id.'\'';

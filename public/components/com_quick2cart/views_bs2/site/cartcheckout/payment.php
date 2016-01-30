@@ -10,7 +10,8 @@
 // No direct access.
 defined('_JEXEC') or die();
 
-if(!empty($showLegend)){
+if(!empty($showLegend))
+{
 ?>
 <legend id="" class=""> <?php echo JText::_('COM_QUICK2CART_PAYMENT_DETAILS')?>&nbsp;<small><?php //echo JText::_('QTC_SHIPIN_DESC')?></small></legend>
 <?php
@@ -22,7 +23,7 @@ if(!empty($showLegend)){
 <div class="control-group ">
 	<label for="" class="control-label"><?php echo JText::_( 'QTC_USER_COMMENT' ); ?></label>
 	<div class="controls">
-		<textarea id="comment" name="comment" class="inputbox" rows="3" maxlength="135" size="28"></textarea>
+		<textarea id="comment" name="comment" class="inputbox" rows="3" maxlength="135" ></textarea>
 	</div>
 </div>
 <!-- PAY,ENT GETEWAY -->
@@ -93,7 +94,7 @@ if($showTersmAndCond ) {
 ?>
 
 <div class="control-group">
-	<input class="inputbox qtc_checkbox_style" type="checkbox" name="qtc_accpt_terms" id="qtc_accpt_terms" size="30" aria-invalid="false">&nbsp;&nbsp;<?php  echo JText::_( 'COM_QUICK2CART_ACCEPT' ); ?>
+	<input class="inputbox qtc_checkbox_style" type="checkbox" name="qtc_accpt_terms" id="qtc_accpt_terms" aria-invalid="false">&nbsp;&nbsp;<?php  echo JText::_( 'COM_QUICK2CART_ACCEPT' ); ?>
 
 	<a rel="{handler: 'iframe', size: {x: 600, y: 600}}" href="<?php echo $terms_link;?>" class="modal">
 	<span class="qtc_terms_conditons hasTip" title="<?php echo JText::_( 'COM_QUICK2CART_TERMS_CONDITION' ); ?>">

@@ -52,7 +52,7 @@ if (!empty($this->storeDetailInfo))
 	}
 	?>
 			<div class="row-">
-				<div class="well well-small col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<div class="well well-small col-xs-12">
 					<legend>
 						<?php
 						$storeHelper = new storeHelper();
@@ -110,28 +110,29 @@ if (!empty($this->storeDetailInfo))
 
 
 					<div>
-						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<div class="col-sm-4 col-xs-12">
 							<!-- ADDRESS-->
 							<?php
 							if (!empty($sinfo['address'])){ ?>
-								<address class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<address class="">
 									<strong><?php echo JText::_('VENDER_ADDRESS'); ?></strong>
 									<br/>
-									<span><?php echo $sinfo['address']; ?></span>
+									<span class="qtcWordWrap"><?php echo $sinfo['address']; ?></span>
 								</address>
 							<?php
 							} ?>
 						</div>
-						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-							<address class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<div class="col-sm-4 col-xs-12">
+							<address>
 								<abbr title="Phone">
 									<strong><?php echo JText::_('VENDER_CONTACT_INFO'); ?></strong>:
 								</abbr>
 								<?php echo $sinfo['phone']; ?>
-								<br/> <?php echo $sinfo['store_email']; ?>
+								<br/>
+								<span class="qtcWordWrap"><?php echo $sinfo['store_email']; ?></span>
 							</address>
 						</div>
-						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<div class="col-sm-4 col-xs-12">
 								<?php
 								$img='';
 
@@ -142,14 +143,15 @@ if (!empty($this->storeDetailInfo))
 
 								if (empty($img))
 								{
-									$img = JUri::base().'components'.DS.'com_quick2cart'.DS.'assets' . DS . 'images'.DS.'default_store_image.png';
+									$img = $storeHelper->getDefaultStoreImage();
 								}
+
 								?>
 								<img align="" class='img-rounded img-polaroid qtcImgAlignCenter' src="<?php echo $img;?>" alt="<?php echo  JText::_('QTC_IMG_NOT_FOUND') ?>"/>
 						</div>
 					</div>
 					<div>
-						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div class="col-xs-12">
 								<p>
 									<?php
 									if ($layout=="storeinfo")
@@ -192,6 +194,7 @@ if (!empty($this->storeDetailInfo))
 
 				</div>
 			</div>
+			<div class="clearfix"></div>
 	<?php
 	if ($layout=="storeinfo")
 	{

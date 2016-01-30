@@ -25,7 +25,7 @@ foreach ($cart as $key=>$item)
 	}
 	?>
 
-	<tr>
+	<tr class="qtcborderedrow">
 		<td>
 			<?php
 			if (!empty($showoptioncol))
@@ -37,7 +37,7 @@ foreach ($cart as $key=>$item)
 
 			echo $item['title']."( ". $item['qty'] ." )"?>
 		</td>
-		<td><?php echo $comquick2cartHelper->getFromattedPrice($item['tamt']);?></td>
+		<td class="rightalign"><?php echo $comquick2cartHelper->getFromattedPrice($item['tamt']);?></td>
 	</tr>
 
 	<?php
@@ -52,7 +52,7 @@ foreach ($cart as $key=>$item)
 	$prefix = $model->getPrefix($attoptionIds);
 	?>
 
-	<tr class="qtc_showhide" id="qtc_showhide<?php echo  $key;?>" style="display:none;" >
+	<tr class="qtc_showhide qtcborderedrow" id="qtc_showhide<?php echo  $key;?>" style="display:none;" >
 		<td colspan=2>
 			<?php
 			foreach ($option as $k=>$op)
@@ -73,9 +73,9 @@ foreach ($cart as $key=>$item)
 }
 ?>
 
-<tr>
-	<td><strong><?php echo JText::_('QTC_MOD_SUBTOTAL')?></strong></td>
-	<td><?php echo $comquick2cartHelper->getFromattedPrice(number_format($subtotal,2));?></td>
+<tr class="highlightedrow">
+	<td class="rightalign"><strong><?php echo JText::_('QTC_MOD_SUBTOTAL')?></strong></td>
+	<td class="rightalign"><strong><?php echo $comquick2cartHelper->getFromattedPrice(number_format($subtotal,2));?></strong></td>
 </tr>
 
 <?php

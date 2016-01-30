@@ -154,14 +154,14 @@ if (!empty($shipFormData['methodId']))
 		<legend id="qtc_shipmethodInfo" ><?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SEL_CREATE_SHIPMETHO')?>&nbsp;<small><?php //echo JText::_('QTC_BILLIN_DESC')?></small></legend>
 
 		<div class="form-group">
-			<label  for="name" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_METH_NAME_TITLE'); ?>">
+			<label  for="name" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_METH_NAME_TITLE'); ?>">
 				<?php echo "* ". JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_METH_NAME'); ?>
 			</label>
-			<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+			<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 				<input id="methodId" name="shipForm[methodId]" class="" type="hidden" value="<?php echo !empty($shipFormData['methodId']) ? $shipFormData['methodId'] : ''; ?>">
 
 				<input id="name" name="shipForm[name]"
-				class="input-large bill inputbox required validate-name"
+				class="required validate-name"
 				placeholder="<?php echo Jtext::_('PLG_QTC_DEFAULT_ZONESHIPPING_METH_NAME_TOOLTIP');?>"
 				type="text" value="<?php echo !empty($shipFormData['name']) ? $shipFormData['name'] : ''; ?>">
 			</div>
@@ -183,10 +183,10 @@ if (!empty($shipFormData['methodId']))
 
 		?>
 		<div class="form-group">
-			<label for="qtcShipMethStoreId" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_STORE_NAME_DESC'); ?>">
+			<label for="qtcShipMethStoreId" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_STORE_NAME_DESC'); ?>">
 				<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_STORE_NAME'); ?>
 			</label>
-			<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+			<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 				<?php
 
 				echo JHtml::_('select.genericlist',  $options, "shipForm[store_id]", 'class="inputbox required"  size="1" required="required" ', 'value', 'text', $defaultSstore_id, 'qtcShipMethStoreId');
@@ -211,10 +211,10 @@ if (!empty($shipFormData['methodId']))
 			}
 		?>
 		<div class="form-group">
-			<label  for="taxprofileId" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SHIPTAXPROFILE_HELP_TITLE'); ?>">
+			<label  for="taxprofileId" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SHIPTAXPROFILE_HELP_TITLE'); ?>">
 				<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_TAX_PROFILE'); ?>
 			</label>
-			<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+			<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 				<?php echo  $this->dropdown = JHtml::_('select.genericlist',$options,"shipForm[taxprofileId]",'class=""   aria-invalid="false" size="1" required="required" ','value','text',$default,'taxprofileId');
 				?>
 				<p class="text-info"><?php echo  JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SHIPTAXPROFILE_HELP'); ?></p>
@@ -230,10 +230,10 @@ if (!empty($shipFormData['methodId']))
 			$options[] = JHtml::_('select.option', "0", JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_UNPUBLISH'));
 		?>
 		<div class="form-group">
-			<label  for="shipstate" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_STATE_TITLE'); ?>">
+			<label  for="shipstate" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_STATE_TITLE'); ?>">
 				<?php echo "* ". JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_STATE"); ?>
 			</label>
-			<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+			<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 				<?php echo  $this->dropdown = JHtml::_('select.genericlist',$options,"shipForm[state]",'class=""  required="required" aria-invalid="false" size="1" ','value','text',$default,'shipstate');
 				?>
 			</div>
@@ -252,10 +252,10 @@ if (!empty($shipFormData['methodId']))
 			//$shipping_typeoptions[] = JHtml::_('select.option', "4", JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_UNPUBLISH'));
 		?>
 		<div class="form-group" >
-			<label  for="shipping_type" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SHIPTYPE_TITLE'); ?>">
+			<label  for="shipping_type" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SHIPTYPE_TITLE'); ?>">
 				<?php echo "* ". JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_SHIPTYPE"); ?>
 			</label>
-			<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+			<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 				<?php echo  JHtml::_('select.genericlist',$shipping_typeoptions,"shipForm[shipping_type]",'class=""  required="required" onChange="getFieldHtmlForShippingType(this.value)" aria-invalid="false" size="1" ','value','text',$default,'shipping_type');
 				?>
 			</div>
@@ -313,12 +313,12 @@ if (!empty($shipFormData['methodId']))
 
 		?>
 		<div class="form-group">
-			<label  for="qtcMinAmount" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_MINIMUM_AMT_TITLE'); ?>" id="qtcCreateMethMinFieldLable">
+			<label  for="qtcMinAmount" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_MINIMUM_AMT_TITLE'); ?>" id="qtcCreateMethMinFieldLable">
 				<?php echo "* ". $fieldHtml['minFieldLable'] ?>
 			</label>
-			<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12" id="qtcCreateMethMinField">
+			<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12" id="qtcCreateMethMinField">
 				<!--
-				<input id="qtcMinAmount" name="shipForm[min_value]" class="input-large bill inputbox required validate-name" type="text" value="<?php echo !empty($shipFormData['min_value']) ? $shipFormData['min_value'] : '0'; ?>">
+				<input id="qtcMinAmount" name="shipForm[min_value]" class=" required validate-name" type="text" value="<?php echo !empty($shipFormData['min_value']) ? $shipFormData['min_value'] : '0'; ?>">
 				-->
 				<?php
 				echo !empty($fieldHtml['minFieldHtml'])?$fieldHtml['minFieldHtml'] : '';
@@ -327,12 +327,12 @@ if (!empty($shipFormData['methodId']))
 		</div>
 
 		<div class="form-group">
-			<label  for="qtcMaxAmount" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"  title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_MAXIMUM_AMT_TITLE'); ?>" id="qtcCreateMethMaxFieldLable">
+			<label  for="qtcMaxAmount" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"  title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_MAXIMUM_AMT_TITLE'); ?>" id="qtcCreateMethMaxFieldLable">
 				<?php echo "* ". $fieldHtml['maxFieldLable'] ?>
 			</label>
-			<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12" id="qtcCreateMethMaxField">
+			<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12" id="qtcCreateMethMaxField">
 				<!--
-				<input id="qtcMaxAmount" name="shipForm[max_value]" class="input-large bill inputbox required validate-name" type="text" value="<?php echo !empty($shipFormData['max_value']) ? $shipFormData['max_value'] : '-1'; ?>">
+				<input id="qtcMaxAmount" name="shipForm[max_value]" class=" required validate-name" type="text" value="<?php echo !empty($shipFormData['max_value']) ? $shipFormData['max_value'] : '-1'; ?>">
 				<p class="text-info"><?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_MAXIMUM_AMT_HELP"); ?></p>
 				-->
 				<?php

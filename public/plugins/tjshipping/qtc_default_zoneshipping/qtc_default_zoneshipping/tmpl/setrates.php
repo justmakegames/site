@@ -81,7 +81,10 @@ function qtcAddShipMethRates()
 				var rateId = response.rateId;
 				var q="'";
 				var editbtn = '<input type="button" value="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_EDIT"); ?>" class="btn btn-primary">';
-				var editHref = 'index.php?option=com_quick2cart&view=taxprofileform&layout=setrule&id='+rateId+'&tmpl=component';
+				//var editHref = 'index.php?option=com_quick2cart&view=taxprofileform&layout=setrule&id='+rateId+'&tmpl=component';
+				var editHref = "<?php echo JUri::base();?>index.php?option=com_quick2cart&view=shipping&layout=list&plugview=editrate&extension_id=" +extension_id +"&methodId="+ shipMethodId + "&rateId=" + rateId + "&tmpl=component";
+
+
 				var editLink = '<a rel="{handler:\'iframe\',size:{x: window.innerWidth-450, y: window.innerHeight-250}}" href="'+editHref+'" class="modal">'+editbtn+'</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 
 				var delLink = '<input onclick="qtcDeleteShipRate('+
@@ -106,6 +109,10 @@ function qtcAddShipMethRates()
 				{
 					parse: 'rel'
 				});
+
+				// Added by Deepali
+
+				  techjoomla.jQuery('#qtc_shipping_list').find('input:text').each(function() {techjoomla.jQuery(this).val('');});
 			},
 			error: function(response) {	}
 		});
@@ -147,14 +154,14 @@ function qtcDeleteShipRate(rateId, delBtn)
 }
 </script>
 
-<form name='qtcSetRateform' id="qtcSetRateform"  method="post" >
+<form name='qtcSetRateform' id="qtcSetRateform"  method="post" class="container-fluid">
 	<legend id="" ><?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_SET_RATEFOR_") ?>&nbsp; <?php echo !empty($shipMethDetail['name']) ? ucfirst($shipMethDetail['name']) : ''; ?>
 		<small><?php //echo JText::_('QTC_BILLIN_DESC')?></small>
 		<span class="pull-right" >
 			<?php
 			 $backlink = JRoute::_("index.php?option=com_quick2cart&view=shipping&layout=list&plugview=default&extension_id=" . $extension_id . "&Itemid=" . $itemid . "&methodId=" . $methodId . '');
 			 ?>
-			<button type="button" onClick="location.href='<?php echo $backlink; ?>'" title="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_SHIPTAXPROFILE_SETRATE_BACK_TITLE"); ?>" class="btn  btn-primary " >
+			<button type="button" onClick="location.href='<?php echo $backlink; ?>'" title="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_SHIPTAXPROFILE_SETRATE_BACK_TITLE"); ?>" class="btn  btn-primary  btn-xs" >
 				<i class="<?php echo QTC_ICON_BACK; ?>"></i>
 				<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_SET_RATEFOR_BACK"); ?>
 			</button>
@@ -168,7 +175,7 @@ function qtcDeleteShipRate(rateId, delBtn)
 		<i class="icon-info"></i> &nbsp;<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_COMPLETE_RANGE_HELP'); ?>
 	</div>
 
-	<div class="no-more-tables">
+	<div class="no-more-tables" id="qtc_shipping_list">
 		<table class=" table table-striped">
 			<thead>
 				<tr>
@@ -216,12 +223,12 @@ function qtcDeleteShipRate(rateId, delBtn)
 						$weightUniteSymbol  = $qtczoneShipHelper->getWeightUniteSymbol();
 					?>
 					<td data-title="<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_RANGE');?>">
-						<div class="input-append curr_margin ">
-							<input type="text" name="rangeFrom" size="" id="qtc_shipping_range_start" value="" class=" input-mini " placeholder="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_FROM_HINT"); ?>">
+						<div class="input-group curr_margin ">
+							<input type="text" name="rangeFrom" size="" id="qtc_shipping_range_start" value="" class=" form-control " placeholder="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_FROM_HINT"); ?>">
 							<?php
 							if ($showWeightUnite ==1 )
 							{?>
-								<span class="add-on "><?php echo $weightUniteSymbol; ?></span>
+								<div class="input-group-addon"><?php echo $weightUniteSymbol; ?></div>
 							<?php } ?>
 						</div>
 
@@ -230,12 +237,12 @@ function qtcDeleteShipRate(rateId, delBtn)
 						<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_TO"); ?>
 						<br/>
 
-						<div class="input-append curr_margin ">
-							<input type="text" name="rangeTo" size="" id="qtc_shipping_range_end" value="" class=" input-mini " placeholder="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_TO_HINT"); ?>">
+						<div class="input-group curr_margin ">
+							<input type="text" name="rangeTo" size="" id="qtc_shipping_range_end" value="" class=" form-control " placeholder="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_TO_HINT"); ?>">
 							<?php
 							if ($showWeightUnite ==1 )
 							{?>
-							<span class="add-on "><?php echo $weightUniteSymbol; ?></span>
+							<div class="input-group-addon"><?php echo $weightUniteSymbol; ?></div>
 							<?php } ?>
 						</div>
 

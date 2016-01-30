@@ -17,7 +17,7 @@ defined('_JEXEC') or die();
 	<h4><?php echo JText::_('QTC_ORDER_INFO'); ?></h4>
 	<div class="row ">
 		<div class="col-md-6 " style="<?php echo  !empty($orders_email) ? "width: 50%; float: left;" : '';?>">
-			<table  class="table table-condensed table-bordered   " >
+			<table  class="table table-condensed table-bordered qtc-table  " >
 				<tbody >
 					<!--
 					<tr>
@@ -94,7 +94,7 @@ defined('_JEXEC') or die();
 
 								if (!($orders_site))
 								{
-									echo JHtml::_('select.genericlist', $this->pstatus, "pstatus", 'class="pad_status" size="1" onChange="selectstatusorder(' . $this->orderinfo->id . ',this);"', "value", "text", $this->orderinfo->status);
+									echo JHtml::_('select.genericlist', $this->pstatus, "pstatus", 'class="pad_status"  onChange="selectstatusorder(' . $this->orderinfo->id . ',this);"', "value", "text", $this->orderinfo->status);
 								}
 								else
 								{
@@ -111,13 +111,13 @@ defined('_JEXEC') or die();
 								<tr>
 									<td><?php echo JText::_('QTC_NOTIFY');?></td>
 									<td>
-										<input type="checkbox" id="notify_chk" name="notify_chk|<?php echo $this->orderinfo->id;?>" size="10" checked />
+										<input type="checkbox" id="notify_chk" name="notify_chk|<?php echo $this->orderinfo->id;?>" checked />
 									</td>
 								</tr>
 
 								<tr>
 									<td><?php echo JText::_('QTC_COMMENT');?></td>
-									<td><textarea id="" name="comment" rows="3" size="28" value=""></textarea></td>
+									<td><textarea id="" name="comment" rows="3"  value=""></textarea></td>
 								</tr>
 								<?php
 							}
@@ -150,13 +150,16 @@ defined('_JEXEC') or die();
 								else
 								{
 									echo $billinfo->user_email;
-								}?>
+								}
+								?>
 							</td>
 						</tr>
+<!--
 						<tr >
 							<td><?php echo JText::_('QTC_ORDER_IP');?></td>
 							<td><?php echo $this->orderinfo->ip_address;?></td>
 						</tr>
+-->
 
 
 						<?php
@@ -238,7 +241,7 @@ EOT;
 						<td colspan='2'>
 							<button type="button" name="qtc_show_getways"
 								id="qtc_show_getways"
-								class="btn btn-defaultbtn-success btn-medium validate"
+								class="btn  btn-success btn-medium validate"
 								onclick="qtc_showpaymentgetways();" style="<?php echo $complete_payment_btn;?>">
 									<?php echo JText::_('QTC_COMPLETE_UR_ORDER');?>
 							</button>

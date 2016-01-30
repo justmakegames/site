@@ -39,12 +39,18 @@ $slab = (! empty($this->itemdetail->slab)) ? $this->itemdetail->slab : 1 ;
 $client = $this->client;
 
 $comquick2cartHelper = new comquick2cartHelper;
+$productHelper = new productHelper;
+require_once (JPATH_SITE . '/components/com_quick2cart/helpers/media.php');
+$media = new qtc_mediaHelper();
 
 $prodViewPath = $comquick2cartHelper->getViewpath('product', 'product');
 $pepoleViewPath = $comquick2cartHelper->getViewpath('product', 'pepole');
 $params = JComponentHelper::getParams('com_quick2cart');
 $on_editor = $params->get('enable_editor', 0);
 
+// Pin height for fixes pin layout
+$layout_to_load = $params->get('layout_to_load','','string');
+$pinHeight = $params->get('fix_pin_height', '', 'int');
 $productDetailsUrl = 'index.php?option=com_quick2cart&view=productpage&layout=default&item_id=' . $this->item_id;
 $productDetailsUrl = JUri::root() . substr(JRoute::_($productDetailsUrl, false), strlen(JUri::base(true)) + 1);
 ?>
@@ -151,34 +157,10 @@ $productDetailsUrl = JUri::root() . substr(JRoute::_($productDetailsUrl, false),
 		return true;
 	}
 </script>
-<?php
-// Added by komal
-// Start Integration with JLike
-if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
-{
-	$catpage_Itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&view=category');
-
-	// p_link:: if product has attribute then use plink to open product page
-	$p_link='index.php?option=com_quick2cart&view=productpage&layout=default&item_id='.$this->item_id.'&Itemid='.$catpage_Itemid;
-
-	// $product_link=JUri::base().$p_link;
-	$product_link=JUri::root().substr(JRoute::_($p_link),strlen(JUri::base(true))+1);
-
-	$productHelper =new productHelper();
-	$jlikeRatingAvaragehtml=$productHelper->DisplayAvarageRating($product_link,$this->item_id, $this->itemdetail->name);
-
-	// JLike Html
-	if ($jlikeRatingAvaragehtml)
-	{
-		$showRating = 1;
-	}
-}
-// End Integration with JLike
-?>
 <?php $itemstate=$this->itemdetail->state; ?>
 
 <div class="<?php echo Q2C_WRAPPER_CLASS; ?> container-fluid " id="qtcProductPage">
-	<form action="" name="adminForm" id="adminForm" class="form-validate" method="post">
+	<form action="" name="" id="" class="form-validate" method="post">
 		<?php
 		// FOR STORE OWNER SHOW MENU TOOLBAR
 		if (! empty($this->store_role_list))
@@ -196,23 +178,23 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 		?>
 
 		<div class="row" itemscope itemtype="http://schema.org/Product">
-			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="">
 				<?php
-				$productTotSpan = "col-lg-9 col-md-9 col-sm-12 col-xs-12";
+				$productTotSpan = "col-md-9 col-xs-12";
 				if (empty($this->peopleAlsoBought) && empty($this->prodFromSameStore))
 				{
 					// not present peopleAlsoBought && prodFromSameStore is present
 					// then dont use full space
-					$productTotSpan = "col-lg-12 col-md-12 col-sm-12 col-xs-12";
+					$productTotSpan = " col-xs-12";
 				}
 				?>
 
 				<div class="<?php echo $productTotSpan; ?>">
 					<div class="row">
-						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div class=" col-xs-12">
 							<!-- GETTING prod NAME & fetured icon-->
 							<div class="row">
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class=" col-xs-12">
 									<div>
 									<?php
 									if ($this->itemdetail->featured=='1')
@@ -227,12 +209,11 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 									?>
 
 										<h2 itemprop="name"><?php echo $this->itemdetail->name;?></h2>
-										<?php // Added by komal
-
-										if (isset($showRating) && $showRating == 1)
-										{
-											echo $jlikeRatingAvaragehtml;
-										} ?>
+										<?php
+											if (!empty($this->productRating))
+											{
+												echo $this->productRating;
+											}?>
 									</div>
 									<div class="clearfix"></div>
 									<hr class="hr hr-condensed"/>
@@ -255,7 +236,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 
 							<!-- Show category, store name -->
 							<div class="row">
-								<div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+								<div class="col-md-8 col-xs-12">
 									<?php
 									if (! empty($this->itemdetail->category))
 									{
@@ -299,9 +280,9 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 
 												<a title="<?php echo JText::_('QTC_CONTACT_STORE_OWN')?>"
 													rel="{handler: 'iframe', size: {x: window.innerWidth-350, y: window.innerHeight-150}, onClose: function(){}}"
-													class="btn btn-info btn-mini modal qtcModal "
+													class="modal qtcModal qtcContacStoreOwner"
 													href="<?php echo $contact_ink;?>">
-													<i class="icon-envelope icon-white"></i>
+													<i class="<?php echo Q2C_ICON_ENVELOPE; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i>
 												</a>
 											</div>
 										<?php
@@ -310,11 +291,12 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 								</div>
 
 								<?php
-								if (!empty($this->social_options) )
+								// AS we are using the sepereate plugin for "jlike for quick2cart" plugin
+								if (!empty($this->addLikeButtons) )
 								{
 									?>
-									<div class="social_options col-lg-4 col-md-4 col-sm-12 col-xs-12">
-										<?php echo $this->social_options; ?>
+									<div class="qtcJlikeBtn span4">
+										<?php  echo $this->addLikeButtons; ?>
 									</div>
 									<?php
 								}
@@ -386,14 +368,64 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 					</div>
 
 					<?php
-					$img_divSize =  " col-lg-6 col-md-6 col-sm-12 col-xs-12 ";
-					$prod_divSize = " col-lg-6 col-md-6 col-sm-12 col-xs-12 ";
+					$img_divSize =  " col-md-6 col-xs-12 ";
+					$prod_divSize = " col-md-6 col-xs-12 ";
 
-					if (empty($this->itemdetail->video_link))
+					//~ if (empty($this->itemdetail->video_link))
+					//~ {
+						//~ $img_divSize =  " col-md-5 col-xs-12 ";
+						//~ $prod_divSize = " col-md-7 col-xs-12 ";
+					//~ }
+
+					$images = (! empty($this->itemdetail->images)) ? json_decode($this->itemdetail->images, true) : array();
+					$img = JUri::base() . 'components/com_quick2cart/assets/images/default_product.jpg';
+
+					//~ if (!empty($images))
+					//~ {
+						//~ // Get first key
+						//~ $firstKey = 0;
+						//~ foreach ($images as $key=>$img)
+						//~ {
+							//~ $firstKey = $key;
+							//~ break;
+						//~ }
+//~
+//~
+						//~ $file_name_without_extension = $media->get_media_file_name_without_extension($images[$firstKey]);
+						//~ $media_extension = $media->get_media_extension($images[$firstKey]);
+						//~ $img = $comquick2cartHelper->isValidImg($file_name_without_extension . '.' . $media_extension);
+//~
+						//~ if (empty($img))
+						//~ {
+							//~ $img = JUri::base() . 'components/com_quick2cart/assets/images/default_product.jpg';
+						//~ }
+					//~ }
+					//~ else
+					//~ {
+						//~ $img = $images[0] = 'default_product.jpg';
+					//~ }
+
+					// Start OG tag support.
+					$config = JFactory::getConfig();
+
+					if (JVERSION >= '3.0')
 					{
-						$img_divSize =  " col-lg-5 col-md-5 col-sm-5 col-xs-12 ";
-						$prod_divSize = " col-lg-7 col-md-7 col-sm-7 col-xs-12 ";
+						$site_name = $config->get('sitename');
 					}
+					else
+					{
+						$site_name = $config->getvalue('config.sitename');
+					}
+
+					// https://moz.com/blog/meta-data-templates-123
+					$document->addCustomTag('<meta property="og:title" content="' . $this->itemdetail->name . '" />');
+					$document->addCustomTag('<meta property="og:image" content="' . $img . '" />');
+					$document->addCustomTag('<meta property="og:url" content="' . $productDetailsUrl . '" />');
+					$document->addCustomTag('<meta property="og:description" content="' . strip_tags($this->itemdetail->description) . '" />');
+					$document->addCustomTag('<meta property="og:site_name" content="' . $site_name . '" />');
+
+					// End OG tag support.
+
 					?>
 
 					<div class="row qtc_bottom">
@@ -401,34 +433,9 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 						<div class="<?php echo $img_divSize;?>">
 							<!-- Show main image-->
 							<div class="row">
-								<div class='col-lg-12 col-md-12 col-sm-12 col-xs-12 qtcMaxProductImgHeight qtcDispalyTable' >
+								<div class='col-xs-12 qtcMarginBotton'>
 									<?php
-									$images = (! empty($this->itemdetail->images)) ? json_decode($this->itemdetail->images, true) : '';
-									$img = JUri::base() . 'components/com_quick2cart/assets/images/default_product.jpg';
-
-									if (! empty($images))
-									{
-										// Get first key
-										$firstKey = 0;
-										foreach ($images as $key=>$img)
-										{
-											$firstKey = $key;
-											break;
-										}
-
-										require_once (JPATH_SITE . '/components/com_quick2cart/helpers/media.php');
-										$media = new qtc_mediaHelper();
-										$file_name_without_extension = $media->get_media_file_name_without_extension($images[$firstKey]);
-										$media_extension = $media->get_media_extension($images[$firstKey]);
-										$img = $comquick2cartHelper->isValidImg($file_name_without_extension . '_M.' . $media_extension);
-
-										if (empty($img))
-										{
-											$img = JUri::base() . 'components/com_quick2cart/assets/images/default_product.jpg';
-										}
-									}
-
-									if (! empty($images))
+									/*if (!empty($images))
 									{
 										?>
 										<a href="<?php echo $img; ?>" class="swipebox qtcVcenter"  title="<?php echo $this->itemdetail->name;?>">
@@ -445,74 +452,122 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 											src="<?php echo $img;?>"
 											alt="<?php echo  JText::_('QTC_IMG_NOT_FOUND') ?>" />
 										<?php
+									}*/
+									?>
+
+									<!-- LM- Product Carousel Start-->
+									<?php
+									if (!empty($images)  && count($images) > 1)
+									{
+									?>
+									<div class="row q2cProdCarousel">
+										<!-- myCarousel div start-->
+										<div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
+
+										<!-- Indicators Start-->
+											<ol class="carousel-indicators">
+												<?php
+												$i=0;
+												foreach ($images as $image)
+												{
+													//~ $file_name_without_extension = $media->get_media_file_name_without_extension($image);
+													//~ $media_extension = $media->get_media_extension($image);
+													//~ $img = $comquick2cartHelper->isValidImg($file_name_without_extension . '_S.' . $media_extension);
+													//~ $img_big = $comquick2cartHelper->isValidImg($file_name_without_extension . '.' . $media_extension);
+													?>
+													<li data-target="#myCarousel" data-slide-to="<?php echo $i ; ?>" <?php if ($i == 0) {echo "class='active'";} ?> class="qtcCarouselIndicator"></li>
+													<?php
+													$i++;
+												}
+												?>
+											</ol>
+											<!-- Indicators End-->
+
+											<!-- Wrapper for slides Start-->
+											<div class="carousel-inner q2cProdImgWrapper" role="listbox">
+												<?php
+												$i=0;
+												foreach ($images as $image)
+												{
+													$file_name_without_extension = $media->get_media_file_name_without_extension($image);
+
+													$media_extension = $media->get_media_extension($image);
+													//$img = $comquick2cartHelper->isValidImg($file_name_without_extension . '_S.' . $media_extension);
+
+													$img_big = $comquick2cartHelper->isValidImg($file_name_without_extension . '_L.' . $media_extension);
+
+													if (empty($img_big))
+													{
+														$img_big = JUri::base() . 'components/com_quick2cart/assets/images/default_product.jpg';
+													}
+													?>
+
+													<div class="item <?php if ($i == 0) {echo active;} ?>">
+<!--
+														<img itemprop="image" src="<?php echo $img_big ;?>" title="<?php echo $this->itemdetail->name; ?>" alt="<?php echo $this->itemdetail->name; ?>"  id="<?php echo 'q2cProdImg'.$i ; ?>" class="q2cProdImg <?php echo 'q2cProdImg'.$i ; ?>">
+-->
+
+														<div itemprop="image" class="qtc-prod-img q2cProdImgWrapper" title="<?php echo $this->itemdetail->name; ?>"  alt="<?php echo $this->itemdetail->name; ?>"  id="<?php echo 'q2cProdImg'.$i ; ?>" style="background-image: url('<?php echo htmlentities($img_big); ?>'); ">
+														</div>
+													</div>
+													<?php
+													$i++;
+												}
+												?>
+											</div>
+											<!-- Wrapper for slides End-->
+
+											<!-- Left and right controls Start-->
+											<a class="left carousel-control qtcCarouselControl"  href="#myCarousel" role="button" data-slide="prev">
+												<span class="<?php echo Q2C_ICON_ARROW_CHEVRON_LEFT ; ?> qtcPreIcon" aria-hidden="true"></span>
+												<span class="sr-only">Previous</span>
+											</a>
+											<a class="right carousel-control qtcCarouselControl" href="#myCarousel" role="button" data-slide="next">
+												<span class="<?php echo Q2C_ICON_ARROW_CHEVRON_RIGH ; ?> qtcNextIcon" aria-hidden="true"></span>
+												<span class="sr-only">Next</span>
+											</a>
+											<!-- Left and right controls End-->
+										</div>
+										<!-- myCarousel div end-->
+
+									</div>
+									<!-- row div end-->
+									<?php
+									}
+									else
+									{
+										$firstKey = 0;
+										foreach ($images as $key=>$img)
+										{
+											$firstKey = $key;
+											break;
+										}
+
+										// Only one image
+										$image = $images[$firstKey];
+										$file_name_without_extension = $media->get_media_file_name_without_extension($image);
+
+										$media_extension = $media->get_media_extension($image);
+										$img_big = $comquick2cartHelper->isValidImg($file_name_without_extension . '.' . $media_extension);
+
+										if (empty($img_big))
+										{
+											$img_big = JUri::base() . 'components/com_quick2cart/assets/images/default_product.jpg';
+										}
+										?>
+										<div class="q2cProdImgWrapper">
+											<div itemprop="image" class="qtc-prod-img q2cProdImgWrapper" style="background-image: url('<?php echo htmlentities($img_big); ?>'); ">
+											</div>
+										 </div>
+										<?php
 									}
 									?>
+									<!-- if condition end-->
+									<!-- LM- Product Carousel end-->
 								</div>
 							</div>
 							<!--END ::100 X 100 image -->
 
-							<?php
-							// Start OG tag support.
-							$config = JFactory::getConfig();
-
-							if (JVERSION >= '3.0')
-							{
-								$site_name = $config->get('sitename');
-							}
-							else
-							{
-								$site_name = $config->getvalue('config.sitename');
-							}
-
-							$document->addCustomTag('<meta property="og:title" content="' . $this->itemdetail->name . '" />');
-							$document->addCustomTag('<meta property="og:image" content="' . $img . '" />');
-							$document->addCustomTag('<meta property="og:url" content="' . $productDetailsUrl . '" />');
-							$document->addCustomTag('<meta property="og:description" content="' . strip_tags($this->itemdetail->description) . '" />');
-							$document->addCustomTag('<meta property="og:site_name" content="' . $site_name . '" />');
-
-							// End OG tag support.
-							?>
-
-							<?php
-							// Start image gallery
-							if (!empty($images)  && count($images) > 1)
-							{
-								?>
-								<div class="row">
-									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 qtc_putmargintop qtc_ForLiStyle ">
-										<ul  class="thumbnails">
-											<?php
-											foreach ($images as $image)
-											{
-												$file_name_without_extension = $media->get_media_file_name_without_extension($image);
-												$media_extension = $media->get_media_extension($image);
-												$img = $comquick2cartHelper->isValidImg($file_name_without_extension . '_S.' . $media_extension);
-
-												$img_big = $comquick2cartHelper->isValidImg($file_name_without_extension . '.' . $media_extension);
-
-												if (empty($img))
-												{
-													$img = JUri::base() . 'components/com_quick2cart/images/default_product.jpg';
-												}
-												?>
-												<li class="prodImg_wrapper col-lg-4 col-md-4 col-sm-4 col-xs-6" style="height:60px;">
-													<div class="thumbnail">
-														<a href="<?php echo $img_big;?>" class="swipebox" title="<?php echo $this->itemdetail->name;?>" >
-															<img src="<?php echo $img;?>"
-																class="img-rounded qtc_prod_slider_image"
-																alt="<?php echo JText::_('QTC_IMG_NOT_FOUND'); ?>" style="max-height:60px;" />
-														</a>
-													</div>
-												</li>
-												<?php
-											}
-											?>
-										</ul>
-									</div>
-								</div>
-							<?php
-							}
-							?>
 						</div>
 						<!-- END:: FOR PROD IMG -->
 
@@ -524,11 +579,11 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 								$discount_present = ($params->get('usedisc') && isset($this->price['discount_price']) && $this->price['discount_price'] != 0) ? 1 : 0;
 								?>
 								<div class="form-group">
-									<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
+									<label class="col-xs-3 qtc-control-label">
 										<strong><?php echo JText::_('QTC_ITEM_AMT')?></strong>
 									</label>
-									<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12  qtc_controls_text">
-										<span id="<?php echo ( (isset($this->price['p'])) ? $this->product_id.'_price' :'' );?>">
+									<div class="col-xs-9  qtc_controls_text">
+										<span id="<?php echo ( (isset($this->price['price'])) ? $this->product_id.'_price' :'' );?>">
 											<?php
 											echo ($discount_present == 1) ? '<del>' . $comquick2cartHelper->getFromattedPrice($this->price['price']) . '</del>' : $comquick2cartHelper->getFromattedPrice($this->price['price']);
 											?>
@@ -541,10 +596,10 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 								{
 									?>
 									<div class="form-group">
-										<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
+										<label class="col-xs-3 qtc-control-label">
 											<strong><?php echo JText::_('QTC_ITEM_DIS_AMT')?></strong>
 										</label>
-										<div class=" col-lg-9 col-md-9 col-sm-9 col-xs-12 qtc_controls_text" itemprop="offers"
+										<div class="col-xs-9 qtc_controls_text" itemprop="offers"
 											itemscope itemtype="http://schema.org/Offer">
 											<span itemprop="price" id="<?php echo $this->product_id;?>_price">
 												<?php echo $comquick2cartHelper->getFromattedPrice($this->price['discount_price']);  ?>
@@ -560,14 +615,14 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 									{
 										?>
 										<div class="form-group">
-											<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label ">
+											<label class="col-xs-3 qtc-control-label ">
 												<strong><?php echo $attribute->itemattribute_name; ?></strong>
 											</label>
 											<?php
-											if (! empty($attribute->attributeFieldType) && $attribute->attributeFieldType == 'Textbox' && 0)
+											if (!empty($attribute->attributeFieldType) && $attribute->attributeFieldType == 'Textbox')
 											{
 												?>
-												<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+												<div class="col-xs-9">
 													<input type="text"
 														name="qtcTextboxField_<?php echo $attribute->itemattribute_id?>"
 														class="input input-small <?php echo $this->itemdetail->parent.'-'.$this->item_id .'_Textbox'?>">
@@ -582,10 +637,14 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 												$data['parent'] = $this->itemdetail->parent;
 												$data['product_id'] = $this->item_id;
 												$data['attribute_compulsary'] = $attribute->attribute_compulsary;
+												$data['attributeDetail'] = $attribute;
 
-												$fieldHtml = $productHelper->getAttrFieldTypeHtml($data);
+												$layout = new JLayoutFile('attribute_option_display', $basePath = JPATH_ROOT .'/components/com_quick2cart/layouts/productpage');
+												$fieldHtml = $layout->render($data);
+
+												//$fieldHtml = $productHelper->getAttrFieldTypeHtml($data);
 												?>
-												<div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+												<div class="col-xs-9">
 													<?php echo $fieldHtml;?>
 												</div>
 												<?php
@@ -604,10 +663,10 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 								{
 									?>
 									<div class="form-group">
-										<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
+										<div class="col-xs-3 qtc-control-label">
 											<strong><?php echo JText::_( "COM_QUICK2CART_PROD_FREE_DOWNLOAD"); ?></strong>
 										</div>
-										<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 qtc_padding_class_attributes">
+										<div class="col-xs-9 qtc_padding_class_attributes">
 											<?php
 											$productHelper = new productHelper();
 
@@ -640,32 +699,36 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 
 								if ($this->showBuyNowBtn)
 								{
-								?>
+									$data = $this->itemdetail;
 
+									if (is_numeric($data->stock) && $data->stock < $data->max_quantity)
+									{
+										$data->max_quantity = $data->stock;
+									}
+
+									$textboxid = $data->parent . '-' . $data->product_id . "_itemcount";
+									$parent = $data->parent;
+									$slab = $data->slab;
+									$limits = $data->min_quantity . "," . $data->max_quantity;
+									$arg = "'" . $textboxid . "','" . $data->product_id . "','" . $parent . "'," . $slab . ',' . $limits;
+									//$arg = "'" . $textboxid . "','" . $pid . "','" . $parent . "','" . $slab . "'," . $limits;
+									$min_msg = JText::_('QTC_MIN_LIMIT_MSG');
+									$max_msg = JText::_('QTC_MAX_LIMIT_MSG');
+									$fun_param = $parent . '-' . $data->product_id;
+									// added by aniket
+									$entered_numerics = "'" . JText::_('QTC_ENTER_NUMERICS') . "'";
+									?>
 									<div class="form-group" >
-										<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" style="<?php echo $showqty_style; ?>">
+										<label class="col-xs-3 qtc-control-label" style="<?php echo $showqty_style; ?>">
 											<strong><?php echo JText::_('QTC_ITEM_QTY'); ?></strong>
 										</label>
-										<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 ">
-											<?php
-											$data = $this->itemdetail;
-											$textboxid = $data->parent . '-' . $data->product_id . "_itemcount";
-											$parent = $data->parent;
-											$slab = $data->slab;
-											$limits = $data->min_quantity . "," . $data->max_quantity;
-											$arg = "'" . $textboxid . "','" . $data->product_id . "','" . $parent . "'," . $slab . ',' . $limits;
-											//$arg = "'" . $textboxid . "','" . $pid . "','" . $parent . "','" . $slab . "'," . $limits;
-											$min_msg = JText::_('QTC_MIN_LIMIT_MSG');
-											$max_msg = JText::_('QTC_MAX_LIMIT_MSG');
-											$fun_param = $parent . '-' . $data->product_id;
-											// added by aniket
-											$entered_numerics = "'" . JText::_('QTC_ENTER_NUMERICS') . "'";
-											?>
+										<div class="col-xs-9 ">
+
 
 											<input id="<?php echo $textboxid;?>"
 												name="<?php echo $data->product_id;?>_itemcount"
 												class="qtc_count" type="text"
-												value="<?php echo $data->min_quantity;?>" size="2"
+												value="<?php echo $data->min_quantity;?>"
 												maxlength="3"
 												onblur="checkforalphaLimit(this,'<?php echo $data->product_id;?>','<?php echo $parent;?>','<?php echo $slab;?>',<?php echo $limits;?>,'<?php echo $min_msg;?>','<?php echo $max_msg;?>');"
 												Onkeyup="checkforalpha(this,'',<?php echo $entered_numerics?>)" style="<?php echo $showqty_style; ?>"/>
@@ -677,20 +740,38 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 													onclick="qtc_decrement(<?php echo $arg;?>);"
 													class="qtc_icon-qtcminus" style="<?php echo $showqty_style; ?>"/>
 											</span>
+										</div>
+									</div>
 
-											<button class="btn btn-success " type="button"
+									<div class="form-group" >
+									  <div class="col-xs-9 col-xs-offset-3"><button class="btn btn-success " type="button"
 												onclick="qtc_addtocart('<?php echo $fun_param; ?>');">
 													<i class="<?php echo QTC_ICON_CART;?>"></i> <?php echo JText::_('QTC_ITEM_BUY');?>
 											</button>
 										</div>
 									</div>
 
+									<div class="form-group">
+									<?php if ($this->getPincodeCheckAvailability[0] === true):?>
+										<div class="col-xs-9 col-xs-offset-3">
+											<div class="">
+												<input type="text" name="pincode" id="pincode"
+												placeholder="<?php echo JText::_('enter pincode'); ?>"
+												class="input input-small"/>
+											</div>
+											<div class="">
+												<a class="btn btn-default" onclick="checkPincode(<?php echo $this->item_id;?>)">Check</a>
+											</div>
+										</div>
+										<div class="availabilitystatus"></div>
+									<?php endif;?>
+									</div>
 								<?php
 								}
 								else
 								{
 									?>
-									<div class="alert">
+									<div class="alert alert-warning">
 										<button type="button" class="close" data-dismiss="alert"></button>
 										<strong><?php echo JText::_('QTC_WARNING'); ?></strong><?php echo JText::_('QTC_OUT_OF_STOCK_MSG'); ?>
 									</div>
@@ -700,7 +781,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 								/*if (empty($showqty) )
 								{
 									?>
-									<div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+									<div class="col-md-9 col-xs-12">
 										<button class="btn btn-small btn-success qtc_buyBtn_style" type="button"
 											onclick="qtc_addtocart('<?php echo $fun_param; ?>');">
 												<i class="<?php echo QTC_ICON_CART;?>"></i> <?php echo JText::_('QTC_ITEM_BUY');?>
@@ -724,7 +805,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 												<?php echo JText::_('COM_QUICK2CART_VIEW_CART')?>
 											</a>
 										</div>
-										<i class="icon-remove cart-popup_close" onclick="techjoomla.jQuery(this).parent().slideUp().hide();"></i>
+										<i class="<?php echo QTC_ICON_REMOVE; ?> cart-popup_close" onclick="techjoomla.jQuery(this).parent().slideUp().hide();"></i>
 									</div>
 									<?php
 								}
@@ -741,7 +822,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 					{
 						?>
 						<div class="row">
-							<div class="span12">
+							<div class=" col-xs-12">
 								<?php
 								$url = (! empty($this->itemdetail->video_link)) ? ($this->itemdetail->video_link) : '';
 								// $url
@@ -772,7 +853,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 						<div class="clearfix"></div>
 						<div class="qtcClearBoth"></div>
 						<div class="row">
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+							<div class=" col-xs-12">
 							<!--<div class="tabbable span12">-->
 								<!-- Only required for left/right tabs -->
 								<!--
@@ -823,7 +904,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 						}
 						?>
 						<div class="row">
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12  ">
+							<div class="col-xs-12">
 								<h4 class="sectionTitle"><?php echo JText::sprintf('QTC_SIMILAR_CAT_PRODUCTS', $prodCatName); ?></h4>
 
 								<?php
@@ -833,36 +914,61 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 								//$pin_width_defined = '1';
 								?>
 
+<!--
 								<style type="text/css">
 									.q2c_pin_item_<?php echo $random_container;?> {width: 160px !important; margin-bottom: 3px !important;}
 								</style>
+-->
 
 								<div id="q2c_pc_similar_products">
 									<?php
+									//LM added variables
+									$noOfPin_xs = 12;
+									$noOfPin_sm = 6;
+									$noOfPin_md = 4;
+									$noOfPin_lg = 3;
+
+									$Fixed_pin_classes = "";
+
+									if ($layout_to_load == "fixed_layout")
+									{
+										$Fixed_pin_classes = " qtc-prod-pin col-xs-" . $noOfPin_xs . " col-sm-" . $noOfPin_sm . " col-md-" . $noOfPin_md . " col-lg-" . $noOfPin_lg;
+									}
+
 									foreach ($this->prodFromCat as $data)
 									{
+									?>
+										<div class='q2c_pin_item_<?php echo $random_container . $Fixed_pin_classes . " ";?>'>
+									<?php
 										// @TODO condition vise mod o/p
 										ob_start();
 										include ($prodViewPath);
 										$html = ob_get_contents();
 										ob_end_clean();
 										echo $html;
+									?>
+										</div>
+									<?php
 									}
-								?>
+									?>
 								</div>
-
-								<!-- setup pin layout script-->
-								<script type="text/javascript">
-									var pin_container_<?php echo $random_container; ?> = 'q2c_pc_similar_products';
-								</script>
-
 								<?php
-								$view = $comquick2cartHelper->getViewpath('product', 'pinsetup');
-								ob_start();
-								include($view);
-								$html = ob_get_contents();
-								ob_end_clean();
-								echo $html;
+								if ($layout_to_load == "flexible_layout")
+								{
+								?>
+									<!-- setup pin layout script-->
+									<script type="text/javascript">
+										var pin_container_<?php echo $random_container; ?> = 'q2c_pc_similar_products';
+									</script>
+
+									<?php
+									$view = $comquick2cartHelper->getViewpath('product', 'pinsetup');
+									ob_start();
+									include($view);
+									$html = ob_get_contents();
+									ob_end_clean();
+									echo $html;
+								}
 								?>
 							</div>
 						</div>
@@ -879,7 +985,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 				if (! empty($this->peopleAlsoBought) || ! empty($this->prodFromSameStore))
 				{
 					?>
-					<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+					<div class="col-md-3 col-xs-12">
 						<!-- Pepole Who bought this -->
 						<?php
 						$who_bought = $params->get('who_bought', 0);
@@ -891,7 +997,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 						{
 							?>
 								<div class="" style="<?php echo $WhoBought_style; ?>">
-									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
+									<div class="col-xs-12 ">
 
 										<h4 class="sectionTitle"><?php echo JText::_('COM_QUICK2CART_WHO_BOUGHT');?></h4>
 										<ul class="thumbnails qtc_ForLiStyle">
@@ -939,7 +1045,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 						{
 							?>
 							<div class="">
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
+								<div class="col-xs-12">
 
 									<h4 class="sectionTitle"><?php echo JText::_('QTC_PEOPLE_ALSO_BOUGHT_PRODUCTS');?></h4>
 
@@ -956,8 +1062,20 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 
 									<div id="q2c_pc_people_also_bought">
 										<?php
+										//LM added variables
+										$Fixed_pin_classes = "";
+										$noOfPin_xs = 12;
+
+										if ($layout_to_load == "fixed_layout")
+										{
+											$Fixed_pin_classes = " qtc-prod-pin col-xs-" . $noOfPin_xs . " ";
+										}
+
 										foreach ($this->peopleAlsoBought as $data)
 										{
+											?>
+											<div class="q2c_pin_item_<?php echo $random_container . $Fixed_pin_classes; ?>">
+											<?php
 											// not used in product.php //$prodclass = 'span12';
 											ob_start();
 											include ($prodViewPath);
@@ -965,22 +1083,29 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 											ob_end_clean();
 											echo $html;
 											$prodclass = '';
+											?>
+											</div>
+											<?php
 										}
 										?>
 									</div>
-
-									<!-- setup pin layout script-->
-									<script type="text/javascript">
-										var pin_container_<?php echo $random_container; ?> = 'q2c_pc_people_also_bought';
-									</script>
-
 									<?php
-									$view = $comquick2cartHelper->getViewpath('product', 'pinsetup');
-									ob_start();
-									include($view);
-									$html = ob_get_contents();
-									ob_end_clean();
-									echo $html;
+									if ($layout_to_load == "flexible_layout")
+									{
+									?>
+										<!-- setup pin layout script-->
+										<script type="text/javascript">
+											var pin_container_<?php echo $random_container; ?> = 'q2c_pc_people_also_bought';
+										</script>
+
+										<?php
+										$view = $comquick2cartHelper->getViewpath('product', 'pinsetup');
+										ob_start();
+										include($view);
+										$html = ob_get_contents();
+										ob_end_clean();
+										echo $html;
+									}
 									?>
 								</div>
 							</div>
@@ -995,7 +1120,7 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 						{
 							?>
 							<div class="">
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 ">
+								<div class="col-xs-12">
 
 									<h4 class="sectionTitle"><?php echo JText::_('QTC_PRODUCTS_FROM_SAME_STORE');?></h4>
 									<?php
@@ -1011,31 +1136,52 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 
 									<div id="q2c_pc_products_from_same_store">
 										<?php
+
+										$Fixed_pin_classes = "";
+										$noOfPin_xs = 12;
+
+										if ($layout_to_load == "fixed_layout")
+										{
+											$Fixed_pin_classes = " qtc-prod-pin col-xs-" . $noOfPin_xs . " ";
+										}
+
 										// REDERING
 										foreach($this->prodFromSameStore as $data)
 										{
-											$prodclass = 'span12';
+											?>
+											<div class="q2c_pin_item_<?php echo $random_container . $Fixed_pin_classes;?>">
+											<?php
+											//$prodclass = 'col-xs-12';
 											ob_start();
 											include($prodViewPath);
 											$html = ob_get_contents();
 											ob_end_clean();
 											echo $html;
-											$prodclass = '';
+											//$prodclass = '';
+											?>
+											</div>
+											<?php
 										}
 										?>
 									</div>
-									<!-- setup pin layout script-->
-									<script type="text/javascript">
-										var pin_container_<?php echo $random_container; ?> = 'q2c_pc_products_from_same_store';
-									</script>
 
 									<?php
-									$view = $comquick2cartHelper->getViewpath('product', 'pinsetup');
-									ob_start();
-									include($view);
-									$html = ob_get_contents();
-									ob_end_clean();
-									echo $html;
+									if ($layout_to_load == "flexible_layout")
+									{
+									?>
+										<!-- setup pin layout script-->
+										<script type="text/javascript">
+											var pin_container_<?php echo $random_container; ?> = 'q2c_pc_products_from_same_store';
+										</script>
+
+										<?php
+										$view = $comquick2cartHelper->getViewpath('product', 'pinsetup');
+										ob_start();
+										include($view);
+										$html = ob_get_contents();
+										ob_end_clean();
+										echo $html;
+									}
 									?>
 								</div>
 							</div>
@@ -1059,40 +1205,47 @@ if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
 		<input type="hidden" name="task" value="" />
 		<input type="hidden" name="controller" value="" />
 	</form>
-</div>
 
 <?php
-// Start Integration with JLike
-if (file_exists(JPATH_SITE.'/'.'components/com_jlike/helper.php'))
+if (!empty($this->afterProductDisplay))
 {
-	// Getting item id
-	$catpage_Itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&view=category');
-
-	// p_link:: if product has attribute then use plink to open product page
-	$p_link='index.php?option=com_quick2cart&view=productpage&layout=default&item_id='.$this->item_id.'&Itemid='.$catpage_Itemid;
-
-	// $product_link=JUri::base().$p_link;
-	$product_link=JUri::root().substr(JRoute::_($p_link),strlen(JUri::base(true))+1);
-
-	// Check if required content available
-	if ( !empty($this->item_id) && !empty($this->itemdetail->name) )
-	{
-		$productHelper =new productHelper();
-		$jlikehtml=$productHelper->DisplayjlikeButton($product_link,$this->item_id, $this->itemdetail->name);
-
-		// JLike Html
-		if ($jlikehtml)
-		{
-			echo $jlikehtml;
-		}
-	}
+	?>
+	<div >
+		<?php echo $this->afterProductDisplay; ?>
+	</div>
+	<?php
 }
-// End Integration with JLike
 ?>
-
+</div>
 <!-- Below code is used for slide show-->
 <script type="text/javascript">
-	techjoomla.jQuery(document).ready(function (){
-		techjoomla.jQuery('.swipebox').swipebox();
-	});
+	//~ techjoomla.jQuery(document).ready(function (){
+		//~ techjoomla.jQuery('.swipebox').swipebox();
+	//~ });
 </script>
+
+<!--jQuery and mootool conflict resolved for carousel -- start-->
+<script type="text/javascript">
+	/*
+if (typeof techjoomla.jQuery != 'undefined') {
+	(
+	function($) {
+		techjoomla.jQuery(document).ready(function(){
+			techjoomla.jQuery('.carousel').each(function(index, element) {
+				techjoomla.jQuery(this)[index].slide = null;
+			});
+		});
+	})(techjoomla.jQuery)
+};*/
+	if (typeof jQuery != 'undefined') {
+		(function($) {
+			$(document).ready(function(){
+				$('.carousel').each(function(index, element) {
+					$(this)[index].slide = null;
+				});
+			});
+		})(jQuery);
+	}
+
+</script>
+<!--jQuery and mootool conflict resolved for carousel -- end-->

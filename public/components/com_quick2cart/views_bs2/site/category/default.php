@@ -22,8 +22,12 @@ $listDirn   = $this->state->get('list.direction');
 
 $categoryPage = $this->categoryPage;
 
+$layout_to_load = $this->params->get('layout_to_load','','string');
+$pinHeight = $this->params->get('fix_pin_height','200','int');
+$noOfPin_lg = $this->params->get('pin_for_lg','3','int');
+
 // For featured and top seller product
-$product_path = JPATH_SITE . DS . 'components' . DS . 'com_quick2cart' . DS . 'helpers' . DS . 'product.php';
+$product_path = JPATH_SITE . '/components/com_quick2cart/helpers/product.php';
 
 if (!class_exists('productHelper'))
 {
@@ -34,6 +38,7 @@ if (!class_exists('productHelper'))
 $productHelper =  new productHelper();
 $comquick2cartHelper = new comquick2cartHelper;
 $store_id=0;//$this->store_id;
+
 ?>
 
 <div class="<?php echo Q2C_WRAPPER_CLASS; ?> qtc-cat-prod">
@@ -69,7 +74,8 @@ $store_id=0;//$this->store_id;
 					<div class="span12">
 						<legend>
 							<?php
-							$lagend_title = "QTC_PRODUCTS_CATEGORY_ALL_BLOG_VIEW";
+
+							//$lagend_title = "QTC_PRODUCTS_CATEGORY_ALL_BLOG_VIEW";
 							/*$store_name = '';
 
 							if (!empty($this->store_role_list))
@@ -89,62 +95,42 @@ $store_id=0;//$this->store_id;
 							{
 								echo JText::_($lagend_title);
 							}*/
-							echo JText::_($lagend_title);
+							echo JText::_($this->productPageTitle);
 							?>
 						</legend>
 					</div>
 				</div>
 
-				<div id="filter-bar" class="btn-toolbar">
+				<div id="filter-bar" class="qtc-btn-toolbar">
 					<div class="filter-search btn-group pull-left">
 						<input type="text" name="filter_search" id="filter_search"
 						placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_PRODUCTS'); ?>"
 						value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
-						class="hasTooltip input-medium"
+						class="qtc-hasTooltip input-medium"
 						title="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_PRODUCTS'); ?>" />
 					</div>
 					<div class="btn-group pull-left">
-						<button type="submit" class="btn hasTooltip"
+						<button type="submit" class="btn qtc-hasTooltip"
 						title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-							<i class="icon-search"></i>
+							<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 						</button>
-						<button type="button" class="btn hasTooltip"
+						<button type="button" class="btn qtc-hasTooltip"
 						title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 						onclick="document.id('filter_search').value='';this.form.submit();">
-							<i class="icon-remove"></i>
+							<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 						</button>
 					</div>
-
-					<?php if (JVERSION >= '3.0') : ?>
-					<!--
-						<div class="btn-group pull-right hidden-phone ">
-							<label for="limit" class="element-invisible">
-								<?php //echo JText::_('COM_QUICK2CART_SEARCH_SEARCHLIMIT_DESC'); ?>
-							</label>
-							<?php //echo $this->pagination->getLimitBox(); ?>
-						</div> -->
-					<?php endif; ?>
-				</div>
-				<div class="clearfix">&nbsp;</div>
-
-				<!--Added by Sneha for free text search-->
-				<!--
-				<div class="row-fluid">
-					<div class="pull-right">
-						<input type="text" placeholder="Enter name.." name="search_list" id="search_list" value="<?php echo $this->lists['search_list']; ?>" class="input-medium pull-left" onchange="document.adminForm.submit();" />
-						<div class="btn-group pull-right hidden-phone">
-							<button type="button" onclick="this.form.submit();" class="btn tip hasTooltip" data-original-title="Search">
-								<i class="icon-search"></i>
-							</button>
-							<button onclick="document.id('search_list').value='';this.form.submit();" type="button" class="btn tip hasTooltip" data-original-title="Clear">
-								<i class="icon-remove"></i>
-							</button>
-						</div>
+				<div class="pull-right">
+					<?php
+						echo JHtml::_('select.genericlist', $this->product_sorting, "sort_products", 'class="inputbox input-medium" onchange="document.adminForm.submit();" name="sort_products"', "value", "text", $this->state->get('sort_products'));
+					?>
 					</div>
-				</div>
-				<!--Added by Sneha for free text search-->
 
-				<div class="clearfix">&nbsp;</div><div class="clearfix">&nbsp;</div>
+				</div>
+
+
+				<div class="clearfix"></div>
+				<div class="qtcClearBoth">&nbsp;</div>
 
 				<div class="row-fluid">
 					<div class="span12">
@@ -167,9 +153,21 @@ $store_id=0;//$this->store_id;
 							<?php $random_container = 'q2c_pc_category';?>
 							<div id="q2c_pc_category">
 								<?php
+
+								$Fixed_pin_classes = "";
+
+								if ($layout_to_load == "fixed_layout")
+								{
+									$Fixed_pin_classes = " qtc-prod-pin span" . $noOfPin_lg . " ";
+								}
+
 								// REDERING FEATURED PRODUCT
 								foreach($target_data as $data)
 								{
+									?>
+									<div class="q2c_pin_item_<?php echo $random_container . $Fixed_pin_classes;?>">
+	<!-- LM removed classes q2c_pin_item_<?php echo $random_container;?> and added qtc-prod-pin col-xs- col-sm- col-md- -->
+									<?php
 									// converting to array
 									$data=(array)$data;
 									$path=$comquick2cartHelper->getViewpath('product','product');
@@ -179,9 +177,17 @@ $store_id=0;//$this->store_id;
 									$html = ob_get_contents();
 									ob_end_clean();
 									echo $html;
+									?>
+									</div>
+									<?php
 								}
 								?>
+								<div class="qtcClearBoth"></div>
 							</div>
+							<?php
+							if ($layout_to_load == "flexible_layout")
+							{
+							?>
 							<!-- setup pin layout script-->
 							<script type="text/javascript">
 								var pin_container_<?php echo $random_container; ?> = 'q2c_pc_category'
@@ -194,6 +200,7 @@ $store_id=0;//$this->store_id;
 							$html = ob_get_contents();
 							ob_end_clean();
 							echo $html;
+							}
 							?>
 							<?php
 						}

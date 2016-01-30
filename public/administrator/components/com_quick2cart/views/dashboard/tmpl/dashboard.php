@@ -83,6 +83,7 @@ $month_array_name = array();
 $js = "
 	function refreshViews()
 	{
+		var dash_currency = \"" . $dash_currency . "\";
 		fromDate = document.getElementById('from').value;
 		toDate = document.getElementById('to').value;
 		fromDate1 = new Date(fromDate.toString());
@@ -90,7 +91,7 @@ $js = "
 		difference = toDate1 - fromDate1;
 		days = Math.round(difference/(1000*60*60*24));
 
-		if (parseInt(days)<=0)
+		if (parseInt(days) < 0)
 		{
 			alert(\"".JText::_('DATELESS')."\");
 
@@ -122,7 +123,7 @@ $js = "
 				document.getElementById('shiped_orders').value=data.shiped_orders;
 				document.getElementById('refund_orders').value=data.refund_orders;
 				/*Redraw charts*/
-				document.getElementById('periodic_orders').innerHTML = data.periodicorderscount;
+				document.getElementById('periodic_orders').innerHTML = dash_currency + ' ' + data.periodicorderscount;
 				drawPeriodicOrdersChart();
 			}
 		});
@@ -352,15 +353,46 @@ $document->addScriptDeclaration($js);
 											<div class="panel-body">
 												<!-- CALENDER ND REFRESH BTN  -->
 												<div class="clearfix row">
-													<div class="pull-left col-sm-6">
-														<label for="from"><?php echo JText::_('FROM_DATE');?></label>
-														<?php echo JHtml::_('calendar', $backdate, 'fromDate', 'from', '%Y-%m-%d', array('class' => 'inputbox input-xs', 'style' => 'min-height:35px!important; max-width:90px!important;')); ?>
+													<div class="col-sm-12 col-lg-12 col-md-12">
+														<div class="pull-right">
+															<div class="form-group">
+																<label label-default class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JText::_('FROM_DATE');?>
+																</label>
+																<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+																	<div class="input-group">
+																		<?php echo JHtml::_('calendar', $backdate, 'fromDate', 'from', '%Y-%m-%d', array('class' => 'inputbox input-xs', 'style' => 'min-height:35px!important; max-width:90px!important;')); ?>
+																	</div>
+																</div>
+															</div>
+
+															<div class="form-group">
+																<label label-default class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JText::_('TO_DATE');?></label>
+																<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+																	<div class="input-group">
+																		<?php echo JHtml::_('calendar', date('Y-m-d'), 'toDate', 'to', '%Y-%m-%d', array('class' =>'inputbox input-xs', 'style' => 'min-height:35px!important; max-width:90px!important;')); ?>
+																	</div>
+																</div>
+															</div>
+
+															<div class="form-group">
+																<div class="pull-right col-lg-4 col-md-4 col-sm-4 col-xs-4">
+																	<div class="input-group">
+																		<input id="btnRefresh" class="pull-right btn btn-micro btn-primary" type="button" value="<?php echo JText::_('COM_QUICK2CART_GO'); ?>" style="font-weight: bold;" onclick="refreshViews();" title="<?php echo JText::_('COM_QUICK2CART_GO_TOOLTIP');?>"/>
+																	</div>
+																</div>
+															</div>
+
+														</div>
+													</div>
+													<!--<div class="pull-left col-sm-6">
+														<label for="from"><?php //echo JText::_('FROM_DATE');?></label>
+														<?php //echo JHtml::_('calendar', $backdate, 'fromDate', 'from', '%Y-%m-%d', array('class' => 'inputbox input-xs', 'style' => 'min-height:35px!important; max-width:90px!important;')); ?>
 													</div>
 													<div class="pull-right col-sm-6">
-														<label for="to"><?php echo JText::_('TO_DATE');?></label>
-														<?php echo JHtml::_('calendar', date('Y-m-d'), 'toDate', 'to', '%Y-%m-%d', array('class' =>'inputbox input-xs', 'style' => 'min-height:35px!important; max-width:90px!important;')); ?>
-														<input id="btnRefresh" class="pull-right btn btn-micro btn-primary" type="button" value="<?php echo JText::_('COM_QUICK2CART_GO'); ?>" style="font-weight: bold;" onclick="refreshViews();"/>
-													</div>
+														<label for="to"><?php //echo JText::_('TO_DATE');?></label>
+														<?php //echo JHtml::_('calendar', date('Y-m-d'), 'toDate', 'to', '%Y-%m-%d', array('class' =>'inputbox input-xs', 'style' => 'min-height:35px!important; max-width:90px!important;')); ?>
+														<input id="btnRefresh" class="pull-right btn btn-micro btn-primary" type="button" value="<?php //echo JText::_('COM_QUICK2CART_GO'); ?>" style="font-weight: bold;" onclick="refreshViews();" title="<?php //echo JText::_('COM_QUICK2CART_GO_TOOLTIP');?>"/>
+													</div>-->
 													<div class="clearifx"></div>
 												</div>
 												<!--END::CALENDER ND REFRESH BTN  -->
@@ -707,12 +739,16 @@ $document->addScriptDeclaration($js);
 			if(!empty($statsforpie[1]))
 			{
 				$confirmed_orders = $statsforpie[1][0]->orders;
-				$shiped_orders = $statsforpie[3][0]->orders;
 			}
 
-			if(!empty($statsforpie[1]))
+			if(!empty($statsforpie[2]))
 			{
 				$refund_orders = $statsforpie[2][0]->orders;
+			}
+
+			if(!empty($statsforpie[3]))
+			{
+				$shiped_orders = $statsforpie[3][0]->orders;
 			}
 		}
 

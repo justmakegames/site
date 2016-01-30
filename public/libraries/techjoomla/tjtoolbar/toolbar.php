@@ -21,11 +21,11 @@ if (JVERSION < '3.0')
 }
 else
 {
-	define('TJTOOLBAR_ICON_ADDNEW', " icon-plus-2 icon-plus-sign  icon-white");
-	define('TJTOOLBAR_ICON_EDIT', " icon-apply icon-pencil-2 icon-edit icon-white");
-	define('TJTOOLBAR_ICON_DELETE', " icon-trash icon-white");
-	define('TJTOOLBAR_ICON_PUBLISH', " icon-checkmark icon-ok-sign icon-white");
-	define('TJTOOLBAR_ICON_UNPUBLISH', " icon-unpublish icon-remove icon-white");
+	define('TJTOOLBAR_ICON_ADDNEW', " icon-plus-2");
+	define('TJTOOLBAR_ICON_EDIT', " icon-apply");
+	define('TJTOOLBAR_ICON_DELETE', " icon-trash");
+	define('TJTOOLBAR_ICON_PUBLISH', " icon-checkmark");
+	define('TJTOOLBAR_ICON_UNPUBLISH', " icon-unpublish");
 }
 
 /**
@@ -42,19 +42,20 @@ class TJToolbar extends JToolbar
 	 *
 	 * @var    string
 	 */
-	protected $_toolbarPositionClass = array();
+	protected $toolbarPositionClass = array();
 
 	/**
 	 * Constructor
 	 *
-	 * @param   string  $name  The toolbar name.
+	 * @param   string  $name                  The toolbar name.
+	 * @param   string  $toolbarPositionClass  Toolbar position class.
 	 *
 	 * @since   1.0
 	 */
-	public function __construct($name = 'toolbar', $_toolbarPositionClass = '')
+	public function __construct($name = 'toolbar', $toolbarPositionClass = '')
 	{
 		$this->_name = $name;
-		$this->_toolbarPositionClass = $_toolbarPositionClass;
+		$this->toolbarPositionClass = $toolbarPositionClass;
 
 		// Set base path to find buttons.
 		$this->_buttonPath[] = __DIR__ . '/button';
@@ -64,7 +65,8 @@ class TJToolbar extends JToolbar
 	 * Returns the global TJToolbar object, only creating it if it
 	 * doesn't already exist.
 	 *
-	 * @param   string  $name  The name of the toolbar.
+	 * @param   string  $name      The name of the toolbar.
+	 * @param   string  $cssClass  pass emty value.
 	 *
 	 * @return  TJToolbar  The TJToolbar object.
 	 *
@@ -101,7 +103,7 @@ class TJToolbar extends JToolbar
 
 		$html[] = '<div class="row-fluid">';
 			$html[] = '<div class="span12">';
-				$html[] = '<div class="btn-toolbar ' . $this->_toolbarPositionClass . '" id="' . $this->_name . '">';
+				$html[] = '<div class="btn-toolbar ' . $this->toolbarPositionClass . '" id="' . $this->_name . '">';
 
 					// Render each button in the toolbar.
 					foreach ($this->_bar as $button)
@@ -127,10 +129,16 @@ class TJToolbar extends JToolbar
 	 */
 	public function renderButton(&$node)
 	{
-		$task     = $node[0];
-		$text     = $node[1];
-		$class    = $node[2];
-		$btnClass = $node[3];
+		$task       = $node[0];
+		$text       = $node[1];
+		$class      = $node[2];
+		$attributs  = $node[3];
+
+		// Attributes and these value are converted into a string
+		if (is_array($attributs))
+		{
+			$attributs = JArrayHelper::toString($attributs);
+		}
 
 		// Add button 'onclick' Javascript
 		$spiltTask = explode('.', $task);
@@ -148,7 +156,14 @@ class TJToolbar extends JToolbar
 			break;
 
 			case 'edit':
-				$task = "if (document.adminForm.boxchecked.value==0){alert('" . JText::_('TJTOOLBAR_NO_SELECT_MSG') . "'); } else{Joomla.submitbutton('" . $task . "')}";
+				$task = "if (document.adminForm.boxchecked.value==0)
+							{
+								alert('" . JText::_('TJTOOLBAR_NO_SELECT_MSG') . "');
+							}
+							else
+							{
+								Joomla.submitbutton('" . $task . "')
+							}";
 
 				if (empty($class))
 				{
@@ -157,7 +172,14 @@ class TJToolbar extends JToolbar
 			break;
 
 			case 'publish':
-				$task = "if (document.adminForm.boxchecked.value==0) { alert('" . JText::_('TJTOOLBAR_NO_SELECT_MSG') . "'); } else { Joomla.submitbutton('" . $task . "') }";
+				$task = "if (document.adminForm.boxchecked.value==0)
+							{
+								alert('" . JText::_('TJTOOLBAR_NO_SELECT_MSG') . "');
+							}
+							else
+							{
+								Joomla.submitbutton('" . $task . "')
+							}";
 
 				if (empty($class))
 				{
@@ -166,7 +188,14 @@ class TJToolbar extends JToolbar
 			break;
 
 			case 'unpublish':
-				$task = "if (document.adminForm.boxchecked.value==0) { alert('" . JText::_('TJTOOLBAR_NO_SELECT_MSG') . "'); } else { Joomla.submitbutton('" . $task . "') }";
+				$task = "if (document.adminForm.boxchecked.value==0)
+							{
+								alert('" . JText::_('TJTOOLBAR_NO_SELECT_MSG') . "');
+							}
+							else
+							{
+								Joomla.submitbutton('" . $task . "')
+							}";
 
 				if (empty($class))
 				{
@@ -175,7 +204,14 @@ class TJToolbar extends JToolbar
 			break;
 
 			case 'delete':
-				$task = "if (document.adminForm.boxchecked.value==0) { alert('" . JText::_('TJTOOLBAR_NO_SELECT_MSG') . "'); } else { Joomla.submitbutton('" . $task . "')}";
+				$task = "if (document.adminForm.boxchecked.value==0)
+						{
+							alert('" . JText::_('TJTOOLBAR_NO_SELECT_MSG') . "');
+						}
+						else
+						{
+							Joomla.submitbutton('" . $task . "')
+						}";
 
 				if (empty($class))
 				{
@@ -188,7 +224,11 @@ class TJToolbar extends JToolbar
 		$text = JText::_($text);
 
 		// Generate button HTML
-		$btnHtml = ' <div class="btn-wrapper" id="tjtoolbar-' . $spiltTask[1] . '"> <button type="button" onclick="' . $task .'" class="' . $btnClass . '"> <span class="' . trim($class) . '"></span> ' . $text . ' </button> </div>';
+		$btnHtml = '<div class="btn-wrapper" id="tjtoolbar-' . $spiltTask[1] . '">
+						<button type="button" onclick="' . $task . '" ' . $attributs . '>
+							<span class="' . trim($class) . '"></span> ' . $text . '
+						</button>
+					</div>';
 
 		return $btnHtml;
 	}

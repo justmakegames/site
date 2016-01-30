@@ -86,6 +86,7 @@ function addopt(){
 
 		// manipulate the name/id values of the input inside the new element
 
+		newElem.find('select[name=\"att_detail[attri_opt][' + num + '][status]\"]').attr({'name': 'att_detail[attri_opt][' + newNum + '][status]','value':1 });
 		newElem.find('td input[name=\"att_detail[attri_opt][' + num + '][name]\"]').attr({'name': 'att_detail[attri_opt][' + newNum + '][name]','value':''});
 
 		newElem.find('select[name=\"att_detail[attri_opt][' + num + '][prefix]\"]').attr({'name': 'att_detail[attri_opt][' + newNum + '][prefix]','value':'' });
@@ -106,7 +107,7 @@ function addopt(){
 		ordernum=Number(ordernum);
 		 var newordernum=new Number(ordernum + 1);
 		newElem.find('input[name=\"att_detail[attri_opt][' + num + '][order]\"]').attr({'name': 'att_detail[attri_opt][' + newNum + '][order]','value':newordernum });
-		techjoomla.jQuery('#attri_opts' + num ).children().last().replaceWith('<button type=\"button\" class=\"btn btn-mini btn-danger\" id=\"btnRemove'+num+'\" onclick=\"techjoomla.jQuery(this).parent().remove();\" ><i class=\"icon-trash icon-white\"></i></button> ');
+		techjoomla.jQuery('#attri_opts' + num ).children().last().replaceWith('<button type=\"button\" class=\"btn btn-mini btn-danger\" id=\"btnRemove'+num+'\" onclick=\"techjoomla.jQuery(this).parent().remove();\" ><i class=\"" . Q2C_ICON_TRASH . " " . Q2C_ICON_WHITECOLOR . "\"></i></button> ');
 
 		// insert the new element after the last 'duplicatable' input field
 		techjoomla.jQuery('#attri_opts' + num).after(newElem);
@@ -164,6 +165,7 @@ function qtc_ispositive(ele)
 // $document->addScript(JUri::root().'components/com_quick2cart/assets/js/order.js');
 $document->addScriptDeclaration($js_key);
 
+$addpre_select = array();
 $addpre_select[] = JHtml::_('select.option','+', JText::_('QTC_ADDATTRI_PREADD'));
 $addpre_select[] = JHtml::_('select.option','-', JText::_('QTC_ADDATTRI_PRESUB'));
 // $addpre_select[] = JHtml::_('select.option','=', JText::_('QTC_ADDATTRI_PRESAM'));
@@ -204,7 +206,7 @@ if (!class_exists('quick2cartModelAttributes'))
 		<div class="span12">
 	<!---s ATTRIBURE NAME -->
 			<div class="span4">
-				<input id="atrri_name_id" class="input-medium bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))?$this->itemattribute_name:''; ?>" maxlength="250" size="32" name="att_detail[attri_name]" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
+				<input id="atrri_name_id" class="input-medium bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name)) ? htmlentities($this->itemattribute_name) :''; ?>" maxlength="250"  name="att_detail[attri_name]" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
 				<input type="hidden" name="att_detail[product_id]" value="<?php echo $pid ?>" />
 				<input type="hidden" name="att_detail[client]" value="<?php echo $client ?>" />
 			</div>
@@ -241,15 +243,14 @@ if (!class_exists('quick2cartModelAttributes'))
 						<input type="checkbox" name="att_detail[iscompulsary_attr]" autocomplete="off" <?php echo $qtc_ck_att;?> style="width:100%;" >
 
 			</div>
-		</div><!-- end of span12 2nd-->
-
+		</div>
 	</div>
 
 	<!--
 	<div class="control-group">
 		<h4><?php echo JText::_('QTC_ADDATTRI_NAME')?></h4>
 		<div class="controls">
-			<input id="atrri_name_id" class="input-medium bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))?$this->itemattribute_name:''; ?>" maxlength="250" size="32" name="attri_name" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
+			<input id="atrri_name_id" class="input-medium bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))?$this->itemattribute_name:''; ?>" maxlength="250"  name="attri_name" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
 	</div>
 	</div>
 	<div class="control-group">
@@ -281,60 +282,61 @@ if (!class_exists('quick2cartModelAttributes'))
 	</thead>
 	<tbody>
 	<?php
-for($k = 0; $k <= count($this->attribute_opt); $k++) {
-echo '';
-	?>
-		<tr class="control-group form-inline clonedInput" id="attri_opts<?php echo $k; ?>" >
-			<td>
-		<input type="hidden" name="att_detail[attri_opt][<?php echo $k; ?>][id]" value="<?php echo (isset($this->attribute_opt[$k]->itemattributeoption_id))?$this->attribute_opt[$k]->itemattributeoption_id:''; ?>">
-		<input type="text" class="input-medium" name="att_detail[attri_opt][<?php echo $k; ?>][name]" placeholder="<?php echo JText::_('QTC_ADDATTRI_OPTNAME')?>" value="<?php echo (isset($this->attribute_opt[$k]->itemattributeoption_name))?$this->attribute_opt[$k]->itemattributeoption_name:''; ?>">
-			</td>
-			<td>
-<?php
-	$addpre_val = (isset($this->attribute_opt[$k]->itemattributeoption_prefix))?$this->attribute_opt[$k]->itemattributeoption_prefix:'';
-	echo JHtml::_('select.genericlist', $addpre_select, "att_detail[attri_opt][$k][prefix]", 'class="span1" size="1"  ', "value", "text", $addpre_val);
-?>
-			</td>
-			<td>
-	<?php
-		$currencies=$params->get('addcurrency');
-		$curr=explode(',',$currencies);
-?>
-	<div class='qtc_currencey_textbox input-append control-group'  >
-<?php $quick2cartModelAttributes =  new quick2cartModelAttributes;
-	foreach($curr as $value)    // key contain 0,1,2... // value contain INR...
-		{
-			$currvalue=array();
-			$storevalue="";
+	for($k = 0; $k <= count($this->attribute_opt); $k++)
+	{
+			echo '';
+				?>
+			<tr class="control-group form-inline clonedInput" id="attri_opts<?php echo $k; ?>" >
+				<td>
+					<input type="hidden" name="att_detail[attri_opt][<?php echo $k; ?>][id]" value="<?php echo (isset($this->attribute_opt[$k]->itemattributeoption_id))?$this->attribute_opt[$k]->itemattributeoption_id:''; ?>">
+					<input type="text" class="input-medium" name="att_detail[attri_opt][<?php echo $k; ?>][name]" placeholder="<?php echo JText::_('QTC_ADDATTRI_OPTNAME')?>" value="<?php echo (isset($this->attribute_opt[$k]->itemattributeoption_name))? htmlentities($this->attribute_opt[$k]->itemattributeoption_name):''; ?>">
+						</td>
+				<td>
+				<?php
+					$addpre_val = (isset($this->attribute_opt[$k]->itemattributeoption_prefix))?$this->attribute_opt[$k]->itemattributeoption_prefix:'';
+					echo JHtml::_('select.genericlist', $addpre_select, "att_detail[attri_opt][$k][prefix]", 'class="span1"   ', "value", "text", $addpre_val);
+				?>
+					</td>
+					<td>
+				<?php
+					$currencies=$params->get('addcurrency');
+					$curr=explode(',',$currencies);
+			?>
+				<div class='qtc_currencey_textbox input-append control-group'  >
+			<?php $quick2cartModelAttributes =  new quick2cartModelAttributes;
+				foreach($curr as $value)    // key contain 0,1,2... // value contain INR...
+					{
+						$currvalue=array();
+						$storevalue="";
 
-			if (isset($this->attribute_opt[$k] ))
-			{
-				$currvalue=$quick2cartModelAttributes->getOption_currencyValue($this->attribute_opt[$k]->itemattributeoption_id,$value);
-				$storevalue=(isset($currvalue[0]['price']))?$currvalue[0]['price'] : '';
-			}
-?>
-		<div class="input-append curr_margin " >
-			<input type='text' name="att_detail[attri_opt][<?php echo $k; ?>][currency][<?php echo $value; ?>]" size='1' id='' value="<?php echo ((isset($currvalue[0]['price']))?$currvalue[0]['price'] : ''); ?>" class="span1 currtext controls" Onkeyup="checkforalpha(this,46,<?php echo $entered_numerics; ?>);">
-			<span class="add-on control-label"><?php echo $value; ?></span>
-		</div>
-<?php
-		}
-?>
-	</div>
-			</td>
-			<td>
-	<input type="text" Onkeyup="checkforalpha(this,'',<?php echo $entered_numerics; ?>);" onchange="qtc_ispositive(this)"	 id="" class="input-mini" name="att_detail[attri_opt][<?php echo $k; ?>][order]" placeholder="<?php echo JText::_('QTC_ADDATTRI_OPTORDER')?>" value="<?php echo (isset($this->attribute_opt[$k]->ordering))?$this->attribute_opt[$k]->ordering:$k+1; ?>">
+						if (isset($this->attribute_opt[$k] ))
+						{
+							$currvalue=$quick2cartModelAttributes->getOption_currencyValue($this->attribute_opt[$k]->itemattributeoption_id,$value);
+							$storevalue=(isset($currvalue[0]['price']))?$currvalue[0]['price'] : '';
+						}
+			?>
+					<div class="input-append curr_margin " >
+						<input type='text' name="att_detail[attri_opt][<?php echo $k; ?>][currency][<?php echo $value; ?>]" size='1' id='' value="<?php echo ((isset($currvalue[0]['price']))?$currvalue[0]['price'] : ''); ?>" class="span1 currtext controls" Onkeyup="checkforalpha(this,46,<?php echo $entered_numerics; ?>);">
+						<span class="add-on control-label"><?php echo $value; ?></span>
+					</div>
+			<?php
+					}
+			?>
+				</div>
+						</td>
+						<td>
+				<input type="text" Onkeyup="checkforalpha(this,'',<?php echo $entered_numerics; ?>);" onchange="qtc_ispositive(this)"	 id="" class="input-mini" name="att_detail[attri_opt][<?php echo $k; ?>][order]" placeholder="<?php echo JText::_('QTC_ADDATTRI_OPTORDER')?>" value="<?php echo (isset($this->attribute_opt[$k]->ordering))?$this->attribute_opt[$k]->ordering:$k+1; ?>">
 
-			</td>
-			<td>
+						</td>
+						<td>
 
-	<?php
-		if ($k == $lastkey_opt)
-		{ ?>
-			<button type="button" class="<qtc_add_opBtn btn btn-mini btn-primary"  onclick="addopt();"><i class="<?php echo QTC_ICON_PLUS;?> icon-white"></i></button>
-	<?php }else{ ?>
-		 <button type="button" class="btn btn-mini btn-danger" id="btnRemove<?php echo $k; ?>" onclick="techjoomla.jQuery(this).closest('tr').remove();" ><i class="icon-trash icon-white"></i></button>
-	<?php } ?>
+				<?php
+					if ($k == $lastkey_opt)
+					{ ?>
+						<button type="button" class="<qtc_add_opBtn btn btn-mini btn-primary"  onclick="addopt();"><i class="<?php echo QTC_ICON_PLUS;?> icon-white"></i></button>
+				<?php }else{ ?>
+					 <button type="button" class="btn btn-mini btn-danger" id="btnRemove<?php echo $k; ?>" onclick="techjoomla.jQuery(this).closest('tr').remove();" ><i class="icon-trash icon-white"></i></button>
+				<?php } ?>
 			</td>
 		</tr>
 

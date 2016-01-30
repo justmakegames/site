@@ -14,169 +14,377 @@ jimport('joomla.filesystem.file');
  *
  * @package     Joomla.Libraries
  * @subpackage  JSocial
- * @since       3.1
+ * @since       1.0
  */
 class JSocialEasysocial implements JSocial
 {
+	/**
+	 * The constructor
+	 *
+	 * @since  1.0
+	 */
+	public function __construct()
+	{
+		$this->db = JFactory::getDBO();
 
-	public function __construct() {
-	$this->db=JFactory::getDBO();
-		if (!$this->checkExists()) {
+		if (!$this->checkExists())
+		{
 			throw new Exception('Easysocial not installed');
 		}
-		require_once( JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php' );
+
+		require_once JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php';
 	}
 
-	public function getProfileData(JUser $user) {
-		return $user     = Foundry::user( $user->id );
-	}
-
-	public function getProfileUrl(JUser $user) {
-				$user     = Foundry::user( $user->id );
-				return $link=JRoute::_($user->getPermalink());
-	}
-
-	public function getAvatar(JUser $user)
+	/**
+	 * The function to get profile data of User
+	 *
+	 * @param   MIXED  $user  JUser Objcet
+	 *
+	 * @return  JUser Objcet
+	 *
+	 * @since   1.0
+	 */
+	public function getProfileData(JUser $user)
 	{
-		$user     = Foundry::user( $user->id );
-		$uimage=$user->getAvatar();
+		return $user = Foundry::user($user->id);
+	}
+
+	/**
+	 * The function to get profile link User
+	 *
+	 * @param   MIXED  $user  JUser Objcet
+	 *
+	 * @return  STRING
+	 *
+	 * @since   1.0
+	 */
+	public function getProfileUrl(JUser $user)
+	{
+		$user = Foundry::user($user->id);
+
+		return $link = JRoute::_($user->getPermalink());
+	}
+
+	/**
+	 * The function to get profile AVATAR of a User
+	 *
+	 * @param   MIXED  $user           JUser Objcet
+	 *
+	 * @param   INT    $gravatar_size  Size of the AVATAR
+	 *
+	 * @return  STRING
+	 *
+	 * @since   1.0
+	 */
+	public function getAvatar(JUser $user, $gravatar_size = '')
+	{
+		$user   = Foundry::user($user->id);
+		$uimage = $user->getAvatar();
+
 		return $uimage;
 	}
-	public function getFriends(JUser $user, $accepted=true)
+
+	/**
+	 * The function to get friends of a User
+	 *
+	 * @param   MIXED  $user      JUser Objcet
+	 * @param   INT    $accepted  Optional param, bydefault true to get only friends with request accepted
+	 * @param   INT    $options   Optional array.. Extra options to pass to the getFriends Query :
+	 * state, limit and idonly(if idonly only ids array will be returned) are supported
+	 *
+	 * @return  Friends objects
+	 *
+	 * @since   1.0
+	 */
+	public function getFriends(JUser $user, $accepted=true, $options = array())
 	{
-		$sql="select target_id from #__social_friends where actor_id=".$user->id."";
-		$this->db->setQuery($sql);
-		$tempfriends[]=$this->db->loadColumn();
-		$sql="select actor_id from #__social_friends where target_id=".$user->id."";
-		$this->db->setQuery($sql);
-		$tempfriends[]=$this->db->loadColumn();
-		$esfriends_ids=$this->umerge($tempfriends);
+		$model = FD::model('friends');
 
-
-		$esfriends=array();
-		foreach($esfriends_ids AS $id)
+		if (!isset($options['idonly']))
 		{
-			$user= Foundry::user( $id );
-			$esfriends[$id]=new StdClass();
-			$esfriends[$id]->id=$id;
-			$esfriends[$id]->name=$user->name;
-			$esfriends[$id]->avatar=$this->getAvatar($user );
-			$esfriends[$id]->profile_link=$this->getProfileUrl($user);
+			$options['idonly'] = 1;
+		}
+
+		$EasySocialModelFriends = new EasySocialModelFriends;
+		$esfriends_ids = $model->getFriends($user->id, $options);
+
+		$esfriends = array();
+
+		foreach ($esfriends_ids AS $id)
+		{
+			$user = Foundry::user($id);
+			$esfriends[$id] = new stdClass;
+			$esfriends[$id]->id = $id;
+			$esfriends[$id]->name = $user->name;
+			$esfriends[$id]->avatar = $this->getAvatar($user);
+			$esfriends[$id]->profile_link = $this->getProfileUrl($user);
 		}
 
 		return $esfriends;
-
-
-
 	}
 
-	public function addFriend(JUser $connect_from_user,JUser $connect_to_user)
+	/**
+	 * The function to add provided users as Friends
+	 *
+	 * @param   MIXED  $connect_from_user  User who is requesting connection
+	 * @param   INT    $connect_to_user    User whom to request
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function addFriend(JUser $connect_from_user, JUser $connect_to_user)
 	{
-		$this->db=JFactory::getDBO();
-		$sql			= 	"SELECT * FROM #__social_friends WHERE (actor_id=".$connect_from_user->id." AND target_id  = ".$connect_to_user->id.") OR (target_id=".$connect_from_user->id." AND actor_id  = ".$connect_to_user->id.")";
+		$this->db = JFactory::getDBO();
+		$sql = "SELECT * FROM #__social_friends
+				WHERE (actor_id=" . $connect_from_user->id . " AND target_id  = " . $connect_to_user->id . ")
+				OR (target_id=" . $connect_from_user->id . " AND actor_id  = " . $connect_to_user->id . ")";
 		$this->db->setQuery($sql);
 		$once_done = $this->db->loadResult();
-		if(!$once_done)
+
+		if (!$once_done)
 		{
-			$insertfrnd = new stdClass();
-			$insertfrnd->id				=	'';
-			$insertfrnd->actor_id				=	$connect_to_user->id;
-			$insertfrnd->target_id 			=	$connect_from_user->id;
-			$insertfrnd->state 			=	1;
-			$insertfrnd->created			=	date('y-m-d h:i:s');
-			$insertfrnd->modified			=	date('y-m-d h:i:s');
-			$this->db->insertObject('#__social_friends', $insertfrnd , 'id');
+			$insertfrnd = new stdClass;
+			$insertfrnd->id	       =	'';
+			$insertfrnd->actor_id  =	$connect_to_user->id;
+			$insertfrnd->target_id =	$connect_from_user->id;
+			$insertfrnd->state 	   =	1;
+			$insertfrnd->created   =	date('y-m-d h:i:s');
+			$insertfrnd->modified  =	date('y-m-d h:i:s');
+			$this->db->insertObject('#__social_friends', $insertfrnd, 'id');
 		}
-
-
 	}
 
-	public function addStream(JUser $options) {}
-	public function setStatus(JUser $user, $status, $options) {}
-	public function getRegistrationLink($options) {}
+	/**
+	 * The function to get Easysocial toolbar
+	 *
+	 * @return  toolbar HTML
+	 *
+	 * @since   1.0
+	 */
+	public function getToolbar()
+	{
+		Foundry::document()->init();
 
-	public function checkExists()  {
+		return '<div id="fd" class="es es-main">' . FD::toolbar()->render() . '</div>';
+	}
+
+	/**
+	 * The function to add strem
+	 *
+	 * @param   MIXED  $options  User options
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function addStream(JUser $options)
+	{
+	}
+
+	/**
+	 * The function to set status of a user
+	 *
+	 * @param   MIXED   $user     User whose status is to be set
+	 * @param   STRING  $status   status to be set
+	 * @param   MIXED   $options  status to be set
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function setStatus(JUser $user, $status, $options)
+	{
+	}
+
+	/**
+	 * The function to get registartion link for Easysocial
+	 *
+	 * @param   ARRAY  $options  options
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function getRegistrationLink($options)
+	{
+	}
+
+	/**
+	 * The function to check if Easysocial is installed
+	 *
+	 * @return  boolean
+	 *
+	 * @since   1.0
+	 */
+	public function checkExists()
+	{
 		return JFile::exists(JPATH_ROOT . '/administrator/components/com_easysocial/includes/foundry.php');
 	}
 
-	/*
-	 * @params
-	 * $options is array
-	 * command for example invites sent
-	 * extension for com_invitex
-	 * @return array success 0 or 1
+	/**
+	 * The function add points to user
+	 *
+	 * @param   MIXED  $receiver  User to whom points to be added
+	 * @param   ARRAY  $options   is array
+	 *
+	 * $options[command] for example invites sent
+	 * options[extension] for example com_invitex
+	 *
+	 * @return ARRAY success 0 or 1
 	 */
-	public function addpoints(JUser $receiver,$options=array())
+	public function addpoints(JUser $receiver, $options = array())
 	{
-		if(empty($options['command']) or empty($options['extension']))
+		if (empty($options['command']) or empty($options['extension']))
 		{
-				$return['success'] =0;
-				$return['message'] ='Command or extension not passed to ';
+				$return['success'] = 0;
+				$return['message'] = 'Command or extension not passed to ';
+
 				return $return;
 		}
 
-		$return['success']=Foundry::points()->assign( $options['command'] , $options['extension'] , $receiver->id );
+		$return['success'] = Foundry::points()->assign($options['command'], $options['extension'], $receiver->id);
 	}
 
-	public function sendNotification(JUser $sender,JUser $receiver,$content="ES Notification",$systemOptions=array()){
+	/**
+	 * Add a badges to a user
+	 *
+	 * @param   OBJECT  $receiver  User to whom badges are assigned
+	 * @param   OBJECT  $options   optional array
+	 *
+	 * @return array success 0 or 1
+	 *
+	 * @since  1.0.0
+	 */
+	public function addbadges(JUser $receiver, $options = array())
+	{
+		if (empty($options['command']) or empty($options['extension']))
+		{
+				$return['success'] = 0;
+				$return['message'] = 'Command or extension not passed to ';
 
+				return $return;
+		}
+
+		$return['success'] = Foundry::badges()->log($options['extension'], $options['command'], $receiver->id, '');
+	}
+
+	/**
+	 * Send Notification
+	 *
+	 * @param   OBJECT  $sender         User who is sending notification
+	 * @param   OBJECT  $receiver       User to whom notification is to send
+	 * @param   STRING  $content        Main content of the notification
+	 * @param   STRING  $systemOptions  Optional options
+	 *
+	 * @return  boolean
+	 *
+	 * @since  1.0
+	 */
+	public function sendNotification(JUser $sender, JUser $receiver, $content = "ES Notification", $systemOptions = array())
+	{
 		$recipient[] = $receiver->id;
-		// If you do not want to send email, $emailOptions should be set to false
-		// $emailOptions - An array of options to define in the mail
-		// Email template
-		$emailOptions 		= false;
 
-		// If you do not want to send system notifications, set this to false.
+		/* If you do not want to send email, $emailOptions should be set to false
+		// $emailOptions - An array of options to define in the mail
+		// Email template*/
+		$emailOptions = false;
+
+		/* If you do not want to send system notifications, set this to false.
 		// $systemOptions - The internal system notifications
-		// System notification template
+		// System notification template*/
 		$myUser = Foundry::user($receiver->id);
 
-		$cmd=$systemOptions['cmd'];
+		$cmd = $systemOptions['cmd'];
 		unset($systemOptions['cmd']);
-		$systemOptions['url']	= JRoute::_($myUser->getPermalink());
 
-		$resp=Foundry::notify( $cmd, $recipient , $emailOptions , $systemOptions );
+		if (!isset($systemOptions['url']))
+		{
+			$systemOptions['url'] = JRoute::_($myUser->getPermalink());
+		}
 
+		return $resp = Foundry::notify($cmd, $recipient, $emailOptions, $systemOptions);
 	}
-	public function pushActivity($actor_id,$act_type,$act_subtype,$act_description,$act_link,$act_title,$act_access)
-	{
 
-		if($actor_id!=0)
-		$myUser = Foundry::user( $actor_id );
+	/**
+	 * Add activity stream
+	 *
+	 * @param   INT     $actor_id         User against whom activity is added
+	 * @param   STRING  $act_type         type of activity
+	 * @param   STRING  $act_subtype      sub type of activity
+	 * @param   STRING  $act_description  Activity description
+	 * @param   STRING  $act_link         LInk of Activity
+	 * @param   STRING  $act_title        Title of Activity
+	 * @param   STRING  $act_access       Access level
+	 *
+	 * @return  true
+	 *
+	 * @since  1.0
+	 */
+	public function pushActivity($actor_id, $act_type, $act_subtype, $act_description, $act_link, $act_title, $act_access)
+	{
+		if ($actor_id != 0)
+		{
+			$myUser = Foundry::user($actor_id);
+		}
+
+		// SOCIAL_TYPE_USERS
+		$context = "all";
+
 		$stream = Foundry::stream();
 		$template = $stream->getTemplate();
-		$template->setActor( $actor_id, SOCIAL_TYPE_USER );
-		$template->setContext( $actor_id, SOCIAL_TYPE_USERS );
-		$template->setVerb( 'invite' );
-		$template->setType( SOCIAL_STREAM_DISPLAY_MINI );
-		if($actor_id!=0)
+		$template->setActor($actor_id, SOCIAL_TYPE_USER);
+
+		// $template->setContext( $actor_id, SOCIAL_TYPE_USERS );
+		$template->setContext($actor_id, $context);
+		$template->setVerb('invite');
+		$template->setType(SOCIAL_STREAM_DISPLAY_MINI);
+
+		if ($actor_id != 0)
 		{
-			$userProfileLink = '<a href="'. $myUser->getPermalink() .'">' . $myUser->getName() . '</a>';
-			$title 	 = ($userProfileLink." ".$act_description);
+			$userProfileLink = '<a href="' . $myUser->getPermalink() . '">' . $myUser->getName() . '</a>';
+			$title 	 = ($userProfileLink . " " . $act_description);
 		}
 		else
-		$title 	 = ("A guest ".$act_description);
-		$template->setTitle( $title );
-		$template->setAggregate( false );
+		{
+			$title 	 = ("A guest " . $act_description);
+		}
 
-		$template->setPublicStream( 'core.view' );
-		$stream->add( $template );
+		$template->setTitle($title);
+		$template->setAggregate(false);
+
+		$template->setPublicStream('core.view');
+		$stream->add($template);
+
 		return true;
 	}
 
-	public function send_SMS($user,$password,$api_id,$text,$to)
+	/**
+	 * Helper functions to merge the arrays
+	 *
+	 * @param   array  $arrays  arrays to be merged
+	 *
+	 * @return  array
+	 *
+	 * @since  1.0
+	 */
+	public function umerge($arrays)
 	{
-
-	}
-
-	public function umerge($arrays){
 		$result = array();
-		 foreach($arrays as $array){
-		  $array = (array) $array;
-		  foreach($array as $value){
-		   if(array_search($value,$result)===false)$result[]=$value;
-		  }
-		 }
-		 return $result;
+
+		foreach ($arrays as $array)
+		{
+			$array = (array) $array;
+
+			foreach ($array as $value)
+			{
+				if (array_search($value, $result) === false)
+				{
+					$result[] = $value;
+				}
+			}
+		}
+
+		return $result;
 	}
 }

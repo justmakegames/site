@@ -84,7 +84,7 @@ class JFormFieldTaxprofilestorelist extends JFormField
 
 		$fieldName = $name;
 
-		return JHtml::_('select.genericlist',  $options, $fieldName, 'class="inputbox required"  size="1"  ', 'value', 'text', $defaultStore_id, $control_name);
+		return JHtml::_('select.genericlist',  $options, $fieldName, 'class="inputbox required" id="jform_store_id" size="1"  ', 'value', 'text', $defaultStore_id, $control_name);
 	}
 
 	/* function fetchTooltip($label, $description, &$node, $control_name, $name){

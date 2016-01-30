@@ -72,7 +72,7 @@ class Comquick2cartHelper
 			{
 				if ($currentBSViews == "bs3")
 				{
-					$wrapperClass = " q2c-wrapper techjoomla-bootstrap ";
+					$wrapperClass = " q2c-wrapper tjBs3 ";
 				}
 				else
 				{
@@ -81,15 +81,13 @@ class Comquick2cartHelper
 			}
 			else
 			{
-				$wrapperClass = " q2c-wrapper ";
-
 				if ($currentBSViews == "bs3")
 				{
 					$wrapperClass = " q2c-wrapper tjBs3 ";
 				}
 				else
 				{
-					$wrapperClass = " q2c-wrapper ";
+					$wrapperClass = " q2c-wrapper techjoomla-bootstrap";
 				}
 			}
 
@@ -415,6 +413,8 @@ class Comquick2cartHelper
 
 			$client = $cur_post->get('client', '', 'STRING');
 			$isUpdadateItemOperation = $attri_model->getitemid($pid, $client);
+
+			// Save basic product details
 			$item_id             = $attri_model->storecurrency($cur_post);
 			$saveAttri           = $cur_post->get('saveAttri');
 
@@ -876,7 +876,8 @@ class Comquick2cartHelper
 			$view->assign('parent', $parent);
 
 			// Get attributes
-			$attributes = $model->getAttributes($item_id);
+			//$attributes = $model->getAttributes($item_id);
+			$attributes = $productHelper->getItemCompleteAttrDetail($item_id);
 			$view->assign('attributes', $attributes);
 			$view->assign('mediaFiles', $mediaFiles);
 			$view->assign('params', $comparams);
@@ -903,9 +904,7 @@ class Comquick2cartHelper
 		$db    = JFactory::getDBO();
 
 		// Dont use itemattributeoption_price price . Take from #_kart_option_currency
-		$query = 'SELECT opt.itemattributeoption_id, opt.itemattributeoption_name, opt.itemattributeoption_price,
-					opt.itemattributeoption_prefix,opt.ordering
-					FROM #__kart_itemattributeoptions AS opt WHERE opt.itemattribute_id=' . (int) $attr_id . ' ORDER BY opt.ordering';
+		$query = 'SELECT * FROM #__kart_itemattributeoptions AS opt WHERE opt.itemattribute_id=' . (int) $attr_id . ' ORDER BY opt.ordering';
 		$db->setQuery($query);
 		$result = $db->loadObjectList();
 
@@ -924,12 +923,16 @@ class Comquick2cartHelper
 	 */
 	public function getAttributeOptionCurrPrice($attr_id, $currencies = "")
 	{
-		$db    = JFactory::getDBO();
-		$query = 'SELECT opt.itemattributeoption_id, opt.itemattributeoption_name,
-					opt.itemattributeoption_price, opt.itemattributeoption_prefix
-					FROM #__kart_itemattributeoptions AS opt
-					WHERE opt.itemattribute_id=' . (int) $attr_id . ' ORDER BY opt.ordering';
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query->select("*");
+		$query->from('#__kart_itemattributeoptions AS opt');
+		$query->where('opt.itemattribute_id=' . (int) $attr_id);
+		$query->where('opt.state=1');
+		$query->order('opt.ordering');
+
 		$db->setQuery($query);
+
 		$result = $db->loadObjectList();
 
 		if (empty($result))
@@ -1053,7 +1056,7 @@ class Comquick2cartHelper
 
 		$orderlist["order_info"] = $order_result;
 		@$orderlist["order_info"][0]->customer_note = preg_replace('/\<br(\s*)?\/?\>/i', " ", $orderlist['order_info'][0]->customer_note);
-		$query = "SELECT i.order_item_id,i.item_id,store_id,i.order_item_name,
+		$query = "SELECT i.order_item_id,i.item_id, i.`variant_item_id`,store_id,i.order_item_name,
 					i.product_attribute_names,i.product_quantity,i.product_item_price,
 					i.product_attributes_price, i.product_attributes, i.product_final_price,i.params,i.`item_tax`,
 					i.`item_tax_detail`,i.`item_shipcharges`,i.`item_shipDetail`
@@ -1191,7 +1194,10 @@ class Comquick2cartHelper
 		$site      = $mainframe->getCfg('sitename');
 		$html      = '<div>' . JText::sprintf('QTC_ORDER_MAIL_MSG', $site) . '</div>' . $html;
 		$body      = $html;
-		$subject   = JText::sprintf('QTC_ORDER_MAIL_SUB', $site, $fullorder_id);
+
+		$find = array('{ORDERNO}','{SITENAME}');
+		$replace = array($fullorder_id,$site);
+		$subject = str_replace($find, $replace, JText::_('QTC_ORDER_MAIL_SUB'));
 
 		// Remove 	COMMENT:: COMMENTED FOR AVOID MAIL
 		$comquick2cartHelper->sendmail($billemail, $subject, $body, $params->get('sale_mail'));
@@ -1269,7 +1275,9 @@ class Comquick2cartHelper
 			$mainframe = JFactory::getApplication();
 			$site      = $mainframe->getCfg('sitename');
 			$html      = '<div>' . JText::sprintf('QTC_ORDER_VENDER_MAIL_MSG', $sinfo['title']) . '</div>';
-			$subject   = JText::sprintf('QTC_ORDER_MAIL_SUB', $site, $fullorder_id);
+			$find = array('{ORDERNO}','{SITENAME}');
+			$replace = array($fullorder_id,$site);
+			$subject = str_replace($find, $replace, JText::_('QTC_ORDER_MAIL_SUB'));
 
 			ob_start();
 			include $view;
@@ -1338,7 +1346,8 @@ class Comquick2cartHelper
 			else
 			{*/
 				return $view = $useViewpath . '/components/com_quick2cart/views/' . $viewname . '/tmpl/' . $layoutname;
-			//}
+
+			// }
 		}
 	}
 
@@ -1480,9 +1489,13 @@ class Comquick2cartHelper
 				$outofstock_allowship = $params->get('outofstock_allowship');
 
 				// $outofstock_allowship==1)
-				if ($usestock == 1  && $order_oldstatus != $status)
+				if ($order_oldstatus != $status)
 				{
-					$comquick2cartHelper->updateItemStock($order_id);
+					if ($usestock == 1)
+					{
+						$comquick2cartHelper->updateItemStock($order_id);
+					}
+
 					$comquick2cartHelper->updateStoreFee($order_id);
 					$productHelper->addEntryInOrderItemFiles($order_id);
 					$productHelper->addPoint($order_id);
@@ -1525,13 +1538,36 @@ class Comquick2cartHelper
 			// UPDATE ORDER ITEM STATUS ALSO
 		}
 
+		$params = JComponentHelper::getParams('com_quick2cart');
+		$shippingMode = $params->get('shippingMode', 'itemLevel');
+		$shippingEnabled = $params->get('shipping');
+
 		// Call the plugin and get the result
 		$query = "SELECT o.* FROM #__kart_orders as o WHERE o.id =" . $order_id;
 		$db->setQuery($query);
-		$orderobj   = $db->loadObject();
+		$orderobj = $db->loadObject();
+
+		// Default trigger for normal integration
 		$dispatcher = JDispatcher::getInstance();
 		JPluginHelper::importPlugin('system');
 		$result = $dispatcher->trigger('Onq2cOrderUpdate', array($orderobj));
+
+		if ($shippingEnabled == 1)
+		{
+			// For shipping plugins
+			if ($shippingMode == "orderLeval")
+			{
+				$dispatcher = JDispatcher::getInstance();
+				JPluginHelper::importPlugin('qtcshipping');
+				$result = $dispatcher->trigger('Onq2cOrderUpdate', array($orderobj));
+			}
+			elseif($shippingMode == "itemLevel" )
+			{
+				$dispatcher = JDispatcher::getInstance();
+				JPluginHelper::importPlugin('tjshipping');
+				$result = $dispatcher->trigger('Onq2cOrderUpdate', array($orderobj));
+			}
+		}
 
 		// END Q2C Sample development
 
@@ -2039,7 +2075,7 @@ class Comquick2cartHelper
 	 *
 	 * @return  integer  $itemid
 	 */
-	public function getItemId($link, $skipIfNoMenu = 0)
+	public function getItemId222($link, $skipIfNoMenu = 0)
 	{
 		$itemid    = 0;
 		$mainframe = JFactory::getApplication();
@@ -2090,6 +2126,177 @@ class Comquick2cartHelper
 			{
 				$jinput = JFactory::getApplication()->input;
 				$itemid = JRequest::getInt('Itemid', 0);
+			}
+		}
+
+		return $itemid;
+	}
+
+	/**
+	 * Function to get Item id
+	 *
+	 * @param   INTEGER  $parsedLinke  parsed link
+	 *
+	 * @return  INT  Item id
+	 *
+	 * @since  1.0.0
+	 */
+	public function getCurrentAllProductMenuItemid($parsedLinke)
+	{
+		$app      = JFactory::getApplication();
+		$menu     = $app->getMenu();
+		$itemid = 0;
+
+		if ($parsedLinke['view'] == "category")
+		{
+			/* Get the itemid of the menu which is pointed to individual course URL*/
+			$menuItems = $menu->getItems('link', 'index.php?option=com_quick2cart&view=category&layout=default');
+			$prod_cat = !empty($parsedLinke['prod_cat']) ? $parsedLinke['prod_cat'] : '';
+
+			if (!empty($menuItems))
+			{
+				foreach ($menuItems as $menuItem)
+				{
+					if ($menuItem->params->get('defaultCatId') == $prod_cat)
+					{
+						return $menuItem->id;
+					}
+				}
+
+				if ($prod_cat)
+				{
+					// Check one level up and check whether menu is available or not
+					foreach ($menuItems as $menuItem)
+					{
+						$cat_details = $this->getCatDetail($prod_cat);
+
+						if ($menuItem->params->get('defaultCatId') == $cat_details['parent_id'])
+						{
+							return $menuItem->id;
+						}
+					}
+				}
+			}
+
+			/*Get the itemid of the menu which is pointed to product URL*/
+			$allProductURL = 'index.php?option=com_quick2cart&view=category&layout=default';
+			$menuItem = $menu->getItems('link', $allProductURL, true);
+
+			if ($menuItem)
+			{
+				return $menuItem->id;
+			}
+		}
+
+		return $itemid;
+	}
+
+	/**
+	 * Get Itemid for menu links
+	 *
+	 * @param   string   $link          URL to find itemid for
+	 *
+	 * @param   integer  $skipIfNoMenu  return 0 if no menu is found
+	 *
+	 * @return  integer  $itemid
+	 */
+	public function getItemId($link, $skipIfNoMenu = 0)
+	{
+		static $qtcitemids = array();
+
+		// Check in itemids array
+		if (!empty($qtcitemids[$link]))
+		{
+			return $qtcitemids[$link];
+		}
+
+		$itemid = 0;
+		parse_str($link, $parsedLinked);
+
+		// For all product menu link
+		if (!empty($parsedLinked['view']) && $parsedLinked['view'] == 'category')
+		{
+			$itemid    = $this->getCurrentAllProductMenuItemid($parsedLinked);
+		}
+
+		/* @TODO : needed further*/
+		/*if ($parsedLinked['view'] == 'lesson')
+		{
+			$layout = '';
+
+			$tjlmLessonHelper  = new TjlmsLessonHelper;
+			$itemid    = $tjlmLessonHelper->getLessonItemid($parsedLinked['lesson_id'], $layout);
+		}*/
+
+		if (!$itemid)
+		{
+			$mainframe = JFactory::getApplication();
+
+			if ($mainframe->issite())
+			{
+				$JSite = new JSite;
+				$menu  = $JSite->getMenu();
+				$menuItem = $menu->getItems('link', $link, true);
+
+				if ($menuItem)
+				{
+					$itemid = $menuItem->id;
+				}
+			}
+
+			if (!$itemid)
+			{
+				$db = JFactory::getDBO();
+
+				if (JVERSION >= 3.0)
+				{
+					$query = "SELECT id FROM #__menu
+					WHERE link LIKE '%" . $link . "%'
+					AND published =1
+					LIMIT 1";
+				}
+				else
+				{
+					$query = "SELECT id FROM " . $db->nameQuote('#__menu') . "
+					WHERE link LIKE '%" . $link . "%'
+					AND published =1
+					ORDER BY ordering
+					LIMIT 1";
+				}
+
+				$db = JFactory::getDBO();
+				/*$query = 'SELECT ' . $db->quoteName('id') . ' FROM ' . $db->quoteName('#__menu') . ' WHERE '
+						. $db->quoteName('link') . ' LIKE ' . $db->Quote($link)
+						. 'AND ' . $db->quoteName('published') . '=' . $db->Quote(1) . ' '
+						. 'AND ' . $db->quoteName('type') . '=' . $db->Quote('component');
+				$db->setQuery($query);
+				$isValid = $db->loadResult();
+				*/
+
+				$db->setQuery($query);
+				$itemid = $db->loadResult();
+			}
+
+			if (!$itemid)
+			{
+				if ($skipIfNoMenu)
+				{
+					$itemid = 0;
+				}
+				else
+				{
+					$jinput = JFactory::getApplication()->input;
+					$itemid = JRequest::getInt('Itemid', 0);
+				}
+			}
+		}
+
+		// Add Itemid and link mapping
+		if (empty($qtcitemids[$link]))
+		{
+			if (!empty($itemid))
+			{
+				$qtcitemids[$link] = $itemid;
 			}
 		}
 
@@ -2148,7 +2355,7 @@ class Comquick2cartHelper
 			$multi_currs = explode(",", $multi_curr);
 			$curkey      = array_search($currency, $multi_currs);
 
-			if (!empty($curr_syms[$curkey]))
+			if (is_numeric($curkey) && !empty($curr_syms[$curkey]))
 			{
 				$currency = $curr_syms[$curkey];
 			}
@@ -2162,7 +2369,7 @@ class Comquick2cartHelper
 	 *
 	 * @return  currency
 	 */
-	public function getCurrencySession()
+	public static function getCurrencySession()
 	{
 		$params      = JComponentHelper::getParams('com_quick2cart');
 		$multi_curr  = $params->get('addcurrency');
@@ -2198,13 +2405,6 @@ class Comquick2cartHelper
 	{
 		$comquick2cartHelper = new comquick2cartHelper;
 
-		/*	if (empty($curr))
-		{
-		$curr_sym= $curr = $comquick2cartHelper->getCurrencySymbol();
-		}
-		$html='';
-		return $html="<span>".$price." </span>&nbsp;".$curr;*/
-
 		if (empty($curr))
 		{
 			$curr = $comquick2cartHelper->getCurrencySession();
@@ -2214,9 +2414,9 @@ class Comquick2cartHelper
 		$params                     = JComponentHelper::getParams('com_quick2cart');
 		$currency_display_format    = $params->get('currency_display_format', "{SYMBOL} {AMOUNT}");
 
-		// $price = intval(str_replace(',', '', $price));  commented by vm bz converts from 25.5 to 25
 		$price                      = (double) (str_replace(',', '', $price));
-		$price                      = number_format($price, 2);
+		//$price                      = number_format($price, 2);
+
 		$currency_display_formatstr = str_replace('{AMOUNT}', $price, $currency_display_format);
 		$currency_display_formatstr = str_replace('{SYMBOL}', $curr_sym, $currency_display_formatstr);
 		$currency_display_formatstr = str_replace('{CURRENCY}', $curr, $currency_display_formatstr);
@@ -2289,7 +2489,7 @@ class Comquick2cartHelper
 	public function updateApplicationXml($path)
 	{
 		// Like /home/vidyasagar/html/Joomla2/components/com_zoo
-		$find = JPATH_SITE .'/components/com_zoo';
+		$find = JPATH_SITE . '/components/com_zoo';
 
 		$status = file_exists($find);
 
@@ -2502,7 +2702,7 @@ class Comquick2cartHelper
 	public function updateItemStock($order_id)
 	{
 		$db = JFactory::getDBO();
-		$q  = "SELECT `item_id`,`product_quantity`
+		$q  = "SELECT `item_id`,`product_quantity`,`variant_item_id`
 			FROM  `#__kart_order_item`
 			WHERE `order_id` =" . (int) $order_id;
 		$db->setQuery($q);
@@ -2510,6 +2710,7 @@ class Comquick2cartHelper
 
 		foreach ($result as $res)
 		{
+			$childItem_id = !empty($res->variant_item_id) ? $res->variant_item_id : $res->item_id;
 			$minus_qty = "-" . $res->product_quantity;
 			$minus_qty = (int) $minus_qty;
 			$query     = "UPDATE  `#__kart_items`
@@ -2524,14 +2725,14 @@ class Comquick2cartHelper
 								  ('" . $minus_qty . "')
 							END
 						)
-						WHERE  `item_id`=" . $res->item_id;
+						WHERE  `item_id`=" . $childItem_id;
 			$db->setQuery($query);
 			$db->Query();
 
-			// Low stock notification
+			/* @LOW STOCK NOTIFICATION Low stock notification
 			$q = "SELECT  stock
 				FROM  `#__kart_items`
-				WHERE `item_id` =" . (int) $res->item_id;
+				WHERE `item_id` =" . (int) $childItem_id;
 			$db->setQuery($q);
 			$resultstock = $db->loadResult();
 			$params      = JComponentHelper::getParams('com_quick2cart');
@@ -2562,7 +2763,7 @@ class Comquick2cartHelper
 										$commented_by_userid, $store_info['owner'],
 										$notification_subject, 'notif_system_messaging', '0', ''
 										);
-			}
+			}*/
 		}
 	}
 
@@ -2608,6 +2809,7 @@ class Comquick2cartHelper
 	{
 		$helper      = new comquick2cartHelper;
 		$att_options = $helper->getAttributeOption($att_id);
+		$modelsPath = JPATH_SITE . '/components/com_quick2cart/models/cart.php';
 
 		foreach ($att_options as $op)
 		{
@@ -2618,6 +2820,16 @@ class Comquick2cartHelper
 			foreach ($opdetails as $opd)
 			{
 				$op->$opd['currency'] = $opd['price'];
+			}
+
+			// Child_product_item_id
+			if (!empty($op->child_product_item_id))
+			{
+				$cart_model         = $helper->loadqtcClass($modelsPath, "Quick2cartModelcart");
+
+				// Fetch Child product detail
+				$child_product_detail = $cart_model->getItemRec($op->child_product_item_id);
+				$op->child_product_detail = !empty($child_product_detail) ? $child_product_detail : new stdClass;
 			}
 		}
 
@@ -3176,7 +3388,7 @@ class Comquick2cartHelper
 		$user_store = $db->loadObjectList();// loadAssoc::loads first row of result
 		*/
 
-		$query   = " select s.`id`, `owner`, `title`, `description`,`address`,
+		$query = " select s.`id`, `owner`, `pincode`, `title`, `description`,`address`,
 		 `phone`, `store_email`, `store_avatar`,`fee`, `live` AS published, `cdate`,
 		 `mdate`, `extra`,company_name,payment_mode,pay_detail,vanityurl,r.role
 			FROM `#__kart_role` AS r INNER JOIN `#__kart_store` AS s ON r.store_id=s.id
@@ -3199,7 +3411,7 @@ class Comquick2cartHelper
 	{
 		$db = JFactory::getDBO();
 		$q  = " select `id`, `owner`, `title`, `description`, `address`, `phone`,
-			`store_email`, `store_avatar`,company_name,payment_mode,pay_detail,vanityurl,header,
+			`store_email`,`city`,`land_mark`,`pincode`,`country`,`region`, `store_avatar`,company_name,payment_mode,pay_detail,vanityurl,header,
 			`fee`, `live` AS published, `cdate`,
 			`mdate`, `extra`,`length_id`,`weight_id`,`taxprofile_id`,`shipprofile_id`
 			FROM  `#__kart_store` WHERE id=" . $store_id;
@@ -3710,7 +3922,7 @@ class Comquick2cartHelper
 	{
 		$helperobj = new comquick2cartHelper;
 		$db        = JFactory::getDBO();
-		$query     = "SELECT `product_id`, `parent`
+		$query     = "SELECT `product_id`, `parent`,`category`
 		 FROM `#__kart_items`
 		 WHERE item_id=" . $item_id;
 		$db->setQuery($query);
@@ -3830,7 +4042,7 @@ class Comquick2cartHelper
 
 				if ($linkType == 'detailsLink')
 				{
-					$catpage_Itemid = $helperobj->getitemid('index.php?option=com_quick2cart&view=category');
+					$catpage_Itemid = $helperobj->getitemid('index.php?option=com_quick2cart&view=category&prod_cat=' . $res['category']);
 
 					$link = 'index.php?option=com_quick2cart&view=productpage&layout=default&item_id=' . $res["product_id"] . "&Itemid=" . $catpage_Itemid;
 
@@ -4123,6 +4335,30 @@ class Comquick2cartHelper
 
 			return $db->loadResult();
 		}
+	}
+
+	/**
+	 * This function return category detail
+	 *
+	 * @param   INT     $catid      The cat id whose child categories are to be taken
+	 *
+	 * @param   STRING  $extension  The extension whose cats are to be taken
+	 *
+	 * @return  array
+	 *
+	 * @since   1.0.0
+	 */
+	public static function getCatDetail($catid, $extension = 'com_tjlms')
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query->select("id,title,`parent_id`,`path`")
+		->from('#__categories')
+		->where(" extension='" . $extension . "'")
+		->where(" id=" . $catid);
+		$db->setQuery($query);
+
+		return $db->loadAssoc();
 	}
 
 	/**
@@ -4530,13 +4766,18 @@ class Comquick2cartHelper
 		// Load css files
 		$comparams = JComponentHelper::getParams('com_quick2cart');
 		$currentBSViews = $comparams->get('currentBSViews', "bs3");
+		$laod_boostrap = $comparams->get('qtcLoadBootstrap', 1);
 
-		if ($currentBSViews == "bs3")
+		// Load bootstrap.min.js before loading other files
+		if (!$app->isAdmin())
 		{
-			// Load bootstrap.min.js before loading other files
-			if (!$app->isAdmin())
+			if ($currentBSViews == "bs3")
 			{
-				$document->addStyleSheet(JUri::root(true) . '/media/techjoomla_strapper/bs3/css/bootstrap.min.css');
+				// Load Css
+				if (!empty($laod_boostrap))
+				{
+					$document->addStyleSheet(JUri::root(true) . '/media/techjoomla_strapper/bs3/css/bootstrap.min.css');
+				}
 
 				// Get plugin 'relatedarticles' of type 'content'
 				$plugin = JPluginHelper::getPlugin('system', 'qtc_sys');
@@ -4548,11 +4789,26 @@ class Comquick2cartHelper
 					$pluginParams = new JRegistry($plugin->params);
 					$load = $pluginParams->get('loadBS3js');
 
-					if(!empty($load))
+					if (!empty($load))
 					{
 						$jsFilesArray[] = 'media/techjoomla_strapper/bs3/js/bootstrap.min.js';
 					}
 				}
+			}
+			elseif ($currentBSViews == "bs2")
+			{
+				if (!empty($laod_boostrap))
+				{
+					$document->addStyleSheet(JUri::root(true) . '/media/jui/css/bootstrap.min.css');
+				}
+			}
+		}
+		else
+		{
+			// For backend view
+			if (!empty($laod_boostrap))
+			{
+				$document->addStyleSheet(JUri::root(true) . '/media/jui/css/bootstrap.min.css');
 			}
 		}
 
@@ -4562,17 +4818,28 @@ class Comquick2cartHelper
 			if ($option == "com_quick2cart")
 			{
 				// Load the view specific js
-
 				switch ($view)
 				{
 					// @TODO - get rid off two auto.js files
-
 					// Admin coupon view
+					case "vendor":
+						if ($layout == "createstore")
+						{
+							$jsFilesArray[] = 'components/com_quick2cart/assets/js/qtc-store-setup.js';
+						}
+					break;
+
+					case "products":
+						if ($layout == "new")
+						{
+							$jsFilesArray[] = 'components/com_quick2cart/assets/js/qtc-store-setup.js';
+						}
+					break;
 
 					case "coupon":
 						$jsFilesArray[] = 'components/com_quick2cart/assets/js/jquery-ui-1.10.4.custom.min.js';
 						$jsFilesArray[] = 'administrator/components/com_quick2cart/assets/js/auto.js';
-						break;
+					break;
 					case "dashboard":
 						// Morris chart js files
 						$jsFilesArray[] = 'components/com_quick2cart/assets/js/raphael.min.js';
@@ -4598,6 +4865,9 @@ class Comquick2cartHelper
 				// Load the view specific js
 				switch ($view)
 				{
+					case "product":
+							$jsFilesArray[] = 'components/com_quick2cart/assets/js/qtc-store-setup.js';
+					break;
 					case "cartcheckout":
 						// $jsFilesArray[] = 'components/com_quick2cart/js/jquery.validate.js';
 						$jsFilesArray[] = 'components/com_quick2cart/assets/js/fuelux2.3loader.min.js';
@@ -4655,11 +4925,15 @@ class Comquick2cartHelper
 			}
 		}
 
-		// Defind first thing script declaration.
-		$loadFirstDeclarations          = "var qtc_token = '" . JSession::getFormToken() . "';
-		var qtc_base_url = '" . $reqURI . "';
-		";
-		$firstThingsScriptDeclaration[] = $loadFirstDeclarations;
+		if (!defined('Q2C_IS_VARIABLE_DECLARED'))
+		{
+			// Defind first thing script declaration.
+			$loadFirstDeclarations          = " var qtc_token = '" . JSession::getFormToken() . "';
+			var qtc_base_url = '" . $reqURI . "';
+			 ";
+			$firstThingsScriptDeclaration[] = $loadFirstDeclarations;
+			define('Q2C_IS_VARIABLE_DECLARED', "YES");
+		}
 
 		return $jsFilesArray;
 	}
@@ -4672,11 +4946,40 @@ class Comquick2cartHelper
 	 */
 	public static function getLanguageConstantForJs()
 	{
+		$app   = JFactory::getApplication();
+		$jinput = $app->input;
+		$view = $jinput->get("view");
+
+		// For Product Page
 		JText::script('COM_QUICK2CART_COULD_NOT_CHANGE_CART_DETAIL_NOW', true);
 		JText::script('QTC_SKU_EXIST', true);
 		JText::script('COM_QUICK2CARET_LOT_VALUE_SHOULDNOT_BE_ZERO', true);
 		JText::script('COM_QUICK2CARET_SLAB_MIN_QTY', true);
 		JText::script('COM_QUICK2CARET_SLAB_SHOULD_BE_MULT_MIN_QTY', true);
+		JText::script('COM_QUICK2CARET_SLAB_SHOULD_BE_MULT_MIN_QTY', true);
+		JText::script('QTC_ENTER_POSITIVE_ORDER', true);
+		JText::script('QTC_REMOVE_MORE_OPTION_TITLE', true);
+		JText::script('COM_QUICK2CART_CHANGE_STOCKABLE_ATTRIBUTE_ALERT', true);
+		JText::script('COP_NOT_ACCEPTABLE_ENTERY', true);
+		JText::script('COM_QUICK2CART_SHIPPING_ADDRESS_ERROR_MSG', true);
+
+		switch($view)
+		{
+			case "products" || "product":
+					JText::script('COM_QUICK2CART_ADD_PROD_SEL_ATTRIBUTE_OPTION', true);
+					JText::script('COM_QUICK2CART_ADD_PROD_GATTRIBUTE_OPTION_ALREADY_PRESENT', true);
+			break;
+		}
+
+		//~ if ($app->isAdmin())
+		//~ {
+			//~ // Add admin contant only
+//~
+		//~ }
+		//~ else
+		//~ {
+			//~ // Add site contant only
+		//~ }
 	}
 
 	/**
@@ -4827,5 +5130,63 @@ class Comquick2cartHelper
 
 			return '';
 		}
+	}
+
+	/**
+	 * Method to get allow rating to bought the product user
+	 *
+	 * @param   string  $option  component name. eg quick2cart for component com_quick2cart etc.
+	 *
+	 * @return void
+	 *
+	 * @since 3.0
+	 */
+	public static function isComponentEnabled($option)
+	{
+		$status = 0;
+
+		if ($option)
+		{
+			// Load lib
+			jimport('joomla.filesystem.file');
+
+			if (JFile::exists(JPATH_ROOT . '/components/com_' . $option . '/' . $option . '.php'))
+			{
+				if (JComponentHelper::isEnabled('com_' . $option, true))
+				{
+					$status = 1;
+				}
+			}
+		}
+
+		return $status;
+	}
+
+	/**
+	 * Method to get maximum and minimum price range for price filter
+	 *
+	 * @return price range
+	 *
+	 * @since 2.5
+	 */
+	public function getFilterPriceRange()
+	{
+		$jinput = JFactory::getApplication()->input;
+		$prod_cat = $jinput->get('prod_cat','0','int');
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query->select("MAX(CASE WHEN bc.discount_price IS NOT NULL THEN bc.discount_price ELSE a.price END) as max, MIN(CASE WHEN bc.discount_price IS NOT NULL THEN bc.discount_price ELSE a.price END) as min");
+		$query->from('`#__kart_items` AS a');
+		$query->JOIN('INNER', '`#__kart_base_currency` AS bc ON bc.item_id=a.item_id');
+
+		if (!empty($prod_cat))
+		{
+			$query->where('a.category = '. $prod_cat);
+		}
+
+		$db->setQuery($query);
+		$result = $db->loadAssoc();
+
+		return $result;
 	}
 }

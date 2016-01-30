@@ -8,17 +8,12 @@
  */
 // No direct access.
 defined('_JEXEC') or die();
-//JHtml::_('behavior.tooltip');
 
-//JHtml::_('behavior.framework');
-
-//JHtml::_('behavior.modal');
 $lang = JFactory::getLanguage();
 $lang->load('com_quick2cart', JPATH_SITE);
 $helperobj = new comquick2cartHelper;
 $curr = $helperobj->getCurrencySession();
-// Added by aniket
-$entered_numerics = "'" . JText::_('QTC_ENTER_NUMERICS') . "'";
+
 $path = JPATH_SITE . '/components/com_quick2cart/models/attributes.php';
 
 if (!class_exists('quick2cartModelAttributes'))
@@ -26,11 +21,22 @@ if (!class_exists('quick2cartModelAttributes'))
 	JLoader::register('quick2cartModelAttributes', $path);
 	JLoader::load('quick2cartModelAttributes');
 }
-$quick2cartModelAttributes = new quick2cartModelAttributes();
+
+$quick2cartModelAttributes = new quick2cartModelAttributes;
 $item_id = (is_object($data)) ? $data->item_id : $data['item_id'];
 $productHelper = new productHelper;
-// Check whether product is allowd to buy or not. ( our of stock)
+
 $itemDetailObj = (object)$data;
+
+// For attribute based stock get attribute details
+$completeAttrDetail= $productHelper->getItemCompleteAttrDetail($itemDetailObj->item_id);
+
+if (!empty($completeAttrDetail))
+{
+	$itemDetailObj->itemAttributes = $completeAttrDetail;
+}
+
+// Check whether product is allowd to buy or not. ( our of stock)
 $qtcTeaserShowBuyNowBtn = $productHelper->isInStockProduct($itemDetailObj);
 $prodAttDetails = $productHelper->getProdPriceWithDefltAttributePrice($item_id);
 $it_price = $prodAttDetails; //$quick2cartModelAttributes->getCurrenciesvalue('0',$curr,'com_quick2cart',$item_id);
@@ -56,20 +62,21 @@ if (!empty($store_list))
 
 if (version_compare(JVERSION, '3.0', 'lt'))
 {
-	$publish = " icon-ok ";
-	$unpublish = " icon-remove ";
+	$publish = QTC_ICON_CHECKMARK;
+	$unpublish = QTC_ICON_REMOVE;
 }
 else
 {
 	// for joomla3.0
-	$publish = " icon-ok ";
-	$unpublish = " icon-cancel-2";
+	$publish = QTC_ICON_CHECKMARK;
+	$unpublish = QTC_ICON_REMOVE;
 }
 
 if (!empty($store_owner))
 {
 	$itemstate = $data['state'];
 }
+
 // GETTING ALL PRODUCTS ATTRIBURES
 $attribure_option_ids = $prodAttDetails['attrDetail']['attrOptionIds'];
 $tot_att_price = $prodAttDetails['attrDetail']['tot_att_price'];
@@ -78,46 +85,48 @@ $prodivsize = !empty($prodivsize) ? $prodivsize : 'default_product_div_size';
 $com_params = JComponentHelper::getParams('com_quick2cart');
 $img_width = $com_params->get('medium_width', 120);
 // Getting item id
-$catpage_Itemid = $helperobj->getitemid('index.php?option=com_quick2cart&view=category');
+//$catpage_Itemid = $helperobj->getitemid('index.php?option=com_quick2cart&view=category&layout=default&item_id' . $data['item_id']);
 
 ?>
 
-<div class="q2c_pin_item_<?php echo $random_container;?>">
-	<div class="q2c_pin_wrapper">
-		<div class="thumbnail">
-			<div class="caption">
+	<!-- LM removed classes q2c_pin_item_<?php echo $random_container;?> and added qtc-prod-pin col-xs- col-sm- col-md- -->
+	<div class="qtc-prod-pin-inner">
+		<!-- LM removed classes q2c_pin_wrapper and added qtc-prod-pininner -->
+
+			<div class="qtc-prod-pin-header">
 				<?php
 				// p_link:: if product has attribute then use plink to open product page
-				$p_link = 'index.php?option=com_quick2cart&view=productpage&layout=default&item_id=' . $data['item_id'] . '&Itemid=' . $catpage_Itemid;
-				// $product_link = JUri::root() . substr(JRoute::_($p_link), strlen(JUri::base(true)) + 1);
+				//$p_link = 'index.php?option=com_quick2cart&view=productpage&layout=default&item_id=' . $data['item_id'] . '&Itemid=' . $catpage_Itemid;
 				$product_link = $helperobj->getProductLink($data['item_id'], 'detailsLink');
 
 				if (isset($data['featured']))
 				{
-					if ($data['featured']=='1')
+					/*if ($data['featured']=='1')
 					{
 						?>
 						<img title="<?php echo JText::_('QTC_FEATURED_PROD');?>"
 							 src="<?php echo JUri::base().'components/com_quick2cart/assets/images/featured.png'; ?>" />
 						<?php
-					}
+					}*/
+					?>
+					<div class="qtc-prod-tag-cover <?php if ($data['featured']=='1') {echo 'qtc-feat-prod-visible';} ?>">
+							<span href="#" class="qtc-prod-tag" title="<?php echo  JText::_('COM_QUICK2CART_FEATURED_PRODUCT') ?>"><?php echo  JText::_('COM_QUICK2CART_FEATURED_PRODUCT') ?></span>
+							<div class="clear-fix"></div>
+					</div>
+				<?php
 				}
 
 				// GETTIN PRODUCT TITLE LIMIT
 				$prodTitleLimit = $com_params->get('ProductTitleLimit', 15);
 				$prodname = $data['name'];
 
-				if (strlen($data['name']) > $prodTitleLimit)
-				{
-					$prodname = substr($data['name'], 0, $prodTitleLimit). '...';
-				}
+				//~ if (strlen($data['name']) > $prodTitleLimit)
+				//~ {
+					//~ $prodname = substr($data['name'], 0, $prodTitleLimit). '...';
+				//~ }
 				?>
 
-				<strong class="center">
-					<a title="<?php echo $data['name'];?>" href="<?php echo $product_link; ?>">
-						<?php echo $prodname;?>
-					</a>
-				</strong>
+				<!--LM-->
 
 			</div>
 
@@ -151,23 +160,74 @@ $catpage_Itemid = $helperobj->getitemid('index.php?option=com_quick2cart&view=ca
 			}
 			?>
 
-			<div class="caption">
-				<a title="<?php echo $data['name'];?>" href="<?php echo $product_link; ?>">
+			<div class="qtc-prod-img-cover <?php if (empty($qtcTeaserShowBuyNowBtn)){ echo 'poos';} ?>">
+				<a title="<?php echo htmlentities($data['name']);?>" href="<?php echo $product_link; ?>">
+				<?php
+				if ($layout_to_load == "fixed_layout")
+				{
+				?>
+					<div class="qtc-prod-img" style="background-image: url('<?php echo htmlentities($img) ; ?>'); height:<?php echo !empty($pinHeight) ? $pinHeight : 200;?>px">
+					</div>
+
+				<?php
+				}
+				else
+				{
+					?>
 					<img class=' img-rounded q2c_pin_image'
 						src="<?php echo $img;?>"
 						alt="<?php echo  JText::_('QTC_IMG_NOT_FOUND') ?>"
 						title="<?php echo $data['name'];?>" />
+				<?php
+				} ?>
 				</a>
 			</div>
 
-			<div class="caption">
-				<div class="center">
-					<?php
-						$p_price = (!empty($item_price['discount_price']) && ceil($item_price['discount_price'])) ? $item_price['discount_price'] : $item_price['price'];
-						echo JText::_('QTC_ITEM_AMT') . " : " . $helperobj->getFromattedPrice($p_price + $tot_att_price);
-					?>
+			<div class="qtc-prod-footer-cover">
+				<div class="qtc-prod-name-cover">
+					<strong>
+					<a title="<?php echo htmlentities($data['name']);?>" href="<?php echo $product_link; ?>" class="qtc-cv-prod-name">
+						<?php echo $prodname;?>
+					</a>
+					</strong>
 				</div>
-				<hr class="hr hr-condensed"/>
+				<div class="qtc-prod-price-cover">
+					<?php
+						$discount_percent = (100 - (($item_price['discount_price'] / $item_price['price']) * 100));
+						$discount_present = ($com_params->get('usedisc') && isset($item_price['discount_price']) && $item_price['discount_price'] != 0) ? 1 : 0;
+						$p_price = (!empty($item_price['discount_price']) && ceil($item_price['discount_price'])) ? $item_price['discount_price'] : $item_price['price'];
+					?>
+					<?php
+						if ($discount_present == 1)
+						{
+						?>
+								<span class="qtc-offer-price">
+									<small><del><?php echo $helperobj->getFromattedPrice($item_price['price']);?></del></small>
+								</span>
+						<?php
+						}
+						?>
+						<span class='qtcproductprice'>
+							<strong>
+								<?php echo $helperobj->getFromattedPrice($p_price + $tot_att_price);?>
+							</strong>
+						</span>
+						<?php
+						if ($discount_present == 1)
+						{
+						?>
+						<span class='label label-warning' title= "<?php echo JText::sprintf('QTC_PERCENT_OFF',$discount_percent."%");?>">
+								<b>
+								<?php echo JText::_('COM_QUICK2CART_DISC_PRE'); ?> <?php echo round($discount_percent) . " %";?> <?php echo JText::_('COM_QUICK2CART_DISC_POST'); ?>
+								</b>
+						</span>
+						<?php
+						}
+						?>
+				</div>
+<!--
+				<hr class=""/>
+-->
 				<?php
 				$textboxid = $data['parent'] . '-' . $item_id . "_itemcount";
 				$parent = $data['parent'];
@@ -187,7 +247,7 @@ $catpage_Itemid = $helperobj->getitemid('index.php?option=com_quick2cart&view=ca
 
 				if (empty($qty_buynow))
 				{
-					// dont show quantity
+					// Dont show quantity
 					$qtyDivStyle = "display:none";
 					$qtyDivSpan = "";
 					$buyBtnSpan = "span12";
@@ -196,161 +256,12 @@ $catpage_Itemid = $helperobj->getitemid('index.php?option=com_quick2cart&view=ca
 				?>
 
 				<div class="clearfix"></div>
-				<div class="form-horizontal">
 					<?php
 					$options_str = implode(',', $attribure_option_ids);
-
-					if (empty($qtcTeaserShowBuyNowBtn))
-					{
-						// Show out of stock msg.
-						?>
-						<div>
-							<span class="label label-warning "><?php echo JText::_('QTC_OUT_OF_STOCK_MSG'); ?></span>
-						</div>
-						<?php
-					}
-					elseif (!empty($categoryPage))
-					{
-						?>
-						<div class="center">
-							<!--
-							<div class="<?php echo $qtyDivSpan;?>" style="<?php echo $qtyDivStyle;?>">
-							-->
-							<div class="" style="<?php echo $qtyDivStyle;?>">
-								<?php
-								$qtc_qnt_textbox_style = "";
-
-								if (version_compare(JVERSION, '3.0', 'lt'))
-								{
-									$qtc_qnt_textbox_style = "style='width:15px;'";
-								}
-								?>
-
-								<div class="pull-left">
-									<label class=""
-										for="<?php echo $textboxid;?>" >
-										<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_PIN_QUANTITY_TOOLTIP'), JText::_('COM_QUICK2CART_PIN_QUANTITY'), '', JText::_('COM_QUICK2CART_PIN_QUANTITY'));?>
-									</label>
-								</div>
-
-								<div class="pull-right">
-
-									<span class="qtc_itemcount qtc_float_right" >
-										<input type="button" onclick="qtc_increment(<?php echo $arg;?>)" class="qtc_icon-qtcplus qtc_pointerCusrsor" />
-										<input type="button" onclick="qtc_decrement(<?php echo $arg;?>)" class="qtc_icon-qtcminus qtc_pointerCusrsor" />
-									</span>
-
-									<input id="<?php echo $textboxid;?>" <?php echo $qtc_qnt_textbox_style;?>
-										name="<?php echo $data['product_id'];?>_itemcount"
-										class="qtc_textbox_small qtc_count qtc_float_right"
-										type="text"
-										value="<?php echo $data['min_quantity'];?>"
-										size="2"
-										maxlength="3"
-										onblur="checkforalphaLimit(this,'<?php echo $data['product_id'];?>','<?php echo $parent;?>','<?php echo $slab;?>',<?php echo $limits;?>,'<?php echo $min_msg;?>','<?php echo $max_msg;?>');"
-										Onkeyup="checkforalpha(this,'',<?php echo $entered_numerics; ?>)" />
-								</div>
-
-								<div class="clearfix"></div>
-
-							</div>
-							<hr class="hr hr-condensed"/>
-							<div class="clearfix"></div>
-
-							<!--
-							<div class="<?php //echo $buyBtnSpan;?>">
-							-->
-							<div class="center">
-								<?php
-								if (!empty($options_str))
-								{
-									?>
-									<!--
-									<button class="btn btn-small btn-success <?php echo $buyBtnClass;?>"
-									-->
-									<button class="btn btn-small btn-success"
-										type="button"
-										onclick="window.open('<?php echo JRoute::_($p_link);?>','_self')">
-											<i class="<?php echo QTC_ICON_CART;?>"></i> <?php echo JText::_('QTC_ITEM_BUY');?>
-									</button>
-									<?php
-								}
-								else
-								{
-									?>
-									<button class="btn btn-small btn-success qtc_buyBtn_style" type="button" onclick="qtc_addtocart('<?php echo $fun_param; ?>');"><i class="<?php echo QTC_ICON_CART;?>"></i> <?php echo JText::_('QTC_ITEM_BUY');?></button>
-									<?php
-								}
-								?>
-							</div>
-						</div>
-						<?php
-					}
-					else
-					{
 					?>
-						<!--  for buy now button-->
-						<div class="center">
-							<?php
-							$client = "q2c";
-							$pid = 0;
-							$item_id = $item_id;
 
-							$count = $data['min_quantity'];
-							$temp = "'" . $options_str . "','" . $count . "','" . $item_id . "'";
-
-							//@TODO temp fix ... need to have like com_quick2cart-5 here
-							$fun_param = $item_id;
-
-							if (!empty($options_str))
-							{
-								?>
-								<button class="btn btn-small btn-success" type="button"
-									onclick="window.open('<?php echo JRoute::_($p_link);?>','_self')">
-										<i class="<?php echo QTC_ICON_CART;?>"></i> <?php echo JText::_('QTC_ITEM_BUY');?>
-								</button>
-								<?php
-							}
-							else
-							{
-								?>
-								<button class="btn btn-small btn-success qtc_buyBtn_style" type="button" onclick="qtc_mod_addtocart(<?php echo $temp ?>);"><i class="<?php echo QTC_ICON_CART;?>"></i> <?php echo JText::_('QTC_ITEM_BUY');?></button>
-								<?php
-							}
-							?>
-						</div>
-					<?php
-					}
-					?>
 				</div>
-
-				<?php
-				$popup_buynow = $com_params->get('popup_buynow',1);
-
-				if ($popup_buynow == 2)
-				{
-					$checkout = 'index.php?option=com_quick2cart&view=cart';
-					$itemid = $helperobj->getitemid($checkout);
-					$action_link = JUri::root() . substr(JRoute::_('index.php?option=com_quick2cart&view=cartcheckout&Itemid=' . $itemid, false), strlen(JUri::base(true)) + 1);
-					?>
-					<div class="row-fluid" align="center">
-						<div class="span12" >
-							<div class="cart-popup" id="<?php echo $fun_param; ?>_popup" style="display: none;">
-								<div class="message"></div>
-								<div class="cart_link">
-									<a class="btn btn-success" href="<?php echo $action_link; ?>">
-										<?php echo JText::_('COM_QUICK2CART_VIEW_CART')?>
-									</a>
-								</div>
-								<i class="icon-remove cart-popup_close" onclick="techjoomla.jQuery(this).parent().slideUp().hide();"></i>
-							</div>
-						</div>
-					</div>
-
-					<?php
-				}
-				?>
-			</div>
-		</div>
-	</div>
-</div>
+				<div class="qtc-prod-oos <?php if (empty($qtcTeaserShowBuyNowBtn)){ echo 'oos';} ?>">
+						<span class="label label-grey "><?php echo JText::_('QTC_OUT_OF_STOCK_MSG'); ?></span></div>
+				</div>
+				<div class="clearfix"></div>

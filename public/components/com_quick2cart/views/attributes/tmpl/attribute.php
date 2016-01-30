@@ -11,7 +11,6 @@ defined('_JEXEC') or die();
 jimport('joomla.html.pane');
 JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
-
 $jinput = JFactory::getApplication()->input;
 $lang = JFactory::getLanguage();
 $lang->load('com_quick2cart', JPATH_ADMINISTRATOR);
@@ -37,7 +36,7 @@ if (version_compare(JVERSION, '1.6.0', 'ge'))
 else
 {
 	$js_key .="
-	function submitbutton( task ){";
+		function submitbutton( task ){";
 }
 	$js_key.="
 		if (task == 'attributes.cancel')
@@ -106,7 +105,7 @@ function addopt(){
 		ordernum=Number(ordernum);
 		 var newordernum=new Number(ordernum + 1);
 		newElem.find('input[name=\"att_detail[attri_opt][' + num + '][order]\"]').attr({'name': 'att_detail[attri_opt][' + newNum + '][order]','value':newordernum });
-		techjoomla.jQuery('#attri_opts' + num ).children().last().replaceWith('<button type=\"button\" class=\"btn btn-mini btn-danger\" id=\"btnRemove'+num+'\" onclick=\"techjoomla.jQuery(this).parent().remove();\" ><i class=\"icon-trash icon-white\"></i></button> ');
+		techjoomla.jQuery('#attri_opts' + num ).children().last().replaceWith('<button type=\"button\" class=\"btn btn-mini btn-danger\" id=\"btnRemove'+num+'\" onclick=\"techjoomla.jQuery(this).parent().remove();\" ><i class=\"" . Q2C_ICON_TRASH . " " . Q2C_ICON_WHITECOLOR . "\"></i></button> ');
 
 		// insert the new element after the last 'duplicatable' input field
 		techjoomla.jQuery('#attri_opts' + num).after(newElem);
@@ -163,7 +162,7 @@ function qtc_ispositive(ele)
 ";
 // $document->addScript(JUri::root().'components/com_quick2cart/assets/js/order.js');
 $document->addScriptDeclaration($js_key);
-
+$addpre_select = array();
 $addpre_select[] = JHtml::_('select.option','+', JText::_('QTC_ADDATTRI_PREADD'));
 $addpre_select[] = JHtml::_('select.option','-', JText::_('QTC_ADDATTRI_PRESUB'));
 // $addpre_select[] = JHtml::_('select.option','=', JText::_('QTC_ADDATTRI_PRESAM'));
@@ -188,7 +187,7 @@ $edit =  $jinput->get( 'edit',0,'INTEGER');
 			</thead>
 			<tbody>
 				<td data-title="<?php echo JText::_('QTC_ADDATTRI_NAME');?>">
-					<input id="atrri_name_id" class="input-small bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))?$this->itemattribute_name:''; ?>" maxlength="250" size="32" name="att_detail[attri_name]" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
+					<input id="atrri_name_id" class="input-small bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))? htmlentities($this->itemattribute_name):''; ?>" maxlength="250"  name="att_detail[attri_name]" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
 					<input type="hidden" name="att_detail[product_id]" value="<?php echo $pid ?>" />
 					<input type="hidden" name="att_detail[client]" value="<?php echo $client ?>" />
 				</td>
@@ -232,7 +231,7 @@ $edit =  $jinput->get( 'edit',0,'INTEGER');
 	<div class="">
 		<div class="col-md-12">
 			<div class="span4">
-				<input id="atrri_name_id" class="input-small bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))?$this->itemattribute_name:''; ?>" maxlength="250" size="32" name="att_detail[attri_name]" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
+				<input id="atrri_name_id" class="input-small bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))?$this->itemattribute_name:''; ?>" maxlength="250"  name="att_detail[attri_name]" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
 				<input type="hidden" name="att_detail[product_id]" value="<?php echo $pid ?>" />
 				<input type="hidden" name="att_detail[client]" value="<?php echo $client ?>" />
 			</div>
@@ -276,7 +275,7 @@ $edit =  $jinput->get( 'edit',0,'INTEGER');
 	<div class="form-group">
 		<h4><?php echo JText::_('QTC_ADDATTRI_NAME')?></h4>
 		<div class="col-sm-10">
-			<input id="atrri_name_id" class="input-medium bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))?$this->itemattribute_name:''; ?>" maxlength="250" size="32" name="attri_name" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
+			<input id="atrri_name_id" class="input-medium bill inputbox required" type="text" value="<?php echo (isset($this->itemattribute_name))?$this->itemattribute_name:''; ?>" maxlength="250"  name="attri_name" title="<?php echo JText::_('QTC_ADDATTRI_NAME_DESC')?>">
 	</div>
 	</div>
 	<div class="form-group">
@@ -314,13 +313,14 @@ $edit =  $jinput->get( 'edit',0,'INTEGER');
 	?>
 		<tr class="form-group form-inline clonedInput" id="attri_opts<?php echo $k; ?>" >
 			<td data-title="<?php echo JText::_('QTC_ADDATTRI_OPTNAME');?>">
-				<input type="hidden" name="att_detail[attri_opt][<?php echo $k; ?>][id]" value="<?php echo (isset($this->attribute_opt[$k]->itemattributeoption_id))?$this->attribute_opt[$k]->itemattributeoption_id:''; ?>">
-				<input type="text" class="input-medium" name="att_detail[attri_opt][<?php echo $k; ?>][name]" placeholder="<?php echo JText::_('QTC_ADDATTRI_OPTNAME')?>" value="<?php echo (isset($this->attribute_opt[$k]->itemattributeoption_name))?$this->attribute_opt[$k]->itemattributeoption_name:''; ?>">
+				<input type="hidden" name="att_detail[attri_opt][<?php echo $k; ?>][id]" value="<?php echo (isset($this->attribute_opt[$k]->itemattributeoption_id)) ? $this->attribute_opt[$k]->itemattributeoption_id:''; ?>">
+
+				<input type="text" class="input-medium" name="att_detail[attri_opt][<?php echo $k; ?>][name]" placeholder="<?php echo JText::_('QTC_ADDATTRI_OPTNAME')?>" value="<?php echo (isset($this->attribute_opt[$k]->itemattributeoption_name)) ? htmlentities($this->attribute_opt[$k]->itemattributeoption_name) : ''; ?>">
 			</td>
 			<td data-title="<?php echo JText::_('QTC_ADDATTRI_OPTPREFIX');?>">
 				<?php
 				$addpre_val = (isset($this->attribute_opt[$k]->itemattributeoption_prefix))?$this->attribute_opt[$k]->itemattributeoption_prefix:'';
-				echo JHtml::_('select.genericlist', $addpre_select, "att_detail[attri_opt][$k][prefix]", 'class="" size="1"  ', "value", "text", $addpre_val);
+				echo JHtml::_('select.genericlist', $addpre_select, "att_detail[attri_opt][$k][prefix]", 'class=""   ', "value", "text", $addpre_val);
 				?>
 			</td>
 			<td data-title="<?php echo JText::_('QTC_ADDATTRI_OPTVAL');?>">
@@ -360,12 +360,12 @@ $edit =  $jinput->get( 'edit',0,'INTEGER');
 				<?php
 				if ($k == $lastkey_opt)
 				{ ?>
-					<button type="button" class="<qtc_add_opBtn btn btn-mini btn-primary"  onclick="addopt();"><i class="<?php echo QTC_ICON_PLUS;?> icon-white"></i></button>
+					<button type="button" class="<qtc_add_opBtn btn btn-mini btn-primary"  onclick="addopt();"><i class="<?php echo QTC_ICON_PLUS;?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i></button>
 				<?php
 				}
 				else
 				{ ?>
-					<button type="button" class="btn btn-mini btn-danger" id="btnRemove<?php echo $k; ?>" onclick="techjoomla.jQuery(this).closest('tr').remove();" ><i class="icon-trash icon-white"></i></button>
+					<button type="button" class="btn btn-mini btn-danger" id="btnRemove<?php echo $k; ?>" onclick="techjoomla.jQuery(this).closest('tr').remove();" ><i class="<?php echo Q2C_ICON_TRASH; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i></button>
 				<?php
 				} ?>
 			</td>

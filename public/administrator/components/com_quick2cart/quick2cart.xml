@@ -8,8 +8,8 @@
 	<copyright>Copyright(C)2012-13 TechJoomla</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 
-	<creationDate>02 Oct 2015</creationDate>
-	<version>2.4.1</version>
+	<creationDate>07 Jan 2016</creationDate>
+	<version>2.5</version>
 
 	<description>Quick2Cart - Quick, Simple Ecommerce For Joomla!</description>
 
@@ -27,6 +27,7 @@
 		<folder>helpers</folder>
 		<folder>models</folder>
 		<folder>views</folder>
+		<folder>layouts</folder>
 		<folder>views_bs2</folder>
 
 		<filename>defines.php</filename>
@@ -88,7 +89,7 @@
 				<field name="storeDescriptionLimit" default="100" />
 				<field name="popup_buynow" default="1" />
 				<field name="currentBSViews" default="bs3" />
-				<field name="loadBootstrap" default="0" />
+				<field name="qtcLoadBootstrap" default="0" />
 
 				<!--Checkout Settings-->
 				<field name="singleStoreCkout" default="0" />
@@ -154,6 +155,14 @@
 				<field name="qty_buynow" default="1" />
 				<field name="who_bought" default="0" />
 				<field name="who_bought_limit" default="2" />
+				<field name="layout_to_load" default="flexible_layout" />
+				<field name="fix_pin_height" default="200" />
+
+				<!-- How much grid should be used for different devices -->
+				<field name="pin_for_lg" default="3" />
+				<field name="pin_for_md" default="4" />
+				<field name="pin_for_sm" default="6" />
+				<field name="pin_for_xs" default="12" />
 				<field name="pin_width" default="170" />
 				<field name="pin_padding" default="3" />
 

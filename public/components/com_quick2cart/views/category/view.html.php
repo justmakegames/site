@@ -19,7 +19,7 @@ jimport('joomla.application.component.view');
  * @subpackage  com_quick2cart
  * @since       2.2
  */
-class quick2cartViewCategory extends JViewLegacy
+class Quick2cartViewCategory extends JViewLegacy
 {
 	protected $items;
 
@@ -41,6 +41,15 @@ class quick2cartViewCategory extends JViewLegacy
 		$this->pagination = $this->get('Pagination');
 		$this->params     = JComponentHelper::getParams('com_quick2cart');
 
+		$this->product_sorting = array(
+		'' => JText::_('COM_QUICK2CART_SELECT_SORTING_FILTER'),
+		'PRICE_ASC'  => JText::_('COM_QUICK2CART_SORTING_PRICE_LOW_TO_HIGH'),
+		'PRICE_DESC'  => JText::_('COM_QUICK2CART_SORTING_PRICE_HIGH_TO_LOW'),
+		'CREATED_DESC'  => JText::_('COM_QUICK2CART_SORTING_LATEST_FIRST'),
+		'CREATED_ASC'  => JText::_('COM_QUICK2CART_SORTING_OLDEST_FIRST'),
+		'FEATURED'  => JText::_('COM_QUICK2CART_SORTING_FEATURED'),
+		);
+
 		$user                = JFactory::getUser();
 		$this->logged_userid = $user->id;
 
@@ -59,11 +68,12 @@ class quick2cartViewCategory extends JViewLegacy
 
 		$comquick2cartHelper = new comquick2cartHelper;
 
-		//$client='com_quick2cart';
-		//$client='*';
-		//$products = $model->getProducts($client);
+		/* $client='com_quick2cart';
+		$client='*';
+		$products = $model->getProducts($client);
+		*/
 
-		//Get all stores.
+		// Get all stores.
 		$this->store_details = $comquick2cartHelper->getAllStoreDetails();
 
 		$this->categoryPage = 1;
@@ -75,7 +85,7 @@ class quick2cartViewCategory extends JViewLegacy
 		print $isMultivenderOFFmsg;
 		return false;
 		}*/
-		//if($layout=='default')
+		// if($layout=='default')
 		{
 			global $mainframe;
 			$mainframe = JFactory::getApplication();
@@ -89,38 +99,43 @@ class quick2cartViewCategory extends JViewLegacy
 			// FOR STORE OWNER
 			if (!empty($storeOwner))
 			{
-				$storehelper    = new storehelper();
+				$storehelper    = new storehelper;
 				$change_storeto = $storehelper->isVendorsStoreId($change_storeto);
 			}
 
-			$this->change_prod_cat = $mainframe->getUserStateFromRequest('prod_cat', 'prod_cat', '0', 'INTEGER'); //vm: #25029
+			// Vm: #25029
+			//$this->change_prod_cat = $mainframe->getUserStateFromRequest('prod_cat', 'prod_cat', '0', 'INTEGER');
 			$this->change_prod_cat = $jinput->get('prod_cat', 0, 'INTEGER');
-			// retrun store_id,role etc with order by role,store_id
+
+			// Retrun store_id,role etc with order by role,store_id
 			$this->store_role_list = $store_role_list = $comquick2cartHelper->getStoreIds();
 			$this->store_list      = array();
+
 			foreach ($this->store_role_list as $store)
 			{
 				$this->store_list[] = $store['store_id'];
 			}
 
-			//$this->products = $model->getAllProducts();
+			// $this->products = $model->getAllProducts();
 			$this->products = $this->items = $this->get('Items');
 
-			//$mainframe->setUserState('$option.current_store', '0');  // VM:commentted  for store owner product view
+			// $mainframe->setUserState('$option.current_store', '0');  // VM:commentted  for store owner product view
 
-			// when chage store,get latest storeid otherwise( on first load) set first storeid as default
-			$this->store_id = $store_id = (!empty($change_storeto)) ? $change_storeto : ''; //$store_role_list[0]['store_id'];
+			// When chage store,get latest storeid otherwise( on first load) set first storeid as default
+			$this->store_id = $store_id = (!empty($change_storeto)) ? $change_storeto : '';
 
 			$pagination       = $model->getPagination();
+
 			// ALL FETCH ALL CATEGORIES
 			$this->cats       = $comquick2cartHelper->getQ2cCatsJoomla($this->change_prod_cat);
 			$this->pagination = $pagination;
 
-			//Added by Sneha
+			// Added by Sneha
 			$filter_state         = $mainframe->getUserStateFromRequest($option . 'search_list', 'search_list', '', 'string');
 			$lists['search_list'] = $filter_state;
 			$this->assignRef('lists', $lists);
-			//End added by Sneha
+
+			// End added by Sneha
 			$this->_setToolBar();
 		}
 
@@ -149,11 +164,16 @@ class quick2cartViewCategory extends JViewLegacy
 		}
 
 		$this->_prepareDocument();
+		$this->productPageTitle = $this->getTitle();
 		parent::display($tpl);
 	}
 
 	/**
 	 * Prepares the document
+	 *
+	 * @return  null
+	 *
+	 * @since  2.0
 	 */
 	protected function _prepareDocument()
 	{
@@ -166,9 +186,9 @@ class quick2cartViewCategory extends JViewLegacy
 		// Getting menu Param
 		$menuParam = $mainframe->getParams();
 
-		// Because the application sets a default page title,
-		// we need to get it from the menu item itself
-		//@TODO Need to uncomment this when a menu for single product item can be created.
+		/* Because the application sets a default page title,
+		 we need to get it from the menu item itself
+		 @TODO Need to uncomment this when a menu for single product item can be created.*/
 		/*
 		$menu = $menus->getActive();
 
@@ -184,7 +204,7 @@ class quick2cartViewCategory extends JViewLegacy
 		$title = $this->params->get('page_title', '');
 		*/
 
-		//@TODO Need to comment this if when a menu for single product item can be created.
+		// @TODO Need to comment this if when a menu for single product item can be created.
 		// Getting menu Param
 		$menuParam = $mainframe->getParams();
 		$title     = $menuParam->get('page_title');
@@ -228,10 +248,17 @@ class quick2cartViewCategory extends JViewLegacy
 		}
 	}
 
-
-	function _setToolBar()
+	/**
+	 * Function to se tool bar
+	 *
+	 * @return  toolbar
+	 *
+	 * @since 2.0
+	 *
+	 * */
+	public function _setToolBar()
 	{
-		//added by aniket for task #25690
+		// Added by aniket for task #25690
 		$document = JFactory::getDocument();
 
 		global $mainframe;
@@ -263,20 +290,20 @@ class quick2cartViewCategory extends JViewLegacy
 
 		if ($canDo->get('core.create'))
 		{
-			$tjbar->appendButton('product.addNew', 'TJTOOLBAR_NEW', '', 'btn btn-small btn-success');
+			$tjbar->appendButton('product.addNew', 'TJTOOLBAR_NEW', '', 'class="btn btn-small btn-success"');
 		}
 
 		if ($canDo->get('core.edit') && isset($this->items[0]))
 		{
-			$tjbar->appendButton('product.edit', 'TJTOOLBAR_EDIT', '', 'btn btn-small btn-success');
+			$tjbar->appendButton('product.edit', 'TJTOOLBAR_EDIT', '', 'class="btn btn-small btn-success"');
 		}
 
 		if ($canDo->get('core.edit.state'))
 		{
 			if (isset($this->items[0]->state))
 			{
-				$tjbar->appendButton('category.publish', 'TJTOOLBAR_PUBLISH', '', 'btn btn-small btn-success');
-				$tjbar->appendButton('category.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'btn btn-small btn-warning');
+				$tjbar->appendButton('category.publish', 'TJTOOLBAR_PUBLISH', '', 'class="btn btn-small btn-success"');
+				$tjbar->appendButton('category.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'class="btn btn-small btn-warning"');
 			}
 		}
 
@@ -284,10 +311,69 @@ class quick2cartViewCategory extends JViewLegacy
 		{
 			if (isset($this->items[0]))
 			{
-				$tjbar->appendButton('category.delete', 'TJTOOLBAR_DELETE', '', 'btn btn-small btn-danger');
+				$tjbar->appendButton('category.delete', 'TJTOOLBAR_DELETE', '', 'class="btn btn-small btn-danger"');
 			}
 		}
 
 		$this->toolbarHTML = $tjbar->render();
+	}
+
+	/**
+	 * Function to get title for product page according to category selected
+	 *
+	 * @return  product page title
+	 *
+	 * @since  2.5
+	 * */
+	public function getTitle()
+	{
+		$input = JFactory::getApplication()->input;
+
+		// Get cat from URL
+		$prod_cat = $input->get('prod_cat', '', 'int');
+
+		// Get all Quick2cart categorys in array
+		$all_categorys = JHtml::_('category.options', 'com_quick2cart', array('filter.published' => array(1)));
+
+		$app       = JFactory::getApplication();
+
+		// Load the JMenuSite Object
+		$menu      = $app->getMenu();
+
+		// Load the Active Menu Item as an stdClass Object
+		$activeMenuItem    = $menu->getActive();
+
+		// If product category not found in URL then assign product category according menu
+		if (empty($prod_cat) && !empty($activeMenuItem))
+		{
+			$prod_cat = $activeMenuItem->params->get('defaultCatId', '', 'INT');
+		}
+
+		$flag = 0;
+		$lagend_title = '';
+
+		foreach ($all_categorys as $cats)
+		{
+			if ($prod_cat == $cats->value)
+			{
+				$lagend_title = $cats->text;
+				$lagend_title = str_replace("-", "", $lagend_title);
+				$flag = 1;
+			}
+		}
+
+		if ($flag == 0)
+		{
+			if ($activeMenuItem == null)
+			{
+				$lagend_title = "QTC_PRODUCTS_CATEGORY_ALL_BLOG_VIEW";
+			}
+			else
+			{
+				$lagend_title = $activeMenuItem->title;
+			}
+		}
+
+		return ucfirst($lagend_title);
 	}
 }

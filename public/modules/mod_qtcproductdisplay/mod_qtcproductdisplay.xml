@@ -9,8 +9,8 @@
 	<copyright>Copyright(C)2012-13 TechJoomla</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 
-	<creationDate>02 Oct 2015</creationDate>
-	<version>2.4.1</version>
+	<creationDate>07 Jan 2016</creationDate>
+	<version>2.5</version>
 
 	<description>
 		<![CDATA[Module to show the Products from Quick2Cart Component]]>
@@ -37,8 +37,38 @@
 					<option value="qtc_topSeller">MOD_PRODUCTS_DISPLAY_TOP_SELLER</option>
 					<option value="qtc_recentlyBought">MOD_PRODUCTS_DISPLAY_RECENTLY_BOUGHT</option>
 				</field>
-				<field name="pin_width" type="text" default="170" label="MOD_PRODUCTS_DISPLAY_PIN_WIDTH" description="MOD_PRODUCTS_DISPLAY_PIN_WIDTH_DESC" />
-				<field name="pin_padding" type="text" default="3" label="MOD_PRODUCTS_DISPLAY_PIN_PADDING" description="MOD_PRODUCTS_DISPLAY_PIN_PADDING_DESC" />
+				<field name="layout_to_load" type="list" description="MOD_PRODUCTS_DISPLAY_LAYOUT_TO_SHOW_DESC" label="MOD_PRODUCTS_DISPLAY_LAYOUT_TO_SHOW" class="btn-group" default="flexible_layout">
+			<option value="fixed_layout">MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT</option>
+			<option value="flexible_layout">MOD_PRODUCTS_DISPLAY_FLEXIBLE_PIN_LAYOUT</option>
+				</field>
+				<!--For fixed layout-->
+				<field name="fix_pin_height" type="text" description="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_HEIGHT_DESC" label="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_HEIGHT" default="200" showon="layout_to_load:fixed_layout" />
+				<field name="pin_for_lg" type="list" description="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_PINS_IN_LS_DESC" label="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_PINS_IN_LS" class="btn-group" default="12" showon="layout_to_load:fixed_layout">
+					<option value="12">1</option>
+					<option value="6">2</option>
+					<option value="4">3</option>
+					<option value="3">4</option>
+				</field>
+				<field name="pin_for_md" type="list" description="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_PINS_IN_MS_DESC" label="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_PINS_IN_MS" class="btn-group" default="12" showon="layout_to_load:fixed_layout">
+					<option value="12">1</option>
+					<option value="6">2</option>
+					<option value="4">3</option>
+					<option value="3">4</option>
+				</field>
+				<field name="pin_for_sm" type="list" description="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_PINS_IN_SS_DESC" label="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_PINS_IN_SS" class="btn-group" default="12" showon="layout_to_load:fixed_layout">
+					<option value="12">1</option>
+					<option value="6">2</option>
+					<option value="4">3</option>
+					<option value="3">4</option>
+				</field>
+				<field name="pin_for_xs" type="list" description="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_PINS_IN_XSS_DESC" label="MOD_PRODUCTS_DISPLAY_FIXED_PIN_LAYOUT_PINS_IN_XSS" class="btn-group" default="12" showon="layout_to_load:fixed_layout">
+					<option value="12">1</option>
+					<option value="6">2</option>
+					<option value="4">3</option>
+					<option value="3">4</option>
+				</field>
+				<field name="pin_width" type="text" default="170" label="MOD_PRODUCTS_DISPLAY_PIN_WIDTH" description="MOD_PRODUCTS_DISPLAY_PIN_WIDTH_DESC" showon="layout_to_load:flexible_layout"/>
+				<field name="pin_padding" type="text" default="3" label="MOD_PRODUCTS_DISPLAY_PIN_PADDING" description="MOD_PRODUCTS_DISPLAY_PIN_PADDING_DESC" showon="layout_to_load:flexible_layout"/>
 			</fieldset>
 		</fields>
 	</config>

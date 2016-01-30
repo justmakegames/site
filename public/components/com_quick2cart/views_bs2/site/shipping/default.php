@@ -40,8 +40,8 @@ $isShippingEnabled = $this->params->get('shipping', 0);
 					</div>
 
 			<div class="btn-group pull-left">
-				<button class="btn hasTooltip" type="submit" title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i></button>
-				<button class="btn hasTooltip" type="button" title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>" onclick="document.id('filter_search').value='';this.form.submit();"><i class="icon-remove"></i></button>
+				<button class="btn qtc-hasTooltip" type="submit" title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>"><i class="<?php echo QTC_ICON_SEARCH; ?>"></i></button>
+				<button class="btn qtc-hasTooltip" type="button" title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>" onclick="document.id('filter_search').value='';this.form.submit();"><i class="<?php echo QTC_ICON_REMOVE; ?>"></i></button>
 			</div>
 
 	<!--
@@ -50,7 +50,7 @@ $isShippingEnabled = $this->params->get('shipping', 0);
 				<button class="btn btn-success" onclick="this.form.submit();">
 					<?php echo JText::_('COM_QUICK2CART_FILTER_GO'); ?>
 				</button>
-				<button class="btn btn-inverse"
+				<button class="btn "
 					onclick="document.getElementById('search').value='';this.form.submit();">
 					<?php echo JText::_('COM_QUICK2CART_FILTER_RESET' ); ?>
 				</button>

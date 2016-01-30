@@ -73,10 +73,8 @@ class Quick2cartViewcartcheckout extends JViewLegacy
 			//	$cartmodel = new Quick2cartModelcart;
 			//		$cart = $cartmodel->getCartitems();
 
-			// Amol change
 			$cartCheckoutModel = new Quick2cartModelcartcheckout;
 			$cart = $cartCheckoutModel->getCheckoutCartitemsDetails();
-			// Amol change end
 
 			$this->cart = $cart;
 			$session = JFactory::getSession();
@@ -194,7 +192,6 @@ class Quick2cartViewcartcheckout extends JViewLegacy
 				$country = $this->get("Country");
 				$this->country = $country;
 			}
-
 
 			// Getting GETWAYS
 			$dispatcher = JDispatcher::getInstance();

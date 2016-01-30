@@ -713,14 +713,14 @@ class qtczoneShipHelper
 			$minFieldName = !empty($fieldData['minFieldName']) ? $fieldData['minFieldName'] : 'shipForm[min_value]';
 			$minFieldId = !empty($fieldData['minFieldId']) ? $fieldData['minFieldId'] : 'qtcMinAmount';
 
-			$minFieldHtml = '<input id="' . $minFieldId .'" name="' . $minFieldName . '" class="input-large bill inputbox required validate-name" type="text" value="' . $minFieldAmount .  '">';
+			$minFieldHtml = '<input id="' . $minFieldId .'" name="' . $minFieldName . '" class=" required validate-name" type="text" value="' . $minFieldAmount .  '">';
 
 			// Max amount field
 			$maxFieldAmount = !empty($fieldData['maxFieldAmt']) ? $fieldData['maxFieldAmt'] : -1 ;
 			$maxFieldName = !empty($fieldData['maxFieldName']) ? $fieldData['maxFieldName'] : 'shipForm[max_value]';
 			$maxFieldId = !empty($fieldData['maxFieldId']) ? $fieldData['maxFieldId'] : 'qtcMaxAmount';
 
-			$maxFieldHtml = '<input id="' . $maxFieldId .'" name="' . $maxFieldName . '" class="input-large bill inputbox required validate-name" type="text" value="' . $maxFieldAmount .  '">
+			$maxFieldHtml = '<input id="' . $maxFieldId .'" name="' . $maxFieldName . '" class="required validate-name" type="text" value="' . $maxFieldAmount .  '">
 			<p class="text-info">' . JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_MAXIMUM_AMT_HELP") . '</p>';
 
 				switch($shipping_type)

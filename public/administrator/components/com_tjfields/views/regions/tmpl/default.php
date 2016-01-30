@@ -31,6 +31,7 @@ if (! empty($this->extra_sidebar))
 ?>
 
 <div class="<?php echo TJFIELDS_WRAPPER_CLASS;?> tj-regions">
+
 	<form
 		action="<?php echo JRoute::_('index.php?option=com_tjfields&view=regions&client=' . $this->input->get('client', '', 'STRING')); ?>"
 		method="post" name="adminForm" id="adminForm">

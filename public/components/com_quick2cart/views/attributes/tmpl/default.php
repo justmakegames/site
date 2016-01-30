@@ -47,6 +47,7 @@ $this->comquick2cartHelper = $comquick2cartHelper;
 
 // Load assets
 comquick2cartHelper::loadQuicartAssetFiles();
+comquick2cartHelper::defineIcons('SITE');
 
 if (!class_exists('qtcshiphelper'))  // load helper file if not exist
 {
@@ -172,14 +173,7 @@ $js_currency="
 		return;
 	}
 
-	if (version_compare(JVERSION, '3.0', 'lt'))
-	{
-		$qtc_icon_edit=" icon-edit ";
-	}
-	else
-	{ // for joomla3.0
-		$qtc_icon_edit= "  icon-apply ";
-	}
+	$qtc_icon_edit=   QTC_ICON_EDIT ;
 ?>
 
 <script type="text/javascript">
@@ -446,11 +440,11 @@ $document->addScriptDeclaration($js_currency);
 		{ ?>
 
 			<div class="form-group" style="<?php //echo $StoreIds_style;?>">
-				<label for="qtcEnableQtcProd" class="col-lg-2 col-md-2 col-sm-3 col-xs-12  control-label">
+				<label for="qtcEnableQtcProd" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 					<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ENABLE_QTC_PROD_FOR_THIS_ARTICLE_DESC'), JText::_('COM_QUICK2CART_ENABLE_QTC_PROD_FOR_THIS_ARTICLE'), '', ' ' . JText::_('COM_QUICK2CART_ENABLE_QTC_PROD_FOR_THIS_ARTICLE'));?>
 				</label>
 
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 					<label class="">
 						<input type="checkbox" id="qtcEnableQtcProd"   autocomplete="off" name="qtcEnableQtcProd" value=""  onchange="qtcUpdateProdFieldClasses()">
 					</label>
@@ -479,7 +473,7 @@ $document->addScriptDeclaration($js_currency);
 
 
 				<div class="form-group" style="<?php //echo $StoreIds_style;?>">
-					<label for="item_name" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('QTC_PROD_TITLE_DES'), JText::_('QTC_ITEM_NAME'), '', '* ' . JText::_('QTC_ITEM_NAME'));?>
+					<label for="item_name" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('QTC_PROD_TITLE_DES'), JText::_('QTC_ITEM_NAME'), '', '* ' . JText::_('QTC_ITEM_NAME'));?>
 					</label>
 						<?php
 							$p_title ='';
@@ -490,7 +484,7 @@ $document->addScriptDeclaration($js_currency);
 								$p_title = ($itemDetail['name']);
 							}
 						?>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<input type="text" class=" inputbox requiredEE"  name="item_name"  id="item_name" value="<?php echo $comquick2cartHelper->escape($p_title); ?>" />
 
 						<input type="hidden" class="inputbox"  name="pid"  id="pid" value="<?php echo $pid; ?>" />
@@ -508,8 +502,8 @@ $document->addScriptDeclaration($js_currency);
 
 				<!-- SKU -->
 				<div class='form-group' >
-					<label for="sku" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('QTC_ITEM_CCK_SKU_DES'), JText::_('QTC_ITEM_CCK_SKU'), '', '* '.JText::_('QTC_ITEM_CCK_SKU'));?></label>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<label for="sku" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('QTC_ITEM_CCK_SKU_DES'), JText::_('QTC_ITEM_CCK_SKU'), '', '* '.JText::_('QTC_ITEM_CCK_SKU'));?></label>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<input type="text" class=" inputbox requiredEE"  name="sku"  id="sku" onBlur="checkForSku(this.value)" value="<?php echo (!empty($itemDetail['sku'])? $itemDetail['sku'] : ''); ?>" autocomplete='off'  aria-invalid="false"  />
 					</div>
 				</div>
@@ -524,8 +518,8 @@ $document->addScriptDeclaration($js_currency);
 					<!--
 					<label class="col-md-2 col-md-2 control-label" for="storeid_lable"><strong><?php echo JText::_('COM_QUICK2CART_STORE_SELECT'); ?></strong></label>
 					-->
-					<label for="current_store_id" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('QTC_PROD_SELECT_STORE_DES'), '* ' . JText::_('COM_QUICK2CART_STORE_SELECT'), '', JText::_('COM_QUICK2CART_STORE_SELECT'));?></label>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<label for="current_store_id" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('QTC_PROD_SELECT_STORE_DES'), '* ' . JText::_('COM_QUICK2CART_STORE_SELECT'), '', JText::_('COM_QUICK2CART_STORE_SELECT'));?></label>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<?php
 						if (!empty($itemDetail['store_id']))
 						{
@@ -564,9 +558,9 @@ $document->addScriptDeclaration($js_currency);
 						<!--
 						<label class="col-md-2 col-md-2 control-label "><strong><?php echo JHtml::tooltip(JText::_('QTC_ITEM_STATUS'), JText::_('QTC_ITEM_STATUS_DES'), '', JText::_('QTC_ITEM_STATUS'));?></strong></label>
 						-->
-						<label for="qtc_item_state" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('QTC_ITEM_STATUS'), JText::_('QTC_ITEM_STATUS_DES'), '', JText::_('QTC_ITEM_STATUS'));?></label>
+						<label for="qtc_item_state" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('QTC_ITEM_STATUS'), JText::_('QTC_ITEM_STATUS_DES'), '', JText::_('QTC_ITEM_STATUS'));?></label>
 
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						  <?php
 								$default=(!empty($itemDetail['state'])? $itemDetail['state'] :0 );
 								$options[] = JHtml::_('select.option', 1, JText::_('QTC_ITEM_PUBLISH'));
@@ -574,7 +568,7 @@ $document->addScriptDeclaration($js_currency);
 								$stateFieldName = 'state';
 
 								// #40581 = temporary fix
-								if ($client == "com_zoo" || $client == "com_k2")
+								if ($client == "com_zoo" || $client == "com_k2" || $client == "com_flexicontent")
 								{
 									$stateFieldName = 'qtcProdState';
 								}
@@ -589,11 +583,11 @@ $document->addScriptDeclaration($js_currency);
 
 				<!-- PRICE PRICE -->
 				<div class='form-group qtc_currencey_textbox' id="qtc_price_currencey_textbox" >
-					<label for="jform_price_<?php echo !empty($curr[0]) ? $curr[0] : '' ;?>" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
-						<strong><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', JText::_('QTC_ITEM_PRICE'));?></strong>
+					<label for="jform_price_<?php echo !empty($curr[0]) ? $curr[0] : '' ;?>" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
+						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', "* " . JText::_('QTC_ITEM_PRICE'));?>
 					</label>
 
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<?php
 						$storevalue = '';
 						$currdata = array();
@@ -639,12 +633,12 @@ $document->addScriptDeclaration($js_currency);
 							<?php if ($multiCurrencies) : ?>
 								<div>
 									<div class=" curr_margin">
-										<label for="jform_price_<?php echo trim($value);?>" class="col-lg-2 col-md-2 col-sm-2 col-xs-12 control-label">
+										<label for="jform_price_<?php echo trim($value);?>" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 											<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', JText::_('COM_QUICK2CARET_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($currtext));?>
 										</label>
-										<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 input-group">
+										<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 input-group">
 											<input Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
-												class="currtext qtc_requiredoption form-control"
+												class="currtext required qtc_requiredoption form-control"
 												id="jform_price_<?php echo trim($value);?>"
 												size="16"
 												type="text"
@@ -658,9 +652,9 @@ $document->addScriptDeclaration($js_currency);
 								</div>
 
 							<?php else : ?>
-								<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 input-group curr_margin">
+								<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 input-group curr_margin">
 									<input Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
-										class="currtext qtc_requiredoption form-control"
+										class="currtext required qtc_requiredoption form-control"
 
 										id="jform_price_<?php echo trim($value);?>"
 										size="16"
@@ -680,10 +674,10 @@ $document->addScriptDeclaration($js_currency);
 				</div>
 				<!-- DISCOUNT PRICE -->
 				<div class='form-group qtc_currencey_textbox' style="<?php echo (($params->get('usedisc') == '0') ? 'display:none;' :'display:block;'); ?>" >
-					<label for="jform_disc_price_<?php echo !empty($curr[0]) ? $curr[0] : '' ;?>" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
-						<strong><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE'));?></strong>
+					<label for="jform_disc_price_<?php echo !empty($curr[0]) ? $curr[0] : '' ;?>" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
+						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE'));?>
 					</label>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<?php
 						$currdata = array();
 						$base_currency_id = "";
@@ -705,11 +699,11 @@ $document->addScriptDeclaration($js_currency);
 							<?php if ($multiCurrencies) : ?>
 								<div>
 									<div class=" curr_margin">
-										<label for="jform_disc_price_<?php echo trim($value);?>" class="col-lg-2 col-md-2 col-sm-2 col-xs-12 control-label">
+										<label for="jform_disc_price_<?php echo trim($value);?>" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 											<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('COM_QUICK2CARET_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($value));?>
 										</label>
 
-										<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 input-group">
+										<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 input-group">
 											<input Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
 												class="currtext form-control"
 												id="jform_disc_price_<?php echo trim($value);?>"
@@ -725,7 +719,7 @@ $document->addScriptDeclaration($js_currency);
 								</div>
 							<?php else : ?>
 
-								<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12  input-group curr_margin">
+								<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12  input-group curr_margin">
 									<input Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
 										class="input-mini currtext form-control"
 										id="jform_disc_price_<?php echo trim($value);?>"
@@ -757,10 +751,10 @@ $document->addScriptDeclaration($js_currency);
 					<!--
 					<label class="col-md-2 col-md-2 control-label"><strong class="" id="" ><?php echo JText::_('PLG_QTC_ITEM_STOCK'); ?></strong></label>
 					-->
-					<label for="stock" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
+					<label for="stock" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_STOCK_DESC'), JText::_('PLG_QTC_ITEM_STOCK'), '', JText::_('PLG_QTC_ITEM_STOCK'));?>
 					</label>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<input Onkeyup="checkforalpha(this,'45', '<?php echo addslashes($entered_numerics); ?>')"  type="text" name="stock" id="stock" size="32" value="<?php if (isset($minmaxstock->stock)) echo $minmaxstock->stock;?>" class="input-mini inputbox validate-integer"  >
 					</div>
 				</div>
@@ -771,34 +765,34 @@ $document->addScriptDeclaration($js_currency);
 					$qtc_min_max_style=	($qtc_min_max_status==1)?"display:block":"display:none";
 				?>
 				<div class="form-group" style="<?php echo $qtc_min_max_style;?>">
-					<label class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" for="item_slab">
+					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="item_slab">
 					<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_SLAB_DESC'), JText::_('COM_QUICK2CART_ITEM_SLAB'), '', JText::_('COM_QUICK2CART_ITEM_SLAB'));?>
 					</label>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<input Onkeyup="checkforalpha(this,'', '<?php echo addslashes($entered_numerics); ?>')"  Onchange="checkSlabValue();" type="text" name="item_slab" id="item_slab" size="32" value="<?php echo isset($minmaxstock) ? $minmaxstock->slab: 1  ?>" class="input-mini inputbox validate-integer"  >
 					</div>
 				</div>
 
 				<div class="form-group" style="<?php echo $qtc_min_max_style;?>">
-					<label for="min_item" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
+					<label for="min_item" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_MIN_QTY_DESC'), JText::_('QTC_ITEM_MIN_QTY'), '', JText::_('QTC_ITEM_MIN_QTY'));?>
 					</label>
 					<?php
 					?>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<input
 							onChange="checkSlabValueField(this,'', '<?php echo addslashes($entered_numerics); ?>')"
-							type="text" name="min_item" id="min_item" size="32" value="<?php if (isset($minmaxstock)) echo $minmaxstock->min_quantity;?>" class="input-mini inputbox validate-integer"  >
+							type="text" name="min_item" id="min_item" value="<?php if (isset($minmaxstock)) echo $minmaxstock->min_quantity;?>" class="input-mini inputbox validate-integer"  >
 					</div>
 				</div>
 				<div class="form-group" style="<?php echo $qtc_min_max_style;?>">
-					<label for="max_item" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('COM_QUICK2CART_ITEM_MAX_QTY_DESC'); ?>">
+					<label for="max_item" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" title="<?php echo JText::_('COM_QUICK2CART_ITEM_MAX_QTY_DESC'); ?>">
 						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_MAX_QTY_DESC'), JText::_('QTC_ITEM_MAX_QTY'), '', JText::_('QTC_ITEM_MAX_QTY'));?>
 					</label>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<input
 						onChange="checkSlabValueField(this,'', '<?php echo addslashes($entered_numerics); ?>')"
-						type="text" name="max_item" id="max_item" size="32" value="<?php if (isset($minmaxstock))  echo $minmaxstock->max_quantity;?>" class="input-mini inputbox validate-integer"  >
+						type="text" name="max_item" id="max_item" value="<?php if (isset($minmaxstock))  echo $minmaxstock->max_quantity;?>" class="input-mini inputbox validate-integer"  >
 					</div>
 				</div>
 

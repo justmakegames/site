@@ -90,24 +90,24 @@ $saveOrder = $listOrder == 'a.ordering';
 			<hr class="hr-condensed" />
 		</div>
 
-		<div id="filter-bar" class="btn-toolbar">
+		<div id="filter-bar" class="qtc-btn-toolbar">
 			<div class="filter-search btn-group pull-left q2c-btn-wrapper">
 				<input type="text" name="filter_search" id="filter_search"
 				placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_ZONES_SEARCH'); ?>"
 				value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
-				class="hasTooltip"
+				class="qtc-hasTooltip"
 				title="<?php echo JText::_('COM_QUICK2CART_FILTER_ZONES_SEARCH'); ?>" />
 			</div>
 
 			<div class="btn-group pull-left q2c-btn-wrapper">
-				<button type="submit" class="btn hasTooltip"
+				<button type="submit" class="btn qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-					<i class="icon-search"></i>
+					<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 				</button>
-				<button type="button" class="btn hasTooltip"
+				<button type="button" class="btn qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 				onclick="document.id('filter_search').value='';this.form.submit();">
-					<i class="icon-remove"></i>
+					<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 				</button>
 			</div>
 
@@ -135,7 +135,7 @@ $saveOrder = $listOrder == 'a.ordering';
 							$options[] = JHtml::_('select.option', $value['id'], $value['title']);
 						}
 
-						echo $this->dropdown = JHtml::_('select.genericlist', $options, 'filter_store', 'class="input-medium" size="1" autocomplete="off" onchange="document.adminForm.submit();" ', 'value', 'text', $default);
+						echo $this->dropdown = JHtml::_('select.genericlist', $options, 'filter_store', 'class="input-medium"  autocomplete="off" onchange="document.adminForm.submit();" ', 'value', 'text', $default);
 					}
 				}
 				?>
@@ -143,7 +143,7 @@ $saveOrder = $listOrder == 'a.ordering';
 
 			<div class="btn-group pull-right hidden-phone q2c-btn-wrapper">
 				<?php
-				echo JHtml::_('select.genericlist', $this->publish_states, "filter_published", 'class="input-medium" size="1" onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.state'));
+				echo JHtml::_('select.genericlist', $this->publish_states, "filter_published", 'class="input-medium"  onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.state'));
 				?>
 			</div>
 		</div>
@@ -200,7 +200,7 @@ $saveOrder = $listOrder == 'a.ordering';
 
 							<?php if (isset($this->items[0]->state)): ?>
 								<td class="hidden-phone center q2c_width_10">
-									<a class="btn btn-micro hasTooltip"
+									<a class=" "
 										href="javascript:void(0);"
 										title="<?php echo ( $item->state ) ? JText::_('QTC_UNPUBLISH') : JText::_('QTC_PUBLISH'); ;?>"
 										onclick="document.adminForm.cb<?php echo $i;?>.checked=1; document.adminForm.boxchecked.value=1; Joomla.submitbutton('<?php echo ( $item->state ) ? 'zones.unpublish' : 'zones.publish';?>');">

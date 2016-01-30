@@ -12,6 +12,8 @@ defined('_JEXEC') or die();
 
 jimport('joomla.application.component.view');
 
+require_once JPATH_ADMINISTRATOR . '/components/com_quick2cart/models/zone.php';
+
 /**
  * View class for vendor.
  *
@@ -31,6 +33,7 @@ class quick2cartViewVendor extends JViewLegacy
 	function display($tpl = null)
 	{
 		$this->params = JComponentHelper::getParams('com_quick2cart');
+		$Quick2cartModelZone = new Quick2cartModelZone;
 		$comquick2cartHelper = new comquick2cartHelper;
 		$storeHelper = new storeHelper;
 		$this->addToolbar();
@@ -42,6 +45,7 @@ class quick2cartViewVendor extends JViewLegacy
 
 		if ($layout == "createstore")
 		{
+			$this->countrys = $Quick2cartModelZone->getCountry();
 			$this->orders_site = 1;
 			$store_id = $input->get('store_id', '0');
 
@@ -70,7 +74,6 @@ class quick2cartViewVendor extends JViewLegacy
 				$this->legthList =  $storeHelper->getLengthClassSelectList();
 				$this->weigthList = $storeHelper->getWeightClassSelectList();
 			}
-
 
 			//START Q2C Sample development
 			$dispatcher = JDispatcher::getInstance();

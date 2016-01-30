@@ -24,12 +24,12 @@ $params = JComponentHelper::getParams('com_quick2cart');
 // Get store Owner.
 if (!class_exists('storeHelper'))
 {
-	$path = JPATH_SITE . DS . 'components' . DS . 'com_quick2cart' . DS . 'helpers' . DS . 'storeHelper.php';
+	$path = JPATH_SITE . '/components/com_quick2cart/helpers/storeHelper.php';
 	JLoader::register('storeHelper', $path);
 	JLoader::load('storeHelper');
 }
 
-$storeHelper = new storeHelper();
+$storeHelper = new storeHelper;
 $storeOwner = $storeHelper->getStoreOwner($this->store_id);
 $integrate_with = $params->get('integrate_with','none');
 
@@ -119,7 +119,7 @@ if (!empty($this->storeDetailInfo))
 
 						if (empty($img))
 						{
-							$img = JUri::base().'components'.DS.'com_quick2cart'.DS.'assets' . DS . 'images'.DS.'default_store_image.png';
+							$img = $storeHelper->getDefaultStoreImage();
 						}
 						?>
 						<img align="right" class='img-rounded img-polaroid qtc_putmargin5px' src="<?php echo $img;?>" alt="<?php echo  JText::_('QTC_IMG_NOT_FOUND') ?>"/>
@@ -163,14 +163,14 @@ if (!empty($this->storeDetailInfo))
 
 						<!-- ADDRESS-->
 						<?php if (!empty($sinfo['address'])){ ?>
-							<address class="span4">
+							<address class="span4 qtcWordWrap">
 								<strong><?php echo JText::_('VENDER_ADDRESS'); ?></strong>
 								<br/>
 								<span><?php echo $sinfo['address']; ?></span>
 							</address>
 						<?php } ?>
 
-						<address class="span4">
+						<address class="span4 qtcWordWrap">
 							<abbr title="Phone">
 								<strong><?php echo JText::_('VENDER_CONTACT_INFO'); ?></strong>:
 							</abbr>

@@ -94,21 +94,21 @@ class Quick2cartViewStores extends JViewLegacy
 		{
 			if (!empty($this->allowToCreateStore))
 			{
-				$tjbar->appendButton('vendor.addNew', 'TJTOOLBAR_NEW', '', 'btn btn-small btn-success');
+				$tjbar->appendButton('vendor.addNew', 'TJTOOLBAR_NEW', '', 'class="btn btn-small btn-success"');
 			}
 		}
 
 		if ($canDo->get('core.edit') && isset($this->items[0]))
 		{
-			$tjbar->appendButton('vendor.edit', 'TJTOOLBAR_EDIT', '', 'btn btn-small btn-success');
+			$tjbar->appendButton('vendor.edit', 'TJTOOLBAR_EDIT', '', 'class="btn btn-small btn-success"');
 		}
 
 		if ($canDo->get('core.edit.state'))
 		{
 			if (isset($this->items[0]->published))
 			{
-				$tjbar->appendButton('stores.publish', 'TJTOOLBAR_PUBLISH', '', 'btn btn-small btn-success');
-				$tjbar->appendButton('stores.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'btn btn-small btn-warning');
+				$tjbar->appendButton('stores.publish', 'TJTOOLBAR_PUBLISH', '', 'class="btn btn-small btn-success"');
+				$tjbar->appendButton('stores.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'class="btn btn-small btn-warning"');
 			}
 		}
 
@@ -116,7 +116,7 @@ class Quick2cartViewStores extends JViewLegacy
 		{
 			if (isset($this->items[0]))
 			{
-				$tjbar->appendButton('stores.delete', 'TJTOOLBAR_DELETE', '', 'btn btn-small btn-danger');
+				$tjbar->appendButton('stores.delete', 'TJTOOLBAR_DELETE', '', 'class="btn btn-small btn-danger"');
 			}
 		}
 

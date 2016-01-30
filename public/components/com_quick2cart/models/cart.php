@@ -11,13 +11,26 @@ class Quick2cartModelcart extends JModelLegacy
 {
 	// Instad of this use product helers funtion
 
+	/**
+	 * This function  give item attributes.
+	 *
+	 * @param   integer  $item_id  item_id
+	 *
+	 * @since   2.2.2
+	 *
+	 * @return   Object list.
+	 */
 	public function getAttributes($itemid)
 	{
-		$db = JFactory::getDBO();
-		$query = "SELECT itemattribute_id,itemattribute_name,`attribute_compulsary`,`attributeFieldType` FROM #__kart_itemattributes WHERE item_id=" . $itemid. " ORDER BY  `itemattribute_id` ASC";
-		$this->_db->setQuery($query);
-		$result = $this->_db->loadobjectList();
-		return $result;
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query->select("*");
+		$query->from('#__kart_itemattributes');
+		$query->where('item_id=' . $itemid);
+		$query->order('`itemattribute_id` ASC');
+		$db->setQuery($query);
+
+		return $db->loadobjectList();
 	}
 	/* @prams $itemid:: item-id from kart_item table
 	 * @return price of PRODUCT ACCORDING TO CURRENCY
@@ -25,9 +38,9 @@ class Quick2cartModelcart extends JModelLegacy
 	//
 	public function getPrice($itemid, $return_disc = 0, $getOriginalPrice = 0)
 	{
-		$db = JFactory::getDBO();
+		$db                  = JFactory::getDBO();
 		$comquick2cartHelper = new comquick2cartHelper;
-		$currency = $comquick2cartHelper->getCurrencySession();
+		$currency            = $comquick2cartHelper->getCurrencySession();
 		/*	if(!$currency) //if set in session
 		{
 		$params = JComponentHelper::getParams('com_quick2cart');
@@ -37,28 +50,30 @@ class Quick2cartModelcart extends JModelLegacy
 		$currency=$currkeys[0];
 		}*/
 		//$Quick2cartModelcart =  new Quick2cartModelcart;
-		$params = JComponentHelper::getParams('com_quick2cart');
+		$params              = JComponentHelper::getParams('com_quick2cart');
 		//$itemid =$Quick2cartModelcart->getitemid($pid,$client);
-		$query = "SELECT ";
+		$query               = "SELECT ";
 
 		if ($params->get('usedisc') && $return_disc == 1)
 		{
-			$query.= " discount_price , ";
+			$query .= " discount_price , ";
 		}
-		else
-		if ($params->get('usedisc') && $getOriginalPrice == 0)
+		else if ($params->get('usedisc') && $getOriginalPrice == 0)
 		{
-			$query.= " CASE WHEN ( (discount_price IS NOT NULL ) AND  ( discount_price != 0 )) THEN discount_price
+			$query .= " CASE WHEN ( (discount_price IS NOT NULL ) AND  ( discount_price != 0 )) THEN discount_price
 				ELSE price
 				END as ";
 		}
-		$query.= " price
+
+		$query .= " price
 		FROM #__kart_base_currency
-		WHERE item_id = " . (int)$itemid . " AND currency='$currency'";
+		WHERE item_id = " . (int) $itemid . " AND currency='$currency'";
 		$db->setQuery($query);
 
-		if ($params->get('usedisc') && $return_disc == 1) $result = $db->loadAssoc();
-		else $result = $db->loadAssoc();
+		if ($params->get('usedisc') && $return_disc == 1)
+			$result = $db->loadAssoc();
+		else
+			$result = $db->loadAssoc();
 		return $result;
 	}
 
@@ -72,7 +87,7 @@ class Quick2cartModelcart extends JModelLegacy
 		}
 		else
 		{
-			$query = "SELECT `item_id` FROM `#__kart_items`  where `product_id`=" . (int)$product_id . " AND parent='$client'";
+			$query = "SELECT `item_id` FROM `#__kart_items`  where `product_id`=" . (int) $product_id . " AND parent='$client'";
 		}
 		$db->setQuery($query);
 		$result = $db->loadResult();
@@ -81,8 +96,8 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function getitemidAndState($product_id = 0, $client)
 	{
-		$db = JFactory::getDBO();
-		$query = "SELECT `item_id`,`state` FROM `#__kart_items`  where `product_id`=" . (int)$product_id . " AND parent='$client'";
+		$db    = JFactory::getDBO();
+		$query = "SELECT `item_id`,`state` FROM `#__kart_items`  where `product_id`=" . (int) $product_id . " AND parent='$client'";
 		$db->setQuery($query);
 		$result = $db->loadAssoc();
 		return $result;
@@ -92,8 +107,9 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function getProd($item_obj)
 	{
+		$db    = JFactory::getDbo();
 		$comquick2cartHelper = new comquick2cartHelper;
-		$currency = $comquick2cartHelper->getCurrencySession();
+		$currency            = $comquick2cartHelper->getCurrencySession();
 		$Quick2cartModelcart = new Quick2cartModelcart;
 
 		if (empty($item_obj['item_id']))
@@ -107,39 +123,47 @@ class Quick2cartModelcart extends JModelLegacy
 
 		//	 $query = "SELECT parent,product_id,name,price FROM #__kart_items WHERE product_id = ".(int) $item_obj["id"]." AND parent='".$item_obj['parent']."'";
 		$itemid_rec = $this->getItemRec($item_id);
-		$params = JComponentHelper::getParams('com_quick2cart');
-		$query = "SELECT kc.id as base_currency_id,kc.item_id,";
+		$params     = JComponentHelper::getParams('com_quick2cart');
+		$query      = "SELECT kc.id as base_currency_id,kc.item_id,";
 
 		if ($params->get('usedisc'))
 		{
-			$query.= " CASE WHEN kc.discount_price IS NOT NULL THEN kc.discount_price
+			$query .= " CASE WHEN kc.discount_price IS NOT NULL THEN kc.discount_price
 				ELSE kc.price
 				END as price, ";
 		}
 		else
 		{
-			$query.= " kc.price, ";
+			$query .= " kc.price, ";
 		}
-		// removed parent and product_id
-		$query.= " ki.name
+
+		$query .= " ki.name
 		FROM #__kart_items AS ki
 		LEFT JOIN  `#__kart_base_currency` AS kc
 		ON  `ki`.`item_id` =  `kc`.`item_id`
 		WHERE ki.`item_id` =" . $itemid_rec->item_id . "
-		AND kc.currency = '" . $currency . "'"; // AND ki.parent='".$item_obj['parent']."'";
+		AND kc.currency = '" . $currency . "'";
 		$this->_db->setQuery($query);
 		$item_result = $this->_db->loadAssoc();
 
-		//$pid=(int) $item_obj["id"]; //product_id
+		// $pid=(int) $item_obj["id"]; //product_id
 		$item_result['price'] = $item_result['price'];
 		$item_result["count"] = $item_obj["count"]; // input to this f()
-		$final_result[] = $item_result;
-		// IF product has attributes
+		$final_result[]       = $item_result;
 
+		// IF product has attributes
 		if ($item_obj['options'])
 		{
+			$query = $db->getQuery(true);
+			$query->select("ko.*, currency as optioncurrency,price as optionprice")
+			 ->from('#__kart_itemattributeoptions as ko')
+			 ->join('LEFT', '#__kart_option_currency as kc ON  `ko`.`itemattributeoption_id`=`kc`.`itemattributeoption_id`')
+			 ->where(" ko.itemattributeoption_id IN (" . $item_obj['options'] . ") AND currency='" . $currency . "'");
+			$db->setQuery($query);
+			$options_result = $this->_db->loadAssocList('itemattribute_id');
+
 			//$query = "SELECT * FROM #__kart_itemattributeoptions WHERE itemattributeoption_id IN (".$item_obj['options'].")";//old query
-			$query = "
+			/*$query = "
 			SELECT 	ko.itemattributeoption_id,ko.itemattribute_id,ko.itemattributeoption_name,ko.itemattributeoption_code,ko.itemattributeoption_prefix,ko.ordering,
 			 currency as optioncurrency,price as optionprice
 			 FROM #__kart_itemattributeoptions as ko
@@ -147,24 +171,25 @@ class Quick2cartModelcart extends JModelLegacy
 			 ON  `ko`.`itemattributeoption_id`=`kc`.`itemattributeoption_id`
 			 WHERE ko.itemattributeoption_id IN (" . $item_obj['options'] . ") AND currency='" . $currency . "'";
 			$this->_db->setQuery($query);
-			$options_result = $this->_db->loadAssocList();
-			$item_options = array();
+			$options_result = $this->_db->loadAssocList();*/
+
+			$item_options   = $options_result;
 
 			foreach ($options_result as $options_result)
 			{
 				$item_options_arr[] = $options_result['itemattribute_id'];
 
-				foreach ($options_result as $k => $v)
+				/*foreach ($options_result as $k => $v)
 				{
 					$item_options[$options_result['itemattribute_id']][$k] = $v;
-				}
+				}*/
 			}
 
 			$itemattribute_ids = implode(",", $item_options_arr);
-			$final_result[] = $item_options;
-			$query = "SELECT * FROM #__kart_itemattributes WHERE itemattribute_id IN (" . $itemattribute_ids . ")";
+			$final_result[]    = $item_options;
+			$query             = "SELECT * FROM #__kart_itemattributes WHERE itemattribute_id IN (" . $itemattribute_ids . ")";
 			$this->_db->setQuery($query);
-			$item_attri = $this->_db->loadAssocList();
+			$item_attri     = $this->_db->loadAssocList();
 			$final_result[] = $item_attri;
 		}
 
@@ -174,14 +199,15 @@ class Quick2cartModelcart extends JModelLegacy
 	public function makeCart()
 	{
 		$user = JFactory::getUser();
-		$row = new stdClass;
+		$row  = new stdClass;
 
-		if ($user->id) $row->user_id = $user->id;
-		else $row->user_id = 0;
+		if ($user->id)
+			$row->user_id = $user->id;
+		else
+			$row->user_id = 0;
 		$cart = $this->getCartId(); // return cart_id with current session
 
 		if ($cart) /*if cart exists EXCEPT LAST UPDATED ENTRY  del all entry against user_id */
-
 		{
 
 			if ($user->id)
@@ -198,7 +224,7 @@ class Quick2cartModelcart extends JModelLegacy
 					if (!empty($cart_ids))
 					{
 						$cart_ids_str = implode(',', $cart_ids);
-						$query = "DELETE FROM #__kart_cart WHERE cart_id IN ($cart_ids_str)";
+						$query        = "DELETE FROM #__kart_cart WHERE cart_id IN ($cart_ids_str)";
 						$this->_db->setQuery($query);
 						$this->_db->execute();
 						$query = "DELETE FROM #__kart_cartitems WHERE cart_id IN ($cart_ids_str)";
@@ -207,7 +233,7 @@ class Quick2cartModelcart extends JModelLegacy
 					}
 				}
 			}
-			$row->cart_id = $cart;
+			$row->cart_id      = $cart;
 			$row->last_updated = date("Y-m-d H:i:s");
 
 			if (!$this->_db->updateObject('#__kart_cart', $row, 'cart_id'))
@@ -217,9 +243,10 @@ class Quick2cartModelcart extends JModelLegacy
 			}
 		}
 		else
-		{ /* if "not logged" in and "not cart entry" with oldsession(checked in getcartid ::called before if)*/
-			$session = JFactory::getSession();
-			$session_id = $session->getId();
+		{
+			/* if "not logged" in and "not cart entry" with oldsession(checked in getcartid ::called before if)*/
+			$session         = JFactory::getSession();
+			$session_id      = $session->getId();
 			$row->session_id = $session_id;
 
 			if (!$this->_db->insertObject('#__kart_cart', $row, 'cart_id'))
@@ -239,14 +266,14 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function getCartId()
 	{
-		$db = JFactory::getDBO(); //@TODO ask ashwin about this
-		$user = JFactory::getUser();
-		$session = JFactory::getSession();
+		$db         = JFactory::getDBO(); //@TODO ask ashwin about this
+		$user       = JFactory::getUser();
+		$session    = JFactory::getSession();
 		$session_id = $session->getId();
 
 		if ($user->id)
 		{
-			$where = "user_id='$user->id'";
+			$where         = "user_id='$user->id'";
 			$old_sessionid = $session->get('old_sessionid');
 
 			if (!empty($old_sessionid))
@@ -255,9 +282,9 @@ class Quick2cartModelcart extends JModelLegacy
 				$db = JFactory::getDBO(); //@TODO ask ashwin about this
 
 				//Quick2cartModelcart::delUser_idCartDetails($user->id);
-				$row = new stdClass;
-				$row->session_id = $old_sessionid;
-				$row->user_id = $user->id; //intval(JUserHelper::getUserId($user['username']));
+				$row               = new stdClass;
+				$row->session_id   = $old_sessionid;
+				$row->user_id      = $user->id; //intval(JUserHelper::getUserId($user['username']));
 				$row->last_updated = date("Y-m-d H:i:s");
 
 				if (!$db->updateObject('#__kart_cart', $row, 'session_id'))
@@ -269,7 +296,8 @@ class Quick2cartModelcart extends JModelLegacy
 		}
 		else
 		{
-			$session->set('old_sessionid', $session_id); /*store the old session for after user login use*/
+			$session->set('old_sessionid', $session_id);
+			/*store the old session for after user login use*/
 			$where = "session_id='$session_id'";
 		}
 		$query = "Select cart_id FROM #__kart_cart WHERE $where order by cart_id DESC";
@@ -285,18 +313,22 @@ class Quick2cartModelcart extends JModelLegacy
 	public function getCartitems($getOriginalPrice = 0)
 	{
 		$comquick2cartHelper = new comquick2cartHelper;
-		$currency = $comquick2cartHelper->getCurrencySession();
-		$db = JFactory::getDBO(); //@TODO ask ashwin about this
+		$currency            = $comquick2cartHelper->getCurrencySession();
+		$db                  = JFactory::getDBO(); //@TODO ask ashwin about this
 		$Quick2cartModelcart = new Quick2cartModelcart;
-		$cart_id = $Quick2cartModelcart->getCartId();
+		$cart_id             = $Quick2cartModelcart->getCartId();
 
-		if (!isset($cart_id)) return;
+		if (!isset($cart_id))
+		{
+			return;
+		}
+
 		$query = "Select k.cart_item_id as id, 	k.cart_id,k.store_id,i.sku,
 					k.order_item_name as title,	k.user_info_id,
 					k.cdate,						k.mdate,
 					k.product_quantity as qty, 		k.product_attribute_names as options,
 					k.item_id, k.product_item_price,k.product_attributes_price,k.product_final_price,k.original_price,k. params,currency,
-					k.product_attributes
+					k.product_attributes, k.variant_item_id
 		 FROM #__kart_cartitems as k,#__kart_items as i
 		 WHERE k.item_id=i.item_id and k.cart_id='$cart_id' order by k.`store_id`";
 		$db->setQuery($query);
@@ -304,19 +336,19 @@ class Quick2cartModelcart extends JModelLegacy
 
 		foreach ($cart as $key => $rec)
 		{
-			$cart[$key]['seller_id'] = JFactory::getUser()->id; //@TODO fetch store owner from items table
+			$cart[$key]['seller_id'] = $rec['store_id'];
 
 			// task 1 fetch item price
-			$pricearray = "";
-			$return_disc = 0;
-			$prod_price = $Quick2cartModelcart->getPrice($rec['item_id'], $return_disc, $getOriginalPrice);
+			$pricearray        = "";
+			$return_disc       = 0;
+			$prod_price        = $Quick2cartModelcart->getPrice($rec['item_id'], $return_disc, $getOriginalPrice);
 			$cart[$key]['amt'] = $prod_price['price']; //product_item_price as amt
 
 			// task 2 attribute price
 
 			if (isset($rec['product_attributes']) && $rec['product_attributes'])
 			{
-				$totop_price = $Quick2cartModelcart->getCurrPriceFromBaseCurrencyOption($rec['product_attributes']);
+				$totop_price           = $Quick2cartModelcart->getCurrPriceFromBaseCurrencyOption($rec['product_attributes']);
 				$cart[$key]['opt_amt'] = $totop_price; // product_attributes_price as opt_amt*/
 
 			}
@@ -326,13 +358,13 @@ class Quick2cartModelcart extends JModelLegacy
 
 			}
 			// task 3 calculate total m price
-			$cart[$key]['tamt'] = ((float)$cart[$key]['amt'] + (float)$cart[$key]['opt_amt']) * (float)$cart[$key]['qty']; //product_final_price as tamt
+			$cart[$key]['tamt'] = ((float) $cart[$key]['amt'] + (float) $cart[$key]['opt_amt']) * (float) $cart[$key]['qty']; //product_final_price as tamt
 
 			//  synchronize new item price and its related in cart_item table
-			$cart_item = new stdClass;
-			$cart_item->cart_item_id = $cart[$key]['id']; //as id
-			$cart_item->product_quantity = $cart[$key]['qty'];
-			$cart_item->product_item_price = $cart[$key]['amt'];
+			$cart_item                           = new stdClass;
+			$cart_item->cart_item_id             = $cart[$key]['id']; //as id
+			$cart_item->product_quantity         = $cart[$key]['qty'];
+			$cart_item->product_item_price       = $cart[$key]['amt'];
 			$cart_item->product_attributes_price = $cart[$key]['opt_amt'];
 
 			if (!empty($rec['params']))
@@ -347,21 +379,22 @@ class Quick2cartModelcart extends JModelLegacy
 					$coupon = $coupon ? $coupon : array();
 
 					if (isset($coupon) && $coupon) // if user entered code is matched with dDb coupon code
-
 					{
 
 						if (in_array($cart[$key]['item_id'], $coupon[0]->item_id))
 						{
-							$camt = - 1;
+							$camt                         = -1;
 							$cart[$key]['original_price'] = $cart[$key]['tamt'];
-							$cart_item->original_price = $cart[$key]['original_price'];
-							$coupon[0]->cop_code = $params['coupon_code'];
+							$cart_item->original_price    = $cart[$key]['original_price'];
+							$coupon[0]->cop_code          = $params['coupon_code'];
 
-							if ($coupon[0]->val_type == 1) $cval = ($coupon[0]->value / 100) * $cart[$key]['tamt'];
+							if ($coupon[0]->val_type == 1)
+								$cval = ($coupon[0]->value / 100) * $cart[$key]['tamt'];
 							else
 							{
 								$cval = $coupon[0]->value;
-								$cval = $cval * $cart[$key]['qty']; /*multiply cop disc with qty*/
+								$cval = $cval * $cart[$key]['qty'];
+								/*multiply cop disc with qty*/
 							}
 							$camt = $cart[$key]['tamt'] - $cval;
 
@@ -369,14 +402,14 @@ class Quick2cartModelcart extends JModelLegacy
 							{
 								$camt = 0;
 							}
-							$cart[$key]['tamt'] = (!($camt == - 1)) ? $camt : $cart[$key]['tamt'];
+							$cart[$key]['tamt'] = (!($camt == -1)) ? $camt : $cart[$key]['tamt'];
 						}
 					}
 				}
 			}
 			$cart_item->product_final_price = $cart[$key]['tamt'];
-			$cart_item->currency = $comquick2cartHelper->getCurrencySession();
-			$db = JFactory::getDBO();
+			$cart_item->currency            = $comquick2cartHelper->getCurrencySession();
+			$db                             = JFactory::getDBO();
 
 			if ($cart_item->product_item_price != $cart[$key]['product_item_price'] || $cart_item->product_attributes_price != $cart[$key]['product_attributes_price'] || $cart_item->product_final_price != $cart[$key]['product_final_price'] || $cart_item->currency != $cart[$key]['currency'])
 			{
@@ -386,40 +419,49 @@ class Quick2cartModelcart extends JModelLegacy
 					echo $this->_db->stderr();
 					return -1;
 				}
+				else
+				{
+					// Update price in fetched array according to current currency
+					$cart[$key]['product_item_price'] = $cart_item->product_item_price;
+					$cart[$key]['product_attributes_price'] = $cart_item->product_attributes_price;
+					$cart[$key]['product_final_price']  = $cart_item->product_final_price;
+					$cart[$key]['currency'] = $cart_item->currency;
+				}
 			}
 		}
+
 		return $cart;
 	} // end of getCartitems()
 
 	public function empty_cart()
 	{
-		$c_id = $this->getCartId();
-		$query = "Select cart_item_id FROM #__kart_cartitems WHERE cart_id=" . (int)$c_id;
+		$c_id  = $this->getCartId();
+		$query = "Select cart_item_id FROM #__kart_cartitems WHERE cart_id=" . (int) $c_id;
 		$this->_db->setQuery($query);
 		$items_id = $this->_db->loadResult();
-		$query = "DELETE FROM #__kart_cartitemattributes WHERE cart_item_id=" . (int)$items_id;
+		$query    = "DELETE FROM #__kart_cartitemattributes WHERE cart_item_id=" . (int) $items_id;
 		$this->_db->setQuery($query);
 		$this->_db->execute();
-		$query = "DELETE FROM #__kart_cartitems WHERE cart_id=" . (int)$c_id;
+		$query = "DELETE FROM #__kart_cartitems WHERE cart_id=" . (int) $c_id;
 		$this->_db->setQuery($query);
 		$this->_db->execute();
 	}
 
 	public function remove_cart($id)
 	{
-		$db = JFactory::getDBO();
+		$db    = JFactory::getDBO();
 		//GET CART ITEMS
-		$query = "Select * FROM #__kart_cartitems WHERE `cart_item_id`=" . (int)$id;
+		$query = "Select * FROM #__kart_cartitems WHERE `cart_item_id`=" . (int) $id;
 		$db->setQuery($query);
 		$cart['cartitem'] = $db->loadAssoc();
 		//GET CART ITEMS ATTRIBUTE DETAILS
-		$query = "Select * FROM #__kart_cartitemattributes WHERE cart_item_id=" . (int)$id;
+		$query            = "Select * FROM #__kart_cartitemattributes WHERE cart_item_id=" . (int) $id;
 		$db->setQuery($query);
 		$cart['cartitemattributes'] = $db->loadAssocList();
-		$query = "DELETE FROM #__kart_cartitems WHERE cart_item_id=" . (int)$id;
+		$query                      = "DELETE FROM #__kart_cartitems WHERE cart_item_id=" . (int) $id;
 		$db->setQuery($query);
 		$db->execute();
-		$query = "DELETE FROM #__kart_cartitemattributes WHERE cart_item_id=" . (int)$id;
+		$query = "DELETE FROM #__kart_cartitemattributes WHERE cart_item_id=" . (int) $id;
 		$db->setQuery($query);
 		$db->execute();
 		//START Q2C Sample development
@@ -438,7 +480,7 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function update_cart($item_ids, $item_qty)
 	{
-		$db = JFactory::getDBO();
+		$db   = JFactory::getDBO();
 		$user = JFactory::getUser();
 
 		foreach ($item_ids as $k => $cartitem)
@@ -447,8 +489,8 @@ class Quick2cartModelcart extends JModelLegacy
 			$db->setQuery($query);
 			list($product_item_price, $product_attributes_price) = $this->_db->loadRow();
 			//$product_item_price = $product_item_price + $product_attributes_price;
-			$items = new stdClass;
-			$items->cart_item_id = $cartitem;
+			$items                   = new stdClass;
+			$items->cart_item_id     = $cartitem;
 			$items->product_quantity = $item_qty[$k];
 			//$items->product_final_price =  $product_item_price * $item_qty[$k];
 
@@ -463,15 +505,15 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function isProdFromSameStore($cartId, $currItemStoreId)
 	{
-		$db = JFactory::getDBO();
+		$db    = JFactory::getDBO();
 		$query = $db->getQuery(true);
-		$query->select('c.store_id');
-		$query->from('#__kart_cartitems AS c');
-		$query->where('c.cart_id=' . $cartId);
+		$query->select('k.store_id');
+		$query->from('#__kart_cartitems as k,#__kart_items as i');
+		$query->where('k.item_id=i.item_id and k.cart_id=' . $cartId);
 		$db->setQuery($query);
 		$storelist = $db->loadColumn();
-		// Cart doesn't have items.
 
+		// Cart doesn't have items.
 		if (empty($storelist))
 		{
 			return true;
@@ -502,8 +544,9 @@ class Quick2cartModelcart extends JModelLegacy
 	public function putCartitem($c_id, $cartitem, $cart_item_id = '')
 	{
 		$comquick2cartHelper = new comquick2cartHelper;
-		$params = JComponentHelper::getParams('com_quick2cart');
-		$item_details = $cartitem[0];
+		$productHelper       = new productHelper;
+		$params              = JComponentHelper::getParams('com_quick2cart');
+		$item_details        = $cartitem[0];
 
 		// Option details size->big,medium
 		$item_options = (isset($cartitem[1])) ? $cartitem[1] : null;
@@ -517,7 +560,7 @@ class Quick2cartModelcart extends JModelLegacy
 		}
 
 		// Get current item store id.
-		$currItemStoreId = $comquick2cartHelper->getSoreID($item_details['item_id']);
+		$currItemStoreId  = $comquick2cartHelper->getSoreID($item_details['item_id']);
 		$singleStoreCkout = $params->get('singleStoreCkout', 0);
 
 		if ($singleStoreCkout)
@@ -533,7 +576,7 @@ class Quick2cartModelcart extends JModelLegacy
 
 		$timestamp = date("Y-m-d H:i:s");
 		$opt_price = 0;
-		$opt = $opt_ids = '';
+		$opt       = $opt_ids = '';
 		$matchAttr = 1;
 
 		// Product has attributes.
@@ -543,15 +586,15 @@ class Quick2cartModelcart extends JModelLegacy
 			{
 				$item_option = $item_options[$item_attri['itemattribute_id']];
 				$opt .= $item_attri['itemattribute_name'] . ": " . $item_option['itemattributeoption_name'] . ",";
-				$opt_ids.= $item_option['itemattributeoption_id'] . ",";
+				$opt_ids .= $item_option['itemattributeoption_id'] . ",";
 
 				if ($item_option['itemattributeoption_prefix'] == '+')
 				{
-					$opt_price+= $item_option['optionprice'];
+					$opt_price += $item_option['optionprice'];
 				}
 				elseif ($item_option['itemattributeoption_prefix'] == '-')
 				{
-					$opt_price-= $item_option['optionprice'];
+					$opt_price -= $item_option['optionprice'];
 				}
 			}
 
@@ -559,39 +602,65 @@ class Quick2cartModelcart extends JModelLegacy
 			//$opt_ids = rtrim($opt_ids, ',');
 		}
 
-		$query = "Select cart_item_id,item_id,product_quantity
-		 FROM #__kart_cartitems WHERE cart_id=" . (int)$c_id . " AND item_id=" . $item_details['item_id'] . " AND product_attributes='" . $opt_ids . "' AND `product_attribute_names` = '" . $opt . "'";
-		$this->_db->setQuery($query);
-		$cart = $this->_db->loadAssoc();
-//~ $cart = $this->_db->loadAssocList();
-//~ print"<pre>"; print_r($cartitem);
-//~ print"<pre>"; print_r($cart); die;
-		$final_price = $item_details['price'] + $opt_price;
-		$items = new stdClass;
-		$items->product_final_price = $item_details['count'] * $final_price;
-		$items->product_item_price = $item_details['price'];
-		$items->product_attributes = $opt_ids;
-		$items->product_attribute_names = $opt;
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query->select("cart_item_id,item_id,product_quantity");
+		$query->from("#__kart_cartitems");
+
+		$conditions = array(
+			$db->quoteName('cart_id') . ' =' . (int) $c_id,
+			$db->quoteName('item_id') . ' =' . (int) $item_details['item_id'],
+			$db->quoteName('product_attributes') . ' =' . '"' . $opt_ids . '"',
+			$db->quoteName('product_attribute_names') . ' =' . $db->quote($opt)
+		);
+
+		$query->where($conditions);
+		$db->setQuery($query);
+		$cart = $db->loadAssoc();
+
+		$final_price                     = $item_details['price'] + $opt_price;
+		$items                           = new stdClass;
+		$items->product_final_price      = $item_details['count'] * $final_price;
+		$items->product_item_price       = $item_details['price'];
+		$items->product_attributes       = $opt_ids;
+		$items->product_attribute_names  = $opt;
 		$items->product_attributes_price = $opt_price;
-		$items->mdate = $timestamp;
-		$items->currency = $comquick2cartHelper->getCurrencySession();
-		$items->store_id = $comquick2cartHelper->getSoreID($item_details['item_id']); // getting store id from item_id
+		$items->mdate                    = $timestamp;
+		$items->currency                 = $comquick2cartHelper->getCurrencySession();
+		$items->store_id                 = $comquick2cartHelper->getSoreID($item_details['item_id']);
 
 		//~ if (!empty($params))
 		//~ {
-			//~ $items->params = $params;
+		//~ $items->params = $params;
 		//~ }
 
-		/* if #__kart_cartitems contain entry then update .if cart contain item then  update// check  present  same && all attr same  */
+		// Get min and max field details
+		$dbItemDetail = $this->getItemRec($item_details['item_id']);
+		$checForMainStock = 1;
 
+		// Get stock according to current selected varient.
+		if (!empty($item_attris) && !empty($item_options))
+		{
+			$formattedAttriDetails = $this->getFormatedAttrData($item_attris, $item_options);
+
+			//  Get Stock according to STOCKABLE attribute's option
+			$childProdDetail = $productHelper->getAttriBasedStock($formattedAttriDetails);
+			if (!empty($childProdDetail) && !empty($childProdDetail['child_product_item_id']))
+			{
+				$dbItemDetail->stock = $childProdDetail['stock'];
+				$items->variant_item_id = $childProdDetail['child_product_item_id'];
+				$checForMainStock = 0;
+			}
+		}
+
+		// For attribut based stock-> child product
+		// @TODO if (check for child product stock and show appropriate msg)
+		// If #__kart_cartitems contain entry for item and also check  present  same && all attr are same
 		if ($cart['cart_item_id'] && $cart['item_id'] == $item_details['item_id'])
 		{
-			//~ print"<pre>"; print $cart_item_id;
-			//~ print"<pre>"; print_r($cart);
-			//~ print"<pre>"; print_r($item_details);
-			//~ die;
+			$final_qty = 0;
 
-			// Just clicking on refresh button
+			// Just clicking on refresh button while updating cart from checkout view
 			if ($cart_item_id && $cart['cart_item_id'] == $cart_item_id)
 			{
 				$final_qty = $item_details['count'];
@@ -601,27 +670,32 @@ class Quick2cartModelcart extends JModelLegacy
 				$final_qty = $cart['product_quantity'] + $item_details['count'];
 			}
 
-			$minmax = $comquick2cartHelper->getMinMax($item_details['item_id']);
-			// not equal to nulll,0 etc
+			$dbItemDetail->slab = !empty($dbItemDetail->slab)? $dbItemDetail->slab : 1;
+			$canAddToCart = $productHelper->isInStockProduct($dbItemDetail, $final_qty);
 
-			if (!empty($minmax['min_quantity']) && !empty($minmax['max_quantity']))
+			if ($canAddToCart == 0)
 			{
-				if ($final_qty < $minmax['min_quantity'] || $final_qty > $minmax['max_quantity'] || $cart['product_quantity'] < 1)
+				$buyQty = min($dbItemDetail->max_quantity, $dbItemDetail->stock);
+
+				if (empty($buyQty))
 				{
-					return JText::sprintf('COM_QUICK2CART_MIN_MAX_ERROR_SUD_BE_INRANGE', $minmax['min_quantity'], $minmax['max_quantity']);
-					"";
+					return JText::sprintf('COM_QUICK2CART_STOCK_IS_NOT_AVAILABLE');
+				}
+				else
+				{
+					return JText::sprintf('COM_QUICK2CART_MIN_MAX_ERROR_SUD_BE_INRANGE', $buyQty);
 				}
 			}
 
-			$slabquantity = $item_details['count'] % $minmax['slab'];
+			$slabquantity = $item_details['count'] % $dbItemDetail->slab;
 
 			if ($slabquantity != 0)
 			{
-				return JText::sprintf('COM_QUICK2CART_QUANTITY_SHOULD_BE_MULI_OF_SLAB', $minmax['slab']);
+				return JText::sprintf('COM_QUICK2CART_QUANTITY_SHOULD_BE_MULI_OF_SLAB', $dbItemDetail->slab);
 			}
 
-			$items->product_quantity = $final_qty;
-			$items->cart_item_id = $cart['cart_item_id'];
+			$items->product_quantity    = $final_qty;
+			$items->cart_item_id        = $cart['cart_item_id'];
 			$items->product_final_price = $items->product_quantity * $final_price;
 
 			if (!$this->_db->updateObject('#__kart_cartitems', $items, "cart_item_id"))
@@ -640,39 +714,56 @@ class Quick2cartModelcart extends JModelLegacy
 		}
 		else
 		{
-			// Else add update while updating the cart
-			$minmax = $comquick2cartHelper->getMinMax($item_details['item_id']);
+			$final_qty = $item_details['count'];
 
-			if (!empty($minmax['min_quantity']) && !empty($minmax['max_quantity']))
+			// Main stock checking then check  already present item's stock. This condition needed if product with different attribute are adding
+			if ($checForMainStock == 1)
 			{
-				if ($item_details['count'] < $minmax['min_quantity'] || $item_details['count'] > $minmax['max_quantity'])
+				// Get no of products in cart with same item_id
+				$item_idCount = $productHelper->getCartItemQuantity($c_id, $item_details['item_id']);
+
+				$final_qty += $item_idCount;
+			}
+
+			// Else add update while updating the cart from checkout page-> refresh button
+			$canAddToCart = $productHelper->isInStockProduct($dbItemDetail, $final_qty);
+
+			if ($canAddToCart == 0)
+			{
+				$buyQty = min($dbItemDetail->max_quantity, $dbItemDetail->stock);
+
+				if (empty($buyQty))
 				{
-					return JText::sprintf('COM_QUICK2CART_MIN_MAX_ERROR_SUD_BE_INRANGE', $minmax['min_quantity'], $minmax['max_quantity']);
-					"";
+					return JText::sprintf('COM_QUICK2CART_STOCK_IS_NOT_AVAILABLE');
+				}
+				else
+				{
+					return JText::sprintf('COM_QUICK2CART_MIN_MAX_ERROR_SUD_BE_INRANGE', $buyQty);
 				}
 			}
 
-			$slabquantity = $item_details['count'] % $minmax['slab'];
+			$dbItemDetail->slab = !empty($dbItemDetail->slab)? $dbItemDetail->slab : 1;
+			$slabquantity = $item_details['count'] % $dbItemDetail->slab;
 
 			if ($slabquantity != 0)
 			{
-				return JText::sprintf('COM_QUICK2CART_QUANTITY_SHOULD_BE_MULI_OF_SLAB', $minmax['slab']);
+				return JText::sprintf('COM_QUICK2CART_QUANTITY_SHOULD_BE_MULI_OF_SLAB', $dbItemDetail->slab);
 			}
 
-			$items->cart_id = $c_id;
-			$items->item_id = $item_details['item_id'];
+			$items->cart_id          = $c_id;
+			$items->item_id          = $item_details['item_id'];
 			$items->product_quantity = $item_details['count'];
-			$items->order_item_name = $item_details['name'];
-			$items->cdate = $timestamp;
-			$dbAction = 'insertObject';
-			$action = 'insert';
+			$items->order_item_name  = $item_details['name'];
+			$items->cdate            = $timestamp;
+			$dbAction                = 'insertObject';
+			$action                  = 'insert';
 
 			if (!empty($cart_item_id))
 			{
 				// Primary key = cart_item_id
 				$items->cart_item_id = $cart_item_id;
-				$dbAction = 'updateObject';
-				$action = 'update';
+				$dbAction            = 'updateObject';
+				$action              = 'update';
 			}
 
 			if (!$this->_db->$dbAction('#__kart_cartitems', $items, 'cart_item_id'))
@@ -687,22 +778,6 @@ class Quick2cartModelcart extends JModelLegacy
 			if ($item_options)
 			{
 				$this->addEntryInCartItemAttributes($item_options, $insertOrUpdateRowId, $action);
-				//~ foreach ($item_options as $item_option)
-				//~ {
-					//~ $items_opt = new stdClass;
-					//~ $items_opt->cart_item_id = $items->cart_item_id;
-					//~ $items_opt->itemattributeoption_id = $item_option['itemattributeoption_id'];
-					//~ $items_opt->cartitemattribute_name = $item_option['itemattributeoption_name'];
-					//~ $items_opt->cartitemattribute_price = $item_option['optionprice'];
-					//~ $items_opt->cartitemattribute_prefix = $item_option['itemattributeoption_prefix'];
-//~
-					//~ if (!$this->_db->insertObject('#__kart_cartitemattributes', $items_opt, 'cartitemattribute_id'))
-					//~ {
-						//~ echo $this->_db->stderr();
-//~
-						//~ return -1;
-					//~ }
-				//~ }
 			}
 		}
 
@@ -721,16 +796,14 @@ class Quick2cartModelcart extends JModelLegacy
 	 */
 	public function addEntryInCartItemAttributes($item_options, $cart_item_id, $action = 'insert')
 	{
-		$db = JFactory::getDBO();
+		$db        = JFactory::getDBO();
 		$dbAttOpts = array();
 
 		// If update
 		if ($action == 'update')
 		{
 			// Get Existing cartitemattribute_id (primary key) and option id
-			$query = $db->getQuery(true)
-						->select('cartitemattribute_id,itemattributeoption_id')
-						->from('#__kart_cartitemattributes AS cia');
+			$query = $db->getQuery(true)->select('cartitemattribute_id,itemattributeoption_id')->from('#__kart_cartitemattributes AS cia');
 			$query->where('cia.cart_item_id=' . $cart_item_id);
 			$db->setQuery($query);
 			$dbAttOpts = $db->loadObjectList('itemattributeoption_id');
@@ -739,7 +812,7 @@ class Quick2cartModelcart extends JModelLegacy
 		foreach ($item_options as $item_option)
 		{
 			$items_opt = new stdClass;
-			$dbAction = 'insertObject';
+			$dbAction  = 'insertObject';
 
 			// Update cart action.
 			if ($action == 'update')
@@ -747,7 +820,7 @@ class Quick2cartModelcart extends JModelLegacy
 				$key = $item_option['itemattributeoption_id'];
 
 				// Check whether option already present in fetched attr option list
-				if(isset($dbAttOpts[$key]))
+				if (isset($dbAttOpts[$key]))
 				{
 					$dbAction = 'updateObject';
 
@@ -757,10 +830,10 @@ class Quick2cartModelcart extends JModelLegacy
 				}
 			}
 
-			$items_opt->cart_item_id = $cart_item_id;
-			$items_opt->itemattributeoption_id = $item_option['itemattributeoption_id'];
-			$items_opt->cartitemattribute_name = $item_option['itemattributeoption_name'];
-			$items_opt->cartitemattribute_price = $item_option['optionprice'];
+			$items_opt->cart_item_id             = $cart_item_id;
+			$items_opt->itemattributeoption_id   = $item_option['itemattributeoption_id'];
+			$items_opt->cartitemattribute_name   = $item_option['itemattributeoption_name'];
+			$items_opt->cartitemattribute_price  = $item_option['optionprice'];
 			$items_opt->cartitemattribute_prefix = $item_option['itemattributeoption_prefix'];
 
 			if (!$db->$dbAction('#__kart_cartitemattributes', $items_opt, 'cartitemattribute_id'))
@@ -803,34 +876,34 @@ class Quick2cartModelcart extends JModelLegacy
 		$db = JFactory::getDBO();
 
 		$cart_id = $this->getCartId();
-		$query = "select * from #__kart_cartitems where cart_id=" . (int)$cart_id;
+		$query   = "select * from #__kart_cartitems where cart_id=" . (int) $cart_id;
 		$db->setQuery($query);
 		$result = $db->loadAssocList();
 		$params = JComponentHelper::getParams('com_quick2cart');
 
 		foreach ($result as $key => $rec)
 		{
-			$pid = $rec['product_id'];
-			$qnt = $rec['product_quantity'];
+			$pid   = $rec['product_id'];
+			$qnt   = $rec['product_quantity'];
 			$query = "SELECT ";
 
 			if ($params->get('usedisc'))
 			{
-				$query.= " CASE WHEN discount_price IS NOT NULL THEN discount_price
+				$query .= " CASE WHEN discount_price IS NOT NULL THEN discount_price
 						ELSE price
 						END as ";
 			}
 
-		 	$query.= " price
-				FROM #__kart_base_currency WHERE item_id = " . (int)$pid . " AND currency='$newcurr'";
+			$query .= " price
+				FROM #__kart_base_currency WHERE item_id = " . (int) $pid . " AND currency='$newcurr'";
 			$db->setQuery($query);
-			$price = $db->loadAssocList();
-			$newprice = $price[0]['price'];
-			$items = new stdClass;
-			$items->cart_item_id = $rec['cart_item_id'];
-			$items->cart_id = $cart_id;
-			$items->product_item_price = $newprice;
-			$items->product_final_price = (int)$qnt * (float)$newprice;
+			$price                      = $db->loadAssocList();
+			$newprice                   = $price[0]['price'];
+			$items                      = new stdClass;
+			$items->cart_item_id        = $rec['cart_item_id'];
+			$items->cart_id             = $cart_id;
+			$items->product_item_price  = $newprice;
+			$items->product_final_price = (int) $qnt * (float) $newprice;
 
 			if (!$db->updateObject('#__kart_cartitems', $items, 'cart_item_id'))
 			{
@@ -849,12 +922,30 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function getItemRec($item_id)
 	{
-		$q = "SELECT  item_id,stock,slab,min_quantity,max_quantity,store_id,category,images,video_link,description,name,state,`parent`,`product_id`,featured, `metadesc`, `metakey`,`item_length`, `item_width`, `item_height`, `item_length_class_id`, `item_weight`, `item_weight_class_id`, `shipProfileId`
-				FROM  `#__kart_items`
-				WHERE `item_id`=" . $item_id;
-		$this->_db->setQuery($q);
-		$result = $this->_db->loadObject();
-		return $result;
+		try
+		{
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true);
+			$query->select("*")
+			->from('#__kart_items')
+			->where(" item_id = " . $item_id);
+			$db->setQuery($query);
+
+			return $db->loadObject();
+		}
+		catch(Exception $e)
+		{
+			echo $e->getMessage();
+
+			return new stdClass();
+		}
+
+		//~
+		//~ $q = "SELECT  * FROM  `#__kart_items`
+				//~ WHERE `item_id`=" . $item_id;
+		//~ $this->_db->setQuery($q);
+		//~ $result = $this->_db->loadObject();
+		//~ return $result;
 	}
 	/*	DESCRIPTION ::Accept itemattributeoption_id and fetch its price according currencey
 	 * 	@param ::ARRAY ofitemattributeoption_id
@@ -863,28 +954,28 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function getCurrPriceFromBaseCurrencyOption($itemattributeoption_ids)
 	{
-		$comquick2cartHelper = new comquick2cartHelper;
-		$db = JFactory::getDBO();
+		$comquick2cartHelper     = new comquick2cartHelper;
+		$db                      = JFactory::getDBO();
 		$itemattributeoption_ids = trim($itemattributeoption_ids);
-		$arr = explode(",", $itemattributeoption_ids);
-		$newarray = array_filter($arr, "trim");
-		$idstr = implode(",", $newarray);
+		$arr                     = explode(",", $itemattributeoption_ids);
+		$newarray                = array_filter($arr, "trim");
+		$idstr                   = implode(",", $newarray);
 
 		if ($idstr)
 		{
 			$currency = $comquick2cartHelper->getCurrencySession();
-			$q = "SELECT oc.price, attop.itemattributeoption_prefix
+			$q        = "SELECT oc.price, attop.itemattributeoption_prefix
 			FROM  `#__kart_option_currency` AS oc
 			LEFT JOIN  `#__kart_itemattributeoptions` AS attop ON oc.itemattributeoption_id = attop.itemattributeoption_id
 			WHERE attop.itemattributeoption_id IN (" . $idstr . ") AND currency='" . $currency . "'";
 			$db->setQuery($q);
-			$result = $db->loadAssocList();
+			$result         = $db->loadAssocList();
 			$totoptionprice = 0;
 
 			foreach ($result as $key => $attrib)
 			{
-				$price_with_sign = (float)($attrib['itemattributeoption_prefix'] . $attrib['price']);
-				$totoptionprice = (float)$totoptionprice + $price_with_sign;
+				$price_with_sign = (float) ($attrib['itemattributeoption_prefix'] . $attrib['price']);
+				$totoptionprice  = (float) $totoptionprice + $price_with_sign;
 			}
 		}
 		return $totoptionprice;
@@ -898,11 +989,10 @@ class Quick2cartModelcart extends JModelLegacy
 		$list = explode(",", $Dbattr);
 		$attr = explode(",", $attr);
 
-		for ($i = 0;$i < count($attr) - 1;$i++)
+		for ($i = 0; $i < count($attr) - 1; $i++)
 		{
 
 			if (!in_array($attr[$i], $list)) // not found then dont chek for next
-
 			{
 				return false;
 			}
@@ -915,8 +1005,8 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function stockStatus($parent, $pid)
 	{
-		$db = JFactory::getDBO();
-		$query = "SELECT `stock` FROM `#__kart_items`  where `product_id`=" . (int)$pid . " AND parent='$parent'";
+		$db    = JFactory::getDBO();
+		$query = "SELECT `stock` FROM `#__kart_items`  where `product_id`=" . (int) $pid . " AND parent='$parent'";
 		$db->setQuery($query);
 		$result = $db->loadResult();
 		return $result;
@@ -924,18 +1014,20 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function getStockLimit($pid, $parent, $limit)
 	{
-		$limit = trim($limit);
+		$limit  = trim($limit);
 		$parent = trim($parent);
-		$pid = trim($pid);
+		$pid    = trim($pid);
 		$column = '';
 
-		if ($limit == 'max') $column = 'max_quantity';
-		else $column = 'min_quantity';
+		if ($limit == 'max')
+			$column = 'max_quantity';
+		else
+			$column = 'min_quantity';
 
 		if (!empty($column))
 		{
-			$db = JFactory::getDBO();
-			$query = "SELECT `$column` FROM `#__kart_items`  where `product_id`=" . (int)$pid . " AND parent='$parent'";
+			$db    = JFactory::getDBO();
+			$query = "SELECT `$column` FROM `#__kart_items`  where `product_id`=" . (int) $pid . " AND parent='$parent'";
 			$db->setQuery($query);
 			$result = $db->loadResult();
 			return $result;
@@ -958,10 +1050,10 @@ class Quick2cartModelcart extends JModelLegacy
 	public function getPrefix($attoptionIds)
 	{
 		$comquick2cartHelper = new comquick2cartHelper;
-		$currency = $comquick2cartHelper->getCurrencySession();
+		$currency            = $comquick2cartHelper->getCurrencySession();
 		//getFromattedPrice($price,$curr=NULL)
-		$prefixarray = array();
-		$db = JFactory::getDBO();
+		$prefixarray         = array();
+		$db                  = JFactory::getDBO();
 
 		foreach ($attoptionIds as $key => $attid)
 		{
@@ -974,17 +1066,17 @@ class Quick2cartModelcart extends JModelLegacy
 
 			if (empty($option_detail))
 			{
-				$option_detail = new stdClass;
-				$option_detail->price = 0;
+				$option_detail         = new stdClass;
+				$option_detail->price  = 0;
 				$option_detail->prefix = '+';
 			}
-			$price = $comquick2cartHelper->getFromattedPrice($option_detail->price);
+			$price             = $comquick2cartHelper->getFromattedPrice($option_detail->price);
 			$prefixarray[$key] = $option_detail->prefix . " " . $price;
 		}
 		return $prefixarray;
 	}
 	/* This  provides all info about item attributes ( id,att_name,options details, price )
-	*/
+	 */
 
 	public function getItemCompleteAttrDetail($item_id)
 	{
@@ -994,11 +1086,12 @@ class Quick2cartModelcart extends JModelLegacy
 
 	public function countCartitems()
 	{
-		$db = JFactory::getDBO();
+		$db                  = JFactory::getDBO();
 		$Quick2cartModelcart = new Quick2cartModelcart;
-		$cart_id = $Quick2cartModelcart->getCartId();
+		$cart_id             = $Quick2cartModelcart->getCartId();
 
-		if (!isset($cart_id)) return;
+		if (!isset($cart_id))
+			return;
 		$query = "Select SUM(product_quantity)
 		 FROM #__kart_cartitems
 		 WHERE cart_id='$cart_id' ";
@@ -1009,10 +1102,41 @@ class Quick2cartModelcart extends JModelLegacy
 	public function getCartItemIds()
 	{
 		$cartid = $this->getCartId();
-		$query = "SELECT kc.item_id
+		$query  = "SELECT kc.item_id
 		FROM #__kart_cartitems as kc
 		WHERE kc.cart_id =" . $cartid;
 		$this->_db->setQuery($query);
 		return $this->_db->loadColumn();
 	}
-} // end of class
+
+	/**
+	 * According to to selected users option. Restructure the attribute and its option data
+	 *
+	 * @param   ARRAY  $attributes      product attribute details
+	 * @param   ARRAY  $selectedOption  Only selected option details
+	 *
+	 * @return  Object list.
+	 *
+	 * @since	2.5
+	 */
+	public function getFormatedAttrData($attributes, $selectedOption)
+	{
+		$formattedAttriDetails = array();
+
+		if (!empty($attributes) && !empty($selectedOption))
+		{
+			foreach ($attributes as $key=>$attri)
+			{
+				$formattedAttriDetails[$key] = $attri;
+				$attriId = $attri['itemattribute_id'];
+
+				if (!empty($selectedOption[$attriId]))
+				{
+					$formattedAttriDetails[$key]['selectedOptionDetail'] = $selectedOption[$attriId];
+				}
+			}
+		}
+
+		return $formattedAttriDetails;
+	}
+}

@@ -49,7 +49,6 @@ $jinput=JFactory::getApplication()->input;
 $params = JComponentHelper::getParams('com_quick2cart');
 $entered_numerics= "'".JText::_('QTC_ENTER_NUMERICS')."'";
 ?>
-<div class="<?php echo Q2C_WRAPPER_CLASS; ?> quick2cart_coat" >
 <?php
 
 // DECIDE WHETHER TERMS & CONDITON HAVE TO USE
@@ -73,6 +72,8 @@ $document = JFactory::getDocument();
 //ocument->addScript(JUri::base().'components/com_quick2cart/assets/js/jquery.validate.js');
 if (empty($this->cart)){
 ?>
+<div class="<?php echo Q2C_WRAPPER_CLASS; ?> quick2cart_coat" >
+
 	<div class="well" >
 		<div class="alert alert-danger">
 			<span ><?php echo JText::_("QTC_EMPTY_CART"); ?> </span>
@@ -82,6 +83,8 @@ if (empty($this->cart)){
 <?php
 	return false;
 }?>
+<div class="<?php echo Q2C_WRAPPER_CLASS; ?> quick2cart_coat" >
+
 	<div>
 		<h1 class="">
 			<?php echo JText::_('QTC_CHECKOUT');?>
@@ -305,9 +308,8 @@ function qtc_gatewayHtml(ele,orderid,loadingImgPath)
 				techjoomla.jQuery('#qtc_payHtmlDiv').html(data);
 				techjoomla.jQuery('#qtc_payHtmlDiv div.form-actions input[type="submit"]').addClass('pull-right');
 
-				//var prev_button_html='<button id="btnWizardPrev1" onclick="jQuery(\'#MyWizard\').wizard(\'previous\');"	type="button" class="btn btn-defaultbtn-defaultbtn-primary pull-left" > <i class="icon-circle-arrow-left icon-white" ></i>Prev</button>';
+				//var prev_button_html='<button id="btnWizardPrev1" onclick="jQuery(\'#MyWizard\').wizard(\'previous\');"	type="button" class="btn btn-defaultbtn-defaultbtn-primary pull-left" > <i class="icon-circle-arrow-left <?php echo Q2C_ICON_WHITECOLOR; ?>" ></i>Prev</button>';
 				//techjoomla.jQuery('#ad_payHtmlDiv div.form-actions').prepend(prev_button_html);
-
 
 			}
 
@@ -995,14 +997,6 @@ techjoomla.jQuery(document).ready(function() {
 
 					</ol>
 					<!--steps nav-->
-
-					<!--
-					<div class="actions">
-						<button type="button" class="btn btn-defaultbtn-defaultbtn-xm btn-prev"> <i class="icon-arrow-left"></i>Prev</button>
-						<button type="button" class="btn btn-defaultbtn-defaultbtn-xm btn-next" data-last="Finish">Next<i class="icon-arrow-right"></i></button>
-					</div>
-					-->
-
 				</div>
 				<!--wizard-->
 			</div>
@@ -1028,11 +1022,11 @@ techjoomla.jQuery(document).ready(function() {
 						<div  id="qtc_cartStepAlert"></div>
 					</div>
 
-					<input type="hidden" name="order_id" id="order_id" value="0" /> <!--Used for order update -->
+					<input type="hidden" name="order_id" id="order_id" value="" /> <!--Used for order update -->
 
 					<!--step2-->
 					<div class="tab-pane step-pane" id="step2">
-						<div class="qtcAddBorderToWrapper">
+						<div class="qtcAddBorder">
 						<?php
 						// show user info
 						$html="";
@@ -1101,14 +1095,14 @@ techjoomla.jQuery(document).ready(function() {
 				<!--tab-content step-content-->
 
 				<!--pull-right-->
-				<?php $this->target_div=0; ?>
+				<?php $this->target_div=0;?>
 				<br/>
 				<div class="prev_next_wizard_actions">
 					<div class="">
-						<button id="btnWizardPrev" type="button" style="display:none" class="btn btn-default pull-left" > <i class="icon-chevron-left icon-white" ></i>&nbsp;<?php echo JText::_('COM_QUICK2CART_PREV');?></button>
-						<button id="btnWizardNext" type="button" class="btn btn-default btn-primary pull-right" data-last="Finish" onclick="return open_div(<?php echo ($this->target_div)?'1' : '0'; ?>);">
+						<button id="btnWizardPrev" type="button" style="display:none" class="btn btn-default pull-left" > <i class="<?php echo Q2C_ICON_ARROW_CHEVRON_LEFT; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>" ></i>&nbsp;<?php echo JText::_('COM_QUICK2CART_PREV');?></button>
+						<button id="btnWizardNext" type="button" class="btn btn-primary pull-right" data-last="Finish" onclick="return open_div(<?php echo ($this->target_div)?'1' : '0'; ?>);">
 							<span><?php echo JText::_("COM_QUICK2CART_BTN_SAVEANDNEXT");?></span>
-							<i class=" icon-chevron-right icon-white"></i>
+							<i class=" <?php echo Q2C_ICON_ARROW_CHEVRON_RIGH; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i>
 						</button>
 					</div>
 				</div>
@@ -1130,8 +1124,6 @@ techjoomla.jQuery(document).ready(function() {
 		</div>
 		<!-- main div starts here-->
 	</div>
-	<!--row-->
-
 </div>
 
 

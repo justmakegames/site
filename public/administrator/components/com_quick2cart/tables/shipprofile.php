@@ -249,6 +249,7 @@ class Quick2cartTableshipprofile extends JTable
 
 			// Check whether zone is allowed to delete or not.  If not the enqueue error message accordingly.
 			$count_id = $qtcshiphelper->isAllowedToDelShipProfile($pk);
+
 			if ($count_id === true)
 			{
 				$this->load($pk);

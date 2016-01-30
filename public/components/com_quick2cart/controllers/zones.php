@@ -15,7 +15,7 @@ require_once JPATH_COMPONENT . '/controller.php';
 /**
  * Zones list controller class.
  *
- * @since  1.0.0
+ * @since  2.2
  */
 class Quick2cartControllerZones extends quick2cartController
 {

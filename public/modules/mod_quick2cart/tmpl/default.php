@@ -114,18 +114,26 @@ $Itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&view=
 
 	<div>
 		<div class="qtcClearBoth"></div>
-		<table class="table table-condensed ">
+		<table class="table table-condensed table-mod-cart qtc-table">
 			<!-- detailed view of modulecart Table -->
 			<?php
 			if ($params->get('viewtype') == 'detail')
 			{
 				?>
+				<!-- Lakhan -- added condition-- Hide table heading if cart is empty -->
+				<?php
+				if (!empty($cart))
+				{
+				?>
 				<thead>
-					<tr>
+					<tr class="qtcborderedrow">
 						<th><?php echo JText::_('QTC_MOD_ITEM');?></th>
-						<th><?php echo JText::_('QTC_MOD_PRICE');?></th>
+						<th class="rightalign"><?php echo JText::_('QTC_MOD_PRICE');?></th>
 					</tr>
 				</thead>
+				<?php
+					}
+				?>
 				<?php
 			}
 			?>

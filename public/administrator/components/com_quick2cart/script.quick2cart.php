@@ -47,7 +47,8 @@ class com_quick2cartInstallerScript
 					'quick2cart' => array('position-7', 1),
 					'qtcproductdisplay' =>array('position-7', 0),
 					'qtcstoredisplay' =>array('position-7', 0),
-					'qtc_categorylist' =>array('position-7', 0)
+					'qtc_categorylist' =>array('position-7', 0),
+					'q2cfilters' =>array('position-7', 0)
 				)
 		),
 
@@ -128,7 +129,8 @@ class com_quick2cartInstallerScript
 					'quick2cart' => array('position-7', 1),
 					'qtcProductDisplay' =>array('position-7', 0),
 					'qtcStoreDisplay' =>array('position-7', 0),
-					'qtc_categorylist' =>array('position-7', 0)
+					'qtc_categorylist' =>array('position-7', 0),
+					'q2cfilters' =>array('position-7', 0)
 			)
 		),
 
@@ -1239,7 +1241,10 @@ class com_quick2cartInstallerScript
 		// Db changes for version 2.1 and above for zone,tax,ship
 		$this->zoneRelatedTables();
 
-	}// end of fix_db_on_update
+		// Db changes for version 2.5 and above for global attributes
+		$this->globalAttributeRelatedTables();
+
+	}// end of fix_db_on_updates
 
 	function zoneRelatedTables()
 	{
@@ -1449,6 +1454,26 @@ class com_quick2cartInstallerScript
 			}
 		}
 
+		$field_array = array();
+		$query = "SHOW COLUMNS FROM `#__kart_global_attribute`";
+		$db->setQuery($query);
+		$columns = $db->loadobjectlist();
+
+		for ($i = 0; $i < count($columns); $i++)
+		{
+			$field_array[] = $columns[$i]->Field;
+		}
+
+		if (!in_array('renderer', $field_array) ) {
+			$query = "ALTER TABLE `#__kart_global_attribute` ADD `renderer` VARCHAR(50) NULL DEFAULT 'filters_checkbox'";
+			$db->setQuery($query);
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_('Unable to Alter #__kart_global_attribute table').$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
+		}
 
 		$query="CREATE TABLE IF NOT EXISTS `#__kart_orderItemFiles` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1751,6 +1776,19 @@ class com_quick2cartInstallerScript
 				return false;
 			}
 		}
+		// added variant_item_id in 2.5
+		if (!in_array('variant_item_id', $field_array)) {
+			$query = "ALTER TABLE `#__kart_cartitems`
+						ADD `variant_item_id` int(11) default '0' AFTER `item_id`";
+
+			$db->setQuery($query);
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_('Unable to Alter kart_cartitems table').$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
+		}
 
 		// changing countrycode and statecode SIZE to 50
 		$field_array = array();
@@ -1760,6 +1798,18 @@ class com_quick2cartInstallerScript
 
 		for ($i = 0; $i < count($columns); $i++) {
 			$field_array[] = $columns[$i]->Field;
+		}
+		// Since 2.5
+		if (!in_array('land_mark', $field_array)) {
+			$query = "ALTER TABLE `#__kart_users`
+						ADD `land_mark` varchar(50) NULL DEFAULT NULL";
+			$db->setQuery($query);
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_('Unable to Alter kart_users table').$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
 		}
 		if (!in_array('middlename', $field_array)) {
 			$query = " ALTER TABLE `#__kart_users` ADD middlename varchar(250)";
@@ -1827,6 +1877,21 @@ class com_quick2cartInstallerScript
 			}
 		}
 
+		// added product_type in 2.5
+		if (!in_array('product_type', $field_array) && !in_array('display_in_product_catlog', $field_array) && !in_array('parent_id', $field_array)) {
+			$query = "Alter table `#__kart_items`
+					ADD product_type INT(11) DEFAULT '1' AFTER `product_id`,
+					ADD parent_id INT(11) NOT NULL DEFAULT '0' AFTER `parent`,
+					ADD display_in_product_catlog TINYINT(3) NOT NULL DEFAULT '1'";
+			$db->setQuery($query);
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_('Unable to Alter kart_items table').$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
+		}
+
 		if (!in_array('slab', $field_array) ) {
 			$query = "Alter table `#__kart_items`
 					ADD  slab INT(11) NOT NULL DEFAULT '1'";
@@ -1860,7 +1925,7 @@ class com_quick2cartInstallerScript
 			}
 		}
 
-						/* if not present then add attribute_compulsary to __kart_itemattributes table */
+		/* if not present then add attribute_compulsary to __kart_itemattributes table */
 		$field_array = array();
 		$query = "SHOW COLUMNS FROM `#__kart_itemattributes`";
 		$db->setQuery($query);
@@ -1871,6 +1936,19 @@ class com_quick2cartInstallerScript
 		}
 		if (!in_array('attribute_compulsary', $field_array) ) {
 			$query = "ALTER TABLE `#__kart_itemattributes` 	ADD `attribute_compulsary` BOOLEAN NOT NULL";
+			$db->setQuery($query);
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_('Unable to Alter #__kart_itemattributes table').$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
+		}
+
+		// Added product_type in 2.5
+		if (!in_array('global_attribute_id', $field_array) && !in_array('is_stock_keeping', $field_array)) {
+			$query = "ALTER TABLE `#__kart_itemattributes` ADD `global_attribute_id` INT(11) DEFAULT '0', ADD `is_stock_keeping` TINYINT(3) DEFAULT '0'";
+
 			$db->setQuery($query);
 			if (!$db->execute() )
 			{
@@ -2059,6 +2137,7 @@ class com_quick2cartInstallerScript
 		// 	END #__kart_coupon changes
 		// START ::lter #__kart_order_item tb:: change `original_price`and `param`  *** START ***
 		$colarray=$this->getColumns("#__kart_order_item");
+
 		if (!in_array("original_price", $colarray) ) {
 			$query = "ALTER TABLE  `#__kart_order_item` ADD  original_price float(10,2) NOT NULL";
 			$db->setQuery($query);
@@ -2089,9 +2168,6 @@ class com_quick2cartInstallerScript
 				return false;
 			}
 		}
-
-
-
 		if (in_array("original_price", $colarray) ) {
 			$query = "ALTER TABLE  `#__kart_order_item` CHANGE  `original_price` `original_price` float(10,2) NOT NULL";
 			$db->setQuery($query);
@@ -2102,12 +2178,25 @@ class com_quick2cartInstallerScript
 				return false;
 			}
 		}
+
 		if (in_array("params", $colarray) ) {
 			$query = "ALTER TABLE  `#__kart_order_item` CHANGE  `params`  `params` text default NULL";
 			$db->setQuery($query);
 			if (!$db->execute() )
 			{
 				echo $img_ERROR.JText::_("Unable to Alter #__kart_order_item table for original price and param").$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
+		}
+
+		// Added in 2.5
+		if (!in_array("variant_item_id", $colarray) ) {
+			$query = "ALTER TABLE `#__kart_order_item`	ADD `variant_item_id` int(11) default '0' AFTER `item_id`";
+			$db->setQuery($query);
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_("Unable to Add status column in #__kart_order_item table").$BR;
 				echo $db->getErrorMsg();
 				return false;
 			}
@@ -2203,8 +2292,8 @@ class com_quick2cartInstallerScript
 				return false;
 			}
 		}
-		// if present vedio_link then chage to video_lnk
 
+		// if present vedio_link then chage to video_lnk
 		if (in_array("vedio_link", $colarray) ) {
 			$query = "ALTER TABLE `#__kart_items` CHANGE `vedio_link` `video_link`  varchar(200) DEFAULT NULL";
 			$db->setQuery($query);
@@ -2444,6 +2533,30 @@ class com_quick2cartInstallerScript
 			}
 		}
 
+		// Added in 2.5
+		if (!in_array("pincode", $colarray) ) {
+			$query = "ALTER TABLE  `#__kart_store` ADD  `pincode` INT( 11 ) NOT NULL DEFAULT '0' AFTER `address`";
+			$db->setQuery($query);
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_("Unable to Add length_id column in #__kart_store table").$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
+		}
+
+		// Added in 2.5
+		if (!in_array("city", $colarray) ) {
+			$query = "ALTER TABLE `#__kart_store` ADD `city` varchar(255) NULL DEFAULT NULL AFTER `address`, ADD `land_mark` varchar(255) NULL DEFAULT NULL AFTER `city`, ADD `country` int(11) NULL DEFAULT NULL AFTER `city`, ADD `region` int(11) NULL DEFAULT NULL AFTER `city`";
+			$db->setQuery($query);
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_("Unable to Add length_id column in #__kart_store table").$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
+		}
+
 		if (!in_array("weight_id", $colarray) ) {
 			$query = "ALTER TABLE  `#__kart_store` ADD  `weight_id` INT( 11 ) NULL DEFAULT NULL COMMENT 'This will be default weight unite for store. Primary key of kart_weights table' ";
 
@@ -2480,7 +2593,42 @@ class com_quick2cartInstallerScript
 			}
 		}
 
+		/* since 2.5 for kart_itemattributeoptions*/
+		$field_array = array();
+		$query = "SHOW COLUMNS FROM `#__kart_itemattributeoptions`";
+		$db->setQuery($query);
+		$columns = $db->loadobjectlist();
 
+		for ($i = 0; $i < count($columns); $i++) {
+			$field_array[] = $columns[$i]->Field;
+		}
+
+		if (!in_array('global_option_id', $field_array))
+		{
+			$query = "ALTER TABLE `#__kart_itemattributeoptions` ADD `global_option_id` INT(11) DEFAULT '0' AFTER `itemattributeoption_id`, ADD `child_product_item_id` INT(11) DEFAULT '0' AFTER `itemattribute_id`";
+			$db->setQuery($query);
+
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_('Unable to Alter #__kart_itemattributes table').$BR;
+				echo $db->getErrorMsg();
+				return false;
+			}
+		}
+
+		if (!in_array('state', $field_array))
+		{
+			$query = "ALTER TABLE `#__kart_itemattributeoptions` ADD `state` TINYINT(11) DEFAULT '1' AFTER `ordering`";
+			$db->setQuery($query);
+
+			if (!$db->execute() )
+			{
+				echo $img_ERROR.JText::_('Unable to Alter #__kart_itemattributes table. [State Column]').$BR;
+				echo $db->getErrorMsg();
+
+				return false;
+			}
+		}
 
 		$query="CREATE TABLE IF NOT EXISTS `#__kart_promotions` (
 						`id` int(11) NOT NULL AUTO_INCREMENT,
@@ -2521,7 +2669,6 @@ class com_quick2cartInstallerScript
 				)";
 		$db->setQuery($query);
 		$db->execute();
-
 
 	}// end of qtc_alter andupdate
 
@@ -3393,6 +3540,67 @@ class com_quick2cartInstallerScript
 				return 0;
 			}
 		}
+	}
+
+	/**
+	 * Function to add tables related to global attribute
+	 *
+	 * @return  null
+	 *
+	 * @since  2.5
+	 * */
+	function globalAttributeRelatedTables()
+	{
+		// Add global attribute set table
+		$db = JFactory::getDBO();
+		$field_array = array();
+		$query="CREATE TABLE IF NOT EXISTS `#__kart_global_attribute_set` (
+			`id` int(11) NOT NULL auto_increment,
+			`global_attribute_set_name` varchar(255) NOT NULL,
+			`global_attribute_ids` text default NULL,
+			`state` tinyint(3) default '1',
+			PRIMARY KEY  (`id`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart global attribute set info' AUTO_INCREMENT=1 ;";
+		$db->setQuery($query);
+		$db->execute();
+
+		// Add global attribute option table
+		$db = JFactory::getDBO();
+		$field_array = array();
+		$query="CREATE TABLE IF NOT EXISTS `#__kart_global_attribute_option` (
+				  `id` int(11) NOT NULL auto_increment,
+				  `option_name` varchar(255) NOT NULL,
+				  `attribute_id` int(11) NOT NULL,
+				  `ordering` int(11) NOT NULL,
+				  PRIMARY KEY  (`id`)
+				) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart global attribute options info' AUTO_INCREMENT=1 ;";
+		$db->setQuery($query);
+		$db->execute();
+
+		// Add global attribute table
+		$db = JFactory::getDBO();
+		$field_array = array();
+		$query="CREATE TABLE IF NOT EXISTS `#__kart_global_attribute` (
+				  `id` int(11) NOT NULL auto_increment,
+				  `attribute_name` varchar(255) NOT NULL,
+				  `display_name` varchar(255) NOT NULL,
+				  `state` tinyint(3) default '1',
+				  PRIMARY KEY  (`id`)
+				) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart global attributes info' AUTO_INCREMENT=1 ;";
+		$db->setQuery($query);
+		$db->execute();
+
+		// Add category attribute set
+		$db = JFactory::getDBO();
+		$field_array = array();
+		$query="CREATE TABLE IF NOT EXISTS `#__kart_category_attribute_set` (
+				  `id` int(11) NOT NULL auto_increment,
+				  `category_id` int(11) NOT NULL,
+				  `attribute_set_id` int(11) NOT NULL,
+				  PRIMARY KEY  (`id`)
+				) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart category-attributeset mapping info' AUTO_INCREMENT=1 ;";
+		$db->setQuery($query);
+		$db->execute();
 	}
 
 	/**

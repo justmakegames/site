@@ -230,7 +230,7 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 						<div class="control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
 						<div class="controls"><?php echo $this->form->getInput('store_id'); ?>
 							<span class="help-block">
-								<i class="icon-hand-right"></i>
+								<i class="<?php echo Q2C_TOOLBAR_ICON_HOME; ?>"></i>
 								<?php echo JText::_('COM_QUICK2CART_TAXPROFILE_CAN_NOT_CAHGNE_STORE_MSG'); ?></span>
 						</div>
 					</div>
@@ -284,7 +284,7 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 							$options = array();
 							$options[] = JHtml::_('select.option', "", JText::_("COM_QUICK2CART_SHIPPLUGIN_SELECT_SHIP_METH"));
 
-							echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_shipMethod','class=""  aria-invalid="false" data-chosen="qtc" size="1"  autocomplete="off" ','value','text',$default,'qtc_shipMethod');
+							echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_shipMethod','class=""  aria-invalid="false" data-chosen="qtc"   autocomplete="off" ','value','text',$default,'qtc_shipMethod');
 							?>
 						</span>
 						<span class="com_quick2cart_ajax_loading" style="display:none;">
@@ -297,11 +297,12 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 							class="btn btn-success" onClick="qtc_addShipMethod()" />
 					</div>
 				</div>
+				<div class="clearfix">&nbsp;</div>
 				<!-- For Error Display-->
 				<div class="row-fluid">
 					<div class="error alert alert-danger qtcError" style="display: none;">
 						<?php echo JText::_('COM_QUICK2CART_ZONE_ERROR'); ?>
-						<i class="icon-cancel pull-right" style="align: right;"
+						<i class="<?php echo QTC_ICON_REMOVE; ?> pull-right" style="align: right;"
 							onclick="techjoomla.jQuery(this).parent().fadeOut();"> </i> <br />
 						<hr />
 						<div id="qtcErrorContentDiv"></div>
@@ -376,7 +377,7 @@ $store_cp_itemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2c
 					<?php echo JText::_('COM_QUICK2CART_COMMON_SAVE_AND_CLOSE'); ?>
 				</button>
 			<?php endif; ?>
-			 <a href="<?php echo JRoute::_('index.php?option=com_quick2cart&task=shipprofileform.cancel&id='.$this->item->id); ?>&Itemid=<?php echo $store_cp_itemid; ?>" class="btn btn-inverse" title="<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>">
+			 <a href="<?php echo JRoute::_('index.php?option=com_quick2cart&task=shipprofileform.cancel&id='.$this->item->id); ?>&Itemid=<?php echo $store_cp_itemid; ?>" class="btn " title="<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>">
 				<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>
 			 </a>
 

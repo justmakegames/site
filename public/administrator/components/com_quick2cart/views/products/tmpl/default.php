@@ -106,7 +106,7 @@ $store_details = $this->store_details;
 
 				<div class="filter-select fltrt hidden-phone pull right">
 					<?php
-					echo JHtml::_('select.genericlist', $this->clients, "filter_client", 'class="input-medium" size="1" onchange="document.adminForm.submit();" name="filter_client"', "value", "text", $this->state->get('filter.client'));
+					echo JHtml::_('select.genericlist', $this->clients, "filter_client", 'class="input-medium"  onchange="document.adminForm.submit();" name="filter_client"', "value", "text", $this->state->get('filter.client'));
 
 					if (!empty($this->store_details))
 					{
@@ -122,11 +122,11 @@ $store_details = $this->store_details;
 								$options[] = JHtml::_('select.option', $key,$value['title']);
 							}
 
-							echo $this->dropdown = JHtml::_('select.genericlist', $options, 'filter_store', 'class="input-medium" size="1" onchange="document.adminForm.submit();" ', 'value', 'text', $default);
+							echo $this->dropdown = JHtml::_('select.genericlist', $options, 'filter_store', 'class="input-medium"  onchange="document.adminForm.submit();" ', 'value', 'text', $default);
 						}
 					}
 
-					echo JHtml::_('select.genericlist', $this->sstatus, "filter_published", 'class="input-medium" size="1" onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.published'));
+					echo JHtml::_('select.genericlist', $this->sstatus, "filter_published", 'class="input-medium"  onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.published'));
 					?>
 
 					<select name="filter_category" class="inputbox input-medium" onchange="this.form.submit()">

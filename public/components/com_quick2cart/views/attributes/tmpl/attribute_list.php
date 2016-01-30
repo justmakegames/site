@@ -186,7 +186,7 @@ if( $pid && $client )
 												$invalid_op_price[$value]=$value;	// add current cur
 												if(empty($itemnotice))
 												{
-													$noticeicon="<i class='icon-hand-right'></i> ";
+													$noticeicon="<i class='" . Q2C_TOOLBAR_ICON_HOME . "'></i> ";
 												}
 											}
 										}
@@ -203,10 +203,10 @@ if( $pid && $client )
 							<?php  $del_link= $del_link.'&attr_id='.$attributes->itemattribute_id; ?>
 							<td>
 								<a  rel="{handler: 'iframe', size: {x : window.innerWidth-450, y : window.innerHeight-250}, onClose: function(){EditAttribute('<?php echo $attributes->itemattribute_id; ?>','<?php echo $item_id;?>');}}" class="btn btn-mini btn-primary modal qtc_modal" href="<?php echo $edit_link; ?> ">
-									<i class="<?php echo $qtc_icon_edit; ?> icon-white"></i>
+									<i class="<?php echo $qtc_icon_edit; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i>
 								</a>
 								 <button type="button" class="btn btn-mini btn-danger "  onclick="deleteAttribute('<?php echo $attributes->itemattribute_id;?>','<?php echo $item_id; ?>' )">
-									<i class="icon-trash icon-white"></i>
+									<i class="<?php echo Q2C_ICON_TRASH; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i>
 								</button>
 
 							 </td>
@@ -248,7 +248,6 @@ if( $pid && $client )
 //if(empty($button_dis))
 {
 	?>
-
 	<a rel="{handler: 'iframe', size: {x : window.innerWidth-450, y : window.innerHeight-150}, onClose: function(){AddNewAttribute('<?php echo $item_id; ?>','<?php echo $count_tr;?>');}}" class="btn btn-primary btn-small <?php echo ($button_dis == ""?'modal':$button_dis)?> " href="<?php echo $add_link; ?>" style="display: inline;">
 	<?php echo JText::_('QTC_ADD_ATTRIB'); ?></a>
 

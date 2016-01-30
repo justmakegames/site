@@ -56,6 +56,14 @@ class  Q2c_boughtProductsViewProfile extends SocialAppsView
 		$privacy = $params->get('profile_show_friends', 'onlyme');
 		$pin_width = (int) $appParams->get('pin_width', 145);
 		$pin_padding = (int) $appParams->get('pin_padding', 3);
+		$layout_to_load = $appParams->get('layout_to_load','flexible_layout');
+		$fix_pin_height = (int) $appParams->get('fix_pin_height', 200);
+		$pin_for_lg = (int) $appParams->get('pin_for_lg', 1);
+		$pin_for_md = (int) $appParams->get('pin_for_md', 1);
+		$pin_for_sm = (int) $appParams->get('pin_for_sm', 1);
+		$pin_for_xs = (int) $appParams->get('pin_for_xs', 1);
+		$comParams = JComponentHelper::getParams('com_quick2cart');
+		$currentBSViews = $comParams->get('currentBSViews','bs2','string');
 
 		// Get profile id
 		$model = new productHelper;
@@ -134,6 +142,13 @@ class  Q2c_boughtProductsViewProfile extends SocialAppsView
 		$this->set('privacy', $privacy);
 		$this->set('pin_width', $pin_width);
 		$this->set('pin_padding', $pin_padding);
+		$this->set('pin_for_xs', $pin_for_xs);
+		$this->set('pin_for_sm', $pin_for_sm);
+		$this->set('pin_for_md', $pin_for_md);
+		$this->set('pin_for_lg', $pin_for_lg);
+		$this->set('pinHeight', $fix_pin_height);
+		$this->set('layout_to_load', $layout_to_load);
+		$this->set('currentBSViews', $currentBSViews);
 
 		echo parent::display('profile/default');
 	}

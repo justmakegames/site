@@ -490,9 +490,9 @@ $document->addScriptDeclaration($js_currency);
 							}
 						?>
 					<div class="controls">
-						<input type="text" class="input-medium inputbox requiredEE"  name="item_name" size="1" id="item_name" value="<?php echo $comquick2cartHelper->escape($p_title); ?>" />
+						<input type="text" class="input-medium inputbox requiredEE"  name="item_name" id="item_name" value="<?php echo $comquick2cartHelper->escape($p_title); ?>" />
 
-						<input type="hidden" class="inputbox"  name="pid" size="1" id="pid" value="<?php echo $pid; ?>" />
+						<input type="hidden" class="inputbox"  name="pid"  id="pid" value="<?php echo $pid; ?>" />
 						<?php
 						/*if ($StoreIds_count > 1)
 						{
@@ -509,7 +509,7 @@ $document->addScriptDeclaration($js_currency);
 				<div class='control-group' >
 					<label for="sku" class="control-label"><?php echo JHtml::tooltip(JText::_('QTC_ITEM_CCK_SKU_DES'), JText::_('QTC_ITEM_CCK_SKU'), '', '* '.JText::_('QTC_ITEM_CCK_SKU'));?></label>
 					<div class="controls">
-						<input type="text" class="input-medium inputbox requiredEE"  name="sku" size="1" id="sku" onBlur="checkForSku(this.value)" value="<?php echo (!empty($itemDetail['sku'])? $itemDetail['sku'] : ''); ?>" autocomplete='off'  aria-invalid="false"  />
+						<input type="text" class="input-medium inputbox requiredEE"  name="sku"  id="sku" onBlur="checkForSku(this.value)" value="<?php echo (!empty($itemDetail['sku'])? $itemDetail['sku'] : ''); ?>" autocomplete='off'  aria-invalid="false"  />
 					</div>
 				</div>
 				<!-- end SKU -->
@@ -589,7 +589,7 @@ $document->addScriptDeclaration($js_currency);
 				<!-- PRICE PRICE -->
 				<div class='control-group qtc_currencey_textbox' id="qtc_price_currencey_textbox" >
 					<label for="jform_price_<?php echo !empty($curr[0]) ? $curr[0] : '' ;?>" class="control-label">
-						<strong><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', JText::_('QTC_ITEM_PRICE'));?></strong>
+						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', JText::_('QTC_ITEM_PRICE'));?>
 					</label>
 
 					<div class="controls">
@@ -676,7 +676,7 @@ $document->addScriptDeclaration($js_currency);
 				<!-- DISCOUNT PRICE -->
 				<div class='control-group qtc_currencey_textbox' style="<?php echo (($params->get('usedisc') == '0') ? 'display:none;' :'display:block;'); ?>" >
 					<label for="jform_disc_price_<?php echo !empty($curr[0]) ? $curr[0] : '' ;?>" class="control-label">
-						<strong><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE'));?></strong>
+						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE'));?>
 					</label>
 					<div class="controls">
 						<?php

@@ -197,7 +197,7 @@ $document->addStyleSheet('components/com_quick2cart/css/quick2cart.css');
 					{
 						$options[] = JHtml::_('select.option', $country['id'], $country['country']);
 					}
-					echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_ZoneCountry','class=""  required="" aria-invalid="false" size="1"  autocomplete="off" onchange=\'qtc_generateState("jform[qtc_state_id]","jform_qtc_state_id")\' ','value','text',$default,'qtc_ZoneCountry');
+					echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_ZoneCountry','class=""  required="" aria-invalid="false"   autocomplete="off" onchange=\'qtc_generateState("jform[qtc_state_id]","jform_qtc_state_id")\' ','value','text',$default,'qtc_ZoneCountry');
 					?>
 				</div>
 				<div class="span4">
@@ -244,11 +244,6 @@ $document->addStyleSheet('components/com_quick2cart/css/quick2cart.css');
 				</div>
 			</div>
 			<input type="hidden" name="zonerule_id" id="zonerule_id" value="<?php echo $this->rule_id; ?>" />
-
-
 		</div>
-
-
-</form>
-
+	</form>
 </div>

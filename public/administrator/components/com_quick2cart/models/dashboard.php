@@ -125,20 +125,43 @@ class Quick2cartModelDashboard extends JModelLegacy
 	public function getAllmonths()
 	{
 		$date2      = date('Y-m-d');
-		$back_year  = date('Y') - 1;
-		$back_month = date('m') + 1;
-		$date1      = $back_year . '-' . $back_month . '-' . '01';
+
+		// Get one year back date
+		$date1 = date('Y-m-d', strtotime(date("Y-m-d", time()) . " - 365 day"));
 
 		// Convert dates to UNIX timestamp
 		$time1 = strtotime($date1);
 		$time2 = strtotime($date2);
-		$tmp   = date('mY', $time2);
-
-		$months[] = array("month" => date('F', $time1), "year" => date('Y', $time1));
+		$tmp = date('mY', $time2);
+		$year = date('Y', $time1);
+		//$months[] = array("month" => date('F', $time1), "year" => date('Y', $time1));
 
 		while ($time1 < $time2)
 		{
-			$time1 = strtotime(date('Y-m-d', $time1) . ' +1 month');
+			$month31 = array(1,3,5,7,8,10,12);
+			$month30 = array(4,6,9,11);
+
+			$month = date('m', $time1);
+
+			if(array_search($month,$month31))
+			{
+				$time1 = strtotime(date('Y-m-d', $time1) . ' +31 days');
+			}
+			elseif(array_search($month,$month30))
+			{
+				$time1 = strtotime(date('Y-m-d', $time1) . ' +30 days');
+			}
+			else
+			{
+				if( ((0 == $year % 4) && (0 != $year % 100)) || (0 == $year % 400))
+				{
+					$time1 = strtotime(date('Y-m-d', $time1) . ' +29 days');
+				}
+				else
+				{
+					$time1 = strtotime(date('Y-m-d', $time1) . ' +28 days');
+				}
+			}
 
 			if (date('mY', $time1) != $tmp && ($time1 < $time2))
 			{

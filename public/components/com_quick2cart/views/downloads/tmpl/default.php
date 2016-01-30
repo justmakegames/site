@@ -47,29 +47,29 @@ $productHelper = new productHelper;
 		</legend>
 	</div>
 
-	<div id="filter-bar" class="btn-toolbar">
+	<div id="qtc-filter-bar" class="qtc-btn-toolbar row">
 		<div class="filter-search btn-group pull-left q2c-btn-wrapper">
 			<input type="text" name="search_list" id="search_list"
 			placeholder="<?php echo JText::_('QTC_DOWNLOAD_SEARCH_PLACE'); ?>"
 			value="<?php echo $this->lists['search_list']; ?>"
-			class="hasTooltip"
+			class="qtc-hasTooltip"
 			title="<?php echo JText::_('QTC_DOWNLOAD_SEARCH_PLACE'); ?>" />
 		</div>
 
 		<div class="btn-group pull-left q2c-btn-wrapper">
-			<button type="submit" class="btn hasTooltip"
+			<button type="submit" class="btn btn-default qtc-hasTooltip"
 			title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-				<i class="icon-search"></i>
+				<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 			</button>
-			<button type="button" class="btn hasTooltip"
+			<button type="button" class="btn btn-default qtc-hasTooltip"
 			title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 			onclick="document.id('search_list').value='';this.form.submit();">
-				<i class="icon-remove"></i>
+				<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 			</button>
 		</div>
 
 		<?php if (JVERSION >= '3.0') : ?>
-			<div class="btn-group pull-right q2c-btn-wrapper">
+			<div class="pull-right q2c-btn-wrapper">
 				<label for="limit" class="element-invisible">
 					<?php echo JText::_('COM_QUICK2CART_SEARCH_SEARCHLIMIT_DESC'); ?>
 				</label>

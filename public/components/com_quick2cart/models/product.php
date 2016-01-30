@@ -31,7 +31,6 @@ class quick2cartModelProduct extends JModelLegacy
 
 		foreach ($allAttrib as $attributes)
 		{
-
 			if (!empty($attributes['attri_id']))
 			{
 				$attIdList[] = $attributes['attri_id'];

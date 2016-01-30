@@ -186,7 +186,7 @@ function qtcLoadPlgMethods()
 					<td id="" colspan="3">
 						<div class="error alert alert-danger qtcError" style="display: none;">
 							<?php echo JText::_('COM_QUICK2CART_ZONE_ERROR'); ?>
-							<i class="icon-cancel pull-right" style="align: right;"
+							<i class="<?php echo QTC_ICON_REMOVE; ?> pull-right" style="align: right;"
 								onclick="techjoomla.jQuery(this).parent().fadeOut();"> </i> <br />
 							<hr />
 							<div id="qtcErrorContentDiv"></div>
@@ -200,7 +200,7 @@ function qtcLoadPlgMethods()
 		<!-- For Error Display-->
 		<div class="error alert alert-danger qtcError" style="display: none;">
 			<?php echo JText::_('COM_QUICK2CART_ZONE_ERROR'); ?>
-			<i class="icon-cancel pull-right" style="align: right;"
+			<i class="<?php echo QTC_ICON_REMOVE; ?> pull-right" style="align: right;"
 				onclick="techjoomla.jQuery(this).parent().fadeOut();"> </i> <br />
 			<hr />
 			<div id="qtcErrorContentDiv"></div>

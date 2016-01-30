@@ -265,7 +265,11 @@ class quick2cartModelVendor extends JModelLegacy
 			$row->address      = $post->get('address', '', 'RAW');
 			$row->phone        = $post->get('phone');
 			$row->store_email  = $post->get('email', '', 'RAW');
-
+			$row->city  = $post->get('city', '', 'RAW');
+			$row->land_mark  = $post->get('land_mark', '', 'RAW');
+			$row->country  = $post->get('storecountry', '', 'RAW');
+			$row->pincode  = $post->get('pincode', '', 'RAW');
+			$row->region  = $post->get('qtcstorestate', '', 'RAW');
 			$row->length_id      = $post->get('qtc_length_class', '', 'INTEGER');
 			$row->weight_id      = $post->get('qtc_weight_class', '', 'INTEGER');
 			$row->taxprofile_id  = $post->get('taxprofile_id', '', 'INTEGER');
@@ -351,7 +355,7 @@ class quick2cartModelVendor extends JModelLegacy
 			// If already present then update
 			if (!empty($oldData))
 			{
-				$row->title     = $quick2cartModelVendor->formatttedTitle($title, $id);
+				$row->title     = $title; //$quick2cartModelVendor->formatttedTitle($title, $id);
 				$row->vanityurl = $quick2cartModelVendor->formatttedVanityURL($storeVanityUrl, $title, $id);
 				$row->id        = $id = $oldData['id'];
 				$row->mdate     = date("Y-m-d");
@@ -374,6 +378,7 @@ class quick2cartModelVendor extends JModelLegacy
 					// Send store edited email to admin
 					$this->SendMailAdminOnStoreEdit($row);
 				}
+
 				$role = 1;
 				$quick2cartModelVendor->addRoleEntry($id, $role, $row->owner);
 				return $id;
@@ -381,13 +386,14 @@ class quick2cartModelVendor extends JModelLegacy
 			else
 			{
 				// Insert
-				$row->title           = $quick2cartModelVendor->formatttedTitle($title);
+				$row->title           = $title; //$quick2cartModelVendor->formatttedTitle($title);
 				$row->vanityurl       = $quick2cartModelVendor->formatttedVanityURL($storeVanityUrl, $title);
 				$row->cdate           = date("Y-m-d");
 				$row->mdate           = date("Y-m-d");
+				$admin_approval = (int) $params->get('admin_approval');
 				$mail_on_store_create = (int) $params->get('mail_on_store_create');
 
-				if ($mail_on_store_create == 1)
+				if ($admin_approval == 1)
 				{
 					$row->live = 0;
 				}
@@ -399,6 +405,9 @@ class quick2cartModelVendor extends JModelLegacy
 					return 0;
 				}
 
+				$id = $db->insertid();
+				$quick2cartModelVendor->addRoleEntry($row->id, $role = 1, $row->owner);
+
 				if ($mail_on_store_create === 1)
 				{
 					// Send Approval mail to admin
@@ -406,7 +415,6 @@ class quick2cartModelVendor extends JModelLegacy
 					$this->SendMailOwnerOnCreateStore($row);
 				}
 
-				$id = $db->insertid();
 				global $mainframe;
 				$mainframe          = JFactory::getApplication();
 				$socialintegration  = $params->get('integrate_with', 'none');
@@ -445,14 +453,16 @@ class quick2cartModelVendor extends JModelLegacy
 				}
 			}
 
-			$role = 1;
-			$uid  = $user->id;
-			if ($userid != '')
-			{
-				$uid = $userid;
-			}
-			$quick2cartModelVendor = new quick2cartModelVendor();
-			$quick2cartModelVendor->addRoleEntry($id, $role, $uid); // Add only on creating store insted of edit
+			//~ $role = 1;
+			//~ $uid  = $user->id;
+//~
+			//~ if ($userid != '')
+			//~ {
+				//~ $uid = $userid;
+			//~ }
+//~
+			//~ $quick2cartModelVendor = new quick2cartModelVendor();
+			//~ $quick2cartModelVendor->addRoleEntry($id, $role, $uid); // Add only on creating store insted of edit
 			return $id;
 		}
 		else

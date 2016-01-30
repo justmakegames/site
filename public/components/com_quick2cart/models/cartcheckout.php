@@ -242,6 +242,7 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 		$row->city=(!empty($data['city']))?$data['city']:'';
 		$row->state_code =  !empty($data['state'])?$data['state'] : '';
 		$row->zipcode = (!empty($data['zip']))?$data['zip']:'';//$data['zip'];
+		$row->land_mark = (!empty($data['land_mark']))?$data['land_mark']:'';//$data['zip'];
 /*
 		$row->city = $data['city'];
 		$row->state_code = $data['state'];
@@ -316,6 +317,7 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 		$row->city = (!empty($data['city']))?$data['city']:'';
 		$row->state_code = !empty($data['state'])?$data['state']: '';
 		$row->zipcode = (!empty($data['zip']))?$data['zip']:'';//$data['zip'];
+		$row->land_mark = (!empty($data['land_mark']))?$data['land_mark']:'';//$data['zip'];
 		$row->phone = $data['phon'];
 		$row->approved='1';
 		$row->order_id = $insert_order_id;
@@ -399,17 +401,38 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 		$jinput=JFactory::getApplication()->input;
 
 		$data = $jinput->post;
+
+		// To check if data
+		$data->set('allowToPlaceOrder', 1);
 		$orderId  = $data->get('order_id', '', "RAW");
+
+		// Contains order status and related message
+		$orderStatus = array();
 
 		// while placing order
 		if (empty($orderId))
 		{
 			$data = $this->recalculateData($data);
+			$allowToPlaceOrder = $data->get('allowToPlaceOrder', '', "int");
 
-			//session expire
-			if ($data === -2)
+			if ($allowToPlaceOrder == 0)
 			{
-				return -2;
+				$orderStatus['success'] = 0;
+				$orderStatus['success_msg'] = $data->get('detailMsg', '', "string");
+				$orderStatus['order_id'] = 0;
+
+				return $orderStatus;
+			}
+
+			$errorIn = $data->get('error', "0", "int");
+			// Session expire
+			if ($errorIn == 1)
+			{
+				$orderStatus['success'] = 0;
+				$orderStatus['success_msg'] = JText::_('COM_QUICK2CRT_ERROR_SESSION_EXPIRE');
+				$orderStatus['order_id'] = 0;
+
+				return $orderStatus;
 			}
 		}
 
@@ -438,8 +461,11 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 				}
 				else
 				{
+					$orderStatus['success'] = 0;
+					$orderStatus['success_msg'] = JText::_('ERR_CONFIG_SAV_LOGIN');
+					$orderStatus['order_id'] = 0;
 
-					return -1;
+					return $orderStatus;
 				}
 			}
 		}
@@ -457,7 +483,11 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 				//if ($data->get('final_amt_pay_inputbox') <= 0 || $data->get('total_amt_inputbox') <= 0 || !isset($data->get('gateways')))
 				if ($data->get('final_amt_pay_inputbox') <= 0)
 				{
-					return 0;
+					$orderStatus['success'] = 0;
+					$orderStatus['success_msg'] = JText::_('ERR_CONFIG_SAV_LOGIN');
+					$orderStatus['order_id'] = 0;
+
+					return $orderStatus;
 				}
 			}
 		}
@@ -544,12 +574,16 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 		if (!empty($orderId))
 		{
 			//EDIT ORDER
-			$row->id = $insert_order_id = $orderId;
+			$row->id = $orderStatus['order_id'] = $orderId;
 
 			if (!$this->_db->updateObject('#__kart_orders', $row, 'id'))
 			{
 				echo $this->_db->stderr();
-				return 0;
+				$orderStatus['success'] = 0;
+				$orderStatus['success_msg'] = JText::_('ERR_CONFIG_SAV_LOGIN');
+				$orderStatus['order_id'] = 0;
+
+				return $orderStatus;
 			}
 		}
 		else
@@ -557,39 +591,50 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 			if (!$this->_db->insertObject('#__kart_orders', $row, 'id'))
 			{
 				echo $this->_db->stderr();
-				return 0;
+				$orderStatus['success'] = 0;
+				$orderStatus['success_msg'] = JText::_('ERR_CONFIG_SAV_LOGIN');
+				$orderStatus['order_id'] = 0;
+
+				return $orderStatus;
 			}
 
-			$insert_order_id = $this->_db->insertid();
+			$orderStatus['order_id'] = $this->_db->insertid();
 		}
 
-		// Code to pad zero's to $insert_order_id and append to prefix and update
+		// Code to pad zero's to $orderStatus['order_id'] and append to prefix and update
 		JLoader::import('payment', JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'models');
 		$Quick2cartModelpayment =  new Quick2cartModelpayment();
-		$prefix = $Quick2cartModelpayment->generate_prefix($insert_order_id);
+		$ordersId = $orderStatus['order_id'];
+		$prefix = $Quick2cartModelpayment->generate_prefix($ordersId);
 
 		$row1 = new stdClass;
 		$row1->prefix 		= $prefix;
-		$row1->id 			= $insert_order_id;
+		$row1->id 			= $orderStatus['order_id'];
 
 		if (!$this->_db->updateObject('#__kart_orders', $row1, 'id'))
 		{
 			echo $this->_db->stderr();
-			return 0;
+
+			$orderStatus['success'] = 0;
+			$orderStatus['success_msg'] = JText::_('ERR_CONFIG_SAV_LOGIN');
+			$orderStatus['order_id'] = 0;
+
+			return $orderStatus;
 		}
 
 		// Get Cart item detail$taxdataf
 		$Quick2cartModelcart =  new Quick2cartModelcart;
 		$cart_id = $Quick2cartModelcart->getCartId();
 		$cart_itemsdata = $Quick2cartModelcart->getCartitems();
+		$ordersId = $orderStatus['order_id'];
 
 		if (empty($orderId))
 		{
-			$this->addSaveOrderItems($insert_order_id, $cart_itemsdata, $data, $updateOrderstatus);
+			$this->addSaveOrderItems($ordersId, $cart_itemsdata, $data, $updateOrderstatus);
 		}
 
 		// Store billing and shipping detail.
-		$this->billingaddr($user->id,$data,$insert_order_id);
+		$this->billingaddr($user->id,$data,$ordersId);
 
 		//START Q2C Sample development
 		$order_obj = array();
@@ -608,7 +653,7 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 		*/
 
 		@$comquick2cartHelper->sendordermail($row->id);
-		return $insert_order_id;
+		return $orderStatus;
 	}
 
 	function addSaveOrderItems($insert_order_id, $cart_itemsdata, $data, $updateOrderstatus)
@@ -647,6 +692,7 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 			$items = new stdClass;
 			$items->order_id = $insert_order_id;
 			$items->item_id = $item_id;
+			$items->variant_item_id = $cart_items['variant_item_id'];
 
 			// Getting store id from item_id
 			$items->store_id = $comquick2cartHelper->getSoreID($cart_items['item_id']);
@@ -1093,18 +1139,21 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 
 		if ($shippingMode == "orderLeval")
 		{
+			//Call the plugin and get the result
 			$dispatcher = JDispatcher::getInstance();
 			JPluginHelper::importPlugin('qtcshipping');//@TODO:need to check plugim type..
-			$shipresults = $dispatcher->trigger('qtcshipping', array($subtotal, $vars));//Call the plugin and get the result
+			$shipresults = $dispatcher->trigger('qtcshipping', array($subtotal, $vars));
 
-			if (!empty($shipresults[0]['charges']) && is_numeric($shipresults[0]['charges']))
+			if ($shipresults[0]['allowToPlaceOrder'] == 1)
 			{
-				$firstRes = $shipresults[0];
-				$charges = (float)$firstRes['charges'];
-				$detail = json_encode($firstRes);
+				$detail = json_encode($shipresults[0]);
 				$post->set("order_shipping_details", $detail);
 
-				return $charges;
+				return $shipresults[0];
+			}
+			else
+			{
+				return $shipresults[0];
 			}
 		}
 		else
@@ -1113,6 +1162,7 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 			$shipChargesDetail['totCharges'] = 0;
 			$shipChargesDetail['itemShipMethDetail'] = array();
 			$qtcshiphelper = new qtcshiphelper;
+			$allowToPlaceOrder = array();
 
 			foreach ($vars->cartItemDetail as $key=>$itemDetail)
 			{
@@ -1157,7 +1207,11 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 				}
 			}
 
-			return $qtcOrderShipcharges;
+			// @TODO: change allowToPlaceOrder according to condition. Each plugin must return this parameter
+			$shippingData['allowToPlaceOrder'] = 1;
+			$shippingData['charges'] = $qtcOrderShipcharges;
+
+			return $shippingData;
 		}
 	}
 
@@ -1295,21 +1349,26 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 			 * */
 		}
 		else
-		{	 // FOR EDIT ORDER :: FETCH ITEMS FROM
+		{
+			// FOR EDIT ORDER :: FETCH ITEMS FROM
 			//	$orderWholeDetail = $comquick2cartHelper->getOrderInfo($orderId);
 			//		$cartitems = $orderWholeDetail['items'];
 		}
 
-		// add price releated thing from database instead post data
+		// Add price releated thing from database instead post data
 		$totalamt=0;
+
 		if (empty($cartitems))
 		{
-			return -2;
+			$data->set('detailMsg', JText::_("COM_QUICK2CRT_ERROR_SESSION_EXPIRE"));
+			$data->set('error', 1);
+			return $data;
 		}
 
 		// Calculate subtoal of cart
 		foreach ($cartitems as $key=>$rec)
 		{
+			// @TODO Check for stock for each cart item
 			$index="";
 			$index="cart_total_price_inputbox".$rec['id'];
 			$data->set($index, $rec['tamt']);
@@ -1353,7 +1412,24 @@ class Quick2cartModelcartcheckout extends JModelLegacy
 			$vars->itemsShipMethRateDetail = $postdata->get('itemshipMethDetails', array(), 'ARRAY');
 
 			// Get revalidate shipping detail
-			$qtcOrderShipcharges = $this->afterShipPrice($dis_totalamt, $vars);
+			$qtcOrderInfo = $this->afterShipPrice($dis_totalamt, $vars);
+
+			// @Ankush: Check the code. Commented the below code,
+			//$data->set('deliveryPincode', $qtcOrderInfo['deliveryPincode']);
+
+			if (!empty($qtcOrderInfo))
+			{
+				if ($qtcOrderInfo['allowToPlaceOrder'] == 1)
+				{
+					$qtcOrderShipcharges = $qtcOrderInfo['charges'];
+					$data->set('allowToPlaceOrder', 1);
+				}
+				else
+				{
+					$data->set('allowToPlaceOrder', 0);
+					$data->set('detailMsg', $qtcOrderInfo['detailMsg']);
+				}
+			}
 		}
 
 		// Shipping charges

@@ -79,7 +79,7 @@ class plgSystemQtc_sys extends JPlugin
 
 			if (!empty($laod_boostrap))
 			{
-				$document->addStyleSheet(JUri::root(true) . '/media/jui/css/bootstrap.min.css');
+				//$document->addStyleSheet(JUri::root(true) . '/media/jui/css/bootstrap.min.css');
 			}
 			/*bootstrap related*/
 

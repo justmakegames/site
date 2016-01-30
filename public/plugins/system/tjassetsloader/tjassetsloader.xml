@@ -6,8 +6,8 @@
 	<authorUrl>www.techjoomla.com</authorUrl>
 	<copyright>Copyright(C)2012-15 TechJoomla</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-	<creationDate>3rd March 2015</creationDate>
-	<version>3.1.7</version>
+	<creationDate>22nd Dec 2015</creationDate>
+	<version>3.1.8</version>
 	<description>This plugin loads the necessary CSS and JS for Techjoomla Extensions!</description>
 	<files>
 		<filename plugin="tjassetsloader">tjassetsloader.php</filename>
@@ -28,6 +28,11 @@
 					<option value="1">PLG_SYS_TECHJOOMLA_API_MOD_HEAD_TAG_START</option>
 				</field>
 				<field name="force_js_load" type="radio" default="1" label="PLG_SYS_TECHJOOMLA_API_FORCE_JS_LOAD" description="PLG_SYS_TECHJOOMLA_API_FORCE_JS_LOAD_DESC">
+					<option value="0">PLG_SYS_TECHJOOMLA_API_NO</option>
+					<option value="1">PLG_SYS_TECHJOOMLA_API_YES</option>
+				</field>
+
+				<field name="loadBsRelatedFiles" type="radio" default="1" label="PLG_SYS_TECHJOOMLA_API_LOAD_BS_CSSFILE" description="PLG_SYS_TECHJOOMLA_API_LOAD_BS_CSSFILE_DESC">
 					<option value="0">PLG_SYS_TECHJOOMLA_API_NO</option>
 					<option value="1">PLG_SYS_TECHJOOMLA_API_YES</option>
 				</field>

@@ -37,6 +37,9 @@ class Quick2CartHelper
 			JHtmlSidebar::addEntry(JText::_('QTC_DASHBOARD'), 'index.php?option=com_quick2cart&view=dashboard', $vName == 'dashboard');
 			JHtmlSidebar::addEntry(JText::_('COM_QUICK2CART_TITLE_STORES'), 'index.php?option=com_quick2cart&view=stores', $vName == 'stores');
 			JHtmlSidebar::addEntry(JText::_('COM_QUICK2CART_CATEGORIES'), 'index.php?option=com_categories&view=categories&extension=com_quick2cart', $vName == 'categories');
+			JHtmlSidebar::addEntry(JText::_('COM_QUICK2CART_GLOBAL_ATTRIBUTES'), 'index.php?option=com_quick2cart&view=globalattributes', $vName == 'globalattributes');
+			JHtmlSidebar::addEntry(JText::_('COM_QUICK2CART_GLOBAL_ATTRIBUTE_SET'), 'index.php?option=com_quick2cart&view=attributesets', $vName == 'attributesets');
+			JHtmlSidebar::addEntry(JText::_('COM_QUICK2CART_GLOBAL_ATTRIBUTE_SET_MAPPING'), 'index.php?option=com_quick2cart&view=attributesetmapping', $vName == 'attributesetmapping');
 			JHtmlSidebar::addEntry(JText::_('COM_QUICK2CART_PRODUCTS'), 'index.php?option=com_quick2cart&view=products', $vName == 'products');
 			JHtmlSidebar::addEntry(JText::_('QTC_ORDERS'), 'index.php?option=com_quick2cart&view=orders', $vName == 'orders');
 

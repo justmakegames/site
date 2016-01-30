@@ -15,7 +15,26 @@ JHtml::_('behavior.framework');
 JHtml::_('behavior.modal');
 
 $document = JFactory::getDocument();
-$document->addStyleSheet(JUri::root(true).'/components/com_quick2cart/assets/bootstrap3/css/bootstrap.min.css');
+
+// Load css files
+$comparams = JComponentHelper::getParams('com_quick2cart');
+$currentBSViews = $comparams->get('currentBSViews', "bs3");
+$laod_boostrap = $comparams->get('qtcLoadBootstrap', 1);
+
+if ($currentBSViews == "bs3")
+{
+	// Load Css
+	if (!empty($laod_boostrap))
+	{
+		$document->addStyleSheet(JUri::root(true) . '/media/techjoomla_strapper/bs3/css/bootstrap.min.css');
+	}
+}
+elseif ($currentBSViews == "bs2")
+{
+	// For bs2 forcefully load
+	$document->addStyleSheet(JUri::root(true) . '/media/techjoomla_strapper/bs3/css/bootstrap.min.css');
+}
+
 $document->addStyleSheet(JUri::root(true).'/components/com_quick2cart/assets/font-awesome/css/font-awesome.min.css');
 $document->addStyleSheet(JUri::root(true).'/components/com_quick2cart/assets/css/morris.css');
 $document->addStyleSheet(JUri::root(true).'/components/com_quick2cart/assets/css/tjdashboard-sb-admin.css');
@@ -91,7 +110,7 @@ $js = "
 		toDate1 = new Date(toDate.toString());
 		difference = toDate1 - fromDate1;
 		days = Math.round(difference/(1000*60*60*24));
-		if (parseInt(days)<=0)
+		if (parseInt(days) < 0)
 		{
 			alert(\"".JText::_('COM_QUICK2CART_DATELESS')."\");
 			return;
@@ -188,7 +207,7 @@ $js = "
 
 								<?php echo JHtml::_('calendar', $currentdate, 'to', 'to', '%Y-%m-%d', array('class'=>'inputbox input-small form-control')); ?>
 
-								<input id="btnRefresh" class="btn btn-default btn-sm btn-small btn-primary" type="button" value="<?php echo JText::_('COM_QUICK2CART_FILTER_GO');?>" style="font-weight: bold;" onclick="refreshViews();"/>
+								<input id="btnRefresh" class="btn btn-default btn-sm btn-small btn-primary" type="button" value="<?php echo JText::_('COM_QUICK2CART_FILTER_GO');?>" style="font-weight: bold;" onclick="refreshViews();" title="<?php echo JText::_('COM_QUICK2CART_DASHB_GO_TOOLTIP');?>"/>
 							</div>
 						</div>
 						<div class="clearfix">&nbsp;</div>
@@ -538,7 +557,7 @@ $js = "
 																				break;
 
 																				case 'S' :
-																				$labelClass    = 'label-error';
+																				$labelClass    = 'label-success';
 																				$ord['status'] = JText::_('QTC_SHIP');
 																				break;
 

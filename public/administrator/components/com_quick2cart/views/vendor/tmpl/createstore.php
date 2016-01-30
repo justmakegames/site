@@ -14,6 +14,7 @@ $lang = JFactory::getLanguage();
 $lang->load('com_quick2cart', JPATH_SITE);
 
 $comquick2cartHelper = new comquick2cartHelper;
+$storeHelper=new storeHelper;
 
 JHtml::_('behavior.framework');
 JHtml::_('behavior.formvalidation');
@@ -74,7 +75,6 @@ if (!$mainframe->isAdmin())
 // 3.CHECK MAX CREATE STORE LIMIT
 if (empty($this->allowToCreateStore))
 {
-	$storeHelper=new storeHelper();
 	$userStoreCount=$storeHelper->getUserStoreCount();
 	?>
 	<div class="<?php echo Q2C_WRAPPER_CLASS;?>">
@@ -104,6 +104,10 @@ $qtcshiphelper = new qtcshiphelper;
 ?>
 
 <script type="text/javascript">
+	techjoomla.jQuery(document).ready(function() {
+		generateStoreState(<?php echo isset($this->storeinfo[0]->country)?$this->storeinfo[0]->country:0;?>, <?php echo !empty($this->storeinfo[0]->region)?$this->storeinfo[0]->region:"0";?>);
+	});
+
 	window.addEvent('domready', function()
 	{
 		document.formvalidator.setHandler('qtc_alphanum', function(value)
@@ -261,6 +265,32 @@ $qtcshiphelper = new qtcshiphelper;
 		}
 
 		SqueezeBox.close();
+	}
+
+	function generateStoreState(field_name, valToSelect)
+	{
+		var countryId = 'storecountry';
+		var country_value=techjoomla.jQuery('#'+countryId).val();
+
+		if (valToSelect == 0)
+		{
+			var e = document.getElementById("qtcstorestate");
+			var valToSelect = e.options[e.selectedIndex].value;
+		}
+
+		techjoomla.jQuery.ajax({
+			type : "POST",
+			url : "index.php?option=com_quick2cart&task=vendor.getRegions&country_id="+country_value,
+			success : function(response)
+			{
+				techjoomla.jQuery('#qtcstorestate').html(response);
+
+				if (valToSelect > 0)
+				{
+					techjoomla.jQuery("#qtcstorestate option[value='" + valToSelect + "']").attr("selected", "true");
+				}
+			}
+		});
 	}
 </script>
 
@@ -447,6 +477,71 @@ $qtcshiphelper = new qtcshiphelper;
 				</div>
 			</div>
 
+			<!--Country-->
+			<div class="control-group">
+				<label for="storecountry" class="control-label"><?php echo "* " . JText::_('QTC_BILLIN_COUNTRY')?></label>
+				<div class="controls">
+				<?php
+					$country = $this->countrys;
+					$options = array();
+					$options[] = JHtml::_('select.option', "", JText::_('QTC_BILLIN_SELECT_COUNTRY'));
+
+					foreach ($country as $key=>$value)
+					{
+						$options[] = JHtml::_('select.option', $value['id'], $value['country']);
+					}
+
+					if (!empty($this->storeinfo[0]->country))
+					{
+						$country = $this->storeinfo[0]->country;
+					}
+					else
+					{
+						$country = "";
+					}
+
+					echo $this->dropdown = JHtml::_('select.genericlist',$options,'storecountry','required="required" onchange=\'generateStoreState(id,"1")\' ','value','text', $country);
+				?>
+
+				</div>
+				<div class="qtcClearBoth"></div>
+			</div>
+
+			<!--State-->
+			<div class="control-group" >
+				<label for="qtcstorestate" class="control-label"><?php echo "* " .  JText::_('QTC_BILLIN_STATE')?></label>
+				<div class="controls">
+					<select name="qtcstorestate" id="qtcstorestate" class="" >
+						<option selected="selected"><?php echo JText::_('QTC_BILLIN_SELECT_STATE')?></option>
+					</select>
+				</div>
+				<div class="qtcClearBoth"></div>
+			</div>
+
+			<!--City-->
+			<div class="control-group">
+				<label for="city" class="control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_VENDER_CITY_TOOLTIP'), JText::_('COM_QUICK2CART_VENDER_CITY'), '','* '.JText::_('COM_QUICK2CART_VENDER_CITY'));?>
+				</label>
+				<div class="controls">
+					<input type="text" name="city" id="city" class="inputbox required" value="<?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->city);}?>"></input>
+				</div>
+			</div>
+
+			<!--Land Mark-->
+			<div class="control-group">
+				<label for="land_mark" class="control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_VENDER_LAND_MARK_CITY_TOOLTIP'), JText::_('COM_QUICK2CART_VENDER_LAND_MARK_CITY'), '','* '.JText::_('COM_QUICK2CART_VENDER_LAND_MARK_CITY'));?>
+				</label>
+				<div class="controls">
+					<input type="text" name="land_mark" id="land_mark" class="inputbox required" value="<?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->land_mark);}?>"></input>
+				</div>
+			</div>
+			<div class="control-group">
+				<label for="pincode" class="control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_VENDER_PINCODE_TOOLTIP'), JText::_('COM_QUICK2CART_VENDER_PINCODE'), '','* '.JText::_('COM_QUICK2CART_VENDER_PINCODE'));?>
+				</label>
+				<div class="controls">
+					<input type="text" name="pincode" id="pincode" class="inputbox required" value="<?php if (!empty($this->storeinfo)){ echo stripslashes($this->storeinfo[0]->pincode);}?>"></input>
+				</div>
+			</div>
 			<div class="control-group">
 				<label for="phone" class="control-label"><?php echo JHtml::tooltip(JText::_('VENDER_PHONE_TOOLTIP'), JText::_('VENDER_PHONE'), '', '* '.JText::_('VENDER_PHONE'));?>
 				</label>
@@ -494,7 +589,7 @@ $qtcshiphelper = new qtcshiphelper;
 
 							if (empty($img))
 							{
-								$img = JUri::base() . 'components/com_quick2cart/assets/images/default_store_image.png';
+								$img = $storeHelper->getDefaultStoreImage();
 							}
 							?>
 

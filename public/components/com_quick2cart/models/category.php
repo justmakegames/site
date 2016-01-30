@@ -66,6 +66,8 @@ class Quick2cartModelCategory extends JModelList
 	{
 		global $mainframe;
 		$mainframe = JFactory::getApplication();
+		$jinput = JFactory::getApplication()->input;
+		$layout = $jinput->get('layout', 'default', 'STRING');
 
 		// List state information.
 		parent::populateState('a.item_id', 'desc');
@@ -114,24 +116,33 @@ class Quick2cartModelCategory extends JModelList
 		$search = $app->getUserStateFromRequest($this->context . '.filter.search', 'filter_search', '', 'string');
 		$this->setState('filter.search', $search);
 
+		$prod_sorting = $app->getUserStateFromRequest($this->context . '.sort_products', 'sort_products', '', 'string');
+		$this->setState('sort_products', $prod_sorting);
+
 		$published = $app->getUserStateFromRequest($this->context . '.filter.published', 'filter_published', '', 'string');
 		$this->setState('filter.published', $published);
 
-		// Filter category.
-		$category = $app->getUserStateFromRequest($this->context . '.filter.category', 'filter_category', '', 'string');
-		$this->setState('filter.category', $category);
+		if ($layout == "my")
+		{
+			// Filter category.
+			$category = $app->getUserStateFromRequest($this->context . '.filter.category', 'filter_category', '', 'string');
+			$this->setState('filter.category', $category);
+		}
+		else
+		{
+			// Category filter 2
+			///$prod_cat = $app->getUserStateFromRequest($this->context . 'prod_cat', 'prod_cat', 0, 'INTEGER');
+			$prod_cat = $jinput->get('prod_cat', 0, 'INTEGER');
+			$this->setState('filter.category', $prod_cat);
 
-		// Category filter 2
-		$prod_cat = $app->getUserStateFromRequest($this->context . 'prod_cat', 'prod_cat', 0, 'INTEGER');
-		$this->setState('filter.category', $prod_cat);
+			// Category menu
+			$menu_category = $app->getParams()->get('defaultCatId');
+			$this->setState('filter.menu_category', $menu_category);
 
-		// Category menu
-		$menu_category = $app->getParams()->get('defaultCatId');
-		$this->setState('filter.menu_category', $menu_category);
-
-		// Show subcategory prodcuts
-		$show_subcat_products = $app->getParams()->get('show_subcat_products');
-		$this->setState('filter.show_subcat_products', $show_subcat_products);
+			// Show subcategory prodcuts
+			$show_subcat_products = $app->getParams()->get('show_subcat_products');
+			$this->setState('filter.show_subcat_products', $show_subcat_products);
+		}
 
 		// Filter store.
 		$store = $app->getUserStateFromRequest($this->context . '.filter.store', 'current_store', '', 'string');
@@ -172,6 +183,22 @@ class Quick2cartModelCategory extends JModelList
 		$user  = JFactory::getUser();
 
 		$jinput = JFactory::getApplication()->input;
+		$attributeFilterOptions = explode(',',$jinput->get('attributeoption', '', 'string'));
+
+		// Variable to store prices for price filter
+		$min_limit = $jinput->get('min_price', '', 'int');
+		$max_limit = $jinput->get('max_price', '', 'int');
+
+		if ($min_limit > $max_limit)
+		{
+			$temp = $min_limit;
+			$min_limit = $max_limit;
+			$max_limit = $temp;
+		}
+
+		// To remove null values from array
+		$attributeFilterOptions = array_filter($attributeFilterOptions, 'strlen');
+
 		$layout = $jinput->get('layout', 'default', 'STRING');
 
 		// Select the required fields from the table.
@@ -180,10 +207,34 @@ class Quick2cartModelCategory extends JModelList
 				'list.select', 'a.*'
 			)
 		);
-
+		$query->select('CASE WHEN bc.discount_price IS NOT NULL THEN bc.discount_price
+						ELSE a.price
+						END as fprice');
 		$query->from('`#__kart_items` AS a');
 		$query->JOIN('INNER', '`#__categories` AS c ON c.id=a.category');
+		$query->JOIN('INNER', '`#__kart_base_currency` AS bc ON bc.item_id=a.item_id');
+		//added now
+		if ($layout == 'default')
+		{
+			if (!empty($attributeFilterOptions))
+			{
+				$query->JOIN('INNER', '`#__kart_itemattributes` AS ia ON ia.item_id=a.item_id');
+				$query->JOIN('INNER', '`#__kart_itemattributeoptions` AS iao ON iao.itemattribute_id=ia.itemattribute_id');
+				$query->where('iao.global_option_id IN (' . implode(',',$attributeFilterOptions) . ')');
+			}
+		}
 
+		// Show product only if display_in_product_catlog set to 1
+		$query->where('a.display_in_product_catlog = 1');
+
+		// TODO : Use between clause instead of for loop
+		// Price range for products
+		//~ if (!empty($min_limit) && !empty($max_limit))
+		//~ {
+			//~ $query->where('a.price BETWEEN ' . $min_limit . ' AND ' . $max_limit);
+		//~ }
+
+		//added now end
 		// Filter by search in title.
 		$search = $this->getState('filter.search');
 
@@ -200,70 +251,13 @@ class Quick2cartModelCategory extends JModelList
 			}
 		}
 
-		// Filter by published state.
-		$published = $this->getState('filter.published');
-
-		if (is_numeric($published))
-		{
-			$query->where('a.state = ' . (int) $published);
-		}
-		elseif ($published === '')
-		{
-			if ($layout == 'my')
-			{
-				$query->where('(a.state IN (0, 1))');
-			}
-			else
-			{
-				$query->where('(a.state = 1)');
-			}
-		}
-
-		// Filter by category.
-		$filter_menu_category = $this->state->get("filter.menu_category");
-
-		if ($filter_menu_category)
-		{
-			$filter_show_subcat_products = $this->state->get("filter.show_subcat_products");
-
-			if ($filter_show_subcat_products)
-			{
-				$catWhere = $this->getWhereCategory($filter_menu_category);
-
-				if ($catWhere)
-				{
-					foreach ($catWhere as $cw)
-					{
-						$query->where($cw);
-					}
-				}
-			}
-			else
-			{
-				$query->where("a.category = '" . $db->escape($filter_menu_category) . "'");
-			}
-		}
-		else
-		{
-			$filter_category = $this->state->get("filter.category");
-
-			if ($filter_category)
-			{
-				$catWhere = $this->getWhereCategory($filter_category);
-
-				if ($catWhere)
-				{
-					foreach ($catWhere as $cw)
-					{
-						$query->where($cw);
-					}
-				}
-			}
-		}
 
 		if ($layout == 'default')
 		{
+			//$query->where('(a.state = 1)');
+
 			// Show only the native products and published category,
+			$query->where('(a.state = 1)');
 			$query->where(" c.published = 1");
 			$query->where(" a.parent = 'com_quick2cart'");
 			$storeHelper = new storeHelper;
@@ -280,6 +274,7 @@ class Quick2cartModelCategory extends JModelList
 				$query->where(" a.store_id = -1");
 			}
 
+			// When prod_cat is found in URL
 			$filter_category = $this->state->get("filter.category");
 
 			if ($filter_category)
@@ -295,9 +290,106 @@ class Quick2cartModelCategory extends JModelList
 					}
 				}
 			}
+			else
+			{
+				$filter_menu_category = $this->state->get("filter.menu_category");
+
+				if ($filter_menu_category)
+				{
+					$filter_show_subcat_products = $this->state->get("filter.show_subcat_products");
+
+					if ($filter_show_subcat_products)
+					{
+						$catWhere = $this->getWhereCategory($filter_menu_category);
+
+						if ($catWhere)
+						{
+							foreach ($catWhere as $cw)
+							{
+								$query->where($cw);
+							}
+						}
+					}
+					else
+					{
+						$query->where("a.category = '" . $db->escape($filter_menu_category) . "'");
+					}
+				}
+			}
+
+			$productSorting = $this->getState('sort_products');
+
+			// For sorting products according to price
+			if ($productSorting != '')
+			{
+				if ($productSorting == 'PRICE_DESC')
+				{
+					$query->order('fprice DESC');
+				}
+				elseif ($productSorting == 'PRICE_ASC')
+				{
+					$query->order('fprice ASC');
+				}
+				elseif ($productSorting == 'FEATURED')
+				{
+					$query->order('a.featured DESC');
+				}
+				elseif ($productSorting == 'CREATED_DESC')
+				{
+					$query->order('a.cdate DESC');
+				}
+				elseif ($productSorting == 'CREATED_ASC')
+				{
+					$query->order('a.cdate ASC');
+				}
+			}
+			else
+			{
+				// TODO: move this code below for ordering
+				$currentLayout = $jinput->get('layout', '', 'string');
+
+				if ($currentLayout = "my")
+				{
+					$query->order('a.cdate ASC');
+				}
+			}
 		}
 		else
 		{
+			$filter_category = $this->state->get("filter.category");
+
+			if ($filter_category)
+			{
+				$catWhere = $this->getWhereCategory($filter_category);
+
+				if ($catWhere)
+				{
+					foreach ($catWhere as $cw)
+					{
+						$query->where($cw);
+					}
+				}
+			}
+
+			// Filter by published state.
+			$published = $this->getState('filter.published');
+
+			if (is_numeric($published))
+			{
+				$query->where('a.state = ' . (int) $published);
+			}
+			elseif ($published === '')
+			{
+				if ($layout == 'my')
+				{
+					$query->where('(a.state IN (0, 1))');
+				}
+				else
+				{
+					$query->where('(a.state = 1)');
+				}
+			}
+
 			// My stores view.
 			// Filter by store.
 			$filter_store = $this->state->get("filter.store");
@@ -349,6 +441,8 @@ class Quick2cartModelCategory extends JModelList
 			$query->order($db->escape($orderCol . ' ' . $orderDirn));
 		}
 
+		$query->group('a.item_id');
+
 		return $query;
 	}
 
@@ -362,6 +456,37 @@ class Quick2cartModelCategory extends JModelList
 	public function getItems()
 	{
 		$items = parent::getItems();
+
+		$jinput = JFactory::getApplication()->input;
+
+		// Variable to store prices for price filter
+		$min_limit = $jinput->get('min_price', '', 'int');
+		$max_limit = $jinput->get('max_price', '', 'int');
+
+		if ($min_limit > $max_limit)
+		{
+			$temp = $min_limit;
+			$min_limit = $max_limit;
+			$max_limit = $temp;
+		}
+
+		// Show products from price range
+		if (!empty($min_limit) && !empty($max_limit))
+		{
+			$i = 0;
+
+			foreach ($items as $item)
+			{
+				$price = (int) $item->fprice;
+
+				if ($price < $min_limit || $price > $max_limit)
+				{
+					 unset($items[$i]);
+				}
+
+				$i++;
+			}
+		}
 
 		return $items;
 	}

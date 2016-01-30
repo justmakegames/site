@@ -39,6 +39,7 @@ if (!$user->id && !$params->get('guest'))
 	$document = JFactory::getDocument();
 	// make cart empty
 	JLoader::import('cart', JPATH_SITE . '/components/com_quick2cart/models');
+	$Quick2cartControllercartcheckout = new Quick2cartControllercartcheckout;
 	$Quick2cartModelcart=new Quick2cartModelcart;
 	$Quick2cartModelcart->empty_cart();
 ?>
@@ -89,10 +90,11 @@ if (!$user->id && !$params->get('guest'))
 }
 ?>
 
-<div style="clear:both"></div>
+<div style="clear:both">&nbsp;</div>
 <!-- show payment option start -->
-<div class="row-fluid">
-	<div class="paymentHTMLWrapper well" id="qtcPaymentGatewayList">
+<div class="">
+	<div class="paymentHTMLWrapper well well-small" id="qtcPaymentGatewayList">
+
 		<?php
 		$paymentListStyle = '' ;
 		$mainframe = JFactory::getApplication();
@@ -101,6 +103,7 @@ if (!$user->id && !$params->get('guest'))
 		{
 			$qtcOrderPrice = (float)$this->orderinfo->amount;;
 		}
+
 		if (!empty($qtcOrderPrice))
 		{
 		?>
@@ -133,6 +136,15 @@ if (!$user->id && !$params->get('guest'))
 
 				$this->gateways = $gateways;
 
+				if (count($this->gateways) > 1)
+				{
+					$lable = JText::_('SEL_GATEWAY');
+				}
+				else
+				{
+					$lable = JText::_('QTC_PAYMENT');
+				}
+
 				// If only one geteway then keep it as selected
 				if (!empty($this->gateways))
 				{
@@ -142,23 +154,47 @@ if (!$user->id && !$params->get('guest'))
 				if (!empty($this->gateways) && count($this->gateways)==1) //if only one geteway then keep it as selected
 				{
 					$default=$this->gateways[0]->id; // id and value is same
-					$lable=JText::_('SEL_GATEWAY');
-					$gateway_div_style=1;  // to show payment radio btn even if only one payment gateway
+					//$lable=JText::_('SEL_GATEWAY');
+					$gateway_div_style=1;  // to show payment radio btn btn-defaulteven if only one payment gateway
 				}
 				?>
 
-				<label for="" class="control-label"><h4><?php echo $lable ?> </h4></label>
-				<div class="controls" style="<?php echo ($gateway_div_style==1)?"" : "display:none;" ?>">
+				<div class="">
+					<h4><?php echo $lable ?> </h4>
+				</div>
+				<div class="" style="<?php echo ($gateway_div_style==1)?"" : "display:none;" ?>">
 					<?php
 					if (empty($this->gateways))
+					{
 						echo JText::_('NO_PAYMENT_GATEWAY');
+					}
 					else
 					{
 						$default = ''; // removed selected gateway 26993
 						$imgpath = JUri::root()."components/com_quick2cart/assets/images/ajax.gif";
 						$ad_fun = 'onChange=qtc_gatewayHtml(this.value,'.$order_id.',"'.$imgpath.'")';
-						$pg_list = JHtml::_('select.radiolist', $this->gateways, 'gateways', "class='inputbox required' ".$ad_fun . '  ', 'id', 'name',$default,false);
-						echo $pg_list;
+						//$pg_list = JHtml::_('select.radiolist', $this->gateways, 'gateways', "class='inputbox required form-control'   ".$ad_fun . '  ', 'id', 'name',$default,false);
+						//echo $pg_list;
+						//print"<pre>"; print_r($this->gateways);
+
+						if (count($this->gateways) == 1)
+						{
+							echo $Quick2cartControllercartcheckout->qtc_singleGatewayHtml($this->gateways[0]->id, $order_id);
+						}
+						else
+						{
+							foreach ($this->gateways as $gateway)
+							{
+							?>
+
+							<div class="radio">
+								<label>
+								<input type="radio" name="gateways" id="qtc_<?php echo $gateway->id; ?>" value="<?php echo $gateway->id; ?>" <?php echo $ad_fun; ?> ><?php echo $gateway->name; ?>
+							  </label>
+							</div>
+							<?php
+							}
+						}
 					}
 					?>
 				</div>
@@ -184,36 +220,13 @@ if (!$user->id && !$params->get('guest'))
 		}
 		else
 		{
-			?>
-			<!-- <div id="qtc_payHtmlDiv">
-			<form method="post" name="sa_freePlaceOrder" class="" id="sa_freePlaceOrder">
-			<div class="techjoomla-bootstrap" >
-
-
-				<input type="hidden" name="option" value="com_socialads">
-				<input type="hidden" name="controller" value="buildad" />
-				<input type="hidden" id="task" name="task" value="sa_processFreeOrder">
-				<input type="hidden" name="order_id" value="<?php //echo $order_id; ?>">
-
-				<div class="form-actions " >
-					<input type="submit" class="btn btn-success btn-large" value="<?php //echo JText::_('SA_CONFORM_ORDER'); ?>">
-				</div >
-
-
-			</div>
-			</form>
-			</div>
-			-->
-			<?php
-					//	$this->orderinfo[0]->processor = JText::_('COM_QUICK2CART_FREE_CHCKOUT');
-				$Quick2cartControllercartcheckout = new Quick2cartControllercartcheckout;
-				echo $Quick2cartControllercartcheckout->getFreeOrderHtml($order_id);
-
-			?>
-			<?php
-
+			//	$this->orderinfo[0]->processor = JText::_('COM_QUICK2CART_FREE_CHCKOUT');
+			//$Quick2cartControllercartcheckout = new Quick2cartControllercartcheckout;
+			echo $Quick2cartControllercartcheckout->getFreeOrderHtml($order_id);
 		}
 		?>
+		<div style="clear:both">&nbsp;</div>
 	</div> <!-- end of paymentHTMLWrapper-->
+	<div style="clear:both">&nbsp;</div>
 </div>
 <!-- show payment option end -->

@@ -51,7 +51,7 @@ JHtml::_('behavior.modal');
 		@param default_option string default option to set.
 
 	*/
-	function qtc_generateState(field_name, field_id)
+	/*function qtc_generateState(field_name, field_id)
 	{
 		var countryId = 'qtc_ZoneCountry';
 		var default_option=0;
@@ -76,7 +76,7 @@ JHtml::_('behavior.modal');
 					}
 				});
 	}
-
+*/
 
 	/** Generate state select box
 		@param field_name string select element name.
@@ -116,6 +116,18 @@ JHtml::_('behavior.modal');
 	 */
 	function qtcAddZoneRule(zone_id)
 	{
+		/* Clear old msg */
+		techjoomla.jQuery('#qtczoneruleError').html("");
+		techjoomla.jQuery('.qtcError').fadeOut();
+
+		var qtc_ZoneCountry = document.id('qtc_ZoneCountry').value;
+		if (qtc_ZoneCountry == '')
+		{
+			techjoomla.jQuery('#qtczoneruleError').html("<?php echo JText::_('COM_QUICK2CART_ZONE_INVALID_COUNTRY_SEL', true); ?>");
+			techjoomla.jQuery('.qtcError').fadeIn();
+			return false;
+		}
+
 		var data = {
 			jform : {
 				zone_id : zone_id,
@@ -226,23 +238,23 @@ JHtml::_('behavior.modal');
 					</legend>
 					<!--
 					<div class="form-group">
-						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php //echo $this->form->getLabel('zone_id'); ?></div>
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php //echo $this->form->getInput('zone_id'); ?></div>
+						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php //echo $this->form->getLabel('zone_id'); ?></div>
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php //echo $this->form->getInput('zone_id'); ?></div>
 					</div>  -->
 
 
 					<div class="form-group">
-						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('name'); ?></div>
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('name'); ?></div>
+						<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('name'); ?></div>
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('name'); ?></div>
 					</div>
 
 					<div class="form-group">
-						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('state'); ?></div>
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('state'); ?></div>
+						<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('state'); ?></div>
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('state'); ?></div>
 					</div>
 					<div class="form-group">
-						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('store_id'); ?></div>
+						<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('store_id'); ?></div>
 					</div>
 					<div class="form-group">
 						<div class="alert alert-info"><?php echo JText::_('COM_QUICK2CART_ZONE_HELP_TEXT'); ?></div>
@@ -251,7 +263,7 @@ JHtml::_('behavior.modal');
 					<div class="form-group">
 						<div class="error alert alert-danger qtcError" style="display: none;">
 							<?php echo JText::_('COM_QUICK2CART_ZONE_ERROR'); ?>
-							<i class="icon-cancel pull-right" style="align: right;"
+							<i class="<?php echo QTC_ICON_REMOVE; ?> pull-right" style="align: right;"
 								onclick="jQuery(this).parent().fadeOut();"> </i> <br />
 							<hr />
 							<div id="qtczoneruleError"></div>
@@ -280,7 +292,7 @@ JHtml::_('behavior.modal');
 								{
 									$options[] = JHtml::_('select.option', $country['id'], $country['country']);
 								}
-								echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_ZoneCountry','class="col-lg-12 col-md-12 col-sm-12 col-xs-12"  aria-invalid="false" size="1"  autocomplete="off" onchange=\'qtc_generateState("jform[qtc_state_id]","jform_qtc_state_id")\' ','value','text',$default,'qtc_ZoneCountry');
+								echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_ZoneCountry','class="col-lg-12 col-md-12 col-sm-12 col-xs-12"  aria-invalid="false"   autocomplete="off" onchange=\'qtc_generateState("jform[qtc_state_id]","jform_qtc_state_id")\' ','value','text',$default,'qtc_ZoneCountry');
 
 								?>
 							</div>
@@ -296,7 +308,6 @@ JHtml::_('behavior.modal');
 							</div>
 
 						</div>
-
 
 						<div class="clearfix">&nbsp;</div>
 						<table class="table table-striped table-bordered">

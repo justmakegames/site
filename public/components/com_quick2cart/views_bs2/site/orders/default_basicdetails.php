@@ -94,7 +94,7 @@ defined('_JEXEC') or die();
 
 								if (!($orders_site))
 								{
-									echo JHtml::_('select.genericlist', $this->pstatus, "pstatus", 'class="pad_status" size="1" onChange="selectstatusorder(' . $this->orderinfo->id . ',this);"', "value", "text", $this->orderinfo->status);
+									echo JHtml::_('select.genericlist', $this->pstatus, "pstatus", 'class="pad_status"  onChange="selectstatusorder(' . $this->orderinfo->id . ',this);"', "value", "text", $this->orderinfo->status);
 								}
 								else
 								{
@@ -111,13 +111,13 @@ defined('_JEXEC') or die();
 								<tr>
 									<td><?php echo JText::_('QTC_NOTIFY');?></td>
 									<td>
-										<input type="checkbox" id="notify_chk" name="notify_chk|<?php echo $this->orderinfo->id;?>" size="10" checked />
+										<input type="checkbox" id="notify_chk" name="notify_chk|<?php echo $this->orderinfo->id;?>"  checked />
 									</td>
 								</tr>
 
 								<tr>
 									<td><?php echo JText::_('QTC_COMMENT');?></td>
-									<td><textarea id="" name="comment" rows="3" size="28" value=""></textarea></td>
+									<td><textarea id="" name="comment" rows="3"  value=""></textarea></td>
 								</tr>
 								<?php
 							}
@@ -153,10 +153,12 @@ defined('_JEXEC') or die();
 								}?>
 							</td>
 						</tr>
+<!--
 						<tr >
 							<td><?php echo JText::_('QTC_ORDER_IP');?></td>
 							<td><?php echo $this->orderinfo->ip_address;?></td>
 						</tr>
+-->
 
 
 						<?php

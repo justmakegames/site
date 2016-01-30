@@ -207,4 +207,18 @@ class Quick2cartModelShipping extends JModelList
 
 		return true;
 	}
+
+	// To to removed and add in getStoreinfo
+	public function getStorePincode($store_id)
+	{
+		$db = $this->getDbo();
+		$query = $db->getQuery(true);
+		$query->select('pincode');
+		$query->from('#__kart_store');
+		$query->where('id = ' . $store_id);
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		return $result;
+	}
 }

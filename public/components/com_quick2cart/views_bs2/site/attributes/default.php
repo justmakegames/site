@@ -455,6 +455,7 @@ $document->addScriptDeclaration($js_currency);
 						<input type="checkbox" id="qtcEnableQtcProd"   autocomplete="off" name="qtcEnableQtcProd" value=""  onchange="qtcUpdateProdFieldClasses()">
 					</label>
 				</div>
+				<div class="qtcClearBoth"></div>
 			</div>
 
 		<?php
@@ -490,9 +491,9 @@ $document->addScriptDeclaration($js_currency);
 							}
 						?>
 					<div class="controls">
-						<input type="text" class="input-medium inputbox requiredEE"  name="item_name" size="1" id="item_name" value="<?php echo $comquick2cartHelper->escape($p_title); ?>" />
+						<input type="text" class="input-medium inputbox requiredEE"  name="item_name"  id="item_name" value="<?php echo $comquick2cartHelper->escape($p_title); ?>" />
 
-						<input type="hidden" class="inputbox"  name="pid" size="1" id="pid" value="<?php echo $pid; ?>" />
+						<input type="hidden" class="inputbox"  name="pid"  id="pid" value="<?php echo $pid; ?>" />
 						<?php
 						/*if ($StoreIds_count > 1)
 						{
@@ -509,7 +510,7 @@ $document->addScriptDeclaration($js_currency);
 				<div class='control-group' >
 					<label for="sku" class="control-label"><?php echo JHtml::tooltip(JText::_('QTC_ITEM_CCK_SKU_DES'), JText::_('QTC_ITEM_CCK_SKU'), '', '* '.JText::_('QTC_ITEM_CCK_SKU'));?></label>
 					<div class="controls">
-						<input type="text" class="input-medium inputbox requiredEE"  name="sku" size="1" id="sku" onBlur="checkForSku(this.value)" value="<?php echo (!empty($itemDetail['sku'])? $itemDetail['sku'] : ''); ?>" autocomplete='off'  aria-invalid="false"  />
+						<input type="text" class="input-medium inputbox requiredEE"  name="sku"  id="sku" onBlur="checkForSku(this.value)" value="<?php echo (!empty($itemDetail['sku'])? $itemDetail['sku'] : ''); ?>" autocomplete='off'  aria-invalid="false"  />
 					</div>
 				</div>
 				<!-- end SKU -->
@@ -539,7 +540,7 @@ $document->addScriptDeclaration($js_currency);
 								//echo $default_store_id = (!empty($StoreIds) ? $StoreIds[$i]->store_id : 1;
 								$options_store[] = JHtml::_('select.option',$storeList[$i]['store_id'], $storeList[$i]['title']);//submitAction('deletecoupon');
 							}
-							echo $this->dropdown = JHtml::_('select.genericlist',$options_store,'store_id','class=" qtc_putmargintop10px qtc_requiredoption" size="1"  onchange="getTaxprofile();"','value','text',$default_store_id,'current_store_id');
+							echo $this->dropdown = JHtml::_('select.genericlist',$options_store,'store_id','class=" qtc_putmargintop10px qtc_requiredoption"   onchange="getTaxprofile();"','value','text',$default_store_id,'current_store_id');
 						// if store count is 1 then save default store
 
 						?>
@@ -589,7 +590,7 @@ $document->addScriptDeclaration($js_currency);
 				<!-- PRICE PRICE -->
 				<div class='control-group qtc_currencey_textbox' id="qtc_price_currencey_textbox" >
 					<label for="jform_price_<?php echo !empty($curr[0]) ? $curr[0] : '' ;?>" class="control-label">
-						<strong><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', JText::_('QTC_ITEM_PRICE'));?></strong>
+						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', "* " .JText::_('QTC_ITEM_PRICE'));?>
 					</label>
 
 					<div class="controls">
@@ -638,7 +639,7 @@ $document->addScriptDeclaration($js_currency);
 								<div>
 									<div class="input-append curr_margin">
 										<label for="jform_price_<?php echo trim($value);?>" class="control-label">
-											<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', JText::_('QTC_ITEM_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($currtext));?>
+											<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', JText::_('COM_QUICK2CARET_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($currtext));?>
 										</label>
 										<input Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
 											class="input-mini currtext requiredEE qtc_requiredoption"
@@ -676,7 +677,7 @@ $document->addScriptDeclaration($js_currency);
 				<!-- DISCOUNT PRICE -->
 				<div class='control-group qtc_currencey_textbox' style="<?php echo (($params->get('usedisc') == '0') ? 'display:none;' :'display:block;'); ?>" >
 					<label for="jform_disc_price_<?php echo !empty($curr[0]) ? $curr[0] : '' ;?>" class="control-label">
-						<strong><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE'));?></strong>
+						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE'));?>
 					</label>
 					<div class="controls">
 						<?php
@@ -701,7 +702,7 @@ $document->addScriptDeclaration($js_currency);
 								<div>
 									<div class="input-append curr_margin">
 										<label for="jform_disc_price_<?php echo trim($value);?>" class="control-label">
-											<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($value));?>
+											<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('COM_QUICK2CARET_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($value));?>
 										</label>
 
 										<input Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
@@ -754,7 +755,7 @@ $document->addScriptDeclaration($js_currency);
 						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_STOCK_DESC'), JText::_('PLG_QTC_ITEM_STOCK'), '', JText::_('PLG_QTC_ITEM_STOCK'));?>
 					</label>
 					<div class="controls">
-						<input Onkeyup="checkforalpha(this,'45', '<?php echo addslashes($entered_numerics); ?>')"  type="text" name="stock" id="stock" size="32" value="<?php if (isset($minmaxstock->stock)) echo $minmaxstock->stock;?>" class="input-mini inputbox validate-integer"  >
+						<input Onkeyup="checkforalpha(this,'45', '<?php echo addslashes($entered_numerics); ?>')"  type="text" name="stock" id="stock"  value="<?php if (isset($minmaxstock->stock)) echo $minmaxstock->stock;?>" class="input-mini inputbox validate-integer"  >
 					</div>
 				</div>
 
@@ -768,7 +769,7 @@ $document->addScriptDeclaration($js_currency);
 					<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_SLAB_DESC'), JText::_('COM_QUICK2CART_ITEM_SLAB'), '', JText::_('COM_QUICK2CART_ITEM_SLAB'));?>
 					</label>
 					<div class="controls">
-						<input Onkeyup="checkforalpha(this,'', '<?php echo addslashes($entered_numerics); ?>')"  Onchange="checkSlabValue();" type="text" name="item_slab" id="item_slab" size="32" value="<?php echo isset($minmaxstock) ? $minmaxstock->slab: 1  ?>" class="input-mini inputbox validate-integer"  >
+						<input Onkeyup="checkforalpha(this,'', '<?php echo addslashes($entered_numerics); ?>')"  Onchange="checkSlabValue();" type="text" name="item_slab" id="item_slab"  value="<?php echo isset($minmaxstock) ? $minmaxstock->slab: 1  ?>" class="input-mini inputbox validate-integer"  >
 					</div>
 				</div>
 
@@ -781,7 +782,7 @@ $document->addScriptDeclaration($js_currency);
 					<div class="controls">
 						<input
 							onChange="checkSlabValueField(this,'', '<?php echo addslashes($entered_numerics); ?>')"
-							type="text" name="min_item" id="min_item" size="32" value="<?php if (isset($minmaxstock)) echo $minmaxstock->min_quantity;?>" class="input-mini inputbox validate-integer"  >
+							type="text" name="min_item" id="min_item"  value="<?php if (isset($minmaxstock)) echo $minmaxstock->min_quantity;?>" class="input-mini inputbox validate-integer"  >
 					</div>
 				</div>
 				<div class="control-group" style="<?php echo $qtc_min_max_style;?>">
@@ -791,7 +792,7 @@ $document->addScriptDeclaration($js_currency);
 					<div class="controls">
 						<input
 						onChange="checkSlabValueField(this,'', '<?php echo addslashes($entered_numerics); ?>')"
-						type="text" name="max_item" id="max_item" size="32" value="<?php if (isset($minmaxstock))  echo $minmaxstock->max_quantity;?>" class="input-mini inputbox validate-integer"  >
+						type="text" name="max_item" id="max_item"  value="<?php if (isset($minmaxstock))  echo $minmaxstock->max_quantity;?>" class="input-mini inputbox validate-integer"  >
 					</div>
 				</div>
 

@@ -172,7 +172,12 @@ JHtml::_('behavior.modal');
 					?>
 					<div class="control-group">
 						<div class="control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
-						<div class="controls"><?php echo ucfirst($this->storeDetails['title']); ?></div>
+						<div class="controls">
+							<?php echo ucfirst($this->storeDetails['title']); ?>
+							<span style="display:none;">
+								<?php echo $this->form->getInput('store_id'); ?>
+							</span>
+					</div>
 					</div>
 					<?php
 				}?>
@@ -285,7 +290,7 @@ JHtml::_('behavior.modal');
 						</button>
 					<?php endif;?>
 
-					<a href="<?php echo JRoute::_('index.php?option=com_quick2cart&task=taxprofileform.cancel&id='.$this->item->id); ?>" class="btn btn-inverse" title="<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>">
+					<a href="<?php echo JRoute::_('index.php?option=com_quick2cart&task=taxprofileform.cancel&id='.$this->item->id); ?>" class="btn " title="<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>">
 						<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>
 					</a>
 

@@ -22,6 +22,7 @@ class productHelper
 		$where   = array();
 		$where[] = ' i.featured=1 ';
 		$where[] = ' i.state=1 ';
+		$where[] = ' i.display_in_product_catlog=1 ';
 
 		if (!empty($store_id))
 		{
@@ -64,6 +65,8 @@ class productHelper
 
 		//  Payment completed, and shipped are considered
 		$where[] = " o.`status` IN('C', 'S')";
+		$where[] = ' i.`state`=1';
+		$where[] = ' i.`display_in_product_catlog`=1';
 
 		if (!empty($store_id))
 		{
@@ -169,11 +172,11 @@ class productHelper
 
 		$where[] = ' `category`=\'' . $cat . '\' ';
 		$where[] = " `state` =  '1'";
-
+		$where[] = " `display_in_product_catlog` =  '1'";
 
 		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 		$db    = JFactory::getDBO();
-		$query = "SELECT i.item_id,i.name,i.images,i.`store_id`,i.slab,i.`min_quantity`,i.`max_quantity`,i.`featured`,i.`parent`,i.`product_id`,i.`state`,i.stock FROM #__kart_items as i " . $where . ' LIMIT 0 , 5';
+		$query = "SELECT i.item_id,i.name,i.images,i.`store_id`,i.slab,i.`min_quantity`,i.`max_quantity`,i.`featured`,i.`parent`,i.`product_id`,i.`state`,i.stock FROM #__kart_items as i " . $where . ' LIMIT 0 , 4';
 		$db->setQuery($query);
 
 		return $data = $db->loadAssocList();
@@ -185,7 +188,7 @@ class productHelper
 	 *  @param $item_id  INTEGER -- item_id  from which WHICH IS NOT TO SELECT
 	 * */
 
-	function prodFromSameStore($store_id, $item_id,  $parent = '')
+	function prodFromSameStore($store_id, $item_id, $parent = '')
 	{
 		$where = array();
 
@@ -206,6 +209,8 @@ class productHelper
 		{
 			$where[] = ' i.`parent`=\'' . $parent . '\' ';
 		}
+
+		$where[] = " `display_in_product_catlog` =  '1'";
 
 		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 		$db    = JFactory::getDBO();
@@ -239,7 +244,6 @@ class productHelper
 	public function peopleAlsoBought($item_id, $datacount = 2)
 	{
 		$where = array();
-
 		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 		$db    = JFactory::getDBO();
 		$query = 'SELECT oi.`order_id` FROM `#__kart_order_item` AS oi
@@ -259,7 +263,7 @@ class productHelper
 			FROM `#__kart_order_item` AS oi
 			INNER JOIN `#__kart_items` AS i
 			ON oi.item_id=i.item_id
-			WHERE oi.order_id=' . $orderid . ' AND oi.`item_id` !=' . $item_id . ' AND i.state=1';
+			WHERE oi.order_id=' . $orderid . ' AND oi.`item_id` !=' . $item_id . ' AND i.state=1 AND i.display_in_product_catlog = 1';
 			$db->setQuery($query);
 			$otherProducts = $db->loadAssocList();
 
@@ -337,13 +341,30 @@ class productHelper
 
 	function getNewlyAdded_products($limit = '2')
 	{
-		$db    = JFactory::getDBO();
+		/*$db    = JFactory::getDBO();
 		$query = 'SELECT i.item_id,i.name,i.images,i.`store_id`,i.slab,i.`min_quantity`,i.`max_quantity`,i.`featured`,i.`parent`,i.`product_id`  ,i.`stock` from `#__kart_items` AS i
 		WHERE i.state=1
 		ORDER BY `cdate` DESC
 		LIMIT 0 , ' . $limit;
 		$db->setQuery($query);
-		return $data = $db->loadAssocList();
+		return $data = $db->loadAssocList();*/
+
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+		$query->select('i.item_id,i.name,i.images,i.`store_id`,i.slab,i.`min_quantity`,i.`max_quantity`,i.`featured`,i.`parent`,i.`product_id`  ,i.`stock`');
+		$query->from('#__kart_items AS i');
+		$query->where('i.state=1 AND i.display_in_product_catlog = 1');
+
+		// Plugin backeside params $this->params->get('no_of_product')
+		//$query->setLimit($this->params->get('no_of_product'));
+		$query->setLimit($limit);
+
+		$query->order("i.item_id DESC");
+		//die($query);
+		$db->setQuery($query);
+
+		return $productinfo = $db->loadAssocList();
+
 	}
 
 	function getRecentlyBoughtproducts($limit = '2')
@@ -358,7 +379,7 @@ class productHelper
 		LIMIT 0 , '.$limit;*/
 		$query = 'SELECT DISTINCT(oi.item_id),i.name,i.images,i.featured,i.`stock`
 								FROM `#__kart_order_item` AS oi , `#__kart_items` AS i
-								WHERE i.state=1
+								WHERE i.state=1 AND i.display_in_product_catlog = 1
 								 AND   oi.item_id=i.item_id
 								GROUP BY oi.item_id
 								ORDER BY oi.`cdate` DESC
@@ -374,6 +395,7 @@ class productHelper
 		$query = 'SELECT DISTINCT(oi.item_id),i.item_id, i.product_id, i.parent, i.`store_id`,i.slab,i.`min_quantity`,i.`max_quantity`, i.name,i.images,i.featured, i.stock
 					FROM `#__kart_order_item` AS oi , `#__kart_items` AS i, `#__kart_orders` as o
 					WHERE i.state = 1
+					AND i.display_in_product_catlog = 1
 					AND oi.order_id = o.id
 					AND oi.item_id = i.item_id
 					AND o.user_info_id = "' . $uid . '"
@@ -414,7 +436,7 @@ class productHelper
 		From `#__kart_items` as i
 		INNER JOIN `#__kart_store` AS s ON i.`store_id` = s.`id`
 		WHERE s.owner=' . (int) $userid . '
-		ORDER BY i.cdate DESC
+		 AND i.display_in_product_catlog = 1 ORDER BY i.cdate DESC
 		LIMIT 0 , ' . (int) $limit;
 		$db->setQuery($query);
 		return $data = $db->loadAssocList();
@@ -917,7 +939,7 @@ class productHelper
 
 			$file                    = new stdClass();
 			$file->file_id           = $media['file_id'];
-			$file->file_display_name = $media['name'];
+			$file->file_display_name = !empty($media['name']) ? $media['name'] : JText::_('COM_QUICK2CRT_DEFAULT_DOWNLODABLE_FILE');
 			$file->item_id           = $item_id;
 			$file->state             = isset($media['status']) ? true : false;
 			$file->purchase_required = isset($media['purchaseReq']) ? true : false;
@@ -1554,7 +1576,8 @@ class productHelper
 			header('Cache-Control: pre-check=0, post-check=0, max-age=0');
 			header("Expires: 0");
 			header("Content-Description: File Transfer");
-			header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+
+			// header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 			header("Content-Type: " . $ctype);
 			header("Content-Length: " . (string) $len);
 
@@ -1568,7 +1591,7 @@ class productHelper
 			header('Content-Disposition: inline; filename="'.$filename.'"');
 			}*/
 
-			header("Content-Transfer-Encoding: binary\n");
+			// header("Content-Transfer-Encoding: binary\n");
 
 			//  redirect to category when it is set the time
 
@@ -1583,6 +1606,9 @@ class productHelper
 			}
 
 			@readfile($file);
+
+			// Problems with MS IE
+			// header("Expires: 0");
 		}
 
 		if ($exitHere == 1)
@@ -2037,6 +2063,8 @@ class productHelper
 		$html             = '';
 		$entered_numerics = "'" . JText::_('QTC_ENTER_NUMERICS') . "'";
 		$comParams        = JComponentHelper::getParams('com_quick2cart');
+		$currentBSViews = $comParams->get('currentBSViews', "bs3");
+		$app    = JFactory::getApplication();
 
 		// Get Currencies
 		$currencies = $comParams->get('addcurrency');
@@ -2065,12 +2093,27 @@ class productHelper
 			}
 
 			$currentFieldValue = ((isset($currFieldValues[$value])) ? number_format($currFieldValues[$value], 2) : '');
-			$html .= '<div class="input-append input-group curr_margin col-lg-1 col-md-1 col-sm-1 col-xs-12 " >' .
+
+			if ($app->isAdmin() || $currentBSViews == "bs2")
+			{
+				$html .= '<div class="input-append  curr_margin " >' .
 						'<input type="text" name="' . $name . '[' . $value . ']"
 							size="" id="" value="' . $currentFieldValue . '"
 							class=" input-mini ' . $currFieldClass . '">' .
-						'<span class="add-on input-group-addon">' . $currtext . '</span>' .
+						'<span class="add-on ">' . $currtext . '</span>' .
 					'</div>';
+			}
+			else
+			{
+				$html .= '<div class="input-group curr_margin " >' .
+						'<input type="text" name="' . $name . '[' . $value . ']"
+							size="" id="" value="' . $currentFieldValue . '"
+							class=" form-control ' . $currFieldClass . '">' .
+						'<div class="add-on input-group-addon">' . $currtext . '</div>' .
+					'</div>';
+			}
+
+
 		}
 
 		return $html;
@@ -2138,26 +2181,48 @@ class productHelper
 
 	/**
 	 * Method Check whether product is allowd to buy or not according to the options eg "allowed out of stock" option..
+	 * Called from (1.while displaying the product page 2. While adding product in cart 3. While updating the cart item's attribute)
 	 *
-	 * @param   string  $itemdetail  itemdetail.
+	 * @param   string   $itemdetail  itemdetail.
+	 * @param   integer  $userBuyQty  No of user want to buy the quantity. Eg when user x no of product from add to cart view. At that time, check whether that product quantity is available or not.
 	 *
 	 * @since   2.2
 	 *
 	 * @return   boolean true or false.
 	 */
-	public function isInStockProduct($itemdetail)
+	public function isInStockProduct($itemdetail, $userBuyQty ="")
 	{
 		$params               = JFactory::getApplication()->getParams('com_quick2cart');
 		$usestock             = $params->get('usestock');
 		$outofstock_allowship = $params->get('outofstock_allowship');
 
-		$stock            = $itemdetail->stock;
 		$min_qty          = (!empty($itemdetail->min_quantity)) ? $itemdetail->min_quantity : 1;
 		$max_qty          = (!empty($itemdetail->max_quantity)) ? $itemdetail->max_quantity : 999;
 		$buybutton_status = 1;
 
 		if ($usestock == 1 && $outofstock_allowship == 0)
 		{
+			$stock            = $itemdetail->stock;
+
+			// If product has attributes then  Check attribute based stock details
+			if (!empty($itemdetail->itemAttributes))
+			{
+				$statusDetail = $this->checkStockForAttributeOptions($itemdetail->itemAttributes);
+
+				if (!empty($statusDetail['inStock']) )
+				{
+					if (!empty($statusDetail['isAttrBasedStockKeepingProduct']))
+					{
+						return 1;
+					}
+				}
+				else
+				{
+					return 0;
+				}
+			}
+
+			// Check main stock
 			if ($stock != null || $stock != '')
 			{
 				$max_qty = min($stock, $max_qty);
@@ -2173,9 +2238,109 @@ class productHelper
 				// STOCK=NULL mean not entered or not require of stock (e-artical)
 				$buybutton_status = 1;
 			}
+			else
+			{
+				// Something stock is there, and we hv to check whether use entered qty is present or no
+				if (!empty($userBuyQty))
+				{
+					$buybutton_status = ($userBuyQty <= min($stock, $max_qty)) ? 1 : 0;
+				}
+			}
 		}
 
 		return $buybutton_status;
+	}
+
+	/**
+	 * Get no of products in cart with same item id
+	 * */
+	/**
+	 * Get no of products in cart with same item id
+	 *
+	 * @param   integer  $cartId   cart id
+	 * @param   integer  $item_id  item_id of product
+	 *
+	 * @since   2.2
+	 *
+	 * @return   item_id count
+	 */
+	public function getCartItemQuantity($cartId, $item_id)
+	{
+		$db    = JFactory::getDbo();
+
+		// Get total cart item with same item id
+		$query = $db->getQuery(true);
+		$query->select("count(*)");
+		$query->from("#__kart_cartitems");
+
+		$conditions = array(
+			$db->quoteName('cart_id') . ' =' . (int) $cartId,
+			$db->quoteName('item_id') . ' =' . (int) $item_id
+		);
+
+		$query->where($conditions);
+		$db->setQuery($query);
+		$item_idCount = $db->loadResult();
+
+		return !empty($item_idCount) ? $item_idCount : 0;
+
+	}
+	/**
+	 * This function check whether product maintaining the  attribute bases stock or not.
+	 * If yes then retrn in stock status detail
+	 *
+	 * @param   array  $itemAttributes  array of attributes with complete attribute details (getAttributeDetails())
+	 *
+	 * @return  array status detail array.
+	 *
+	 * @since	2.5
+	 */
+	public function checkStockForAttributeOptions($itemAttributes)
+	{
+		$status = array();
+		$status['isAttrBasedStockKeepingProduct'] = 0;
+		$status['inStock'] = 1;
+
+		if (empty($itemAttributes))
+		{
+			return 0;
+		}
+
+		// Check is attribute bases stock keeping prodcut
+		$stockableAttr = new stdClass;
+
+		foreach ($itemAttributes as  $attr)
+		{
+			if ($attr->is_stock_keeping == 1)
+			{
+				$stockableAttr = $attr;
+				break;
+			}
+		}
+
+		if (!empty($stockableAttr->optionDetails))
+		{
+			$status['isAttrBasedStockKeepingProduct'] = 1;
+			$status['inStock'] = 0;
+
+			// Check atleast one of option is in stock
+			foreach ($stockableAttr->optionDetails as $option)
+			{
+				// Stock for atleast one option
+				if ($option->state == 1 && !empty($option->child_product_detail->stock))
+				{
+					$status['inStock'] = 1;
+					break;
+				}
+			}
+		}
+		else
+		{
+			$status['isAttrBasedStockKeepingProduct'] = 0;
+			$status['inStock'] = 1;
+		}
+
+		return $status;
 	}
 
 	/**
@@ -2355,7 +2520,7 @@ class productHelper
 	{
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true);
-		$query->select("`itemattribute_id`,`itemattribute_name`,`attribute_compulsary`,`attributeFieldType`");
+		$query->select("*");
 		$query->from('#__kart_itemattributes');
 		$query->where('item_id=' . $item_id);
 
@@ -2482,6 +2647,7 @@ class productHelper
 			}
 		}
 	}
+
 	/**
 	 * This function gives you option details from DB.
 	 *
@@ -2516,6 +2682,288 @@ class productHelper
 				$this->setError($e->getMessage());
 
 				return array();
+			}
+		}
+	}
+
+	/**
+	 * Method to get a single record.
+	 *
+	 * @param   integer  $store_list  The list of the store id.
+	 *
+	 * @param   integer  $limit       The limit is the number of product to show.
+	 *
+	 * @return  Object list.
+	 *
+	 * @since	1.7
+	 */
+	public function getNewlyAddedProductsWithStoreId($store_list, $limit = '2')
+	{
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+		$query->select('i.item_id,i.name,i.images,i.`store_id`,i.slab,i.`min_quantity`,
+		i.`max_quantity`,i.`featured`,i.`parent`,i.`product_id`  ,i.`stock`');
+		$query->from('#__kart_items AS i');
+		$query->where('i.state=1');
+
+		if (!empty($store_list))
+		{
+			$storesStr = implode(",", $store_list);
+			$query->where('i.store_id  IN ( ' . $storesStr . ')');
+		}
+
+		$query->setLimit($limit);
+		$query->order("i.item_id DESC");
+		$db->setQuery($query);
+
+		return $productinfo = $db->loadObjectList();
+	}
+
+	/**
+	 * Method to globle attribute set for product
+	 *
+	 * @param   ARRAY  $itemDetail  product detail
+	 *
+	 * @param   integer  $limit       The limit is the number of product to show.
+	 *
+	 * @return  Object list.
+	 *
+	 * @since	2.5
+	 */
+	public function getProductGlobalAttributeSet($itemDetail)
+	{
+		//$prodCat = $itemDetail['category'];
+		$attributeIds = $this->getCategoryGlobalAttriIds($itemDetail['category']);
+
+		if (!empty($attributeIds))
+		{
+			$globalAttrIds = implode(",", $attributeIds);
+
+			try
+			{
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true);
+				$query->select("ga.id, ga.attribute_name")
+				->from('#__kart_global_attribute AS ga')
+				->where('ga.id  IN ( ' . $globalAttrIds . ')')
+				->where('ga.state=1');
+				$db->setQuery($query);
+
+				return $globalAttributes = $db->loadObjectList('id');
+			}
+			catch(Exception $e)
+			{
+				echo $e->getMessage();
+				return array();
+			}
+		}
+	}
+
+	/**
+	 * Method to get globle attribtues for provided category
+	 *
+	 * @param   integer  $cat_id  Category Id
+	 *
+	 * @return  Object list.
+	 *
+	 * @since	2.5
+	 */
+	public function getCategoryGlobalAttriIds($cat_id)
+	{
+		if ($cat_id)
+		{
+			try
+			{
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true);
+				$query->select("gas.global_attribute_ids")
+				->from('#__kart_category_attribute_set AS cas')
+				->join('INNER', '#__kart_global_attribute_set AS gas ON cas.attribute_set_id=gas.id')
+				->where(" cas.category_id = ". $cat_id);
+				$db->setQuery($query);
+
+				$result = $db->loadObject();
+
+				if ($result)
+				{
+					return $global_attribute_idsArray = json_decode($result->global_attribute_ids);
+				}
+				else
+				{
+					return array();
+				}
+			}
+			catch(Exception $e)
+			{
+				echo $e->getMessage();
+
+				return array();
+			}
+		}
+	}
+
+	/**
+	 * Method to get globle attribtue's option detail
+	 *
+	 * @param   ARRAY  $gAttriId  product detail
+	 *
+	 * @return  Object list.
+	 *
+	 * @since	2.5
+	 */
+	public function getGlobalAttriOptions($gAttriId)
+	{
+		if ($gAttriId)
+		{
+			try
+			{
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true);
+				$query->select("ga.*")
+				->from('#__kart_global_attribute_option AS ga')
+				->where(" ga.attribute_id = " . $gAttriId);
+				$db->setQuery($query);
+
+				return $db->loadObjectList();
+			}
+			catch(Exception $e)
+			{
+				echo $e->getMessage();
+
+				return array();
+			}
+		}
+		else
+		{
+			return array();
+		}
+	}
+
+	/**
+	 * Method return product's stock according to STOCKABLE attribute's option
+	 *
+	 * @param   ARRAY  $gAttriId  product detail
+	 *
+	 * @return  Object list.
+	 *
+	 * @since	2.5
+	 */
+	public function getAttriBasedStock($formattedAttriDetails)
+	{
+		$child_product_item_id = 0;
+		$retData = array();
+		$retData['child_product_item_id'] = '';
+		$retData['stock'] = '';
+
+		if (!empty($formattedAttriDetails))
+		{
+			foreach ($formattedAttriDetails as $attrib)
+			{
+				// Check for stock keeping attribute and get the global child product id
+				if (!empty($attrib['is_stock_keeping']) && $attrib['selectedOptionDetail']['child_product_item_id'])
+				{
+					$child_product_item_id = $attrib['selectedOptionDetail']['child_product_item_id'];
+				}
+			}
+		}
+
+		if (!empty($child_product_item_id))
+		{
+			$retData['child_product_item_id'] = $child_product_item_id;
+
+			try
+			{
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true);
+				$query->select("stock")
+				->from('#__kart_items AS i')
+				->where(" i.item_id = " . $child_product_item_id);
+				$db->setQuery($query);
+				$retData['stock'] = $db->loadResult();
+
+				return $retData;
+			}
+			catch(Exception $e)
+			{
+				echo $e->getMessage();
+
+				return $retData;
+			}
+		}
+	}
+
+	/**
+	 * Method to get sku for item_id
+	 *
+	 * @param   ARRAY  $item_id  item id.
+	 *
+	 * @return  Object list.
+	 *
+	 * @since	2.5
+	 */
+	public function getSku($item_id)
+	{
+		if ($item_id)
+		{
+			try
+			{
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true);
+				$query->select("i.sku")
+				->from('#__kart_items AS i')
+				->where(" i.item_id = ". $item_id);
+				$db->setQuery($query);
+
+				return $db->loadResult();
+			}
+			catch(Exception $e)
+			{
+				echo $e->getMessage();
+
+				return array();
+			}
+		}
+	}
+
+	/**
+	 * This function check whether category is allowed to change
+	 *
+	 * @param   integer  $item_id  item id.
+	 *
+	 * @return  Object list.
+	 *
+	 * @since	2.5
+	 */
+	public function isAllowedtoChangeProdCategory($item_id)
+	{
+		if ($item_id)
+		{
+			try
+			{
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true);
+				$query->select("ia.global_attribute_id")
+				->from('#__kart_itemattributes AS ia')
+				->where(" ia.item_id = ". $item_id)
+				->where(" ia.global_attribute_id > 0");
+				$db->setQuery($query);
+
+				$data = $db->loadColumn();
+
+				if (!empty($data))
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+			catch(Exception $e)
+			{
+				echo $e->getMessage();
+
+				return 0;
 			}
 		}
 	}

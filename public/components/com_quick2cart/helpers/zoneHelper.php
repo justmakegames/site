@@ -267,7 +267,9 @@ class ZoneHelper
 			return false;
 		}
 
+
 		// Check in shipping method's rate table
+		$query = $db->getQuery(true);
 		$query->select('z.id');
 		$query->from('#__kart_zoneShipMethodRates AS z');
 		$query->where('z.zone_id=' . $zone_id);

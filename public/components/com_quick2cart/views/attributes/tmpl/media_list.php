@@ -179,9 +179,9 @@ $del_link= $qtc_base_url.'index.php?option=com_quick2cart&task=attributes.delatt
 						<?php  $edit_link = $addMediaLink.'&file_id='.$media['file_id'].'&edit=1';?>
 						<?php  $del_link= $addMediaLink.'&file_id='.$media['file_id'];?>
 						<td>
-							<a  rel="{handler: 'iframe', size: {x: window.innerWidth-450, y: window.innerHeight-150}, onClose: function(){EditFile('<?php echo $media['file_id'];?>','<?php echo $item_id; ?>');}}" class="btn btn-mini btn-primary modal qtc_modal" href="<?php echo $edit_link; ?> "> <i class="<?php echo $qtc_icon_edit; ?> icon-white"></i>
+							<a  rel="{handler: 'iframe', size: {x: window.innerWidth-450, y: window.innerHeight-150}, onClose: function(){EditFile('<?php echo $media['file_id'];?>','<?php echo $item_id; ?>');}}" class="btn btn-mini btn-primary modal qtc_modal" href="<?php echo $edit_link; ?> "> <i class="<?php echo $qtc_icon_edit; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i>
 							</a>
-							<button type="button" class="btn btn-mini btn-danger "  onclick="deleteMediFile('<?php echo $media['file_id'];?>','<?php echo $item_id; ?>' )"><i class="icon-trash icon-white"></i></button>
+							<button type="button" class="btn btn-mini btn-danger "  onclick="deleteMediFile('<?php echo $media['file_id'];?>','<?php echo $item_id; ?>' )"><i class="<?php echo Q2C_ICON_TRASH; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i></button>
 
 						 </td>
 					</tr>

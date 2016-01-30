@@ -23,7 +23,7 @@ $listDirn   = $this->state->get('list.direction');
 $categoryPage = $this->categoryPage;
 
 // For featured and top seller product
-$product_path = JPATH_SITE . DS . 'components' . DS . 'com_quick2cart' . DS . 'helpers' . DS . 'product.php';
+$product_path = JPATH_SITE . '/components/com_quick2cart/helpers/product.php';
 
 if (!class_exists('productHelper'))
 {
@@ -34,8 +34,14 @@ if (!class_exists('productHelper'))
 $productHelper =  new productHelper();
 $comquick2cartHelper = new comquick2cartHelper;
 $store_id=0;//$this->store_id;
-?>
 
+$layout_to_load = $this->params->get('layout_to_load', 'flexible_layout', 'string');
+$pinHeight = $this->params->get('fix_pin_height','200','int');
+$noOfPin_lg = $this->params->get('pin_for_lg','3','int');
+$noOfPin_md = $this->params->get('pin_for_md','3','int');
+$noOfPin_sm = $this->params->get('pin_for_sm','4','int');
+$noOfPin_xs = $this->params->get('pin_for_xs','2','int');
+?>
 <div class="<?php echo Q2C_WRAPPER_CLASS; ?> container-fluid qtc-cat-prod">
 	<form name="adminForm" id="adminForm" class="form-validate" method="post">
 		<?php
@@ -64,61 +70,53 @@ $store_id=0;//$this->store_id;
 				$gridClass = "col-lg-12 col-md-12 col-sm-12 col-xs-12" ;
 			}
 			?>
+
 			<div class="<?php echo $gridClass; ?>">
 				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div class="">
 						<legend>
 							<?php
-							$lagend_title = "QTC_PRODUCTS_CATEGORY_ALL_BLOG_VIEW";
-							/*$store_name = '';
-
-							if (!empty($this->store_role_list))
-							{
-								$storehelp = new storeHelper();
-								$index = $storehelp->array_search2d($this->store_id, $this->store_role_list);
-
-								if (is_numeric($index))
-								{
-									$store_name = $this->store_role_list[$index]['title'];
-									$lagend_title = "QTC_PRODUCTS_CATEGORY_BLOG_VIEW";
-								}
-
-								echo JText::sprintf($lagend_title, $store_name);
-							}
-							else
-							{
-								echo JText::_($lagend_title);
-							}*/
-							echo JText::_($lagend_title);
+							echo JText::_($this->productPageTitle);
 							?>
 						</legend>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12">
+						<div class="input-group">
+							<input type="text"
+								placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_PRODUCTS'); ?>"
+								name="filter_search"
+								id="filter_search"
+								value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
+								class="form-control"
+								onchange="document.adminForm.submit();" />
 
-				<div id="filter-bar" class="btn-toolbar">
-					<div class="filter-search btn-group pull-left">
-						<input type="text" name="filter_search" id="filter_search"
-						placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_PRODUCTS'); ?>"
-						value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
-						class="hasTooltip input-medium"
-						title="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_PRODUCTS'); ?>" />
+							<span class="input-group-btn">
+								<button type="button" onclick="this.form.submit();" class="btn btn-default "  title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
+									<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
+								</button>
+								<button onclick="document.id('filter_search').value='';this.form.submit();" type="button" class="btn btn-default"  title="<?php echo JText::_('JSEARCH_FILTER_CLEAR');?>">
+									<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
+								</button>
+							</span>
+						</div>
 					</div>
-					<div class="btn-group pull-left">
-						<button type="submit" class="hasTooltip btn btn-default"
-						title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-							<i class="icon-search"></i>
-						</button>
-						<button type="button" class="hasTooltip btn btn-default"
-						title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
-						onclick="document.id('filter_search').value='';this.form.submit();">
-							<i class="icon-remove"></i>
-						</button>
+					<div class="col-md-offset-5 col-lg-2 col-md-2 col-sm-12 col-xs-12">
+						<div class="btn-group pull-right ">
+							<?php
+							echo JHtml::_('select.genericlist', $this->product_sorting, "sort_products", 'class="" onchange="document.adminForm.submit();" name="sort_products"', "value", "text", $this->state->get('sort_products'));
+									?>
+						</div>
 					</div>
+					<div class="clearfix"></div>
 				</div>
-				<div class="clearfix">&nbsp;</div>
+
+				<div class="clearfix"></div>
+				<div class="qtcClearBoth">&nbsp;</div>
 
 				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div class="">
 						<?php
 						// GETTING ALL FEATURED PRODUCT
 						$target_data = ($this->products);
@@ -136,11 +134,22 @@ $store_id=0;//$this->store_id;
 						{
 							?>
 							<?php $random_container = 'q2c_pc_category';?>
-							<div id="q2c_pc_category">
+							<div id="q2c_pc_category" class="row q2c_pin_container"> <!-- LM Added Classes row q2c_pin_container-->
 								<?php
 								// REDERING FEATURED PRODUCT
 								foreach($target_data as $data)
 								{
+									$Fixed_pin_classes = "";
+
+									if ($layout_to_load == "fixed_layout")
+									{
+										$Fixed_pin_classes = " qtc-prod-pin col-xs-" . $noOfPin_xs . " col-sm-" . $noOfPin_sm . " col-md-" . $noOfPin_md. " col-lg-" . $noOfPin_lg . " ";
+									}
+
+									?>
+									<div class="q2c_pin_item_<?php echo $random_container . $Fixed_pin_classes;?>">
+	<!-- LM removed classes q2c_pin_item_<?php echo $random_container;?> and added qtc-prod-pin col-xs- col-sm- col-md- -->
+									<?php
 									// converting to array
 									$data=(array)$data;
 									$path=$comquick2cartHelper->getViewpath('product','product');
@@ -150,21 +159,31 @@ $store_id=0;//$this->store_id;
 									$html = ob_get_contents();
 									ob_end_clean();
 									echo $html;
+									?>
+									</div>
+									<?php
 								}
 								?>
+								<div class="clearfix"></div>
+								<div class="qtcClearBoth">&nbsp;</div>
 							</div>
 							<!-- setup pin layout script-->
-							<script type="text/javascript">
-								var pin_container_<?php echo $random_container; ?> = 'q2c_pc_category'
-							</script>
-
 							<?php
-							$view = $comquick2cartHelper->getViewpath('product', 'pinsetup');
-							ob_start();
-							include($view);
-							$html = ob_get_contents();
-							ob_end_clean();
-							echo $html;
+							if ($layout_to_load == "flexible_layout")
+							{
+							?>
+								<script type="text/javascript">
+									var pin_container_<?php echo $random_container; ?> = 'q2c_pc_category'
+								</script>
+
+								<?php
+								$view = $comquick2cartHelper->getViewpath('product', 'pinsetup');
+								ob_start();
+								include($view);
+								$html = ob_get_contents();
+								ob_end_clean();
+								echo $html;
+							}
 							?>
 							<?php
 						}

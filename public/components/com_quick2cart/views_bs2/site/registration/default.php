@@ -70,7 +70,7 @@ if (!$user->id)
 	<div id="qtc_user-info" class="com_quick2cart-checkout-steps " style="<?php echo $registorStyle; ?>">
 		<div class="checkout-heading">
 			<span><?php echo JText::_('COM_QUICK2CART_USER_INFO');?></span>
-			<span id="" class="badge badge-success pull-right" onclick="qtc_hideShowLoginTab('qtc_user-info-content', 'qtc_ckout_billing-info')"><?php echo JText::_('COM_QUICK2CART_MODIFY');?></span>
+			<span id="" class="qtcHandPointer badge badge-success pull-right" onclick="qtc_hideShowLoginTab('qtc_user-info-content', 'qtc_ckout_billing-info')"><?php echo JText::_('COM_QUICK2CART_MODIFY');?></span>
 		</div>
 		<!--<div class="checkout-content row-fluid checkout-first-step-user-info" id="user-info-tab">  -->
 		<div id="qtc_user-info-content">

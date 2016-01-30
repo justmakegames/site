@@ -150,3 +150,6 @@
 /* Amol */
 .q2c-wrapper #notify_chk {margin-bottom: 5px;  margin-top: 5px;}
 .q2c-wrapper #limit, .q2c-wrapper #list_limit{width: inherit;}
+.q2c-wrapper .qtcMarginBothSide{margin-right:5px;margin-left:5px;}
+.qtc-attributeset-name {margin-right:30px;}
+.qtc-global-attribute-option-input {margin-right:3px;}

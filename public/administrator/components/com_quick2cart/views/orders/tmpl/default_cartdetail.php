@@ -311,12 +311,18 @@ if (in_array('cart', $order_blocks))
 													$data['itemattribute_id'] = $attribute->itemattribute_id;
 													$data['fieldType'] = $attribute->attributeFieldType;
 													$data['product_id'] = $order->item_id;
+													$data['currency'] = $order_currency;
 													$data['attribute_compulsary'] = $attribute->attribute_compulsary;
 
 													$data['field_name'] = 'cartDetail[' .  $order->order_item_id . '][attrDetail][' . $attribute->itemattribute_id . '][value]';
 
+													$data['attributeDetail'] = $attribute;
+													$layout = new JLayoutFile('attribute_option_display', $basePath = JPATH_ROOT .'/components/com_quick2cart/layouts/productpage');
+													$fieldHtml = $layout->render($data);
+
+
 													// Generate field html (select box)
-													$fieldHtml = $productHelper->getAttrFieldTypeHtml($data);
+													// $fieldHtml = $productHelper->getAttrFieldTypeHtml($data);
 													?>
 													<div class="controls">
 														<?php echo $fieldHtml;?>

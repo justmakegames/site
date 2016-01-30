@@ -81,7 +81,9 @@ function qtcAddShipMethRates()
 				var rateId = response.rateId;
 				var q="'";
 				var editbtn = '<input type="button" value="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_EDIT"); ?>" class="btn btn-primary">';
-				var editHref = 'index.php?option=com_quick2cart&view=taxprofileform&layout=setrule&id='+rateId+'&tmpl=component';
+				//var editHref = 'index.php?option=com_quick2cart&view=taxprofileform&layout=setrule&id='+rateId+'&tmpl=component';
+				var editHref = "<?php echo JUri::base();?>index.php?option=com_quick2cart&view=shipping&layout=list&plugview=editrate&extension_id=" +extension_id +"&methodId="+ shipMethodId + "&rateId=" + rateId + "&tmpl=component";
+
 				var editLink = '<a rel="{handler:\'iframe\',size:{x: window.innerWidth-450, y: window.innerHeight-250}}" href="'+editHref+'" class="modal">'+editbtn+'</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 
 				var delLink = '<input onclick="qtcDeleteShipRate('+
@@ -106,6 +108,10 @@ function qtcAddShipMethRates()
 				{
 					parse: 'rel'
 				});
+
+				// Added by Deepali
+
+				  techjoomla.jQuery('#qtc_shipping_list').find('input:text').each(function() {techjoomla.jQuery(this).val('');});
 			},
 			error: function(response) {	}
 		});
@@ -168,7 +174,8 @@ function qtcDeleteShipRate(rateId, delBtn)
 		<i class="icon-info"></i> &nbsp;<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_COMPLETE_RANGE_HELP'); ?>
 	</div>
 
-	<div class="">
+	<!-- div id Added by Deepali -->
+	 <div id="qtc_shipping_list">
 		<table class=" table table-striped">
 			<thead>
 				<tr>

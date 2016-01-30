@@ -23,6 +23,19 @@ require_once __DIR__ . '/q2clist.php';
 class Quick2cartControllerProducts extends Quick2cartControllerQ2clist
 {
 	/**
+	 * Constructor.
+	 *
+	 * @param   array  $config  An optional associative array of configuration settings.
+	 *
+	 * @since   1.6
+	 */
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
+		$this->productHelper = new productHelper;
+	}
+
+	/**
 	 * Proxy for getModel.
 	 *
 	 * @param   string  $name    The name of the model.
@@ -40,12 +53,26 @@ class Quick2cartControllerProducts extends Quick2cartControllerQ2clist
 		return $model;
 	}
 
-	function addnew()
+	/**
+	 * For add new
+	 *
+	 * @return  ''
+	 *
+	 * @since	2.2
+	 */
+	public function addnew()
 	{
 		$this->setRedirect('index.php?option=com_quick2cart&view=products&layout=new');
 	}
 
-	function edit()
+	/**
+	 * For Edit
+	 *
+	 * @return  ''
+	 *
+	 * @since	2.2
+	 */
+	public function edit()
 	{
 		$input = JFactory::getApplication()->input;
 
@@ -54,96 +81,127 @@ class Quick2cartControllerProducts extends Quick2cartControllerQ2clist
 		JArrayHelper::toInteger($cid);
 
 		$quick2cartBackendProductsHelper = new quick2cartBackendProductsHelper;
-		$edit_link = $quick2cartBackendProductsHelper->getProductLink($cid[0], 'editLink');
+		$edit_link                       = $quick2cartBackendProductsHelper->getProductLink($cid[0], 'editLink');
 
 		$this->setRedirect($edit_link);
 	}
 
-	function cancel()
+	/**
+	 * For cancel
+	 *
+	 * @return  ''
+	 *
+	 * @since	2.2
+	 */
+	public function cancel()
 	{
 		$this->setRedirect('index.php?option=com_quick2cart&view=products');
 	}
 
-	function save($saveClose=0)
+	/**
+	 * For Save
+	 *
+	 * @param   integer  $saveClose  action
+	 *
+	 * @return  ''
+	 *
+	 * @since	2.5
+	 */
+	public function save($saveClose = 0)
 	{
-		$jinput =JFactory::getApplication()->input;
-		$cur_post 	= $jinput->post;
-		$sku = $cur_post->get('sku','',"RAW");
-		$sku = trim($sku);
+		$jinput   = JFactory::getApplication()->input;
+		$cur_post = $jinput->post;
+		$sku      = $cur_post->get('sku', '', "RAW");
+		$sku      = trim($sku);
 		global $mainframe;
 		$mainframe = JFactory::getApplication();
 
 		$current_store = $cur_post->get('current_store');
+
 		if (!empty($current_store))
 		{
 			$mainframe->setUserState('current_store', $current_store);
 		}
 
-		$item_name = $jinput->get('item_name','','STRING');
-		//$currencydata = $cur_post['multi_cur'];
-		$pid = $jinput->get('pid',0,'INT');
-		$client = 'com_quick2cart';
-		$stock = $jinput->get('itemstock','','INTEGER');
-		$min_qty = $jinput->get('min_item');
-		$max_qty = $jinput->get('max_item');
+		$item_name = $jinput->get('item_name', '', 'STRING');
 
-		$cat=$jinput->get('prod_cat','','INTEGER');
-		//$sku=$jinput->get('sku');
-		$params = JComponentHelper::getParams('com_quick2cart');
-		$on_editor = $params->get('enable_editor',0);
-		$youtubleLink=$jinput->get('youtube_link','',"RAW");
-		$store_id = $jinput->get('current_store');//1; // @TODO hard coded for now store // @if store id is empty then calculate from item_id
-		$data=  array();
+		// $currencydata = $cur_post['multi_cur'];
+		$pid       = $jinput->get('pid', 0, 'INT');
+		$client    = 'com_quick2cart';
+		$stock     = $jinput->get('itemstock', '', 'INTEGER');
+		$min_qty   = $jinput->get('min_item');
+		$max_qty   = $jinput->get('max_item');
 
-		//get currency field count
-		$multi_curArray = $cur_post->get('multi_cur',array(),'ARRAY');
-		$originalCount=count($multi_curArray);
-		$filtered_curr=array_filter($multi_curArray,'strlen');   //  remove empty currencies from multi_curr
-		//get currency field count after filter enpty allow 0
-		$filter_count=count($filtered_curr);
+		$cat          = $jinput->get('prod_cat', '', 'INTEGER');
 
-		if ($item_name &&  $originalCount==$filter_count)
+		// $sku=$jinput->get('sku');
+		$params       = JComponentHelper::getParams('com_quick2cart');
+		$on_editor    = $params->get('enable_editor', 0);
+		$youtubleLink = $jinput->get('youtube_link', '', "RAW");
+		$store_id     = $jinput->get('current_store');
+
+		// @TODO hard coded for now store // @if store id is empty then calculate from item_id
+		$data         = array();
+
+		// Get currency field count
+		$multi_curArray = $cur_post->get('multi_cur', array(), 'ARRAY');
+		$originalCount  = count($multi_curArray);
+		$filtered_curr  = array_filter($multi_curArray, 'strlen');
+
+		// Get currency field count after filter enpty allow 0
+		$filter_count   = count($filtered_curr);
+
+		if ($item_name && $originalCount == $filter_count)
 		{
-			//load Attributes model
-			$comquick2cartHelper=new comquick2cartHelper;
-			$path = JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'models'.DS.'attributes.php';
-			$attri_model=$comquick2cartHelper->loadqtcClass($path,"quick2cartModelAttributes");
+			$comquick2cartHelper = new comquick2cartHelper;
+			$path                = JPATH_SITE . DS . 'components' . DS . 'com_quick2cart' . DS . 'models' . DS . 'attributes.php';
+			$attri_model         = $comquick2cartHelper->loadqtcClass($path, "quick2cartModelAttributes");
 
-			$cur_post->set('saveAttri',1);  // whether have to save attributes or not
-			$cur_post->set('saveMedia',1);
+			// Whether have to save attributes or not
+			$cur_post->set('saveAttri', 1);
+			$cur_post->set('saveMedia', 1);
 			$item_id = $comquick2cartHelper->saveProduct($cur_post);
 
 			if (is_numeric($item_id))
 			{
-				//load product model
-				$path = JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'models'.DS.'product.php';
-				$prodmodel=$comquick2cartHelper->loadqtcClass($path,'quick2cartModelProduct');
+				// Load product model
+				$path      = JPATH_SITE . DS . 'components' . DS . 'com_quick2cart' . DS . 'models' . DS . 'product.php';
+				$prodmodel = $comquick2cartHelper->loadqtcClass($path, 'quick2cartModelProduct');
 
-				if ($saveClose==1)
+				if ($saveClose == 1)
 				{
 					return 1;
 				}
+
 				$mainframe->setUserState('item_id', $item_id);
-				$this->setRedirect( JUri::base()."index.php?option=com_quick2cart&view=products&layout=new&item_id=".$item_id, JText::_( 'COM_QUICK2CART_SAVE_SUCCESS' ) );
+				$link = JUri::base() . "index.php?option=com_quick2cart&view=products&layout=new&item_id=" . $item_id;
+				$this->setRedirect($link, JText::_('COM_QUICK2CART_SAVE_SUCCESS'));
 			}
 			else
 			{
-				//save  attribute if any $msg = JText::_( 'C_SAVE_M_NS' );
-				$this->setRedirect( JUri::base()."index.php?option=com_quick2cart&view=products&layout=new", JText::_( 'C_SAVE_M_NS' ) );
+				// Save  attribute if any $msg = JText::_( 'C_SAVE_M_NS' );
+				$this->setRedirect(JUri::base() . "index.php?option=com_quick2cart&view=products&layout=new", JText::_('C_SAVE_M_NS'));
 			}
 		}
 		else
 		{
-			$this->setRedirect( JUri::base()."index.php?option=com_quick2cart&view=products&layout=new", JText::_( 'C_FILL_COMPULSORY_FIELDS' ) );
+			$this->setRedirect(JUri::base() . "index.php?option=com_quick2cart&view=products&layout=new", JText::_('C_FILL_COMPULSORY_FIELDS'));
 		}
 	}
 
-	function checkSku()
+	/**
+	 * For checkSku
+	 *
+	 * @return  ''
+	 *
+	 * @since	2.5
+	 */
+	public function checkSku()
 	{
-		$jinput=JFactory::getApplication()->input;
-		$sku = $jinput->get( 'sku' );
-		$model=$this->getModel('product');
-		$itemid=$model->getItemidFromSku($sku);
+		$jinput = JFactory::getApplication()->input;
+		$sku    = $jinput->get('sku');
+		$model  = $this->getModel('product');
+		$itemid = $model->getItemidFromSku($sku);
 
 		if (!empty($itemid))
 		{
@@ -157,17 +215,70 @@ class Quick2cartControllerProducts extends Quick2cartControllerQ2clist
 		jexit();
 	}
 
-	function saveAndClose()
+	/**
+	 * For saveAndClose
+	 *
+	 * @return  ''
+	 *
+	 * @since	2.5
+	 */
+	public function saveAndClose()
 	{
-		$Quick2cartControllerProducts=new Quick2cartControllerProducts;
+		$Quick2cartControllerProducts = new Quick2cartControllerProducts;
 		$Quick2cartControllerProducts->save(1);
-		$this->setRedirect( JUri::base()."index.php?option=com_quick2cart&view=products", JText::_( 'COM_QUICK2CART_SAVE_SUCCESS' ) );
+		$this->setRedirect(JUri::base() . "index.php?option=com_quick2cart&view=products", JText::_('COM_QUICK2CART_SAVE_SUCCESS'));
 	}
 
-	function saveAndNew()
+	/**
+	 * For save and new
+	 *
+	 * @return  ''
+	 *
+	 * @since	2.5
+	 */
+	public function saveAndNew()
 	{
-		$Quick2cartControllerProducts=new Quick2cartControllerProducts;
+		$Quick2cartControllerProducts = new Quick2cartControllerProducts;
 		$Quick2cartControllerProducts->save(1);
-		$this->setRedirect( JUri::base()."index.php?option=com_quick2cart&view=products&layout=new", JText::_( 'COM_QUICK2CART_SAVE_SUCCESS' ) );
+		$this->setRedirect(JUri::base() . "index.php?option=com_quick2cart&view=products&layout=new", JText::_('COM_QUICK2CART_SAVE_SUCCESS'));
+	}
+
+	/**
+	 * Method to get globle option for global attribute
+	 *
+	 * @return  json formatted option data
+	 *
+	 * @since	2.5
+	 */
+	public function loadGlobalAttriOptions()
+	{
+		$app   = JFactory::getApplication();
+		$post = $app->input->post;
+		$response          = array();
+		$response['error'] = 0;
+		$response['goption'] = '';
+		$response['errorMessage'] = '';
+
+		$globalAttId = $post->get("globalAttId", '', "INTEGER");
+
+		// Get global options
+		$goptions = $this->productHelper->getGlobalAttriOptions($globalAttId);
+
+		// Generate option select box
+		$layout = new JLayoutFile('attribute_global_options', $basePath = JPATH_ROOT . '/components/com_quick2cart/layouts/addproduct');
+		$response['goptionSelectHtml'] = $layout->render($goptions);
+
+		if (empty($goptions))
+		{
+			$response['error']        = 1;
+			$response['errorMessage'] = JText::_('COM_QUICK2CART_GLOBALOPTION_NOT_FOUND');
+		}
+		else
+		{
+			$response['goption'] = $goptions;
+		}
+
+		echo json_encode($response);
+		$app->close();
 	}
 }

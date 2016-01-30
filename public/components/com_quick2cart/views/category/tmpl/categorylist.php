@@ -20,7 +20,7 @@ $input = JFactory::getApplication()->input;
 $qtc_catname  = !empty($qtc_catname)  ? $qtc_catname  : "prod_cat";
 $qtc_store_id = !empty($qtc_store_id) ? $qtc_store_id : "";
 $qtc_view     = !empty($qtc_view)     ? $qtc_view     : "category";
-$qtc_layout   = !empty($qtc_layout)   ? $qtc_layout   : "";
+$qtc_layout   = !empty($qtc_layout)   ? $qtc_layout   : "default";
 
 $categoryProductsCount = $productHelper->getCategoryProductsCount($qtc_store_id);
 $classes = !empty($qtc_classes) ? $classes : '';
@@ -87,13 +87,13 @@ else
 }
 
 // GETTING ITEM ID
-$catItemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&' . $qtc_linkparam);
+$catItemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&test=1&' . $qtc_linkparam . "&prod_cat=");
 ?>
 
 <div class="row qtc_category_list <?php echo $classes;?>" style="<?php echo $scroll_style;?>">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 		<div class="tj-list-group">
-			<strong class="tj-list-group-item"><?php echo JText::_('QTC_PROD_SEL_CAT_HEADER');?></strong>
+			<strong class="tj-list-group-item"><?php echo  !empty($catListHeader) ? $catListHeader : JText::_('QTC_PROD_SEL_CAT_HEADER'); ?></strong>
 
 			<?php
 			$selectedcat = $input->get($qtc_catname, 0, 'INTEGER');
@@ -133,7 +133,6 @@ $catItemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&' 
 				// Unset first select option - Select Category
 				unset($cats[0]);
 
-				// And add link for all cats
 				$allcatlink = JUri::root().substr(JRoute::_('index.php?option=com_quick2cart&' . $qtc_linkparam . '&' . $qtc_catname . '=0&Itemid=' . $catItemid . $itsStoreOwner), strlen(JUri::base(true)) + 1);
 				?>
 				<a class="tj-list-group-item <?php echo $allactivecat;?>" href="<?php echo $allcatlink ;?>">
@@ -147,6 +146,9 @@ $catItemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&' 
 				// Making value = '' to value = 0 for all product
 				$cat->value = !empty ($cat->value) ? $cat->value : 0;
 
+				// GETTING ITEM ID
+				$catItemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&' . $qtc_linkparam . "&prod_cat=" . $cat->value);
+
 				$catlink = JUri::root().substr(JRoute::_('index.php?option=com_quick2cart&' . $qtc_linkparam . '&' . $qtc_catname . '=' . $cat->value . '&Itemid=' . $catItemid . $itsStoreOwner), strlen(JUri::base(true)) + 1);
 
 				$activecat = "";
@@ -156,13 +158,14 @@ $catItemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&' 
 					$activecat = "active";
 				}
 				?>
-
-				<a class="tj-list-group-item <?php echo $activecat;?>" href="<?php echo $catlink ;?>">
-					<?php if (isset($categoryProductsCount[$cat->value]['count'])): ?>
-						<span class="badge"><?php echo $categoryProductsCount[$cat->value]['count'];?></span>
-					<?php endif; ?>
-					<?php echo $cat->text; ?>
-				</a>
+				<div class="qtcWordWrap">
+					<a class="tj-list-group-item <?php echo $activecat;?>" href="<?php echo $catlink ;?>">
+						<?php echo $cat->text; ?>
+						<?php if (isset($categoryProductsCount[$cat->value]['count'])): ?>
+							<span class="badge"><?php echo $categoryProductsCount[$cat->value]['count'];?></span>
+						<?php endif; ?>
+					</a>
+				</div>
 			<?php
 			}
 		?>

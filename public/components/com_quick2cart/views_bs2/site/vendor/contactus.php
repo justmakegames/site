@@ -15,6 +15,12 @@ JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation')
 
  ?>
+ <style>
+.contact-us-textarea {
+    height:250px;
+}
+
+</style>
 
  <script type="text/javascript">
 

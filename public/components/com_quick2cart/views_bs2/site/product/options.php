@@ -25,22 +25,34 @@ $user=JFactory::getUser();
 $params = $this->params;
 $admin_commmisson = $this->params->get('commission');
 $product_image_limit = $this->params->get('maxProdImgUpload_limit', 6);
+$isStockEnabled = $params->get('usestock');
 $prodAdmin_approval = $this->params->get('admin_approval', 0);
 
 $entered_numerics= JText::_('QTC_ENTER_NUMERICS');
 
 // For taskprofile radio button display
-$storeHelper = $comquick2cartHelper->loadqtcClass(JPATH_SITE.DS."components".DS."com_quick2cart".DS."helpers".DS."storeHelper.php","storeHelper");
-$storeList = (array) $storeHelper->getUserStore($user->id);
+$storeHelper = $comquick2cartHelper->loadqtcClass(JPATH_SITE.DS."components".DS."com_quick2cart".DS."helpers".DS."storeHelper.php", "storeHelper");
+$storeList = (array) $storeHelper->getStoreList();
 
-if (!empty($this->item_id) )
+if (empty($this->itemDetail))
 {
-	$selected_id = $this->itemDetail['taxprofile_id'];
+	$selected_id = 0;
+	$productType = 0;
 }
 else
 {
-	$selected_id = '';
+	$selected_id = $this->itemDetail['taxprofile_id'] ? $this->itemDetail['taxprofile_id'] : 0;
+	$productType = $this->itemDetail['product_type'];
 }
+
+$js_key="
+	techjoomla.jQuery(document).ready(function(){
+		/*to hide the new effect of chozen js */
+		jQuery('.no_chzn').next('div .chzn-container').hide();
+		jQuery('.no_chzn').show();
+	});
+";
+		$document->addScriptDeclaration($js_key);
 ?>
 
 <script type="text/javascript">
@@ -62,7 +74,7 @@ else
 			var pre = new Number(num - 1);
 			var removeButton="<span class=''>";
 			removeButton+="<button class='btn btn-danger btn-mini' type='button' id='remove"+num+"' onclick=\"removeClone('filediv"+num+"','jgive_container');\" title=\"<?php echo JText::_('COM_Q2C_REMOVE_TOOLTIP');?>\" >";
-			removeButton+="<i class=\"<?php echo QTC_ICON_MINUS;?> icon-white \"></i></button>";
+			removeButton+="<i class=\"<?php echo QTC_ICON_MINUS;?> <?php echo Q2C_ICON_WHITECOLOR; ?> \"></i></button>";
 			removeButton+="</span>";
 
 			/*create the new element via clone(), and manipulate it's ID using newNum value*/
@@ -142,11 +154,63 @@ else
 		<input type="hidden" class="inputbox"  name="pid"  id="pid" value="<?php echo $this->item_id; ?>" />
 		</div>
 	</div>
+	<?php
+		// For vaiable product show the field. (If you change the stock option from config after saving the vaiable product then this case require)
+		if (!empty($productType) && $productType == 2)
+		{
+			$prodTypeStyle = '';
+		}
+		else
+		{
+			$prodTypeStyle = ($isStockEnabled == 1) ? '' : "display:none;";
+		}
+	?>
+	<div class="control-group" style="<?php echo $prodTypeStyle ?>">
+		<label for="qtc_product_type" class="control-label"><?php echo JHtml::tooltip(JText::_('QTC_PROD_SEL_TYPE_TOOLTIP'), JText::_('QTC_PROD_SEL_TYPE'), '', '* '.JText::_('QTC_PROD_SEL_TYPE'));?></label>
+		<div class="controls">
+			<?php
+
+			if ($productType != 2)
+			{
+				echo JHtml::_('select.genericlist',$this->product_types,'qtc_product_type','class="required"','value','text',$productType,'qtc_product_type');
+			}
+			else
+			{
+			?>
+				<input type="hidden" name="qtc_product_type" value="<?php echo $productType ?>">
+				<span class="label label-success"><?php echo $this->product_types[$productType]->text; ?></span>
+				<?php
+			}
+
+			// show message for product type
+			if($item_id == 0)
+			{
+			?>
+			<div class= "text-warning">
+				<?php echo JText::_("QTC_PRODUCT_TYPE_WARNING");?>
+			</div>
+			<?php
+			}
+			?>
+		</div>
+	</div>
 
 	<div class="control-group">
 		<label for="prod_cat" class="control-label"><?php echo JHtml::tooltip(JText::_('QTC_PROD_SEL_CAT_TOOLTIP'), JText::_('QTC_PROD_SEL_CAT'), '', '* '.JText::_('QTC_PROD_SEL_CAT'));?></label>
 		<div class="controls">
-			<?php echo $this->cats; ?>
+			<?php
+			if (!empty($this->isAllowedtoChangeProdCategory))
+			{
+				?>
+				<input type="hidden" name="prod_cat" value="<?php echo $this->itemDetail['category'] ?>">
+				<span class="label label-success"><?php echo $this->catName . " "; ?></span>
+				<?php
+			}
+			else
+			{
+				echo $this->cats;
+			}
+			?>
 		</div>
 	</div>
 
@@ -167,7 +231,7 @@ else
 					{
 						$options[] = JHtml::_('select.option', $value["store_id"],$value['title']);//submitAction('deletecoupon');
 					}
-					echo $this->dropdown = JHtml::_('select.genericlist',$options,'store_id','class=" qtc_putmargintop10px" size="1"  onchange="getTaxprofile();" ','value','text',$defaultStore,'current_store_id');
+					echo $this->dropdown = JHtml::_('select.genericlist',$options,'store_id','class="qtc_putmargintop10px"   onchange="getTaxprofile();" ','value','text',$defaultStore,'current_store_id');
 				?>
 			</div>
 		</div>
@@ -198,7 +262,7 @@ else
 					$edit=1;
 				}
 			?>
-			<input type="text" name="sku" id="qtc_sku" class="inputbox required" <?php //echo $readonly;?>  size="20" value="<?php if (!empty($this->itemDetail)){  echo stripslashes($this->itemDetail['sku']); } ?>" autocomplete="off" onBlur="checkForSku(this.value)" />
+			<input type="text" name="sku" id="qtc_sku" class="inputbox required" <?php //echo $readonly;?>   value="<?php if (!empty($this->itemDetail)){  echo stripslashes($this->itemDetail['sku']); } ?>" autocomplete="off" onBlur="checkForSku(this.value)" />
 			<span class="help-inline"><?php echo JText::_('QTC_PROD_SKU_UNIQUE');?></span>
 		</div>
 	</div>
@@ -227,10 +291,10 @@ else
 			}
 			 ?>
 			<input type="radio" name="state" id="state" value="1" <?php echo $isPublished; ?> >
-			<?php echo JText::_('QTC_PROD_PUBLISH')?>
+				<?php echo JText::_('QTC_PROD_PUBLISH')?>
 			</label>
 			<label class="radio inline">
-			<input type="radio" name="state"  value="0" <?php echo $isUnPublished; ?>>
+				<input type="radio" name="state"  value="0" <?php echo $isUnPublished; ?>>
 			<?php echo JText::_('QTC_PROD_UNPUBLISH')?>
 			</label>
 		</div>
@@ -292,38 +356,38 @@ else
 							<label for="price_<?php echo trim($value);?>" class="control-label">
 								<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_PRICE_DESC'), JText::_('QTC_ITEM_PRICE'), '', JText::_('QTC_ITEM_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($currtext));?> &nbsp;
 							</label>
-							<input Onkeyup="checkforalpha(this,46,<?php echo $entered_numerics; ?>);"
-								class="span1 currtext required qtc_requiredoption"
-								style="align:right;"
-								id="price_<?php echo trim($value);?>"
-								size="16"
-								type="text"
-								name="multi_cur[<?php echo trim($value);?>]"
-								value="<?php echo $storevalue;?>"
-								placeholder="<?php echo trim($currtext);?>" />
+							<input
+							Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
+									class="span1 currtext required qtc_requiredoption"
+									style="align:right;"
+									id="price_<?php echo trim($value);?>"
+									type="text"
+									name="multi_cur[<?php echo trim($value);?>]"
+									value="<?php echo $storevalue;?>"
+									placeholder="<?php echo trim($currtext);?>" />
 							<span class="add-on"><?php echo $currtext;?></span>
 						</div>
 					</div>
 				<?php else : ?>
 					<div class="input-append curr_margin">
-						<input
-							Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
+						<input Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
 							class="span1 currtext required qtc_requiredoption"
 							style="align:right;"
 							id="price_<?php echo trim($value);?>"
-							size="16"
 							type="text"
 							name="multi_cur[<?php echo trim($value);?>]"
 							value="<?php echo $storevalue;?>"
 							placeholder="<?php echo trim($currtext);?>" />
 						<span class="add-on"><?php echo $currtext;?></span>
 					</div>
+					<div class="qtcClearBoth"></div>
 				<?php endif; ?>
 			<?php
 			}
 			?>
 		</div>
 	</div>
+
 
 	<!-- DISCOUNT PRICE -->
 	<div class='control-group qtc_currencey_textbox' style="<?php echo (($params->get('usedisc') == '0') ? 'display:none;' : 'display:block;'); ?>" >
@@ -353,18 +417,18 @@ else
 					<div>
 						<div class="input-append curr_margin">
 							<label for="disc_price_<?php echo trim($value);?>" class="control-label">
-								<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($currsymbol));?> &nbsp;
+								<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_DIS_PRICE_DESC'), JText::_('QTC_ITEM_DIS_PRICE'), '', JText::_('QTC_ITEM_DIS_PRICE') . ' ' . JText::_('COM_QUICK2CART_IN') . ' ' . trim($currsymbol));?>
 							</label>
 							<input Onkeyup="checkforalpha(this,'46', '<?php echo addslashes($entered_numerics); ?>')"
-								class="span1 currtext"
-								style="align:right;"
-								id="disc_price_<?php echo trim($value);?>"
-								size="16"
-								type="text"
-								name="multi_dis_cur[<?php echo trim($value);?>]"
-								value="<?php echo $storevalue;?>"
-								placeholder="<?php echo trim($currsymbol);?>" />
+									class="span1 currtext"
+									style="align:right;"
+									id="disc_price_<?php echo trim($value);?>"
+									type="text"
+									name="multi_dis_cur[<?php echo trim($value);?>]"
+									value="<?php echo $storevalue;?>"
+									placeholder="<?php echo trim($currsymbol);?>" />
 							<span class="add-on"><?php echo $currsymbol;?></span>
+							<div class="qtcClearBoth"></div>
 						</div>
 					</div>
 				<?php else : ?>
@@ -373,13 +437,13 @@ else
 							class="span1 currtext"
 							style="align:right;"
 							id="disc_price_<?php echo trim($value);?>"
-							size="16"
 							type="text"
 							name="multi_dis_cur[<?php echo trim($value);?>]"
 							value="<?php echo $storevalue;?>"
 							placeholder="<?php echo trim($currsymbol);?>" />
 						<span class="add-on"><?php echo $currsymbol;?></span>
 					</div>
+					<div class="qtcClearBoth"></div>
 				<?php endif; ?>
 			<?php
 			}
@@ -398,7 +462,7 @@ else
 			if (empty($on_editor))
 			{
 				?>
-				<textarea  size="50" rows="5" name="description[data]" id="description" class="inputbox" ><?php if (!empty($this->itemDetail['description'])){  echo trim($this->itemDetail['description']); } ?></textarea>
+				<textarea  rows="10" name="description[data]" id="description" class="inputbox" ><?php if (!empty($this->itemDetail['description'])){  echo trim($this->itemDetail['description']); } ?></textarea>
 			<?php
 			}
 			else
@@ -475,25 +539,23 @@ else
 					$required="";
 				}
 				?>
-
 				<div class="filediv" id="filediv" >
-					<input type="file" name="prod_img" id="avatar" placeholder="<?php echo '* ' . JText::_('COM_QUICK2CART_IMAGE_MSG');?>" class="<?php echo $required;?>" accept="image/*">
+					<span style="float:left;">
+						<input type="file" name="prod_img" id="avatar" placeholder="<?php echo '* ' . JText::_('COM_QUICK2CART_IMAGE_MSG');?>" class="<?php echo $required;?>" accept="image/*">
+					</span>
 				</div>
 
 				<!-- ADD MORE BTN-->
 				<div class="span7">
 					<span class="addmore pull-right"  id="addmoreid"  id="addmoreid" >
 						<button onclick="addmoreImg('filediv','filediv');" type="button" class="btn btn-mini btn-primary" title="<?php echo JText::_('COM_Q2C_IMAGE_ADD_MORE');?>">
-							<i class="<?php echo QTC_ICON_PLUS;?> icon-white "></i>
+							<i class="<?php echo QTC_ICON_PLUS;?> <?php echo Q2C_ICON_WHITECOLOR; ?> "></i>
 						</button>
 					</span>
 				</div>
 
 				<div class="clearfix">&nbsp;</div>
 				<div class="text-warning">
-					<!--
-					<p><?php //echo JText::sprintf('QTC_AVTAR_SIZE_MASSAGE', $height, $width);?></p>
-					-->
 					<p><?php echo JText::sprintf('COM_QUICK2CART_ALLOWED_IMG_FORMATS', 'gif, jpeg, jpg, png');?></p>
 				</div>
 			</div>
@@ -548,10 +610,16 @@ else
 				<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_STOCK_DESC'), JText::_('PLG_QTC_ITEM_STOCK'), '', JText::_('PLG_QTC_ITEM_STOCK'));?>
 			</label>
 			<div class="controls">
-				<input Onkeyup="checkforalpha(this,'', '<?php echo addslashes($entered_numerics); ?>')"
-				type="text" name="stock" id="stock" size="32"
+				<input Onkeyup="checkforalpha(this,'45', '<?php echo addslashes($entered_numerics); ?>')"
+				type="text" name="stock" id="stock"
 				value="<?php if (isset($minmaxstock->stock)) echo $minmaxstock->stock;?>"
 				class="input-mini inputbox validate-integer" />
+				<?php
+				if ($productType == 2)
+				{ ?>
+					<div class="text-info"><?php echo JText::_('COM_QUICK2CART_ITEM_STOCK_VS_ATTRI_STOCK_HELP'); ?></div>
+				<?php
+				} ?>
 			</div>
 		</div>
 	<?php
@@ -569,17 +637,16 @@ else
 		<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_SLAB_DESC'), JText::_('COM_QUICK2CART_ITEM_SLAB'), '', JText::_('COM_QUICK2CART_ITEM_SLAB'));?>
 		</label>
 		<div class="controls">
-			<input Onkeyup="checkforalpha(this,'', '<?php echo addslashes($entered_numerics); ?>')"  Onchange="checkSlabValue();" type="text" name="item_slab" id="item_slab" size="32" value="<?php echo isset($minmaxstock) ? $minmaxstock->slab: 1  ?>" class="input-mini inputbox validate-integer"  >
+			<input Onkeyup="checkforalpha(this,'', '<?php echo addslashes($entered_numerics); ?>')"  Onchange="checkSlabValue();" type="text" name="item_slab" id="item_slab"  value="<?php echo isset($minmaxstock) ? $minmaxstock->slab: 1  ?>" class="input-mini inputbox validate-integer"  >
 		</div>
 	</div>
-
 	<div class="control-group" style="<?php echo $qtc_min_max_style;?>">
 		<label for="min_item" class="control-label">
 			<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ITEM_MIN_QTY_DESC'), JText::_('QTC_ITEM_MIN_QTY'), '', JText::_('QTC_ITEM_MIN_QTY'));?>
 		</label>
 		<div class="controls">
 			<input onChange="checkSlabValueField(this,'', '<?php echo addslashes($entered_numerics); ?>')"
-				type="text" name="min_item" id="min_item" size="32"
+				type="text" name="min_item" id="min_item"
 				value="<?php if (isset($minmaxstock)) echo $minmaxstock->min_quantity;?>"
 				class="input-mini inputbox validate-integer" />
 		</div>
@@ -591,7 +658,7 @@ else
 		</label>
 		<div class="controls">
 			<input Onkeyup="checkforalpha(this,'', '<?php echo addslashes($entered_numerics); ?>')"
-				type="text" name="max_item" id="max_item" size="32"
+				type="text" name="max_item" id="max_item"
 				value="<?php if (isset($minmaxstock))  echo $minmaxstock->max_quantity;?>"
 				class="input-mini inputbox validate-integer" />
 		</div>
@@ -617,7 +684,9 @@ else
 			<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_META_DESC_TOOLTIP'), JText::_('COM_QUICK2CART_META_DESC'), '', JText::_('COM_QUICK2CART_META_DESC'));?>
 		</label>
 		<div class="controls">
-			<textarea name="metadesc" id="metadesc" cols="30" rows="3" class="input"><?php if (isset($this->itemDetail['metadesc'])) echo $this->itemDetail['metadesc']; ?></textarea>
+			<div>
+				<textarea name="metadesc" id="metadesc" cols="30" rows="3" class="input"><?php if (isset($this->itemDetail['metadesc'])) echo $this->itemDetail['metadesc']; ?></textarea>
+			</div>
 		</div>
 	</div>
 
@@ -626,7 +695,9 @@ else
 			<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_META_KEYWORDS_TOOLTIP'), JText::_('COM_QUICK2CART_META_KEYWORDS'), '', JText::_('COM_QUICK2CART_META_KEYWORDS'));?>
 		</label>
 		<div class="controls">
+			<div class="">
 			<textarea name="metakey" id="metakey" cols="30" rows="3" class="input"><?php if (isset($this->itemDetail['metakey'])) echo $this->itemDetail['metakey']; ?></textarea>
+			</div>
 		</div>
 	</div>
 </div>

@@ -18,7 +18,7 @@
 			<option value="bs2">COM_QUICK2CART_BS2</option>
 			<option value="bs3">COM_QUICK2CART_BS3</option>
 		</field>
-		<field name="loadBootstrap" class="btn-group" type="radio" default="0" description="QTC_BOOTSTRAP_LOAD_DESC" label="QTC_BOOTSTRAP_LOAD" >
+		<field name="qtcLoadBootstrap" class="btn-group" type="radio" default="1" description="QTC_BOOTSTRAP_LOAD_DESC" label="QTC_BOOTSTRAP_LOAD" >
 			<option value="1">COM_QTC_YES</option>
 			<option value="0">COM_QTC_NO</option>
 		</field>
@@ -236,9 +236,47 @@
 
 		<field name="spacer3" type="spacer" hr="true" />
 
-		<field name="pin_width" type="text" default="170" label="COM_QUICK2CART_PIN_WIDTH" description="COM_QUICK2CART_PIN_WIDTH_DESC" />
+		<!--Added in 2.5-->
+		<field name="layout_to_load" type="list" description="COM_QUICK2CART_LAYOUT_TO_SHOW_DESC" label="COM_QUICK2CART_LAYOUT_TO_SHOW" class="btn-group" default="flexible_layout">
+			<option value="fixed_layout">COM_QUICK2CART_FIXED_PIN_LAYOUT</option>
+			<option value="flexible_layout">COM_QUICK2CART_FLEXIBLE_PIN_LAYOUT</option>
+		</field>
 
-		<field name="pin_padding" type="text" default="3" label="COM_QUICK2CART_PIN_PADDING" description="COM_QUICK2CART_PIN_PADDING_DESC" />
+		<!--For fixed layout-->
+		<field name="fix_pin_height" type="text" description="COM_QUICK2CART_FIXED_PIN_LAYOUT_HEIGHT_DESC" label="COM_QUICK2CART_FIXED_PIN_LAYOUT_HEIGHT" default="200" showon="layout_to_load:fixed_layout" />
+		<!-- How much grid should be used for different devices(values are in grid like col-lg-4 ) -->
+		<field name="pin_for_lg" type="list" description="COM_QUICK2CART_FIXED_PIN_LAYOUT_PINS_IN_LS_DESC" label="COM_QUICK2CART_FIXED_PIN_LAYOUT_PINS_IN_LS" class="btn-group" default="3" showon="layout_to_load:fixed_layout">
+			<option value="12">1</option>
+			<option value="6">2</option>
+			<option value="4">3</option>
+			<option value="3">4</option>
+		</field>
+
+		<field name="pin_for_md" type="list" description="COM_QUICK2CART_FIXED_PIN_LAYOUT_PINS_IN_MS_DESC" label="COM_QUICK2CART_FIXED_PIN_LAYOUT_PINS_IN_MS" class="btn-group" default="4" showon="layout_to_load:fixed_layout">
+			<option value="12">1</option>
+			<option value="6">2</option>
+			<option value="4">3</option>
+			<option value="3">4</option>
+		</field>
+
+		<field name="pin_for_sm" type="list" description="COM_QUICK2CART_FIXED_PIN_LAYOUT_PINS_IN_SS_DESC" label="COM_QUICK2CART_FIXED_PIN_LAYOUT_PINS_IN_SS" class="btn-group" default="6" showon="layout_to_load:fixed_layout">
+			<option value="12">1</option>
+			<option value="6">2</option>
+			<option value="4">3</option>
+			<option value="3">4</option>
+		</field>
+
+		<field name="pin_for_xs" type="list" description="COM_QUICK2CART_FIXED_PIN_LAYOUT_PINS_IN_XSS_DESC" label="COM_QUICK2CART_FIXED_PIN_LAYOUT_PINS_IN_XSS" class="btn-group" default="12" showon="layout_to_load:fixed_layout">
+			<option value="12">1</option>
+			<option value="6">2</option>
+			<option value="4">3</option>
+			<option value="3">4</option>
+		</field>
+
+		<!--For flexible layout-->
+		<field name="pin_width" type="text" default="170" label="COM_QUICK2CART_PIN_WIDTH" description="COM_QUICK2CART_PIN_WIDTH_DESC" showon="layout_to_load:flexible_layout"/>
+
+		<field name="pin_padding" type="text" default="3" label="COM_QUICK2CART_PIN_PADDING" description="COM_QUICK2CART_PIN_PADDING_DESC" showon="layout_to_load:flexible_layout"/>
 
 		<field menu="hide" type="legend" id="q2c-social-sharing" name="q2c-social-sharing" default="COM_QUICK2CART_SETTINGS_SOCIAL_SHARING" hint="" label="" />
 

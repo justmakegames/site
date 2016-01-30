@@ -9,6 +9,7 @@
 
 defined('JPATH_BASE') or die;
 jimport('joomla.filesystem.file');
+
 /**
  * Interface to handle Social Extensions
  *
@@ -18,133 +19,225 @@ jimport('joomla.filesystem.file');
  */
 class JSocialJomwall implements JSocial
 {
-
-	public function __construct() {
-		if (!$this->checkExists()) {
+	/**
+	 * The constructor
+	 *
+	 * @since  1.0
+	 */
+	public function __construct()
+	{
+		if (!$this->checkExists())
+		{
 			throw new Exception('Jomwall is not Installed');
 		}
 	}
 
-	public function getProfileData(JUser $user) {
-
-	}
-
-	public function getProfileUrl(JUser $user) {
-		$awduser=new AwdwallHelperUser();
-		$Itemid=$awduser->getComItemId();
-		$link=JRoute::_('index.php?option=com_awdwall&view=awdwall&layout=mywall&wuid='.$user->id.'&Itemid='.$Itemid);
-	}
-
-	public function getAvatar(JUser $user) {
-
-		$awduser=new AwdwallHelperUser();
-		$uimage=$awduser->getAvatar($user->id);
-        return $uimage;
-
-		}
-	public function getFriends(JUser $user, $accepted=true) {}
-
-	public function addFriend(JUser $connect_from_user,JUser $connect_to_user)
+	/**
+	 * The function to get profile data of User
+	 *
+	 * @param   MIXED  $user  JUser Objcet
+	 *
+	 * @return  JUser Objcet
+	 *
+	 * @since   1.0
+	 */
+	public function getProfileData(JUser $user)
 	{
-		$db=JFactory::getDBO();
-		//set frnd cnt to 1
-		// make inviter and invitee friends
-		$sql			= 	"SELECT * FROM #__comprofiler_members WHERE referenceid=". $connect_from_user->id." AND memberid  = ".$connect_to_user->id;
-		$db->setQuery($sql);
-		$once_done = $db->loadResult();
-		if(!$once_done)
+	}
+
+	/**
+	 * The function to get profile link User
+	 *
+	 * @param   MIXED  $user  JUser Objcet
+	 *
+	 * @return  STRING
+	 *
+	 * @since   1.0
+	 */
+	public function getProfileUrl(JUser $user)
+	{
+		$awduser = new AwdwallHelperUser;
+		$Itemid = $awduser->getComItemId();
+		$link = JRoute::_('index.php?option=com_awdwall&view=awdwall&layout=mywall&wuid=' . $user->id . '&Itemid=' . $Itemid);
+	}
+
+	/**
+	 * The function to get profile AVATAR of a User
+	 *
+	 * @param   MIXED  $user           JUser Objcet
+	 *
+	 * @param   INT    $gravatar_size  Size of the AVATAR
+	 *
+	 * @return  STRING
+	 *
+	 * @since   1.0
+	 */
+	public function getAvatar(JUser $user, $gravatar_size = '')
+	{
+		$awduser = new AwdwallHelperUser;
+		$uimage = $awduser->getAvatar($user->id);
+
+		return $uimage;
+	}
+
+	/**
+	 * The function to get friends of a User
+	 *
+	 * @param   MIXED  $user      JUser Objcet
+	 * @param   INT    $accepted  Optional param, bydefault true to get only friends with request accepted
+	 * @param   INT    $options   Optional array.. Extra options to pass to the getFriends Query
+	 *  : state, limit and idonly(if idonly only ids array will be returned) are supported
+	 *
+	 * @return  Friends objects
+	 *
+	 * @since   1.0
+	 */
+	public function getFriends(JUser $user, $accepted=true, $options = array())
+	{
+	}
+
+	/**
+	 * The function to add provided users as Friends
+	 *
+	 * @param   MIXED  $connect_from_user  User who is requesting connection
+	 * @param   INT    $connect_to_user    User whom to request
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function addFriend(JUser $connect_from_user, JUser $connect_to_user)
+	{
+	}
+
+	/**
+	 * The function to get Easysocial toolbar
+	 *
+	 * @return  toolbar HTML
+	 *
+	 * @since   1.0
+	 */
+	public function getToolbar()
+	{
+	}
+
+	/**
+	 * Add activity stream
+	 *
+	 * @param   INT     $actor_id         User against whom activity is added
+	 * @param   STRING  $act_type         type of activity
+	 * @param   STRING  $act_subtype      sub type of activity
+	 * @param   STRING  $act_description  Activity description
+	 * @param   STRING  $act_link         LInk of Activity
+	 * @param   STRING  $act_title        Title of Activity
+	 * @param   STRING  $act_access       Access level
+	 *
+	 * @return  true
+	 *
+	 * @since  1.0
+	 */
+	public function pushActivity($actor_id, $act_type, $act_subtype='', $act_description='', $act_link='', $act_title='', $act_access='')
+	{
+		/* Load jomwall core*/
+		if (!class_exists('AwdwallHelperUser'))
 		{
-
-			$insertfrnd = new stdClass();
-			$insertfrnd->referenceid		=	$connect_to_user->id;
-			$insertfrnd->memberid 			=	$connect_from_user->id;
-			$insertfrnd->accepted 			=	1;
-			$insertfrnd->pending			=	0;
-			$insertfrnd->membersince			=	$dt;
-			$db->insertObject('#__comprofiler_members', $insertfrnd);
-
-			$insertfrnds = new stdClass();
-			$insertfrnds->referenceid		=	$connect_from_user->id;
-			$insertfrnds->memberid 			=	$connect_to_user->id;
-			$insertfrnds->accepted			=	1;
-			$insertfrnds->pending			=	0;
-			$insertfrnds->membersince			=	$dt;
-			$db->insertObject('#__comprofiler_members', $insertfrnds);
+			require_once JPATH_SITE . '/components/com_awdwall/helpers/user.php';
 		}
 
+		$linkHTML = '<a href="' . $act_link . '">' . $act_title . '</a>';
+		$comment = $act_description . ' ' . $linkHTML;
+		$attachment = $act_link;
+		$type = 'text';
+		$imgpath = null;
+		$params = array();
 
-	}
-
-	public function pushActivity($actor_id, $act_type,$act_subtype='',$act_description='',$act_link='',$act_title='',$act_access)
-	{
-
-		/*load jomwall core*/
-		if(!class_exists('AwdwallHelperUser')){
-			require_once(JPATH_SITE.DS.'components'.DS.'com_awdwall'.DS.'helpers'.DS.'user.php');
-		}
-		$linkHTML='<a href="'.$act_link.'">'.$act_title.'</a>';
-		$comment=$act_description.' '.$linkHTML;
-		$attachment=$act_link;
-		$type='text';
-		$imgpath=NULL;
-		$params=array();
-
-		AwdwallHelperUser::addtostream($comment,$attachment,$type,$actor_id,$imgpath,$params);
+		AwdwallHelperUser::addtostream($comment, $attachment, $type, $actor_id, $imgpath, $params);
 
 		return true;
 	}
-	public function setStatus(JUser $user, $status, $options) {}
-	public function getRegistrationLink($options) {}
-	public function sendMessage(JUser $user, $recepient) {}
 
-	public function checkExists()
+	/**
+	 * The function to set status of a user
+	 *
+	 * @param   MIXED   $user     User whose status is to be set
+	 * @param   STRING  $status   status to be set
+	 * @param   MIXED   $options  status to be set
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function setStatus(JUser $user, $status, $options)
 	{
-		return JFolder::exists(JPATH_SITE.DS.'components'.DS.'com_awdwall'.DS.'helpers'.DS.'user.php');
 	}
 
+	/**
+	 * The function to get registartion link for CB
+	 *
+	 * @param   ARRAY  $options  options
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function getRegistrationLink($options)
+	{
+	}
 
-	/*
-	 * @params
-	 * $options is array
-	 * command for example invites sent
-	 * extension for com_invitex
-	 * @return array success 0 or 1
+	/**
+	 * Send Message
+	 *
+	 * @param   OBJECT  $user       User who is sending Message
+	 * @param   OBJECT  $recepient  User to whom Message is to send
+	 *
+	 * @return  boolean
+	 *
+	 * @since  1.0
+	 */
+	public function sendMessage(JUser $user, $recepient)
+	{
+	}
+
+	/**
+	 * The function to check if CB is installed
+	 *
+	 * @return  boolean
+	 *
+	 * @since   1.0
+	 */
+	public function checkExists()
+	{
+		return JFile::exists(JPATH_SITE . '/components/com_awdwall/helpers/user.php');
+	}
+
+	/**
+	 * The function add points to user
+	 *
+	 * @param   MIXED  $receiver  User to whom points to be added
+	 * @param   ARRAY  $options   is array
+	 *
+	 * $options[command] for example invites sent
+	 * options[extension] for example com_invitex
+	 *
+	 * @return ARRAY success 0 or 1
 	 */
 	public function addpoints(JUser $receiver,$options=array())
 	{
-		if(empty($options['command']) or empty($options['extension']))
-		{
-				$return['success'] =0;
-				$return['message'] ='Command or extension not passed to ';
-				return $return;
-		}
-
-		$return['success']=Foundry::points()->assign( $options['command'] , $options['extension'] , $receiver->id );
 	}
 
-	public function sendNotification(JUser $sender,JUser $receiver,$content="JS Notification",$options=array())
+	/**
+	 * Send Notification
+	 *
+	 * @param   OBJECT  $sender    User who is sending notification
+	 * @param   OBJECT  $receiver  User to whom notification is to send
+	 * @param   STRING  $content   Main content of the notification
+	 * @param   STRING  $options   Optional options
+	 *
+	 * @return  boolean
+	 *
+	 * @since  1.0
+	 */
+	public function sendNotification(JUser $sender, JUser $receiver, $content="JS Notification", $options=array())
 	{
-
-		$recipient[] = $receiver->id;
-		// If you do not want to send email, $emailOptions should be set to false
-		// $emailOptions - An array of options to define in the mail
-		// Email template
-		$emailOptions 		= false;
-
-		// If you do not want to send system notifications, set this to false.
-		// $systemOptions - The internal system notifications
-		// System notification template
-		$myUser = Foundry::user($receiver->id);
-
-		$systemOptions['url']	= JRoute::_($myUser->getPermalink());
-
-		$title =  $myUser->getName()." ".$notification_msg;
-		Foundry::notify( 'notify_invite.create' , $recipient , $emailOptions , $systemOptions );
-
-	}
-
-	public function send_SMS($user,$password,$api_id,$text,$to)
-	{
-
 	}
 }

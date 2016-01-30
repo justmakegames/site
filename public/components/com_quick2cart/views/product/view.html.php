@@ -24,6 +24,7 @@ class Quick2cartViewProduct extends JViewLegacy
 	protected $pagination;
 
 	protected $state;
+
 	/**
 	 * Display the view
 	 *
@@ -34,12 +35,20 @@ class Quick2cartViewProduct extends JViewLegacy
 
 	public function display($tpl = null)
 	{
-		$this->params = JComponentHelper::getParams('com_quick2cart');
+		$this->params              = JComponentHelper::getParams('com_quick2cart');
+		$mainframe                 = JFactory::getApplication();
+		$input                     = $mainframe->input;
+		$option                    = $input->get('option');
+		$layout                    = $input->get('layout', 'default');
 		$this->comquick2cartHelper = new comquick2cartHelper;
-		$storeHelper = new storeHelper;
-		$this->productHelper = new productHelper;
-		$input = JFactory::getApplication()->input;
-		$layout = $input->get('layout', 'default');
+		$this->productHelper       = new productHelper;
+		$storeHelper               = new storeHelper;
+		$productHelper             = new productHelper;
+
+		$this->product_types   = array();
+		//$this->product_types[] = JHtml::_('select.option', '', JText::_('QTC_PROD_SEL_TYPE'));
+		$this->product_types[1] = JHtml::_('select.option', 1, JText::_('QTC_PROD_TYPE_SIMPLE'));
+		$this->product_types[2] = JHtml::_('select.option', 2, JText::_('QTC_PROD_TYPE_VARIABLE'));
 
 		if ($layout == 'default')
 		{
@@ -48,7 +57,7 @@ class Quick2cartViewProduct extends JViewLegacy
 			// Gettting store id if store is changed
 			$user = JFactory::getUser();
 			global $mainframe;
-			$mainframe = JFactory::getApplication();
+			$mainframe      = JFactory::getApplication();
 			$change_storeto = $mainframe->getUserStateFromRequest('current_store', 'current_store', 0, 'INTEGER');
 
 			// Get item_id from request from GET/POST
@@ -57,8 +66,10 @@ class Quick2cartViewProduct extends JViewLegacy
 			// REMOVE FROM REQUEST
 			$mainframe->setUserState('item_id', '');
 			$this->client = $client = "com_quick2cart";
-			$this->pid = 0;
-			$Quick2cartModelcart = new Quick2cartModelcart;
+			$this->pid    = 0;
+
+			// LOAD CART MODEL
+			$Quick2cartModelcart = $this->comquick2cartHelper->loadqtcClass(JPATH_SITE . "/components/com_quick2cart/models/cart.php", "Quick2cartModelcart");
 
 			// If item_id NOT found then SET TO ''
 			$this->item_id = '';
@@ -75,16 +86,26 @@ class Quick2cartViewProduct extends JViewLegacy
 					$special_access = $this->comquick2cartHelper->isSpecialAccess();
 				}
 				// Load Attributes model
-				$path = JPATH_SITE . '/components/com_quick2cart/models/attributes.php';
-				$attri_model = $this->comquick2cartHelper->loadqtcClass($path, "quick2cartModelAttributes");
+				$path        = '/components/com_quick2cart/models/attributes.php';
+				$attri_model = $this->comquick2cartHelper->loadqtcClass(JPATH_SITE . $path, "quick2cartModelAttributes");
 
 				// GET ITEM DETAIL
 				$this->itemDetail = $itemDetail = $attri_model->getItemDetail(0, '', $item_id);
 
+				// Load category_attribute_set_mapping detail
+				$this->attributeSetList = $productHelper->getProductGlobalAttributeSet($this->itemDetail);
+
 				// Getting attribure
-				$this->item_id = !empty($this->itemDetail) ? $itemDetail['item_id'] : '';
-				$this->allAttribues = $attri_model->getItemAttributes($this->item_id);
-				$this->getMediaDetail = $this->productHelper->getMediaDetail($item_id);
+				$this->item_id        = !empty($this->itemDetail) ? $itemDetail['item_id'] : '';
+				$this->allAttribues   = $attri_model->getItemAttributes($this->item_id);
+
+				$this->getMediaDetail = $productHelper->getMediaDetail($item_id);
+				$this->isAllowedtoChangeProdCategory = $productHelper->isAllowedtoChangeProdCategory($item_id);
+
+				if ($this->isAllowedtoChangeProdCategory)
+				{
+					$this->catName = $this->comquick2cartHelper->getCatName($this->itemDetail['category']);
+				}
 			}
 			// IF ITEM_ID AND SPECIAL ACCESS EG ADMIN THEN FETCH STORE ID
 			// Means edit task
@@ -129,7 +150,6 @@ class Quick2cartViewProduct extends JViewLegacy
 			$this->defaultStoreSettings = $storeHelper->getStoreDefaultSettings($this->store_id);
 
 			// ALL FETCH ALL CATEGORIES
-
 			if (!empty($this->itemDetail['category']))
 			{
 				$this->cats = $this->comquick2cartHelper->getQ2cCatsJoomla($this->itemDetail['category'], 0, 'prod_cat', ' required ');

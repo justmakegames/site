@@ -347,25 +347,23 @@ $document->addScriptDeclaration($customValidation);
 		<legend><?php echo JText::_( "COM_QUICK2CART_COUPON_INFO"); ?></legend>
 		<div>
 			<div class="form-group">
-				<label for="coupon_name" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
+				<label for="coupon_name" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 					<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_NAME_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_NAME'), '', JText::_('COM_QUICK2CART_COUPON_NAME')) . ' *';?>
 				</label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 					<input type="text" name="coupon_name" id="coupon_name"
 						class="inputbox required validate-name"
-						size="20"
 						value="<?php if($this->item){ echo stripslashes($this->item->name);}?>"/>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="code" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
+				<label for="code" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 					<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPAN_CODE_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_CODE'), '', JText::_('COM_QUICK2CART_COUPON_CODE') . ' *');?>
 				</label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 					<input type="text" name="code" id="code"
 						class="inputbox required validate-name"
-						size="20"
 						value="<?php if($this->item){ echo $this->escape(stripslashes($this->item->code));}?>"/>
 				</div>
 			</div>
@@ -385,12 +383,12 @@ $document->addScriptDeclaration($customValidation);
 			}
 			?>
 			<div class="form-group">
-				<label for="published" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
+				<label for="published" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 					<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_ENABLED_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_ENABLED'), '', JText::_('COM_QUICK2CART_COUPON_ENABLED'));?>
 				</label>
 <!--
 				<?php if (JVERSION < '3.0') : ?>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 				<?php endif; ?>
 						<?php
 						echo JHtml::_('select.booleanlist',  'published', 'class="inputbox"', (isset($this->item->id)) ? $this->item->published : 0);
@@ -399,7 +397,7 @@ $document->addScriptDeclaration($customValidation);
 					</div>
 				<?php endif; ?>
 -->
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<label class="radio-inline">
 						  <input type="radio" class="" <?php echo $published;?> value="1" name="published" >
 							<?php echo JText::_('COM_QUICK2CART_YES');?>
@@ -431,10 +429,10 @@ $document->addScriptDeclaration($customValidation);
 			{
 				?>
 				<div class="form-group">
-					<label for="qtc_store" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
+					<label for="qtc_store" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 						<?php echo JHtml::tooltip(JText::_('QTC_PROD_SELECT_STORE_DES'), JText::_('QTC_PROD_SELECT_STORE'), '', JText::_('QTC_PROD_SELECT_STORE'));?>
 					</label>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<?php
 						$default = !empty($this->item->store_id) ? $this->item->store_id : (!empty($store_role_list[0]['id']) ? $store_role_list[0]['id'] : '');
 						$options = array();
@@ -445,7 +443,7 @@ $document->addScriptDeclaration($customValidation);
 							$options[] = JHtml::_('select.option', $value["id"],$value['title']);//submitAction('deletecoupon');
 						}
 
-						echo $this->dropdown = JHtml::_('select.genericlist',$options,'store_ID','class=" qtc_putmargintop10px required" size="0"   ','value','text',$default,'store_ID');
+						echo $this->dropdown = JHtml::_('select.genericlist',$options,'store_ID','class=" qtc_putmargintop10px required" ','value','text',$default,'store_ID');
 						?>
 					</div>
 				</div>
@@ -455,14 +453,14 @@ $document->addScriptDeclaration($customValidation);
 			?>
 
 			<div class="form-group">
-				<label for="value" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPAN_VALUE_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_VALUE'), '', JText::_('COM_QUICK2CART_COUPON_VALUE') . ' *');?></label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
-					<input class="inputbox required validate-name" type="text" name="value" id="value" Onkeyup= "checkforalpha(this,46,<?php echo $entered_numerics; ?>);" size="20" value="<?php if($this->item){ echo $this->item->value; } ?>" />
+				<label for="value" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPAN_VALUE_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_VALUE'), '', JText::_('COM_QUICK2CART_COUPON_VALUE') . ' *');?></label>
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<input class="inputbox required validate-name" type="text" name="value" id="value" Onkeyup= "checkforalpha(this,46,<?php echo $entered_numerics; ?>);"  value="<?php if($this->item){ echo $this->item->value; } ?>" />
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="val_type" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label">
+				<label for="val_type" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label">
 					<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_VALUE_TYPE_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_VALUE_TYPE'), '', JText::_('COM_QUICK2CART_COUPON_VALUE_TYPE'));?>
 				</label>
 
@@ -484,7 +482,7 @@ $document->addScriptDeclaration($customValidation);
 				if(JVERSION < '3.0')
 				{
 					?>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<?php echo $lists['val_type']; ?>
 					</div>
 					<?php
@@ -514,7 +512,7 @@ $document->addScriptDeclaration($customValidation);
 					$perCop = "";
 				}
 				?>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 					<label class="radio-inline">
 					  <input type="radio" class="" <?php echo $flatCop;?> value="1" name="val_type" >
 						<?php echo JText::_('COM_QUICK2CART_COUPON_FLAT');?>
@@ -532,13 +530,13 @@ $document->addScriptDeclaration($customValidation);
 				?>
 				<!-- -sj change -->
 				<div class="form-group">
-					<label for="item_id" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label qtc_product_cop_txtbox_lable">
+					<label for="item_id" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label qtc_product_cop_txtbox_lable">
 						<?php echo JHtml::tooltip(JText::_('COUPAN_ITEMID_TOOLTIP'), JText::_('COUPAN_ITEMID'), '', JText::_('COUPAN_ITEMID')) . ' *';?>
 					</label>
 
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 						<ul class='selections q2c-margin-zero' id='selections.item_id'>
-							<input type="text" id="item_id" class="auto_fields inputbox validate-item_id_hidden qtc_product_cop_txtbox" size="20"
+							<input type="text" id="item_id" class="auto_fields inputbox validate-item_id_hidden qtc_product_cop_txtbox"
 								value="<?php echo ($this->item) ? $this->item->item_id : JText::_('ITEMID_START_TYP_MSG'); ?>"  />
 							<input type="hidden" class="auto_fields_hidden" name="item_id" id="item_id_hidden" value="" autocomplete='off' />
 						</ul>
@@ -554,22 +552,22 @@ $document->addScriptDeclaration($customValidation);
 			?>
 
 			<div class="form-group">
-				<label for="max_use" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_MAXUSES_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_MAXUSES'), '', JText::_('COM_QUICK2CART_COUPON_MAXUSES'));?></label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
-					<input type="text" name="max_use" id="max_use" class="inputbox" Onkeyup= "checkforalpha(this,'',<?php echo $entered_numerics; ?>);" size="20" value="<?php if($this->item){ echo $this->item->max_use; } ?>"  />
+				<label for="max_use" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_MAXUSES_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_MAXUSES'), '', JText::_('COM_QUICK2CART_COUPON_MAXUSES'));?></label>
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<input type="text" name="max_use" id="max_use" class="inputbox" Onkeyup= "checkforalpha(this,'',<?php echo $entered_numerics; ?>);"  value="<?php if($this->item){ echo $this->item->max_use; } ?>"  />
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="max_per_user" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER'), '', JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER'));?></label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
-					<input type="text" name="max_per_user" id="max_per_user" class="inputbox" Onkeyup= "checkforalpha(this,'',<?php echo $entered_numerics; ?>);" size="20" value="<?php if($this->item){  echo $this->item->max_per_user; } ?>"  />
+				<label for="max_per_user" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER'), '', JText::_('COM_QUICK2CART_COUPON_MAXUSES_PERUSER'));?></label>
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<input type="text" name="max_per_user" id="max_per_user" class="inputbox" Onkeyup= "checkforalpha(this,'',<?php echo $entered_numerics; ?>);"  value="<?php if($this->item){  echo $this->item->max_per_user; } ?>"  />
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="from_date" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_VALID_FROM_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_VALID_FROM'), '', JText::_('COM_QUICK2CART_COUPON_VALID_FROM'));?></label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12 ">
+				<label for="from_date" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_VALID_FROM_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_VALID_FROM'), '', JText::_('COM_QUICK2CART_COUPON_VALID_FROM'));?></label>
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 ">
 					<?php
 					if ($this->item)
 					{
@@ -598,8 +596,8 @@ $document->addScriptDeclaration($customValidation);
 			</div>
 
 			<div class="form-group">
-				<label for="exp_date" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_EXPIRES_ON_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_EXPIRES_ON'), '', JText::_('COM_QUICK2CART_COUPON_EXPIRES_ON'));?></label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+				<label for="exp_date" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_EXPIRES_ON_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_EXPIRES_ON'), '', JText::_('COM_QUICK2CART_COUPON_EXPIRES_ON'));?></label>
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 					<?php
 					if ($this->item)
 					{
@@ -624,16 +622,16 @@ $document->addScriptDeclaration($customValidation);
 			</div>
 
 			<div class="form-group">
-				<label for="description" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_DESCRIPTION_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_DESCRIPTION'), '', JText::_('COM_QUICK2CART_COUPON_DESCRIPTION'));?></label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
-					<textarea   size="28" rows="3" name="description" id="description" class="inputbox" ><?php if($this->item){  echo trim($this->item->description); } ?></textarea>
+				<label for="description" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_DESCRIPTION_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_DESCRIPTION'), '', JText::_('COM_QUICK2CART_COUPON_DESCRIPTION'));?></label>
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<textarea rows="3" name="description" id="description" class="inputbox" ><?php if($this->item){  echo trim($this->item->description); } ?></textarea>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="params" class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_PARAMETERS_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_PARAMETERS'), '', JText::_('COM_QUICK2CART_COUPON_PARAMETERS'));?></label>
-				<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
-					<textarea  size="28" rows="3" name="params" id="params" class="inputbox" ><?php if($this->item){  echo trim($this->item->extra_params); } ?></textarea>
+				<label for="params" class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_COUPON_PARAMETERS_TOOLTIP'), JText::_('COM_QUICK2CART_COUPON_PARAMETERS'), '', JText::_('COM_QUICK2CART_COUPON_PARAMETERS'));?></label>
+				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<textarea   rows="3" name="params" id="params" class="inputbox" ><?php if($this->item){  echo trim($this->item->extra_params); } ?></textarea>
 				</div>
 			</div>
 

@@ -7,7 +7,7 @@
  * @license    GNU General Public License version 2 or later.
  */
 
-// No direct access.
+// No direct access
 defined('_JEXEC') or die();
 
 jimport('joomla.form.formvalidator');
@@ -31,20 +31,20 @@ $lang = JFactory::getLanguage();
 // Load helper file if not exist
 if (!class_exists('comquick2cartHelper'))
 {
-	$path = JPATH_SITE . DS . 'components' . DS . 'com_quick2cart' . DS . 'helper.php';
+	$path = JPATH_SITE . '/components/com_quick2cart/helper.php';
 	JLoader::register('comquick2cartHelper', $path);
 	JLoader::load('comquick2cartHelper');
 }
 
 $comquick2cartHelper = new comquick2cartHelper;
 $qtcshiphelper = new qtcshiphelper;
+$productHelper =  new productHelper;
 $params = JComponentHelper::getParams('com_quick2cart');
+$currencies=$params->get('addcurrency');
 
 $qtc_shipping_opt_status = $this->params->get('shipping', 0);
 $isTaxationEnabled = $this->params->get('enableTaxtion', 0);
 $document = JFactory::getDocument();
-
-
 
 $qtc_base_url = JUri::root();
 JLoader::import('attributes', JPATH_SITE . '/components/com_quick2cart/models');
@@ -184,7 +184,7 @@ if (empty($this->cats))
 ?>
 
 <div class='<?php echo $strapperClass; ?> qtc_addInvalidate_border qtc_addProduct' >
-	<form name="qtcAddProdForm" id="qtcAddProdForm" class="form-validate form-horizontal"
+	<form name="qtcAddProdForm" id="qtcAddProdForm" class="form-validate "
 		method="post" enctype="multipart/form-data" onSubmit="return myValidate(this);" >
 
 		<?php
@@ -202,10 +202,10 @@ if (empty($this->cats))
 		if (!$this->store_id)
 		{
 			?>
-				<div class="alert alert-danger">
-					<button type="button" class="close" data-dismiss="alert"></button>
-					<?php echo JText::_('QTC_NO_STORE'); ?>
-				</div>
+			<div class="alert alert-danger">
+				<button type="button" class="close" data-dismiss="alert"></button>
+				<?php echo JText::_('QTC_NO_STORE'); ?>
+			</div>
 			<!--
 			</div>
 			-->
@@ -214,7 +214,7 @@ if (empty($this->cats))
 		}
 		else
 		{
-		?>
+			?>
 			<legend>
 				<?php
 				if (!empty($this->itemDetail))
@@ -280,14 +280,25 @@ if (empty($this->cats))
 
 					<div class="tab-pane" id="qtctab2">
 						<?php
-						// Check for view override
-						$att_list_path=$comquick2cartHelper->getViewpath('product', 'attribute', "SITE", "SITE");
-						ob_start();
-						include($att_list_path);
-						$html_attri = ob_get_contents();
-						ob_end_clean();
-						echo $html_attri;
+
+						$canDisplayAttriContent = empty($this->item_id) ? 0 : 1;
 						?>
+						<div id="qtcAttributeTabContent" style="<?php echo ($canDisplayAttriContent == 0) ? 'display:none;' : ''; ?>">
+							<?php
+							// Check for view override
+							$att_list_path = $comquick2cartHelper->getViewpath('product', 'attribute', "SITE", "SITE");
+							ob_start();
+							include($att_list_path);
+							$html_attri = ob_get_contents();
+							ob_end_clean();
+							echo $html_attri;
+						?>
+						</div>
+						<div id="qtcAttributeTabContentHideMsg" style="<?php echo ($canDisplayAttriContent == 1) ? 'display:none;' : ''; ?>">
+							<div class="alert alert-info">
+								<?php echo JText::_('COM_QUICK2CART_PRODUCT_SAVE_PROD_TO_ADD_ATTRI_MSG');?>
+							</div>
+						</div>
 					</div>
 
 					<?php

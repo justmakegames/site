@@ -116,6 +116,18 @@ JHtml::_('behavior.modal');
 	 */
 	function qtcAddZoneRule(zone_id)
 	{
+		/* Clear old msg */
+		techjoomla.jQuery('#qtczoneruleError').html("");
+		techjoomla.jQuery('.qtcError').fadeOut();
+
+		var qtc_ZoneCountry = document.id('qtc_ZoneCountry').value;
+		if (qtc_ZoneCountry == '')
+		{
+			techjoomla.jQuery('#qtczoneruleError').html("<?php echo JText::_('COM_QUICK2CART_ZONE_INVALID_COUNTRY_SEL', true); ?>");
+			techjoomla.jQuery('.qtcError').fadeIn();
+			return false;
+		}
+
 		var data = {
 			jform : {
 				zone_id : zone_id,
@@ -147,7 +159,7 @@ JHtml::_('behavior.modal');
 
 
 					var editLink = '<a rel="{handler:\'iframe\',size:{x: window.innerWidth-350, y: window.innerHeight-150},onClose: function(){window.parent.document.location.reload(true);}}" '
-								+' href="'+url+'"  class="modal"><input type="button" value="<?php echo JText::_('COM_QUICK2CART_ZONERULE_EDIT'); ?>" class=" btn btn-primary"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+								+' href="'+url+'"  class="modal"><input type="button" value="<?php echo JText::_('COM_QUICK2CART_ZONERULE_EDIT'); ?>" class=" btn btn-primary"></a> &nbsp;&nbsp;&nbsp;';
 					var delLink = '<input onclick="qtcDeleteZoneRule('+
 								zoneRuleId+',this);" class="btn btn-danger" type="button" value="<?php echo JText::_('COM_QUICK2CART_ZONERULE_DELETE'); ?>">';
 
@@ -257,8 +269,6 @@ JHtml::_('behavior.modal');
 							<div id="qtczoneruleError"></div>
 						</div>
 					</div>
-
-
 				</fieldset>
 
 
@@ -282,7 +292,7 @@ JHtml::_('behavior.modal');
 								{
 									$options[] = JHtml::_('select.option', $country['id'], $country['country']);
 								}
-								echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_ZoneCountry','class=""  aria-invalid="false" size="1"  autocomplete="off" onchange=\'qtc_generateState("jform[qtc_state_id]","jform_qtc_state_id")\' ','value','text',$default,'qtc_ZoneCountry');
+								echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_ZoneCountry','class=""  aria-invalid="false"   autocomplete="off" onchange=\'qtc_generateState("jform[qtc_state_id]","jform_qtc_state_id")\' ','value','text',$default,'qtc_ZoneCountry');
 
 								?>
 							</div>
@@ -299,7 +309,8 @@ JHtml::_('behavior.modal');
 
 						</div>
 
-						<table class="  table table-striped table-bordered">
+						<div class="clearfix">&nbsp;</div>
+						<table class="table table-striped table-bordered">
 							<thead>
 								<tr>
 									<th><?php echo JText::_('COM_QUICK2CART_ZONERULE_COUNTRY'); ?></th>
@@ -334,7 +345,7 @@ JHtml::_('behavior.modal');
 												<a rel="{handler:'iframe',size:{x: window.innerWidth-350, y: window.innerHeight-150},onClose: function(){window.parent.document.location.reload(true);}}"
 												href="index.php?option=com_quick2cart&view=zoneform&layout=setrule&id=<?php echo $this->item->id; ?>&zonerule_id=<?php echo $rule->id;?>&tmpl=component" class="modal">
 													<input type="button" value="<?php echo JText::_('COM_QUICK2CART_ZONERULE_EDIT'); ?>" 	class=" btn btn-primary">
-												</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												</a> &nbsp;&nbsp;&nbsp;
 
 												<input onclick="qtcDeleteZoneRule(<?php echo $rule->id;?>,this);" class="btn btn-danger" type="button" value="<?php echo JText::_('COM_QUICK2CART_ZONERULE_DELETE'); ?>">
 											</td>
@@ -368,7 +379,7 @@ JHtml::_('behavior.modal');
 					</button>
 				<?php endif;?>
 
-				 <a href="<?php echo JRoute::_('index.php?option=com_quick2cart&task=zoneform.cancel&id='.$this->item->id); ?>" class="btn btn-inverse" title="<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>">
+				 <a href="<?php echo JRoute::_('index.php?option=com_quick2cart&task=zoneform.cancel&id='.$this->item->id); ?>" class="btn " title="<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>">
 					<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>
 				 </a>
 

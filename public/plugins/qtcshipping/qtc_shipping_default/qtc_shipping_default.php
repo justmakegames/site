@@ -27,6 +27,7 @@ class plgQtcshippingqtc_shipping_default extends JPlugin
 	{
 		$shipping_limit=$this->params->get('shipping_limit');
 		$return = array();
+		$return['allowToPlaceOrder'] = 1;
 
 		if ((float)$amt<$shipping_limit)
 		{

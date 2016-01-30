@@ -132,29 +132,29 @@ $store_details = $this->store_details;
 		<div class="clearfix"> </div>
 		<hr class="hr-condensed" />
 
-		<div id="filter-bar" class="btn-toolbar">
+		<div id="filter-bar" class="qtc-btn-toolbar">
 			<div class="filter-search btn-group pull-left">
 				<input type="text" name="filter_search" id="filter_search"
 				placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_PRODUCTS'); ?>"
 				value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
-				class="hasTooltip input-medium"
+				class="qtc-hasTooltip input-medium"
 				title="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_PRODUCTS'); ?>" />
 			</div>
 
-			<div class="btn-group pull-left">
-				<button type="submit" class="btn hasTooltip"
+			<div class="pull-left">
+				<button type="submit" class="btn qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-					<i class="icon-search"></i>
+					<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 				</button>
-				<button type="button" class="btn hasTooltip"
+				<button type="button" class="btn qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 				onclick="document.id('filter_search').value='';this.form.submit();">
-					<i class="icon-remove"></i>
+					<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 				</button>
 			</div>
 
 			<?php if (JVERSION >= '3.0') : ?>
-				<div class="btn-group pull-right hidden-phone ">
+				<div class="pull-right hidden-phone ">
 					<label for="limit" class="element-invisible">
 						<?php echo JText::_('COM_QUICK2CART_SEARCH_SEARCHLIMIT_DESC'); ?>
 					</label>
@@ -162,13 +162,13 @@ $store_details = $this->store_details;
 				</div>
 			<?php endif; ?>
 
-			<div class="btn-group pull-right hidden-phone">
+			<div class="pull-right hidden-phone">
 			<?php
-				echo JHtml::_('select.genericlist', $this->statuses, "filter_published", 'class="input-medium" size="1" onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.published'));
+				echo JHtml::_('select.genericlist', $this->statuses, "filter_published", 'class="input-medium"  onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.published'));
 			?>
 			</div>
 
-			<div class="btn-group pull-right hidden-phone">
+			<div class="pull-right hidden-phone">
 				<select name="filter_category" class="inputbox input-medium" onchange="this.form.submit()">
 					<option value=""><?php echo JText::_('JOPTION_SELECT_CATEGORY');?></option>
 					<?php echo JHtml::_('select.options', JHtml::_('category.options', 'com_quick2cart'), 'value', 'text', $this->state->get('filter.category'));?>
@@ -176,7 +176,7 @@ $store_details = $this->store_details;
 			</div>
 		</div>
 
-		<div class="clearfix"> </div>
+		<div class="clearfix">&nbsp;</div>
 
 		<div class="row-fluid qtc_productblog">
 			<?php
@@ -255,7 +255,7 @@ $store_details = $this->store_details;
 									</td>
 
 									<td class="q2c_width_1 nowrap center">
-										<a class="btn btn-micro hasTooltip"
+										<a class=" "
 											href="javascript:void(0);"
 											title="<?php echo ( $row->state ) ? JText::_('QTC_UNPUBLISH') : JText::_('QTC_PUBLISH'); ;?>"
 											onclick="document.adminForm.cb<?php echo $i;?>.checked=1; document.adminForm.boxchecked.value=1; Joomla.submitbutton('<?php echo ($row->state) ? 'category.unpublish' : 'category.publish';?>');">

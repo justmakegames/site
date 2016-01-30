@@ -103,13 +103,6 @@ if (!empty($preview))
 								</li>
 							</ul>
 
-<!--
-							<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-							</a>
--->
 
 							<div class="nav-collapse ">
 								<ul class="nav">
@@ -314,7 +307,7 @@ if (isset($this->store_role_list) && !in_array($active, $skip_array))
 					$options[] = JHtml::_('select.option', $value["store_id"], $value['title']);
 				}
 
-				// echo $this->dropdown = JHtml::_('select.genericlist', $options, 'current_store', 'class="" autocomplete="off" size="1" onchange=\'submitAction_store("change_store");\' ', 'value', 'text', $default, 'current_store_id');
+				// echo $this->dropdown = JHtml::_('select.genericlist', $options, 'current_store', 'class="" autocomplete="off"  onchange=\'submitAction_store("change_store");\' ', 'value', 'text', $default, 'current_store_id');
 				?>
 
 				<div class="form-horizontal">
@@ -322,7 +315,7 @@ if (isset($this->store_role_list) && !in_array($active, $skip_array))
 
 					<div class="pull-right">
 								<?php
-								echo $this->dropdown = JHtml::_('select.genericlist', $options, 'current_store', 'class="" autocomplete="off" size="1" onchange=\'submitAction_store("change_store");\' title="' . JText::_('COM_QUICK2CART_CURRENT_STORE') . '"', 'value', 'text', $default, 'current_store_id');
+								echo $this->dropdown = JHtml::_('select.genericlist', $options, 'current_store', 'class="" autocomplete="off"  onchange=\'submitAction_store("change_store");\' title="' . JText::_('COM_QUICK2CART_CURRENT_STORE') . '"', 'value', 'text', $default, 'current_store_id');
 								?>
 								<input type="hidden" name="change_store" id="qtc_change_store" value="<?php echo $default;?>" />
 					</div>

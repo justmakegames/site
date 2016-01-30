@@ -120,23 +120,23 @@ function qtcShipSubmitAction(action)
 	<div class="qtc_action_button filter-search pull-right">
 
 			<button type="button" class="btn btn-success btn-small" title="<?php echo JText::_('COM_QUICK2CART_GENERAL_S_NEW'); ?>" onclick="qtcShipSubmitAction('add');">
-				<i class="<?php echo QTC_ICON_PLUS; ?> icon-white"></i>
+				<i class="<?php echo QTC_ICON_PLUS; ?> <?php echo Q2C_ICON_WHITECOLOR; ?> "></i>
 				<span class="hidden-xs">
 					<?php echo JText::_('COM_QUICK2CART_GENERAL_S_NEW'); ?>
 				</span>
 			</button>
 
-			<button type="button" class="btn btn-success btn-small hidden-xs" title="<?php echo JText::_('COM_QUICK2CART_S_PUBLISHED'); ?>" onclick="qtcShipSubmitAction('publish');"><i class="<?php echo QTC_ICON_CHECKMARK;?> icon-white"></i><?php echo JText::_('COM_QUICK2CART_S_PUBLISHED'); ?></button>
-			<button type="button" class="btn btn-warning btn-small hidden-xs" title="<?php echo JText::_('COM_QUICK2CART_S_JUNPUBLISHED'); ?>" onclick="qtcShipSubmitAction('unpublish');"><i class="<?php echo QTC_ICON_MINUS;?> icon-white"></i><?php echo JText::_('COM_QUICK2CART_S_JUNPUBLISHED'); ?></button>
+			<button type="button" class="btn btn-success btn-small hidden-xs" title="<?php echo JText::_('COM_QUICK2CART_S_PUBLISHED'); ?>" onclick="qtcShipSubmitAction('publish');"><i class="<?php echo QTC_ICON_CHECKMARK;?> <?php echo Q2C_ICON_WHITECOLOR; ?>"> </i><?php echo " " . JText::_('COM_QUICK2CART_S_PUBLISHED'); ?></button>
+			<button type="button" class="btn btn-warning btn-small hidden-xs" title="<?php echo JText::_('COM_QUICK2CART_S_JUNPUBLISHED'); ?>" onclick="qtcShipSubmitAction('unpublish');"><i class="<?php echo QTC_ICON_PUBLISH;?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i><?php echo " " . JText::_('COM_QUICK2CART_S_JUNPUBLISHED'); ?></button>
 			<button type="button" class="btn btn-danger btn-small" title="<?php echo JText::_('COM_QUICK2CART_GENERAL_S_DELETE'); ?> " onclick="return qtcShipSubmitAction('delete');">
-				<i class="icon-trash icon-white"></i>
+				<i class="<?php echo Q2C_ICON_TRASH; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i>
 				<span class="hidden-xs">
 					<?php echo JText::_('COM_QUICK2CART_GENERAL_DELETE'); ?>
 				</span>
 			</button>
 	</div>
 
-
+	<div class="clearfix">&nbsp;</div><div class="clearfix">&nbsp;</div>
 	<table class="table table-striped table-bordered" id="taxProfilesList">
 		<thead>
 			<tr >
@@ -146,7 +146,7 @@ function qtcShipSubmitAction(action)
 					onclick="Joomla.checkAll(this)" />
 				</th>
 				<th width="40%" class="title"><?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SHIPM_NAME'); ?></th>
-				<th class="" width="10%"><?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SHIPM_STATE'); ?></th>
+				<th class="center" width="10%"><?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_SHIPM_STATE'); ?></th>
 				<th width="30%" class="hidden-xs "><?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_TAX_PROFILE_NAME'); ?></th>
 				<th width="18%" class="title"></th>
 			</tr>
@@ -197,7 +197,7 @@ function qtcShipSubmitAction(action)
 					</a>
 				</td>
 
-				<td class="" >
+				<td class="center" >
 					<?php
 					if (!empty($item['state']))
 					{
@@ -216,7 +216,7 @@ function qtcShipSubmitAction(action)
 					}
 					?>
 
-					<a class="btn btn-micro hasTooltip"
+					<a class=" "
 						href="javascript:void(0);"
 						title="<?php echo $title;?>" onclick=" qtcChangeShipMethodState('<?php echo $qtcstate;?>',<?php echo $item['methodId']; ?>)">
 							<img class="q2c_button_publish" src="<?php echo JUri::root(true);?>/components/com_quick2cart/assets/images/<?php echo ($item['state']) ? 'publish.png' : 'unpublish.png';?>"/>

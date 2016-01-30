@@ -173,14 +173,11 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 		$model               = $this->getModel('cartcheckout');
 		$jinput              = JFactory::getApplication()->input;
 		$post                = $jinput->post;
-		$orderid             = $model->store();
+		$orderDetail             = $model->store();
+		$orderid = $orderDetail['order_id'];
 		$data                = array();
 		$comquick2cartHelper = new comquick2cartHelper;
 		$itemid              = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&view=cartcheckout');
-
-		$data['success_msg'] = "";
-		$data['success']     = 0;
-		$data['order_id']    = '';
 
 		// If($orderid && $orderid!=-1 && $orderid!=-2 )
 		if ($orderid > 0)
@@ -194,37 +191,20 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 			$session->set('one_pg_ckoutMethod', '');
 
 			// $tmp =$this->getorderHTML($orderid,$data,$post['gateways']);
-			$data['success_msg'] = JText::_('CONFIG_SAV');
-			$data['success']     = 1;
-			$data['order_id']    = $orderid;
-			$data                = $this->getorderHTML($orderid, $data);
+			$orderDetail['success_msg'] = JText::_('CONFIG_SAV');
+			$orderDetail['success']     = 1;
+			$orderDetail['order_id']    = $orderid;
+			$orderDetail                = $this->getorderHTML($orderid, $orderDetail);
 
 			// $this->setRedirect( 'index.php?option=com_quick2cart&view=cartcheckout&layout=payment&Itemid='.$itemid, $msg );
 		}
 		else
 		{
-			switch ($orderid)
-			{
-				case -1:
-					// If already exist eamil
-					$msg = JText::_('ERR_CONFIG_SAV_LOGIN');
-					break;
-
-				case -2:
-					$msg = JText::_('COM_QUICK2CRT_ERROR_SESSION_EXPIRE');
-					break;
-
-				default:
-					$msg = JText::_('ERR_CONFIG_SAV');
-					break;
-			}
-
-			$data['success_msg']  = $msg;
-			$data['success']      = 0;
-			$data['redirect_uri'] = 'index.php?option=com_quick2cart&view=cartcheckout&Itemid=' . $itemid;
+			$orderDetail['success']      = 0;
+			$orderDetail['redirect_uri'] = 'index.php?option=com_quick2cart&view=cartcheckout&Itemid=' . $itemid;
 		}
 
-		return $data;
+		return $orderDetail;
 	}
 
 	/**
@@ -568,9 +548,9 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 		$result = $dispatcher->trigger("OnAfterQ2cStepChange");
 
 		$Quick2cartControllercartcheckout = new Quick2cartControllercartcheckout;
-		$nextstep =  '';
+		$nextstep = '';
 
-		switch($stepId)
+		switch ($stepId)
 		{
 			case "qtc_cartDetails":
 				$nextstep = "fetchBillData";
@@ -619,8 +599,16 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 		if ($nextstep == 'fetchPayNdReviewData')
 		{
 			$response                    = $Quick2cartControllercartcheckout->save();
-			$retdata['payAndReviewHtml'] = !empty($response['orderHTML']) ? $response['orderHTML'] : '';
-			$retdata['order_id']         = !empty($response['order_id']) ? $response['order_id'] : 0;
+
+			if ($response['success'] == 0)
+			{
+				$retdata['shippingNotAvailable'] = $response['success_msg'];
+			}
+			else
+			{
+				$retdata['payAndReviewHtml'] = !empty($response['orderHTML']) ? $response['orderHTML'] : '';
+				$retdata['order_id']         = !empty($response['order_id']) ? $response['order_id'] : 0;
+			}
 		}
 
 		echo json_encode($retdata);
@@ -646,6 +634,7 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 
 		if (!empty($selectedGateway) && !empty($order_id))
 		{
+			// Add selected payment gateway name against order
 			$status = $model->updateOrderGateway($selectedGateway, $order_id);
 
 			if ($status)
@@ -657,6 +646,31 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 
 		echo $return;
 		jexit();
+	}
+
+	/**
+	 * Function used to get gateway HTML
+	 *
+	 * @param   STRING  $selectedGateway  selected gateway name
+	 *
+	 * @param   STRING  $order_id         order id
+	 *
+	 * @return  json
+	 *
+	 * @since  1.0.0
+	 */
+	public function qtc_singleGatewayHtml($selectedGateway, $order_id)
+	{
+		$model           = $this->getModel('payment');
+		$status = $model->updateOrderGateway($selectedGateway, $order_id);
+
+		if ($status)
+		{
+			$payhtml = $model->getHTML($selectedGateway, $order_id);
+			$return  = !empty ($payhtml[0]) ? $payhtml[0] : '';
+		}
+
+		return $return;
 	}
 
 	/**
@@ -677,10 +691,10 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 		$item_id = $post->get('item_id', '', 'INT');
 
 		// Get parsed form data
-		parse_str($post->get('formData', '' ,'STRING'), $formData);
+		parse_str($post->get('formData', '', 'STRING'), $formData);
 
-		// Load cart model
-		/*$item = Array
+		/* Load cart model
+		$item = Array
 					(
 						[id] => 17
 						[parent] => com_quick2cart
@@ -717,13 +731,12 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 			$itemFromattedDet['count'] = $newItemDetails['cart_count'];
 			$itemFromattedDet['options'] = '';
 
-
 			// If not empty attribute details
 			if (!empty($newItemDetails['attrDetail']))
 			{
 				$attrDetail = $newItemDetails['attrDetail'];
 
-				foreach ($attrDetail as $key=>$attr)
+				foreach ($attrDetail as $key => $attr)
 				{
 					if ($attr['type'] == 'Textbox' && !empty($attr['value']))
 					{
@@ -735,7 +748,6 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 					{
 						$itemFromattedDet['options'] .= $attr['value'] . ',';
 					}
-
 				}
 			}
 		}
@@ -771,7 +783,8 @@ class Quick2cartControllercartcheckout extends Quick2cartController
 		{
 			$msg['status']      = true;
 			$msg['successCode'] = 1;
-			//$msg['message'] = JText::sprintf('COM_QUICK2CART_COMPACT_MSG', $prod_details[0]['name'], $item_count);
+
+			// $msg['message'] = JText::sprintf('COM_QUICK2CART_COMPACT_MSG', $prod_details[0]['name'], $item_count);
 		}
 		else
 		{

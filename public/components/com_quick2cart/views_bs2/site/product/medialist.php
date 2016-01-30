@@ -280,6 +280,7 @@ $extArrString = "'". implode("','", $extArr) ."'" ;
 				{
 					$mediaDetail[] = $mediaDetail[0];
 				}
+
 				for($m=1; $m<=$mediaCount+1  && $m < $eProdMaxFileLimit+1; $m++) // for each attribute
 				{
 					$attribute_container_id = "qtc_mediaContainer".$m;
@@ -317,7 +318,6 @@ $extArrString = "'". implode("','", $extArr) ."'" ;
 				<?php
 				} // end of attribute for loop
 				 ?>
-					<!-- change by aniket as temporory fix. class "com_qtc_mediaRemove_button" added instead of com_qtc_mediaAdd_button AND aslo removed class descreaseTopMargin  com_qtc_mediaRemove_button pull-left-->
 			<div class=" span1 ">
 				<button class="btn btn-mini " type="button" id='add'
 				onclick="addCloneMedia('qtc_mediaContainer','qtc_mediaContainer');"

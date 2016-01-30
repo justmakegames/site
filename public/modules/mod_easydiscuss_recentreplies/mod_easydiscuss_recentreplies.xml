@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Recent Replies</name>
+	<author>imarklee</author>
+	<creationDate>06/02/2012</creationDate>
+	<copyright>Copyright 2009 - 2012 StackIdeas. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>3.2.2</version>
+	<description>This module is almost identical to the recent discussions module but it is simplified and it displays the ordering of the items by the last replied discussion.</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_recentreplies.ini</language>
+	</languages>
+	<files>
+		<filename module="mod_easydiscuss_recentreplies">mod_easydiscuss_recentreplies.php</filename>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<folder>tmpl</folder>
+		<folder>styles</folder>
+	</files>
+	<params>
+		<param name="category_option" type="list" default="0" label="Select an option" description="Show all or one category">
+			<option value="0">All Categories</option>
+			<option value="1">Selected Category</option>
+		</param>
+		<param name="category" type="text" default="" label="Category" description="Category ID filter" />
+		<param name="count" type="text" default="5" label="Limit" description="The number of items to display (set it to 0 if post limiting if not required)." />
+		<param name="show_avatar" type="list" default="1" label="Show avatar" description="Show discussion starter avatar">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+	</params>
+	<params group="advanced">
+		<param name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
+		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
+			<option value="1">Use global</option>
+			<option value="0">No caching</option>
+		</param>
+		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
+	</params>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="category_option" type="list" default="0" label="Select an option" description="Show all or one category">
+					<option value="0">All Categories</option>
+					<option value="1">Selected Category</option>
+				</field>
+				<field
+					name="category"
+					type="sql"
+					default="0"
+					label="Discussion Category"
+					description="Filter a discussion category to show"
+					query="SELECT id, title FROM #__discuss_category"
+					key_field="id"
+					value_field="title"
+				/>
+				<field
+					name="count"
+					type="integer"
+					default="5"
+					label="Discussion Count"
+					description="The number of items to display"
+					first="0"
+					last="50"
+					step="5"
+				/>
+				<field name="show_avatar" type="list" default="1" label="Show avatar" description="Show discussion starter avatar" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+
+</extension>

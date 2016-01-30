@@ -13,7 +13,7 @@ if (in_array('billing', $order_blocks))
 	<div class="qtcPadding">
 	<h4 <?php echo ($orders_email) ? $emailstyle : '' ;?>><?php echo JText::_('QTC_CUST_INFO');?></h4>
 	<div class="table-responsive" id='no-more-tables'>
-		<table class="table table-condensed table-bordered" style="<?php echo $this->email_table_bordered ;?>">
+		<table class="table table-condensed table-bordered qtc-table" style="<?php echo $this->email_table_bordered ;?>">
 			<thead>
 				<tr>
 					<th align="left">
@@ -44,10 +44,12 @@ if (in_array('billing', $order_blocks))
 								echo $billinfo->lastname;
 								?> &nbsp;&nbsp;
 							</strong><br />
-								<?php echo $billinfo->address; ?>
+								<?php echo $billinfo->address . ","; ?>
 							<br/>
 
-							<?php	echo $billinfo->city . ', ' ;
+							<?php
+								echo $billinfo->land_mark . ', ';
+								echo $billinfo->city . ', ' ;
 								echo (!empty($billinfo->state_name) ? $billinfo->state_name : $billinfo->state_code) . ' ' . $billinfo->zipcode;
 								echo '<br/>';
 								echo (!empty($billinfo->country_name) ? $billinfo->country_name : $billinfo->country_code) . ', ';
@@ -74,9 +76,10 @@ if (in_array('billing', $order_blocks))
 									echo $shipinfo->lastname;
 									?> &nbsp;&nbsp;
 								</strong><br />
-								 <?php echo $shipinfo->address; ?>
+								 <?php echo $shipinfo->address . ","; ?>
 								<br/>
 									<?php
+									echo $billinfo->land_mark . ", ";
 									echo $shipinfo->city . ', ' ;
 									echo (!empty($shipinfo->state_name) ? $shipinfo->state_name : $shipinfo->state_code) . ' ' . $shipinfo->zipcode;
 									echo '<br/>';

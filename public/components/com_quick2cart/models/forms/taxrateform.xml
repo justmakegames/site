@@ -14,7 +14,7 @@
 			required="true"
 			filter="safehtml" />
 
-		<field name="percentage" type="text" size="40" class="inputbox validate-numeric input-mini"
+		<field name="percentage" type="text" size="40" class="inputbox validate-numeric"
 			label="COM_QUICK2CART_S_FORM_LBL_TAXTRATE_TAX_PERCENT"
 			description="COM_QUICK2CART_S_FORM_DESC_TAXTRATE_TAX_PERCENT"
 			hint="COM_QUICK2CART_FORM_TAXTRATE_TAX_PERCENT_PLACEHOLDER"

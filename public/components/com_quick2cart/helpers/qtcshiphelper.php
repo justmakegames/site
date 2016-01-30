@@ -624,8 +624,8 @@ class Qtcshiphelper
 			}
 
 			$objPrice->rateId = $obj->id;
-			$objPrice->shipCost = $shipCost[$value];
-			$objPrice->handleCost = $handleCost[$value];
+			$objPrice->shipCost = isset($shipCost[$value]) ? $shipCost[$value] : 0;
+			$objPrice->handleCost = isset($handleCost[$value]) ? $handleCost[$value] : 0;
 			$objPrice->currency = $value;
 
 			if (!$db->$action('#__kart_zoneShipMethodRateCurr', $objPrice, 'id'))
@@ -1153,7 +1153,34 @@ class Qtcshiphelper
 		}
 		catch (Exception $e)
 		{
-			$this->setMessage(JText::_('JLIB_DATABASE_ERROR_ANCESTOR_NODES_LOWER_STATE'), 'error');
+			$app->enqueueMessage(JText::_('JLIB_DATABASE_ERROR_ANCESTOR_NODES_LOWER_STATE'), 'error');
+
+			return false;
+		}
+
+
+		$query = $db->getQuery(true);
+
+		//  Delete the shippgin and shipping methods mappting
+		$query->delete('#__kart_shipProfileMethods');
+		$query->where('shipprofile_id=' . $id);
+
+		try
+		{
+			$db->setQuery($query);
+			$status = $db->execute();
+
+			if (empty($status))
+			{
+				$errMsg = JText::sprintf('COM_QUICK2CART_UNABLE_TO_DEL_SHIPPING_PROFILE_METH', $id);
+				$app->enqueueMessage($errMsg, 'error');
+
+				return false;
+			}
+		}
+		catch (Exception $e)
+		{
+			$app->enqueueMessage($e->getMessage(), 'error');
 
 			return false;
 		}

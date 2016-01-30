@@ -132,7 +132,7 @@ class Quick2cartViewTaxprofiles extends JViewLegacy
 
 		if ($canDo->get('core.create'))
 		{
-			$tjbar->appendButton('taxprofileform.add', 'TJTOOLBAR_NEW', '', 'btn btn-small btn-success');
+			$tjbar->appendButton('taxprofileform.add', 'TJTOOLBAR_NEW', '', 'class="btn btn-small btn-success"');
 		}
 
 		/*if ($canDo->get('core.edit') && isset($this->items[0]))
@@ -144,8 +144,8 @@ class Quick2cartViewTaxprofiles extends JViewLegacy
 		{
 			if (isset($this->items[0]->state))
 			{
-				$tjbar->appendButton('taxprofiles.publish', 'TJTOOLBAR_PUBLISH', '', 'btn btn-small btn-success');
-				$tjbar->appendButton('taxprofiles.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'btn btn-small btn-warning');
+				$tjbar->appendButton('taxprofiles.publish', 'TJTOOLBAR_PUBLISH', '', 'class="btn btn-small btn-success"');
+				$tjbar->appendButton('taxprofiles.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'class="btn btn-small btn-warning"');
 			}
 		}
 
@@ -153,7 +153,7 @@ class Quick2cartViewTaxprofiles extends JViewLegacy
 		{
 			if (isset($this->items[0]))
 			{
-				$tjbar->appendButton('taxprofiles.delete', 'TJTOOLBAR_DELETE', '', 'btn btn-small btn-danger');
+				$tjbar->appendButton('taxprofiles.delete', 'TJTOOLBAR_DELETE', '', 'class="btn btn-small btn-danger"');
 			}
 		}
 

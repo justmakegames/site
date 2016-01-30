@@ -197,7 +197,7 @@ $document->addStyleSheet('components/com_quick2cart/css/quick2cart.css');
 					{
 						$options[] = JHtml::_('select.option', $country['id'], $country['country']);
 					}
-					echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_ZoneCountry','class="col-lg-12 col-md-12 col-sm-12 col-xs-12"  required="" aria-invalid="false" size="1"  autocomplete="off" onchange=\'qtc_generateState("jform[qtc_state_id]","jform_qtc_state_id")\' ','value','text',$default,'qtc_ZoneCountry');
+					echo $this->dropdown = JHtml::_('select.genericlist',$options,'qtc_ZoneCountry','class="col-lg-12 col-md-12 col-sm-12 col-xs-12"  required="" aria-invalid="false"   autocomplete="off" onchange=\'qtc_generateState("jform[qtc_state_id]","jform_qtc_state_id")\' ','value','text',$default,'qtc_ZoneCountry');
 					?>
 				</div>
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -238,7 +238,7 @@ $document->addStyleSheet('components/com_quick2cart/css/quick2cart.css');
 			<div class="">
 				<div class="error alert alert-danger qtcError" style="display: none;">
 					<?php echo JText::_('COM_QUICK2CART_ZONE_ERROR'); ?>
-					<i class="icon-cancel pull-right" style="align: right;"
+					<i class="<?php echo QTC_ICON_REMOVE; ?> pull-right" style="align: right;"
 						onclick="jQuery(this).parent().fadeOut();"> </i> <br />
 					<hr />
 					<div id="qtczoneruleError"></div>

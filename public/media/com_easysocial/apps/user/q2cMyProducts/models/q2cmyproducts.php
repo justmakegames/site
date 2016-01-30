@@ -30,7 +30,7 @@ class q2cmyproductsModel extends EasySocialModel
 		$sql = 'SELECT DISTINCT(i.item_id), i.name, i.images, i.featured, i.parent, i.min_quantity, i.max_quantity, i.product_id, i.stock
 		 FROM `#__kart_items` as i, `#__kart_store` as s
 		 WHERE s.id = i.store_id
-		 AND i.state=1
+		 AND i.state=1 AND i.display_in_product_catlog = 1
 		 AND `owner` = '.$userId;
 
 		if ($storeid)

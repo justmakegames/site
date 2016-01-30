@@ -307,31 +307,6 @@ class plgSystemQtc_sample_development extends JPlugin
 	{
 		//return "<div class=\"ship_msgfree\">Shipping is FREE on a purchase of Rs. 300/- and more !</div> ";
 	}
-
-	public function onProductDisplaySocialOptions($cont_id, $element, $title, $route)
-	{
-		$likehtml = '';
-		$jlike    = $this->params->get('jlike');
-		if ($jlike == 1)
-		{
-			jimport('joomla.filesystem.file');
-			if (JFile::exists(JPATH_SITE . DS . 'components' . DS . 'com_jlike' . DS . 'jlike.php'))
-			{
-				JRequest::setVar('data', json_encode(array(
-					'cont_id' => $cont_id,
-					'element' => $element,
-					'title' => $title,
-					'url' => $route
-				)));
-				//Require the jlike helper
-				require_once(JPATH_SITE . '/' . 'components/com_jlike/helper.php');
-				$jlikehelperObj = new comjlikeHelper();
-				$likehtml       = $jlikehelperObj->showlike();
-			}
-		}
-		return $likehtml;
-	}
-
 	public function qtcOnBeforeCreateStore($store_id)
 	{
 	}

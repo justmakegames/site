@@ -123,10 +123,10 @@ form.submit();
 			<th colspan="7">
 			<div style="float:right;" >
 
-			<button type="button" class="btn btn-info  btn_margin" onclick="window.open('<?php echo JRoute::_('index.php?option=com_zoo&view=submission&layout=submission&Itemid=1919&store_id='.$store_id	);?>','_self')" > <i class="<?php echo QTC_ICON_PLUS; ?> icon-white"></i> <?php echo JText::_( 'QTC_MANAGE_STORE_ADD_PROD' ); ?></button>
-			<button type="button" class="btn btn-info  btn_margin" onclick="window.open('<?php echo JRoute::_('index.php?option=com_quick2cart&view=orders&layout=storeorder');?>','_self')" > <i class="<?php echo QTC_ICON_CART;?> icon-white"></i> <?php echo JText::_( 'QTC_MANAGE_STORE_ORDERS' ); ?></button>
-			<button type="button" class="btn btn-info  btn_margin" onclick="window.open('<?php echo JRoute::_('index.php?option=com_quick2cart&view=orders&layout=mycustomer');?>','_self')" > <i class="icon-user icon-white"></i> <?php echo JText::_( 'QTC_MANAGE_STORE_CUSTOMER' ); ?></button>
-			<button type="button" class="btn btn-info  btn_margin" onclick="window.open('<?php echo JRoute::_('index.php?option=com_quick2cart&view=managecoupon&layout=default');?>','_self')" > <i class="icon-chevron-right icon-white"></i> <?php echo JText::_( 'QTC_MANAGE_STORE_COUPON' ); ?></button>
+			<button type="button" class="btn btn-info  btn_margin" onclick="window.open('<?php echo JRoute::_('index.php?option=com_zoo&view=submission&layout=submission&Itemid=1919&store_id='.$store_id	);?>','_self')" > <i class="<?php echo QTC_ICON_PLUS; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i> <?php echo JText::_( 'QTC_MANAGE_STORE_ADD_PROD' ); ?></button>
+			<button type="button" class="btn btn-info  btn_margin" onclick="window.open('<?php echo JRoute::_('index.php?option=com_quick2cart&view=orders&layout=storeorder');?>','_self')" > <i class="<?php echo QTC_ICON_CART;?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i> <?php echo JText::_( 'QTC_MANAGE_STORE_ORDERS' ); ?></button>
+			<button type="button" class="btn btn-info  btn_margin" onclick="window.open('<?php echo JRoute::_('index.php?option=com_quick2cart&view=orders&layout=mycustomer');?>','_self')" > <i class="<?php echo QTC_ICON_USER;?>"></i> <?php echo JText::_( 'QTC_MANAGE_STORE_CUSTOMER' ); ?></button>
+			<button type="button" class="btn btn-info  btn_margin" onclick="window.open('<?php echo JRoute::_('index.php?option=com_quick2cart&view=managecoupon&layout=default');?>','_self')" > <i class="<?php echo Q2C_ICON_ARROW_CHEVRON_RIGH; ?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i> <?php echo JText::_( 'QTC_MANAGE_STORE_COUPON' ); ?></button>
 
 			</div>
 			</th>

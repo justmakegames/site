@@ -136,12 +136,13 @@ $document->addScriptDeclaration($js);
 
 			<div class="btn-group pull-right hidden-phone btn-wrapper">
 				<div class="form-inline" title="<?php echo JText::_('MSG_ON_FILTER');?>">
-					<label for="from"><?php echo JText::_('FROM_DATE'); ?> </label>
+					<label class="qtcMarginBothSide" for="from"><b><?php echo JText::_('FROM_DATE'); ?></b> </label>
+
 					<?php echo JHtml::_('calendar', $backdate, 'salesfromDate', 'from', '%Y-%m-%d', array('class'=>'inputbox input-small')); ?>
 
-					<label for="to"><?php echo JText::_('TO_DATE');?></label>
+					<label for="to" class="qtcMarginBothSide"><b><?php echo JText::_('TO_DATE');?></b></label>
 					 <?php echo JHtml::_('calendar', $toDate, 'salestoDate', 'to', '%Y-%m-%d', array('class'=>'inputbox input-small')); ?>
-					<input id="btnRefresh" class="btn btn-small btn-primary" type="button" value="<?php echo JText::_('COM_QUICK2CART_GO'); ?>" style="font-weight: bold;" onclick="if(validateDates()){ this.form.submit();}"/>
+					<input id="btnRefresh" class="btn btn-small btn-primary qtcMarginBothSide" type="button" value="<?php echo JText::_('COM_QUICK2CART_GO'); ?>" style="font-weight: bold;" onclick="if(validateDates()){ this.form.submit();}"/>
 				</div>
 			</div>
 

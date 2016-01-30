@@ -14,7 +14,7 @@ $this->productHelper = new productHelper;
 <?php
 if (in_array('cart', $order_blocks))
 {?>
-	<div>
+	<div class="qtcPadding">
 		<?php
 		if ($orders_email)
 		{ ?>
@@ -120,13 +120,24 @@ if (in_array('cart', $order_blocks))
 							<?php
 							}
 
+							// Show sku
+							$sku_item_id = !empty($order->variant_item_id) ? $order->variant_item_id : $order->item_id;
+							$sku = $this->productHelper->getSku($sku_item_id);
+
+							if (!empty($sku))
+							{
+								?>
+								<span title="<?php echo JText::_('QTC_PROD_SKU_TOOLTIP'); ?>"> ( <?php echo JText::_('QTC_PROD_SKU');?> : <?php echo $sku; ?> )</span>
+								<?php
+							}
+
 							$orderItemIds[] = $order->order_item_id;
 
 							// DOWNLOAD LINK
 							if (!empty($this->orderinfo->status) && $this->orderinfo->status == 'C')
 							{
 
-								// check where has any media files
+								// Check where has any media files
 								$medisFiles = $this->productHelper->isMediaForPresent($order->order_item_id);
 
 								if (!empty($medisFiles))
@@ -140,6 +151,7 @@ if (in_array('cart', $order_blocks))
 								<?php
 								}
 							}
+
 							// Showing shipping method name
 							if (!empty($order->item_shipDetail))
 							{
@@ -219,7 +231,7 @@ if (in_array('cart', $order_blocks))
 												<a class="discount label label-info" data-content="<?php echo $content;?> " data-placement="bottom" data-html="html"
 													data-trigger="hover" rel="popover"
 													data-original-title="<?php echo JText::_('QTC_DIS_POP_TITLE');?>">
-														<i class="<?php echo $qtc_icon_info;?> icon-white"></i>
+														<i class="<?php echo $qtc_icon_info;?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i>
 													<?php
 														$dis_str = $this->comquick2cartHelper->getFromattedPrice(number_format(($prod_disc), 2));
 														if ($orders_email)
@@ -251,9 +263,11 @@ if (in_array('cart', $order_blocks))
 					</tr>
 					<?php
 				}?>
+<!--
 				<tr>
 					<td colspan="6">&nbsp;</td>
 				</tr>
+-->
 				<!--  sub total -->
 				<?php
 				$col = 3;
@@ -334,7 +348,9 @@ if (in_array('cart', $order_blocks))
 							</tr>
 								<?php
 						}
+
 						$orderTaxAmount = (float)$this->orderinfo->order_tax;
+
 						if (!empty($orderTaxAmount))
 						{
 							// tax data

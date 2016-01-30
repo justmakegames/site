@@ -4,6 +4,11 @@ CREATE TABLE IF NOT EXISTS `#__kart_store` (
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `address` varchar(200) DEFAULT NULL,
+  `pincode` int(11) NOT NULL DEFAULT '0',
+  `city` varchar(200) NULL DEFAULT NULL,
+  `land_mark` varchar(200) NULL DEFAULT NULL,
+  `country` int(11) NULL DEFAULT NULL,
+  `region` int(11) NULL DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
   `store_email` varchar(100) NOT NULL,
   `store_avatar` varchar(125) DEFAULT NULL,
@@ -32,6 +37,16 @@ CREATE TABLE IF NOT EXISTS `#__kart_role` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart Store user role Information' AUTO_INCREMENT=1 ;
 
+CREATE TABLE IF NOT EXISTS `#__kart_zepo_avn_method` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(225) NULL DEFAULT NULL,
+  `store_id` int(11) NULL DEFAULT NULL,
+  `shipping_type` text NULL DEFAULT NULL,
+  `state` tinyint(3) NULL DEFAULT NULL,
+  `payment_mode` varchar(255) NULL DEFAULT NULL,
+  `request_url` text NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Zepo avn methods' AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `#__order_item_fee` (
   `id` int(11) NOT NULL auto_increment,
@@ -98,6 +113,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_order_item` (
   `order_id` int(11) DEFAULT NULL,
   `user_info_id` varchar(32) DEFAULT NULL,
   `item_id` int(11) NOT NULL,
+  `variant_item_id` int(11) DEFAULT '0',
   `product_attributes` text NOT NULL COMMENT 'A CSV of itemattributeoption_id values, always in numerical order',
   `product_attribute_names` text NOT NULL COMMENT 'A CSV of itemattributeoption_name values',
   `order_item_name` varchar(255) NOT NULL,
@@ -148,6 +164,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_cartitems` (
   `store_id` int(11) default NULL,
   `user_info_id` varchar(32) default NULL,
   `item_id` int(11) NOT NULL,
+  `variant_item_id` int(11) DEFAULT '0',
   `currency` varchar(16) NOT NULL,
 	  `product_attributes` text NOT NULL COMMENT 'A CSV of itemattributeoption_id values, always in numerical order',
 	  `product_attribute_names` text NOT NULL COMMENT 'A CSV of itemattributeoption_name values',
@@ -178,7 +195,9 @@ CREATE TABLE IF NOT EXISTS `#__kart_cartitemattributes` (
 CREATE TABLE IF NOT EXISTS `#__kart_items` (
 	`item_id` int(11) NOT NULL AUTO_INCREMENT,
 	`parent` varchar(255) NOT NULL,
+	`parent_id` int(11) NOT NULL DEFAULT '0',
 	`product_id` int(11) NOT NULL,
+	`product_type` int(11) default '1',
 	`store_id` int(11) NOT NULL,
 	`name` varchar(255) NOT NULL,
 	`price` float(10,2) NOT NULL,
@@ -205,6 +224,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_items` (
 	`item_weight_class_id` int(11) NOT NULL,
 	`taxprofile_id` int(11) NOT NULL,
 	`shipProfileId` int(11) NOT NULL,
+	`display_in_product_catlog` tinyint(3) NOT NULL DEFAULT '1',
 	PRIMARY KEY (`item_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Quick2Cart Items' AUTO_INCREMENT=1;
 
@@ -220,18 +240,23 @@ CREATE TABLE IF NOT EXISTS `#__kart_itemattributes` (
   `ordering` int(11) NOT NULL,
   `attribute_compulsary` BOOLEAN NOT NULL,
   `attributeFieldType` varchar(20) DEFAULT NULL,
+  `global_attribute_id` int(11) DEFAULT '0',
+  `is_stock_keeping` tinyint(3) DEFAULT '0',
   PRIMARY KEY (`itemattribute_id`)
 
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8  COMMENT='Quick2Cart Items attributes' AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `#__kart_itemattributeoptions` (
   `itemattributeoption_id` int(11) NOT NULL AUTO_INCREMENT,
+  `global_option_id` int(11) default '0',
   `itemattribute_id` int(11) NOT NULL,
+  `child_product_item_id` int(11) default '0',
   `itemattributeoption_name` varchar(255) NOT NULL,
   `itemattributeoption_price` float(10,2) NOT NULL,
   `itemattributeoption_code` varchar(255) NOT NULL,
   `itemattributeoption_prefix` varchar(1) NOT NULL,
   `ordering` int(11) NOT NULL,
+  `state` tinyint(3) NOT NULL DEFAULT '1',
   PRIMARY KEY (`itemattributeoption_id`),
   KEY `itemattribute_id` (`itemattribute_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart Item attribute options' AUTO_INCREMENT=1 ;
@@ -250,6 +275,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_users` (
   `country_code` varchar(11) NOT NULL,
   `address` varchar(255) NOT NULL,
   `city` varchar(50) NOT NULL,
+  `land_mark` varchar(50) NOT NULL,
   `state_code` varchar(11) NOT NULL,
   `zipcode` varchar(255) NOT NULL,
   `phone` varchar(50) NOT NULL,
@@ -425,7 +451,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_zoneShipMethods` (
   `min_value` decimal(15,5) NOT NULL,
   `max_value` decimal(15,5) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `#__kart_zoneShipMethodRates` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -434,7 +460,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_zoneShipMethodRates` (
   `rangeFrom` int(11) DEFAULT '0',
   `rangeTo` int(11) DEFAULT '99999',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `#__kart_zoneShipMethodRateCurr` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -443,7 +469,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_zoneShipMethodRateCurr` (
   `handleCost` float(15,8) NOT NULL DEFAULT '0.00000000',
   `currency` varchar(16) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 
 
@@ -454,7 +480,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_shipprofile` (
   `state` tinyint(1) NOT NULL,
   `ordering` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 
 CREATE TABLE IF NOT EXISTS `#__kart_shipProfileMethods` (
@@ -464,7 +490,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_shipProfileMethods` (
   `methodId` int(11) NOT NULL COMMENT 'Extension specific, Shipping Plugin Method id.',
   `ordering` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `#__kart_zoneShipMethodCurr` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -473,7 +499,7 @@ CREATE TABLE IF NOT EXISTS `#__kart_zoneShipMethodCurr` (
   `min_value` decimal(15,5) NOT NULL,
   `max_value` decimal(15,5) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `#__kart_orders_history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -502,4 +528,36 @@ CREATE TABLE IF NOT EXISTS `#__kart_affiliate` (
   `affiliate_id` int(11) DEFAULT NULL COMMENT 'Unique id of affiliate user',
   `client` varchar(120) NOT NULL COMMENT 'Affiliate System',
   PRIMARY KEY (`order_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `#__kart_category_attribute_set` (
+  `id` int(11) NOT NULL auto_increment,
+  `category_id` int(11) NOT NULL,
+  `attribute_set_id` int(11) NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart category-attributeset mapping info' AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `#__kart_global_attribute` (
+  `id` int(11) NOT NULL auto_increment,
+  `attribute_name` varchar(255) NOT NULL,
+  `display_name` varchar(255) NOT NULL,
+  `renderer` varchar(255) default 'filters_checkbox',
+  `state` tinyint(3) default '1',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart global attributes info' AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `#__kart_global_attribute_option` (
+  `id` int(11) NOT NULL auto_increment,
+  `option_name` varchar(255) NOT NULL,
+  `attribute_id` int(11) NOT NULL,
+  `ordering` int(11) NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart global attribute options info' AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `#__kart_global_attribute_set` (
+  `id` int(11) NOT NULL auto_increment,
+  `global_attribute_set_name` varchar(255) NOT NULL,
+  `global_attribute_ids` text default NULL,
+  `state` tinyint(3) default '1',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Quick2Cart global attribute set info' AUTO_INCREMENT=1 ;

@@ -113,5 +113,32 @@ class Quick2cartControllerShipping extends quick2cartController
 
 	}
 
+	public function checkDeliveryAvailability()
+	{
+		$input = JFactory::getApplication()->input;
+		$post = $input->post;
+		$params = JComponentHelper::getParams('com_quick2cart');
+		$shippingMode = $params->get('shippingMode', 'itemLevel');  // @TODO SET ITEM LEVEL AS DEF
 
+		$store_id = $input->get('store_id', '0', 'int');
+		$item_id = $input->get('item_id', '', 'int');
+		$delivery_pincode = $input->get('delivery_pincode', '', 'int');
+		$shippingInfo = new stdclass;
+		$shippingInfo->store_id = $store_id;
+		$shippingInfo->item_id = $item_id;
+		$shippingInfo->delivery_pincode = $delivery_pincode;
+
+		if ($shippingMode == "orderLeval")
+		{
+			JPluginHelper::importPlugin('qtcshipping');
+			$dispatcher = JDispatcher::getInstance();
+			$plgRes = $dispatcher->trigger('getShippingProviders', array($shippingInfo));
+		}
+		else
+		{
+			JPluginHelper::importPlugin('tjshipping');
+			$dispatcher = JDispatcher::getInstance();
+			$plgRes = $dispatcher->trigger('getShippingProviders', array($shippingInfo));
+		}
+	}
 }

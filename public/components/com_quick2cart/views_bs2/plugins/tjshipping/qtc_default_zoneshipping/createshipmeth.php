@@ -353,7 +353,7 @@ if (!empty($shipFormData['methodId']))
 					<?php echo JText::_('PLG_QTC_DEFAULT_ZONESHIPPING_S_SAVE_CLOSE'); ?>
 				</button>
 
-				<button type="button" class="btn btn-inverse " title="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_CANCEL"); ?>" onclick="qtcShipSubmitAction('cancel');">
+				<button type="button" class="btn " title="<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_CANCEL"); ?>" onclick="qtcShipSubmitAction('cancel');">
 					<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_CANCEL"); ?>
 				</button>
 			</div>

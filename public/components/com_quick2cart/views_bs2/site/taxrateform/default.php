@@ -110,7 +110,7 @@ function qtcsubmitAction(action)
 							<?php echo JText::_('COM_QUICK2CART_COMMON_SAVE_AND_CLOSE'); ?>
 						</button>
 
-						 <a href="<?php echo JRoute::_('index.php?option=com_quick2cart&task=taxrateform.cancel&id=' . $this->item->id); ?>" class="btn btn-inverse" title="<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>">
+						 <a href="<?php echo JRoute::_('index.php?option=com_quick2cart&task=taxrateform.cancel&id=' . $this->item->id); ?>" class="btn " title="<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>">
 							<?php echo JText::_('COM_QUICK2CART_CANCEL_ITEM'); ?>
 						 </a>
 

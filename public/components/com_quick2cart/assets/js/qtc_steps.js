@@ -63,6 +63,11 @@ techjoomla.jQuery(document).ready(function()
 						}
 					}
 
+					if (response['shippingNotAvailable'])
+					{
+						alert(response['shippingNotAvailable']);
+					}
+
 					/* Add payment related detail */
 					//if(stepId == 'qtc_billing' && response['payAndReviewHtml'])
 					if(response['payAndReviewHtml'])
@@ -77,14 +82,18 @@ techjoomla.jQuery(document).ready(function()
 						// show "you could not edit cart" msg
 						techjoomla.jQuery('#qtc_cartStepAlert').html("<div class=\"alert alert-info\">"+qtc_cartAlertMsg+"</div>");
 
+						techjoomla.jQuery('#qtc_billing_alert_on_order_placed').html("<div class=\"alert alert-info\">"+Joomla.JText._('COM_QUICK2CART_SHIPPING_ADDRESS_ERROR_MSG')+"</div>");
+						techjoomla.jQuery('#qtc_ckout_billing-info').hide();
+
+						/* @TODO Remove */
+						//techjoomla.jQuery('# registration tab').hide();
+
 
 						// show "you could not edit shipping methods" msg
 						techjoomla.jQuery('#qtcShippingMethTab').remove();
 						techjoomla.jQuery('#qtc_shipStepAlert').html("<div class=\"alert alert-info\">"+qtc_shipMethRemovedMsg+"</div>");
 
 						goToByScroll('qtcPaymentGatewayList');
-
-
 					}
 				},
 				error: function(response)
@@ -191,8 +200,8 @@ function btnWizardNext()
 {
 	techjoomla.jQuery('#MyWizard').wizard('next','foo');
 
-	// THis function added in checkout view->default layout
-	qtcHideAndShowNextButton();
+	/* THis function added in checkout view->default layout*/
+	/*qtcHideAndShowNextButton();*/
 }
 
 

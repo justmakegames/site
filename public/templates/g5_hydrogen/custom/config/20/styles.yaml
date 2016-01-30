@@ -1,3 +1,5 @@
 preset: preset2
 header:
   background: '#252d35'
+breakpoints:
+  large-desktop-container: 75rem

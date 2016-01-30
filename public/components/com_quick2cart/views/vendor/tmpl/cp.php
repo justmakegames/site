@@ -15,7 +15,26 @@ JHtml::_('behavior.framework');
 JHtml::_('behavior.modal');
 
 $document = JFactory::getDocument();
-$document->addStyleSheet(JUri::root(true).'/components/com_quick2cart/assets/bootstrap3/css/bootstrap.min.css');
+
+// Load css files
+$comparams = JComponentHelper::getParams('com_quick2cart');
+$currentBSViews = $comparams->get('currentBSViews', "bs3");
+$laod_boostrap = $comparams->get('qtcLoadBootstrap', 1);
+
+if ($currentBSViews == "bs3")
+{
+	// Load Css
+	if (!empty($laod_boostrap))
+	{
+		$document->addStyleSheet(JUri::root(true) . '/media/techjoomla_strapper/bs3/css/bootstrap.min.css');
+	}
+}
+elseif ($currentBSViews == "bs2")
+{
+	// For bs2 forcefully load
+	//$document->addStyleSheet(JUri::root(true) . '/media/techjoomla_strapper/bs3/css/bootstrap.min.css');
+}
+
 $document->addStyleSheet(JUri::root(true).'/components/com_quick2cart/assets/font-awesome/css/font-awesome.min.css');
 $document->addStyleSheet(JUri::root(true).'/components/com_quick2cart/assets/css/morris.css');
 $document->addStyleSheet(JUri::root(true).'/components/com_quick2cart/assets/css/tjdashboard-sb-admin.css');
@@ -91,7 +110,7 @@ $js = "
 		toDate1 = new Date(toDate.toString());
 		difference = toDate1 - fromDate1;
 		days = Math.round(difference/(1000*60*60*24));
-		if (parseInt(days)<=0)
+		if (parseInt(days) < 0)
 		{
 			alert(\"".JText::_('COM_QUICK2CART_DATELESS')."\");
 			return;
@@ -160,12 +179,49 @@ $js = "
 			JFactory::getApplication()->enqueueMessage(JText::sprintf('NO_PROD_AGAINST_STORE', $clickhere), 'Notice');
 		}
 		?>
-
 		<!-- TJ Bootstrap3 -->
 		<div class="tjBs3">
 			<!-- TJ Dashboard -->
 			<div class="tjDB">
 				<div class="row">
+					<?php
+						$app = JFactory::getApplication();
+						$backdate = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s') . ' - 30 days'));
+						$backdate = $app->getUserStateFromRequest('from', 'from', $backdate, 'string');
+						$currentdate = date('Y-m-d H:i:s');
+						$currentdate = $app->getUserStateFromRequest('to', 'to', $currentdate, 'string');
+					?>
+					<div class="col-lg-4 col-md-5 col-sm-5 col-xs-9">
+						<div class="form-group">
+							<label label-default class="col-lg-2 col-md-2 col-sm-2 col-xs-3 control-label">
+								<?php echo JText::_('QTC_FROM_DATE'); ?>
+							</label>
+							<div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+								<div class="input-group">
+									<?php echo JHtml::_('calendar', $backdate, 'from', 'from', '%Y-%m-%d', array('class'=>'inputbox input-small form-control')); ?>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-4 col-md-5 col-sm-5 col-xs-9">
+						<div class="form-group">
+							<label label-default class="col-lg-2 col-md-2 col-sm-2 col-xs-3 control-label">
+								<?php echo JText::_('QTC_TO_DATE'); ?>
+							</label>
+							<div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+								<div class="input-group">
+									<?php echo JHtml::_('calendar', $currentdate, 'to', 'to', '%Y-%m-%d', array('class'=>'inputbox input-small form-control')); ?>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">
+						<button class="btn btn-primary btn-small qtcMarginBotton" onclick="refreshViews()" title="<?php echo JText::_('COM_QUICK2CART_DASHB_GO_TOOLTIP');?>"><?php echo JText::_('COM_QUICK2CART_FILTER_GO');?></button>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+
+				<!--<div class="row">
 					<div class="col-sm-12 col-lg-12 col-md-12">
 						<div class="pull-right">
 							<?php
@@ -176,26 +232,26 @@ $js = "
 							$currentdate = $app->getUserStateFromRequest('to', 'to', $currentdate, 'string');
 							?>
 							<div class="form-inline">
-							<label class="qtcMarginBotton" >
-									<?php echo JText::_('QTC_FROM_DATE') . "&nbsp;"; ?>
+								<label class="qtcMarginBotton" >
+									<?php //echo JText::_('QTC_FROM_DATE') . "&nbsp;"; ?>
 								</label>
 
-								<?php echo JHtml::_('calendar', $backdate, 'from', 'from', '%Y-%m-%d', array('class'=>'inputbox input-small form-control')); ?>
+								<?php //echo JHtml::_('calendar', $backdate, 'from', 'from', '%Y-%m-%d', array('class'=>'inputbox input-small form-control')); ?>
 
 								<label class="qtcMarginBotton">
-									<?php echo JText::_('QTC_TO_DATE') . "&nbsp;"; ?>
+									<?php //echo JText::_('QTC_TO_DATE') . "&nbsp;"; ?>
 								</label>
 
-								<?php echo JHtml::_('calendar', $currentdate, 'to', 'to', '%Y-%m-%d', array('class'=>'inputbox input-small form-control')); ?>
+								<?php //echo JHtml::_('calendar', $currentdate, 'to', 'to', '%Y-%m-%d', array('class'=>'inputbox input-small form-control')); ?>
 
-								<button class="btn btn-primary btn-small qtcMarginBotton" onclick="refreshViews()"><?php echo JText::_('COM_QUICK2CART_FILTER_GO');?>		</button>
+								<button class="btn btn-primary btn-small qtcMarginBotton" onclick="refreshViews()" title="<?php //echo JText::_('COM_QUICK2CART_DASHB_GO_TOOLTIP');?>"><?php //echo JText::_('COM_QUICK2CART_FILTER_GO');?></button>
 							</div>
 						</div>
 						<div class="clearfix">&nbsp;</div>
 					</div>
 				</div>
 
-				<div class="clearfix">&nbsp;</div>
+				<div class="clearfix">&nbsp;</div>-->
 
 				<!--Periodic-Quick-stats-->
 				<?php $perdIncome = $this->getPeriodicIncome;?>
@@ -533,17 +589,17 @@ $js = "
 																				break;
 
 																				case 'RF':
-																				$labelClass    = 'label-error';
+																				$labelClass    = 'label-danger';
 																				$ord['status'] = JText::_('QTC_REFUN');
 																				break;
 
 																				case 'S' :
-																				$labelClass    = 'label-error';
+																				$labelClass    = 'label-success';
 																				$ord['status'] = JText::_('QTC_SHIP');
 																				break;
 
 																				case 'E' :
-																				$labelClass    = 'label-error';
+																				$labelClass    = 'label-danger';
 																				$ord['status'] = JText::_('QTC_ERR');
 																				break;
 																			}
@@ -627,7 +683,7 @@ $js = "
 
 		<!--Store-info-->
 		<div class="row">
-			<div class="span12">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<?php if (!empty($this->storeDetailInfo)) : ?>
 					<div>
 						<?php

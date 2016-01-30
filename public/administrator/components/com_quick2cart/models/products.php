@@ -139,7 +139,7 @@ class Quick2cartModelProducts extends JModelList
 		$this->setState('params', $params);
 
 		// List state information.
-		parent::populateState('a.name', 'asc');
+		parent::populateState('a.item_id', 'DESC');
 	}
 
 	/**
@@ -181,6 +181,8 @@ class Quick2cartModelProducts extends JModelList
 		$query->select($this->getState('list.select', 'a.*'));
 
 		$query->from('`#__kart_items` AS a');
+
+		$query->where('a.display_in_product_catlog = 1');
 
 		// Filter by search in title.
 		$search = $this->getState('filter.search');

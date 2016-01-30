@@ -13,29 +13,33 @@ $session = JFactory::getSession();
 JHtml::_('behavior.modal', 'a.modal');
 
 // Define wrapper class
-if (!defined('Q2C_WRAPPER_CLASS'))
-{
-	if (JVERSION < '3.0')
-	{
-		define('Q2C_WRAPPER_CLASS', "q2c-wrapper techjoomla-bootstrap");
-	}
-	else
-	{
-		define('Q2C_WRAPPER_CLASS', "q2c-wrapper");
-	}
-}
+//~ if (!defined('Q2C_WRAPPER_CLASS'))
+//~ {
+	//~ if (JVERSION < '3.0')
+	//~ {
+		//~ define('Q2C_WRAPPER_CLASS', "q2c-wrapper techjoomla-bootstrap");
+	//~ }
+	//~ else
+	//~ {
+		//~ define('Q2C_WRAPPER_CLASS', "q2c-wrapper");
+	//~ }
+//~ }
 
 $document = JFactory::getDocument();
-$path = JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'helper.php';
+$path = JPATH_SITE . '/components/com_quick2cart/helper.php';
 
 if (!class_exists('comquick2cartHelper'))
 {
-  //require_once $path;
+  // Require_once $path;
    JLoader::register('comquick2cartHelper', $path);
    JLoader::load('comquick2cartHelper');
 }
+
 $comquick2cartHelper = new comquick2cartHelper;
 $productHelper = new productHelper;
+
+// Load Assets which are require for quick2cart.
+$comquick2cartHelper->loadQuicartAssetFiles();
 
 $pid = $this->product_id;
 $parent = $this->parent;
@@ -89,8 +93,8 @@ if ($this->showBuyNowBtn)
 		{
 		?>
 			<div class="control-group">
-				<label class="control-label"><strong><?php echo JText::_('QTC_ITEM_AMT')?></strong></label>
-				<div class="controls qtc_controls_text"><span id="<?php echo ((isset($this->price['discount_price'])) ? $this->product_id.'_price' :'');?>" >
+				<label class="control-label qtc-label-original_price"><strong><?php echo JText::_('QTC_ITEM_AMT')?></strong></label>
+				<div class="controls qtc_controls_text qtc-field-original_price"><span id="<?php echo ((isset($this->price['discount_price'])) ? $this->product_id.'_price' :'');?>" >
 				<?php //echo (($params->get('usedisc'))?((isset($this->price['discount_price']))  ? '<del>'.$this->price['price'].'</del>':$this->price['price']):$this->price);
 				$pprice = (($discount_present==1)  ? '<del>'.$comquick2cartHelper->getFromattedPrice($this->price['price']).'</del>':$comquick2cartHelper->getFromattedPrice($this->price['price']));
 					echo	$pprice;
@@ -103,8 +107,8 @@ if ($this->showBuyNowBtn)
 		{ ?>
 			<div class="control-group">
 
-				<label class="control-label"><strong><?php echo JText::_('QTC_ITEM_DIS_AMT')?></strong></label>
-				<div class="controls qtc_controls_text">
+				<label class="control-label qtc-label-discount_price"><strong><?php echo JText::_('QTC_ITEM_DIS_AMT')?></strong></label>
+				<div class="controls qtc_controls_text qtc-field-discount_price">
 					<span id="<?php echo $this->product_id;?>_price" >
 						<?php
 							echo	$comquick2cartHelper->getFromattedPrice($this->price['discount_price']);
@@ -122,7 +126,7 @@ if ($this->showBuyNowBtn)
 			foreach($this->attributes as $attribute)
 			{ ?>
 				<div class="control-group">
-					<label class="control-label "><strong><?php echo $attribute->itemattribute_name; ?></strong></label>
+					<label class="control-label qtc-label-attribute"><strong><?php echo $attribute->itemattribute_name; ?></strong></label>
 					<?php
 						$productHelper = new productHelper ;
 						$data['itemattribute_id'] = $attribute->itemattribute_id;
@@ -130,9 +134,14 @@ if ($this->showBuyNowBtn)
 						$data['parent'] = $parent;
 						$data['product_id'] = $pid;
 						$data['attribute_compulsary'] = $attribute->attribute_compulsary;
-						$fieldHtml = $productHelper->getAttrFieldTypeHtml($data);
+						$data['attributeDetail'] = $attribute;
+
+						//$fieldHtml = $productHelper->getAttrFieldTypeHtml($data);
+
+						$layout = new JLayoutFile('attribute_option_display', $basePath = JPATH_ROOT .'/components/com_quick2cart/layouts/productpage');
+						$fieldHtml = $layout->render($data);
 				?>
-				<div class="controls">
+				<div class="controls qtc-field-attribute" >
 					<?php  echo $fieldHtml;//JHtml::_('select.genericlist', $select_opt, 'attri_option', " id='$attribute->itemattribute_id' class='span2 {$this->product_id}_options'", 'value', 'text', '',false); ?>
 				</div>
 			</div>
@@ -146,8 +155,8 @@ if ($this->showBuyNowBtn)
 			$hideAtt = !empty($this->qtcExtraParam['hideAttributes']) ? 'qtc_hideEle' : '' ;
 		?>
 			<div class="control-group <?php echo $hideAtt ?>" >
-				<div class="control-label"><strong><?php echo JText::_("COM_QUICK2CART_PROD_FREE_DOWNLOAD"); ?>		</strong></div>
-				<div class="controls qtc_padding_class_attributes">
+				<div class="control-label qtc-label-free_download"><strong><?php echo JText::_("COM_QUICK2CART_PROD_FREE_DOWNLOAD"); ?>		</strong></div>
+				<div class="controls qtc_padding_class_attributes qtc-field-free_download">
 				<?php
 				$productHelper = new productHelper;
 
@@ -176,18 +185,24 @@ if ($this->showBuyNowBtn)
 		{
 			$showqty_style = "display:none;";
 		}
-
-		$textboxid=$this->product_id."_itemcount" ;
-		$limits=$min_qty .",".$max_qty ;
-		$arg = "'" . $textboxid . "','" . $pid . "','" . $parent . "','" . $slab . "'," . $limits;
-		$min_msg=JText::_('QTC_MIN_LIMIT_MSG');
-		$max_msg=JText::_('QTC_MAX_LIMIT_MSG');
-			?>
+		?>
 		<div class="control-group" style="<?php echo $showqty_style; ?>">
-			<label class="control-label" for="<?php echo $textboxid;?>"><strong><?php echo JText::_('QTC_ITEM_QTY'); ?></strong></label>
-			<div class="controls">
+			<label class="control-label qtc-label-itemcount"><strong><?php echo JText::_('QTC_ITEM_QTY'); ?></strong></label>
+			<div class="controls qtc-field-itemcount">
+			<?php
+				$textboxid=$this->product_id."_itemcount" ;
 
-			<input id="<?php echo $textboxid;?>" name="<?php echo $this->product_id;?>_itemcount" class="input input-mini qtc_count" type="text" value="<?php echo $min_qty;?>" size="2" maxlength="3" onblur="checkforalphaLimit(this,'<?php echo $pid;?>','<?php echo $parent;?>',<?php echo $slab;?>,<?php echo $limits;?>,'<?php echo $min_msg;?>','<?php echo $max_msg;?>');"  Onkeyup="checkforalpha(this,'',<?php echo $entered_numerics; ?>)">
+				if (is_numeric($stock) && $stock < $max_qty )
+				{
+					$max_qty = $stock;
+				}
+
+				$limits=$min_qty .",".$max_qty ;
+				$arg = "'" . $textboxid . "','" . $pid . "','" . $parent . "','" . $slab . "'," . $limits;
+				$min_msg=JText::_('QTC_MIN_LIMIT_MSG');
+				$max_msg=JText::_('QTC_MAX_LIMIT_MSG');
+			?>
+			<input id="<?php echo $textboxid;?>" name="<?php echo $this->product_id;?>_itemcount" class="input input-mini qtc_count" type="text" value="<?php echo $min_qty;?>"  maxlength="3" onblur="checkforalphaLimit(this,'<?php echo $pid;?>','<?php echo $parent;?>',<?php echo $slab;?>,<?php echo $limits;?>,'<?php echo $min_msg;?>','<?php echo $max_msg;?>');"  Onkeyup="checkforalpha(this,'',<?php echo $entered_numerics; ?>)">
 
 			<span class="qtc_itemcount" >
 				<input type="button" onclick="qtc_increment(<?php echo $arg;?>)"  class="qtc_icon-qtcplus">
@@ -220,7 +235,7 @@ if ($this->showBuyNowBtn)
 			<div class="cart-popup" id="<?php echo $this->product_id; ?>_popup" style="display: none;">
 				<div class="message"></div>
 				<div class="cart_link"><a class="btn btn-success" href="<?php echo $action_link; ?>"><?php echo JText::_('COM_QUICK2CART_VIEW_CART')?></a></div>
-				<i class="icon-remove cart-popup_close" onclick="techjoomla.jQuery(this).parent().slideUp().hide();"></i>
+				<i class="<?php echo QTC_ICON_REMOVE; ?> cart-popup_close" onclick="techjoomla.jQuery(this).parent().slideUp().hide();"></i>
 
 			</div>
 			<?php
@@ -235,7 +250,7 @@ else
 {
 ?>
 	<div class="<?php echo Q2C_WRAPPER_CLASS; ?>" >
-		<div class="alert">
+		<div class="alert alert-warning">
 		  <button type="button" class="close" data-dismiss="alert"></button>
 		  <strong><?php echo JText::_('QTC_WARNING'); ?></strong><?php echo JText::_('QTC_OUT_OF_STOCK_MSG'); ?>
 		</div>

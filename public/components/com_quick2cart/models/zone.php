@@ -186,7 +186,7 @@ class Quick2cartModelZone extends JModelAdmin
 	{
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
-		$query->select('id as region_id', 'region');
+		$query->select('id as region_id, region');
 		$query->from('#__tj_region');
 		$query->where('country_id='.$db->quote($country_id));
 		$query->order('region ASC');

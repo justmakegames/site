@@ -673,12 +673,13 @@ function updateCartItemsAttribute(cart_item_id, item_id)
 			if (ret.status)
 			{
 				//alert(Joomla.JText._('COM_QUICK2CART_CHECKOUT_ITEM_UPDTATED_SUCCESS'));
+				window.location.reload();
 			}
 			else
 			{
-				//alert(Joomla.JText._('COM_QUICK2CART_CHECKOUT_ITEM_UPDTATED_FAIL') + ' - ' + ret.message);
+				alert(Joomla.JText._('COM_QUICK2CART_CHECKOUT_ITEM_UPDTATED_FAIL') + "( " + ret.message + " )");
+				/* + ' - ' + ret.message); */
 			}
-			window.location.reload();
 		},
 		error : function (e)
 		{
@@ -834,13 +835,26 @@ function qtcHideAndShowNextButton()
 	var activeTabId = techjoomla.jQuery("#qtc-steps li[class='active']").attr("id");
 	if (activeTabId == "qtc_billing")
 	{
-		if (techjoomla.jQuery('#qtc_ckout_billing-info').is(':visible'))
+		/* When user using guest checkout */
+		if (techjoomla.jQuery('#button-user-info').length > 0)
 		{
-			techjoomla.jQuery(".ad-form #btnWizardNext").show();
-		}
-		else
-		{
-			techjoomla.jQuery(".ad-form #btnWizardNext").hide();
+			/* For guest checkout to hide billing tab or registration tab */
+			if (techjoomla.jQuery('#qtc_ckout_billing-info').is(':visible'))
+			{
+				techjoomla.jQuery(".ad-form #btnWizardNext").show();
+			}
+			else
+			{
+				/* If order has been placed then don't hide */
+				if (techjoomla.jQuery('#order_id').val())
+				{
+					techjoomla.jQuery(".ad-form #btnWizardNext").show();
+				}
+				else
+				{
+					techjoomla.jQuery(".ad-form #btnWizardNext").hide();
+				}
+			}
 		}
 	}
 	else if (activeTabId == "qtc_cartDetails")
@@ -858,3 +872,108 @@ function QttPinArrange(random_containerId, columnWidth, itemSelector, pin_paddin
 		gutter: pin_padding});
 }
 
+/** function to delete stored options on ajax **/
+function deleteOption(optionId,q2coptremovebuttonId)
+{
+	var confirmdelete = confirm("Do you want to delete this attribute option?");
+
+	if( confirmdelete == false )
+	{
+		return false;
+	}
+
+	var deleteclass = "q2cattributeoption"+optionId;
+	var optionId = "&optionid=" + optionId;
+	var url = "?option=com_quick2cart&task=globalattribute.deleteoption"+optionId;
+	techjoomla.jQuery.ajax({
+			type: "get",
+			url:url,
+			async:false,
+			success: function(response)
+			{
+				var message = JSON.parse(response);
+
+				if(message[0].error)
+				{
+					alert(message[0].error);
+				}
+				else
+				{
+					techjoomla.jQuery("#"+q2coptremovebuttonId).parent().parent().remove();
+					if (!techjoomla.jquery("#qtcoptionclone").length)
+					{
+						techjoomla.jquery('#qtcoptionheading').remove();
+					}
+				}
+			},
+			error: function(response)
+			{
+				alert("error");
+				console.log(' ERROR!!' );
+				return e.preventDefault();
+			}
+		});
+}
+
+/** function to check pincode availability on ajax **/
+function checkPincode(item_id)
+{
+	var delivert_pincode = techjoomla.jQuery("#pincode").val()
+
+	if (delivert_pincode == '')
+	{
+		alert('Enter pincode');
+		return false;
+	}
+
+	var phoneno = /^\d*$/;
+	if(!delivert_pincode.match(phoneno))
+	{
+		alert("Pincode must be numeric");
+		return false;
+	}
+
+	var url = "?option=com_quick2cart&task=shipping.checkDeliveryAvailability&item_id="+item_id+"&delivery_pincode="+delivert_pincode;
+	techjoomla.jQuery.ajax({
+			type: "get",
+			url:url,
+			//beforeSend: function(){
+			/*code to append loading image mean while data is recived from ajax method*/
+			//techjoomla.jQuery( "<center><img id='loadimg' src='http://blog.teamtreehouse.com/wp-content/uploads/2015/05/InternetSlowdown_Day.gif'></img></center>" ).appendTo( ".availabilitystatus" );
+			//},
+			success: function(response)
+			{
+				response = JSON.parse(response);
+
+				techjoomla.jQuery('.availabilitystatus').empty();
+				if (response.priority == 1)
+				{
+					techjoomla.jQuery('.availabilitystatus').append('<p>priority Available</p>');
+				}
+
+				if (response.standard == 1)
+				{
+					techjoomla.jQuery('.availabilitystatus').append('<p>standard Available</p>');
+				}
+
+				if (response.economy == 1)
+				{
+					techjoomla.jQuery('.availabilitystatus').append('<p>economy Available</p>');
+				}
+
+				if (response == "")
+				{
+					techjoomla.jQuery('.availabilitystatus').empty();
+					techjoomla.jQuery('.availabilitystatus').append('<p>Not Available</p>');
+				}
+
+				//techjoomla.jQuery('#loadimg').hide();
+			},
+			error: function(response)
+			{
+				alert("error");
+				console.log(' ERROR!!' );
+				return e.preventDefault();
+			}
+		});
+}

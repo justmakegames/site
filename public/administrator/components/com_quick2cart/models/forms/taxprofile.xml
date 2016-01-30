@@ -13,9 +13,11 @@
 
 		<field name="store_id" type="taxprofilestorelist"
 			class=""
+			id="jform_store_id"
 			label="COM_QUICK2CART_FORM_LBL_PROFILE_STORE_ID"
 			description="COM_QUICK2CART_FORM_DESC_PROFILESTORE_ID"
-			default="0" filter="safehtml" />
+			default="0"
+			required="true" filter="safehtml" />
 
 		<field name="state" type="list"
 			label="JSTATUS"

@@ -34,7 +34,9 @@ class Quick2cartController extends JControllerLegacy
 		$model->empty_cart();
 		if (! (isset($remote)))
 		{
+			//@TODO may need the configuration or redirect to itemid menu link
 			echo JUri::root();
+
 			// Echo 'cleared the Cart!!';
 			jexit();
 		}

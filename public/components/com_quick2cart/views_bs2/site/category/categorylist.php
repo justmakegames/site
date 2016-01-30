@@ -93,7 +93,7 @@ $catItemid = $comquick2cartHelper->getitemid('index.php?option=com_quick2cart&' 
 <div class="row-fluid qtc_category_list <?php echo $classes;?>" style="<?php echo $scroll_style;?>">
 	<div class="span12">
 		<div class="tj-list-group">
-			<strong class="tj-list-group-item"><?php echo JText::_('QTC_PROD_SEL_CAT_HEADER');?></strong>
+			<strong class="tj-list-group-item"><?php echo  !empty($catListHeader) ? $catListHeader : JText::_('QTC_PROD_SEL_CAT_HEADER'); ?></strong>
 
 			<?php
 			$selectedcat = $input->get($qtc_catname, 0, 'INTEGER');

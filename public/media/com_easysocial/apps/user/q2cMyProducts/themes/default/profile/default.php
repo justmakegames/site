@@ -63,28 +63,37 @@ if ($storelists)
 			<?php $random_container = 'q2c_pc_es_app_my_products';?>
 			<div id="q2c_pc_es_app_my_products">
 				<?php
+				$Fixed_pin_classes = "";
+
+				if ($layout_to_load == "fixed_layout")
+				{
+					if ($currentBSViews == 'bs3')
+					{
+						$Fixed_pin_classes = " qtc-prod-pin col-xs-" . $pin_for_xs . " col-sm-" . $pin_for_sm . " col-md-" . $pin_for_md. " col-lg-" . $pin_for_lg . " ";
+					}
+					else
+					{
+						$Fixed_pin_classes = " qtc-prod-pin span" . $pin_for_lg . " ";
+					}
+				}
+
 				foreach ($products as $data)
 				{
+				?>
+					<div class='q2c_pin_item_<?php echo $random_container.$Fixed_pin_classes;?>'>
+				<?php
 					$path = JPATH_SITE . DS . 'components' . DS . 'com_quick2cart' . DS . 'views' . DS . 'product' . DS . 'tmpl' . DS . 'product.php';
 					ob_start();
 					include $path;
 					$html = ob_get_contents();
 					ob_end_clean();
 					echo $html;
+				?>
+					</div>
+				<?php
 				}
 				?>
 			</div>
-
-			<?php
-				if ($productsCount > $total):
-					$storeHelper = new storeHelper;
-					$storeLink = $storeHelper->getStoreLink($firstStore);
-
-			?>
-				<div class="pull-right">
-					<a href="<?php echo $storeLink; ?>"><?php echo JText::_('APP_Q2CMYPRODUCTS_SHOW_ALL') . " (" . $productsCount . ")";?></a>
-				</div>
-			<?php endif; ?>
 
 		<?php else: ?>
 			<div class="empty">
@@ -93,13 +102,26 @@ if ($storelists)
 			</div>
 		<?php endif; ?>
 	</div>
+	<?php
+		if ($productsCount > $total):
+			$storeHelper = new storeHelper;
+			$storeLink = $storeHelper->getStoreLink($firstStore);
+
+	?>
+		<div class="pull-right">
+			<a href="<?php echo $storeLink; ?>"><?php echo JText::_('APP_Q2CMYPRODUCTS_SHOW_ALL') . " (" . $productsCount . ")";?></a>
+		</div>
+	<?php endif; ?>
 </div>
 
 <?php
 // Calulate columnWidth (columnWidth = pin_width+pin_padding)
 $columnWidth = $pin_width + $pin_padding;
 ?>
-
+<?php
+	if ($layout_to_load == "flexible_layout")
+	{
+?>
 <style type="text/css">
 	.q2c_pin_item_<?php echo $random_container;?> { width: <?php echo $pin_width . 'px'; ?> !important; }
 </style>
@@ -192,3 +214,6 @@ $columnWidth = $pin_width + $pin_padding;
 		});
 	});
 </script>
+<?php
+	}
+?>

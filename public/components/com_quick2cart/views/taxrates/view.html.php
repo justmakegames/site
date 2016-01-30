@@ -136,7 +136,7 @@ class Quick2cartViewTaxrates extends JViewLegacy
 
 		if ($canDo->get('core.create'))
 		{
-			$tjbar->appendButton('taxrates.add', 'TJTOOLBAR_NEW', '', 'btn btn-small btn-success');
+			$tjbar->appendButton('taxrates.add', 'TJTOOLBAR_NEW', '', 'class="btn btn-small btn-success"');
 		}
 
 		/*if ($canDo->get('core.edit') && isset($this->items[0]))
@@ -148,8 +148,8 @@ class Quick2cartViewTaxrates extends JViewLegacy
 		{
 			if (isset($this->items[0]->state))
 			{
-				$tjbar->appendButton('taxrates.publish', 'TJTOOLBAR_PUBLISH', '', 'btn btn-small btn-success');
-				$tjbar->appendButton('taxrates.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'btn btn-small btn-warning');
+				$tjbar->appendButton('taxrates.publish', 'TJTOOLBAR_PUBLISH', '', 'class="btn btn-small btn-success"');
+				$tjbar->appendButton('taxrates.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'class="btn btn-small btn-warning"');
 			}
 		}
 
@@ -157,7 +157,7 @@ class Quick2cartViewTaxrates extends JViewLegacy
 		{
 			if (isset($this->items[0]))
 			{
-				$tjbar->appendButton('taxrates.delete', 'TJTOOLBAR_DELETE', '', 'btn btn-small btn-danger');
+				$tjbar->appendButton('taxrates.delete', 'TJTOOLBAR_DELETE', '', 'class="btn btn-small btn-danger"');
 			}
 		}
 

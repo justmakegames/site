@@ -20,6 +20,15 @@ defined('_JEXEC') or die();
 class StoreHelper
 {
 	/**
+	 * Constructor
+	 *
+	 * @since   2.2
+	 */
+	public function __construct()
+	{
+		$this->comquick2cartHelper = new comquick2cartHelper;
+	}
+	/**
 	 * Search in 2d array
 	 *
 	 * @param   integer  $needle     search key
@@ -1101,5 +1110,48 @@ class StoreHelper
 		$db->setQuery($query);
 
 		return $db->loadAssoc();
+	}
+
+	/**
+	 * Get Store details
+	 *
+	 * @param   integer  $storeId  Store id.
+	 *
+	 * @return   store info
+	 *
+	 * @since   2.5
+	 */
+	public function getStoreDetail($storeId)
+	{
+		$db = JFactory::getDBO();
+		$query = $db->getQuery(true);
+		$query->select("*")
+		->from('#__kart_store')
+		->WHERE('id = '.$storeId);
+		$db->setQuery($query);
+		$data =  $db->loadAssoc();
+
+		return $data;
+	}
+
+	/**
+	 * Get default store image. Check for custom image if exist then use other wise use default.
+	 *
+	 * @return   store info
+	 *
+	 * @since   2.5
+	 */
+	public function getDefaultStoreImage()
+	{
+		$customDefStoreImg_path = JPATH_SITE . '/components/com_quick2cart/assets/images/custom_default_store_image.png';
+
+		if (JFile::exists($customDefStoreImg_path))
+		{
+			return JUri::root() . 'components/com_quick2cart/assets/images/custom_default_store_image.png';
+		}
+		else
+		{
+			return $img = JUri::root() . 'components/com_quick2cart/assets/images/default_store_image.png';
+		}
 	}
 }

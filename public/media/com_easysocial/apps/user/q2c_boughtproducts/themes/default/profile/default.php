@@ -56,14 +56,34 @@ comquick2cartHelper::loadQuicartAssetFiles();
 			<?php $random_container = 'q2c_es_app_boughtproducts';?>
 			<div id="q2c_es_app_boughtproducts">
 				<?php
+				$Fixed_pin_classes = "";
+
+				if ($layout_to_load == "fixed_layout")
+				{
+					if ($currentBSViews == 'bs3')
+					{
+						$Fixed_pin_classes = " qtc-prod-pin col-xs-" . $pin_for_xs . " col-sm-" . $pin_for_sm . " col-md-" . $pin_for_md. " col-lg-" . $pin_for_lg . " ";
+					}
+					else
+					{
+						$Fixed_pin_classes = " qtc-prod-pin span" . $pin_for_lg . " ";
+					}
+				}
+
 				foreach($target_data as $data)
 				{
+				?>
+					<div class='q2c_pin_item_<?php echo $random_container.$Fixed_pin_classes;?>'>
+					<?php
 					$path = JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'views'.DS.'product'.DS.'tmpl'.DS.'product.php';
 					ob_start();
 					include($path);
 					$html= ob_get_contents();
 					ob_end_clean();
 					echo $html;
+					?>
+					</div>
+				<?php
 				}
 				?>
 			</div>
@@ -79,7 +99,10 @@ $random_container = 'q2c_es_app_boughtproducts';
 // Calulate columnWidth (columnWidth = pin_width+pin_padding)
 $columnWidth = $pin_width + $pin_padding;
 ?>
-
+<?php
+	if ($layout_to_load == "flexible_layout")
+	{
+?>
 <style type="text/css">
 	.q2c_pin_item_<?php echo $random_container;?> { width: <?php echo $pin_width . 'px'; ?> !important; }
 </style>
@@ -133,3 +156,6 @@ $columnWidth = $pin_width + $pin_padding;
 		}, 6000);
 	}
 </script>
+<?php
+	}
+?>

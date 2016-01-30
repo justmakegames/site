@@ -24,11 +24,12 @@ defined('_JEXEC') or die();
 	if ($isTaxationEnabled)
 	{	?>
 		<div class="form-group">
-			<label class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" for="qtcTaxprofileSel">
+			<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtcTaxprofileSel">
 				<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_TAXPROFILE_DESC_TOOLTIP'), JText::_('COM_QUICK2CART_TAXPROFILE_DESC'), '', JText::_('COM_QUICK2CART_TAXPROFILE_DESC'));?>
 			</label>
-			<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12 taxprofile">
+			<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 taxprofile">
 			</div>
+			<div class="clearfix"></div>
 		</div>
 	<?php
 	} 	?>
@@ -37,10 +38,10 @@ defined('_JEXEC') or die();
 	{
 	?>
 	<div class='form-group ' style="<?php echo $qtc_shipping_opt_style;?>">
-		<label class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" for="qtc_item_length">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtc_item_length">
 			<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_PROD_DIMENSION_LENGTH_LABEL_TOOLTIP'), JText::_('COM_QUICK2CART_PROD_DIMENSION_LENGTH_LABEL'), '', JText::_('COM_QUICK2CART_PROD_DIMENSION_LENGTH_LABEL'));?>
 		</label>
-		<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12 form-inline">
+		<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 form-inline">
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<input type="text" class=" form-control " Onkeyup='checkforalpha(this,46,<?php echo $entered_numerics; ?>);' name='qtc_item_length' id='qtc_item_length' value='<?php echo (!empty($minmaxstock->item_length)) ?  number_format($minmaxstock->item_length, 2) : '' ?>' placeholder="<?php echo JText::_('COM_QUICK2CART_LENGTH_HINT') ?>" />
@@ -79,6 +80,7 @@ defined('_JEXEC') or die();
 				</div>
 			</div>
 		</div>
+		<div class="clearfix"></div>
 	</div>
 
 
@@ -101,12 +103,12 @@ defined('_JEXEC') or die();
 	$weightUniteDetail = $storeHelper->getProductWeightDetail($weightUniteId);
 	?>
 	<div class='form-group ' style="<?php echo $qtc_shipping_opt_style;?>">
-		<label class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" for="qtc_item_weight">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtc_item_weight">
 			<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_PROD_DIMENSION_WEIGTH_LABEL_TOOLTIP'), JText::_('COM_QUICK2CART_PROD_DIMENSION_WEIGTH_LABEL'), '', JText::_('COM_QUICK2CART_PROD_DIMENSION_WEIGTH_LABEL'));?>
 		</label>
-		<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12 form-inline">
+		<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 form-inline">
 			<div class="input-group ">
-				<input type="text" class=" " Onkeyup='checkforalpha(this,46,<?php echo $entered_numerics; ?>);' name='qtc_item_weight' id='qtc_item_weight' alue='<?php if (isset($minmaxstock)) echo number_format($minmaxstock->item_weight, 2);?>' />
+				<input type="text" class=" " Onkeyup='checkforalpha(this,46,<?php echo $entered_numerics; ?>);' name='qtc_item_weight' id='qtc_item_weight' value='<?php if (isset($minmaxstock)) echo number_format($minmaxstock->item_weight, 2);?>' />
 
 					<div class="input-group-addon"><?php echo $weightUniteDetail['title']; ?>
 						<input type='hidden' name="weigth_class_id" value="<?php echo $weightUniteDetail['id']; ?>"/>
@@ -115,15 +117,16 @@ defined('_JEXEC') or die();
 			</div>
 
 		</div>
+		<div class="clearfix"></div>
 	</div>
 
 	<!-- weight unit-->
 <!--
 	<div class='form-group qtc_item_weight' style="<?php echo $qtc_shipping_opt_style;?>">
-		<label class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" for="qtc_item_weight">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtc_item_weight">
 			<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_PROD_DIMENSION_WEIGTH_LABEL_TOOLTIP'), JText::_('COM_QUICK2CART_PROD_DIMENSION_WEIGTH_LABEL'), '', JText::_('COM_QUICK2CART_PROD_DIMENSION_WEIGTH_LABEL'));?>
 		</label>
-		<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+		<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 			<div class="input-group">
 				<input type="text" class=" " Onkeyup='checkforalpha(this,46,<?php echo $entered_numerics; ?>);' name='qtc_item_weight' id="qtc_item_weight" value='<?php if (isset($minmaxstock)) echo number_format($minmaxstock->item_weight, 2);?>' />
 					<div class="input-group-addon"><?php echo $weightUniteDetail['title']; ?>
@@ -136,11 +139,11 @@ defined('_JEXEC') or die();
 	<!-- END for Legth & weigth class option -->
 	<!-- Shipping Profile-->
 	<div class="form-group">
-		<label class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label" for="qtc_shipProfileSelList">
+		<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtc_shipProfileSelList">
 			<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_S_SEL_SHIPPROFILE_TOOLTIP'), JText::_('COM_QUICK2CART_S_SEL_SHIPPROFILE'), '', JText::_('COM_QUICK2CART_S_SEL_SHIPPROFILE'));?>
 		</label>
 
-		<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12 qtc_shipProfileList">
+		<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 qtc_shipProfileList">
 			<span id="qtc_shipProfileSelListWrapper">
 			<?php
 				// Here default_store_id - before saving the item, value =first store id
@@ -152,12 +155,10 @@ defined('_JEXEC') or die();
 			?>
 			</span>
 		</div>
+		<div class="clearfix"></div>
 	</div>
-
 	<?php
 	}
 	?>
-
-
 </div>
 

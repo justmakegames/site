@@ -83,6 +83,7 @@ $totalamount = 0;
 				return false;
 			}
 		}
+
 		<?php
 		if (!$orders_site)
 		{
@@ -94,6 +95,7 @@ $totalamount = 0;
 			<?php
 		}
 		?>
+		Joomla.submitform(task);
 	}
 
 	function changeOrderStatus(orderid,elemId)
@@ -191,29 +193,29 @@ $totalamount = 0;
 		?>
 
 		<div class="row-fluid">
-			<div id="filter-bar" class="btn-toolbar">
+			<div id="qtc-filter-bar" class="qtc-btn-toolbar">
 				<div class="filter-search btn-group pull-left">
 					<input type="text" name="filter_search" id="filter_search"
 					placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_ORDERS'); ?>"
 					value="<?php echo $this->lists['filter_search']; ?>"
-					class="hasTooltip input-medium"
+					class="qtc-hasTooltip input-medium"
 					title="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_ORDERS'); ?>" />
 				</div>
 
-				<div class="btn-group pull-left">
-					<button type="submit" class="btn hasTooltip"
+				<div class="qtc-btn-group pull-left">
+					<button type="submit" class="btn qtc-hasTooltip"
 					title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-						<i class="icon-search"></i>
+						<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 					</button>
-					<button type="button" class="btn hasTooltip"
+					<button type="button" class="btn qtc-hasTooltip"
 					title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 					onclick="document.id('filter_search').value='';this.form.submit();">
-						<i class="icon-remove"></i>
+						<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 					</button>
 				</div>
 
 				<?php if (JVERSION >= '3.0') : ?>
-				<div class="btn-group pull-right btn-wrapper">
+				<div class="qtc-btn-group pull-right btn-wrapper">
 <!--
 					<label for="limit" class="element-invisible">
 						<?php echo JText::_('JFIELD_PLG_SEARCH_SEARCHLIMIT_DESC'); ?>
@@ -223,9 +225,9 @@ $totalamount = 0;
 				</div>
 				<?php endif; ?>
 
-				<div class="btn-group pull-right btn-wrapper">
+				<div class="qtc-btn-group pull-right btn-wrapper">
 					<?php
-					echo JHtml::_('select.genericlist', $this->sstatus, "search_select", 'class="ad-status input-medium" size="1" onchange="document.adminForm.submit();" name="search_select"',"value", "text", $this->lists['search_select']);
+					echo JHtml::_('select.genericlist', $this->sstatus, "search_select", 'class="ad-status input-medium"  onchange="document.adminForm.submit();" name="search_select"',"value", "text", $this->lists['search_select']);
 					?>
 				</div>
 
@@ -319,6 +321,7 @@ $totalamount = 0;
 
 						foreach ($result as $orders)
 						{
+							 $order_currency = !empty($orders->currency) ? $orders->currency : '';
 							// Added by aniket for task id #15931
 							// CODE START FOR ORDER STATUS || STATUS SELECT BOX START
 							$whichever = '';
@@ -339,12 +342,12 @@ $totalamount = 0;
 
 								case 'RF':
 									$whichever = JText::_('QTC_REFUN') ;
-									$row_color = "";
+									$row_color = "danger";
 								break;
 
 								case 'S':
 									$whichever = JText::_('QTC_SHIP') ;
-									$row_color = "info";
+									$row_color = "success";
 								break;
 
 								case 'E':
@@ -460,7 +463,8 @@ $totalamount = 0;
 												name = "add_note_chk|<?php echo $orders->id;?>"
 												size= "10"
 												onclick="showHideNoteTextarea(this,<?php echo $orders->id;?>)" />
-											</span>
+
+											</span> &nbsp;
 											<span class="pull-left">
 												<label class="radio inline" for="notify_chk_<?php echo $orders->id;?>">
 													<?php echo JText::_('QTC_ORDER_SEND_MAIL');?>:
@@ -478,7 +482,7 @@ $totalamount = 0;
 									// Admin side
 									if (!($orders_site))
 									{
-										echo JHtml::_('select.genericlist', $this->pstatus, "pstatus", 'class="pad_status input-medium pull-left" size="1"', "value", "text", $orders->status, 'pstatus' . $orders->id);
+										echo JHtml::_('select.genericlist', $this->pstatus, "pstatus", 'class="pad_status input-medium pull-left" ', "value", "text", $orders->status, 'pstatus' . $orders->id);
 									}
 									else if(!empty($this->storeReleatedView))
 									{
@@ -490,7 +494,7 @@ $totalamount = 0;
 											unset($temp_vendorstatus[0]);
 										}
 
-										echo JHtml::_('select.genericlist', $temp_vendorstatus, "vendor_orderItemStatus", 'class="pad_status input-small pull-left" size="1" ;" autocomplete="off"', "value", "text", $orders->status, 'pstatus' . $orders->id);
+										echo "&nbsp;" . JHtml::_('select.genericlist', $temp_vendorstatus, "vendor_orderItemStatus", 'class="pad_status input-small pull-left"  ;" autocomplete="off"', "value", "text", $orders->status, 'pstatus' . $orders->id);
 									}
 									else
 									{
@@ -564,7 +568,6 @@ $totalamount = 0;
 										$this->comquick2cartHelper = new comquick2cartHelper;
 										 echo $this->comquick2cartHelper->getFromattedPrice($amount, $orders->currency);?>
 									</span>
-
 									<?php
 									if (!empty($this->storeReleatedView))
 									{
@@ -613,7 +616,7 @@ $totalamount = 0;
 								<td ><b><?php echo JText::_('QTC_PRODUCT_TOTAL'); ?></b></td>
 								<td data-title="<?php echo JText::_('QTC_PRODUCT_TOTAL');?>">
 									<span>
-										<b><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($totalamount, 2));?></b>
+										<b><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($totalamount, 2), $order_currency);?></b>
 									</span>
 								</td>
 							</tr>
@@ -632,7 +635,7 @@ $totalamount = 0;
 									<td align="center"><strong><?php echo sprintf(JText::_('QTC_COMMISSION_CUT_SUB_TOT'),'('.$commission.'%)'); ?> </strong></td>
 									<td data-title="<?php echo JText::_('QTC_COMMISSION_CUT_SUB_TOT');?>">
 										<span>
-											<b><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($commissionApplied,2));?></b>
+											<b><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($commissionApplied,2), $order_currency);?></b>
 										</span>
 									</td>
 								</tr>
@@ -642,7 +645,7 @@ $totalamount = 0;
 									<td align="center"><strong><?php echo JText::_('QTC_TOTAL'); ?> </strong></td>
 									<td data-title="<?php echo JText::_('QTC_COMMISSION_CUT_SUB_TOT');?>">
 										<span>
-											<b><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($commissionCutTprice, 2));?></b>
+											<b><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($commissionCutTprice, 2), $order_currency);?></b>
 										</span>
 									</td>
 								</tr>

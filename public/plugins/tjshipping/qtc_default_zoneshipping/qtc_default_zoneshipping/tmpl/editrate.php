@@ -148,15 +148,16 @@ function qtcUpdateShipMethRates()
 					</td>
 
 					<?php
+
 					if ($shipMethDetail['shipping_type'] !=3)
 					{
 					?>
 					<td>
-						<input id="qtc_shipping_range_start" class="input-mini" name="rangeFrom" value="<?php echo !empty($shipFormData['rateDetail']['rangeFrom']) ? $shipFormData['rateDetail']['rangeFrom'] : '';?>" size="8" />
+						<input type="text" id="qtc_shipping_range_start" class="input-mini" name="rangeFrom" value="<?php echo isset($shipFormData['rateDetail']['rangeFrom']) ? $shipFormData['rateDetail']['rangeFrom'] : '';?>" size="8" />
 						<br/>
 						<?php echo JText::_("PLG_QTC_DEFAULT_ZONESHIPPING_TO"); ?>
 						<br/>
-						<input id="qtc_shipping_range_end" class="input-mini" name="rangeTo" value="<?php echo !empty($shipFormData['rateDetail']['rangeTo']) ? $shipFormData['rateDetail']['rangeTo'] : '';?>" size="8" />
+						<input type="text" id="qtc_shipping_range_end" class="input-mini" name="rangeTo" value="<?php echo isset($shipFormData['rateDetail']['rangeTo']) ? $shipFormData['rateDetail']['rangeTo'] : '';?>" size="8" />
 					</td>
 
 					<?php

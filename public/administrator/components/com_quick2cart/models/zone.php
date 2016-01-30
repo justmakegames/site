@@ -184,7 +184,6 @@ class Quick2cartModelZone extends JModelAdmin
 	{
 		$db = $this->getDbo();
 		$data = $db->loadObjectList();
-		//print"<pre>"; print_r($data);
 		require_once JPATH_SITE . '/components/com_tjfields/helpers/geo.php';
 		$tjGeoHelper = TjGeoHelper::getInstance('TjGeoHelper');
 		$rows = $tjGeoHelper->getRegionList($country_id, 'com_quick2cart');

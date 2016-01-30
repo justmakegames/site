@@ -104,7 +104,7 @@ JHtml::_('behavior.modal');
 							var q="'";
 
 							var editLink = '<a rel="{handler:\'iframe\',size:{x: window.innerWidth-450, y: window.innerHeight-150}}"'+' href="index.php?option=com_quick2cart&view=taxprofile&layout=setrule&id='+taxrule_id+'&tmpl=component" class="modal"> <input type="button" value="<?php echo JText::_('COM_QUICK2CART_ZONERULE_EDIT'); ?>" class="btn btn-primary"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-							var delLink = '<input onclick="qtcDeleteZoneRule('+
+							var delLink = '<input onclick="qtcDeleteProfileRule('+
 										taxrule_id+',this);" class="btn btn-danger" type="button" value="<?php echo JText::_('COM_QUICK2CART_ZONERULE_DELETE'); ?>">';
 							//alert(links);
 							var result='<tr><td></td><td id="qtc_taxrate_'+taxrule_id+'">'+taxrate+'</td><td id="qtc_address_'+taxrule_id+'">'+address+'</td><td>' + editLink + delLink + '</td></tr>';
@@ -161,7 +161,12 @@ JHtml::_('behavior.modal');
 						?>
 						<div class="control-group">
 							<div class="control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
-							<div class="controls"><?php echo ucfirst($this->storeDetails['title']); ?></div>
+							<div class="controls">
+								<?php echo ucfirst($this->storeDetails['title']); ?>
+								<span style="display:none;">
+								<?php echo $this->form->getInput('store_id'); ?>
+								</span>
+							</div>
 						</div>
 						<?php
 					}?>

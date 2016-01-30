@@ -90,6 +90,8 @@ class TjStrapper
 
 	public static $force_js_load    = 1;
 
+	public static $loadBsRelatedFiles    = 1;
+
 	/**
 	 * Intialize class vars.
 	 *
@@ -111,6 +113,7 @@ class TjStrapper
 			self::$fix_js           = $pluginParams->get('fix_js');
 			self::$headtag_position = $pluginParams->get('headtag_position');
 			self::$force_js_load    = $pluginParams->get('force_js_load');
+			self::$loadBsRelatedFiles    = $pluginParams->get('loadBsRelatedFiles');
 		}
 
 		jimport('joomla.filesystem.file');
@@ -557,7 +560,7 @@ class TjStrapper
 					if (method_exists($TmtFrontendHelper, "getTmtJsFiles"))
 					{
 						// Add component specific js file in provided array.
-						$TmtFrontendHelper->getTmtJsFiles($jsFilesArray);
+						$TmtFrontendHelper->getTmtJsFiles($jsFilesArray, self::$firstThingsScriptDeclaration);
 					}
 				}
 			}
@@ -587,19 +590,28 @@ class TjStrapper
 	 * This function to load class.
 	 *
 	 * @param   string  $path       Path of file.
-	 * @param   string  $classname  Class Name to load.
+	 * @param   string  $className  Class Name to load.
 	 *
 	 * @return  Object of provided class.
 	 */
-	public static function TjloadClass($path, $classname)
+	public static function TjloadClass($path, $className)
 	{
-		if (!class_exists($classname))
+		if (!class_exists($className))
 		{
-			JLoader::register($classname, $path);
-			JLoader::load($classname);
+			JLoader::register($className, $path);
+			JLoader::load($className);
 		}
 
-		return new $classname;
+		if (class_exists($className))
+		{
+			return new $className;
+		}
+		else
+		{
+			throw new RuntimeException(sprintf('Unable to load class: %s', $className));
+
+			// JFactory::getApplication()->enqueueMessage(sprintf('Unable to load class: %s, $className), 'error');
+		}
 	}
 
 	/**
@@ -672,6 +684,7 @@ class TjStrapper
 		$option = $input->get('option', '', 'string');
 
 		$loadCssFlag = 1;
+		$loadBootstrap = 1;
 		$cssFiles    = array();
 
 		// Admin side loading
@@ -686,17 +699,21 @@ class TjStrapper
 
 		if ($loadCssFlag)
 		{
-			if (JVERSION < '3.0')
+			if (self::$loadBsRelatedFiles)
 			{
-				$cssFiles[] = 'media/techjoomla_strapper/css/bootstrap.min.css';
-				$cssFiles[] = 'media/techjoomla_strapper/css/bootstrap-responsive.min.css';
-			}
-			else
-			{
-				$cssFiles[] = 'media/techjoomla_strapper/css/bootstrap.j3.min.css';
-			}
+				if (JVERSION < '3.0')
+				{
+					$cssFiles[] = 'media/techjoomla_strapper/css/bootstrap.min.css';
+					$cssFiles[] = 'media/techjoomla_strapper/css/bootstrap-responsive.min.css';
+				}
+				else
+				{
+					// For BS2.x, overriders for Joomla 3.x
+					$cssFiles[] = 'media/techjoomla_strapper/css/bootstrap.j3.min.css';
+				}
 
-			$cssFiles[] = 'media/techjoomla_strapper/css/strapper.min.css';
+				$cssFiles[] = 'media/techjoomla_strapper/css/strapper.min.css';
+			}
 
 			if (self::$load_com_tjlms_assets)
 			{
@@ -709,6 +726,21 @@ class TjStrapper
 					{
 						// Add component specific css file in provided array.
 						$ComtjlmsHelper->getTjlmsCssFiles($cssFiles);
+					}
+				}
+			}
+
+			if (self::$load_com_tmt_assets)
+			{
+				if (self::$com_tmt_installed == 1)
+				{
+					$path           = JPATH_SITE . "/components/com_tmt/helper.php";
+					$TmtFrontendHelper = self::TjloadClass($path, 'TmtFrontendHelper');
+
+					if (method_exists($TmtFrontendHelper, "getTmtCssFiles"))
+					{
+						// Add component specific css file in provided array.
+						$TmtFrontendHelper->getTmtCssFiles($cssFiles);
 					}
 				}
 			}

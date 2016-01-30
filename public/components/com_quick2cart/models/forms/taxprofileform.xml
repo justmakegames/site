@@ -13,23 +13,23 @@
 			required="true"
 			filter="safehtml" />
 
-		<field name="store_id" type="taxprofilestorelist"  class=""
+		<field name="store_id" type="taxprofilestorelist"  class="" id="jform_store_id"
 			label="COM_QUICK2CART_FORM_LBL_PROFILE_STORE_ID"
 			description="COM_QUICK2CART_FORM_DESC_PROFILESTORE_ID"
-		 default="0"
+		 default="0" required="true"
 		filter="safehtml" />
 
 		 <field
-		name="state"
-		type="list"
-		label="JSTATUS"
-		description="JFIELD_PUBLISHED_DESC"
-		class="inputbox"
-		size="1"
-		default="1">
-		<option value="1">JPUBLISHED</option>
-		<option value="0">JUNPUBLISHED</option>
-	</field>
+			name="state"
+			type="list"
+			label="JSTATUS"
+			description="JFIELD_PUBLISHED_DESC"
+			class="inputbox"
+			size="1"
+			default="1">
+			<option value="1">JPUBLISHED</option>
+			<option value="0">JUNPUBLISHED</option>
+		</field>
 
 	</fieldset>
 

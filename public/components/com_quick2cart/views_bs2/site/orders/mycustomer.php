@@ -121,26 +121,26 @@ $totalamount=0;
 		}
 		?>
 
-		<div class="clearfix"> </div>
+		<div class="clearfix">&nbsp; </div>
 
-		<div id="filter-bar" class="btn-toolbar">
+		<div id="qtc-filter-bar" class="qtc-btn-toolbar">
 			<div class="filter-search btn-group pull-left">
 				<input type="text" name="filter_search" id="filter_search"
 				placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_CUSTOMERS'); ?>"
 				value="<?php echo $this->escape($this->lists['filter_search']); ?>"
-				class="hasTooltip input-medium"
+				class="qtc-hasTooltip input-medium"
 				title="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_CUSTOMERS'); ?>" />
 			</div>
 
 			<div class="btn-group pull-left">
-				<button type="submit" class="btn hasTooltip"
+				<button type="submit" class="btn qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-					<i class="icon-search"></i>
+					<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 				</button>
-				<button type="button" class="btn hasTooltip"
+				<button type="button" class="btn qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 				onclick="document.id('filter_search').value='';this.form.submit();">
-					<i class="icon-remove"></i>
+					<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 				</button>
 			</div>
 
@@ -154,7 +154,7 @@ $totalamount=0;
 			<?php endif; ?>
 		</div>
 
-		<div class="clearfix"> </div>
+		<div class="clearfix"> &nbsp;</div>
 
 		<div class="row-fluid">
 			<?php

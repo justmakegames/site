@@ -35,22 +35,27 @@ class Quick2cartViewProducts extends JViewLegacy
 
 	public function display($tpl = null)
 	{
-		$this->params = JComponentHelper::getParams('com_quick2cart');
-		$mainframe = JFactory::getApplication();
-		$input = $mainframe->input;
-		$option = $input->get('option');
-		$layout = $input->get('layout', 'default');
+		$this->params              = JComponentHelper::getParams('com_quick2cart');
+		$mainframe                 = JFactory::getApplication();
+		$input                     = $mainframe->input;
+		$option                    = $input->get('option');
+		$layout                    = $input->get('layout', 'default');
 		$this->comquick2cartHelper = new comquick2cartHelper;
-		$this->productHelper = new productHelper;
-		$storeHelper = new storeHelper;
-		$productHelper = new productHelper;
+		$this->productHelper       = new productHelper;
+		$storeHelper               = new storeHelper;
+		$productHelper             = new productHelper;
+
+		$this->product_types   = array();
+		//$this->product_types[] = JHtml::_('select.option', '', JText::_('QTC_PROD_SEL_TYPE'));
+		$this->product_types[1] = JHtml::_('select.option', 1, JText::_('QTC_PROD_TYPE_SIMPLE'));
+		$this->product_types[2] = JHtml::_('select.option', 2, JText::_('QTC_PROD_TYPE_VARIABLE'));
 
 		if ($layout == 'default')
 		{
-			$this->products = $this->items = $this->get('Items');
-			$this->pagination = $this->get('Pagination');
-			$this->state = $this->get('State');
-			$this->filterForm = $this->get('FilterForm');
+			$this->products      = $this->items = $this->get('Items');
+			$this->pagination    = $this->get('Pagination');
+			$this->state         = $this->get('State');
+			$this->filterForm    = $this->get('FilterForm');
 			$this->activeFilters = $this->get('ActiveFilters');
 
 			// Creating status filter.
@@ -58,9 +63,9 @@ class Quick2cartViewProducts extends JViewLegacy
 
 			if (JVERSION < '3.0')
 			{
-				$sstatus[] = JHtml::_('select.option', '', JText::_('JOPTION_SELECT_PUBLISHED'));
-				$sstatus[] = JHtml::_('select.option', 1, JText::_('COM_QUICK2CART_PUBLISH'));
-				$sstatus[] = JHtml::_('select.option', 0, JText::_('COM_QUICK2CART_UNPUBLISH'));
+				$sstatus[]     = JHtml::_('select.option', '', JText::_('JOPTION_SELECT_PUBLISHED'));
+				$sstatus[]     = JHtml::_('select.option', 1, JText::_('COM_QUICK2CART_PUBLISH'));
+				$sstatus[]     = JHtml::_('select.option', 0, JText::_('COM_QUICK2CART_UNPUBLISH'));
 				$this->sstatus = $sstatus;
 			}
 			// Create clients array
@@ -68,12 +73,12 @@ class Quick2cartViewProducts extends JViewLegacy
 
 			if (JVERSION < '3.0')
 			{
-				$clients[] = JHtml::_('select.option', '', JText::_('COM_QUICK2CART_FILTER_SELECT_CLIENT'));
-				$clients[] = JHtml::_('select.option', 'com_quick2cart', JText::_('COM_QUICK2CART_NATIVE'));
-				$clients[] = JHtml::_('select.option', 'com_content', JText::_('COM_QUICK2CART_CONTENT_ARTICLES'));
-				$clients[] = JHtml::_('select.option', 'com_flexicontent', JText::_('COM_QUICK2CART_FLEXICONTENT'));
-				$clients[] = JHtml::_('select.option', 'com_k2', JText::_('COM_QUICK2CART_K2'));
-				$clients[] = JHtml::_('select.option', 'com_zoo', JText::_('COM_QUICK2CART_ZOO'));
+				$clients[]     = JHtml::_('select.option', '', JText::_('COM_QUICK2CART_FILTER_SELECT_CLIENT'));
+				$clients[]     = JHtml::_('select.option', 'com_quick2cart', JText::_('COM_QUICK2CART_NATIVE'));
+				$clients[]     = JHtml::_('select.option', 'com_content', JText::_('COM_QUICK2CART_CONTENT_ARTICLES'));
+				$clients[]     = JHtml::_('select.option', 'com_flexicontent', JText::_('COM_QUICK2CART_FLEXICONTENT'));
+				$clients[]     = JHtml::_('select.option', 'com_k2', JText::_('COM_QUICK2CART_K2'));
+				$clients[]     = JHtml::_('select.option', 'com_zoo', JText::_('COM_QUICK2CART_ZOO'));
 				$this->clients = $clients;
 			}
 			// Get all stores.
@@ -86,7 +91,7 @@ class Quick2cartViewProducts extends JViewLegacy
 			// Gettting store id if store is changed
 			$user = JFactory::getUser();
 			global $mainframe;
-			$mainframe = JFactory::getApplication();
+			$mainframe      = JFactory::getApplication();
 			$change_storeto = $mainframe->getUserStateFromRequest('current_store', 'current_store', 0, 'INTEGER');
 
 			// Get item_id from request from GET/POST
@@ -95,7 +100,7 @@ class Quick2cartViewProducts extends JViewLegacy
 			// REMOVE FROM REQUEST
 			$mainframe->setUserState('item_id', '');
 			$this->client = $client = "com_quick2cart";
-			$this->pid = 0;
+			$this->pid    = 0;
 
 			// LOAD CART MODEL
 			$Quick2cartModelcart = $this->comquick2cartHelper->loadqtcClass(JPATH_SITE . "/components/com_quick2cart/models/cart.php", "Quick2cartModelcart");
@@ -104,7 +109,6 @@ class Quick2cartViewProducts extends JViewLegacy
 			$this->item_id = '';
 
 			// If edit task then fetch item DETAILS
-
 			if (!empty($item_id))
 			{
 				// Check whether called from backend
@@ -116,22 +120,33 @@ class Quick2cartViewProducts extends JViewLegacy
 					$special_access = $this->comquick2cartHelper->isSpecialAccess();
 				}
 				// Load Attributes model
-				$path = '/components/com_quick2cart/models/attributes.php';
+				$path        = '/components/com_quick2cart/models/attributes.php';
 				$attri_model = $this->comquick2cartHelper->loadqtcClass(JPATH_SITE . $path, "quick2cartModelAttributes");
 
 				// GET ITEM DETAIL
 				$this->itemDetail = $itemDetail = $attri_model->getItemDetail(0, '', $item_id);
 
+				// Load category_attribute_set_mapping detail
+				$this->attributeSetList = $productHelper->getProductGlobalAttributeSet($this->itemDetail);
+
 				// Getting attribure
-				$this->item_id = !empty($this->itemDetail) ? $itemDetail['item_id'] : '';
-				$this->allAttribues = $attri_model->getItemAttributes($this->item_id);
+				$this->item_id        = !empty($this->itemDetail) ? $itemDetail['item_id'] : '';
+				$this->allAttribues   = $attri_model->getItemAttributes($this->item_id);
+
 				$this->getMediaDetail = $productHelper->getMediaDetail($item_id);
-				$this->store_id = $store_id = $this->store_role_list = $this->itemDetail['store_id'];
+				$this->isAllowedtoChangeProdCategory = $productHelper->isAllowedtoChangeProdCategory($item_id);
+
+				if ($this->isAllowedtoChangeProdCategory)
+				{
+					$this->catName = $this->comquick2cartHelper->getCatName($this->itemDetail['category']);
+				}
+
+				$this->store_id       = $store_id = $this->store_role_list = $this->itemDetail['store_id'];
 			}
 			else
 			{
-				$storeHelper = new storeHelper;
-				$storeList = (array) $storeHelper->getUserStore($user->id);
+				$storeHelper    = new storeHelper;
+				$storeList      = (array) $storeHelper->getUserStore($user->id);
 				$this->store_id = $storeList[0]['id'];
 			}
 
@@ -142,28 +157,28 @@ class Quick2cartViewProducts extends JViewLegacy
 				// WE DONT WANT TO SHOW STORE SELECT LIST
 				$this->store_id = $store_id = $this->store_role_list = $this->itemDetail['store_id'];
 			}
-			else // Else : to get default store id (alex change)
+			else
 			{
 				$this->store_role_list = $store_role_list = $this->comquick2cartHelper->getStoreIds(); // as no NEED TO CHECK AUTHORIZATION AT ADMINSIDE
-				$storeHelper = new storeHelper;
-				$this->defaultStoreId = $defaultStoreId = $storeHelper->getAdminDefaultStoreId(); // get all store ids of vendor
+				$storeHelper           = new storeHelper;
+				$this->defaultStoreId  = $defaultStoreId = $storeHelper->getAdminDefaultStoreId(); // get all store ids of vendor
 
 
 				//	$this->authorized_store_id = $comquick2cartHelper->store_authorize("managecoupon_default",isset($change_storeto)?$change_storeto:$store_role_list[0]['store_id']);
-				$this->store_id = $store_id =(!empty($change_storeto)) ? $change_storeto : $defaultStoreId;
+				$this->store_id       = $store_id = (!empty($change_storeto)) ? $change_storeto : $defaultStoreId;
 				$this->selected_store = $store_id;
 
-				if(!$this->store_id)
+				if (!$this->store_id)
 				{
-					$user = JFactory::getUser();
-					$storeHelper = $this->comquick2cartHelper->loadqtcClass(JPATH_SITE.DS."components".DS."com_quick2cart".DS."helpers".DS."storeHelper.php","storeHelper");
+					$user        = JFactory::getUser();
+					$storeHelper = $this->comquick2cartHelper->loadqtcClass(JPATH_SITE . DS . "components" . DS . "com_quick2cart" . DS . "helpers" . DS . "storeHelper.php", "storeHelper");
 
-					$storeList = (array) $storeHelper->getUserStore($user->id);
+					$storeList      = (array) $storeHelper->getUserStore($user->id);
 					$this->store_id = $storeList[0]['id'];
 				}
 			}
 
-			// ALL FETCH ALL CATEGORIES //$catid='',$onchangeSubmitForm=1,$name='prod_cat',$class=''
+			// ALL FETCH ALL CATEGORIES
 			if (!empty($this->itemDetail['category']))
 			{
 				$this->cats = $this->comquick2cartHelper->getQ2cCatsJoomla($this->itemDetail['category'], 0, 'prod_cat', ' required ');
@@ -202,9 +217,9 @@ class Quick2cartViewProducts extends JViewLegacy
 	protected function addToolbar()
 	{
 		$mainframe = JFactory::getApplication();
-		$input = $mainframe->input;
-		$option = $input->get('option');
-		$layout = $input->get('layout', 'default');
+		$input     = $mainframe->input;
+		$option    = $input->get('option');
+		$layout    = $input->get('layout', 'default');
 
 		// Get the toolbar object instance.
 		$bar = JToolBar::getInstance('toolbar');
@@ -276,5 +291,8 @@ class Quick2cartViewProducts extends JViewLegacy
 				JToolBarHelper::title($viewTitle, 'product.png');
 			}
 		}
+
+		// Adding option btn
+		JToolbarHelper::preferences('com_quick2cart');
 	}
 }

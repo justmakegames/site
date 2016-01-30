@@ -280,6 +280,7 @@ $extArrString = "'". implode("','", $extArr) ."'" ;
 				{
 					$mediaDetail[] = $mediaDetail[0];
 				}
+
 				for($m=1; $m<=$mediaCount+1  && $m < $eProdMaxFileLimit+1; $m++) // for each attribute
 				{
 					$attribute_container_id = "qtc_mediaContainer".$m;

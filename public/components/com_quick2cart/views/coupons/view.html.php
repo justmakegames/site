@@ -123,20 +123,20 @@ class Quick2cartViewCoupons extends JViewLegacy
 
 		if ($canDo->get('core.create'))
 		{
-			$tjbar->appendButton('couponform.addNew', 'TJTOOLBAR_NEW', '', 'btn btn-small btn-success');
+			$tjbar->appendButton('couponform.addNew', 'TJTOOLBAR_NEW', '', 'class="btn btn-small btn-success"');
 		}
 
 		if ($canDo->get('core.edit') && isset($this->items[0]))
 		{
-			$tjbar->appendButton('couponform.edit', 'TJTOOLBAR_EDIT', '', 'btn btn-small btn-success');
+			$tjbar->appendButton('couponform.edit', 'TJTOOLBAR_EDIT', '', 'class="btn btn-small btn-success"');
 		}
 
 		if ($canDo->get('core.edit.state'))
 		{
 			if (isset($this->items[0]->published))
 			{
-				$tjbar->appendButton('coupons.publish', 'TJTOOLBAR_PUBLISH', '', 'btn btn-small btn-success');
-				$tjbar->appendButton('coupons.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'btn btn-small btn-warning');
+				$tjbar->appendButton('coupons.publish', 'TJTOOLBAR_PUBLISH', '', 'class="btn btn-small btn-success"');
+				$tjbar->appendButton('coupons.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'class="btn btn-small btn-warning"');
 			}
 		}
 
@@ -144,7 +144,7 @@ class Quick2cartViewCoupons extends JViewLegacy
 		{
 			if (isset($this->items[0]))
 			{
-				$tjbar->appendButton('coupons.delete', 'TJTOOLBAR_DELETE', '', 'btn btn-small btn-danger');
+				$tjbar->appendButton('coupons.delete', 'TJTOOLBAR_DELETE', '', 'class="btn btn-small btn-danger"');
 			}
 		}
 

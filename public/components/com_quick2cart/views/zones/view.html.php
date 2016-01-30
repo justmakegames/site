@@ -144,7 +144,7 @@ class quick2cartViewzones extends JViewLegacy
 
 		if ($canDo->get('core.create'))
 		{
-			$tjbar->appendButton('zoneform.add', 'TJTOOLBAR_NEW', '', 'btn btn-small btn-success');
+			$tjbar->appendButton('zoneform.add', 'TJTOOLBAR_NEW', '', 'class="btn btn-small btn-success"');
 		}
 
 		/*if ($canDo->get('core.edit') && isset($this->items[0]))
@@ -156,8 +156,8 @@ class quick2cartViewzones extends JViewLegacy
 		{
 			if (isset($this->items[0]->state))
 			{
-				$tjbar->appendButton('zones.publish', 'TJTOOLBAR_PUBLISH', '', 'btn btn-small btn-success');
-				$tjbar->appendButton('zones.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'btn btn-small btn-warning');
+				$tjbar->appendButton('zones.publish', 'TJTOOLBAR_PUBLISH', '', 'class="btn btn-small btn-success"');
+				$tjbar->appendButton('zones.unpublish', 'TJTOOLBAR_UNPUBLISH', '', 'class="btn btn-small btn-warning"');
 			}
 		}
 
@@ -165,7 +165,7 @@ class quick2cartViewzones extends JViewLegacy
 		{
 			if (isset($this->items[0]))
 			{
-				$tjbar->appendButton('zones.delete', 'TJTOOLBAR_DELETE', '', 'btn btn-small btn-danger');
+				$tjbar->appendButton('zones.delete', 'TJTOOLBAR_DELETE', '', 'class="btn btn-small btn-danger"');
 			}
 		}
 

@@ -6,8 +6,8 @@
 	<authorUrl>http://techjoomla.com</authorUrl>
 	<copyright>(C) 2012 Akeeba Ltd.</copyright>
 	<license>GNU GPL v3 or later</license>
-	<version>1.0.6</version>
-	<creationDate>02 Oct 2015</creationDate>
+	<version>1.0.8</version>
+	<creationDate>18th Dec 2015</creationDate>
 	<description>Namespaced jQuery, jQuery UI and Bootstrap for Techjoomla products. Based on AkeebaStrapper</description>
 	<fileset>
 		<files folder="techjoomla_strapper" target="media/techjoomla_strapper">

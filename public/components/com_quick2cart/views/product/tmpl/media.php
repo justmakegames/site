@@ -18,11 +18,11 @@ $prodMedia='prodMedia';
 ?>
 <div class='qtcMediaWrapper container-fluid'>
 	<div class="row">
-		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 ">
+		<div class="col-sm-6 col-xs-12 ">
 				<!-- product name-->
 				<div class="form-group">
-					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtcmedianame"><?php echo JText::_( "COM_QUICK2CART_PROD_PAGE_MEDIA_NAME")?></label>
-					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<label class="col-xs-12 col-sm-3 control-label" for="qtcmedianame"><?php echo JText::_( "COM_QUICK2CART_PROD_PAGE_MEDIA_NAME")?></label>
+					<div class="col-xs-12 col-sm-9">
 						<input type="text" name="prodMedia[<?php echo $m ?>][name]>" value="<?php echo !empty($mediaDetail[$m]['file_display_name']) ? $mediaDetail[$m]['file_display_name'] : ''; ?>" class='input-medium qtcMediaFileName form-control'  id="qtcmedianame<?php echo $m ?>"  placeholder="<?php echo JText::_( "COM_QUICK2CART_PROD_PAGE_MEDIA_NAME_PLACEHOLDER")?>">
 
 						<input type="hidden" name="prodMedia[<?php echo $m ?>][file_id]>" class='input-medium' id="qtcmediaFileId<?php echo $m ?>" value="<?php echo !empty($mediaDetail[$m]['file_id']) ? $mediaDetail[$m]['file_id'] : ''; ?>">
@@ -32,8 +32,8 @@ $prodMedia='prodMedia';
 
 				<!-- enable-->
 				<div class="form-group">
-					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtcmediaStatus"><?php echo JText::_( "COM_QUICK2CART_PROD_PAGE_MEDIA_STATUS")?></label>
-					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<label class="col-xs-12 col-sm-3 control-label" for="qtcmediaStatus"><?php echo JText::_( "COM_QUICK2CART_PROD_PAGE_MEDIA_STATUS")?></label>
+					<div class="col-xs-12 col-sm-9">
 						<label class="checkbox-inline">
 							<?php
 							$mediastatus = "checked";
@@ -57,8 +57,8 @@ $prodMedia='prodMedia';
 					$isPublished = " checked ";
 					$uploadModeDisplay = !empty($mediaDetail[$m]['file_id']) ? "display:none;" : '' ?>
 					<div class="form-group qtcMedUploadModeWrapper" style="<?php echo $uploadModeDisplay; ?>" >
-						<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtcmediaStatus"><?php echo JText::_( "COM_QUICK2CART_PROD_PAGE_MEDIA_UPLOADMODE")?></label>
-						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+						<label class="col-xs-12 col-sm-3 control-label" for="qtcmediaStatus"><?php echo JText::_( "COM_QUICK2CART_PROD_PAGE_MEDIA_UPLOADMODE")?></label>
+						<div class="col-xs-12 col-sm-9">
 							<label class="radio-inline">
 								<input type="radio" class="qtcMeduaUploadMode_upload" id="qtcMeduaUploadMode_upload<?php echo $m?>" name="prodMedia[<?php echo $m ?>][uploadMode]>"  value="upload" onchange="changeUploadMethod('upload',<?php echo $m ?>)" checked  >
 								<?php echo JText::_('COM_QUICK2CART_PROD_PAGE_MEDIA_UPLOAD_FILE')?>
@@ -83,18 +83,10 @@ $prodMedia='prodMedia';
 						{
 							?>
 						<div class=""  style="margin-left:20px;">
-							<input class="qtcMediaFileUploadEle" id="qtcMediaFile<?php echo $m ?>" type="file" name="qtcMediaFile<?php echo $m ?>" >
-<!--
-							<div class="progress progress-success progress-striped active qtc_progress-barWrapper" id="qtc_progress-barWrapper<?php echo $m ?>">
-								<div class="progress-bar qtcMediaProgressBar" id="qtc_progress-bar<?php echo $m ?>" style="width:0%"></div>
-							</div>
--->
+							<input class="qtcMediaFileUploadEle form-control" id="qtcMediaFile<?php echo $m ?>" type="file" name="qtcMediaFile<?php echo $m ?>" >
 
 							<div class="progress" id="qtc_progress-barWrapper<?php echo $m ?>">
 							  <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%" id="qtc_progress-bar<?php echo $m ?>">
-<!--
-								<span class="sr-only">40% Complete (success)</span>
--->
 							  </div>
 							</div>
 
@@ -111,8 +103,8 @@ $prodMedia='prodMedia';
 
 						}
 						?>
-						<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtcmediaStatus" style="<?php echo $qtcFieldType; ?>"><?php echo JText::_( "FILEPATH")?></label>
-						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+						<label class="col-xs-12 col-sm-3 control-label" for="qtcmediaStatus" style="<?php echo $qtcFieldType; ?>"><?php echo JText::_( "FILEPATH")?></label>
+						<div class="col-xs-12 col-sm-9">
 							<input type="text" class="qtcMediaUpload input-medium" name="prodMedia[<?php echo $m ?>][mediaFilePath]" id="ajax_upload_hidden<?php echo $m ?>" value="<?php echo !empty($mediaDetail[$m]['filePath']) ? $mediaDetail[$m]['filePath'] :'' ?>" style="<?php echo $qtcFieldType; ?>" placeholder="<?php echo JText::_( "QTC_FILEPATH")?>">
 						</div>
 						<div class="qtcClearBoth"></div>
@@ -124,7 +116,7 @@ $prodMedia='prodMedia';
 				{
 					?>
 					<div class="qtcMediaProdLink ">
-						<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><strong><?php echo JText::_( "COM_QUICK2CART_PROD_PG_DOWNLOAD"); ?></strong></div>
+						<div class="col-xs-12 col-sm-3 control-label"><strong><?php echo JText::_( "COM_QUICK2CART_PROD_PG_DOWNLOAD"); ?></strong></div>
 						<br>
 						<div class="qtcProdPgDownLink">
 						<?php
@@ -145,11 +137,11 @@ $prodMedia='prodMedia';
 				?>
 		</div> <!-- FIRST col-md-6  col-xs-12   end-->
 
-		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		<div class="col-sm-6 col-xs-12">
 				<!-- purchase require name-->
 				<div class="form-group">
-					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtcpurchaseRequire"><?php echo JText::_( "COM_QUICK2CART_PROD_PURCHASE_REQ")  ?></label>
-					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<label class="col-xs-12 col-sm-5 control-label" for="qtcpurchaseRequire"><?php echo JText::_( "COM_QUICK2CART_PROD_PURCHASE_REQ")  ?></label>
+					<div class="col-xs-12 col-sm-7">
 						<label class="checkbox-inline">
 
 							<?php
@@ -184,10 +176,10 @@ $prodMedia='prodMedia';
 					}
 				?>
 				<div class="form-group" style="<?php echo $hideExpirationFields; ?>">
-					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for="qtcDownCount">
+					<label class="col-xs-12 col-sm-5 control-label" for="qtcDownCount">
 						<?php echo JHtml::tooltip(JText::_('COM_QUICK2CART_PROD_DOWN_COUNT_DES'), JText::_('COM_QUICK2CART_PROD_DOWN_COUNT'), '', JText::_('COM_QUICK2CART_PROD_DOWN_COUNT'));?>
 					</label>
-					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+					<div class="col-xs-12 col-sm-7">
 						<input type="text" name="prodMedia[<?php echo $m ?>][downCount]" value="<?php echo $downcount;?>" class='input-mini qtcMediaDownCount' id="" placeholder="">
 					</div>
 					<div class="qtcClearBoth"></div>
@@ -228,9 +220,9 @@ $prodMedia='prodMedia';
 					}
 				?>
 				<div class="form-group" style="<?php echo $hideExpirationFields; ?>">
-					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label" for=""><?php echo JText::_( "COM_QUICK2CART_PROD_EXPIRARY")?></label>
-					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-						<div class="input-group  col-xs-12  col-md-6">
+					<label class="col-xs-12 col-sm-5 control-label" for=""><?php echo JText::_( "COM_QUICK2CART_PROD_EXPIRARY")?></label>
+					<div class="col-xs-12 col-sm-7">
+						<div class="input-group  col-xs-12">
 							<input id=""  name="prodMedia[<?php echo $m ?>][expirary]" value="<?php echo $expValue; ?>" class="form-control qtcMediaExp" placeholder="" type="text">
 							<span class="input-group-addon"><?php echo $expFormat;?></span>
 						</div>

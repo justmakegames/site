@@ -93,12 +93,12 @@ class Qtccategories extends JCategories
 				}
 
 				$joinStr =  $db->quoteName($this->_table) . ' AS i ON i.' . $db->quoteName($this->_field) .
-				' = c.id AND i.' . $this->_statefield . ' = 1 ' . $qtcStoreSpecificCond;
+				' = c.id AND i.' . $this->_statefield . ' = 1 AND display_in_product_catlog = 1 ' . $qtcStoreSpecificCond;
 				$query->join('LEFT', $joinStr);
 				$query->join('LEFT', '#__kart_store AS store ON store.id = i.store_id');
 				$query->where('store.live=1');
 
-				// Hack END
+				// ++++++++++++++++Hack END
 			}
 			else
 			{

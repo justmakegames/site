@@ -177,6 +177,13 @@ $this->email_table_bordered = !empty($orders_email) ? $this->emailTable . "borde
 ?>
 
 <div class="<?php echo Q2C_WRAPPER_CLASS; ?> q2c_border" style="<?php echo $this->wrapperDivStyle; ?>">
+	<!--LM -- Added Print Button -- Start-->
+	<div class="row qtcPrintBtnCover">
+		<input type="button" value="Print" onclick="PrintElem('#printOrder')" class="btn btn-primary pull-right qtcPrintBtn"/>
+		<div class="clearfix"></div>
+	</div>
+	<!--LM -- Added Print Button -- End-->
+	<div id="printOrder"><!-- LM Added div-- this div will be printed out-->
 	<?php
 
 	//if (in_array('order', $order_blocks))
@@ -321,5 +328,31 @@ $this->email_table_bordered = !empty($orders_email) ? $this->emailTable . "borde
 		</div>
 		<?php
 	}?>
+	</div> <!-- End of printOrder div-->
 </div> <!-- End of wrapper class-->
+<!--LM -- Added Print Button Js -- Start-->
+<script type="text/javascript">
+
+    function PrintElem(elem)
+    {
+        Popup($(elem).html());
+    }
+
+    function Popup(data) 
+    {
+        var mywindow = window.open('', 'printOrder', 'height=400,width=600');
+        /*optional stylesheet*/ //mywindow.document.write('<link rel="stylesheet" href="main.css" type="text/css" />');
+        mywindow.document.write(data);
+
+        mywindow.document.close(); // necessary for IE >= 10
+        mywindow.focus(); // necessary for IE >= 10
+
+        mywindow.print();
+        mywindow.close();
+
+        return true;
+    }
+
+</script>
+<!--LM -- Added Print Button Js -- End-->
 

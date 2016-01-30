@@ -148,19 +148,18 @@ JHtml::_('behavior.modal');
 				<legend><?php echo JText::_('COM_QUICK2CART_TAXPROFILE'); ?></legend>
 
 				<div class="form-group">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('name'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('name'); ?></div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('name'); ?></div>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('name'); ?></div>
 				</div>
 				<?php
 				if (empty($this->item->id))
 				{
 					?>
 					<div class="form-group">
-						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
+						<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 							<?php echo $this->form->getInput('store_id'); ?>
 							<div class="text-warning">
-								<div>&nbsp;</div>
 								<p><?php echo JText::_('COM_QUICK2CART_TAXPROFILE_CAN_NOT_CAHGNE_STORE_MSG'); ?></p>
 							</div>
 						</div>
@@ -171,14 +170,19 @@ JHtml::_('behavior.modal');
 				{
 					?>
 					<div class="form-group">
-						<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
-						<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo ucfirst($this->storeDetails['title']); ?></div>
+						<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('store_id'); ?></div>
+						<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+							<?php echo ucfirst($this->storeDetails['title']); ?>
+							<span style="display:none;">
+								<?php echo $this->form->getInput('store_id'); ?>
+							</span>
+						</div>
 					</div>
 					<?php
 				}?>
 				<div class="form-group">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('state'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('state'); ?></div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('state'); ?></div>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('state'); ?></div>
 				</div>
 				<input type="hidden" name="jform[ordering]" value="<?php echo $this->item->ordering; ?>" />
 				<div class="alert alert-info">
@@ -222,7 +226,7 @@ JHtml::_('behavior.modal');
 					<div class="row">
 						<div class="error alert alert-danger qtcError" style="display: none;">
 							<?php echo JText::_('COM_QUICK2CART_ZONE_ERROR'); ?>
-							<i class="icon-cancel pull-right" style="align: right;"
+							<i class="<?php echo QTC_ICON_REMOVE; ?> pull-right" style="align: right;"
 								onclick="techjoomla.jQuery(this).parent().fadeOut();"> </i> <br />
 							<hr />
 							<div id="qtcErrorContentDiv"></div>

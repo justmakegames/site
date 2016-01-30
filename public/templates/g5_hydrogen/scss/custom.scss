@@ -25,18 +25,31 @@ body div#fd.es.mod-es-dropdown-menu .dropdown-toggle-user-name strong{
 	margin-bottom: 0;
 }
 
+.breadcrumb-left .g-content{
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.g-block.size-72 .g-content{
+	padding-right: 0;
+}
+
 .g-offcanvas-toggle{
 	font-size: 2rem;
 }
 
 .gantry-logo img{
-
-	width:300px;
+	width:360px;
 }
 
 body div#fd.es.mod-es-dropdown-menu .mod-bd{
 	float:right;
-	min-height: 70px;
+	min-height: 60px;
+	padding-top: 5px;
+}
+
+div#fd.es .btn-sm{
+	margin-right: 15px;
 }
 
 .ezb-mod .avatar{
@@ -69,20 +82,20 @@ body div#fd.es.mod-es-dropdown-menu .mod-bd{
 	padding-top: 10px;
 }
 
-.form-horizontal .control-group{
-	clear: both;
-	float: left;
-	margin-right: 40px;
-}
-
 .q2c-wrapper .form-horizontal .control-label{
-	text-align: left;
-	width: 80px;
-	float: left;
+	width: 200px;
+	padding-right: 20px;
 }
 
-.form-horizontal .controls{
-	margin-left: 100px;
+#qtc_mainwrapper .controls{
+}
+
+#qtc_mainwrapper .controls input{
+	min-width: 280px;
+}
+
+#qtc_mainwrapper .controls textarea{
+	min-width: 360px;
 }
 
 .q2c-wrapper .form-horizontal .qtc_controls_text{
@@ -144,4 +157,45 @@ body #comment-form .inputbox{
 
 #ezblog-body #button-related a{
 	min-height: 37px;
+}
+
+/* Easy Discuss */
+
+.discuss-head .fd-cf.mb-10{
+	display: none;
+}
+
+div.discuss-mod.discuss-categories img.avatar{
+	border: none;
+	width: 50px;
+	height: 50px;
+}
+
+div.discuss-mod.discuss-categories .item-avatar + .item-story{
+	margin-left: 60px;
+	line-height: 50px;
+}
+
+.discuss-mod-categories .item{
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.discuss-mod-categories .toggleModuleCategories{
+	margin-top: 0;
+}
+
+div.discuss-mod.latest-replies .item-info span img{
+	display: none;
+}
+
+div.discuss-mod.latest-replies .item-question{
+	font-size: 14px;
+	max-height: 40px;
+	overflow: hidden;
+}
+
+div.discuss-mod.latest-replies .small{
+	font-size: 12px;
 }

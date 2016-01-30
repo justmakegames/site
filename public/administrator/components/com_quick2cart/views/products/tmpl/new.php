@@ -18,6 +18,7 @@ $qtc_product_name = $jinput->get('qtc_article_name', '', 'RAW');
 
 $lang = JFactory::getLanguage();
 $lang->load('com_quick2cart', JPATH_SITE);
+//$lang->load('com_quick2cart', JPATH_ADMINISTRATOR);
 
 // Load helper file if not exist
 if (!class_exists('comquick2cartHelper'))
@@ -29,7 +30,9 @@ if (!class_exists('comquick2cartHelper'))
 
 $comquick2cartHelper = new comquick2cartHelper;
 $qtcshiphelper = new qtcshiphelper;
+$productHelper =  new productHelper;
 $params = JComponentHelper::getParams('com_quick2cart');
+$currencies=$params->get('addcurrency');
 
 $qtc_shipping_opt_status = $this->params->get('shipping', 0);
 $isTaxationEnabled = $this->params->get('enableTaxtion', 0);
@@ -218,6 +221,7 @@ if (empty($this->cats))
 				</ul>
 
 				<div class="tab-content">
+					<div class="clearfix">&nbsp;</div>
 					<div class="tab-pane active" id="qtctab1">
 						<?php
 						// Check for view override
@@ -233,14 +237,25 @@ if (empty($this->cats))
 
 					<div class="tab-pane" id="qtctab2">
 						<?php
-						// Check for view override
-						$att_list_path = $comquick2cartHelper->getViewpath('products', 'attribute', "ADMINISTRATOR", "ADMINISTRATOR");
-						ob_start();
-						include($att_list_path);
-						$html_attri = ob_get_contents();
-						ob_end_clean();
-						echo $html_attri;
+
+						$canDisplayAttriContent = empty($this->item_id) ? 0 : 1;
 						?>
+						<div id="qtcAttributeTabContent" style="<?php echo ($canDisplayAttriContent == 0) ? 'display:none;' : ''; ?>">
+							<?php
+							// Check for view override
+							$att_list_path = $comquick2cartHelper->getViewpath('products', 'attribute', "ADMINISTRATOR", "ADMINISTRATOR");
+							ob_start();
+							include($att_list_path);
+							$html_attri = ob_get_contents();
+							ob_end_clean();
+							echo $html_attri;
+						?>
+						</div>
+						<div id="qtcAttributeTabContentHideMsg" style="<?php echo ($canDisplayAttriContent == 1) ? 'display:none;' : ''; ?>">
+							<div class="alert alert-info">
+								<?php echo JText::_('COM_QUICK2CART_PRODUCT_SAVE_PROD_TO_ADD_ATTRI_MSG');?>
+							</div>
+						</div>
 					</div>
 
 					<?php
@@ -287,8 +302,8 @@ if (empty($this->cats))
 			<!-- CODE FOR TABS END -->
 
 			<div class="clearfix">&nbsp;</div>
-
-			<div class="form-actions">
+			<hr/>
+			<div class="">
 				<input type="hidden" name="option" value="com_quick2cart" />
 				<input type="hidden" name="task" value="products.save" />
 				<input type="hidden" name="view" value="product" />

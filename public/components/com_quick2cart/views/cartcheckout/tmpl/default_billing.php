@@ -10,8 +10,8 @@
 // No direct access.
 defined('_JEXEC') or die();
 ?>
-
-<div id="qtc_ckout_billing-info" class="qtc_billing_page com_quick2cart-checkout-steps " style="<?php echo (isset($showBillShipTab) && $showBillShipTab ==0 ? "display:none;" : '')?>">
+<div id="qtc_billing_alert_on_order_placed"></div>
+<div id="qtc_ckout_billing-info" class="qtc_billing_page com_quick2cart-checkout-steps q2ctablewrapper" style="<?php echo (isset($showBillShipTab) && $showBillShipTab ==0 ? "display:none;" : '')?>">
 	<!-- Billing and shipping info -->
 	<div class="row">
 	<div id="qtc_mainwrapper" class="">  <!-- qtc_mainwrapper  -->
@@ -20,7 +20,7 @@ defined('_JEXEC') or die();
 			<div class="form-group">
 				<label  for="fnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_FNAM')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="fnam" class="input-medium bill inputbox required validate-name" type="text" value="<?php echo (isset($userbill->firstname))?$userbill->firstname:''; ?>" maxlength="250" size="32" name="bill[fnam]" title="<?php echo JText::_('QTC_BILLIN_FNAM_DESC')?>">
+					<input id="fnam" class="input-medium bill inputbox required validate-name" type="text" value="<?php echo (isset($userbill->firstname))?$userbill->firstname:''; ?>" maxlength="250"  name="bill[fnam]" title="<?php echo JText::_('QTC_BILLIN_FNAM_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
@@ -30,27 +30,27 @@ defined('_JEXEC') or die();
 			{
 		?>
 			<div class="form-group">
-				<label  for="mnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_BILLIN_MNAM')?></label>
+				<label  for="mnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_MNAM')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="mnam" class="input-medium bill inputbox required validate-name" type="text" value="<?php echo (isset($userbill->middlename))?$userbill->middlename:''; ?>" maxlength="250" size="32" name="bill[mnam]" title="<?php echo JText::_('QTC_BILLIN_MNAM_DESC')?>">
+					<input id="mnam" class="input-medium bill inputbox required validate-name" type="text" value="<?php echo (isset($userbill->middlename))?$userbill->middlename:''; ?>" maxlength="250"  name="bill[mnam]" title="<?php echo JText::_('QTC_BILLIN_MNAM_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 		<?php } ?>
 
 			<div class="form-group">
-				<label for="lnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_BILLIN_LNAM')?>	</label>
+				<label for="lnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_LNAM')?>	</label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="lnam" class="input-medium bill inputbox required validate-name" type="text" value="<?php echo (isset($userbill->lastname))?$userbill->lastname:''; ?>" maxlength="250" size="32" name="bill[lnam]" title="<?php echo JText::_('QTC_BILLIN_LNAM_DESC')?>">
+					<input id="lnam" class="input-medium bill inputbox required validate-name" type="text" value="<?php echo (isset($userbill->lastname))?$userbill->lastname:''; ?>" maxlength="250"  name="bill[lnam]" title="<?php echo JText::_('QTC_BILLIN_LNAM_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group">
-				<label for="email1" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_BILLIN_EMAIL')?></label>
-				<!--div class=""><input id="email1" class="input-medium bill inputbox required validate-email" type="text" value="<?php echo (isset($userbill->user_email))?$userbill->user_email:'' ; ?>" maxlength="250" size="32" name="bill[email1]" onblur="chkbillmail11(this.value);" title="<?php echo JText::_('QTC_BILLIN_EMAIL_DESC')?>"-->
+				<label for="email1" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_EMAIL')?></label>
+				<!--div class=""><input id="email1" class="input-medium bill inputbox required validate-email" type="text" value="<?php echo (isset($userbill->user_email))?$userbill->user_email:'' ; ?>" maxlength="250"  name="bill[email1]" onblur="chkbillmail11(this.value);" title="<?php echo JText::_('QTC_BILLIN_EMAIL_DESC')?>"-->
 				<!--Added by Sneha-->
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="email1" class="input-medium bill inputbox required validate-email" type="text" value="<?php echo (isset($userbill->user_email))?$userbill->user_email:'' ; ?>" maxlength="250" size="32" name="bill[email1]" onblur=" chkbillmailregistered(this.value);" title="<?php echo JText::_('QTC_BILLIN_EMAIL_DESC')?>">
+					<input id="email1" class="input-medium bill inputbox required validate-email" type="text" value="<?php echo (isset($userbill->user_email))?$userbill->user_email:'' ; ?>" maxlength="250"  name="bill[email1]" onblur=" chkbillmailregistered(this.value);" title="<?php echo JText::_('QTC_BILLIN_EMAIL_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
@@ -63,23 +63,23 @@ defined('_JEXEC') or die();
 			{
 			 ?>
 			<div class="form-group">
-				<label for="vat_num"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo  JText::_('QTC_BILLIN_VAT_NUM')?></label>
+				<label for="vat_num"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo  JText::_('QTC_BILLIN_VAT_NUM')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-				  <input id="vat_num" class="input-small bill inputbox validate-integer" type="text" value="<?php echo (isset($userbill->vat_number))?$userbill->vat_number:''; ?>" size="32" name="bill[vat_num]" title="<?php echo JText::_('QTC_BILLIN_VAT_NUM_DESC')?>">
+				  <input id="vat_num" class="input-small bill inputbox validate-integer" type="text" value="<?php echo (isset($userbill->vat_number))?$userbill->vat_number:''; ?>"  name="bill[vat_num]" title="<?php echo JText::_('QTC_BILLIN_VAT_NUM_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<?php
 			} ?>
 			<div class="form-group">
-				<label for="phon"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_BILLIN_PHON')?></label>
+				<label for="phon"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_PHON')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-				  <input id="phon" class="input-small bill inputbox required validate-integer" type="text" onkeyup="checkforalpha(this,43,<?php echo $entered_numerics; ?>);" maxlength="50" value="<?php echo (isset($userbill->phone))?$userbill->phone:''; ?>" size="32" name="bill[phon]" title="<?php echo JText::_('QTC_BILLIN_PHON_DESC')?>">
+				  <input id="phon" class="input-small bill inputbox required validate-integer" type="text" onkeyup="checkforalpha(this,43,<?php echo $entered_numerics; ?>);" maxlength="50" value="<?php echo (isset($userbill->phone))?$userbill->phone:''; ?>"  name="bill[phon]" title="<?php echo JText::_('QTC_BILLIN_PHON_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group">
-				<label for="addr"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_BILLIN_ADDR')?></label>
+				<label for="addr"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_ADDR')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
 				<textarea id="addr" class=" bill inputbox required" name="bill[addr]"  maxlength="250" rows="3" title="<?php echo 		JText::_('QTC_BILLIN_ADDR_DESC')?>" ><?php echo (isset($userbill->address))?$userbill->address:''; ?></textarea>
 					<p class="help-block"><?php echo JText::_('QTC_BILLIN_ADDR_HELP')?> </p>
@@ -87,14 +87,21 @@ defined('_JEXEC') or die();
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group">
-				<label for="zip"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_BILLIN_ZIP')?></label>
+				<label for="land_mark"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_LAND_MARK')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="zip"  class="input-small bill inputbox required " type="text" value="<?php echo (isset($userbill->zipcode))?$userbill->zipcode:''; ?>" onblur="" maxlength="20" size="32" name="bill[zip]" title="<?php echo JText::_('QTC_BILLIN_ZIP_DESC')?>">
+					<input id="land_mark"  class="input-small bill inputbox required " type="text" value="<?php echo (isset($userbill->land_mark))?$userbill->land_mark:''; ?>" onblur="" maxlength="50"  name="bill[land_mark]" title="<?php echo JText::_('QTC_BILLIN_LAND_MARK_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group">
-				<label for="country"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* " . JText::_('QTC_BILLIN_COUNTRY')?></label>
+				<label for="zip"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_ZIP')?></label>
+				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+					<input id="zip"  class="input-small bill inputbox required " type="text" value="<?php echo (isset($userbill->zipcode))?$userbill->zipcode:''; ?>" onblur="" maxlength="20"  name="bill[zip]" title="<?php echo JText::_('QTC_BILLIN_ZIP_DESC')?>">
+				</div>
+				<div class="qtcClearBoth"></div>
+			</div>
+			<div class="form-group">
+				<label for="country"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* " . JText::_('QTC_BILLIN_COUNTRY')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" >
 				<?php
 
@@ -122,14 +129,14 @@ defined('_JEXEC') or die();
 							$options[] = JHtml::_('select.option', $value['id'], $value['country']);
 						}
 
-					echo $this->dropdown = JHtml::_('select.genericlist',$options,'bill[country]','class="qtc_select bill chzn-done" data-chosen="qtc"  required="required"  aria-invalid="false" size="1" onchange=\'generateState(id,"",'.$tprice.')\' ','value','text',$default,'country');
+					echo $this->dropdown = JHtml::_('select.genericlist',$options,'bill[country]','class="qtc_select bill chzn-done" data-chosen="qtc"  required="required"  aria-invalid="false"  onchange=\'generateState(id,"",'.$tprice.')\' ','value','text',$default,'country');
 				?>
 
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group" >
-				<label for="state" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* " .  JText::_('QTC_BILLIN_STATE')?></label>
+				<label for="state" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* " .  JText::_('QTC_BILLIN_STATE')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" id="qtcBillState">
 					<select name="bill[state]" id="state" class="qtc_select bill required chzn-done" data-chosen="qtc">
 						<option selected="selected" value="" ><?php echo JText::_('QTC_BILLIN_SELECT_STATE')?></option>
@@ -138,16 +145,16 @@ defined('_JEXEC') or die();
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group">
-				<label for="city" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_BILLIN_CITY')?></label>
+				<label for="city" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_CITY')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="city" class="input-medium bill inputbox required validate-name" type="text" value="<?php echo (isset($userbill->city))?$userbill->city:''; ?>" maxlength="250" size="32" name="bill[city]" title="<?php echo JText::_('QTC_BILLIN_CITY_DESC')?>">
+					<input id="city" class="input-medium bill inputbox required validate-name" type="text" value="<?php echo (isset($userbill->city))?$userbill->city:''; ?>" maxlength="250"  name="bill[city]" title="<?php echo JText::_('QTC_BILLIN_CITY_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group ">
-				<label for="" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo JText::_( 'QTC_USER_COMMENT' ); ?></label>
+				<label for="" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo JText::_( 'QTC_USER_COMMENT' ); ?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<textarea id="comment" name="comment" class="inputbox" rows="3" maxlength="135" size="28"></textarea>
+					<textarea id="comment" name="comment" class="inputbox" rows="3" maxlength="135" ></textarea>
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
@@ -171,7 +178,7 @@ defined('_JEXEC') or die();
 			<div class=" form-group ship_tr">
 				<label  for="ship_fnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_SHIPIN_FNAM')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="ship_fnam" class="input-medium inputbox required validate-name form-control" type="text" value="<?php echo (isset($usership->firstname))?$usership->firstname:''; ?>" maxlength="250" size="32" name="ship[fnam]" title="<?php echo JText::_('QTC_SHIPIN_FNAM_DESC')?>">
+					<input id="ship_fnam" class="input-medium inputbox required validate-name " type="text" value="<?php echo (isset($usership->firstname))?$usership->firstname:''; ?>" maxlength="250"  name="ship[fnam]" title="<?php echo JText::_('QTC_SHIPIN_FNAM_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
@@ -182,54 +189,61 @@ defined('_JEXEC') or die();
 			{
 		?>
 			<div class="form-group ship_tr">
-				<label for="ship_mnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_SHIPIN_MNAM')?>	</label>
+				<label for="ship_mnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_SHIPIN_MNAM')?>	</label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="ship_mnam" class="input-medium inputbox required validate-name form-control" type="text" value="<?php echo (isset($usership->middlename))?$usership->middlename:''; ?>" maxlength="250" size="32" name="ship[mnam]" title="<?php echo JText::_('QTC_SHIPIN_MNAM_DESC')?>">
+					<input id="ship_mnam" class="input-medium inputbox required validate-name " type="text" value="<?php echo (isset($usership->middlename))?$usership->middlename:''; ?>" maxlength="250"  name="ship[mnam]" title="<?php echo JText::_('QTC_SHIPIN_MNAM_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 		<?php } ?>
 <!--end by aniket to get middle name-->
 			<div class="form-group ship_tr">
-				<label for="ship_lnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_SHIPIN_LNAM')?>	</label>
+				<label for="ship_lnam" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_SHIPIN_LNAM')?>	</label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="ship_lnam" class="input-medium inputbox required validate-name form-control" type="text" value="<?php echo (isset($usership->lastname))?$usership->lastname:''; ?>" maxlength="250" size="32" name="ship[lnam]" title="<?php echo JText::_('QTC_SHIPIN_LNAM_DESC')?>">
+					<input id="ship_lnam" class="input-medium inputbox required validate-name " type="text" value="<?php echo (isset($usership->lastname))?$usership->lastname:''; ?>" maxlength="250"  name="ship[lnam]" title="<?php echo JText::_('QTC_SHIPIN_LNAM_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 
 			<div class="form-group ship_tr">
-				<label for="ship_email1" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_SHIPIN_EMAIL')?></label>
+				<label for="ship_email1" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_SHIPIN_EMAIL')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="ship_email1" class="input-medium inputbox required validate-email form-control" type="text" value="<?php echo (isset($usership->user_email))?$usership->user_email:''; ?>" maxlength="250" size="32" name="ship[email1]" title="<?php echo JText::_('QTC_SHIPIN_EMAIL_DESC')?>">
+					<input id="ship_email1" class="input-medium inputbox required validate-email " type="text" value="<?php echo (isset($usership->user_email))?$usership->user_email:''; ?>" maxlength="250"  name="ship[email1]" title="<?php echo JText::_('QTC_SHIPIN_EMAIL_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 
 			<div class="form-group ship_tr">
-				<label for="ship_phon"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_SHIPIN_PHON')?></label>
+				<label for="ship_phon"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_SHIPIN_PHON')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="ship_phon" class="input-small inputbox required validate-integer form-control" maxlength="50" type="text" onkeyup="checkforalpha(this,43,<?php echo $entered_numerics; ?>);" value="<?php echo (isset($usership->phone))?$usership->phone:''; ?>" maxlength="50" size="32" name="ship[phon]" title="<?php echo JText::_('QTC_SHIPIN_PHON_DESC')?>">
+					<input id="ship_phon" class="input-small inputbox required validate-integer " maxlength="50" type="text" onkeyup="checkforalpha(this,43,<?php echo $entered_numerics; ?>);" value="<?php echo (isset($usership->phone))?$usership->phone:''; ?>" maxlength="50"  name="ship[phon]" title="<?php echo JText::_('QTC_SHIPIN_PHON_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group ship_tr">
-				<label for="ship_addr"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_SHIPIN_ADDR')?></label>
+				<label for="ship_addr"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_SHIPIN_ADDR')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<textarea id="ship_addr" class="input-medium bill inputbox required form-control" name="ship[addr]"  maxlength="250" rows="3" title="<?php echo JText::_('QTC_SHIPIN_ADDR_DESC')?>" ><?php echo (isset($usership->address))?$usership->address:''; ?></textarea>
+					<textarea id="ship_addr" class="input-medium bill inputbox required " name="ship[addr]"  maxlength="250" rows="3" title="<?php echo JText::_('QTC_SHIPIN_ADDR_DESC')?>" ><?php echo (isset($usership->address))?$usership->address:''; ?></textarea>
 				<p class="help-block"><?php echo JText::_('QTC_SHIPIN_ADDR_HELP')?> </p>
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group ship_tr">
-				<label for="ship_zip"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_SHIPIN_ZIP')?></label>
+				<label for="ship_land_mark"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_BILLIN_LAND_MARK')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="ship_zip" class="input-small inputbox required form-control" type="text" value="<?php echo (isset($usership->zipcode))?$usership->zipcode:''; ?>" maxlength="20" size="32" name="ship[zip]" title="<?php echo JText::_('QTC_SHIPIN_ZIP_DESC')?>">
+					<input id="ship_land_mark" class="input-small inputbox required " type="text" value="<?php echo (isset($usership->land_mark))?$usership->land_mark:''; ?>" maxlength="50"  name="ship[land_mark]" title="<?php echo JText::_('QTC_BILLIN_LAND_MARK_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group ship_tr">
-				<label for="ship_country"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* ".JText::_('QTC_SHIPIN_COUNTRY')?></label>
+				<label for="ship_zip"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_SHIPIN_ZIP')?></label>
+				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
+					<input id="ship_zip" class="input-small inputbox required " type="text" value="<?php echo (isset($usership->zipcode))?$usership->zipcode:''; ?>" maxlength="20"  name="ship[zip]" title="<?php echo JText::_('QTC_SHIPIN_ZIP_DESC')?>">
+				</div>
+				<div class="qtcClearBoth"></div>
+			</div>
+			<div class="form-group ship_tr">
+				<label for="ship_country"  class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* ".JText::_('QTC_SHIPIN_COUNTRY')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" id='qtcShipCountry'>
 					<?php
 						$country=$this->country;
@@ -241,15 +255,15 @@ defined('_JEXEC') or die();
 						{
 							$options[] = JHtml::_('select.option', $value['id'], $value['country']);
 						}
-						echo $this->dropdown = JHtml::_('select.genericlist',$options,'ship[country]','class="qtc_select form-control" required="required" data-chosen="qtc" aria-invalid="false" size="1" onchange=\'generateState(id,"",'.$taxval.')\' ','value','text',$default_country,'ship_country');
+						echo $this->dropdown = JHtml::_('select.genericlist',$options,'ship[country]','class="qtc_select " required="required" data-chosen="qtc" aria-invalid="false"  onchange=\'generateState(id,"",'.$taxval.')\' ','value','text',$default_country,'ship_country');
 					?>
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
 			<div class="form-group ship_tr" >
-				<label for="ship_state" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label"><?php echo "* " . JText::_('QTC_SHIPIN_STATE')?></label>
+				<label for="ship_state" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label"><?php echo "* " . JText::_('QTC_SHIPIN_STATE')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" id="qtcShipState">
-					<select name="ship[state]" id="ship_state"  class=" qtc_select required form-control" data-chosen="qtc">
+					<select name="ship[state]" id="ship_state"  class=" qtc_select required " data-chosen="qtc">
 						<option value=""><?php echo JText::_('QTC_SHIPIN_SELECT_STATE')?></option>
 					</select>
 				</div>
@@ -257,9 +271,9 @@ defined('_JEXEC') or die();
 			</div>
 
 			<div class="form-group ship_tr">
-				<label for="ship_city" class="col-lg-3 col-md-12 col-sm-12 col-xs-12  control-label" ><?php echo "* ".JText::_('QTC_SHIPIN_CITY')?></label>
+				<label for="ship_city" class="col-lg-3 col-md-12 col-sm-12 col-xs-12 control-label" ><?php echo "* ".JText::_('QTC_SHIPIN_CITY')?></label>
 				<div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
-					<input id="ship_city"  class="input-medium inputbox required validate-name form-control" type="text" value="<?php echo (isset($usership->city))?$usership->city:''; ?>" maxlength="250" size="32" name="ship[city]" title="<?php echo JText::_('QTC_SHIPIN_CITY_DESC')?>">
+					<input id="ship_city"  class="input-medium inputbox required validate-name " type="text" value="<?php echo (isset($usership->city))?$usership->city:''; ?>" maxlength="250"  name="ship[city]" title="<?php echo JText::_('QTC_SHIPIN_CITY_DESC')?>">
 				</div>
 				<div class="qtcClearBoth"></div>
 			</div>
@@ -289,7 +303,7 @@ defined('_JEXEC') or die();
 	?>
 		<div class="checkbox">
 			<label class="">
-				<input class="qtc_checkbox_style" type="checkbox" name="qtc_accpt_terms" id="qtc_accpt_terms" size="30" aria-invalid="false"><?php  echo JText::_( 'COM_QUICK2CART_ACCEPT' ); ?>
+				<input class="qtc_checkbox_style" type="checkbox" name="qtc_accpt_terms" id="qtc_accpt_terms" aria-invalid="false"><?php  echo JText::_( 'COM_QUICK2CART_ACCEPT' ); ?>
 
 				<a rel="{handler: 'iframe', size: {x: 600, y: 600}}" href="<?php echo $terms_link;?>" class="modal" title="<?php echo JText::_( 'COM_QUICK2CART_TERMS_CONDITION' ); ?>">
 						<?php  echo JText::_( 'COM_QUICK2CART_TERMS_CONDITION' ); ?>

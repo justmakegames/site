@@ -146,29 +146,29 @@ else{
 		</div>
 		<div class="clearfix"> </div>
 		<hr class="hr-condensed" />
-		<div id="filter-bar" class="btn-toolbar">
+		<div id="qtc-filter-bar" class="qtc-btn-toolbar">
 			<div class="filter-search btn-group pull-left">
 				<input type="text" name="filter_search" id="filter_search"
 				placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_STORES'); ?>"
 				value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
-				class="hasTooltip input-medium"
+				class="qtc-hasTooltip input-medium"
 				title="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_STORES'); ?>" />
 			</div>
 
-			<div class="btn-group pull-left">
-				<button type="submit" class="btn btn-default hasTooltip"
+			<div class="qtc-btn-group pull-left">
+				<button type="submit" class="btn btn-default qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-					<i class="icon-search"></i>
+					<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 				</button>
-				<button type="button" class="btn btn-default hasTooltip"
+				<button type="button" class="btn btn-default qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 				onclick="document.id('filter_search').value='';this.form.submit();">
-					<i class="icon-remove"></i>
+					<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 				</button>
 			</div>
 
 			<?php if (JVERSION >= '3.0') : ?>
-				<div class="btn-group pull-right hidden-xs">
+				<div class="qtc-btn-group pull-right hidden-xs">
 					<label for="limit" class="element-invisible">
 						<?php echo JText::_('COM_QUICK2CART_SEARCH_SEARCHLIMIT_DESC'); ?>
 					</label>
@@ -176,14 +176,14 @@ else{
 				</div>
 			<?php endif; ?>
 
-			<div class="btn-group pull-right hidden-xs">
+			<div class="qtc-btn-group pull-right hidden-xs">
 			<?php
 				echo JHtml::_('select.genericlist', $this->statuses, "filter_published", 'class="input-medium" size="1" onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.state'));
 			?>
 			</div>
 		</div>
 
-		<div class="clearfix"> &nbsp; </div>
+		<div class="clearfix"> &nbsp;</div><br/>
 
 		<?php
 		if (empty($this->items)) :
@@ -258,7 +258,7 @@ else{
 
 							<?php if (isset($this->items[0]->published)): ?>
 								<td class="q2c_width_1 nowrap center"  data-title="<?php echo JText::_('JSTATUS');?>">
-									<a class="btn btn-micro hasTooltip"
+									<a class=" "
 										href="javascript:void(0);"
 										title="<?php echo ( $item->published ) ? JText::_('QTC_UNPUBLISH') : JText::_('QTC_PUBLISH'); ;?>"
 										onclick="document.adminForm.cb<?php echo $i;?>.checked=1; document.adminForm.boxchecked.value=1; Joomla.submitbutton('<?php echo ( $item->published ) ? 'stores.unpublish' : 'stores.publish';?>');">

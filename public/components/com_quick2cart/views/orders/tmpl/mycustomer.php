@@ -123,42 +123,40 @@ $totalamount=0;
 
 		<div class="clearfix">&nbsp; </div>
 
-		<div id="filter-bar" class="btn-toolbar">
+		<div id="qtc-filter-bar" class="qtc-btn-toolbar">
 			<div class="filter-search btn-group pull-left">
 				<input type="text" name="filter_search" id="filter_search"
 				placeholder="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_CUSTOMERS'); ?>"
 				value="<?php echo $this->escape($this->lists['filter_search']); ?>"
-				class="hasTooltip input-medium"
+				class="qtc-hasTooltip input-medium"
 				title="<?php echo JText::_('COM_QUICK2CART_FILTER_SEARCH_DESC_CUSTOMERS'); ?>" />
 			</div>
 
 			<div class="btn-group pull-left">
-				<button type="submit" class="btn btn-default hasTooltip"
+				<button type="submit" class="btn btn-default qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-					<i class="icon-search"></i>
+					<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 				</button>
-				<button type="button" class="btn btn-default hasTooltip"
+				<button type="button" class="btn btn-default qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 				onclick="document.id('filter_search').value='';this.form.submit();">
-					<i class="icon-remove"></i>
+					<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 				</button>
 			</div>
 
 			<?php if (JVERSION >= '3.0') : ?>
-				<div class="btn-group pull-right hidden-xs ">
+				<div class=" pull-right hidden-xs ">
 <!--
 					<label for="limit" class="element-invisible">
-						<?php echo JText::_('COM_QUICK2CART_SEARCH_SEARCHLIMIT_DESC'); ?>
+						<?php //echo JText::_('COM_QUICK2CART_SEARCH_SEARCHLIMIT_DESC'); ?>
 					</label>
 -->
 					<?php echo $this->pagination->getLimitBox(); ?>
 				</div>
 			<?php endif; ?>
 		</div>
-
-		<div class="clearfix"> &nbsp;</div>
-
-		<div class="">
+		<div class="clearfix"> &nbsp;</div><br/>
+			<div class="">
 			<?php
 			if (empty($result)) : ?>
 				<div class="alert alert-warning">

@@ -104,24 +104,24 @@ $isTaxationEnabled = $this->params->get('enableTaxtion', 0);
 			<hr class="hr-condensed" />
 		</div>
 
-		<div id="filter-bar" class="btn-toolbar">
+		<div id="qtc-filter-bar" class="qtc-btn-toolbar">
 			<div class="filter-search btn-group pull-left q2c-btn-wrapper">
 				<input type="text" name="filter_search" id="filter_search"
 				placeholder="<?php echo JText::_('COM_QUICK2CART_TAXPROFILE_SEARCH_FILTER'); ?>"
 				value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
-				class="hasTooltip"
+				class="qtc-hasTooltip"
 				title="<?php echo JText::_('COM_QUICK2CART_TAXPROFILE_SEARCH_FILTER'); ?>" />
 			</div>
 
 			<div class="btn-group pull-left q2c-btn-wrapper">
-				<button type="submit" class="btn hasTooltip"
+				<button type="submit" class="btn qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-					<i class="icon-search"></i>
+					<i class="<?php echo QTC_ICON_SEARCH; ?>"></i>
 				</button>
-				<button type="button" class="btn hasTooltip"
+				<button type="button" class="btn qtc-hasTooltip"
 				title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
 				onclick="document.id('filter_search').value='';this.form.submit();">
-					<i class="icon-remove"></i>
+					<i class="<?php echo QTC_ICON_REMOVE; ?>"></i>
 				</button>
 			</div>
 
@@ -136,7 +136,7 @@ $isTaxationEnabled = $this->params->get('enableTaxtion', 0);
 
 			<div class="btn-group pull-right hidden-phone q2c-btn-wrapper">
 				<?php
-				echo JHtml::_('select.genericlist', $this->publish_states, "filter_published", 'class="input-medium" size="1" onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.state'));
+				echo JHtml::_('select.genericlist', $this->publish_states, "filter_published", 'class="input-medium"  onchange="document.adminForm.submit();" name="filter_published"', "value", "text", $this->state->get('filter.state'));
 				?>
 			</div>
 		</div>
@@ -202,7 +202,7 @@ $isTaxationEnabled = $this->params->get('enableTaxtion', 0);
 							<?php
 							if (isset($this->items[0]->state)): ?>
 								<td class="hidden-phone nowrap center q2c_width_20">
-									<a class="btn btn-micro hasTooltip"
+									<a class=" "
 										href="javascript:void(0);"
 										title="<?php echo ( $item->state ) ? JText::_('QTC_UNPUBLISH') : JText::_('QTC_PUBLISH'); ;?>"
 										onclick="document.adminForm.cb<?php echo $i;?>.checked=1; document.adminForm.boxchecked.value=1; Joomla.submitbutton('<?php echo ($item->state) ? 'taxprofiles.unpublish' : 'taxprofiles.publish';?>');">

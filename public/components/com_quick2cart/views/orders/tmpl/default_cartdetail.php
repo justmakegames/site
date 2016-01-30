@@ -41,8 +41,9 @@ if (in_array('cart', $order_blocks))
 		}
 		?>
 		<div class="table-responsive" id='no-more-tables'>
-			<table width="100%" class="table table-condensed table-bordered  " style="<?php echo $this->email_table_bordered; ?>">
+			<table width="100%" class="table table-condensed table-bordered  qtc-table" style="<?php echo $this->email_table_bordered; ?>">
 				<!-- 	<tr> <td><h4 <?php echo $emailstyle;?> ><?php echo JText::_('QTC_ORDER_DETAILS');?></h4></td> </tr> -->
+				<thead>
 				<tr class="hidden-xs hidden-sm">
 					<th class="cartitem_num" width="5%" align="right" style="<?php echo ($orders_email) ? 'text-align: left;' : '';?>" ><?php echo JText::_('QTC_NO');?></th>
 					<!--			<th><?php //echo JHtml::_( 'grid.sort', JText::_('GETWAY'),'processor', $this->lists['order_Dir'], $this->lists['order']);?></th> -->
@@ -54,12 +55,13 @@ if (in_array('cart', $order_blocks))
 					<th class="cartitem_opt" align="left" style="<?php echo ($orders_email) ? 'text-align: left;' : '';?>" ><?php echo JText::_('QTC_PRODUCT_OPTS');?></th>
 					<?php
 					}?>
-					<th class="cartitem_qty" width="5%" align="left" style="<?php echo ($orders_email) ? 'text-align: left;' : '';?>" ><?php echo JText::_('QTC_PRODUCT_QTY');?></th>
-					<th class="cartitem_price" align="left"
+					<th class="cartitem_qty rightalign" width="5%"  style="<?php echo ($orders_email) ? 'text-align: left;' : '';?>" ><?php echo JText::_('QTC_PRODUCT_QTY');?></th>
+					<th class="cartitem_price rightalign" 
 						<?php echo $price_col_style;?>><?php echo JText::_('QTC_PRODUCT_PRICE');?></th>
-					<th class="cartitem_tprice" align="left" width="12%"
+					<th class="cartitem_tprice rightalign"  width="12%"
 						<?php echo $price_col_style;?>><?php echo JText::_('QTC_PRODUCT_TPRICE');?></th>
 				</tr>
+				</thead>
 				<?php
 				$qtc_store_row_styles  = "";
 				$qtc_store_row_classes = "info";
@@ -120,13 +122,24 @@ if (in_array('cart', $order_blocks))
 							<?php
 							}
 
+							// Show sku
+							$sku_item_id = !empty($order->variant_item_id) ? $order->variant_item_id : $order->item_id;
+							$sku = $this->productHelper->getSku($sku_item_id);
+
+							if (!empty($sku))
+							{
+								?>
+								<span title="<?php echo JText::_('QTC_PROD_SKU_TOOLTIP'); ?>"> ( <?php echo JText::_('QTC_PROD_SKU');?> : <?php echo $sku; ?> )</span>
+								<?php
+							}
+
 							$orderItemIds[] = $order->order_item_id;
 
 							// DOWNLOAD LINK
 							if (!empty($this->orderinfo->status) && $this->orderinfo->status == 'C')
 							{
 
-								// check where has any media files
+								// Check where has any media files
 								$medisFiles = $this->productHelper->isMediaForPresent($order->order_item_id);
 
 								if (!empty($medisFiles))
@@ -140,6 +153,7 @@ if (in_array('cart', $order_blocks))
 								<?php
 								}
 							}
+
 							// Showing shipping method name
 							if (!empty($order->item_shipDetail))
 							{
@@ -175,8 +189,8 @@ if (in_array('cart', $order_blocks))
 							<?php
 						}?>
 
-						<td class="cartitem_qty" data-title="<?php echo JText::_('QTC_PRODUCT_QTY');?>"><?php echo $order->product_quantity;?></td>
-						<td class="cartitem_price" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_PRODUCT_PRICE');?>" >
+						<td class="cartitem_qty rightalign" data-title="<?php echo JText::_('QTC_PRODUCT_QTY');?>"><?php echo $order->product_quantity;?></td>
+						<td class="cartitem_price rightalign" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_PRODUCT_PRICE');?>" >
 							<span><?php
 								$prodprice = (float) ($order->product_item_price + $order->product_attributes_price);
 								echo $this->comquick2cartHelper->getFromattedPrice(number_format($prodprice, 2), $order_currency);?>
@@ -219,7 +233,7 @@ if (in_array('cart', $order_blocks))
 												<a class="discount label label-info" data-content="<?php echo $content;?> " data-placement="bottom" data-html="html"
 													data-trigger="hover" rel="popover"
 													data-original-title="<?php echo JText::_('QTC_DIS_POP_TITLE');?>">
-														<i class="<?php echo $qtc_icon_info;?> icon-white"></i>
+														<i class="<?php echo $qtc_icon_info;?> <?php echo Q2C_ICON_WHITECOLOR; ?>"></i>
 													<?php
 														$dis_str = $this->comquick2cartHelper->getFromattedPrice(number_format(($prod_disc), 2));
 														if ($orders_email)
@@ -245,7 +259,7 @@ if (in_array('cart', $order_blocks))
 							$productPrice = ($order->product_quantity * $prodprice);
 							$tprice += $productPrice;
 							?>
-						<td class="cartitem_tprice" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_PRODUCT_TPRICE');?>">
+						<td class="cartitem_tprice rightalign" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_PRODUCT_TPRICE');?>">
 							<span><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($productPrice, 2), $order_currency);?></span>
 						</td>
 					</tr>
@@ -265,8 +279,8 @@ if (in_array('cart', $order_blocks))
 				}?>
 				<tr>
 					<td colspan="<?php echo $col;?>" class=" hidden-xs hidden-xs "></td>
-					<td class="cartitem_tprice_label hidden-xs hidden-xs" align="left"><strong><?php echo JText::_('QTC_PRODUCT_TOTAL');?></strong></td>
-					<td class="cartitem_tprice" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_PRODUCT_TOTAL');?>">
+					<td class="cartitem_tprice_label hidden-xs hidden-xs rightalign" align="left"><strong><?php echo JText::_('QTC_PRODUCT_TOTAL');?></strong></td>
+					<td class="cartitem_tprice rightalign" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_PRODUCT_TOTAL');?>">
 						<span id="cop_discount">
 							<?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($tprice, 2), $order_currency);?>
 						</span>
@@ -283,8 +297,8 @@ if (in_array('cart', $order_blocks))
 					<!-- Commission price -->
 					<tr>
 						<td colspan="<?php echo $col;?>" class="hidden-xs hidden-xs"></td>
-						<td class="cartitem_tprice_label hidden-xs hidden-xs" align="left"><strong><?php echo sprintf(JText::_('QTC_COMMISSION_CUT_SUB_TOT'), '(' . $commission . '%)');?> 	</strong></td>
-						<td class="cartitem_tprice" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_COMMISSION_CUT_SUB_TOT');?>">
+						<td class="cartitem_tprice_label hidden-xs hidden-xs rightalign" align="left"><strong><?php echo sprintf(JText::_('QTC_COMMISSION_CUT_SUB_TOT'), '(' . $commission . '%)');?> 	</strong></td>
+						<td class="cartitem_tprice rightalign" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_COMMISSION_CUT_SUB_TOT');?>">
 							<span
 								id="cop_discount"><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($commission_cutPrice, 2), $order_currency);?>
 							</span>
@@ -293,8 +307,8 @@ if (in_array('cart', $order_blocks))
 					<!-- CommissionCut net total -->
 					<tr>
 						<td colspan="<?php echo $col;?>" class=" hidden-xs hidden-xs "></td>
-						<td class="cartitem_tprice_label hidden-xs hidden-xs" align="left"><strong><?php echo sprintf(JText::_('QTC_COMMISSION_CUT_NET_TOT'), '(' . $commission . '%)');?> 	</strong></td>
-						<td class="cartitem_tprice" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_COMMISSION_CUT_NET_TOT');?>" >
+						<td class="cartitem_tprice_label hidden-xs hidden-xs rightalign" align="left"><strong><?php echo sprintf(JText::_('QTC_COMMISSION_CUT_NET_TOT'), '(' . $commission . '%)');?> 	</strong></td>
+						<td class="cartitem_tprice rightalign" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_COMMISSION_CUT_NET_TOT');?>" >
 							<span id="cop_discount">
 								<?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($commission_cutNetPrice, 2), $order_currency);?>
 							</span>
@@ -323,8 +337,8 @@ if (in_array('cart', $order_blocks))
 							$discount                    = $tprice - $dis_totalamt;?>
 							<tr>
 								<td colspan="<?php echo $col;?>" class=" hidden-xs hidden-xs "></td>
-								<td class="cartitem_tprice_label hidden-xs hidden-xs" align="left"><strong><?php echo sprintf(JText::_('QTC_PRODUCT_DISCOUNT'), $coupon_code);?></strong></td>
-								<td class="cartitem_tprice " <?php echo $price_col_style;?> data-title="<?php echo sprintf(JText::_('QTC_PRODUCT_DISCOUNT'), $coupon_code); ?>" >
+								<td class="cartitem_tprice_label hidden-xs hidden-xs rightalign" align="left"><strong><?php echo sprintf(JText::_('QTC_PRODUCT_DISCOUNT'), $coupon_code);?></strong></td>
+								<td class="cartitem_tprice rightalign " <?php echo $price_col_style;?> data-title="<?php echo sprintf(JText::_('QTC_PRODUCT_DISCOUNT'), $coupon_code); ?>" >
 									<span
 									id="coupon_discount">
 									<?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($discount, 2), $order_currency);?>
@@ -334,8 +348,8 @@ if (in_array('cart', $order_blocks))
 							<!-- total amt after Discount row-->
 							<tr class="dis_tr" <?php // echo $cop_style;?> >
 								<td colspan="<?php echo $col;?>" class=" hidden-xs hidden-xs "></td>
-								<td class="cartitem_tprice_label hidden-xs hidden-xs" align="left"><strong><?php echo JText::_('QTC_NET_AMT_PAY');?></strong></td>
-								<td class="cartitem_tprice" <?php echo $price_col_style;?> data-title="<?php echo  JText::_('QTC_NET_AMT_PAY');?>">
+								<td class="cartitem_tprice_label hidden-xs hidden-xs rightalign" align="left"><strong><?php echo JText::_('QTC_NET_AMT_PAY');?></strong></td>
+								<td class="cartitem_tprice rightalign" <?php echo $price_col_style;?> data-title="<?php echo  JText::_('QTC_NET_AMT_PAY');?>">
 								<span
 									id="total_dis_cop">
 								<?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($dis_totalamt, 2), $order_currency);?></span>
@@ -360,8 +374,8 @@ if (in_array('cart', $order_blocks))
 							}?>
 								<tr>
 									<td colspan="<?php echo $col;?>" class=" hidden-xs hidden-xs "></td>
-									<td class="cartitem_tprice_label hidden-xs hidden-xs" align="left"><strong><?php echo JText::sprintf('QTC_TAX_AMT_PAY', $orderTaxPer);?></strong></td>
-									<td class="cartitem_tprice" <?php echo $price_col_style;?> data-title="<?php echo JText::sprintf('QTC_TAX_AMT_PAY', $orderTaxPer);?>">
+									<td class="cartitem_tprice_label hidden-xs hidden-xs rightalign" align="left"><strong><?php echo JText::sprintf('QTC_TAX_AMT_PAY', $orderTaxPer);?></strong></td>
+									<td class="cartitem_tprice rightalign" <?php echo $price_col_style;?> data-title="<?php echo JText::sprintf('QTC_TAX_AMT_PAY', $orderTaxPer);?>">
 									<span
 										id="tax_amt"><?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($this->orderinfo->order_tax, 2), $order_currency);?></span></td>
 								</tr>
@@ -374,8 +388,8 @@ if (in_array('cart', $order_blocks))
 						{ ?>
 							<tr>
 								<td colspan="<?php echo $col;?>" class=" hidden-xs hidden-xs "></td>
-								<td class="cartitem_tprice_label hidden-xs hidden-xs" align="left"><strong><?php echo JText::sprintf('QTC_SHIP_AMT_PAY', '');?></strong></td>
-								<td class="cartitem_tprice" <?php echo $price_col_style;?> data-title="<?php echo JText::sprintf('QTC_SHIP_AMT_PAY', '');?>">
+								<td class="cartitem_tprice_label hidden-xs hidden-xs rightalign" align="left"><strong><?php echo JText::sprintf('QTC_SHIP_AMT_PAY', '');?></strong></td>
+								<td class="cartitem_tprice rightalign" <?php echo $price_col_style;?> data-title="<?php echo JText::sprintf('QTC_SHIP_AMT_PAY', '');?>">
 									<span	id="ship_amt">
 										<?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($this->orderinfo->order_shipping, 2), $order_currency);?>
 									</span>
@@ -386,8 +400,8 @@ if (in_array('cart', $order_blocks))
 								<!--  final order  total -->
 						<tr>
 							<td colspan="<?php echo $col;?>" class=" hidden-xs"></td>
-							<td class="cartitem_tprice_label hidden-xs hidden-xs" align="left"><strong><?php echo JText::_('QTC_ORDER_TOTAL');?></strong></td>
-							<td class="cartitem_tprice" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_ORDER_TOTAL');?>">
+							<td class="cartitem_tprice_label hidden-xs hidden-xs rightalign" align="left"><strong><?php echo JText::_('QTC_ORDER_TOTAL');?></strong></td>
+							<td class="cartitem_tprice rightalign" <?php echo $price_col_style;?> data-title="<?php echo JText::_('QTC_ORDER_TOTAL');?>">
 								<strong>
 									<span id="final_amt_pay" name="final_amt_pay">
 									<?php echo $this->comquick2cartHelper->getFromattedPrice(number_format($this->orderinfo->amount, 2), $order_currency);?>

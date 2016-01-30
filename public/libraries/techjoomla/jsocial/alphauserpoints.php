@@ -18,52 +18,186 @@ jimport('joomla.filesystem.file');
  */
 class JSocialAlphauserpoints implements JSocial
 {
+	private $gravatar = true;
 
-	var $gravatar = true;
+	private $gravatar_surl = 'https://secure.gravatar.com/avatar/';
 
-	var $gravatar_surl = 'https://secure.gravatar.com/avatar/';
+	private $gravatar_url = 'http://www.gravatar.com/avatar/';
 
-	var $gravatar_url = 'http://www.gravatar.com/avatar/';
+	private $gravatar_size = 200;
 
-	var $gravatar_size = 200;
+	private $gravatar_default = '';
 
-	var $gravatar_default = '';
+	private $gravatar_rating = 'g';
 
-	var $gravatar_rating = 'g';
+	private $gravatar_secure = false;
 
-	var $gravatar_secure = false;
-
-	public function __construct() {
-		require_once JPATH_SITE.DS.'components'.DS.'com_alphauserpoints'.DS.'helper.php';
-
+	/**
+	 * The constructor
+	 *
+	 * @since  1.0
+	 */
+	public function __construct()
+	{
+		require_once JPATH_SITE . '/components/com_alphauserpoints/helper.php';
 	}
 
-	public function getProfileData(JUser $user) {
+	/**
+	 * The function to get profile data of User
+	 *
+	 * @param   MIXED  $user  JUser Objcet
+	 *
+	 * @return  JUser Objcet
+	 *
+	 * @since   1.0
+	 */
+	public function getProfileData(JUser $user)
+	{
 		return $user;
 	}
 
-	public function getProfileUrl(JUser $user) {
+	/**
+	 * The function to get profile link User
+	 *
+	 * @param   MIXED  $user  JUser Objcet
+	 *
+	 * @return  STRING
+	 *
+	 * @since   1.0
+	 */
+	public function getProfileUrl(JUser $user)
+	{
 		return;
 	}
 
-	public function getAvatar(JUser $user) {
-		if (!$this->gravatar) { return; }
+	/**
+	 * The function to get profile AVATAR of a User
+	 *
+	 * @param   MIXED  $user           JUser Objcet
+	 *
+	 * @param   INT    $gravatar_size  Size of the AVATAR
+	 *
+	 * @return  STRING
+	 *
+	 * @since   1.0
+	 */
+	public function getAvatar(JUser $user, $gravatar_size = '')
+	{
+		if (!$this->gravatar)
+		{
+			return;
+		}
 
 		return $this->gravatarURL($user->email);
 	}
 
-	public function getFriends(JUser $user, $accepted=true) {}
-	public function addFriend(JUser $connect_from_user,JUser $connect_to_user){}
-	public function addStream(JUser $user, $options) {}
-	public function setStatus(JUser $user, $status, $options=array()) {}
-
-	public function getRegistrationLink($options=array())
+	/**
+	 * The function to get friends of a User
+	 *
+	 * @param   MIXED  $user      JUser Objcet
+	 * @param   INT    $accepted  Optional param, bydefault true to get only friends with request accepted
+	 * @param   INT    $options   Optional array.. Extra options to pass to the getFriends Query :
+	 * state, limit and idonly(if idonly only ids array will be returned) are supported
+	 *
+	 * @return  Friends objects
+	 *
+	 * @since   1.0
+	 */
+	public function getFriends(JUser $user, $accepted=true, $options = array())
 	{
-		return JRoute::_('index.php?option=com_users&view=registration&Itemid='.UsersHelperRoute::getRegistrationRoute());
 	}
 
-	public function sendMessage(JUser $user, $recepient) {}
+	/**
+	 * The function to add provided users as Friends
+	 *
+	 * @param   MIXED  $connect_from_user  User who is requesting connection
+	 * @param   INT    $connect_to_user    User whom to request
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function addFriend(JUser $connect_from_user, JUser $connect_to_user)
+	{
+	}
 
+	/**
+	 * The function to get Easysocial toolbar
+	 *
+	 * @return  toolbar HTML
+	 *
+	 * @since   1.0
+	 */
+	public function getToolbar()
+	{
+	}
+
+	/**
+	 * Add activity stream
+	 *
+	 * @param   INT     $user     User against whom activity is added
+	 * @param   STRING  $options  Activity options
+	 *
+	 * @return  true
+	 *
+	 * @since  1.0
+	 */
+	public function addStream(JUser $user, $options)
+	{
+	}
+
+	/**
+	 * The function to set status of a user
+	 *
+	 * @param   MIXED   $user     User whose status is to be set
+	 * @param   STRING  $status   status to be set
+	 * @param   MIXED   $options  status to be set
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function setStatus(JUser $user, $status, $options=array())
+	{
+	}
+
+	/**
+	 * The function to get registartion link for CB
+	 *
+	 * @param   ARRAY  $options  options
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0
+	 */
+	public function getRegistrationLink($options=array())
+	{
+		return JRoute::_('index.php?option=com_users&view=registration&Itemid=' . UsersHelperRoute::getRegistrationRoute());
+	}
+
+	/**
+	 * Send Message
+	 *
+	 * @param   OBJECT  $user       User who is sending Message
+	 * @param   OBJECT  $recepient  User to whom Message is to send
+	 *
+	 * @return  boolean
+	 *
+	 * @since  1.0
+	 */
+	public function sendMessage(JUser $user, $recepient)
+	{
+	}
+
+	/**
+	 * get Avatar from Gravtar
+	 *
+	 * @param   STRING  $email  email of the user
+	 *
+	 * @return  STRING
+	 *
+	 * @since 1.0
+	 */
 	private function gravatarURL ($email)
 	{
 		$url = ($this->gravatar_secure) ? $this->gravatar_surl : $this->gravatar_url;
@@ -72,35 +206,89 @@ class JSocialAlphauserpoints implements JSocial
 		return $url;
 	}
 
+	/**
+	 * The function to check if Alpha user points is installed
+	 *
+	 * @return  boolean
+	 *
+	 * @since   1.0
+	 */
 	public function checkExists()
 	{
-		return JFolder::exists(JPATH_SITE.DS.'components'.DS.'com_alphauserpoints'.DS.'helper.php');
+		return JFile::exists(JPATH_SITE . '/components/com_alphauserpoints/helper.php');
 	}
 
-
-
+	/**
+	 * Helper function to get ReferreID
+	 *
+	 * @param   OBJECT  $user  User
+	 *
+	 * @return  boolean
+	 *
+	 * @since   1.0
+	 */
 	public function getAnyUserReferreID(JUser $user)
 	{
-
-		return $res=AlphaUserPointsHelper::getAnyUserReferreID( $user->id );
+		return $res = AlphaUserPointsHelper::getAnyUserReferreID($user->id);
 	}
 
-	public function addpoints(JUser $user, $options=array())
+	/**
+	 * The function add points to user
+	 *
+	 * @param   MIXED  $user     User to whom points to be added
+	 * @param   ARRAY  $options  is array
+	 *
+	 * $options[command] for example invites sent
+	 * options[extension] for example com_invitex
+	 *
+	 * @return ARRAY success 0 or 1
+	 */
+	public function addpoints(JUser $user, $options = array())
 	{
-		return $res=AlphaUserPointsHelper::newpoints( $options['plugin_function'],  $options['referrerid'], $options['keyreference'],$options['datareference'],$options['randompoints'], $options['feedback'],$options['force'], $options['frontmessage']);
+		$function = $options['plugin_function'];
+		$referre = $options['referrerid'];
+		$key = $options['keyreference'];
+		$date = $options['datareference'];
+		$randompoints	=	$options['randompoints'];
+		$feedback = $options['feedback'];
+		$force = $options['force'];
+		$frontmessage = $options['frontmessage'];
+
+		return $res = AlphaUserPointsHelper::newpoints($function, $referre, $key, $date, $randompoints, $feedback, $force, $frontmessage);
 	}
-	public function pushActivity($actor_id, $act_type,$act_subtype='',$act_description='',$act_link='',$act_title='',$act_access)
+
+	/**
+	 * Add activity stream
+	 *
+	 * @param   INT     $actor_id         User against whom activity is added
+	 * @param   STRING  $act_type         type of activity
+	 * @param   STRING  $act_subtype      sub type of activity
+	 * @param   STRING  $act_description  Activity description
+	 * @param   STRING  $act_link         LInk of Activity
+	 * @param   STRING  $act_title        Title of Activity
+	 * @param   STRING  $act_access       Access level
+	 *
+	 * @return  true
+	 *
+	 * @since  1.0
+	 */
+	public function pushActivity($actor_id, $act_type, $act_subtype='', $act_description='', $act_link='', $act_title='', $act_access='')
 	{
 	}
 
-	public function sendNotification(JUser $sender,JUser $receiver,$content="JS Notification",$options=array())
+	/**
+	 * Send Notification
+	 *
+	 * @param   OBJECT  $sender    User who is sending notification
+	 * @param   OBJECT  $receiver  User to whom notification is to send
+	 * @param   STRING  $content   Main content of the notification
+	 * @param   STRING  $options   Optional options
+	 *
+	 * @return  boolean
+	 *
+	 * @since  1.0
+	 */
+	public function sendNotification(JUser $sender, JUser $receiver, $content="JS Notification", $options=array())
 	{
-
 	}
-
-	public function send_SMS($user,$password,$api_id,$text,$to)
-	{
-
-	}
-
 }

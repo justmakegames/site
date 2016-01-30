@@ -70,7 +70,8 @@ if (!$user->id)
 	<div id="qtc_user-info" class="com_quick2cart-checkout-steps " style="<?php echo $registorStyle; ?>">
 		<div class="checkout-heading">
 			<span><?php echo JText::_('COM_QUICK2CART_USER_INFO');?></span>
-			<span id="" class="qtcHandPointer badge badge-success pull-right" onclick="qtc_hideShowLoginTab('qtc_user-info-content', 'qtc_ckout_billing-info')"><?php echo JText::_('COM_QUICK2CART_MODIFY');?></span>
+			<span id="" class="qtcHandPointer btn btn-xs btn-primary pull-right" onclick="qtc_hideShowLoginTab('qtc_user-info-content', 'qtc_ckout_billing-info')"><?php echo JText::_('COM_QUICK2CART_MODIFY');?></span>
+			<div class="clearfix"></div>
 		</div>
 		<!--<div class="checkout-content row checkout-first-step-user-info" id="user-info-tab">  -->
 		<div id="qtc_user-info-content" class="container-fluid">
@@ -121,7 +122,11 @@ if (!$user->id)
 			</div>
 			<hr/>
 			<div class="row">
-				<input type="button" class="button btn btn-default btn-primary" id="button-user-info" value="<?php echo JText::_('COM_QUICK2CART_CONTINUE');?>" onclick="qtc_guestContinue('qtc_user-info-content')">
+				<div class="col-xs-12">
+				<input type="button" class=" btn  btn-primary" id="button-user-info" value="<?php echo JText::_('COM_QUICK2CART_CONTINUE');?>" onclick="qtc_guestContinue('qtc_user-info-content')">
+				</div>
+				<div class="clearfix"></div>
+				<br />
 			</div>
 		</div>
 

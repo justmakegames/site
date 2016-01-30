@@ -14,6 +14,142 @@
 			},
 
 			{
+				"label"		: "APP_Q2CMYPRODUCTS_LAYOUT_TO_SHOW",
+				"tooltip"	: "APP_Q2CMYPRODUCTS_LAYOUT_TO_SHOW_DESC",
+				"name"		: "layout_to_load",
+				"type"		: "select",
+				"default"	: "flexible_layout",
+				"options"	:
+				[
+					{
+						"title"	: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT",
+						"value"	: "fixed_layout"
+					},
+					{
+						"title"	: "APP_Q2CMYPRODUCTS_FLEXIBLE_PIN_LAYOUT",
+						"value"	: "flexible_layout"
+					}
+				]
+			},
+
+			{
+				"label"		: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_HEIGHT",
+				"tooltip"	: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_HEIGHT_DESC",
+				"name"		: "fix_pin_height",
+				"class"		: "input-mini center",
+				"type"		: "text",
+				"default"	: 200
+			},
+
+			{
+				"label"		: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_PINS_IN_LS",
+				"tooltip"	: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_PINS_IN_LS_DESC",
+				"name"		: "pin_for_lg",
+				"type"		: "select",
+				"default"	: 12,
+				"options"	:
+				[
+					{
+						"title"	: "1",
+						"value"	: 12
+					},
+					{
+						"title"	: "2",
+						"value"	: 6
+					},
+					{
+						"title"	: "3",
+						"value"	: 4
+					},
+					{
+						"title"	: "4",
+						"value"	: 3
+					}
+				]
+			},
+
+			{
+				"label"		: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_PINS_IN_MS",
+				"tooltip"	: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_PINS_IN_MS_DESC",
+				"name"		: "pin_for_md",
+				"type"		: "select",
+				"default"	: 12,
+				"options"	:
+				[
+					{
+						"title"	: "1",
+						"value"	: 12
+					},
+					{
+						"title"	: "2",
+						"value"	: 6
+					},
+					{
+						"title"	: "3",
+						"value"	: 4
+					},
+					{
+						"title"	: "4",
+						"value"	: 3
+					}
+				]
+			},
+
+			{
+				"label"		: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_PINS_IN_SS",
+				"tooltip"	: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_PINS_IN_SS_DESC",
+				"name"		: "pin_for_sm",
+				"type"		: "select",
+				"default"	: 12,
+				"options"	:
+				[
+					{
+						"title"	: "1",
+						"value"	: 12
+					},
+					{
+						"title"	: "2",
+						"value"	: 6
+					},
+					{
+						"title"	: "3",
+						"value"	: 4
+					},
+					{
+						"title"	: "4",
+						"value"	: 3
+					}
+				]
+			},
+
+			{
+				"label"		: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_PINS_IN_XSS",
+				"tooltip"	: "APP_Q2CMYPRODUCTS_FIXED_PIN_LAYOUT_PINS_IN_XSS_DESC",
+				"name"		: "pin_for_xs",
+				"type"		: "select",
+				"default"	: 12,
+				"options"	:
+				[
+					{
+						"title"	: "1",
+						"value"	: 12
+					},
+					{
+						"title"	: "2",
+						"value"	: 6
+					},
+					{
+						"title"	: "3",
+						"value"	: 4
+					},
+					{
+						"title"	: "4",
+						"value"	: 3
+					}
+				]
+			},
+
+			{
 				"label"		: "APP_Q2CMYPRODUCTS_PIN_WIDTH",
 				"tooltip"	: "APP_Q2CMYPRODUCTS_PIN_WIDTH_DESC",
 				"name"		: "pin_width",

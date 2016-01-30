@@ -67,8 +67,6 @@ class Quick2cartViewZone extends JViewLegacy
 			// Getting countries
 			$country = $model->getCountry();
 			$this->country = $country;
-
-
 		}
 		parent::display($tpl);
 	}
@@ -111,7 +109,6 @@ class Quick2cartViewZone extends JViewLegacy
 		// If not checked out, can save the item.
 		if (!$checkedOut && ($canDo->get('core.edit')||($canDo->get('core.create'))))
 		{
-
 			JToolBarHelper::apply('zone.apply', 'JTOOLBAR_APPLY');
 			JToolBarHelper::save('zone.save', 'JTOOLBAR_SAVE');
 		}

@@ -76,13 +76,13 @@ function qtcsubmitAction(action)
 				<input type="hidden" name="jform[taxrate_id]" value="<?php echo $this->item->id; ?>" />
 
 				<div class="form-group">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('name'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('name'); ?></div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('name'); ?></div>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('name'); ?></div>
 				</div>
 				<div class="form-group">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('percentage'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12">
-						<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 input-group ">
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('percentage'); ?></div>
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-11">
+						<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 input-group">
 							<?php echo $this->form->getInput('percentage'); ?>
 							<div class="input-group-addon">%</div>
 						</div>
@@ -90,12 +90,12 @@ function qtcsubmitAction(action)
 				</div>
 
 				<div class="form-group">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('zone_id'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('zone_id'); ?></div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('zone_id'); ?></div>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('zone_id'); ?></div>
 				</div>
 				<div class="form-group">
-					<div class="col-lg-2 col-md-2 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('state'); ?></div>
-					<div class="col-lg-10 col-md-10 col-sm-9 col-xs-12"><?php echo $this->form->getInput('state'); ?></div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label"><?php echo $this->form->getLabel('state'); ?></div>
+					<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12"><?php echo $this->form->getInput('state'); ?></div>
 				</div>
 
 				<input type="hidden" name="jform[ordering]" value="<?php echo $this->item->ordering; ?>" />

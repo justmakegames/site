@@ -35,9 +35,18 @@ class Q2cMyProductsViewProfile extends SocialAppsView
 		$appParams = $this->app->getParams();
 
 		// Get the blog model
-		$total = (int) $params->get('total', $appParams->get('total', 5));
+		$total = (int) $appParams->get('total', 5);
+
+		$layout_to_load = $appParams->get('layout_to_load','flexible_layout');
+		$fix_pin_height = (int) $appParams->get('fix_pin_height', 200);
+		$pin_for_lg = (int) $appParams->get('pin_for_lg', 1);
+		$pin_for_md = (int) $appParams->get('pin_for_md', 1);
+		$pin_for_sm = (int) $appParams->get('pin_for_sm', 1);
+		$pin_for_xs = (int) $appParams->get('pin_for_xs', 1);
 		$pin_width = (int) $appParams->get('pin_width', 145);
 		$pin_padding = (int) $appParams->get('pin_padding', 3);
+		$comParams = JComponentHelper::getParams('com_quick2cart');
+		$currentBSViews = $comParams->get('currentBSViews','bs2','string');
 
 		// Get list of all products created by the user on the site.
 		$input = JFactory::getApplication()->input;
@@ -61,6 +70,13 @@ class Q2cMyProductsViewProfile extends SocialAppsView
 		$this->set('products', $products);
 		$this->set('productsCount', $productsCount);
 		$this->set('storelists', $storelist);
+		$this->set('pin_for_xs', $pin_for_xs);
+		$this->set('pin_for_sm', $pin_for_sm);
+		$this->set('pin_for_md', $pin_for_md);
+		$this->set('pin_for_lg', $pin_for_lg);
+		$this->set('pinHeight', $fix_pin_height);
+		$this->set('layout_to_load', $layout_to_load);
+		$this->set('currentBSViews', $currentBSViews);
 
 		echo parent::display('profile/default');
 	}

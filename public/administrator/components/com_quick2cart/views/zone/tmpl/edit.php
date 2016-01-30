@@ -73,6 +73,18 @@ function qtc_generateState(field_name, field_id)
  */
 function qtcAddZoneRule()
 {
+	/* Clear old msg */
+	techjoomla.jQuery('#qtczoneruleError').html("");
+	techjoomla.jQuery('.qtcError').fadeOut();
+
+	var qtc_ZoneCountry = document.id('qtc_ZoneCountry').value;
+	if (qtc_ZoneCountry == '')
+	{
+		techjoomla.jQuery('#qtczoneruleError').html("<?php echo JText::_('COM_QUICK2CART_ZONE_INVALID_COUNTRY_SEL', true); ?>");
+		techjoomla.jQuery('.qtcError').fadeIn();
+		return false;
+	}
+
 	var data = {
 		jform : {
 			zone_id : document.id('zone_id').value,

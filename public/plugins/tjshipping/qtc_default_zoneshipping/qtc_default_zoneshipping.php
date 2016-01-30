@@ -169,6 +169,7 @@ class  plgTjshippingQtc_default_zoneshipping extends JPlugin
 			*
 			* */
 		}
+
 		return $actionDetail;
 
 		//return $html = $this->_shipBuildLayout($jinput, $layout = 'default');
@@ -230,18 +231,29 @@ class  plgTjshippingQtc_default_zoneshipping extends JPlugin
 	function buildLayoutPath($layout = 'default', $jinput)
 	{
 		$app = JFactory::getApplication();
-		 $core_file 	= dirname(__FILE__)  . '/' . $this->_name . '/tmpl/' . $layout . '.php';
+		$core_file 	= dirname(__FILE__)  . '/' . $this->_name . '/tmpl/' . $layout . '.php';
 		// Check for override layout ( Is present )?
 		$override		= JPATH_BASE . '/' . 'templates/' . $app->getTemplate() . '/html/plugins/' . $this->_type . '/' . $this->_name . '/' . $layout .'.php';
 
 		if (JFile::exists($override))
 		{
-			return $override;
+			$layoutPath = $override;
 		}
 		else
 		{
-			return  $core_file;
+			$isAdmin = JFactory::getApplication()->isAdmin();
+
+			if (! $isAdmin)
+			{
+				$layoutPath =  $core_file;
+			}
+			else
+			{
+				$layoutPath		= JPATH_SITE . '/components/com_quick2cart/views_bs2/plugins/tjshipping/qtc_default_zoneshipping/' . $layout .'.php';
+			}
 		}
+
+		return  $layoutPath;
 	}
 
 	/**

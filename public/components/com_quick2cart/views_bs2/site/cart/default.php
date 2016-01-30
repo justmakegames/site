@@ -13,12 +13,12 @@ defined('_JEXEC') or die();
 $params = JComponentHelper::getParams('com_quick2cart');
 $document = JFactory::getDocument();
 //$document->addStyleSheet(JUri::base().'components/com_quick2cart/assets/css/quick2cart_style.css');//aniket
+
 if(version_compare(JVERSION, '3.0', 'lt')) {
-/*BS start*/
-$document->addStyleSheet(JUri::base().'components/com_quick2cart/bootstrap/css/bootstrap.css');//aniket
-/*BS end*/
+	/*BS start*/
+	$document->addStyleSheet(JUri::base().'components/com_quick2cart/bootstrap/css/bootstrap.css');//aniket
+	/*BS end*/
 }
-//$document->addStyleSheet(JUri::base().'components/com_quick2cart/assets/css/quick2cart.css');//aniket
 
 $path = JPATH_SITE.DS.'components'.DS.'com_quick2cart'.DS.'helper.php';
 if(!class_exists('comquick2cartHelper'))
@@ -47,8 +47,10 @@ if(empty($cart_session)){
 	return false;
 }
 $showoptioncol=0;
-foreach($cart_session as $citem){
-	if(!empty($citem['options'])){
+foreach($cart_session as $citem)
+{
+	if(!empty($citem['options']))
+	{
 		$showoptioncol=1; // atleast one found then show
 		break;
 	}
@@ -56,28 +58,37 @@ foreach($cart_session as $citem){
 ?>
 <?php	echo $this->beforecartdisplay; ?>
 <!--<form method="" name="adminForm" class="form-horizontal" id="adminForm" action="">-->
-<div id="myModal" class="<?php echo Q2C_WRAPPER_CLASS; ?>" >
+<div id="myModal" class="<?php echo Q2C_WRAPPER_CLASS; ?> qtcAddBorderToWrapper" >
 	<div class="">
 		<h2><?php echo JText::_('QTC_CART')?></h2>
 	</div>
-	<div class="page-body">
-	<div class="cartitems" >
-	<?php $align_style='align="right"'; ?>
+	<div class="page-body " id="">
+	<div class="cartitems22" >
+	<?php
+	$align_style='align="right"';
+	$cartColCount = 4;
+
+	?>
 		<table class="table table-condensed"> <!-- table-striped  -->
 			<thead>
 				<tr>
-					<th class="cartitem_name" width="25%" align="left"><b><?php echo JText::_('QTC_CART_TITLE'); ?> </b></th>
-			<?php if($showoptioncol==1)
-			{?>	<th class="cartitem_opt" width="20%"	align="left"><b><?php echo JText::_('QTC_CART_OPTS'); ?></b> </th>
-			<?php } ?>
+					<th class="cartitem_name" width="" align="left"><b><?php echo JText::_('QTC_CART_TITLE'); ?> </b></th>
+					<?php
+					if ($showoptioncol==1)
+					{?>
+						<th class="cartitem_opt" width="20%"	align="left"><b><?php echo JText::_('QTC_CART_OPTS'); ?></b> </th>
+					<?php
+					$cartColCount = 5;
+					}
+					 ?>
 					<th class="cartitem_price" width="20%"	align="left"><b><?php echo JText::_('QTC_CART_PRICE'); ?></b> </th>
 					<th class="cartitem_qty" width="20%"	align="left"><b><?php echo JText::_('QTC_CART_QTY'); ?></b> </th>
 					<th class="cartitem_tprice" width="20%"	<?php echo $align_style ?>><b><?php echo JText::_('QTC_CART_TOTAL_PRICE'); ?> </b></th>
 					<!--<th width="5%"	align="left"></th>-->
 				</tr>
 			</thead>
-	<tbody>
-			<?php
+		<tbody>
+		<?php
 		$tprice = 0;
 		$store_array=array();
 		$params = JComponentHelper::getParams('com_quick2cart');
@@ -98,7 +109,7 @@ foreach($cart_session as $citem){
 					$storeLink   = $storeHelper->getStoreLink($cart['store_id']);
 				?>	<!-- STORE TITILE -->
 					<tr class="info">
-							<td colspan="5" ><strong><a href="<?php echo $storeLink; ?>"><?php echo $storeinfo['title'];?></a><strong></td>
+							<td colspan="5" ><b><a href="<?php echo $storeLink; ?>"><?php echo $storeinfo['title'];?></a></b></td>
 					</tr>
 				<?php
 				}
@@ -106,20 +117,21 @@ foreach($cart_session as $citem){
 				$product_link=$helperobj->getProductLink($cart['item_id']);
 			?>
 			<tr>
-				<td class="cartitem_name" ><input class="inputbox cart_fields" id="cart_id[]" name="cart_id[]" type="hidden" value="<?php echo $cart['id']; ?>" size="5">
+				<td class="cartitem_name" ><input class="inputbox cart_fields" id="cart_id[]" name="cart_id[]" type="hidden" value="<?php echo $cart['id']; ?>" >
 				<?php
 					if(empty($product_link))
+					{
 						echo $cart['title'];
+					}
 					else
 					{
-				?>
-						<a href="<?php echo $product_link;?>"><?php echo $cart['title']; ?></a>
-				<?php
+						?><a href="<?php echo $product_link;?>"><?php echo $cart['title']; ?></a><?php
 					}
 				?>
-			<?php if($showoptioncol==1)
-			{?>
-				<td class="cartitem_opt" >
+				</td>
+				<?php if($showoptioncol==1)
+				{?>
+				<td class="cartitem_opt" data-title="<?php echo JText::_('QTC_CART_OPTS'); ?> ">
 					<span><?php
 					if(!empty($cart['options'])){
 						echo nl2br(str_replace(",", "\n", $cart['options']));
@@ -141,97 +153,42 @@ foreach($cart_session as $citem){
 				<td class="cartitem_qty"  >
 					<span><?php echo $cart['qty'];?></span>
 				</td>
-				<td class="cartitem_tprice"  <?php echo $align_style ?>>
+				<td class="cartitem_tprice"  <?php //echo $align_style ?>>
 					<span id="cart_total_price<?php echo $cart['id'];?>"><?php echo $helperobj->getFromattedPrice(number_format($cart['tamt'],2)); ?></span>
 					<?php $tprice += $cart['tamt']; ?>
-					<input class="totalpriceclass" id="cart_total_price_inputbox<?php echo $cart['id'];?>"	name="cart_total_price_inputbox<?php echo $cart['id'];?>" 	type="hidden" value="<?php echo $cart['tamt']; ?>" size="5">
+					<input class="totalpriceclass" id="cart_total_price_inputbox<?php echo $cart['id'];?>"	name="cart_total_price_inputbox<?php echo $cart['id'];?>" 	type="hidden" value="<?php echo $cart['tamt']; ?>" >
 				</td>
 				<!---<td 	><button class="close remove_cart" onclick="removecart('<?php echo $cart['id'];?>')">&times;</button>
 				</td> -->
-			</tr>
-		<?php
-		}
-		?>
-	</tbody>
-		</table>
-		<?php
-			if($params->get('shipping')==1)
-				echo $this->aftercartdisplay; ?>
-	</div>
-			<table class="table table-condensed">
-				<thead >
-					<tr >
-						<th width="25%" align="left"></th>
-						<th width="20%"	align="left"> </th>
-						<th width="20%"	align="left"> </th>
-						<th width="20%"	align="left"></th>
-						<th width="20%"	<?php echo $align_style ?>></th>
-						<!--<th width="5%"	align="left"></th>-->
-
 					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td colspan = "3" ></td>
-
-
-					<td class="cartitem_tprice_label" align="right" ><?php echo JText::_('QTC_TOTALPRICE'); ?></td>
-						<td class="cartitem_tprice" <?php echo $align_style ?> ><span name="total_amt" id="total_amt"> <?php echo $helperobj->getFromattedPrice(number_format($tprice,2)); ?></span>
-							<input type="hidden" value="<?php echo $tprice; ?>"	name="total_amt_inputbox"	id="total_amt_inputbox">
-						</td>
-
-					</tr>
-
-<?php
-/*
-$dispatcher = JDispatcher::getInstance();
-JPluginHelper::importPlugin('qtctax');//@TODO:need to check plugim type..
-$taxresults=$dispatcher->trigger('addTax',array($tprice));//Call the plugin and get the result
-if(!empty($taxresults)){
-	$tax_total = 0;
-	foreach($taxresults as $tax){
-			if(!empty($tax)){
-?>
-					<tr>
-						<td colspan = "3" ></td>
-						<td class="cartitem_tprice_label" align="right"><?php echo JText::sprintf('QTC_TAX_AMT_PAY',$tax[0]); ?></td>
-						<td class="cartitem_tprice" <?php echo $align_style ?> ><span id= "tax_amt" ><?php echo $helperobj->getFromattedPrice(number_format($tax[1],2)); ?></span>
-						<input type="hidden" class="inputbox" value="<?php echo $tax[0]; ?>"	name="tax[val][]"	id="tax[val][]">
-						<input type="hidden" class="inputbox" value="<?php echo $tax[1]; ?>"	name="tax[amt][]"	id="tax[amt][]">
-
-						</td>
-					</tr>
-<?php
-			$tax_total += $tax[1];
-		}
-	}
-	if($tax_total){
-		$taxval= $helperobj->calamt($tprice,$tax_total);
-	?>
-	<?php
-	}
-	else{
-		$taxval = $tprice;
-	}
-}
-else{
-	$taxval = $tprice;
-}*/
-?>
-<?php $shipval= $tprice;  //isset($shipval)?$shipval:$taxval;?>
-					<tr >
-						<td colspan = "3" ></td>
-						<td class="cartitem_tprice_label" align="right" ><strong><?php echo JText::_('QTC_TOTALPRICE_PAY'); ?></strong></td>
-						<td class="cartitem_tprice" <?php echo $align_style ?> >
-							<span id="final_amt_pay"	name="final_amt_pay"><?php echo $helperobj->getFromattedPrice(number_format($shipval,2)); ?></span>
-					<input type="hidden" class="inputbox" value="<?php echo $shipval; ?>"	name="final_amt_pay_inputbox"	id="final_amt_pay_inputbox">
-						</td>
-
-					</tr>
-
+				<?php
+				}
+				?>
 				</tbody>
-			</table>
+		<tfoot>
+			<tr>
+				<td colspan="<?php echo ($cartColCount==5) ? 3 : 2 ?>" class="hidden-xs hidden-sm"></td>
+				<td class="cartitem_tprice_label hidden-xs hidden-sm" align="center">
+					<b><?php echo JText::_('QTC_TOTALPRICE_PAY'); ?></b>
+				</td>
+				<td class="cartitem_tprice"  data-title="<?php echo JText::_('QTC_TOTALPRICE_PAY'); ?> ">
+					<span name="total_amt" id="total_amt"> <b><?php echo $helperobj->getFromattedPrice(number_format($tprice,2)); ?></span></b>
+					<input type="hidden" value="<?php echo $tprice; ?>"	name="total_amt_inputbox"	id="total_amt_inputbox">
+				</td>
+			</tr>
+		</tfoot>
+		</table>
+			<?php
+				if($params->get('shipping')==1)
+				{
+					echo $this->aftercartdisplay; ?>
+				<?php
+				} ?>
+		</div>
+
+	<?php $shipval = $tprice;  ?>
 	</div>
+	<hr class="">
 	<div class="form-actions" id="qtc_formactions">
 		<a class="btn btn-success" onclick="window.parent.document.location.href='<?php echo $checkout; ?>';" ><?php echo JText::_('QTC_CHKOUT'); ?></a>
 		<button class="btn btn-primary" onclick="qtcCartContinueBtn()" ><?php echo JText::_('QTC_BACK'); ?></button>
