@@ -1,1 +1,5 @@
 public/configuration.php
+
+/administrator/cache/*
+public/cache/*
+public/tmp/*
