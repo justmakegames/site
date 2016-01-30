@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<?php if ($guest->isParticipant()) { ?>
+<?php if ($guest->isParticipant() || ($event->isGroupEvent() && $event->getGroup()->isMember())) { ?>
     <?php if ($event->isOver()) { ?>
         <nav class="media-meta pull-right">
         <?php if ($guest->isGoing()) { ?>
@@ -49,6 +49,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         </nav>
     <?php } ?>
 <?php } else { ?>
+
     <?php if (!$event->isOver()) { ?>
         <nav class="media-meta pull-right">
             <?php if ($event->seatsLeft() === 0) { ?>

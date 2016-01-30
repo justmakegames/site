@@ -46,6 +46,12 @@
 				<option value="1">JSHOW</option>
 			</field>
 
+			<field name="category_subcategories_posts" type="radio" default="-1" class="btn-group" label="COM_EASYBLOG_SHOW_SUBCATEGORIES_POSTS" description="COM_EASYBLOG_SHOW_SUBCATEGORIES_POSTS_DESC">
+				<option value="-1">COM_EASYBLOG_USE_DEFAULT_OPTIONS</option>
+				<option value="0">JHIDE</option>
+				<option value="1">JSHOW</option>
+			</field>
+
 			<field name="category_subscribe_email" type="radio" default="-1" class="btn-group" label="COM_EASYBLOG_SHOW_SUBSCRIBE" description="COM_EASYBLOG_SHOW_SUBSCRIBE_DESC">
 				<option value="-1">COM_EASYBLOG_USE_DEFAULT_OPTIONS</option>
 				<option value="0">JHIDE</option>
@@ -57,9 +63,24 @@
 				<option value="0">JHIDE</option>
 				<option value="1">JSHOW</option>
 			</field>
+			<field name="category_post_customfields" type="radio" default="-1" class="btn-group" label="COM_EASYBLOG_SHOW_POST_CUSTOM_FIELDS" description="COM_EASYBLOG_SHOW_POST_CUSTOM_FIELDS_DESC">
+				<option value="-1">COM_EASYBLOG_USE_DEFAULT_OPTIONS</option>
+				<option value="0">JHIDE</option>
+				<option value="1">JSHOW</option>
+			</field>
 			<field name="cat_bloggerid" type="authors" default="" label="COM_EASYBLOG_MENU_AUTHOR" description="COM_EASYBLOG_MENU_AUTHOR_DESC" globals="0" />
 			<field type="pagination" name="limit" default="-2" label="COM_EASYBLOG_ITEMS_PER_PAGE" description="COM_EASYBLOG_ITEMS_PER_PAGE_DESC" globals="0" />
 		</fieldset>
+
+		<fieldset name="COM_EASYBLOG_MENU_THEME_OPTIONS" label="COM_EASYBLOG_MENU_THEME_OPTIONS">
+			<field name="post_nickel_column" default="2" type="list" class="btn-group" label="COM_EASYBLOG_NICKEL_COLUMN" description="COM_EASYBLOG_NICKEL_COLUMN_DESC">
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+			</field>
+		</fieldset>		
 
 		<fieldset name="post" label="COM_EASYBLOG_MENU_POST_OPTIONS" info="COM_EASYBLOG_MENU_CATEGORY_POST_OPTIONS_INFO">
 			<field name="post_image" type="radio" default="-1" class="btn-group" label="COM_EASYBLOG_SHOW_POST_IMAGE" description="COM_EASYBLOG_SHOW_POST_IMAGE_DESC">

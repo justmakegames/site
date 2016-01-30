@@ -81,7 +81,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<a class="eb-box-tag-remove" href="javascript:void(0);" data-tag-remove data-id="<?php echo $tag->id;?>">
 						<i class="fa fa-close"></i>
 					</a>
-					<a class="eb-box-tag-link" href="<?php echo EB::_('index.php?option=com_easyblog&view=tags&layout=listings&id=' . $tag->id);?>"><?php echo $tag->title;?></a>
+					<a class="eb-box-tag-link" href="<?php echo EB::_('index.php?option=com_easyblog&view=tags&layout=tag&id=' . $tag->id);?>"><?php echo $tag->title;?></a>
 					<b><?php echo $tag->post_count;?></b>
 				</div>
 				<?php } ?>

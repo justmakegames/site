@@ -188,14 +188,15 @@ class EasyBlogViewCategories extends EasyBlogAdminView
 
 	public function getCurrentTemplate()
 	{
-		$db 	= EB::db();
+		$db = EB::db();
 
-		$query 	= 'SELECT ' . $db->nameQuote('template') . ' FROM ' . $db->nameQuote('#__template_styles');
-		$query 	.= ' WHERE ' . $db->nameQuote('home') . '=' . $db->Quote(1);
+		$query = 'SELECT ' . $db->nameQuote('template') . ' FROM ' . $db->nameQuote('#__template_styles');
+		$query .= ' WHERE ' . $db->nameQuote('home') . '=' . $db->Quote(1);
+		$query .= ' AND ' . $db->qn('client_id') . '=' . $db->Quote(0);
 
 		$db->setQuery($query);
 
-		$template 	= $db->loadResult();
+		$template = $db->loadResult();
 
 		return $template;
 	}

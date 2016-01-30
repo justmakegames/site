@@ -244,7 +244,7 @@ class EasyBlogBlockHandlerImage extends EasyBlogBlockHandlerAbstract
                 $imageLinkAttr .= ' title="' . $data->link_title . '"';
             }
 
-            if (!$data->link_target) {
+            if ($data->link_target) {
                 $imageLinkAttr .= ' target="_blank"';
             }
         }

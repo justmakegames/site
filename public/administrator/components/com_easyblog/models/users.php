@@ -225,10 +225,10 @@ class EasyBlogModelUsers extends EasyBlogAdminModel
 	 * @since 4.0
 	 *
 	 */
-	public function createUser($username, $email, $name)
+	public function createUser($username, $email, $name, $password = false)
 	{
 		$registration = EB::registration();
-		$options = array('username' => $username, 'email' => $email, 'name' => $name);
+		$options = array('username' => $username, 'email' => $email, 'name' => $name, 'password' => $password);
 
 		$state = $registration->validate($options);
 

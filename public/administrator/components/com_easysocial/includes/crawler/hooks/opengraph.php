@@ -65,14 +65,15 @@ class SocialCrawlerOpengraph
 	 */
 	public function process( $parser , &$contents , $uri )
 	{
+		$result = new stdClass();
 
-		$result 	= new stdClass();
+		foreach ($this->patterns as $key => $pattern) {
 
-		foreach( $this->patterns as $key => $pattern )
-		{
-			foreach( $parser->find( 'meta[property='. $pattern . ']' ) as $meta )
-			{
-				$result->$key	= $meta->content;
+			// Try to find the pattern now
+			$items = $parser->find('meta[property=' . $pattern . ']');
+
+			foreach ($items as $meta) {
+				$result->$key = $meta->content;
 				break;
 			}
 		}

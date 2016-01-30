@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Restricted access');
 <div id="fd" class="eb eb-mod mod_easyblogcategories <?php echo $params->get('moduleclass_sfx') ?>">
     <?php if ($layoutType == 'toggle') { ?>
     <div class="mod-items-compact cell-top">
-       <?php foreach ($parentCategories as $category) { ?>
+       <?php foreach ($results as $category) { ?>
            <div class="mod-item">
                <div class="mod-table">
                    <div class="mod-cell cell-tight">
@@ -34,34 +34,14 @@ defined('_JEXEC') or die('Restricted access');
                            </a>
                            <?php } ?>
                        </div>
-                       <?php if ($category->childs) { ?>
-                           <div id="cat-<?php echo $category->id; ?>" class="collapse">
-                               <?php foreach ($category->childs as $child) { ?>
-                                   <div class="mod-item">
-                                       <div class="mod-cell cell-tight">
-                                           <i class="fa fa-folder mr-10"></i>
-                                       </div>
-                                       <div class="mod-cell">
-                                           <a href="<?php echo EB::_('index.php?option=com_easyblog&view=categories&layout=listings&id=' . $child->id); ?>">
-                                             <?php echo $child->title; ?>
-                                           </a>
 
-                                           <span class="mod-muted">(<?php echo $child->cnt; ?>)</span>
-                                       </div>
-                                   </div>
-                               <?php } ?>
-                           </div>
-                       <?php } ?>
+                      <?php if ($category->childs) { ?>
+                        <?php echo modEasyBlogCategoriesHelper::accessNestedToggleCategories($category); ?>
+                      <?php } ?>
                    </div>
                </div>
            </div>
        <?php } ?>
     </div>
-    <?php } else { ?>
-        <?php if (!empty($categories)) { ?>
-            <?php echo modEasyBlogCategoriesHelper::accessNestedCategories($categories, $selected, $params); ?>
-        <?php } else { ?>
-                <?php echo JText::_('MOD_EASYBLOGCATEGORIES_NO_CATEGORY'); ?>
-        <?php } ?>
     <?php } ?>
 </div>

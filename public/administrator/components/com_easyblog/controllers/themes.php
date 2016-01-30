@@ -36,7 +36,8 @@ class EasyBlogControllerThemes extends EasyBlogController
 		EB::checkToken();
 
 		// Get the file from the server.
-		$file 	= $this->input->files->get('package');
+		// Do not change the filter type 'raw'. We need this to let files containing PHP code to upload. See JInputFiles::get.
+		$file 	= $this->input->files->get('package', '', 'raw');
 
 		// Get themes model
 		$model	= EB::model('Themes');

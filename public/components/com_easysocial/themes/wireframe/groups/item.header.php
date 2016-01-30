@@ -65,7 +65,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 			<?php } ?>
 
-			<?php if ($group->isMember() && !$group->isOwner() && !$group->isInvited()) { ?>
+			<?php if ($group->isMember() && !$group->isOwner()) { ?>
 			<div>
 				<a class="btn btn-block btn-sm btn-es-danger" href="javascript:void(0);" data-es-group-leave>
 					<i class="fa fa-sign-out mr-5"></i>
@@ -180,11 +180,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</a>
 			</span>
 			<?php } ?>
+
+			<?php if ($this->config->get('groups.hits.display')) { ?>
 			<span>
 				<i class="fa fa-eye"></i>
                 &#8207;
 				<?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_VIEWS' , $group->hits ) , $group->hits ); ?>
 			</span>
+			<?php } ?>
+
 			<span>
                 &#8207;
 				<?php echo FD::sharing( array( 'url' => $group->getPermalink(false, true), 'display' => 'dialog', 'text' => JText::_( 'COM_EASYSOCIAL_STREAM_SOCIAL' ) , 'css' => 'fd-small' ) )->getHTML( true ); ?>

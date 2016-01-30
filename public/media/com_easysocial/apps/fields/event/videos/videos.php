@@ -23,7 +23,7 @@ class SocialFieldsEventVideos extends SocialFieldItem
 	 */
 	public function onRegister($post, SocialTableStepSession $session)
 	{
-		$value = $this->normalize($post, 'videos', $this->params->get('videos', true));
+		$value = $this->normalize($post, 'videos', $this->params->get('videos', $this->params->get('default', true)));
 		$value = (bool) $value;
 
 		// Detect if there's any errors
@@ -48,7 +48,7 @@ class SocialFieldsEventVideos extends SocialFieldItem
 	public function onEdit(&$data, &$event, $errors)
 	{
 		$params	= $event->getParams();
-		$value = $event->getParams()->get('videos', $this->params->get('videos', true));
+		$value = $event->getParams()->get('videos', $this->params->get('videos', $this->params->get('default', true)));
 		$error = $this->getError($errors);
 
 		$this->set('error', $error);
@@ -70,7 +70,7 @@ class SocialFieldsEventVideos extends SocialFieldItem
 	public function onEditBeforeSave(&$data, &$event)
 	{
 		// Get the posted value
-		$value = $this->normalize($data, 'videos', $event->getParams()->get('videos', $this->params->get('videos', true)));
+		$value = $this->normalize($data, 'videos', $event->getParams()->get('videos', $this->params->get('default', true)));
 		$value = (bool) $value;
 
 		$event->params = $this->setParams($event, $value);
@@ -88,7 +88,7 @@ class SocialFieldsEventVideos extends SocialFieldItem
 	 */
 	public function onRegisterBeforeSave(&$data, &$event)
 	{
-		$value = $this->normalize($data, 'videos', $this->params->get('videos', true));
+		$value = $this->normalize($data, 'videos', $this->params->get('videos', $this->params->get('default', true)));
 		$value = (bool) $value;
 
 		$event->params = $this->setParams($event, $value);
@@ -130,7 +130,7 @@ class SocialFieldsEventVideos extends SocialFieldItem
 	 */
 	public function onSample()
 	{
-		$value = $this->params->get('videos', true);
+		$value = $this->params->get('default', true);
 
 		$this->set('value', $value);
 

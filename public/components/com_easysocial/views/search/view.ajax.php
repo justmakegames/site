@@ -15,9 +15,8 @@ FD::import( 'site:/views/views' );
 
 class EasySocialViewSearch extends EasySocialSiteView
 {
-	public function loadmore( $results, $nextlimit, $displayOptions )
+	public function loadmore($groupType, $results, $nextlimit, $displayOptions )
 	{
-
 		$ajax	= FD::ajax();
 
 		$theme 		= FD::themes();
@@ -27,7 +26,12 @@ class EasySocialViewSearch extends EasySocialSiteView
 		{
 			foreach( $results as $result )
 			{
-				$output .= $theme->loadTemplate( 'site/advancedsearch/user/default.results.item' , array( 'user' => $result, 'displayOptions' => $displayOptions ) );
+				if ($groupType == SOCIAL_FIELDS_GROUP_GROUP) {
+					$output .= $theme->loadTemplate( 'site/advancedsearch/group/default.results.item' , array( 'group' => $result, 'displayOptions' => $displayOptions ) );
+				} else {
+					$output .= $theme->loadTemplate( 'site/advancedsearch/user/default.results.item' , array( 'user' => $result, 'displayOptions' => $displayOptions ) );
+				}
+
 			}
 		}
 

@@ -52,6 +52,7 @@ class EasyBlogConnector
 
 		// We need to set the local ssl verifier
 		$this->options[$url][CURLOPT_CAINFO] = dirname(__FILE__) . '/cacert.pem';
+		$this->options[$url][CURLOPT_ENCODING] = 'identity';
 
 		return true;
 	}
@@ -89,14 +90,14 @@ class EasyBlogConnector
 
 	public function addLength( $length )
 	{
-		$this->options[$this->current][ CURLOPT_RANGE ]		= $length;
-		$this->options[$this->current][ CURLOPT_HEADER ]	= false;
+		$this->options[$this->current][CURLOPT_RANGE] = $length;
+		$this->options[$this->current][CURLOPT_HEADER] = false;
 	}
 
 	public function useHeadersOnly()
 	{
-		$this->options[$this->current][ CURLOPT_HEADER ]	= true;
-		$this->options[$this->current][ CURLOPT_NOBODY ]	= true;
+		$this->options[$this->current][CURLOPT_HEADER] = true;
+		$this->options[$this->current][CURLOPT_NOBODY] = true;
 
 		return true;
 	}
@@ -291,14 +292,13 @@ class EasyBlogConnector
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function getResult( $url = null, $withHeaders = false )
+	public function getResult($url = null, $withHeaders = false, $fromKeywords = false)
 	{
 		if (empty($url)) {
 			$url = $this->current;
 		}
 
-		if( !isset( $this->result[ $url ] ) )
-		{
+		if( !isset( $this->result[ $url ] ) ) {
 			return false;
 		}
 
@@ -308,7 +308,9 @@ class EasyBlogConnector
 
 		} else {
 			// somehow in some situation, the content still has the header. we need to split it.
-			if (!$this->result[ $url ]->headers) {
+			// To fix the conflict with tags autofill, 
+			// check if the caller is coming from tags keywords suggestion, we always execute the code below.
+			if (!$this->result[$url]->headers || $fromKeywords == true) {
 
 				$data = explode( "\r\n\r\n" , $this->result[ $url ]->contents , 2 );
 

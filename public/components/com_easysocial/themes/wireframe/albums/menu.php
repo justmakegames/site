@@ -12,7 +12,7 @@
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
 <div class="es-album-menu es-media-item-menu es-album-menu-item">
-	
+
 	<?php if($lib->isOwner() || $creator->isFriends($this->my->id)){ ?>
 	<div class="btn-group btn-group-xs">
 			<div class="btn btn-es btn-media btn-album-favourite dropdown_ <?php echo $album->isFavourite($this->my->id)? 'is-fav btn-es-primary' : '' ?>" data-album-favourite-button>
@@ -29,7 +29,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 			<a href="javascript: void(0);"><i class="fa fa-plus"></i> <?php echo JText::_("COM_EASYSOCIAL_ALBUMS_ADD_PHOTOS"); ?></a>
 		</div>
 		<?php } ?>
-		
+
 		<?php if(($lib->editable() && $lib->isOwner() )|| $lib->deleteable() ){ ?>
 		<div class="btn btn-es btn-media dropdown_" data-item-actions-menu>
 			<a href="javascript:void(0);" data-bs-toggle="dropdown" class="dropdown-toggle_"><i class="fa fa-cog"></i> <span><?php echo JText::_('COM_EASYSOCIAL_ALBUMS_EDIT'); ?></span> </a>
@@ -52,9 +52,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</div>
 	<?php } ?>
 	<div class="btn-group btn-group-xs">
+		<?php if ($this->config->get('sharing.enabled')) { ?>
 		<div class="btn btn-es btn-media">
 			<?php echo FD::get( 'Sharing' , array( 'url' => $album->getPermalink( false , true ) , 'text' => JText::_( 'COM_EASYSOCIAL_ALBUMS_SHARE' ) ) )->html(true, false); ?>
 		</div>
+		<?php } ?>
 		<div class="btn btn-es btn-media">
 			<?php echo FD::reports()->getForm( 'com_easysocial' , SOCIAL_TYPE_ALBUM , $album->id , $album->get( 'title' ) , JText::_( 'COM_EASYSOCIAL_ALBUMS_REPORT' ) , JText::_( 'COM_EASYSOCIAL_ALBUMS_REPORT_ALBUM_TITLE' ) , JText::_( 'COM_EASYSOCIAL_ALBUMS_REPORT_DESC' ),
 				$album->getPermalink( false , true ) ); ?>

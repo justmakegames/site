@@ -13,16 +13,16 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 jimport('joomla.application.component.model');
 
-FD::import( 'admin:/includes/model' );
+FD::import('admin:/includes/model');
 
 class EasySocialModelFiles extends EasySocialModel
 {
-	private $data			= null;
-	protected $pagination		= null;
+	private $data = null;
+	protected $pagination = null;
 
 	public function __construct()
 	{
-		parent::__construct( 'files' );
+		parent::__construct('files');
 	}
 
 	/**
@@ -44,6 +44,33 @@ class EasySocialModelFiles extends EasySocialModel
 
 		return $this->pagination;
 	}
+
+	/**
+	 * Retrieves the list of items which stored in Amazon
+	 *
+	 * @since	1.4.6
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getFilesStoredExternally($storageType = 'amazon')
+	{
+		// Get the number of files to process at a time
+		$config = ES::config();
+		$limit = $config->get('storage.amazon.limit', 10);
+
+		$db = FD::db();
+		$sql = $db->sql();
+		$sql->select('#__social_files');
+		$sql->where('storage', $storageType);
+		$sql->limit($limit);
+
+		$db->setQuery($sql);
+
+		$result = $db->loadObjectList();
+
+		return $result;
+	}		
 
 	/**
 	 * Delete files for specific uid and type

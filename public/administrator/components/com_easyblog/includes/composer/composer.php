@@ -181,7 +181,18 @@ class EasyBlogComposer
 		// Get the default category.
 		$defaultCategoryId = EB::model('Category')->getDefaultCategoryId();
 
+		// Allow caller to alter default category
+		if ($post->isBlank()) {
+			$defaultCategoryId = $this->input->get('category', $defaultCategoryId, 'int');
+		}
+
 		$primaryCategory = $post->getPrimaryCategory();
+
+		// If the menu has a default category, the primary category should be the pre-selected one.
+		if ($post->isNew() && $defaultCategoryId) {
+			$primaryCategory = EB::table('Category');
+			$primaryCategory->load($defaultCategoryId);
+		}
 
 		// Get a list of categories
 		// Prepare selected category
@@ -296,6 +307,9 @@ class EasyBlogComposer
         //post association
         $associations = $post->getAssociation();
 
+        // Short language tag
+		$momentLanguage = EB::getMomentLanguage();
+
 		$theme = EB::template();
 		$theme->set('user', $user);
 		$theme->set('displayFieldsTab', $displayFieldsTab);
@@ -313,6 +327,7 @@ class EasyBlogComposer
 		$theme->set('blocks', $blocks);
 		$theme->set('languages', $languages);
 		$theme->set('associations', $associations);
+		$theme->set('momentLanguage', $momentLanguage);
 
 		// Determines if the source id and source type is provided
 		$sourceId = $this->input->get('source_id', 0, 'int');

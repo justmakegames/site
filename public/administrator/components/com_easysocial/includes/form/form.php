@@ -148,7 +148,7 @@ class SocialForm
 		}
 
 		// Replacements for invalid keys
-		$invalidKeys	= array(' ', ',', '&', '.', '*');
+		$invalidKeys	= array(' ', ',', '&', '.', '*', "'");
 
 		// Generate unique id so multiple tabs form on a single page would not conflict
 		$uid 	= uniqid();

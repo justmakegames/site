@@ -184,7 +184,7 @@ class EasyBlogModelRatings extends EasyBlogAdminModel
 		foreach ($result as $row) {
 
 			$obj = new stdClass();
-			$obj->ratings = $row->ratings;
+			$obj->ratings = round($row->ratings);
 			$obj->total = $row->total;
 
 			$ratings[$row->uid] = $obj;

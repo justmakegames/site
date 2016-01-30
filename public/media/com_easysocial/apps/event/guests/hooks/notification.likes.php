@@ -49,6 +49,12 @@ class SocialEventAppGuestsHookNotificationLikes
         // APP_USER_EVENTS_GUESTS_USER_LIKES_USERS_UPDATE_NOTGOING_SINGULAR
         // APP_USER_EVENTS_GUESTS_USER_LIKES_USERS_UPDATE_NOTGOING_PLURAL
 
+        if ($item->cmd == 'likes.involved') {
+            $item->title = JText::_('COM_EASYSOCIAL_LIKES_INVOLVED_SYSTEM_TITLE');
+
+            return $item;
+        }
+
         if ($item->target_type === SOCIAL_TYPE_USER && $item->target_id == $owner->id) {
             $item->title = JText::sprintf(FD::string()->computeNoun('APP_USER_EVENTS_GUESTS_USER_LIKES_YOUR_UPDATE_' . strtoupper($verb), count($users)), $names);
 

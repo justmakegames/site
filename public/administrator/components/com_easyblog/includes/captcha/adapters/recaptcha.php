@@ -95,7 +95,19 @@ class EasyBlogCaptchaAdapterRecaptcha extends EasyBlog
     private function _submitHTTPGet($path, $data)
     {
         $req = $this->_encodeQS($data);
-        $response = file_get_contents($path . $req);
+        //$response = file_get_contents($path . $req);
+
+        // We use Curl instead of file_get_contents for security reason
+        $rCURL = curl_init();
+
+        curl_setopt($rCURL, CURLOPT_URL, $path . $req);
+        curl_setopt($rCURL, CURLOPT_HEADER, 0);
+        curl_setopt($rCURL, CURLOPT_RETURNTRANSFER, 1);
+
+        $response = curl_exec($rCURL);
+
+        curl_close($rCURL);
+
         return $response;
     }
 
@@ -157,9 +169,12 @@ class EasyBlogCaptchaAdapterRecaptcha extends EasyBlog
      */
     public function verifyResponse($remoteIp, $response)
     {
+        $recaptchaResponse = new EasyBlogRecaptchaResponse();
+        $recaptchaResponse->success = true;
+        $recaptchaResponse->errorCodes = '';
+
         // Discard empty solution submissions
         if ($response == null || strlen($response) == 0) {
-            $recaptchaResponse = new EasyBlogRecaptchaResponse();
             $recaptchaResponse->success = false;
             $recaptchaResponse->errorCodes = JText::_('COM_EASYBLOG_RECAPTCHA_MISSING_INPUT');
             return $recaptchaResponse;
@@ -174,15 +189,13 @@ class EasyBlogCaptchaAdapterRecaptcha extends EasyBlog
                 'response' => $response
             )
         );
-        $answers = json_decode($getResponse, true);
-        $recaptchaResponse = new EasyBlogRecaptchaResponse();
 
-        if (trim($answers ['success']) == true) {
-            $recaptchaResponse->success = true;
-        } else {
+        $answers = json_decode($getResponse, true);
+        
+        if (trim($answers ['success']) == false) {
             $recaptchaResponse->success = false;
             $recaptchaResponse->errorCodes = JText::_('COM_EASYBLOG_RECAPTCHA_INVALID_RESPONSE');
-        }
+        } 
 
         return $recaptchaResponse;
     }

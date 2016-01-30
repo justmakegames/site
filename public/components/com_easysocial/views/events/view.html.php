@@ -61,7 +61,7 @@ class EasySocialViewEvents extends EasySocialSiteView
         $allowedFilter = array('week1', 'week2', 'all', 'featured', 'mine', 'participated', 'invited', 'going', 'pending', 'maybe', 'notgoing', 'past', 'ongoing', 'upcoming', 'date', 'nearby');
 
         if (!in_array($filter, $allowedFilter)) {
-            return JError::raiseError(404, JText::_('COM_EASYSOCIAL_EVENTS_INVALID_CATEGORY_ID'));
+            return JError::raiseError(404, JText::_('COM_EASYSOCIAL_EVENTS_INVALID_FILTER_ID'));
         }
 
         // Since not logged in users cannot filter by 'invited' or 'mine', they shouldn't be able to access these filters at all
@@ -773,6 +773,24 @@ class EasySocialViewEvents extends EasySocialSiteView
             }
         }
 
+        // Detect for an existing create event session.
+        $session = JFactory::getSession();
+
+        // Load up necessary model and tables.
+        $stepSession = FD::table('StepSession');
+
+        // If user doesn't have a record in stepSession yet, we need to create this.
+        if (!$stepSession->load($session->getId())) {
+            $stepSession->set('session_id', $session->getId());
+            $stepSession->set('created', FD::get('Date')->toMySQL());
+            $stepSession->set('type', SOCIAL_TYPE_EVENT);
+
+            if (!$stepSession->store()) {
+                $this->setError($stepSession->getError());
+                return false;
+            }
+        }
+
         FD::page()->title(JText::_('COM_EASYSOCIAL_PAGE_TITLE_SELECT_EVENT_CATEGORY'));
         FD::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_EVENTS') , FRoute::events());
         FD::page()->breadcrumb(JText::_('COM_EASYSOCIAL_PAGE_TITLE_SELECT_EVENT_CATEGORY'));
@@ -790,6 +808,29 @@ class EasySocialViewEvents extends EasySocialSiteView
         // Get the list of categories
         $model = FD::model('EventCategories');
         $categories = $model->getCreatableCategories($this->my->getProfile()->id);
+
+        if (count($categories) == 1) {
+
+            $category = $categories[0];
+
+            // Store the category id into the session.
+            $session->set('category_id', $category->id, SOCIAL_SESSION_NAMESPACE);
+
+            // Set the current category id.
+            $stepSession->uid   = $category->id;
+
+            // When user accesses this page, the following will be the first page
+            $stepSession->step  = 1;
+
+            // Add the first step into the accessible list.
+            $stepSession->addStepAccess(1);
+
+            // Let's save this into a temporary table to avoid missing data.
+            $stepSession->store();
+
+            $this->steps();
+            return;
+        }
 
         $this->set('categories', $categories);
 
@@ -1289,19 +1330,6 @@ class EasySocialViewEvents extends EasySocialSiteView
         // Determines if the current user is a guest of this event
         $guest = $event->getGuest($this->my->id);
 
-        if (!$this->my->isSiteAdmin() && $event->isInviteOnly() && !$guest->isParticipant()) {
-            FD::info()->set(false, JText::_('COM_EASYSOCIAL_EVENTS_NO_ACCESS_TO_EVENT'), SOCIAL_MSG_ERROR);
-
-            return $this->redirect($defaultRedirect);
-        }
-
-        // check if the current logged in user blocked by the event creator or not.
-        if ($this->my->id != $event->creator_uid) {
-            if(FD::user()->isBlockedBy($event->creator_uid)) {
-                return JError::raiseError(404, JText::_('COM_EASYSOCIAL_EVENTS_EVENT_UNAVAILABLE'));
-            }
-        }
-
         // Support for group event
         // If user is not a group member, then redirect to group page
         if ($event->isGroupEvent()) {
@@ -1314,6 +1342,22 @@ class EasySocialViewEvents extends EasySocialSiteView
             }
 
             $this->set('group', $group);
+        } else {
+
+            if (!$this->my->isSiteAdmin() && $event->isInviteOnly() && !$guest->isParticipant()) {
+                FD::info()->set(false, JText::_('COM_EASYSOCIAL_EVENTS_NO_ACCESS_TO_EVENT'), SOCIAL_MSG_ERROR);
+
+                return $this->redirect($defaultRedirect);
+            }
+
+        }
+
+
+        // check if the current logged in user blocked by the event creator or not.
+        if ($this->my->id != $event->creator_uid) {
+            if(FD::user()->isBlockedBy($event->creator_uid)) {
+                return JError::raiseError(404, JText::_('COM_EASYSOCIAL_EVENTS_EVENT_UNAVAILABLE'));
+            }
         }
 
         // Append additional opengraph details
@@ -1392,6 +1436,12 @@ class EasySocialViewEvents extends EasySocialSiteView
             $isAppView = true;
         }
 
+        // Determine if the current request is for "tags"
+        $hashtag = $this->input->get('tag', '');
+
+        // hashtagalias used for the header hashtag stream
+        $hashtagAlias = $this->input->get('tag', '', 'default');
+
         // Type can be info or timeline
         // If type is info, then we load the info tab first instead of showing timleine first
         $type = $this->input->get('type', '', 'cmd');
@@ -1399,10 +1449,12 @@ class EasySocialViewEvents extends EasySocialSiteView
         // @since 1.3.7
         // If type is empty, means we want to get the default view
         // Previously timeline is always the default
-        if (!$isAppView && empty($type)) {
+        // @since 1.4.6
+        // If it is a hashtag view, let the timeline be the default display
+        if (!$isAppView && empty($type) && empty($hashtag)) {
             $type = FD::config()->get('events.item.display', 'timeline');
         }
-
+        
         // Determines if the current request is to filter specific items
         $filterId = $this->input->get('filterId', 0, 'int');
 
@@ -1429,7 +1481,7 @@ class EasySocialViewEvents extends EasySocialSiteView
         if ($type == 'info') {
             FD::language()->loadAdmin();
             FD::language()->loadSite(null, true);
-            
+
             $currentStep = JRequest::getInt('step', 1);
 
             $steps = FD::model('Steps')->getSteps($event->category_id, SOCIAL_TYPE_CLUSTERS, SOCIAL_EVENT_VIEW_DISPLAY);
@@ -1513,10 +1565,6 @@ class EasySocialViewEvents extends EasySocialSiteView
         $story->setCluster($event->id, $event->cluster_type);
         $story->showPrivacy(false);
 
-        // Determines if this is a hashtag
-        $hashtag = $this->input->get('tag', 0, 'int');
-        $hashtagAlias = $this->input->get('tag', '', 'default');
-
         if (!empty($hashtag)) {
             $tag = $stream->getHashTag($hashtag);
 
@@ -1550,6 +1598,12 @@ class EasySocialViewEvents extends EasySocialSiteView
 
         $stream->get($streamOptions);
 
+        // RSS
+        if ($this->config->get('stream.rss.enabled')) {
+            $this->addRss(FRoute::events(array('id' => $event->getAlias(), 'layout' => 'item'), false));
+        }
+
+        $this->set('rssLink', $this->rssLink);
         $this->set('stream', $stream);
 
         parent::display('site/events/item');

@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</label>
 
 					<div class="col-md-7">
-						<?php echo $this->html('grid.boolean', 'notification_commentmoderationauthor', $this->config->get('notification_commentmoderationauthor')); ?>
+						<?php echo $this->html('grid.boolean', 'notification_commentauthor', $this->config->get('notification_commentauthor')); ?>
 					</div>
 				</div>
 
@@ -84,6 +84,38 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="panel">
+			<div class="panel-head">
+				<b><?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_COMMENT_SETTINGS');?></b>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label for="page_title" class="col-md-5">
+						<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_COMMENT_TRUNCATE'); ?>
+
+						<i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_COMMENT_TRUNCATE'); ?>"
+							data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_COMMENT_TRUNCATE_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+					</label>
+
+					<div class="col-md-7">
+						<?php echo $this->html('grid.boolean', 'notification_commentruncate', $this->config->get('notification_commentruncate')); ?>
+					</div>
+				</div>
+	            <div class="form-group">
+	            	<label for="page_title" class="col-md-5">
+	                    <?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_COMMENT_TRUNCATE_LIMIT'); ?>
+
+	                    <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_COMMENT_TRUNCATE_LIMIT'); ?>"
+	                       data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_NOTIFICATIONS_EMAILS_COMMENT_TRUNCATE_LIMIT_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+	                </label>
+	                <div class="col-md-7">	                	
+	                    <input type="text" class="form-control" name="notification_commenttruncate_limit" value="<?php echo $this->config->get('notification_commenttruncate_limit', 300);?>" />
+	                </div>
+	            </div>
+	        </div>
 		</div>
 	</div>
 </div>

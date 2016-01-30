@@ -270,8 +270,11 @@ class EasyBlogModelCategories extends EasyBlogAdminModel
 	{
 		$db = EB::db();
 
-		$query = 'SELECT * FROM ' . $db->nameQuote('#__easyblog_post_category');
-		$query .= ' WHERE ' . $db->nameQuote('post_id') . '=' . $db->Quote($id);
+		$query = 'SELECT a.* FROM ' . $db->nameQuote('#__easyblog_post_category') . 'as a';
+		$query .= ' INNER JOIN '. $db->nameQuote('#__easyblog_category') . 'as b';
+		$query .= ' on a.' . $db->nameQuote('category_id') . ' = b.' . $db->nameQuote('id') ;
+		$query .= ' WHERE a.' . $db->nameQuote('post_id') . '=' . $db->Quote($id);
+		$query .= ' ORDER BY b.' . $db->nameQuote('lft') . ' asc';
 
 		$db->setQuery($query);
 
@@ -591,8 +594,8 @@ class EasyBlogModelCategories extends EasyBlogAdminModel
 
 	    $query = 'select a.`id`, a.`title`, a.`alias`, a.`private`, a.`parent_id`';
 		$query .= ' from `#__easyblog_category` as a';
-		$query .= ' WHERE a.`lft` > ' . $category->lft;
-		$query .= ' AND a.`lft` < ' . $category->rgt;
+		$query .= ' WHERE a.`lft` > ' . $db->Quote($category->lft);
+		$query .= ' AND a.`lft` < ' . $db->Quote($category->rgt);
 
 		if ($isPublishedOnly) {
 		    $query	.=  ' and a.`published` = ' . $db->Quote('1');
@@ -876,7 +879,7 @@ class EasyBlogModelCategories extends EasyBlogAdminModel
 
 
 
-			$tmp = "(select $p.*, " . $db->Quote($cid) . " as `category_id`, $f.`id` as `featured`";
+			$tmp = "(select distinct $p.*, " . $db->Quote($cid) . " as `category_id`, $f.`id` as `featured`";
 			$tmp .= "	from `#__easyblog_post` as $p";
 			$tmp .= "		inner join `#__easyblog_post_category` as $a on $p.`id` = $a.`post_id`";
 			$tmp .= " LEFT JOIN `#__easyblog_featured` AS $f";

@@ -7,6 +7,10 @@ EasyBlog.require()
 
 .done(function($){
 
+    if ($('#more-settings li').length == 0) {
+        $('#more-settings').parent('li').addClass('hide');
+    }
+
 	$(document).on('click', '[data-blog-toolbar-logout]', function(event) {
 		$('[data-blog-logout-form]').submit();
 	});

@@ -15,6 +15,7 @@ EasyBlog.module('comments/form', function($) {
                 "{title}": "[data-comment-title]",
                 "{name}": "[data-comment-name]",
                 "{username}": "[data-comment-username]",
+                "{password}": "[data-comment-password]",
                 "{email}": "[data-comment-email]",
                 "{register}": "[data-comment-register]",
                 "{website}": "[data-comment-website]",
@@ -88,6 +89,7 @@ EasyBlog.module('comments/form', function($) {
 
                     // Reset the form
                     self.username().val('');
+                    self.password().val('');
                     self.subscribe().attr('checked', false);
                     self.editor().val('');
                     self.website().val('');
@@ -154,6 +156,7 @@ EasyBlog.module('comments/form', function($) {
                         name: self.name().val(),
                         email: self.email().val(),
                         username: self.username().val(),
+                        password: self.password().val(),
                         website: self.website().val(),
                         subscribe: self.subscribe().is(':checked') ? 1 : 0,
                         register: self.register().is(':checked') ? 1 : 0,

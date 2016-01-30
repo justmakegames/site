@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if (EB::socialbuttons()->enabled()) { ?>
 <div class="eb-share">
-    <div class="eb-share-buttons<?php echo ' is-' . $this->config->get('social_button_size'); ?>">
+    <div class="eb-share-buttons<?php echo ' is-' . $this->config->get('social_button_size'); ?> <?php echo EB::getLanguageTag() == 'en-GB' ? 'is-english': ''; ?>">
 
         <?php if (EB::socialbuttons()->get('facebook', $post)->isEnabled()) { ?>
         <div class="eb-share-facebook <?php echo $this->config->get('main_facebook_like_send') == '1' ? 'has-sendbtn' : '' ?>">

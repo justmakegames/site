@@ -453,20 +453,20 @@ class SocialUserAppLinks extends SocialAppItem
 		// Set the preview
 		$stream->preview = parent::display('streams/preview.' . $stream->verb);
 
-		// Apply opengraph tags for this stream item when there is an image
+		// Append the opengraph tags
         if ($image) {
-        	$stream->opengraph->addImage($image);
+        	$stream->addOgImage($image);
         }
 
 		if ($content) {
-			$stream->opengraph->addDescription($content);	
+			$stream->addOgDescription($content);
 		} else {
 
 			// If the content is empty, try to get the stream content
 			if ($stream->content) {
-				$stream->opengraph->addDescription($stream->content);
+				$stream->addOgDescription($stream->content);
 			} else {
-				$stream->opengraph->addDescription($stream->title);
+				$stream->addOgDescription($stream->title);
 			}
 		}
 

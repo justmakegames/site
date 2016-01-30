@@ -325,6 +325,7 @@ div#fd.es .app-discussions .discussion-header:after {
 div#fd.es .app-discussions .discussion-content,
 div#fd.es .app-discussions .reply-content {
   font-size: 12px;
+  word-wrap: break-word;
 }
 div#fd.es .app-discussions .discussion-content {
   margin-top: 10px;

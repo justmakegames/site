@@ -109,6 +109,27 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
         </div>
     </div>
+
+     <div style="margin-top:15px;" data-photo-alignment-wrapper>
+        <div style="display: table; width: 340px;">
+            <div style="display: table-cell; vertical-align: middle; width: 120px;">
+                <?php echo JText::_('COM_EASYBLOG_ELEMENTS_PHOTO_ALIGNMENT');?>
+            </div>
+            <div style="display: table-cell; vertical-align: middle;">
+                <div class="alignment-input">
+                    <input class="span6 form-control text-center" type="text" name="fixedAlignment" value="Center" data-photo-fixed-alignment disabled="disabled" style="display:<?php echo $full ? 'block' : 'none';?>"/>
+                    
+                    <select style="width:115px;" name="<?php echo $name;?>[alignment]" value="<?php echo $alignment;?>" data-photo-alignment style="display:<?php echo $full ? 'none' : 'block';?>">
+                        <option <?php echo $alignment == 'center' ? ' selected="selected"' : '';?> value="center"><?php echo JText::_('COM_EASYBLOG_ELEMENTS_PHOTO_ALIGNMENT_CENTER'); ?></option>
+                        <option <?php echo $alignment == 'left' ? ' selected="selected"' : '';?> value="left"><?php echo JText::_('COM_EASYBLOG_ELEMENTS_PHOTO_ALIGNMENT_LEFT'); ?></option>
+                        <option <?php echo $alignment == 'right' ? ' selected="selected"' : '';?> value="right"><?php echo JText::_('COM_EASYBLOG_ELEMENTS_PHOTO_ALIGNMENT_RIGHT'); ?></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 
 <script type="text/javascript">
@@ -117,6 +138,13 @@ EasyBlog.ready(function($) {
     var fullwidthInput = $('[data-cover-full-width]');
     var widthInput = $('[data-cover-width]');
     var heightWrapper = $('[data-cover-height-wrapper]');
+    
+    var alignmentDropdown = $('[data-photo-alignment-wrapper]').find('.alignment-input div');
+    var alignmentFixedInput = $('[data-photo-fixed-alignment]');
+
+    if (fullwidthInput.is(':checked')) {
+        alignmentDropdown.hide();
+    }
 
     cropInput.on('change', function() {
         var checked = $(this).is(':checked');
@@ -134,9 +162,13 @@ EasyBlog.ready(function($) {
 
         if (checked) {
             widthInput.attr('disabled', 'disabled');
+            alignmentDropdown.hide();
+            alignmentFixedInput.show();
             return;
         }
 
+        alignmentDropdown.show();
+        alignmentFixedInput.hide();
         widthInput.removeAttr('disabled');
     });
 

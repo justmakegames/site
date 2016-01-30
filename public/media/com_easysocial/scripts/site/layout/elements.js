@@ -1,6 +1,7 @@
 EasySocial.module('site/layout/elements', function($){
 
 	var module = this;
+	var tooltipLoaded = false;
 
 	// Initialize yes/no buttons.
 	$(document).on( 'click.button.data-bs-api', '[data-bs-toggle-value]', function() {
@@ -35,8 +36,42 @@ EasySocial.module('site/layout/elements', function($){
 	  catch(e){ return false; }
 	}
 
-
 	// Tooltips
+	// detect if mouse is being used or not.
+	var mouseCount = 0;
+	window.onmousemove = function() {
+
+		mouseCount++;
+
+		addTooltip();
+	};
+
+	var addTooltip = $.debounce(function(){
+
+	    if (!tooltipLoaded && mouseCount > 10) {
+
+			tooltipLoaded = true;
+			mouseCount = 0;
+
+			$(document).on('mouseover.tooltip.data-es-api', '[data-es-provide=tooltip]', function() {
+
+				$(this)
+					.tooltip({
+						delay: {
+							show: 200,
+							hide: 100
+						},
+						animation: false,
+						template: '<div id="fd" class="es tooltip tooltip-es"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
+						container: 'body'
+					})
+					.tooltip("show");
+			});
+	    } else {
+	    	mouseCount = 0;
+	    }
+	}, 500);
+
 	// TODO: Update to [data-es-provide=tooltip]
 	if (! isMobile()) {
 		$(document).on('mouseover.tooltip.data-es-api', '[data-es-provide=tooltip]', function() {

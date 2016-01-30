@@ -16,13 +16,22 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	<li>
         <?php
             $advsearchLink = '';
-            if (isset($field) && $field->searchable && $v) {
-            $params = array( 'layout' => 'advanced' );
-            $params['criterias[]'] = $field->unique_key . '|' . $field->element;
-            $params['operators[]'] = 'contain';
-            $params['conditions[]'] = $v;
 
-            $advsearchLink = FRoute::search($params);
+            $advGroups = array(SOCIAL_FIELDS_GROUP_GROUP, SOCIAL_FIELDS_GROUP_USER);
+
+            if (isset($field) && in_array($field->type, $advGroups) && $field->searchable && $v) {
+                $params = array( 'layout' => 'advanced' );
+
+                if ($field->type != SOCIAL_FIELDS_GROUP_USER) {
+                    $params['type'] = $field->type;
+                    $params['uid'] = $field->uid;
+                }
+
+                $params['criterias[]'] = $field->unique_key . '|' . $field->element;
+                $params['operators[]'] = 'contain';
+                $params['conditions[]'] = $v;
+
+                $advsearchLink = FRoute::search($params);
             }
         ?>
         <?php echo (isset($advsearchLink) && $advsearchLink) ? '<a href="' . $advsearchLink . '">' : ''; ?>

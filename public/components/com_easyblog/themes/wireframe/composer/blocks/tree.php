@@ -19,8 +19,8 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="col-cell cell-ellipse">
             <div class="eb-block-title" data-eb-block-title><?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCKS');?></div>
             <div class="eb-block-stat text-muted" data-eb-block-stat>
-                <span class="eb-block-level"><?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_TREE_LEVEL'); ?> <span class="eb-block-level-count" data-eb-block-level-count>1</span></span>
-                <span class="eb-block-child"> &middot; <span class="eb-block-child-count" data-eb-block-child-count>0</span> <?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_TREE_CHILD_BLOCKS'); ?></span>
+                <span class="eb-block-level"><?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_TREE_LEVEL'); ?> <span class="eb-block-level-count" data-eb-block-level-count><?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_LEVEL_COUNT_ONE');?></span></span>
+                <span class="eb-block-child"> &middot; <span class="eb-block-child-count" data-eb-block-child-count><?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_LEVEL_COUNT_ZERO');?></span> <?php echo JText::_('COM_EASYBLOG_COMPOSER_BLOCKS_TREE_CHILD_BLOCKS'); ?></span>
             </div>
         </div>
         <div class="col-cell cell-tight">

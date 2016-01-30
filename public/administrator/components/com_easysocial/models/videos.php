@@ -514,7 +514,32 @@ class EasySocialModelVideos extends EasySocialModel
         return $videos;
     }
 
+    /**
+     * Retrieves the list of items which stored in Amazon
+     *
+     * @since   1.4.6
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getVideosStoredExternally($storageType = 'amazon')
+    {
+        // Get the number of files to process at a time
+        $config = ES::config();
+        $limit = $config->get('storage.amazon.limit', 10);
 
+        $db = FD::db();
+        $sql = $db->sql();
+        $sql->select('#__social_videos');
+        $sql->where('storage', $storageType);
+        $sql->limit($limit);
+
+        $db->setQuery($sql);
+
+        $result = $db->loadObjectList();
+
+        return $result;
+    }
 
     /**
      * Retrieves a list of videos from the site

@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="eb-authors-head row-table">
 		<div class="col-cell cell-tight">
 			<?php if ($this->config->get('layout_avatar') && $this->params->get('author_avatar', true)) { ?>
-			<a href="<?php echo $author->getPermalink();?>">
+			<a href="<?php echo $author->getProfileLink();?>">
 				<img src="<?php echo $author->getAvatar(); ?>" class="eb-authors-avatar" width="60" height="60" alt="<?php echo $author->getName(); ?>" />
 			</a>
 			<?php } ?>
@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<div class="col-cell">
 			<?php if ($this->params->get('author_name', true)) { ?>
 			<h2 class="eb-authors-name reset-heading">
-				<a href="<?php echo $author->getPermalink();?>" class="text-inherit"><?php echo $author->getName();?></a>
+				<a href="<?php echo $author->getProfileLink();?>" class="text-inherit"><?php echo $author->getName();?></a>
 				<small class="eb-authors-featured eb-star-featured<?php echo !$author->isFeatured() ? ' hide' : '';?>" data-featured-tag data-eb-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYBLOG_FEATURED_BLOGGER_FEATURED', true);?>">
 					<i class="fa fa-star"></i>
 				</small>
@@ -46,6 +46,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</a>
 				</span>
 				<?php } ?>
+
+				<?php if (EB::followers()->hasIntegrations($author)) { ?>
+                <span>
+                    <?php echo EB::followers()->html($author);?>
+                </span>
+                <?php } ?>
 
 				<?php if (EB::friends()->hasIntegrations($author)) { ?>
                 <span>

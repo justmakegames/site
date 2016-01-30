@@ -376,6 +376,7 @@ class SocialGroupAppPhotos extends SocialAppItem
 		$this->set('album', $album);
 		$this->set('actor', $actor);
 		$this->set('params', $params);
+		$this->set('item', $item);
 
 		// old data compatibility
 		$verb = ( $item->verb == 'create' ) ? 'add' : $item->verb;
@@ -383,6 +384,12 @@ class SocialGroupAppPhotos extends SocialAppItem
 		// Set the display mode to be full.
 		$item->title 	= parent::display( 'streams/' . $verb . '.title' );
 		$item->preview 	= parent::display( 'streams/' . $verb . '.content' );
+
+		// Currently, only share photo from story panel has the possiblity to have text and 
+		// we want to add read more feature to it.
+		if ($verb == 'share') {
+			$item->content  = parent::display( 'streams/' . $verb . '.text' );
+		}
 	}
 
 	/**

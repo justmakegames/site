@@ -30,6 +30,7 @@ EasySocial.module('videos/form', function($) {
 			self.mentions()
 				.addController("EasySocial.Controller.Friends.Suggest", {
 					"showNonFriend": false,
+					"includeSelf": true,
 					"name": "tags[]",
 					"exclusion": opts.tagsExclusion
 				});

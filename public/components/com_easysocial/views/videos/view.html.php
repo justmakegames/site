@@ -141,9 +141,10 @@ class EasySocialViewVideos extends EasySocialSiteView
  		// Determines if the current viewer is allowed to create new video
  		$adapter = ES::video($uid, $type);
 
- 		// Determines if the user can access this videos section
+ 		// Determines if the user can access this videos section. 
+ 		// Instead of showing user 404 page, just show the restricted area.
  		if (!$adapter->canAccessVideos()) {
- 			JError::raiseError(404, JText::_('You are not allowed to access this section.'));
+ 			return $this->restricted($uid, $type);
  		}
 
  		$allowCreation = $adapter->allowCreation();
@@ -223,6 +224,31 @@ class EasySocialViewVideos extends EasySocialSiteView
 		$this->set('pagination', $pagination);
 
 		echo parent::display('site/videos/default');
+	}
+
+	/**
+	 * Displays a restricted page
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	int		The user's id
+	 */
+	public function restricted($uid = null, $type = SOCIAL_TYPE_USER)
+	{
+		if ($type == SOCIAL_TYPE_USER) {
+			$node = FD::user($uid);
+		}
+
+		if ($type == SOCIAL_TYPE_GROUP) {
+			$node = FD::group($uid);
+		}
+
+		$this->set('showProfileHeader', true);
+		$this->set('uid', $uid);
+		$this->set('type', $type);
+		$this->set('node', $node);
+
+		echo parent::display( 'site/videos/restricted' );
 	}
 
 	/**

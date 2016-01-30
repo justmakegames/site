@@ -24,7 +24,7 @@ EasyBlog.require()
 </script>
 <?php } ?>
 
-<div id="fd" class="eb eb-mod st-2 mod-easyblogshowcase<?php echo $params->get('moduleclass_sfx'); ?>">
+<div id="fd" class="eb eb-mod st-2 eb-responsive mod-easyblogshowcase<?php echo $params->get('moduleclass_sfx'); ?>">
 	<div class="eb-gallery" data-autoplay="<?php echo $autoplay;?>" data-interval="<?php echo $autoplayInterval;?>">
 		<div class="eb-gallery-stage">
 			<div class="eb-gallery-viewport">
@@ -33,10 +33,10 @@ EasyBlog.require()
 						<?php if ($params->get('photo_show', true)) { ?>
 							<?php if ($post->postCover) { ?>
 							<div class="eb-gallery-thumb eb-mod-thumb is-<?php echo $post->postCoverLayout->alignment; ?>">
-								<?php if ($post->postCoverLayout->layout->crop) { ?>
+								<?php if (isset($post->postCoverLayout->layout->crop) && $post->postCoverLayout->layout->crop) { ?>
 						            <a href="<?php echo $post->getPermalink();?>" class="eb-mod-image-cover"
 						                style="
-						                    background-image: url('<?php echo $post->postCover;?>');
+						                    background-image: url('<?php echo $post->postCover;?>') !important;
 						                    width: <?php echo $post->postCoverLayout->layout->width;?>px;
 						                    height: <?php echo $post->postCoverLayout->layout->height;?>px;"
 						            ></a>

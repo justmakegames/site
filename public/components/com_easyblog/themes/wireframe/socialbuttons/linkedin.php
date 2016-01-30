@@ -17,7 +17,7 @@ EasyBlog.require()
 .done(function($) {
     
     $('#<?php echo $placeholder;?>').bookmarklet('linkedin', {
-        "href": "<?php echo $url;?>",
+        "url": "<?php echo $url;?>",
         "size": "<?php echo $size;?>"
     });
 });

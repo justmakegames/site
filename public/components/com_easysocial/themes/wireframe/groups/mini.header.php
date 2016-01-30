@@ -98,9 +98,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<span>
 					<i class="fa fa-users"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_MEMBERS' , $group->getTotalMembers() ) , $group->getTotalMembers() ); ?>
 				</span>
+
+				<?php if ($this->config->get('groups.hits.display')) { ?>
 				<span>
 					<i class="fa fa-eye"></i> <?php echo JText::sprintf( FD::string()->computeNoun( 'COM_EASYSOCIAL_GROUPS_VIEWS' , $group->hits ) , $group->hits ); ?></a>
 				</span>
+				<?php } ?>
+				
 				<?php echo $this->render( 'widgets' , 'group' , 'groups' , 'groupStatsEnd' , array( $group ) ); ?>
 				<span>
 					<?php echo FD::sharing( array('url' => $group->getPermalink(false, true), 'display' => 'dialog', 'text' => JText::_( 'COM_EASYSOCIAL_STREAM_SOCIAL' ) , 'css' => 'fd-small' ) )->getHTML( true ); ?>

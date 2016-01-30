@@ -109,17 +109,19 @@ class EasyBlogTruncater extends EasyBlog
 			$embedHTML = '';
 			$embedVideoHTML = '';
 			$imgHTML = '';
+			$imgAudioHTML = '';
+			$imgGalleryHTML = '';
 
 			if (!empty($post->images) && !$post->hasImage() && $this->config->get('main_truncate_type') != 'paragraph') {
 				$imgHTML .= $post->images;
 			}
-			
+
 			if (!empty($post->galleries)) {
-				$embedHTML .= $post->galleries;
+				$imgGalleryHTML .= $post->galleries;
 			}
 
 			if (!empty($post->audios)) {
-				$embedHTML .= implode( '' , $post->audios );
+				$imgAudioHTML .= implode( '' , $post->audios );
 			}
 
 			if (!empty($post->videos)) {
@@ -148,13 +150,22 @@ class EasyBlogTruncater extends EasyBlog
 				$post->text = $post->text . '<br />' . $embedVideoHTML;
 			}
 
-			// Prepend the other media items in the start of the blog posts.
-			if ($this->config->get( 'main_truncate_media_position') == 'top' && !empty($embedHTML)) {
-				$post->text = $embedHTML . $post->text;
+			// Galleries
+			if ($this->config->get( 'main_truncate_gallery_position') == 'top' && !empty($imgGalleryHTML)) {
+				$post->text = $imgGalleryHTML . $post->text;
 			} 
 
-			if($this->config->get('main_truncate_media_position') == 'bottom' && !empty($embedHTML)) {
-				$post->text = $post->text . $embedHTML;
+			if($this->config->get('main_truncate_gallery_position') == 'bottom' && !empty($imgGalleryHTML)) {
+				$post->text = $post->text . $imgGalleryHTML;
+			}			
+
+			// Audios
+			if ($this->config->get('main_truncate_audio_position') == 'top' && !empty($imgAudioHTML)) {
+				$post->text = $imgAudioHTML . $post->text;
+			} 
+
+			if($this->config->get('main_truncate_audio_position') == 'bottom' && !empty($imgAudioHTML)) {
+				$post->text = $post->text . $imgAudioHTML;
 			}
 		}
 	}

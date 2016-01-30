@@ -29,7 +29,7 @@ class EasyBlogCaptcha extends EasyBlog
 		}
 
 		// Test if captcha should be enabled for registered users.
-		if ($this->config->get('comment_captcha') && !$this->config->get('comment_captcha_registered') && $this->my->id > 0) {
+		if (!$this->config->get('comment_captcha_registered') && $this->my->id > 0) {
 			return false;
 		}
 
@@ -88,10 +88,11 @@ class EasyBlogCaptcha extends EasyBlog
 		}
 
 		// Check if recaptcha is used
-		if ($this->config->get('comment_recaptcha') && $this->config->get('comment_recaptcha') && $this->config->get('comment_recaptcha_public')) {
+		if ($this->config->get('comment_recaptcha') && $this->config->get('comment_recaptcha_public')) {
 
 			$adapter = $this->getAdapter('Recaptcha');
 			$response = $this->input->get('recaptcha', '', 'default');
+
 			$ip = @$_SERVER['REMOTE_ADDR'];
 
 			$valid = $adapter->verifyResponse($ip, $response);
@@ -103,10 +104,6 @@ class EasyBlogCaptcha extends EasyBlog
 		$captcha  = $this->getAdapter('captcha');
 		$response = $this->input->get('captcha-response', '', 'default');
 		$id = $this->input->get('captcha-id', '', 'default');
-
-		if (!$response || !$id) {
-			return false;
-		}
 
 		return $captcha->verify($response, $id);
 	}

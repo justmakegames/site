@@ -37,7 +37,7 @@ class EasyBlogXMLRPCServices extends EasyBlog
 		if ($response === true) {
 			$my = JFactory::getUser();
 
-			if ($my->guest) {
+			if ($my->guest || $my->block) {
 				return new xmlrpcresp(0, 403, JText::_('Login Failed'));
 			}
 
@@ -269,6 +269,10 @@ class EasyBlogXMLRPCServices extends EasyBlog
 		$acl = EB::acl();
 		$my = JFactory::getUser();
 
+		if ($my->guest || $my->block) {
+			return new xmlrpcresp(0, 403, JText::_('Login Failed'));
+		}
+
 		$postData = array();
 
 		// Default properties
@@ -420,6 +424,12 @@ class EasyBlogXMLRPCServices extends EasyBlog
 		// Get the config
 		$config = EB::config();
 
+		$my = JFactory::getUser();
+
+		if ($my->guest || $my->block) {
+			return new xmlrpcresp(0, 403, JText::_('Login Failed'));
+		}
+
 		// Group up the content
 		$content = $blog->intro . $blog->content;
 		$total = 0;
@@ -429,7 +439,7 @@ class EasyBlogXMLRPCServices extends EasyBlog
 		preg_match_all($pattern, $content, $matches);
 
 		if ($matches && count($matches[0]) > 0) {
-			
+
 			foreach ($matches[0] as $match) {
 				$input = $match;
 				$largeImgPath = '';
@@ -479,7 +489,7 @@ class EasyBlogXMLRPCServices extends EasyBlog
 
 							$blog->intro = str_replace($input , '<a class="easyblog-thumb-preview" href="' . $largeImgPath . '">' . $images[0] . '</a>' , $blog->intro);
 							$blog->content = str_replace($input , '<a class="easyblog-thumb-preview" href="' . $largeImgPath . '">' . $images[0] . '</a>' , $blog->content);
-							
+
 						}
 
 						$total++;
@@ -981,7 +991,7 @@ class EasyBlogXMLRPCServices extends EasyBlog
 
 		// prevent if the user upload the same image name
 		$dateTime = EB::date()->toFormat('YmdHis');
-		$file['name'] = $dateTime . '_' . $file['name'];		
+		$file['name'] = $dateTime . '_' . $file['name'];
 
 		// Write the file to the
 		$tmpFile = $tmp . '/' . $file['name'];

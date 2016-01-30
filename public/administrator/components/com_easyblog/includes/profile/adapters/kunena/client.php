@@ -16,6 +16,28 @@ require_once(dirname(dirname(__FILE__)) . '/default/client.php');
 class EasyBlogProfileKunena extends EasyBlogProfileDefault
 {
 	/**
+	 * Determines if Kunena exists on the site
+	 *
+	 * @since	5.0.32
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function exists()
+	{
+		// Check if Kunena API exists
+		$file = JPATH_ADMINISTRATOR . '/components/com_kunena/api.php';
+
+		if (!JFile::exists($file)) {
+			return false;
+		}
+
+		require_once($file);
+		
+		return true;
+	}
+
+	/**
 	 * Retrieves the profile link
 	 *
 	 * @since	5.0
@@ -25,7 +47,11 @@ class EasyBlogProfileKunena extends EasyBlogProfileDefault
 	 */
 	public function getLink()
 	{
-		$link = JRoute::_('index.php?option=com_kunena&view=user&userid=' . $this->profile->id, false);
+		if (!$this->exists()) {
+			return false;
+		}
+
+		$link = KunenaRoute::_('index.php?option=com_kunena&view=user&userid=' . $this->profile->id, false);
 
 		return $link;
 	}

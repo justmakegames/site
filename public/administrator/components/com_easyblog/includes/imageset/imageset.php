@@ -124,11 +124,8 @@ class EasyBlogImageset extends EasyBlog
 			$data->quality = $this->config->get('main_image_' . $size . '_quality');
 			$data->path = $folder . '/' . EBLOG_SYSTEM_VARIATION_PREFIX . '_' . $size . '_' . $fileName;
 
-			// Everything should be resized using "resize within" method
-			$resizeMode = 'resizeWithin';
-
 			// Resize the image
-			$image->$resizeMode($data->width, $data->height);
+			$image->resizeWithin($data->width, $data->height);
 
 			// Save the image
 			$image->write($data->path, $data->quality);

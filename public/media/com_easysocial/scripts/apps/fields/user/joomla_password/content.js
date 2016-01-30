@@ -27,6 +27,7 @@ EasySocial.module('apps/fields/user/joomla_password/content', function($) {
                     defaultOptions:
                     {
                         event               : null,
+                        triggerError        : true,
 
                         required            : false,
                         passwordStrength    : false,
@@ -47,7 +48,10 @@ EasySocial.module('apps/fields/user/joomla_password/content', function($) {
                         '{input}'       : '[data-field-password-input]',
                         '{reconfirm}'   : '[data-field-password-confirm]',
 
+                        '{pwResetSubmitButton}' : '[data-password-reset-submit]',
+
                         '{strength}'    : '[data-field-password-strength]',
+                        '{warning}'    : '[data-field-password-warning]',
 
                         '{reconfirmNotice}' : '[data-reconfirmPassword-failed]'
                     }
@@ -102,6 +106,8 @@ EasySocial.module('apps/fields/user/joomla_password/content', function($) {
 
                         validatePasswordInput: function() {
                             var input = self.input().val();
+
+                            // console.log(self.options.min, self.options.max, self.options.minInteger, self.options.minSymbol);
 
                             if($.isEmpty(input)) {
                                 self.raiseError($.language('PLG_FIELDS_JOOMLA_PASSWORD_EMPTY_PASSWORD'));
@@ -227,14 +233,29 @@ EasySocial.module('apps/fields/user/joomla_password/content', function($) {
                         },
 
                         raiseError: function(msg) {
-                            self.trigger('error', [msg]);
+                            if (self.options.triggerError) {
+                                self.trigger('error', [msg]);
+                            } else {
+                                self.warning().show();
+                                self.warning().text(msg);
+                            }
                         },
 
                         clearError: function() {
-                            self.trigger('clear');
+                            if (self.options.triggerError) {
+                                self.trigger('clear');
+                            } else {
+                                self.warning().hide();
+                                self.warning().text('');
+                            }
+                        },
+
+                        "{pwResetSubmitButton} click": function() {
+                            return self.validatePassword();
                         },
 
                         "{self} onSubmit": function(el, event, register, mode) {
+
                             if (mode === 'onRegisterMini') {
                                 return;
                             }

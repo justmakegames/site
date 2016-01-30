@@ -23,7 +23,7 @@ class SocialFieldsGroupVideos extends SocialFieldItem
 	 */
 	public function onRegister($post, SocialTableStepSession $session)
 	{
-		$value = $this->normalize($post, 'videos', $this->params->get('videos', true));
+		$value = $this->normalize($post, 'videos', $this->params->get('videos', $this->params->get('default', true)));
 		$value = (bool) $value;
 
 		// Detect if there's any errors
@@ -48,7 +48,7 @@ class SocialFieldsGroupVideos extends SocialFieldItem
 	public function onEdit(&$data, &$group, $errors)
 	{
 		$params	= $group->getParams();
-		$value = $group->getParams()->get('videos', $this->params->get('videos', true));
+		$value = $group->getParams()->get('videos', $this->params->get('videos', $this->params->get('default', true)));
 		$error = $this->getError($errors);
 
 		$this->set('error', $error);
@@ -70,7 +70,7 @@ class SocialFieldsGroupVideos extends SocialFieldItem
 	public function onEditBeforeSave(&$data, &$group)
 	{
 		// Get the posted value
-		$value = $this->normalize($data, 'videos', $group->getParams()->get('videos', $this->params->get('videos', true)));
+		$value = $this->normalize($data, 'videos', $group->getParams()->get('videos', $this->params->get('default', true)));
 		$value = (bool) $value;
 
 		$group->params = $this->setParams($group, $value);
@@ -88,7 +88,7 @@ class SocialFieldsGroupVideos extends SocialFieldItem
 	 */
 	public function onRegisterBeforeSave(&$data, &$group)
 	{
-		$value = $this->normalize($data, 'videos', $this->params->get('videos', true));
+		$value = $this->normalize($data, 'videos', $this->params->get('videos', $this->params->get('default', true)));
 		$value = (bool) $value;
 
 		$group->params = $this->setParams($group, $value);
@@ -130,7 +130,7 @@ class SocialFieldsGroupVideos extends SocialFieldItem
 	 */
 	public function onSample()
 	{
-		$value = $this->params->get('videos', true);
+		$value = $this->params->get('default', true);
 
 		$this->set('value', $value);
 

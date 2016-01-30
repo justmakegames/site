@@ -23,6 +23,7 @@ $amazonRegion = array(
 	$settings->makeOption('US Standard', 'us'),
 	$settings->makeOption('US West Oregon', 'us-west-2'),
 	$settings->makeOption('US West Northern California', 'us-west-1'),
+	$settings->makeOption('EU Frankfurt', 'eu-central-1'),
 	$settings->makeOption('EU Ireland', 'eu-west-1'),
 	$settings->makeOption('Asia Pacific Singapore', 'ap-southeast-1'),
 	$settings->makeOption('Asia Pacific Sydney', 'ap-southeast-2'),

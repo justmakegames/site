@@ -214,6 +214,11 @@ class EasyBlogControllerBloggers extends EasyBlogController
 		// Save other user parameters
 		$registry = EB::registry();
 
+		// save blogger multipletheme settin
+		if (isset($post['theme'])) {
+			$registry->set('theme', $post['theme']);
+		}		
+
 		// Save google profile url
 		if (isset($post['google_profile_url'])) {
 			$registry->set('google_profile_url', $post['google_profile_url']);

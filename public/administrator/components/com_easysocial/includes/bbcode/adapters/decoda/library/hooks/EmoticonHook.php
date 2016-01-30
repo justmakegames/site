@@ -70,6 +70,15 @@ class EmoticonHook extends DecodaHook {
 		// Force root URI in as '/' does not work properly on subfolder sites
 		if (!$overrideExists) {
 			$this->_config['path'] = SOCIAL_JOOMLA_URI .'/media/com_easysocial/images/icons/emoji/';
+		} else {
+			// check if the json file exits or not.
+			$jsonFile = JPATH_ROOT . $this->_config['path'] . 'emoticons.json';
+			if (JFile::exists($jsonFile)) {
+				$path = $jsonFile;
+			}
+
+			// let apppend root here
+			$this->_config['path'] = SOCIAL_JOOMLA_URI . $this->_config['path'];			
 		}
 
 		if (file_exists($path)) {

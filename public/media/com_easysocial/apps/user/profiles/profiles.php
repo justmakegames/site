@@ -296,13 +296,18 @@ class SocialUserAppProfiles extends SocialAppItem
 	 */
 	public function onPrepareStream( SocialStreamItem &$item, $includePrivacy = true )
 	{
-		if( $item->context != 'profiles' )
-		{
+		if ($item->context != 'profiles') {
+			return;
+		}
+
+		// Do not render the stream if the user is not activated or being blocked
+		// to respect the user privacy
+		if ($item->actor->block) {
 			return;
 		}
 
 		// Get the application params
-		$params 	= $this->getParams();
+		$params = $this->getParams();
 
 		if( $item->verb == 'update' && !$params->get( 'stream_update' , true ) )
 		{

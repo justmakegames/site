@@ -2,12 +2,12 @@
 <extension version="3.1" type="module" client="site" method="upgrade">
 	<name>EasySocial Users</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>19th October 2015</creationDate>
+	<creationDate>30th December 2015</creationDate>
 	<copyright>Copyright (C) 2009 - 2013 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>1.4.3</version>
+	<version>1.4.6</version>
 	<description><![CDATA[MOD_EASYSOCIAL_USERS_DESC]]></description>
 	<files>
 		<folder>styles</folder>

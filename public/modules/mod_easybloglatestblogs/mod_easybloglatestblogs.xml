@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyBlog - Latest Blogs Module</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>12th October 2015</creationDate>
+	<creationDate>19th January 2016</creationDate>
 	<copyright>Copyright 2009 - 2015 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>5.0.28</version>
+	<version>5.0.32</version>
 	<description>
 		<![CDATA[Latest blogs by module for your EasyBlog's component.]]></description>
 	<languages>
@@ -192,13 +192,8 @@
 					<option value="small">MOD_LATESTBLOGS_PHOTO_SIZE_SMALL</option>
 				</field>
 
-				<field name="photo_layout" type="cover" label="MOD_LATESTBLOGS_PHOTO_LAYOUT_TYPE" description="MOD_LATESTBLOGS_PHOTO_LAYOUT_TYPE_DESC" crop="1" full="1" defaultwidth="260" defaultheight="200" />
+				<field name="photo_layout" type="cover" label="MOD_LATESTBLOGS_PHOTO_LAYOUT_TYPE" description="MOD_LATESTBLOGS_PHOTO_LAYOUT_TYPE_DESC" crop="1" full="1" defaultwidth="260" defaultheight="200" alignment="center" />
 
-				<field name="alignment" type="list" default="center" label="Alignment" description="Set the photo alignment.">
-                    <option value="center">MOD_LATESTBLOGS_CENTER</option>
-					<option value="left">MOD_LATESTBLOGS_LEFT</option>
-					<option value="right">MOD_LATESTBLOGS_RIGHT</option>
-				</field>
 			</fieldset>
 
 

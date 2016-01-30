@@ -159,7 +159,60 @@ class SocialCronHooksStorage extends EasySocial
 
 		// If site is configured to storage in joomla, we don't need to do anything
 		if ($storageType == 'joomla') {
-			return JText::_('Current photos storage is set to local.');
+
+			$defaultMessage = JText::_('Current link photo storage is set to local and there are no item stored externally to download.');
+
+			// Check if any photos with the "storage" property to non "joomla"
+			$model = ES::model('Links');	
+
+			$linkImages = $model->getLinkImagesStoredExternally();
+
+			// Check if do not have any "storage" property to Amazon 
+			if (!$linkImages) {
+				return $defaultMessage;
+			}
+
+			// Load up the storage library
+			$storage = ES::storage('amazon');
+			$total = 0;
+
+			foreach ($linkImages as $linkImage) {
+
+				$table = ES::table('LinkImage');
+				$table->bind($linkImage);
+
+				// Relative path to the item
+				$relativePath = ES::cleanPath($this->config->get('links.cache.location'));
+
+				// call the api to retrieve back the data
+				$storage->pull($relativePath);
+
+				$states = array();
+
+				// make sure these files donwloaded into local server
+				$linkImageFile = JPATH_ROOT . '/' . $relativePath . '/' . $linkImage->internal_url;
+				$states[] = JFile::exists($linkImageFile);
+
+				// Determines if the download was successful
+				$success = !in_array(false, $states);
+
+				// If all the files were downloaded successfully
+				if ($success) {
+					$table->storage = $storageType;
+					$table->store();
+
+					$total += 1;
+				}
+
+				// Add this to the storage logs
+				$this->log($table->id, 'linkimage.pull', $success);				
+			}
+
+			if ($total > 0) {
+				return JText::sprintf('%1s link photos downloaded to local server.', $total);
+			}
+
+			return $defaultMessage;
 		}
 
 		// Get the storage library
@@ -221,15 +274,83 @@ class SocialCronHooksStorage extends EasySocial
 	 */
 	public function syncPhotos()
 	{
-		$storageType = $this->getStorageType('photos');
+		$storageType = $this->getStorageType('photos');	
 
 		// If site is configured to storage in joomla, we don't need to do anything
 		if ($storageType == 'joomla') {
-			return JText::_('Current photos storage is set to local.');
+
+			$defaultMessage = JText::_('Current photo storage is set to local and there are no item stored externally to download.');
+
+			// Check if any photos with the "storage" property to non "joomla"
+			$model = ES::model('Photos');
+
+			$photos = $model->getPhotosStoredExternally('amazon');
+
+			// Check if do not have any "storage" property to Amazon 
+			if (!$photos) {
+				return $defaultMessage;
+			}
+
+			// Load up the storage library
+			$storage = ES::storage('amazon');
+			$total = 0;
+
+			foreach ($photos as $photo) {
+				$table = ES::table('Photo');
+				$table->bind($photo);
+
+				// Get the relative path to the photo
+				$photoFolder = $table->getFolder(true, false);
+
+				// call the api to retrieve back the data
+				$storage->pull($photoFolder);
+
+				// Get list of allowed photos
+				$types = array('thumbnail', 'large', 'square', 'featured', 'original', 'stock');			
+				$states = array();
+
+				// We need to run this to ensure that all the files are restored back to it's correct local storage.
+				foreach ($types as $type) {
+
+					// Check if the file was already downloaded
+					$path = $table->getPath($type);
+
+					$states[] = JFile::exists($path);
+				}
+
+				// Determines if the download was successful
+				$success = !in_array(false, $states);
+
+				// If all the files were downloaded successfully
+				if ($success) {	
+					$table->storage = $storageType;
+					$table->store();
+
+					$stream = ES::table('StreamItem');
+					$options = array('context_type' => SOCIAL_TYPE_PHOTO, 'context_id' => $table->id);
+					$exists = $stream->load($options);
+
+					if ($exists) {
+						$stream->params = json_encode($table);
+						$stream->store();
+					}
+
+					$total += 1;
+				}
+
+				// Add this to the storage logs
+				$this->log($table->id, 'photos.pull', $success);				
+			}
+
+			if ($total > 0) {
+				return JText::sprintf('%1s photos downloaded to local server.', $total);
+			}
+
+			return $defaultMessage;
 		}
 
 		// Load up the storage library
-		$storage = FD::storage($storageType);
+		$storage = ES::storage($storageType);
 
 		// Get the number of files to process at a time
 		$limit = $this->getUploadLimit('photos');
@@ -238,13 +359,13 @@ class SocialCronHooksStorage extends EasySocial
 		$exclusion = $this->getFailedObjects('photos');
 
 		// Get a list of files to be synchronized over.
-		$model = FD::model('Photos');
+		$model = ES::model('Photos');
 		$options = array(
-						'pagination'	=> $limit,
-						'storage'		=> SOCIAL_STORAGE_JOOMLA,
-						'ordering'		=> 'created',
-						'sort' 			=> 'asc',
-						'exclusion'		=> 	$exclusion
+						'pagination' => $limit,
+						'storage' => SOCIAL_STORAGE_JOOMLA,
+						'ordering' => 'created',
+						'sort' => 'asc',
+						'exclusion' => $exclusion
 					);
 
 		// Get a list of photos to sync to amazon
@@ -260,8 +381,7 @@ class SocialCronHooksStorage extends EasySocial
 
 		foreach ($photos as $photo) {
 
-			// Load the album
-			$album = FD::table('Album');
+			$album = ES::table('Album');
 			$album->load($photo->album_id);
 
 			// If the album no longer exists, skip this
@@ -276,25 +396,27 @@ class SocialCronHooksStorage extends EasySocial
 			// Now we need to get all the available files for this photo
 			$metas = $model->getMeta($photo->id, SOCIAL_PHOTOS_META_PATH);
 
-			// Go through each meta
 			foreach ($metas as $meta) {
 
 				// To prevent some faulty data, we need to manually reconstruct the path here.
 				$absolutePath = $meta->value;
+
 				$file = basename($absolutePath);
-				$container = FD::cleanPath($this->config->get('photos.storage.container'));
+
+				$container = ES::cleanPath($this->config->get('photos.storage.container'));
 
 				// Reconstruct the path to the source file
 				$source = JPATH_ROOT . '/' . $container . '/' . $album->id . '/' . $photo->id . '/' . $file;
 
 				// To prevent faulty data, manually reconstruct the path here.
 				$dest = $container . '/' . $album->id . '/' . $photo->id . '/' . $file;
-				$dest = ltrim( $dest , '/' );
+				$dest = ltrim($dest, '/');
 
 				// We only want to upload certain files
 				if (in_array($meta->property, $allowed)) {
-					// Upload the file to the remote storage now
-					$state = $storage->push($photo->title . $photo->getExtension(), $source, $dest);
+
+					$fileName = $photo->title . $photo->getExtension($meta->property);
+					$state = $storage->push($fileName, $source, $dest);
 
 					// Delete the source file if successfull and configured to do so.
 					if ($state && $this->deleteable($storageType)) {
@@ -315,16 +437,16 @@ class SocialCronHooksStorage extends EasySocial
 
 				// if photo storage successfully updated to amazon, we need to update the cached object in stream_item.
 				// Find and update the object from stream_item.
-				$stream = FD::table('StreamItem');
+				$stream = ES::table('StreamItem');
 				$options = array('context_type' => SOCIAL_TYPE_PHOTO, 'context_id' => $photo->id);
 				$exists = $stream->load($options);
 
 				if ($exists) {
-					$stream->params = FD::json()->encode($photo);
+					$stream->params = json_encode($photo);
 					$stream->store();
 				}
 
-				$total 	+= 1;
+				$total += 1;
 			}
 
 			// Add this to the storage logs
@@ -352,7 +474,77 @@ class SocialCronHooksStorage extends EasySocial
 
 		// If site is configured to storage in joomla, we don't need to do anything
 		if ($storageType == 'joomla') {
-			return JText::_('Current videos storage is set to local.');
+
+			$defaultMessage = JText::_('Current video storage is set to local and there are no item stored externally to download.');
+
+			// Check if any avatars with the "storage" property to non "joomla"
+			$model = ES::model("Videos");
+			$videos = $model->getVideosStoredExternally();
+
+			// Check if do not have any "storage" property to Amazon 
+			if (!$videos) {
+				return $defaultMessage;
+			}
+
+			// Load up the storage library
+			$storage = ES::storage('amazon');
+			$total = 0;
+
+			foreach ($videos as $video) {
+
+				$table = ES::table('Video');
+				$table->bind($video);
+
+				// Reconstruct the path to the source file
+				$relativePath = '/' . ES::cleanPath($this->config->get('video.storage.container')) . '/' . $video->id;
+
+				// call the api to retrieve back the data
+				$storage->pull($relativePath);
+
+				$states = array();
+
+				// check the video thumbnail file exist or not
+				if ($video->thumbnail) {
+
+					// normalize the thumbnail path
+					$relativeThumbPath = str_ireplace(JPATH_ROOT, '', $video->thumbnail);
+
+					$absoluteThumbPath = JPATH_ROOT . '/' . $relativeThumbPath;
+
+					$states[] = JFile::exists($absoluteThumbPath);
+				}
+
+				// check the video file exist or not
+				if ($table->isUpload()) {
+					
+					// normalize the thumbnail path
+					$relativeVideoPath = str_ireplace(JPATH_ROOT, '', $video->path);
+
+					$absoluteVideoPath = JPATH_ROOT . '/' . $relativeVideoPath;
+
+					$states[] = JFile::exists($absoluteVideoPath);
+				}
+
+				// Determines if the download was successful
+				$success = !in_array(false, $states);
+
+				// If all the files were downloaded successfully
+				if ($success) {
+					$table->storage = $storageType;
+					$table->store();
+
+					$total += 1;
+				}
+				
+				// Add this to the storage logs
+				$this->log($table->id, 'videos.pull', $success);
+			}
+
+			if ($total > 0) {
+				return JText::sprintf('%1s videos downloaded from amazon to local.', $total);
+			}
+
+			return $defaultMessage;
 		}
 
 		// Load up the storage library
@@ -447,7 +639,59 @@ class SocialCronHooksStorage extends EasySocial
 		$storageType = $this->getStorageType('files');
 
 		if ($storageType == 'joomla') {
-			return JText::_('No files to upload to Amazon S3 right now.');
+
+			$defaultMessage = JText::_('Current file storage is set to local and there are no item stored externally to download.');
+
+			// Check if any files with the "storage" property to non "joomla"
+			$model = ES::model('Files');
+			$files = $model->getFilesStoredExternally();
+
+			// Check if do not have any "storage" property to Amazon 
+			if (!$files) {
+				return $defaultMessage;
+			}
+
+			// Load up the storage library
+			$storage = ES::storage('amazon');
+			$total = 0;
+
+			foreach ($files as $file) {
+				$table = ES::table('File');
+				$table->bind($file);
+
+				// Reconstruct the path to the source file
+				$relativePath = '/' . ES::cleanPath($this->config->get('files.storage.container'));
+				$relativePath .= '/' . ES::cleanPath($this->config->get('files.storage.' . $file->type . '.container') . '/' . $file->uid);
+
+				// call the api to retrieve back the data
+				$storage->pull($relativePath);
+
+				$states = array();
+
+				// make sure these files donwloaded into local server
+				$existFile = JPATH_ROOT . $relativePath . '/' . $file->hash;
+				$states[] = JFile::exists($existFile);
+
+				// Determines if the download was successful
+				$success = !in_array(false, $states);
+
+				// If all the files were downloaded successfully
+				if ($success) {
+					$table->storage = $storageType;
+					$table->store();
+
+					$total += 1;
+				}
+
+				// Add this to the storage logs
+				$this->log($table->id, 'files.pull', true);
+			}
+			
+			if ($total > 0) {
+				return JText::sprintf('%1s files downloaded to local server.', $total);
+			}
+
+			return $defaultMessage;
 		}
 
 		// Get the storage library
@@ -514,7 +758,65 @@ class SocialCronHooksStorage extends EasySocial
 		$storageType = $this->getStorageType('avatars');
 
 		if ($storageType == 'joomla') {
-			return JText::_('Current avatar storage is set to local.');
+
+			$defaultMessage = JText::_('Current avatar storage is set to local and there are no item stored externally to download.');
+
+			// Check if any avatars with the "storage" property to non "joomla"
+			$model = ES::model('Avatars');
+			$avatars = $model->getAvatarsStoredExternally('amazon');
+
+			// Check if do not have any "storage" property to Amazon 
+			if (!$avatars) {
+				return $defaultMessage;
+			}
+
+			// Load up the storage library
+			$storage = ES::storage('amazon');
+			$total = 0;
+
+			foreach ($avatars as $avatar) {
+
+				$table = ES::table('Avatar');
+				$table->bind($avatar);
+
+				// Reconstruct the path to the source file
+				$relativePath = '/' . ES::cleanPath($this->config->get('avatars.storage.container'));
+				$relativePath .= '/' . ES::cleanPath($this->config->get('avatars.storage.' . $avatar->type)) . '/' . $avatar->uid;
+
+				// call the api to retrieve back the data
+				$storage->pull($relativePath);
+
+				// Get available avatar sizes
+				$sizes = ES::user()->getAvatarSizes();
+				$states = array();
+
+				foreach ($sizes as $size) {
+					$avatarFile = JPATH_ROOT . $relativePath . '/' . $avatar->$size;
+
+					$states[] = JFile::exists($avatarFile);
+				}
+				
+				// Determines if the download was successful
+				$success = !in_array(false, $states);
+
+				// If all the files were downloaded successfully
+				if ($success) {
+					$table->storage = $storageType;
+					$table->store();
+
+					$total += 1;
+				}
+
+				// Add this to the storage logs
+				$this->log($table->id, 'avatars.pull', $success);
+			}
+
+
+			if ($total > 0) {
+				return JText::sprintf('%1s avatars downloaded to local server.', $total);
+			}
+
+			return $defaultMessage;
 		}
 
 		// Get the storage library
@@ -536,39 +838,44 @@ class SocialCronHooksStorage extends EasySocial
 			return JText::_('No avatars to upload to Amazon S3 right now.');
 		}
 
-		foreach($avatars as $avatar) {
 
-			$small = $avatar->getPath( SOCIAL_AVATAR_SMALL , false );
-			$medium = $avatar->getPath( SOCIAL_AVATAR_MEDIUM , false );
-			$large = $avatar->getPath( SOCIAL_AVATAR_LARGE , false );
-			$square = $avatar->getPath( SOCIAL_AVATAR_SQUARE , false );
+		// Go through each avatars that needs to be uploaded on the remote storage
+		foreach ($avatars as $avatar) {
 
-			$smallPath 	= JPATH_ROOT . '/' . $small;
-			$mediumPath	= JPATH_ROOT . '/' . $medium;
-			$largePath	= JPATH_ROOT . '/' . $large;
-			$squarePath	= JPATH_ROOT . '/' . $square;
-
+			// Get available avatar sizes
+			$sizes = ES::user()->getAvatarSizes();
+			
+			// By default the state would be false unless all operations are successfull.
 			$success = false;
+			$states = array();
+			$filesToBeDeleted = array();
 
-			if (
-				$storage->push($avatar->id, $smallPath, $small) &&
-				$storage->push($avatar->id, $mediumPath, $medium) &&
-				$storage->push($avatar->id, $largePath, $large) &&
-				$storage->push($avatar->id, $squarePath, $square)
-				) {
+			foreach ($sizes as $size) {
 
+				// Get the abolute path to the specific avatar size
+				$relativePath = $avatar->getPath(constant('SOCIAL_AVATAR_' . strtoupper($size)), false);
+				$absolutePath = JPATH_ROOT . '/' . $relativePath;
+				
+				// We also need to queue each of the absolute paths so that we can delete it later on
+				$filesToBeDeleted[] = $absolutePath;
+
+				// Get the file name to be used
+				$fileName = basename($relativePath);
+
+				$states[] = $storage->push($fileName, $absolutePath, $relativePath);
+			}
+
+			// If there is no false result from the states, we assume everything got uploaded succesfully.
+			if (!in_array(false, $states)) {
 				$avatar->storage = $storageType;
 
-				// Delete all the files now
 				if ($this->deleteable($storageType)) {
-					JFile::delete($smallPath);
-					JFile::delete($mediumPath);
-					JFile::delete($largePath);
-					JFile::delete($squarePath);
+					foreach ($filesToBeDeleted as $file) {
+						JFile::delete($file);
+					}
 				}
 
 				$avatar->store();
-
 				$success = true;
 			}
 
@@ -581,5 +888,5 @@ class SocialCronHooksStorage extends EasySocial
 		if ($total > 0) {
 			return JText::sprintf('%1s avatars uploaded to remote storage', $total);
 		}
-	}
+	}	
 }

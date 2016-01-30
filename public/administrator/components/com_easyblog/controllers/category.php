@@ -354,8 +354,16 @@ class EasyBlogControllerCategory extends EasyBlogController
 		$category = EB::table('Category');
 		$category->load($id);
 
+		// If the category is not public, don't set it as default
 		if (!$category->isNotAssigned()) {
 			$this->info->set('COM_EASYBLOG_CATEGORIES_NOT_PUBLIC','error');
+
+			return $this->app->redirect('index.php?option=com_easyblog&view=categories');
+		}
+
+		// If the category is not published, don't set it as default.
+		if (!$category->published) {
+			$this->info->set('COM_EASYBLOG_CATEGORIES_NOT_PUBLISHED','error');
 
 			return $this->app->redirect('index.php?option=com_easyblog&view=categories');
 		}	

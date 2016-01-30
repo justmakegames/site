@@ -257,7 +257,7 @@ class EasySocialControllerProfiles extends EasySocialController
 
 		// If this profile is default, we need to ensure that the rest of the profiles are not default any longer.
 		if ($profile->default) {
-			$profile->makeDefault();
+			$profile->makeDefault($isCopy);
 		}
 
 		// Store the avatar for this profile.

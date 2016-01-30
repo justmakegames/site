@@ -34,6 +34,13 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
 		<div class="app-members-content app-contents" data-group-members-content>
 			<?php echo $this->includeTemplate( 'apps/group/members/groups/default.list' ); ?>
+
+			<?php if ($pagination) { ?>
+			<div class="es-pagination-footer" data-users-pagination>
+				<?php echo $pagination->getListFooter('site');?>
+			</div>
+			<?php } ?>
 		</div>
+
 	</div>
 </div>

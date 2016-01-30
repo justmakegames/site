@@ -15,8 +15,7 @@ FD::import( 'admin:/tables/table' );
 FD::import( 'admin:/includes/stream/dependencies' );
 FD::import( 'admin:/includes/indexer/indexer' );
 
-class SocialTablePhoto extends SocialTable
-    implements ISocialIndexerTable, ISocialStreamItemTable
+class SocialTablePhoto extends SocialTable implements ISocialIndexerTable, ISocialStreamItemTable
 {
     /**
      * The unique id for this record.
@@ -316,6 +315,23 @@ class SocialTablePhoto extends SocialTable
     }
 
     /**
+     * Determines if this image is stored externally
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return  
+     */
+    public function isStoredRemotely()
+    {
+        if ($this->storage == SOCIAL_STORAGE_JOOMLA) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Cleanup photo title
      *
      * @since   1.0
@@ -374,6 +390,32 @@ class SocialTablePhoto extends SocialTable
                 $table->store();
             }
         }
+    }
+
+    /**
+     * Deletes the photo folder
+     *
+     * @since   1.4
+     * @access  public
+     * @param   string
+     * @return  
+     */
+    public function deletePhotoFolder()
+    {
+        $config = ES::config();
+        $container = ES::cleanPath($config->get('photos.storage.container'));
+
+        $path = JPATH_ROOT . '/' . $container . '/' . $this->album_id . '/' . $this->id;
+
+        $exists = JFolder::exists($path);
+
+        if (!$exists) {
+            return false;
+        }
+
+        $state = JFolder::delete($path);
+        
+        return $state;
     }
 
     /**
@@ -653,14 +695,14 @@ class SocialTablePhoto extends SocialTable
     public function delete( $pk = null )
     {
         // Delete the record from the database first.
-        $state  = parent::delete();
+        $state = parent::delete();
 
         // Now, try to delete the folder that houses this photo.
-        $config     = FD::config();
+        $config = ES::config();
 
         // Check if this photo is used as a profile cover
         if ($this->isProfileCover()) {
-            $cover  = FD::table( 'Cover' );
+            $cover = FD::table( 'Cover' );
             $cover->load(array('photo_id' => $this->id));
 
             $cover->delete();
@@ -692,8 +734,8 @@ class SocialTablePhoto extends SocialTable
         $photoRelPath = JPath::clean($photoRelPath);
 
         if ( $photoContainer != $photoRelPath) {
-            $storage    = FD::storage( $this->storage );
-            $storage->delete( $relative , true );
+            $storage = FD::storage($this->storage);
+            $storage->delete($relative, true);
         }
 
         $model  = FD::model('Photos');
@@ -1101,20 +1143,20 @@ class SocialTablePhoto extends SocialTable
      * @param   string
      * @return
      */
-    public function getStoragePath( SocialTableAlbum $album , $relative = false )
+    public function getStoragePath(SocialTableAlbum $album , $relative = false )
     {
         // Rename temporary folder to the destination.
         jimport( 'joomla.filesystem.folder' );
 
         // Get destination folder path.
-        $storage    = $album->getStoragePath( $relative );
+        $storage = $album->getStoragePath($relative);
 
         // Build the storage path now with the album id
-        $storage    = $storage . '/' . $this->id;
+        $storage = $storage . '/' . $this->id;
 
         // Ensure that the final storage path exists.
         if (!$relative) {
-            FD::makeFolder( $storage );
+            ES::makeFolder($storage);
         }
 
         return $storage;
@@ -1239,18 +1281,21 @@ class SocialTablePhoto extends SocialTable
      * @param   string
      * @return
      */
-    public function getFolder( $includePhotoId = true )
+    public function getFolder($includePhotoId = true, $absolutePath = true)
     {
-        $config     = FD::config();
-        $storage    = FD::cleanPath( $config->get( 'photos.storage.container' ) );
-        //$path       = JPATH_ROOT . '/' . $storage . '/' . $this->album_id . '/' . $this->id;
+        $config = ES::config();
+        $storage = ES::cleanPath($config->get('photos.storage.container'));
+        $path = '';
 
-        $path       = JPATH_ROOT . '/' . $storage . '/' . $this->album_id;
-
-        if( $includePhotoId ) {
-            $path = $path .= '/' . $this->id;
+        if ($absolutePath) {
+            $path = JPATH_ROOT;
         }
 
+        $path .= '/' . $storage . '/' . $this->album_id;
+
+        if ($includePhotoId) {
+            $path .= '/' . $this->id; 
+        }
 
         return $path;
     }
@@ -1263,41 +1308,47 @@ class SocialTablePhoto extends SocialTable
      * @param   string
      * @return
      */
-    public function getPath( $type , $relative = false )
+    public function getPath($type, $relative = false)
     {
-        static $paths   = array();
+        static $paths = array();
 
-        $config = FD::config();
+        $config = ES::config();
 
         // Get the photo storage container
-        $container = FD::cleanPath($config->get('photos.storage.container'));
+        $container = $config->get('photos.storage.container');
+        $container = ES::cleanPath($container);
 
-        if (!isset($paths[$this->id])) {
+        $key = $this->id . $type . (int) $relative;
+
+        if (!isset($paths[$key])) {
             $model = FD::model('Photos');
 
             // Retrieve information about the photo
             $metas = $model->getMeta($this->id, SOCIAL_PHOTOS_META_PATH);
-
             $result = new stdClass();
 
             if (!$metas) {
-                $paths[$this->id] = false;
+                $paths[$key] = false;
 
-                return $paths[$this->id];
+                return $paths[$key];
             }
 
             foreach ($metas as $meta) {
 
                 $this->normalizeMetaValue($meta);
 
-
+                // Default to use absolute
                 $result->{$meta->property} = JPATH_ROOT . '/' . $container . $meta->value;
+
+                if ($relative) {
+                    $result->{$meta->property} = '/' . $container . $meta->value;
+                }
             }
 
-            $paths[$this->id] = $result;
+            $paths[$key] = $result;
         }
 
-        return $paths[$this->id]->{$type};
+        return $paths[$key]->{$type};
     }
 
     /**
@@ -1352,21 +1403,14 @@ class SocialTablePhoto extends SocialTable
      * @param   string
      * @return
      */
-    public function getExtension()
+    public function getExtension($size = 'stock')
     {
         // Use the stock photo to retrieve the extension
-        $mime   = $this->getMime( 'stock' );
+        $mime = $this->getMime($size);
+        $extension = '.jpg';
 
-        switch( $mime )
-        {
-            case 'image/png':
-                $extension  = '.png';
-                break;
-
-            case 'image/jpeg':
-            default:
-                $extension  = '.jpg';
-                break;
+        if ($mime == 'image/png') {
+            $extension = '.png';
         }
 
         return $extension;
@@ -1420,41 +1464,59 @@ class SocialTablePhoto extends SocialTable
      * @param   string
      * @return
      */
-    public function getMime( $type )
+    public function getMime($type)
     {
-        $path   = $this->getPath( $type );
-        $info   = getimagesize( $path );
+        $path = $this->getPath($type);
+        $info = getimagesize($path);
 
-        return $info[ 'mime' ];
+        return $info['mime'];
     }
 
     /**
-     * Gets the image object
+     * Gets the image object given the size of the image
      *
      * @since   1.0
      * @access  public
      * @param   string
      * @return
      */
-    public function getImageObject( $type )
+    public function getImageObject($size)
     {
-        $path   = $this->getPath( $type );
+        $path = $this->getPath($size);
 
-        if( !JFile::exists( $path ) )
-        {
-            return false;
+        // If this image is stored remotely, we need to download the files first.
+        if ($this->isStoredRemotely()) {
+
+            $album = $this->getAlbum();
+            $relativePath = $this->getPath($size, true);
+
+            // Ensure that the photo folder exists
+            $parentRelativePath = JPATH_ROOT . dirname($relativePath);
+
+            if (!JFolder::exists($parentRelativePath)) {
+                JFolder::create($parentRelativePath);
+            }
+
+            // Download the image from remote storage
+            $storage = ES::storage($this->storage);
+            $storage->pull($relativePath);
+
+        } else {
+            if (!JFile::exists($path)) {
+                return false;
+            }
         }
 
-        $image  = FD::image();
-        $image->load( $path );
+        $image = ES::image();
+        $image->load($path);
 
         return $image;
     }
 
-    public function getUri( $type )
+    public function getUri($type)
     {
-            $model      = FD::model( 'Photos' );
-            $metas      = $model->getMeta( $this->id , SOCIAL_PHOTOS_META_PATH );
+        $model = ES::model('Photos');
+        $metas = $model->getMeta($this->id, SOCIAL_PHOTOS_META_PATH);
     }
 
     /**
@@ -1577,15 +1639,17 @@ class SocialTablePhoto extends SocialTable
      */
     public function getAlbum()
     {
-        static $album = array();
+        static $albums = array();
 
-        if( empty( $album[$this->album_id] ) )
-        {
-            $album[$this->album_id] = FD::table( 'album' );
-            $album[$this->album_id]->load( $this->album_id );
+        if (!isset($albums[$this->album_id])) {
+
+            $album = ES::table('Album');
+            $album->load($this->album_id);
+
+            $albums[$this->album_id] = $album;
         }
 
-        return $album[$this->album_id];
+        return $albums[$this->album_id];
     }
 
     /**

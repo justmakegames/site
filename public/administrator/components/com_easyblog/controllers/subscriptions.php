@@ -119,8 +119,10 @@ class EasyBlogControllerSubscriptions extends EasyBlogController
 		// Check for request forgeries
 		EB::checkToken();
 
-		$file	= JRequest::getVar( 'package', '', 'files', 'array' );
-		$model	= EB::model( 'Subscription' );
+		$file = $this->input->files->get('package');
+		// $file	= JRequest::getVar( 'package', '', 'files', 'array' );
+
+		$model = EB::model('Subscription');
 
 		// Check if the file exists
 		if (!$file || !isset($file['tmp_name']) || empty($file['tmp_name'])) {
@@ -135,21 +137,19 @@ class EasyBlogControllerSubscriptions extends EasyBlogController
 		$fileName = $file['name'];
 
 		//always use constants when making file paths, to avoid the possibilty of remote file inclusion
-		$uploadPath = JPATH_ROOT . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . $fileName;
-
-		$model	= EB::model( 'Subscription' );
+		$uploadPath = JPATH_ROOT . '/tmp/' . $fileName;
 		$result = $model->massAssignSubscriber($fileTemp);
-		//var_dump($result);
+
 		if($result){
 			// Redirect user back
-			EB::info()->set(count($result).' successfully added to subsription list', 'success');
+			EB::info()->set(JText::sprintf('COM_EASYBLOG_SUBSCRIPTION_IMPORT_ADDED', count($result)), 'success');
 
 			// $this->app 	= JFactory::getApplication();
 			$this->app->redirect('index.php?option=com_easyblog&view=subscriptions');
 		}
 		else
 		{
-			EB::info()->set('No one be added to subsription list', 'success');
+			EB::info()->set('COM_EASYBLOG_SUBSCRIPTION_IMPORT_NOONE_ADDED', 'success');
 			$this->app->redirect('index.php?option=com_easyblog&view=subscriptions');
 		}
 

@@ -530,7 +530,7 @@ class SocialGroupAppVideos extends SocialAppItem
         $recipients = $this->getStreamNotificationTargets($comment->uid, $element, 'group', $verb, array(), array($video->user_id, $comment->created_by));
 
         $emailOptions['title'] = $involvedTitle;
-        $emailOptions['template'] = 'apps/group/photos/comment.video.involved';
+        $emailOptions['template'] = 'apps/group/videos/comment.video.involved';
 
         // Notify other participating users
         ES::notify('comments.involved', $recipients, $emailOptions, $systemOptions);

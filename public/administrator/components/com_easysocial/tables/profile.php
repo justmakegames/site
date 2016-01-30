@@ -654,23 +654,29 @@ class SocialTableProfile extends SocialTable
 	 * @param	string
 	 * @return
 	 */
-	public function makeDefault()
+	public function makeDefault($isCopy = false)
 	{
-		$db         = FD::db();
+		$db = FD::db();
 
 		// Only 1 item can be default at a time, FIFO model
-		$query 		= array();
+		$query = array();
 
-		$query[]	= 'UPDATE ' . $db->nameQuote( $this->_tbl );
-		$query[]	= 'SET ' . $db->nameQuote( 'default' ) . '=' . $db->Quote( 0 );
+		// Profile default value
+		$this->default = false;
 
-		$db->setQuery( $query );
-		$db->Query();
+		// Check if this is save as copy, if yes we do not want to change the profile default value.
+		if ($isCopy != true) {
+			$query[] = 'UPDATE ' . $db->nameQuote($this->_tbl);
+			$query[] = 'SET ' . $db->nameQuote('default') . '=' . $db->Quote(0);
 
-		// Update the curent profile to default.
-		$this->default  = true;
+			$db->setQuery($query);
+			$db->Query();
 
-		$state	= $this->store();
+			// Update the curent profile to default.
+			$this->default = true;
+		}
+		
+		$state = $this->store();
 
 		return $state;
 	}

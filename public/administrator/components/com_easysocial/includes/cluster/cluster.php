@@ -1066,7 +1066,7 @@ abstract class SocialCluster
         }
 
         foreach ($videos as $row) {
-            $video = ES::video($row);
+            $video = ES::video($row->uid, $row->type, $row->id);
             $video->delete();
         }
 

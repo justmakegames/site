@@ -52,12 +52,12 @@
     {
         "table"     : "#__easyblog_ratings",
         "index"    : "idx_uid_type",
-        "query"     : "ALTER TABLE `#__easyblog_ratings` ADD INDEX `idx_uid_type` (`uid`, `type`, `value`)"
+        "query"     : "ALTER TABLE `#__easyblog_ratings` ADD INDEX `idx_uid_type` (`uid`, `type` (64), `value`)"
     },
     {
         "table"     : "#__easyblog_ratings",
         "index"    : "idx_uid_type_user",
-        "query"     : "ALTER TABLE `#__easyblog_ratings` ADD INDEX `idx_uid_type_user` (`uid`, `type`, `created_by`)"
+        "query"     : "ALTER TABLE `#__easyblog_ratings` ADD INDEX `idx_uid_type_user` (`uid`, `type` (64), `created_by`)"
     },
     {
         "table"     : "#__easyblog_ratings",
@@ -67,7 +67,7 @@
     {
         "table"     : "#__easyblog_ratings",
         "index"    : "idx_uid_type_user_ipaddr",
-        "query"     : "ALTER TABLE `#__easyblog_ratings` ADD INDEX `idx_uid_type_user_ipaddr` (`uid`, `type`, `created_by`, `ip`)"
+        "query"     : "ALTER TABLE `#__easyblog_ratings` ADD INDEX `idx_uid_type_user_ipaddr` (`uid`, `type` (64), `created_by`, `ip`)"
     },
     {
         "table"     : "#__easyblog_feeds",

@@ -8,8 +8,7 @@
 * Copyright (C) 2010 StackIdeas, http://www.stackideas.com, All rights reserved.
 **/
 
-require_once( JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'helper.php');
-require_once (JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'router.php');
+require_once(JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php');
 
 class sef_easyblog {
 
@@ -23,7 +22,7 @@ class sef_easyblog {
         global $database;
         if (empty($database)) {
             // Joomla! 1.5 native
-            $database = EasyBlogHelper::db();
+            $database = EB::db();
         }
         // $string == "index.php?option=com_mydir&Itemid=$Itemid
         //            &catid=$catid&id=$id"
@@ -37,7 +36,7 @@ class sef_easyblog {
 // 			$itemid = $temp[0];
 // 		}
 
-		$config = EasyBlogHelper::getConfig();
+		$config = EB::getConfig();
 
 		if (preg_match('/&amp;view=/i',$string))
 		{
@@ -256,17 +255,15 @@ class sef_easyblog {
 	* Output: $QUERY_STRING, string, query string (var1=$var1&var2=$var2)
 	*    Note that this will be added to already defined first part (option=com_example&Itemid=$Itemid)
 	**/
-	function revert ($url_array, $pos)
+	public function revert ($url_array, $pos)
 	{
-		require_once( JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'helper.php' );
-
-		$config		= EasyBlogHelper::getConfig();
+		$config		= EB::getConfig();
 		$seftype	= $config->get('main_sef', 'default');
 
         global $database;
         if (empty($database)) {
             // Joomla! 1.5 native
-            $database = EasyBlogHelper::db();
+            $database = EB::db();
         }
         $QUERY_STRING = '';
 
@@ -300,21 +297,15 @@ class sef_easyblog {
 	        }
 		}
 
-        if (isset($url_array[$pos+2]) && $url_array[$pos+2]!='')
-		{
+        if (isset($url_array[$pos+2]) && $url_array[$pos+2]!='') {
             // .../mydir/$category/
             $view = sefdecode($url_array[$pos+2]);
             $_GET['view'] = $_REQUEST['view'] = $view;
             $QUERY_STRING .= "&view=$view";
 
-            if(!empty($view) && file_exists(JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'router.php'))
-			{
-				require_once( JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'helper.php');
-				require_once (JPATH_ROOT . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . 'com_easyblog' . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'router.php');
+            if (!empty($view)) {
 				$Itemid = EasyBlogRouter::getItemId($view);
-			}
-			else
-			{
+			} else {
 				$Itemid = '';
 			}
         }
@@ -697,14 +688,14 @@ class sef_easyblog {
         return $QUERY_STRING;
     }
 
-    function revertPermalink($permalink, $type)
+   	function revertPermalink($permalink, $type)
     {
     	global $database;
 
 		if (empty($database))
 		{
 			// Joomla! 1.5 native
-			$database = EasyBlogHelper::db();
+			$database = EB::db();
 		}
 
     	static $permalinks	= null;

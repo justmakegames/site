@@ -35,18 +35,18 @@ class EasyBlogViewComments extends EasyBlogView
 
 		// Default values
 		$moderated = false;
-		$parentId  = $this->input->get('parentId', 0, 'int');
-		$depth 	   = $this->input->get('depth', 0, 'int');
+		$parentId = $this->input->get('parentId', 0, 'int');
+		$depth = $this->input->get('depth', 0, 'int');
 		$subscribe = $this->input->get('subscribe', false, 'bool');
-		$email     = $this->input->get('email', '', 'email');
-		$message   = $this->input->get('comment', '', 'default');
-		$name 	   = $this->input->get('name', '', 'default');
-		$username  = $this->input->get('username', '', 'default');
-		$title 	   = $this->input->get('title', '', 'default');
-		$terms 	   = $this->input->get('terms', false, 'bool');
-		$blogId    = $this->input->get('blogId', 0, 'int');
-		$isCB      = $this->input->get('iscb', 0, 'int');
-
+		$email = $this->input->get('email', '', 'email');
+		$message = $this->input->get('comment', '', 'default');
+		$name = $this->input->get('name', '', 'default');
+		$username = $this->input->get('username', '', 'default');
+		$password = $this->input->get('password', '', 'default');
+		$title = $this->input->get('title', '', 'default');
+		$terms = $this->input->get('terms', false, 'bool');
+		$blogId = $this->input->get('blogId', 0, 'int');
+		$isCB = $this->input->get('iscb', 0, 'int');
 
 		// Validate the email
 		$data = array('post_id' => $blogId, 'comment' => $message, 'title' => $title, 'email' => $email, 'name' => $name, 'username' => $username, 'terms' => $terms);
@@ -70,8 +70,8 @@ class EasyBlogViewComments extends EasyBlogView
 		$captchaResponse = EB::captcha()->verify();
 
 		// Perform captcha verification
-		if ($captchaResponse == false) {
-			return $this->ajax->reject(JText::_('COM_EASYBLOG_CAPTCHA_INVALID_RESPONSE'));
+		if (isset($captchaResponse->success) && $captchaResponse->success == false) {
+			return $this->ajax->reject($captchaResponse->errorCodes);
 		}
 
 		// Get current date
@@ -87,11 +87,14 @@ class EasyBlogViewComments extends EasyBlogView
 		// Process user registrations via comment
 		$register = $this->input->get('register', '', 'bool');
 
-
 		if ($register && $this->my->guest) {
 
+			if (empty($password) || empty($username) || empty($email)) {
+				return $this->ajax->reject('COM_EASYBLOG_COMMENT_REGISTRATION_FIELD_EMPTY');
+			}
+
 			$userModel = EB::model('Users');
-			$id = $userModel->createUser($username, $email, $name);
+			$id = $userModel->createUser($username, $email, $name, $password);
 
 			if (!is_numeric($id)) {
 				return $this->ajax->reject($id);
@@ -143,7 +146,7 @@ class EasyBlogViewComments extends EasyBlogView
 		// Process comment subscription
 		if ($subscribe && $this->config->get('main_subscription') && $blog->subscription) {
 			$subscribeModel = EB::model('Subscription');
-			$subscribeModel->subscribe('blog', $blog->id, $email, $name);
+			$subscribeModel->subscribe('blog', $blog->id, $email, $name, $this->my->id);
 		}
 
 		// Process comment notifications

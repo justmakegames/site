@@ -13,9 +13,9 @@ div#fd.es .btn-es:focus,
 div#fd.es .btn-es:active,
 div#fd.es .btn-es.active,
 .open .dropdown-toggle_div#fd.es .btn-es {
-  color: #333;
-  background-color: #ebebeb;
-  border-color: #b8b8b8;
+  color: #333 !important;
+  background-color: #ebebeb !important;
+  border-color: #b8b8b8 !important;
 }
 div#fd.es .btn-es:active,
 div#fd.es .btn-es.active,
@@ -37,8 +37,8 @@ fieldset[disabled] div#fd.es .btn-es:hover,
 fieldset[disabled] div#fd.es .btn-es:focus,
 fieldset[disabled] div#fd.es .btn-es:active,
 fieldset[disabled] div#fd.es .btn-es.active {
-  background-color: #fff;
-  border-color: #d7d7d7;
+  background-color: #fff !important;
+  border-color: #d7d7d7 !important;
 }
 div#fd.es .btn-es .badge {
   color: #fff;
@@ -60,9 +60,9 @@ div#fd.es .btn.btn-clean:focus,
 div#fd.es .btn.btn-clean:active,
 div#fd.es .btn.btn-clean.active,
 .open .dropdown-toggle_div#fd.es .btn.btn-clean {
-  color: #333;
-  background-color: #ebebeb;
-  border-color: #b8b8b8;
+  color: #333 !important;
+  background-color: #ebebeb !important;
+  border-color: #b8b8b8 !important;
 }
 div#fd.es .btn.btn-clean:active,
 div#fd.es .btn.btn-clean.active,
@@ -84,8 +84,8 @@ fieldset[disabled] div#fd.es .btn.btn-clean:hover,
 fieldset[disabled] div#fd.es .btn.btn-clean:focus,
 fieldset[disabled] div#fd.es .btn.btn-clean:active,
 fieldset[disabled] div#fd.es .btn.btn-clean.active {
-  background-color: #fff;
-  border-color: #d7d7d7;
+  background-color: #fff !important;
+  border-color: #d7d7d7 !important;
 }
 div#fd.es .btn.btn-clean .badge {
   color: #fff;
@@ -274,18 +274,18 @@ div#fd.es .btn-es-social {
   white-space: pre-line;
 }
 div#fd.es .btn-es-facebook {
-  color: #fff;
-  background-color: #5692ce;
-  border-color: #2b6cb3;
+  color: #fff !important;
+  background-color: #5692ce !important;
+  border-color: #2b6cb3 !important;
 }
 div#fd.es .btn-es-facebook:hover,
 div#fd.es .btn-es-facebook:focus,
 div#fd.es .btn-es-facebook:active,
 div#fd.es .btn-es-facebook.active,
 .open .dropdown-toggle_div#fd.es .btn-es-facebook {
-  color: #fff;
-  background-color: #387ec3;
-  border-color: #1f4e82;
+  color: #fff !important;
+  background-color: #387ec3 !important;
+  border-color: #1f4e82 !important;
 }
 div#fd.es .btn-es-facebook:active,
 div#fd.es .btn-es-facebook.active,
@@ -307,26 +307,26 @@ fieldset[disabled] div#fd.es .btn-es-facebook:hover,
 fieldset[disabled] div#fd.es .btn-es-facebook:focus,
 fieldset[disabled] div#fd.es .btn-es-facebook:active,
 fieldset[disabled] div#fd.es .btn-es-facebook.active {
-  background-color: #5692ce;
-  border-color: #2b6cb3;
+  background-color: #5692ce !important;
+  border-color: #2b6cb3 !important;
 }
 div#fd.es .btn-es-facebook .badge {
   color: #5692ce;
   background-color: #fff;
 }
 div#fd.es .btn-es-twitter {
-  color: #fff;
-  background-color: #61cef4;
-  border-color: #05b3f4;
+  color: #fff !important;
+  background-color: #61cef4 !important;
+  border-color: #05b3f4 !important;
 }
 div#fd.es .btn-es-twitter:hover,
 div#fd.es .btn-es-twitter:focus,
 div#fd.es .btn-es-twitter:active,
 div#fd.es .btn-es-twitter.active,
 .open .dropdown-toggle_div#fd.es .btn-es-twitter {
-  color: #fff;
-  background-color: #3bc2f1;
-  border-color: #0487b8;
+  color: #fff !important;
+  background-color: #3bc2f1 !important;
+  border-color: #0487b8 !important;
 }
 div#fd.es .btn-es-twitter:active,
 div#fd.es .btn-es-twitter.active,
@@ -348,26 +348,26 @@ fieldset[disabled] div#fd.es .btn-es-twitter:hover,
 fieldset[disabled] div#fd.es .btn-es-twitter:focus,
 fieldset[disabled] div#fd.es .btn-es-twitter:active,
 fieldset[disabled] div#fd.es .btn-es-twitter.active {
-  background-color: #61cef4;
-  border-color: #05b3f4;
+  background-color: #61cef4 !important;
+  border-color: #05b3f4 !important;
 }
 div#fd.es .btn-es-twitter .badge {
   color: #61cef4;
   background-color: #fff;
 }
 div#fd.es .btn-es-linkedin {
-  color: #fff;
-  background-color: #6cb3d3;
-  border-color: #4b97c3;
+  color: #fff !important;
+  background-color: #6cb3d3 !important;
+  border-color: #4b97c3 !important;
 }
 div#fd.es .btn-es-linkedin:hover,
 div#fd.es .btn-es-linkedin:focus,
 div#fd.es .btn-es-linkedin:active,
 div#fd.es .btn-es-linkedin.active,
 .open .dropdown-toggle_div#fd.es .btn-es-linkedin {
-  color: #fff;
-  background-color: #4da3ca;
-  border-color: #34769d;
+  color: #fff !important;
+  background-color: #4da3ca !important;
+  border-color: #34769d !important;
 }
 div#fd.es .btn-es-linkedin:active,
 div#fd.es .btn-es-linkedin.active,
@@ -389,8 +389,8 @@ fieldset[disabled] div#fd.es .btn-es-linkedin:hover,
 fieldset[disabled] div#fd.es .btn-es-linkedin:focus,
 fieldset[disabled] div#fd.es .btn-es-linkedin:active,
 fieldset[disabled] div#fd.es .btn-es-linkedin.active {
-  background-color: #6cb3d3;
-  border-color: #4b97c3;
+  background-color: #6cb3d3 !important;
+  border-color: #4b97c3 !important;
 }
 div#fd.es .btn-es-linkedin .badge {
   color: #6cb3d3;
@@ -403,6 +403,7 @@ div#fd.es .btn:focus {
 }
 div#fd.es .btn-group-yesno {
   width: auto;
+  min-width: 90px;
   display: inline-block;
   margin: 0 auto;
   vertical-align: middle;
@@ -2166,9 +2167,9 @@ div#fd.es .es-privacy {
 }
 div#fd.es .es-privacy.solid .es-privacy-toggle,
 div#fd.es .es-privacy:hover .es-privacy-toggle {
-  color: #858585 !important;
-  background-color: #fff !important;
-  border-color: #d7d7d7 !important;
+  color: #858585 !important !important;
+  background-color: #fff !important !important;
+  border-color: #d7d7d7 !important !important;
 }
 div#fd.es .es-privacy.solid .es-privacy-toggle:hover,
 div#fd.es .es-privacy.solid .es-privacy-toggle:focus,
@@ -2180,9 +2181,9 @@ div#fd.es .es-privacy:hover .es-privacy-toggle:focus,
 div#fd.es .es-privacy:hover .es-privacy-toggle:active,
 div#fd.es .es-privacy:hover .es-privacy-toggle.active,
 .open .dropdown-toggle_div#fd.es .es-privacy:hover .es-privacy-toggle {
-  color: #858585;
-  background-color: #ebebeb;
-  border-color: #b8b8b8;
+  color: #858585 !important;
+  background-color: #ebebeb !important;
+  border-color: #b8b8b8 !important;
 }
 div#fd.es .es-privacy.solid .es-privacy-toggle:active,
 div#fd.es .es-privacy.solid .es-privacy-toggle.active,
@@ -2222,8 +2223,8 @@ fieldset[disabled] div#fd.es .es-privacy:hover .es-privacy-toggle:hover,
 fieldset[disabled] div#fd.es .es-privacy:hover .es-privacy-toggle:focus,
 fieldset[disabled] div#fd.es .es-privacy:hover .es-privacy-toggle:active,
 fieldset[disabled] div#fd.es .es-privacy:hover .es-privacy-toggle.active {
-  background-color: #fff;
-  border-color: #d7d7d7;
+  background-color: #fff !important;
+  border-color: #d7d7d7 !important;
 }
 div#fd.es .es-privacy.solid .es-privacy-toggle .badge,
 div#fd.es .es-privacy:hover .es-privacy-toggle .badge {
@@ -2366,18 +2367,18 @@ div#fd.es .data-field-datetime-yearprivacy .es-privacy {
   top: 2px !important;
 }
 div#fd.es.w480 .es-privacy .es-privacy-toggle {
-  color: #858585 !important;
-  background-color: #fff !important;
-  border-color: #d7d7d7 !important;
+  color: #858585 !important !important;
+  background-color: #fff !important !important;
+  border-color: #d7d7d7 !important !important;
 }
 div#fd.es.w480 .es-privacy .es-privacy-toggle:hover,
 div#fd.es.w480 .es-privacy .es-privacy-toggle:focus,
 div#fd.es.w480 .es-privacy .es-privacy-toggle:active,
 div#fd.es.w480 .es-privacy .es-privacy-toggle.active,
 .open .dropdown-toggle_div#fd.es.w480 .es-privacy .es-privacy-toggle {
-  color: #858585;
-  background-color: #ebebeb;
-  border-color: #b8b8b8;
+  color: #858585 !important;
+  background-color: #ebebeb !important;
+  border-color: #b8b8b8 !important;
 }
 div#fd.es.w480 .es-privacy .es-privacy-toggle:active,
 div#fd.es.w480 .es-privacy .es-privacy-toggle.active,
@@ -2399,8 +2400,8 @@ fieldset[disabled] div#fd.es.w480 .es-privacy .es-privacy-toggle:hover,
 fieldset[disabled] div#fd.es.w480 .es-privacy .es-privacy-toggle:focus,
 fieldset[disabled] div#fd.es.w480 .es-privacy .es-privacy-toggle:active,
 fieldset[disabled] div#fd.es.w480 .es-privacy .es-privacy-toggle.active {
-  background-color: #fff;
-  border-color: #d7d7d7;
+  background-color: #fff !important;
+  border-color: #d7d7d7 !important;
 }
 div#fd.es.w480 .es-privacy .es-privacy-toggle .badge {
   color: #fff;

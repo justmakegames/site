@@ -65,6 +65,9 @@ class EasyBlogScheduler
 			$options = array('checkAcl' => false);
 
 			$post->publish($options);
+
+			// Since scheduled post is not consider as new post, we need to add a notification here.
+			$post->notify();
 		}
 	}
 

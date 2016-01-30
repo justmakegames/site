@@ -335,13 +335,15 @@ class EasySocialControllerStory extends EasySocialController
 	 * @param	string
 	 * @return
 	 */
-	public function simpleCreate()
+	public function createFromModule()
 	{
 		// Check for request forgeries
 		ES::checkToken();
 
-		// Check for valid users.
-		ES::requireLogin();
+		// When the user is a guest, we should display a friendlier message
+		if ($this->my->guest) {
+			return $this->view->call(__FUNCTION__);
+		}
 
 		// Load our story library
 		$story = ES::story(SOCIAL_TYPE_USER);

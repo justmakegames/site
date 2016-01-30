@@ -98,10 +98,10 @@ class EasyBlogVideoYoutube extends EasyBlogVideoProvider
 		$height = $height ? ' height="' . $height . '"' : '';
 
 		if ($code) {
-			return '<div class="video-container"><iframe ' . $width . $height . ' src="https://www.youtube.com/embed/' . $code . '?wmode=transparent" frameborder="0" allowfullscreen></iframe></div>';
+			return '<div class="legacy-video-container"><iframe ' . $width . $height . ' src="https://www.youtube.com/embed/' . $code . '?wmode=transparent" frameborder="0" allowfullscreen></iframe></div>';
 		}
 
 	    // this video do not have a code. so include the url directly.
-		return '<div class="video-container"><iframe title="YouTube video player" width="' . $width . '" height="' . $height . '" src="' . $url . '&wmode=transparent" frameborder="0" allowfullscreen></iframe></div>';
+		return '<div class="legacy-video-container"><iframe title="YouTube video player" width="' . $width . '" height="' . $height . '" src="' . $url . '&wmode=transparent" frameborder="0" allowfullscreen></iframe></div>';
 	}
 }

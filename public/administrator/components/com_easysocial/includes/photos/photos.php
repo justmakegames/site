@@ -210,6 +210,15 @@ class SocialPhotos
 		$this->image->rotate(0); // Fake an operation queue
 		$this->image->save( $file );
 
+		// Once the photo successfully uploaded, trigger onAfterPhotoUpload
+		$dispatcher = FD::dispatcher();
+
+        // Set the arguments
+        $args = array(&$this);
+
+        // @trigger onAfterPhotoUpload
+        $dispatcher->trigger(SOCIAL_TYPE_USER, 'onAfterPhotoUpload', $args);
+
 		// Use original image as source image
 		// for all other image sizes.
 		$sourceImage = FD::image()->load( $file );

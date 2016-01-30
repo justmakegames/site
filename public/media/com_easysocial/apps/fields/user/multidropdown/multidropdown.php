@@ -128,6 +128,11 @@ class SocialFieldsUserMultidropdown extends SocialFieldItem
 		}
 
 		$field = $this->field;
+
+		$advGroups = array(SOCIAL_FIELDS_GROUP_GROUP, SOCIAL_FIELDS_GROUP_USER);
+
+		$addAdvLink = in_array($field->type, $advGroups) && $field->searchable;
+
 		$values = array();
 
 		foreach ($result as $r)
@@ -141,8 +146,14 @@ class SocialFieldsUserMultidropdown extends SocialFieldItem
 			$option = Foundry::table('fieldoptions');
 			$option->load( array( 'parent_id' => $this->field->id, 'key' => 'items', 'value' => $r ) );
 
-			if ($field->searchable) {
+			if ($addAdvLink) {
 				$params = array( 'layout' => 'advanced' );
+
+				if ($field->type != SOCIAL_FIELDS_GROUP_USER) {
+					$params['type'] = $field->type;
+					$params['uid'] = $field->uid;
+				}
+
 				$params['criterias[]'] = $field->unique_key . '|' . $field->element;
 				$params['operators[]'] = 'contain';
 				$params['conditions[]'] = $r;

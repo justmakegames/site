@@ -80,7 +80,29 @@ class EasyBlogControllerInstallSql extends EasyBlogSetupController
 			$total += 1;
 		}
 
+		// lets fix the created_by id
+		$this->fixBlogAuthorId();
+
 		$this->setInfo(JText::sprintf('COM_EASYBLOG_INSTALLATION_SQL_EXECUTED_SUCCESS', $total), true);
 		return $this->output();
 	}
+
+
+	public function fixBlogAuthorId()
+	{
+		// assuming the user that logged into backed installer will be a superadmin as well.
+		$my = JFactory::getUser();
+
+		$db = JFactory::getDBO();
+
+		$query = "update `#__easyblog_post` set `created_by` = " . $db->Quote($my->id);
+		$query .= " where `created_by` = 0";
+
+		$db->setQuery($query);
+		$db->query();
+
+		return true;
+	}
+
+
 }

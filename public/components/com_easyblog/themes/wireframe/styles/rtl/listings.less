@@ -94,9 +94,16 @@
 
 .eb-post-image,
 .eb-entry-image {
-    @media(min-width: 992px) {
-        float: right;
-        margin-left: 15px;
+    float: right;
+    margin-left: 15px;
+    margin-right: 0;
+}
+
+&.w480 {
+    .eb-post-image,
+    .eb-entry-image {
+        float: none;
+        margin-left: 0;
         margin-right: 0;
     }
 }

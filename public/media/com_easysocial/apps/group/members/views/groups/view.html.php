@@ -31,14 +31,43 @@ class MembersViewGroups extends SocialAppsView
 	 */
 	public function display($groupId = null, $docType = null)
 	{
+		$options = array();
+
 		$group = FD::group($groupId);
 
+		$limit = FD::themes()->getConfig()->get( 'userslimit' );
+		$options['limit']	= $limit;
+
+
+		$filter = $this->input->get('filter', '', 'word');
+
+
+		if($filter == 'admin') {
+			$options[ 'admin' ]	= true;
+		}
+
+		if( $filter == 'pending' ) {
+			$options[ 'state' ]	= SOCIAL_GROUPS_MEMBER_PENDING;
+		}
+
 		$model = FD::model('Groups');
-		$users = $model->getMembers($group->id);
+		$users = $model->getMembers($group->id, $options);
+
 		$pagination	= $model->getPagination();
+
+		$pagination->setVar( 'view' , 'groups' );
+		$pagination->setVar( 'layout' , 'item' );
+		$pagination->setVar( 'id' , $group->getAlias() );
+		$pagination->setVar( 'appId' , $this->app->getAlias() );
+		$pagination->setVar( 'Itemid'	, FRoute::getItemId( 'groups', 'item', $group->id ) );
+
+		if ($pagination && $filter) {
+			$pagination->setVar('filter', $filter);
+		}
 
 		$this->set('group', $group);
 		$this->set('users', $users);
+		$this->set('pagination', $pagination);
 
 		echo parent::display( 'groups/default' );
 	}

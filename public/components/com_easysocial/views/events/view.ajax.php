@@ -47,7 +47,7 @@ class EasySocialViewEvents extends EasySocialSiteView
         $calendar->title = date('F', $calendar->first_day);
 
         // Sets the calendar header
-        $calendar->header = date(JText::_('COM_EASYSOCIAL_DATE_MY'), $calendar->first_day);
+        $calendar->header = FD::date()->toFormat(JText::_('COM_EASYSOCIAL_DATE_MY', $calendar->first_day));
 
         // Here we find out what day of the week the first day of the month falls on
         $calendar->day_of_week = date('D', $calendar->first_day) ;
@@ -740,8 +740,20 @@ class EasySocialViewEvents extends EasySocialSiteView
         if ($this->hasErrors()) {
             return $this->ajax->reject($this->getMessage());
         }
+        
+        // Get the event id from request
+        $id = $this->input->get('id', '0', 'int');
+        
+        // Load up the event    
+        $event = FD::event($id);
+
+         // RSS
+        if ($this->config->get('stream.rss.enabled')) {
+            $this->addRss(FRoute::events(array('id' => $event->getAlias(), 'layout' => 'item'), false));
+        }
 
         $theme = ES::themes();
+        $theme->set('rssLink', $this->rssLink);
         $theme->set('stream', $stream);
 
         $contents = $theme->output('site/events/item.feeds');

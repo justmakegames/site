@@ -213,11 +213,7 @@ class EasySocialViewSearch extends EasySocialSiteView
 		// Check for user profile completeness
 		FD::checkCompleteProfile();
 
-		// Set the page title
-		FD::page()->title( JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_ADVANCED_SEARCH' ) );
-
-		// Set the page breadcrumb
-		FD::page()->breadcrumb( JText::_( 'COM_EASYSOCIAL_PAGE_TITLE_ADVANCED_SEARCH' ) );
+		$advGroups = array(SOCIAL_FIELDS_GROUP_GROUP, SOCIAL_FIELDS_GROUP_USER);
 
 		// Get current logged in user.
 		$my 			= FD::user();
@@ -225,14 +221,45 @@ class EasySocialViewSearch extends EasySocialSiteView
 		$config = FD::config();
 
 		// What is this? - this is advanced search filter id.
-		$fid 			= JRequest::getInt( 'fid', 0 );
+		$fid 			= $this->input->get('fid', 0, 'int');
+
+		// advanced search type. for now, it support user or group only.
+		$groupType = $this->input->get('type', SOCIAL_FIELDS_GROUP_USER, 'default');
+		$uid = $this->input->get('uid', 0, 'int');
+
+		if (! in_array($groupType, $advGroups)) {
+			// type not supported. redirect back to normal search page.
+			$this->info->set('Search type not supported.', SOCIAL_MSG_ERROR);
+			return $this->app->redirect('index.php?option=com_easysocial&view=search');
+		}
+
+		// setting page title and breadcrumb.
+		$pageTitle = 'COM_EASYSOCIAL_PAGE_TITLE_ADVANCED_SEARCH';
+		$breadcrumb = 'COM_EASYSOCIAL_PAGE_TITLE_ADVANCED_SEARCH';
+
+		if ($groupType == SOCIAL_FIELDS_GROUP_GROUP) {
+			$pageTitle = 'COM_EASYSOCIAL_PAGE_TITLE_ADVANCED_SEARCH_GROUP_MATCHES';
+			$breadcrumb = 'COM_EASYSOCIAL_PAGE_TITLE_ADVANCED_SEARCH_GROUP_MATCHES';
+		}
+
+
+		// Set the page title
+		FD::page()->title(JText::_($pageTitle));
+
+		// Set the page breadcrumb
+		FD::page()->breadcrumb(JText::_($breadcrumb));
+
 
 		// Get filters
 		$model 		= FD::model( 'Search' );
-		$filters 	= $model->getFilters( $my->id );
+		$filters = array();
+		if ($groupType == SOCIAL_FIELDS_GROUP_USER) {
+
+			$filters 	= $model->getFilters( $my->id );
+		}
 
 		// Load up advanced search library
-		$library 	= FD::get( 'AdvancedSearch' );
+		$library 	= FD::get( 'AdvancedSearch', $groupType );
 
 		// default values
 		// Get values from posted data
@@ -337,6 +364,17 @@ class EasySocialViewSearch extends EasySocialSiteView
 		$this->set( 'fid'			, $fid );
 		$this->set( 'displayOptions', $displayOptions );
 
-		echo parent::display( 'site/advancedsearch/user/default' );
+		$themefile = 'user/default';
+		if ($groupType == SOCIAL_FIELDS_GROUP_GROUP) {
+
+			$activeGroup = '';
+			if ($uid) {
+				$activeGroup = ES::group($uid);
+			}
+			$this->set( 'activeGroup', $activeGroup );
+			$themefile = 'group/default';
+		}
+
+		echo parent::display( 'site/advancedsearch/' . $themefile );
 	}
 }

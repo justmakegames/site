@@ -39,6 +39,9 @@ class EasyBlogQuickPostPhoto extends EasyBlogQuickPostAbstract
 		$content = $this->input->get('content', '', 'default');
 		$title = $this->input->get('title', '', 'default');
 
+		// Replace newlines with <br /> tags since the form is a plain textarea.
+		$content = nl2br($content);
+
 		$blog->title = $title;
 		$blog->content = $content;
 		$blog->posttype = EBLOG_MICROBLOG_PHOTO;

@@ -11,30 +11,35 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="es-remind es-remind-username mt-20">
-	<div class="es-title">
-		<?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_COMPLETE_RESET' ); ?>
-	</div>
-	<div class="es-desp small">
-		<?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_COMPLETE_RESET_DESC' );?>
-	</div>
+<form name="remindUsername" method="post" action="<?php echo JRoute::_( 'index.php' );?>" data-reset-password>
+	<div class="es-remind es-remind-username mt-20">
+		<div class="es-title">
+			<?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_COMPLETE_RESET' ); ?>
+		</div>
+		<div class="es-desp small">
+			<?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_COMPLETE_RESET_DESC' );?>
+		</div>
 
-	<div class="es-remind-form-wrap">
-		<form name="remindUsername" method="post" action="<?php echo JRoute::_( 'index.php' );?>">
+		<div class="es-remind-form-wrap" data-field-joomla_password>
 			<div class="input-group input-group-sm">
 				<span class="input-group-addon"><?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_PASSWORD' );?></span>
-				<input type="password" class="form-control" name="es-password" value="" placeholder="" />
+				<input type="password" class="form-control" name="es-password" value="" placeholder=""
+					   data-es-password
+					   data-field-password-input
+				/>
 			</div>
+			<span class="help-inline small" data-field-password-strength></span>
+			<span class="help-inline small text-error" data-field-password-warning style="display:none;"></span>
 			<div class="input-group input-group-sm mt-10">
 				<span class="input-group-addon"><?php echo JText::_( 'COM_EASYSOCIAL_PROFILE_REMIND_PASSWORD_RECONFIRM_PASSWORD' );?></span>
-				<input type="password" class="form-control" name="es-password2" value="" placeholder="" />
+				<input type="password" class="form-control" name="es-password2" value="" placeholder="" data-field-password-confirm />
 			</div>
 			<hr />
-			<button class="btn btn-es-primary btn-submit"><?php echo JText::_( 'COM_EASYSOCIAL_COMPLETE_RESET_PASSWORD_BUTTON' ); ?></button>
+			<button class="btn btn-es-primary btn-submit" data-password-reset-submit><?php echo JText::_( 'COM_EASYSOCIAL_COMPLETE_RESET_PASSWORD_BUTTON' ); ?></button>
 			<input type="hidden" name="option" value="com_easysocial" />
 			<input type="hidden" name="controller" value="account" />
 			<input type="hidden" name="task" value="completeResetPassword" />
 			<?php echo $this->html( 'form.token' ); ?>
-		</form>
+		</div>
 	</div>
-</div>
+</form>

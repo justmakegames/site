@@ -39,7 +39,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 				<label class="control-label"><?php echo JText::_('COM_EASYSOCIAL_FRIENDS_INVITE_MESSAGE'); ?>: </label>
 
 				<div class="controls">
-					<?php echo $editor->display('message', JText::sprintf('COM_EASYSOCIAL_FRIENDS_INVITE_MESSAGE_CONTENT', FD::jconfig()->sitename), '100%', '200', '10', '5', array('image', 'pagebreak','ninjazemanta'), null, 'com_easysocial'); ?>
+					<?php echo $editor->display('message', JText::sprintf('COM_EASYSOCIAL_FRIENDS_INVITE_MESSAGE_CONTENT', FD::jconfig()->sitename), '100%', '200', '10', '5', array('image', 'pagebreak', 'ninjazemanta', 'article', 'readmore'), null, 'com_easysocial'); ?>
 				</div>
 
 				<div class="controls">

@@ -32,8 +32,12 @@ if (!FD::exists()) {
 
 $my = FD::user();
 
+if (!$params->get('show_public') && $my->guest) {
+	return;
+}
+
 // Load up the module engine
-$modules = FD::modules( 'mod_easysocial_quickpost' );
+$modules = FD::modules('mod_easysocial_quickpost');
 
 // We need foundryjs here
 $modules->loadComponentScripts();
@@ -43,9 +47,11 @@ $modules->loadComponentStylesheets();
 $modules->addDependency('javascript');
 $modules->loadScript('script.js');
 
+// Load front end language file
+ES::language()->loadSite();
+
 // Get the layout to use.
 $layout = $params->get('layout', 'default');
 $suffix = $params->get('suffix', '');
-
 
 require(JModuleHelper::getLayoutPath('mod_easysocial_quickpost', $layout));

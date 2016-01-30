@@ -11,6 +11,13 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
+<div class="eb-calendar-topbar">
+    <div class="eb-calendar-topbar__date">
+        <?php echo $date->format('F');?>, <?php echo $date->format('Y');?>
+    </div>
+    <a href="<?php echo EBR::_('index.php?option=com_easyblog&view=calendar');?>" class="eb-calendar-topbar__toggle"><?php echo JText::_('COM_EASYBLOG_SWITCH_TO_LIST_VIEW');?></a>
+</div>
+
 <div class="eb-calendar eb-responsive" data-calendar-container></div>
 
 <div style="display: none;" data-calendar-loader-template>

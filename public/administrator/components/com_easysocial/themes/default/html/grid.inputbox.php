@@ -11,4 +11,4 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<input type="text" id="<?php echo empty( $id ) ? $name : $id; ?>" name="<?php echo $name; ?>" value="<?php echo $value; ?>" <?php echo $attributes; ?> />
+<input type="text" id="<?php echo empty( $id ) ? $name : $id; ?>" name="<?php echo $name; ?>" value="<?php echo $this->html('string.escape', $value); ?>" <?php echo $attributes; ?> />

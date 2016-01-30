@@ -163,10 +163,14 @@ class EasyBlogControllerTeamBlogs extends EasyBlogController
 				$member = EB::table('TeamBlogUsers');
 				$member->load(array('team_id' => $team->id, 'user_id' => $id));
 
-				$member->team_id = $team->id;
-				$member->user_id = $id;
+				// If the user already exist, skip it.
+				if (!$member->user_id) {
+					$member->team_id = $team->id;
+					$member->user_id = $id;
 
-				$member->store();
+					// Store the new members
+					$member->store();
+				}
 			}
 		}
 

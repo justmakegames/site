@@ -11,6 +11,12 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
+class EasyBlogCaptchaResponse
+{
+    public $success;
+    public $errorCodes;
+}
+
 class EasyBlogCaptchaAdapterCaptcha
 {
 	public static function getHTML()
@@ -35,18 +41,26 @@ class EasyBlogCaptchaAdapterCaptcha
 	 */
 	public function verify($response, $id)
 	{
-		$captcha 	= EB::table('Captcha');
+		$captcha = EB::table('Captcha');
 		$captcha->load($id);
 
-		if (empty($captcha->response)) {
-			return false;
+		//var_dump($id);exit;
+
+		$captchaResponse = new EasyBlogCaptchaResponse();
+		$captchaResponse->success = true;
+		$captchaResponse->errorCodes = '';
+
+		if (empty($response) || !$id) {
+            $captchaResponse->success = false;
+            $captchaResponse->errorCodes = JText::_('COM_EASYBLOG_RECAPTCHA_MISSING_INPUT');
 		}
 
 		if (!$captcha->verify($response)) {
-			return false;
+			$captchaResponse->success = false;
+            $captchaResponse->errorCodes = JText::_('COM_EASYBLOG_RECAPTCHA_INVALID_RESPONSE');
 		}
 
-		return true;
+		return $captchaResponse;
 	}
 
 	public function getError($ajax, $post)

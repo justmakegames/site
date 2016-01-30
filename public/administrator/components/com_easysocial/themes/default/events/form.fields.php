@@ -11,23 +11,27 @@
 */
 defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 ?>
-<div class="row">
-    <div class="col-lg-7">
-        <div class="panel">
-            <div class="panel-body">
-                <?php $x = 0;?>
-                <?php foreach( $steps as $step ){ ?>
-                    <div id="step-<?php echo $step->id;?>" class="tab-pane<?php echo $x == 0 ? ' active' : '';?>" data-profile-adminedit-fields-content data-stepcontent data-for="<?php echo $step->id; ?>">
-                    <?php foreach( $step->fields as $field ) { ?>
-                        <?php if( !empty( $field->output ) ) { ?>
-                                <div data-profile-adminedit-fields-item data-element="<?php echo $field->element; ?>" data-fieldname="<?php echo SOCIAL_FIELDS_PREFIX . $field->id; ?>" data-id="<?php echo $field->id; ?>" data-required="<?php echo $field->required; ?>">
-                                    <?php echo $field->output; ?>
-                                </div>
+<div class="tab-box tab-box-alt">
+    <div class="tab-content tab-content-side">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="panel">
+                    <div class="panel-body">
+                        <?php $x = 0;?>
+                        <?php foreach( $steps as $step ){ ?>
+                            <div id="step-<?php echo $step->id;?>" class="tab-pane<?php echo $x == 0 ? ' active' : '';?>" data-profile-adminedit-fields-content data-stepcontent data-for="<?php echo $step->id; ?>">
+                            <?php foreach( $step->fields as $field ) { ?>
+                                <?php if( !empty( $field->output ) ) { ?>
+                                        <div data-profile-adminedit-fields-item data-element="<?php echo $field->element; ?>" data-fieldname="<?php echo SOCIAL_FIELDS_PREFIX . $field->id; ?>" data-id="<?php echo $field->id; ?>" data-required="<?php echo $field->required; ?>">
+                                            <?php echo $field->output; ?>
+                                        </div>
+                                <?php } ?>
+                            <?php } ?>
+                            </div>
+                            <?php $x++; ?>
                         <?php } ?>
-                    <?php } ?>
                     </div>
-                    <?php $x++; ?>
-                <?php } ?>
+                </div>
             </div>
         </div>
     </div>

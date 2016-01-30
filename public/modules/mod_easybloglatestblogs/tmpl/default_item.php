@@ -179,7 +179,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php if ($params->get('showcommentcount', 0)) { ?>
 		<div class="mod-cell pr-10">
 			<a href="<?php echo $post->getPermalink();?>">
-				<?php echo EB::string()->getNoun('MOD_LATESTBLOGS_COMMENT_COUNT', $post->commentCount, true);?>
+				<?php echo EB::string()->getNoun('MOD_LATESTBLOGS_COMMENT_COUNT', EB::comment()->getCommentCount($post), true);?>
 			</a>
 		</div>
 	<?php } ?>

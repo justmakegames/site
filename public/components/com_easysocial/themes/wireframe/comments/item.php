@@ -26,6 +26,11 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 
                 <div class="es-comment-actions " data-comments-item-actions>
                     <div class="es-comment-actions-flyout">
+
+                        <?php if ($this->my->id && ($this->access->allowed('comments.report')
+                                                        || ($this->access->allowed( 'comments.edit' )
+                                                        || ($isAuthor && $this->access->allowed('comments.editown')))
+                                                        || ($deleteable || $this->access->allowed('comments.delete') || ($isAuthor && $this->access->allowed('comments.deleteown'))))) { ?>
                         <a class="es-comment-actions-toggle" href="javascript:void(0);" data-bs-toggle="dropdown"><i class="icon-es-comment-action"></i></a>
                         <ul class="fd-nav fd-nav-stacked pull-right es-comment-actions-nav dropdown-menu">
                             <?php if ($this->access->allowed('comments.report')) { ?>
@@ -46,6 +51,8 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                             </li>
                             <?php } ?>
                         </ul>
+
+                        <?php } ?>
                     </div>
                 </div>
 
@@ -83,7 +90,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                 <div class="es-comment-item-meta" data-comments-item-meta>
                     <div class="es-comment-item-date" data-comments-item-date>
                         <i class="icon-es-clock"></i>
-                        
+
                         <?php if ($comment->getPermalink()) { ?>
                             <a href="<?php echo $comment->getPermalink(); ?>" title="<?php echo $comment->getDate(false); ?>"><?php echo $comment->getDate(); ?></a>
                         <?php } else { ?>

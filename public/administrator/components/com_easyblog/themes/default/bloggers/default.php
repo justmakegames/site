@@ -56,7 +56,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     </th>
 
                     <th style="text-align: center;" width="15%">
-                        <?php echo JHTML::_('grid.sort', JText::_( 'COM_EASYBLOG_BLOGGERS_USER_GROUP' ) , 'a.usertype', $orderDirection, $order ); ?>
+                        <?php echo JText::_('COM_EASYBLOG_BLOGGERS_USER_GROUP');?>
                     </th>
 
                     <th class="center" width="10%">

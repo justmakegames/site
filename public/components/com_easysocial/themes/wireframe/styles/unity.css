@@ -228,7 +228,7 @@ div#fd.es .row-table {
 div#fd.es .col-cell {
   display: table-cell;
   vertical-align: top;
-  float: none;
+  float: none !important;
 }
 div#fd.es .col-cell.cell-mid {
   vertical-align: middle;

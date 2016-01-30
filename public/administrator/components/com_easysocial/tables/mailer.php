@@ -189,15 +189,16 @@ class SocialTableMailer extends SocialTable
 	public function loadLanguage()
 	{
 		if (!empty($this->template)) {
+
 			$parts = explode('/', $this->template);
 
 			$location = array_shift($parts);
 
-			if ($location === 'site') {
+			if ($location === 'site' || $location == 'apps') {
 				FD::language()->loadSite();
 			}
 
-			if ($location === 'admin') {
+			if ($location === 'admin' || $location == 'apps') {
 				FD::language()->loadAdmin();
 			}
 		}

@@ -186,6 +186,11 @@ class EasyBlogDocument extends EasyBlog
 		$forceSkipVideo = isset($options['skipVideo']) ? $options['skipVideo'] : false;
 		$skipTriggerPlugins = isset($options['triggerPlugins']) ? $options['triggerPlugins'] : true;
 		
+		// When a post already has a cover picture, skip processing of images
+		if (isset($options['hasCover']) && $options['hasCover']) {
+			$forceSkipImage = true;
+		}
+
 		// If there's no blocks here, skip this altogether
 		if (!isset($this->blocks) || !$this->blocks) {
 			return $output;

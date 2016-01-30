@@ -84,6 +84,7 @@ class EasyBlogViewCategories extends EasyBlogView
 		$limit = $this->app->getCfg('list_limit');
 		$limit = $limit == 0 ? 5 : $limit;
 
+		$this->set('config', $menu);
 		$this->set('limit', $limit);
 		$this->set('categories', $categories);
 		$this->set('sort', $sort);
@@ -115,6 +116,8 @@ class EasyBlogViewCategories extends EasyBlogView
 		// Try to load the category
 		$category = EB::table('Category');
 		$category->load($id);
+
+		$menu = $this->app->getMenu()->getActive();
 
 		// If the category isn't found on the site throw an error.
 		if (!$id || !$category->id) {
@@ -180,7 +183,10 @@ class EasyBlogViewCategories extends EasyBlogView
 		$catIds = array();
 		$catIds[] = $category->id;
 
-		EB::accessNestedCategoriesId($category, $catIds);
+		// If user decided not to show posts from subcategories, we can skip this part.
+		if ($menu->params->get('category_subcategories_posts', true)) {
+			EB::accessNestedCategoriesId($category, $catIds);
+		}
 
 		$category->nestedLink = $nestedLinks;
 

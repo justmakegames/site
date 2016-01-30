@@ -75,7 +75,7 @@ class SocialUserAppUsers extends SocialAppItem
 	 * @access	public
 	 * @param	array
 	 */
-	public function onStreamVerbExclude( &$exclude )
+	public function onStreamVerbExclude(&$exclude)
 	{
 		// Get app params
 		$params		= $this->getParams();
@@ -134,37 +134,39 @@ class SocialUserAppUsers extends SocialAppItem
 		return true;
 	}
 
-	private function prepareLoginStream( SocialStreamItem &$item )
+	private function prepareLoginStream(SocialStreamItem &$item)
 	{
-		$params 	= $this->getParams();
+		$params = $this->getParams();
 
 		// Check if the settings is enabled.
 		if (!$params->get('stream_login', false)) {
-			$item->title 	= '';
+			$item->title = '';
 
 			return;
 		}
 
 		// Decorate the stream
-		$item->color 	= '#EF9033';
+		$item->color = '#EF9033';
 		$item->fonticon	= 'fa-lock';
-		$item->label 	= FD::_( 'APP_USER_USERS_LOGIN_STREAM_TOOLTIP', true);
-		$item->display 	= SOCIAL_STREAM_DISPLAY_MINI;
+		$item->label = FD::_( 'APP_USER_USERS_LOGIN_STREAM_TOOLTIP', true);
+		$item->display = SOCIAL_STREAM_DISPLAY_MINI;
 
 		// Set the actor
-		$actor			= $item->actor;
+		$actor = $item->actor;
 
 		// check if actor is an ESAD user, if yes, do not render the stream.
-		if (! $actor->hasCommunityAccess()) {
-			$item->title 	= '';
+		if (!$actor->hasCommunityAccess()) {
+			$item->title = '';
 			return;
 		}
 
-		$this->set( 'actor'	, $actor );
+		$this->set('actor', $actor);
 
-		$item->title 	= parent::display( 'streams/login.title' );
+		$item->title = parent::display('streams/login.title');
+
         if (isset($item->opengraph) && $item->opengraph instanceof SocialOpengraph) {
-            $item->opengraph->addDescription( $item->title );
+            // Append the opengraph tags
+            $item->addOgDescription($item->title);
         }
 	}
 }

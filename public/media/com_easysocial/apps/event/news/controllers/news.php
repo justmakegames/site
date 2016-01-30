@@ -148,8 +148,8 @@ class NewsControllerNews extends SocialAppsController
         // Get the app id
         $app = $this->getApp();
 
-        if (!$event->isAdmin()) {
-            $url = FRoute::events($event->getPermalink(false));
+        if (!$event->isAdmin() && !FD::user()->isSiteAdmin()) {
+            $url = $event->getPermalink(false);
             return $this->redirect($url);
         }
 

@@ -38,9 +38,23 @@
 	z-index: 2;
 
 	a {
-		border-width: 1px;
+		border: 1px solid @eb-box-shade;
 		border-radius: 0;
 		position: relative;
+		z-index: 2;
+
+		&.eb-avatar-team {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			z-index: 3;
+			background-color: #fff;
+
+			img {
+				width: 20px;
+				height: 20px;
+			}
+		}
 	}
 
 	img {

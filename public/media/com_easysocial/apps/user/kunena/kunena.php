@@ -293,7 +293,8 @@ class SocialUserAppKunena extends SocialAppItem
 		$item->title	= parent::display( 'streams/' . $item->verb . '.title' );
 		$item->content	= parent::display( 'streams/' . $item->verb . '.content' );
 
-		$item->opengraph->addDescription( $topic->message );
+		// Append the opengraph tags
+		$item->addOgDescription($topic->message);
 	}
 
 	/**
@@ -351,7 +352,8 @@ class SocialUserAppKunena extends SocialAppItem
 		$item->title	= parent::display( 'streams/' . $item->verb . '.title' );
 		$item->content	= parent::display( 'streams/' . $item->verb . '.content' );
 
-		$item->opengraph->addDescription( $message->message );
+		// Append the opengraph tags
+		$item->addOgDescription($message->message);
 	}
 
 	/**
@@ -400,7 +402,8 @@ class SocialUserAppKunena extends SocialAppItem
 
 		$item->title	= parent::display( 'streams/' . $item->verb . '.title' );
 
-		$item->opengraph->addDescription( $item->title );
+		// Append the opengraph tags
+		$item->addOgDescription($item->title);
 	}
 
 	private function filterContent( $content )

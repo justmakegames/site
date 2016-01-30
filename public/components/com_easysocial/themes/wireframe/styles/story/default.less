@@ -188,6 +188,10 @@ shortcode
     }
 }
 
+.es-story-textbox {
+	display: block !important; // Quick fix there is unknown inline display:none in IE11
+}
+
 .es-story-textbox .mentions > div {
 	min-height: 52px;
 	// Do not use position: relative here because we won't be able to hover on meta links.

@@ -44,6 +44,7 @@ var controller = EasyBlog.Controller("MediaManager", {
 
 		"[data-eb-mm-{filegroup-show-all-button}]",
 		"[data-eb-mm-{file-remove-button|file-insert-button|file-rename-button|file-move-button}]",
+
 		"[data-eb-mm-{folder-content-panel}]",
 		"[data-eb-mm-{foldertree|tree|tree-item}]",
 
@@ -869,12 +870,15 @@ var controller = EasyBlog.Controller("MediaManager", {
 	},
 
 	"{browseButton} click": function(browseButton, event) {
-
 		var filter = browseButton.data('eb-mm-filter');
 		var startKey = browseButton.data('eb-mm-start-uri');
 		var startUri = self.getUri(startKey);
-
 		var places = browseButton.data('eb-mm-browse-place');
+		
+		// We need to know what is the purpose of this browse button is for.
+		// If this is for post cover, we should let the media manager know
+		// that there shouldn't be any image properties.
+		var browseType = browseButton.data('eb-mm-browse-type');
 
         if (startUri == 'post') {
             startUri = self.getCurrentPostUri();
@@ -882,7 +886,7 @@ var controller = EasyBlog.Controller("MediaManager", {
 
         // Let the world know that the current mode is selecting an image
         self.mode = 'select';
-
+        self.currentBrowseType = browseType;
         self.currentBrowseButton = browseButton;
 
         // Trigger an event so listeners could bind their event when selecting image starts
@@ -1181,8 +1185,12 @@ var controller = EasyBlog.Controller("MediaManager", {
 				var info = $(media.info);
 				loadingHint.replaceWith(info);
 
-				// Trigger mediaInfoDisplay event
-				self.trigger("mediaInfoDisplay", [info, media]);
+				// If we are browsing for post cover, media info shouldn't be displayed
+				if (self.currentBrowseType != 'cover') {
+					// Trigger mediaInfoDisplay event
+					self.trigger("mediaInfoDisplay", [info, media]);
+				}
+
 			})
 			.fail(function(){
 

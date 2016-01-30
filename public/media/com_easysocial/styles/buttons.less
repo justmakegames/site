@@ -7,7 +7,7 @@
     box-shadow: none; // reset box-shadow for BS2
 }
 .btn-es {
-    .button-variant(@btn-default-color; @esBackground; @esBorder) !important;
+    .button-variant(@btn-default-color; @esBackground; @esBorder);
     transition: none 0s ease 0s;
     &.active {
         box-shadow: 0 3px 5px rgba(0, 0, 0, 0.125) inset;
@@ -19,7 +19,7 @@
     }
 }
 .btn.btn-clean {
-    .button-variant(@btn-default-color; @esBackground; @esBorder) !important;
+    .button-variant(@btn-default-color; @esBackground; @esBorder);
     &:hover {
         background: none;
     }

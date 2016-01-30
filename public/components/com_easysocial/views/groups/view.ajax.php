@@ -668,8 +668,20 @@ class EasySocialViewGroups extends EasySocialSiteView
 			return $this->ajax->reject($this->getMessage());
 		}
 
+		// Get the group id from request
+		$id = $this->input->get('id', 0, 'int');
+
+		// Load up the group
+		$group = FD::group($id);
+
+		// RSS
+		if ($this->config->get('stream.rss.enabled')) {
+			$this->addRss(FRoute::groups(array('id' => $group->getAlias(), 'layout' => 'item'), false));
+		}
+
 		// Get the contents of the stream
 		$theme = ES::themes();
+		$theme->set('rssLink', $this->rssLink);
 		$theme->set('stream', $stream);
 		$contents = $theme->output('site/groups/item.feeds');
 

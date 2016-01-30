@@ -15,7 +15,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 EasyBlog.require()
 .script('ticker')
 .done(function($) {
-	$('#js-ticker').ticker();
+	$('#js-ticker').ticker({
+        titleText: "<?php echo JText::_('MOD_EASYBLOGTICKER_HEADLINE_TEXT', true);?>"
+    });
 });
 </script>
 <div id="fd" class="eb eb-mod mod_easyblogticker<?php echo $params->get('moduleclass_sfx'); ?>">

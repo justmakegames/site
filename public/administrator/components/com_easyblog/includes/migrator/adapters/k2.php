@@ -72,10 +72,14 @@ class EasyBlogMigratorK2 extends EasyBlogMigratorBase
 			$blogObj->modified = $date->toMySQL();
 			$blogObj->title = $item->title;
 			$blogObj->permalink = $item->alias; // post lib will take care of the normalization of permalink
-			$blogObj->intro = $item->introtext;
+
+			$blogObj->intro = '';
+			$blogObj->content = $item->introtext;
 
 			if (!empty($item->fulltext)) {
-				$blogObj->content = $item->fulltext;
+				// If $item->fulltext exist, means there is system-readmore.
+				$blogObj->intro = $item->introtext;
+				$blogObj->content = $item->introtext. '<hr id="system-readmore" />' .$item->fulltext;
 			}
 
 			$blogState = ($item->published == 2 || $item->published == -2) ? 0 : $item->published;
@@ -101,6 +105,12 @@ class EasyBlogMigratorK2 extends EasyBlogMigratorBase
             // binding
 			$post->bind($blogObj, array());
 
+			//Added video to blog content
+			$this->migrateK2Videos($item, $post);
+
+			//Migrate over the images
+			$this->migrateK2Images($item, $post, $profile);
+
             $saveOptions = array(
                             'applyDateOffset' => false,
                             'validateData' => false,
@@ -108,12 +118,6 @@ class EasyBlogMigratorK2 extends EasyBlogMigratorBase
                             );
 
 			$post->save($saveOptions);
-
-			//Added video to blog content
-			$this->migrateK2Videos($item, $post);
-
-			//Migrate over the images
-			$this->migrateK2Images($item, $post, $profile);
 
 			//Get K2 Tags and map into Easyblog Tags
 			$K2Tags = $this->getK2Tag($item->id);
@@ -332,6 +336,12 @@ class EasyBlogMigratorK2 extends EasyBlogMigratorBase
 
 			$media = EB::mediamanager();
 			$result = $media->upload($file, 'user:' . $author->id);
+
+			if (isset($result->type)) {
+				$relativeImagePath = '/' . $file['name'];
+				$result->path = $relativeImagePath;
+			}
+
 			$result = json_encode($result);
 
 			$blog->image = $result;

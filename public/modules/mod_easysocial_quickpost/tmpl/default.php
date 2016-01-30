@@ -9,12 +9,11 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
-
- <div id="fd" data-quickpost-module class="es mod-es-quick-status <?php echo $suffix;?>">
- <form action="<?php echo JRoute::_( 'index.php' );?>" method="post">
-        <div class="es-story es-responsive">
+<div id="fd" class="es mod-es-quickpost<?php echo $suffix;?>" data-quickpost-module>
+    <form action="<?php echo JRoute::_('index.php');?>" method="post">
+        <div class="es-story is-expanded es-responsive">
             <div class="es-story-body">
                 <div class="es-story-text">
                     <div class="es-story-textbox mentions-textfield" data-story-textbox>
@@ -25,25 +24,28 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
                     </div>
                 </div>
             </div>
+            
             <div class="es-story-footer">
                 <div class="es-story-actions btn-group btn-group-sm">
                     <div class="btn btn-es-primary es-story-submit" data-quickpost-userid="<?php echo $my->id; ?>" data-quickpost-submit>
-                        <a href="javascript:void(0);" ><span>Share</span></a>
+                        <a href="javascript:void(0);">
+                            <span><?php echo JText::_('MOD_EASYSOCIAL_QUICKPOST_SHARE');?></span>
+                        </a>
                     </div>
-                    
+
                     <div class="es-story-privacy" data-story-privacy>
                         <?php echo FD::privacy()->form(null, SOCIAL_TYPE_STORY, $my->id, 'story.view', true); ?>
                     </div>
-    
                 </div>
             </div>
         </div>
+    
         <div data-quickpost-message></div>
 
         <input type="hidden" name="privacy" value="public" />
         <input type="hidden" name="option" value="com_easysocial" />
         <input type="hidden" name="controller" value="story" />
         <input type="hidden" name="task" value="create" />
-        <?php echo JHtml::_( 'form.token' );?>
+        <?php echo JHtml::_('form.token');?>
     </form>
 </div>

@@ -185,7 +185,7 @@ class SocialUser extends JUser
 
 
 	// Default avatar sizes
-	public $avatarSizes	= array( 'small' , 'medium' , 'large' , 'square' );
+	public $avatarSizes	= array( 'small' , 'medium' , 'large' , 'square');
 
 	// Avatars
 	public $avatars 		= array( 'small' 	=> '',
@@ -1104,6 +1104,20 @@ class SocialUser extends JUser
 		return !empty($this->avatar_id) || !empty($this->photo_id);
 	}
 
+
+	/**
+	 * Get available avatar sizes
+	 *
+	 * @since	1.4.6
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getAvatarSizes()
+	{
+		return $this->avatarSizes;
+	}
+
 	/**
 	 * Retrieves the user's avatar location
 	 *
@@ -1113,7 +1127,7 @@ class SocialUser extends JUser
 	 *
 	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function getAvatar( $size = SOCIAL_AVATAR_MEDIUM )
+	public function getAvatar($size = SOCIAL_AVATAR_MEDIUM)
 	{
 		$config = FD::config();
 
@@ -1880,7 +1894,7 @@ class SocialUser extends JUser
 		if (!isset($total[$sid])) {
 
 			$model = ES::model('Videos');
-			$options = array('uid' => $this->id, 'type' => SOCIAL_TYPE_USER);
+			$options = array('userid' => $this->id);
 
 			if ($includeUnpublished) {
 				$options['state'] = 'all';
@@ -2427,6 +2441,21 @@ class SocialUser extends JUser
 			if (!$isNew) {
 				unset($data['password']);
 			}
+		}
+
+		// lets re-arrange the 'groups' so that other user plugins can facilidate the user data
+		if (isset($data['groups']) && $data['groups']) {
+
+			$newG = array();
+			foreach($data['groups'] as $key => $val) {
+				if (is_int($val)) {
+					$newG[] = $val;
+				} else {
+					$newG[] = $key;
+				}
+			}
+			// now we reassgn the groups back to the data.
+			$data['groups'] = $newG;
 		}
 
 		$user->bind($data);

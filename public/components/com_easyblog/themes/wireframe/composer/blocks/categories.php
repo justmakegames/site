@@ -12,16 +12,18 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php foreach($blocks as $category => $blockItems) { ?>
-<div class="eb-composer-fieldset">
-    <div class="eb-composer-fieldset-header">
-        <strong><?php echo JText::_('COM_EASYBLOG_BLOCKS_CATEGORY_' . strtoupper($category)); ?></strong>
-    </div>
-    <div class="eb-composer-fieldset-content">
-        <div class="eb-composer-block-menu-group" data-eb-composer-block-menu-group>
-            <?php foreach ($blockItems as $block) { ?>
-                <?php echo $this->output('site/composer/blocks/menu', array('block' => $block)); ?>
-            <?php } ?>
+    <?php if ((count($blockItems) == 1 && $blockItems[0]->visible == true) || count($blockItems) > 1) { ?>
+    <div class="eb-composer-fieldset">
+        <div class="eb-composer-fieldset-header">
+            <strong><?php echo JText::_('COM_EASYBLOG_BLOCKS_CATEGORY_' . strtoupper($category)); ?></strong>
+        </div>
+        <div class="eb-composer-fieldset-content">
+            <div class="eb-composer-block-menu-group" data-eb-composer-block-menu-group>
+                <?php foreach ($blockItems as $block) { ?>
+                    <?php echo $this->output('site/composer/blocks/menu', array('block' => $block)); ?>
+                <?php } ?>
+            </div>
         </div>
     </div>
-</div>
+    <?php } ?>
 <?php } ?>

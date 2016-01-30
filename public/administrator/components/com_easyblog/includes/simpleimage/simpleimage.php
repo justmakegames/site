@@ -106,24 +106,25 @@ class EasyBlogSimpleImage
         }
 
         // Read the exif data
-        $exif = exif_read_data($this->path);
+        $exif = @exif_read_data($this->path);
 
         // Get the orientation of the image
         $orientation = isset($exif['Orientation']) && !empty($exif['Orientation']) ? $exif['Orientation'] : 1;
 
-        // We need to rotate it 180 degrees left
         if ($orientation == 3) {
             $this->rotate(180);
         }
 
-        // We need to rotate it 90 degrees right
-        if ($orientation == 6) {
+        if ($orientation == 5) {
             $this->rotate(-90);
         }
 
-        // We need to rotate it 90 degrees left
-        if ($orientation == 8) {
+        if ($orientation == 6) {
             $this->rotate(90);
+        }
+
+        if ($orientation == 8) {
+            $this->rotate(-90);
         }
     }
 
@@ -137,7 +138,13 @@ class EasyBlogSimpleImage
      */
     public function rotate($degrees)
     {
+        $degrees = $degrees * -1;
+
         $this->resource = imagerotate($this->resource, $degrees, 0);
+
+        // Get the new width and height
+        $this->width = imageSX($this->resource);
+        $this->height = imageSY($this->resource);
     }
 
     /**

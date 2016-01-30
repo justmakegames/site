@@ -172,11 +172,13 @@ class EB
 		require_once(dirname(__FILE__) . '/stylesheet/stylesheet.php');
 
 		if ($location == 'site') {
+
 			//lets overrite the theme based on blogger theme
 			$bloggerTheme = EB::getBloggerTheme();
 			if ($bloggerTheme) {
 				$name = $bloggerTheme;
 			}
+
 		}
 
 		$stylesheet = new EasyBlogStylesheet($location, $name, $useOverride);
@@ -256,6 +258,32 @@ class EB
 
 		if (!$tag) {
 			$tag = JFactory::getLanguage()->getTag();
+		}
+
+		return $tag;
+	}
+
+	/**
+	 * Retrieve the current language tag set
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function getMomentLanguage()
+	{
+		static $tag = false;
+
+		if (!$tag) {
+			$tag = JFactory::getLanguage()->getTag();
+
+			$tag = explode('-', $tag);
+			$tag = $tag[0];
+
+			if ($tag == 'en') {
+				$tag = 'en-gb';
+			}
 		}
 
 		return $tag;
@@ -393,6 +421,10 @@ class EB
 			$stored	= new JRegistry($table->params);
 
 			$registry->merge($stored);
+
+			if (!$stored->get('main_blocked_words')) {
+				$registry->set('main_blocked_words', '');
+			}
 
 			$config = $registry;
 		}
@@ -1527,7 +1559,7 @@ class EB
 	{
 		$my = JFactory::getUser();
 
-		if ($my->guest) {
+		if ($my->guest || $my->block) {
 
 			$url = EB::_('index.php?option=com_easyblog&view=login', false);
 
@@ -2458,14 +2490,18 @@ class EB
 		if ($addTitle) {
 			$siteTitle = $jConfig->get('sitename');
 
-			if ($addTitle == 1) {
-				$default = $siteTitle . ' - ' . $default;
-			}
+			// If the user does not want to append anything
+			if (!$config->get('main_pagetitle_autoappend')) {
+				$default = $siteTitle;
+			} else {
+				if ($addTitle == 1) {
+					$default = $siteTitle . ' - ' . $default;
+				}
 
-			if ($addTitle == 2) {
-				$default = $default . ' - ' . $siteTitle;
+				if ($addTitle == 2) {
+					$default = $default . ' - ' . $siteTitle;
+				}
 			}
-
 		}
 
 		// @task: Let's find the menu item.
@@ -4450,9 +4486,29 @@ class EB
 		static $items = array();
 
 		if (!isset($items[$id])) {
+
+			$config = EB::config();
+
 			$model = EB::model('Menu');
 
 			// If there is an article menu item associated with this post, use this
+			$menuId = 0;
+
+			if ($type == 'listing') {
+
+				$listingParams = $model->getDefaultXMLParams();
+
+				$arrTmpParams = $listingParams->toArray();
+
+				foreach($arrTmpParams as $key => $val) {
+
+					// this mean we inherit from global setting.
+					$listingParams->set($key, $config->get($type . '_' . $key));
+				}
+
+				$items[$id] = $listingParams;
+				return $items[$id];
+			}
 
 			if ($type == 'category') {
 				$menuId = $model->getMenusByCategoryId($id);
@@ -4466,7 +4522,6 @@ class EB
 				$menuId = $model->getMenusByBloggerId($id);
 			}
 
-			$config = EB::config();
 			$params = null;
 
 			$tmpTable = EB::table($type);
@@ -4493,15 +4548,21 @@ class EB
 				$params = $model->getMenuParamsById($menuId);
 				$arrParams = $params->toArray();
 
-				foreach($arrParams as $key => $val) {
-					if ($val == '-1') {
-						// this mean we inherit from global setting. lets get the value from global params.
-						$params->set($key, $tmpParams->get($key));
+				if (! isset($arrParams['post_image'])) {
+					$items[$id] = $tmpParams;
 
+				} else {
+
+					foreach($arrParams as $key => $val) {
+						if ($val == '-1') {
+							// this mean we inherit from global setting. lets get the value from global params.
+							$params->set($key, $tmpParams->get($key));
+
+						}
 					}
-				}
 
-				$items[$id] = $params;
+					$items[$id] = $params;
+				}
 
 			} else {
 				// If there's no menu associated with the post, associate the params with the primary category

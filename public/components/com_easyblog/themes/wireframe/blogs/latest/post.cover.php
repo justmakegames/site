@@ -12,9 +12,9 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if ($post->image && $this->params->get('post_image', true) || (!$post->image && $this->params->get('post_image_placeholder', false) && $this->params->get('post_image', true))) { ?>
-    <div class="eb-post-thumb<?php if ($this->config->get('cover_alignment')) { echo " is-" . $this->config->get('cover_alignment'); } ?> <?php if ($this->config->get('cover_width_full')) { echo " is-full"; } ?>">
+    <div class="eb-post-thumb<?php echo $this->config->get('cover_width_full') ? " is-full" : " is-" . $this->config->get('cover_alignment')?>">
         <?php if (!$this->config->get('cover_crop', false)) { ?>
-            <a href="<?php echo $post->getPermalink();?>" class="eb-post-image" 
+            <a href="<?php echo $post->getPermalink();?>" class="eb-post-image"
                 style="
                     <?php if ($this->config->get('cover_width_full')) { ?>
                     width: 100%;
@@ -22,14 +22,14 @@ defined('_JEXEC') or die('Unauthorized Access');
                     width: <?php echo $this->config->get('cover_width');?>px;
                     <?php } ?>"
             >
-                <img src="<?php echo $post->getImage($this->config->get('cover_size', 'large'));?>" alt="<?php echo $this->escape($post->title);?>" />
+                <img itemprop="image" src="<?php echo $post->getImage($this->config->get('cover_size', 'large'));?>" alt="<?php echo $this->escape($post->title);?>" />
             </a>
         <?php } ?>
 
         <?php if ($this->config->get('cover_crop', false)) { ?>
-            <a href="<?php echo $post->getPermalink();?>" class="eb-post-image-cover" 
+            <a href="<?php echo $post->getPermalink();?>" class="eb-post-image-cover"
                 style="
-                    background-image: url('<?php echo $post->getImage($this->config->get('cover_size', 'large'));?>'); 
+                    background-image: url('<?php echo $post->getImage($this->config->get('cover_size', 'large'));?>');
                     <?php if ($this->config->get('cover_width_full')) { ?>
                     width: 100%;
                     <?php } else { ?>
@@ -37,6 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php } ?>
                     height: <?php echo $this->config->get('cover_height');?>px;"
             ></a>
+            <img itemprop="image" class="hide" src="<?php echo $post->getImage($this->config->get('cover_size', 'large'));?>" alt="<?php echo $this->escape($post->title);?>" />
         <?php } ?>
     </div>
 <?php } ?>

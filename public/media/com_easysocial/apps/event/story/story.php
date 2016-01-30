@@ -243,7 +243,29 @@ class SocialEventAppStory extends SocialAppItem
         $mailParams['actor'] = $actor->getName();
         $mailParams['posterAvatar'] = $actor->getAvatar(SOCIAL_AVATAR_SQUARE);
         $mailParams['posterLink'] = $actor->getPermalink(true, true);
-        $mailParams['message'] = $template->content;
+
+        $contents = $template->content;
+
+        // break the text and images
+        if (strpos($template->content, '<img') !== false) {
+            preg_match('#(<img.*?>)#', $template->content, $results);
+
+            $img = "";
+            if ($results) {
+                $img = $results[0];
+            }
+
+            $segments = explode('<img', $template->content);
+            $contents = $segments[0];
+
+            if ($img) {
+                $contents = $contents . '<br /><div style="text-align:center;">' . $img . "</div>";
+            }
+        }
+
+
+        $mailParams['message'] = $contents;
+
         $mailParams['event'] = $event->getName();
         $mailParams['eventLink'] = $event->getPermalink(true, true);
         $mailParams['permalink'] = FRoute::stream(array('id' => $streamItem->uid, 'layout' => 'item', 'external' => true), true);
@@ -291,7 +313,7 @@ class SocialEventAppStory extends SocialAppItem
 
         // Allow editing of the stream item
         $item->editable = $this->my->isSiteAdmin() || $event->isAdmin() || $item->actor->id == $this->my->id;
-        
+
         // Get the actor
         $actor = $item->getActor();
 

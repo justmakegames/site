@@ -220,12 +220,6 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 							<span><?php echo JText::_('MOD_EASYSOCIAL_MENU_EASYBLOG_POSTS');?></span>
 						</a>
 					</li>
-					<li>
-						<a href="<?php echo EBR::_( 'index.php?option=com_easyblog&view=dashboard&layout=drafts&Itemid=' . EBR::getItemId( 'dashboard' )  );?>">
-							<i class="fa fa-upload"></i>
-							<span><?php echo JText::_( 'MOD_EASYSOCIAL_MENU_EASYBLOG_DRAFTS' );?></span>
-						</a>
-					</li>
 				<?php } ?>
 			<?php } ?>
 

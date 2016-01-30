@@ -94,9 +94,6 @@ class EasyBlogViewTeamBlog extends EasyBlogView
      */
     public function viewMembers()
     {
-        // Require user to be logged in
-        EB::requireLogin();
-
         $id = $this->input->get('id', 0, 'int');
 
         if (! $id) {

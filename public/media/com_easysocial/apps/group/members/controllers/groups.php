@@ -39,22 +39,33 @@ class MembersControllerGroups extends SocialAppsController
 
 
 		// Get the current filter
-		$filter 	= JRequest::getWord( 'filter' );
+		$filter 	= JRequest::getWord( 'filter', '');
 		$options 	= array();
 
-		if( $filter == 'admin' )
-		{
+		$limit = FD::themes()->getConfig()->get( 'userslimit' );
+		$options['limit']	= $limit;
+
+		if ($filter == 'admin') {
 			$options[ 'admin' ]	= true;
 		}
 
-		if( $filter == 'pending' )
-		{
+		if($filter == 'pending') {
 			$options[ 'state' ]	= SOCIAL_GROUPS_MEMBER_PENDING;
 		}
 
 		$model		= FD::model( 'Groups' );
 		$users		= $model->getMembers( $group->id , $options );
 		$pagination	= $model->getPagination();
+
+		$pagination->setVar( 'view' , 'groups' );
+		$pagination->setVar( 'layout' , 'item' );
+		$pagination->setVar( 'id' , $group->getAlias() );
+		$pagination->setVar( 'appId' , $this->getApp()->getAlias() );
+		$pagination->setVar( 'Itemid'	, FRoute::getItemId( 'groups', 'item', $group->id ) );
+
+		if ($pagination && $filter && $filter != 'all') {
+			$pagination->setVar('filter', $filter);
+		}
 
 		// Load the contents
 		$theme 		= FD::themes();
@@ -63,6 +74,10 @@ class MembersControllerGroups extends SocialAppsController
 		$theme->set( 'users'			, $users );
 
 		$contents	= $theme->output( 'apps/group/members/groups/default.list' );
+
+		if( $pagination) {
+			$contents .= '<div class="es-pagination-footer" data-users-pagination>' . $pagination->getListFooter( 'site' ) . '</div>';
+		}
 
 		return $ajax->resolve( $contents );
 	}

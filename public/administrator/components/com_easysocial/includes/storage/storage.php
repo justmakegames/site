@@ -22,7 +22,7 @@ class SocialStorage
 		// Always lowercase the storage name
 		$storage = strtolower($storage);
 
-		$file = __DIR__ . '/adapters/' . $storage . '/' . $storage . '.php';
+		$file = __DIR__ . '/' . $storage . '/' . $storage . '.php';
 		require_once($file);
 
 		$className = 'SocialStorage' . ucfirst($storage);
@@ -62,15 +62,13 @@ interface SocialStorageInterface
 {
 	public function init();
 
-	public function containerExists( $container );
+	public function createContainer($container);
 
-	public function createContainer( $container );
+	public function getPermalink($relativePath);
 
-	public function getPermalink( $relativePath );
+	public function push($fileName, $path, $relativePath);
 
-	public function push( $fileName , $path , $relativePath );
+	public function pull($relativePath);
 
-	public function pull();
-
-	public function delete( $relativePath , $folder = false );
+	public function delete($relativePath, $folder = false);
 }

@@ -32,6 +32,12 @@ if (isset($id) && $id) {
 	// Get the category alias
     $post = EB::post($id);
 
+    $ebConfig = EB::config();
+
+    if ($ebConfig->get('main_sef') == 'simplecategory') {
+    	$title[] = ucfirst($post->getPrimaryCategory()->getAlias());
+    }
+
 	// For entry links, we do not want to include the /Entry/ portion
 	$title[] = ucfirst($post->getAlias());
 

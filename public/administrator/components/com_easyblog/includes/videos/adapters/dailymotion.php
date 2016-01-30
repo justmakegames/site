@@ -32,7 +32,7 @@ class EasyBlogVideoDailyMotion
 
 		if( $code )
 		{
-			$html 	= '<iframe frameborder="0" width="' . $width . '" height="' . $height . '" src="http://www.dailymotion.com/embed/video/' . $code . '"></iframe>';
+			$html 	= '<div class="legacy-video-container"><iframe frameborder="0" width="' . $width . '" height="' . $height . '" src="http://www.dailymotion.com/embed/video/' . $code . '"></iframe></div>';
 			// $html	= '<object width="' . $width . '" height="' . $height . '">'
 			// 		. '		<param name="movie" value="http://www.dailymotion.com/swf/video/' . $code . '?theme=none"></param>'
 			// 		. '		<param name="allowFullScreen" value="true"></param>'

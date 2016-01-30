@@ -874,6 +874,9 @@ class EasySocialModelStream extends EasySocialModel
 
 		$table[] = ' FROM `#__social_stream` AS a INNER JOIN `#__social_clusters` AS sc ON a.`cluster_id` = sc.`id`';
 
+		// joining events meta table
+		$table[] = 'LEFT JOIN ' . $db->nameQuote( '#__social_events_meta' ) . ' AS em ON sc.' . $db->nameQuote( 'id' ) . ' = em.' . $db->nameQuote( 'cluster_id' );
+
 		// joining location table
 		$table[] = 'LEFT JOIN ' . $db->nameQuote( '#__social_locations' ) . ' AS l ON a.' . $db->nameQuote( 'location_id' ) . ' = l.' . $db->nameQuote( 'id' );
 
@@ -1096,7 +1099,7 @@ class EasySocialModelStream extends EasySocialModel
 				// Group privacy
 				$cond[]	= 'AND (';
 				$cond[] = ' (sc.`type` = 1) OR';
-				$cond[]	= ' (sc.`type` > 1) AND ' . $db->Quote($viewer) . ' IN ( select scn.`uid` from `#__social_clusters_nodes` as scn where scn.`cluster_id` = a.`cluster_id` and `type` = ' . $db->Quote(SOCIAL_TYPE_USER) . ' and `state` = 1)';
+				$cond[]	= ' (sc.`type` > 1) AND ' . $db->Quote($viewer) . ' IN ( select scn.`uid` from `#__social_clusters_nodes` as scn where (scn.`cluster_id` = a.`cluster_id` OR scn.`cluster_id` = em.`group_id`) and `type` = ' . $db->Quote(SOCIAL_TYPE_USER) . ' and `state` = 1)';
 				$cond[] = ')';
 			}
 
@@ -1441,6 +1444,8 @@ class EasySocialModelStream extends EasySocialModel
 
 		$table[] = ' FROM ' . $streamTableAlias;
 
+		$table[] = 'LEFT JOIN ' . $db->nameQuote( '#__social_events_meta' ) . ' AS em ON a.' . $db->nameQuote( 'cluster_id' ) . ' = em.' . $db->nameQuote( 'cluster_id' );
+
 		// joining location table - do not change the position of this code
 		$table[] = 'LEFT JOIN ' . $db->nameQuote( '#__social_locations' ) . ' AS l ON a.' . $db->nameQuote( 'location_id' ) . ' = l.' . $db->nameQuote( 'id' );
 
@@ -1507,7 +1512,7 @@ class EasySocialModelStream extends EasySocialModel
 		$cond[]	= '(a.`cluster_id`= 0) OR';
 		$cond[]	= '(a.`cluster_id` > 0 and a.`cluster_access` = 1)';
 		if ($viewer) {
-			$cond[]	= 'OR (a.`cluster_id` > 0 and a.`cluster_access` > 1 and ' . $viewer . ' IN (select scn.`uid` from `#__social_clusters_nodes` as scn where scn.`cluster_id` = a.`cluster_id` and scn.`type` = ' . $db->Quote( SOCIAL_TYPE_USER ) . ' and scn.`state` = 1) )';
+			$cond[]	= 'OR (a.`cluster_id` > 0 and a.`cluster_access` > 1 and ' . $viewer . ' IN (select scn.`uid` from `#__social_clusters_nodes` as scn where (scn.`cluster_id` = a.`cluster_id` OR scn.`cluster_id` = em.`group_id`) and scn.`type` = ' . $db->Quote( SOCIAL_TYPE_USER ) . ' and scn.`state` = 1) )';
 		}
 		$cond[]	= ')';
 

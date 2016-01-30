@@ -1,25 +1,52 @@
 <?php
 /**
-* @package		EasySocial
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasySocial is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.model');
 
-FD::import( 'admin:/includes/model' );
+ES::import('admin:/includes/model');
 
 class EasySocialModelAvatars extends EasySocialModel
 {
-	function __construct()
+	public function __construct()
 	{
-		parent::__construct( 'avatars' );
+		parent::__construct('avatars');
+	}
+
+	/**
+	 * Retrieves the list of items which stored in Amazon
+	 *
+	 * @since	1.4.6
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getAvatarsStoredExternally($storageType = 'amazon')
+	{
+		// Get the number of files to process at a time
+		$config = ES::config();
+		$limit = $config->get('storage.amazon.limit', 10);
+
+		$db = FD::db();
+		$sql = $db->sql();
+		$sql->select('#__social_avatars');
+		$sql->where('storage', $storageType);
+		$sql->limit($limit);
+
+		$db->setQuery($sql);
+
+		$result = $db->loadObjectList();
+
+		return $result;
 	}
 
 	/**

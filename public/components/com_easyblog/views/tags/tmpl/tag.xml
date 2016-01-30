@@ -28,6 +28,17 @@
 				<option value="1">JSHOW</option>
 			</field>
 		</fieldset>
+
+		<fieldset name="COM_EASYBLOG_MENU_THEME_OPTIONS" label="COM_EASYBLOG_MENU_THEME_OPTIONS">
+			<field name="post_nickel_column" default="2" type="list" class="btn-group" label="COM_EASYBLOG_NICKEL_COLUMN" description="COM_EASYBLOG_NICKEL_COLUMN_DESC">
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+			</field>
+		</fieldset>	
+		
 		<fieldset name="post" label="COM_EASYBLOG_MENU_POST_OPTIONS" info="COM_EASYBLOG_MENU_TAG_POST_OPTIONS_INFO">
 			<field name="post_image" type="radio" default="-1" class="btn-group" label="COM_EASYBLOG_SHOW_POST_IMAGE" description="COM_EASYBLOG_SHOW_POST_IMAGE_DESC">
 				<option value="-1">COM_EASYBLOG_USE_DEFAULT_OPTIONS</option>

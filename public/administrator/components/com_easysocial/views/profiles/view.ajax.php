@@ -180,6 +180,20 @@ class EasySocialViewProfiles extends EasySocialAdminView
 		FD::ajax()->resolve( $data );
 	}
 
+	public function getAclErrorDialog()
+	{
+		$key = $this->input->get('key', '', 'word');
+
+		$message = 'COM_EASYSOCIAL_MAXUPLOADSIZE_ERROR_' . strtoupper($key);
+		$message = JText::_($message);
+
+		$theme = ES::themes();
+		$theme->set('message', $message);
+		$contents = $theme->output('admin/profiles/dialogs/acl.error');
+
+		return $this->ajax->resolve($contents);
+	}
+
 	public function deleteProfileAvatar()
 	{
 		$ajax = FD::ajax();

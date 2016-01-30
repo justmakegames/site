@@ -62,6 +62,7 @@ class SocialCrawlerOEmbed
 				// Get the oembed url
 				$url = $node->attr['href'];
 
+
 				// Urls should not contain html entities
 				$url = html_entity_decode($url);
 
@@ -161,6 +162,24 @@ class SocialCrawlerOEmbed
 		// Seconds
 		if (isset($matches[3]) && $matches[3]) {
 			$seconds = $seconds + $matches[3][0];
+		}
+
+		// Check if the oembed is exist or not.
+		// If not exist, we need to hard coded it.
+		if (!isset($oembed->html)) {
+
+			// get the video id.
+			parse_str(parse_url($originalUrl, PHP_URL_QUERY), $video_id);
+			$video_id = $video_id['v'];
+
+			$oembed = new stdClass();
+
+			// Hard code the neccessary value.
+			$oembed->height = 270;
+			$oembed->width = 480;
+			$oembed->html = '<iframe width="480" height="270" src="https://www.youtube.com/embed/'. $video_id .'?feature=oembed" frameborder="0" allowfullscreen></iframe>';
+			$oembed->thumbnail = 'http://img.youtube.com/vi/'. $video_id .'/sddefault.jpg';
+			$oembed->thumbnail_url = 'http://img.youtube.com/vi/'. $video_id .'/sddefault.jpg';				
 		}
 
 		$oembed->duration = (int) $seconds;

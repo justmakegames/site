@@ -18,7 +18,6 @@ jimport( 'joomla.utilities.arrayhelper' );
 
 require_once( EBLOG_ADMIN_ROOT . DIRECTORY_SEPARATOR . 'views.php' );
 
-require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'helper.php' );
 require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'string.php' );
 require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'image.php' );
 //require_once( EBLOG_HELPERS . DIRECTORY_SEPARATOR . 'date.php' );

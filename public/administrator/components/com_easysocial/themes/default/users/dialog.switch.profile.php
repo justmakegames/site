@@ -51,11 +51,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 						</div>
 					</div>
 				</div>
-
-				<div class="help-block">
-					<span class="label label-danger"><?php echo JText::_('COM_EASYSOCIAL_FOOTPRINT_IMPORTANT');?></span>
-					<br /><?php echo JText::_('COM_EASYSOCIAL_USERS_SWITCH_PROFILE_DIALOG_FOOTNOTE');?>
-				</div>
+				
 				<input type="hidden" name="option" value="com_easysocial" />
 				<input type="hidden" name="controller" value="users" />
 				<input type="hidden" name="task" value="switchProfile" />

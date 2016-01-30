@@ -257,5 +257,12 @@
 		"desc": "COM_EASYBLOG_ACL_DESC_ADD_GOOGLE_AUTHORSHIP",
 		"published": 1,
 		"id": 40
+	},
+	{
+		"action": "allow_user_permalink",
+		"group": "profile",
+		"desc": "COM_EASYBLOG_ACL_DESC_ALLOW_USER_PERMALINK",
+		"published": 1,
+		"id": 41
 	}
 ]

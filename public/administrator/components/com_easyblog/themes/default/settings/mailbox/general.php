@@ -234,7 +234,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REMOTE_PUBLISHING_MAILBOX_MAILBOX_NAME'); ?>
 
 						<i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REMOTE_PUBLISHING_MAILBOX_MAILBOX_NAME'); ?>"
-							data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REMOTE_PUBLISHING_MAILBOX_MAILBOX_NAME');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+							data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REMOTE_PUBLISHING_MAILBOX_MAILBOX_NAME_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
 					</label>
 
 					<div class="col-md-7">
@@ -245,6 +245,20 @@ defined('_JEXEC') or die('Unauthorized Access');
 						/>
 					</div>
 				</div>
+
+				<div class="form-group">
+					<label for="page_title" class="col-md-5">
+						<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REMOTE_PUBLISHING_MAILBOX_FROM_WHITE_LIST'); ?>
+
+						<i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REMOTE_PUBLISHING_MAILBOX_FROM_WHITE_LIST'); ?>"
+							data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REMOTE_PUBLISHING_MAILBOX_FROM_WHITE_LIST_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+					</label>
+
+					<div class="col-md-7">
+						<textarea class="form-control" id="main_remotepublishing_mailbox_from_whitelist" name="main_remotepublishing_mailbox_from_whitelist" data-mailbox-whitelist><?php echo $this->config->get('main_remotepublishing_mailbox_from_whitelist');?></textarea>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>

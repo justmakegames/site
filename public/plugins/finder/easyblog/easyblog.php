@@ -168,6 +168,9 @@ class plgFinderEasyBlog extends FinderIndexerAdapter
 		// Remove any /administrator/ segments from the url since the indexer could be executed from the back end
 		$item->route = $this->removeAdminSegment($item->route);
 
+		//remove domain here as the route that stored in finder_links shouldnt contain the domain.
+		$item->route = str_replace(JURI::root(), '/', $item->route);
+
 		// Get the content path
 		$item->path = FinderIndexerHelper::getContentPath($item->route);
 

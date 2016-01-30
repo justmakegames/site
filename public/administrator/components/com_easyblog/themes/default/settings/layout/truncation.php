@@ -205,7 +205,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     </div>
                 </div>
 
-                <?php $mediaTypes   = array('image', 'video', 'audio'); ?>
+                <?php $mediaTypes   = array('image', 'video', 'audio', 'gallery'); ?>
 
                 <?php foreach ($mediaTypes as $media) { ?>
                 <div class="form-group">

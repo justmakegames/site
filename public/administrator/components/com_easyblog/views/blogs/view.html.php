@@ -416,8 +416,8 @@ class EasyBlogViewBlogs extends EasyBlogAdminView
 			JToolBarHelper::custom('blogs.copy' , 'copy' , '' , JText::_('COM_EASYBLOG_COPY') );
 			JToolBarHelper::divider();
 
-			JToolBarHelper::custom('blogs.changeAuthor' , 'users' , '' , JText::_('COM_EASYBLOG_CHANGE_AUTHOR') );
-
+			JToolBarHelper::custom('blogs.changeAuthor' , 'users' , '' , JText::_('COM_EASYBLOG_CHANGE_AUTHOR'));
+			JToolBarHelper::custom('blogs.resetHits' , 'purge' , '' , JText::_('COM_EASYBLOG_RESET_HITS'));
 		}
 	}
 

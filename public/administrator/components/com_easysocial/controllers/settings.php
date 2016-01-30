@@ -196,10 +196,11 @@ class EasySocialControllerSettings extends EasySocialController
 		FD::checkToken();
 
 		// Since there are more than 1 tasks are linked here, get the appropriate task here.
-		$task 		= $this->getTask();
-		$method 	= $task;
-		$page 		= JRequest::getVar( 'page' , '' );
-		$view 		= FD::view( 'Settings' );
+		$task = $this->getTask();
+		$method = $task;
+		$page = $this->input->get('page', '', 'default');
+		
+		$view = $this->getCurrentView();
 
 		// Get the posted data.
 		$post		= JRequest::get( 'POST' );
@@ -275,17 +276,29 @@ class EasySocialControllerSettings extends EasySocialController
 			return $view->call( $method , $page );
 		}
 
+
+
 		// Check if any of the configurations are stored as non local
-		if( ( $config->get( 'storage.photos' ) == 'amazon' || $config->get( 'storage.conversations' ) == 'amazon' ) && $config->get( 'storage.amazon.bucket' ) == '' )
-		{
-			// Initialize the storage
-			$bucket 	= FD::storage( 'Amazon' )->init();
+		if ($config->get('storage.amazon.access') && $config->get('storage.amazon.secret') && $page == 'storage') {
+			
+			$bucket = $config->get('storage.amazon.bucket');
 
-			$config->set( 'storage.amazon.bucket' , $bucket );
+			$storage = ES::storage('Amazon');
 
-			$configTable->set( 'value' , $config->toString() );
+			// If the bucket is set, check if it exists.
+			if ($bucket && !$storage->containerExists($bucket)) {
+				$storage->createContainer($bucket);
+			}
 
-			$configTable->store();
+			// If the bucket is empty, we initialize a new bucket based on the domain name
+			if (!$bucket) {
+				// Initialize the remote storage
+				$bucket = $storage->init();
+				$config->set('storage.amazon.bucket', $bucket);
+
+				$configTable->set('value', $config->toString());
+				$configTable->store();
+			}
 		}
 
 		$message 	= ( $updatedUserIndexing ) ? JText::_( 'COM_EASYSOCIAL_SETTINGS_SAVED_SUCCESSFULLY_WITH_USER_INDEXING_UPDATED' ) : JText::_( 'COM_EASYSOCIAL_SETTINGS_SAVED_SUCCESSFULLY' ) ;

@@ -130,14 +130,17 @@ EasyBlog.Controller("Composer.Blocks.Handlers.Thumbnails", {
         // Disable content editable
         block.editable(false);
 
-        if (self.hasThumbnails(block)) {
+        // if (self.hasThumbnails(block)) {
 
-        } else {
+        // } else {
 
-            // Register upload placeholder
-            var thumbUploadPlaceholder = self.thumbUploadPlaceholder.inside(block);
-            EasyBlog.MediaManager.uploader.register(thumbUploadPlaceholder);
-        }
+        //     // Register upload placeholder
+        //     var thumbUploadPlaceholder = self.thumbUploadPlaceholder.inside(block);
+        //     EasyBlog.MediaManager.uploader.register(thumbUploadPlaceholder);
+        // }
+
+        var thumbUploadPlaceholder = self.thumbUploadPlaceholder.inside(block);
+        EasyBlog.MediaManager.uploader.register(thumbUploadPlaceholder);
     },
 
     deconstruct: function(block) {

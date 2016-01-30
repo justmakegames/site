@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 	<?php foreach ($categories as $category) { ?>
 	<div class="eb-category">
 		<div class="eb-category-profile row-table">
-			<?php if ($this->params->get('category_avatar', true)) { ?>
+			<?php if ($config->params->get('category_avatar', true)) { ?>
 			<div class="col-cell cell-tight eb-category-thumb">
 				<a href="<?php echo $category->getPermalink(); ?>" class="eb-avatar">
 					<img src="<?php echo $category->getAvatar();?>" align="top" class="eb-category-avatar" width="60" height="60" alt="<?php echo $category->getTitle();?>" />
@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Restricted access');
 			<?php } ?>
 
 			<div class="col-cell eb-category-details">
-				<?php if ($this->params->get('category_title', true)) { ?>
+				<?php if ($config->params->get('category_title', true)) { ?>
 				<div class="eb-category-head">
 					<h2 class="eb-category-name reset-heading">
 						<a href="<?php echo $category->getPermalink();?>" class="text-inherit"><?php echo $category->getTitle();?></a>
@@ -52,7 +52,7 @@ defined('_JEXEC') or die('Restricted access');
 						<?php } ?>
 					<?php } ?>
 
-					<?php if ($this->config->get('main_rss') && $this->params->get('category_rss', true)) { ?>
+					<?php if ($this->config->get('main_rss') && $config->params->get('category_rss', true)) { ?>
 					<span class="eb-category-rss">
 						<a href="<?php echo $category->getRssLink();?>" title="<?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_FEEDS', false); ?>" class="link-rss"><?php echo JText::_('COM_EASYBLOG_SUBSCRIBE_FEEDS'); ?></a>
 					</span>
@@ -61,13 +61,13 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 		</div>
 
-		<?php if ($this->params->get('category_description', true) && $category->description) { ?>
+		<?php if ($config->params->get('category_description', true) && $category->description) { ?>
 		<div class="eb-category-bio">
 			<?php echo $category->description;?>
 		</div>
 		<?php } ?>
 
-		<?php if (!empty($category->nestedLink) && $this->params->get('subcategories', true)) { ?>
+		<?php if (!empty($category->nestedLink) && $config->params->get('subcategories', true)) { ?>
 		<div class="eb-category-subs">
 			<p>
 				<b><?php echo JText::_('COM_EASYBLOG_CATEGORIES_SUBCATEGORIES'); ?></b>
@@ -77,11 +77,11 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 		<?php } ?>
 
-		<?php if ($this->params->get('category_posts', true) || $this->params->get('category_authors', true)) { ?>
+		<?php if ($config->params->get('category_posts', true) || $config->params->get('category_authors', true)) { ?>
 		<div class="eb-category-stats">
 
 			<ul class="eb-stats-nav reset-list">
-				<?php if ($this->params->get('category_posts', true)) { ?>
+				<?php if ($config->params->get('category_posts', true)) { ?>
 				<li class="active">
 					<a class="btn btn-default btn-block" href="#posts-<?php echo $category->id; ?>" data-bp-toggle="tab">
 						<?php echo JText::_('COM_EASYBLOG_BLOGGERS_TOTAL_POSTS');?>
@@ -90,7 +90,7 @@ defined('_JEXEC') or die('Restricted access');
 				</li>
 				<?php } ?>
 
-				<?php if ($this->params->get('category_authors', true)) { ?>
+				<?php if ($config->params->get('category_authors', true)) { ?>
 				<li>
 					<a class="btn btn-default btn-block" href="#authors-<?php echo $category->id; ?>" data-bp-toggle="tab">
 						<?php echo JText::_('COM_EASYBLOG_CATEGORIES_ACTIVE_BLOGGERS');?>
@@ -101,7 +101,7 @@ defined('_JEXEC') or die('Restricted access');
 			</ul>
 
 			<div class="eb-stats-content">
-				<?php if ($this->params->get('category_posts', true)) { ?>
+				<?php if ($config->params->get('category_posts', true)) { ?>
 				<div class="tab-pane eb-stats-posts active eb-responsive" id="posts-<?php echo $category->id; ?>">
 					<?php if ($category->blogs) { ?>
 						<?php foreach ($category->blogs as $post) { ?>
@@ -125,7 +125,7 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 				<?php } ?>
 
-				<?php if ($this->params->get('category_authors', true)) { ?>
+				<?php if ($config->params->get('category_authors', true)) { ?>
 				<div class="tab-pane eb-labels eb-stats-authors" id="authors-<?php echo $category->id; ?>">
 					<?php if ($category->authors) { ?>
 						<?php $i = 0; ?>

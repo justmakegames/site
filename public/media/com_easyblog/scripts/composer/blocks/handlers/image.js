@@ -1347,7 +1347,9 @@ function(self, opts, base, composer, blocks, meta, currentBlock, mediaManager, p
 
         // If this is a nested block, get width from block.
         if (blocks.isNestedBlock(block)) {
-            var width = blocks.dimensions.getFluidWidth(block);
+            // var width = blocks.dimensions.getFluidWidth(block);
+            // Gallery block have to 100% full width no matter is root or nested. #2793
+            var width = "100%";
         }
 
         // Set image width again.
@@ -1760,7 +1762,9 @@ function(self, opts, base, composer, blocks, meta, currentBlock, mediaManager, p
         }
 
         if (blocks.isNestedBlock(block)) {
-            var width = blocks.dimensions.getFluidWidth(block);
+            // var width = blocks.dimensions.getFluidWidth(block);
+            // Gallery block have to 100% full width no matter is root or nested. #2793
+            var width = "100%";
         }
 
         var height = imageElement.height();

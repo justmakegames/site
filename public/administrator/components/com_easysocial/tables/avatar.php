@@ -387,9 +387,29 @@ class SocialTableAvatar extends SocialTable
 		// Build absolute path to the file.
 		$path	= JPATH_ROOT . '/' . $avatarLocation . '/' . $typesLocation . '/' . $this->uid . '/' . $this->$size;
 
+		// Try to get the avatars from remote storage
+		if ($this->storage == 'amazon') {
+
+			$remotePath = $avatarLocation . '/' . $typesLocation . '/' . $this->uid . '/' . $this->$size;
+			$storage = FD::storage('amazon');
+			$uri = $storage->getPermalink($remotePath);
+
+			$connector = ES::connector();
+			$connector->addUrl($uri);
+			$connector->useHeadersOnly();
+			$connector->connect();
+
+			$headers = $connector->getResult($uri, true);
+
+			// If the avatar exist, return this uri.
+			$notFound = stristr($headers, 'HTTP/1.1 404 Not Found');
+			if ($notFound === false) {
+				return $uri;
+			}						
+		}
+
 		// Detect if avatar exists.
-		if( !JFile::exists( $path ) )
-		{
+		if (!JFile::exists($path)) {
 			$default = rtrim( JURI::root() , '/' ) . $config->get( 'avatars.default.user.' . $size );
 			return $default;
 		}

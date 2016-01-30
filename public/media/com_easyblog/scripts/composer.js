@@ -266,9 +266,9 @@ EasyBlog.require()
 
             start: function(interval) {
 
-                var keepalive = self.keepalive,
-                    interval = interval || opts.keepalive.interval
-
+                var keepalive = self.keepalive;
+                var interval = interval || opts.keepalive.interval;
+                
                 // Stop existing timer
                 keepalive.stop();
 

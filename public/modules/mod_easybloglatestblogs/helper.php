@@ -150,4 +150,32 @@ class modLatestBlogsHelper
 			return $model->getBloggers('latest', 0, 'showallblogger' , '', array(), $arrBloggers);
 		}
 	}
+
+	public static function formatPost(&$posts, &$params)
+	{
+		// Removing duplicate images for legacy image behavior.
+		$images = array();
+		foreach ($posts as $post) {
+			if ($post->posttype != 'quote' && $params->get('showintro', '-1') != '-1') { 
+				if ($params->get('photo_legacy', 0)) {
+					if ($post->protect) { 
+						$post->content = self::replaceImage($post->content);
+					}
+
+					if (!$post->protect) {
+						$post->summary = self::replaceImage($post->summary);
+					}
+				}
+	 		}
+		}
+	}
+
+	public static function replaceImage($content)
+	{
+		preg_match("/<img[^>]+\>/i", $content, $matches);
+		if ($matches) {
+			$content = str_replace($matches[0], '', $content);
+		}
+		return $content;
+	}
 }

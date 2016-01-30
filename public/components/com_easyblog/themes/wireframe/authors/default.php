@@ -223,12 +223,12 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php if ($this->params->get('author_categories', true)) { ?>
 						<div class="tab-pane eb-labels eb-stats-categories" id="categories-<?php echo $author->id;?>">
     						<?php if ($author->categories) { ?>
-    							<?php foreach ($author->categories as $categories) { ?>
-    							<a class="btn btn-default" href="<?php // echo $categories->getPermalink(); ?>">
+    							<?php foreach ($author->categories as $category) { ?>
+    							<a class="btn btn-default" href="<?php echo $category->getPermalink(); ?>">
     								<i class="fa fa-folder-open text-muted"></i>
     								&nbsp;
-    								<?php echo JText::_($categories->title ); ?>
-    								<b><?php echo JText::_($categories->post_count ); ?></b>
+    								<?php echo JText::_($category->title ); ?>
+    								<b><?php echo JText::_($category->post_count); ?></b>
     							</a>
     							<?php } ?>
     						<?php } else { ?>

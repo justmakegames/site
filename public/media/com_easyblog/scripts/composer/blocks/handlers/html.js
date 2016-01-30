@@ -32,6 +32,14 @@ EasyBlog.module("composer/blocks/handlers/html", function($) {
                 },
 
                 deactivate: function(block) {
+                    var blockContent = blocks.getBlockContent(block);
+
+                    var contents = blockContent.html();
+
+                    // If this is an empty content, we need to populate the placeholder text again.
+                    if (contents == "") {
+                        blockContent.html(meta.html);
+                    }
                 },
 
                 construct: function(block) {
@@ -41,6 +49,7 @@ EasyBlog.module("composer/blocks/handlers/html", function($) {
                 },
 
                 deconstruct: function(block) {
+
                 },
 
                 refocus: function(block) {
@@ -125,7 +134,6 @@ EasyBlog.module("composer/blocks/handlers/html", function($) {
                 },
 
                 sync: function() {
-
                     var editor = self.editor(composer);
                     var session = editor.getSession();
                     var blockContent = blocks.getBlockContent(currentBlock);

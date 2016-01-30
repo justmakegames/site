@@ -10,10 +10,11 @@
 defined('JPATH_BASE') or die;
 
 jimport('joomla.application.component.helper');
+jimport('joomla.filesystem.file');
 
 // Load the base adapter.
 $finderLibFile = JPATH_ADMINISTRATOR . '/components/com_finder/helpers/indexer/adapter.php';
-if (! JFile::exists($finderLibFile)) {
+if (!JFile::exists($finderLibFile)) {
 	return;
 }
 require_once $finderLibFile;
@@ -274,7 +275,8 @@ class plgFinderEasySocialPhotos extends FinderIndexerAdapter
 		if( $url )
 		{
 			$url 	= ltrim( $url , '/' );
-			$url 	= str_replace('administrator/index.php', 'index.php', $url );
+			// $url 	= str_replace('administrator/index.php', 'index.php', $url );
+			$url 	= str_replace('administrator/', '', $url );
 		}
 
 		return $url;

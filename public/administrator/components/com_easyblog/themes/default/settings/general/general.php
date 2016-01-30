@@ -59,6 +59,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <div class="form-group">
                     <label for="page_title" class="col-md-5">
+                        <?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_SEO_AUTOMATIC_APPEND_BLOG_TITLE_ENTRY_VIEW'); ?>
+
+                        <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_SEO_AUTOMATIC_APPEND_BLOG_TITLE_ENTRY_VIEW'); ?>"
+                            data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_SEO_AUTOMATIC_APPEND_BLOG_TITLE_ENTRY_VIEW_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+                    </label>
+
+                    <div class="col-md-7">
+                        <?php echo $this->html('grid.boolean', 'main_pagetitle_autoappend_entry', $this->config->get('main_pagetitle_autoappend_entry')); ?>
+                    </div>
+                </div>                
+
+                <div class="form-group">
+                    <label for="page_title" class="col-md-5">
                         <?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REQUIRE_LOGIN_TO_READ_FULL'); ?>
 
                         <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_REQUIRE_LOGIN_TO_READ_FULL'); ?>" 
@@ -194,6 +207,19 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php echo $this->html('grid.boolean', 'main_newblogonfrontpage', $this->config->get('main_newblogonfrontpage')); ?>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="page_title" class="col-md-5">
+                        <?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_DEFAULT_ALLOW_COMMENT'); ?>
+
+                        <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_DEFAULT_ALLOW_COMMENT'); ?>"
+                            data-content="<?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_DEFAULT_ALLOW_COMMENT_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+                    </label>
+
+                    <div class="col-md-7">
+                        <?php echo $this->html('grid.boolean', 'main_defaultallowcomment', $this->config->get('main_defaultallowcomment')); ?>
+                    </div>
+                </div>                
 
                 <div class="form-group">
                     <label for="page_title" class="col-md-5">

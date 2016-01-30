@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="row">
-    <div class="col-lg-6">
+    <div class="col-lg-8">
         <div class="panel">
             <div class="panel-head">
                 <b><?php echo JText::_('COM_EASYBLOG_BLOGGER_BLOG_SETTINGS');?></b>
@@ -21,14 +21,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <div class="panel-body">
                 <div class="form-group">
-                    <label for="page_title" class="col-md-4">
+                    <label for="page_title" class="col-md-3">
                         <?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_AVATAR'); ?>
 
                         <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_AVATAR'); ?>"
                             data-content="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_AVATAR_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
                     </label>
 
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <img id="user-avatar" src="<?php echo $author->getAvatar();?>" style="border: 1px solid #eee;" />
                         <?php if ($this->config->get('layout_avatar') && $this->config->get('layout_avatarIntegration') == 'default') { ?>
                             <input type="file" name="avatar" id="avatar" style="display: block;" size="65" />
@@ -37,80 +37,98 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </div>
 
                 <div class="form-group">
-                    <label for="page_title" class="col-md-4">
+                    <label for="page_title" class="col-md-3">
                         <?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PERMALINK'); ?>
 
                         <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PERMALINK'); ?>"
                             data-content="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PERMALINK_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
                     </label>
 
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <input class="form-control" type="text" name="user_permalink" id="user_permalink" value="<?php echo $this->html('string.escape', $author->permalink);?>" />
                         <div class="small"><?php echo JText::_( 'COM_EASYBLOG_BLOGGERS_EDIT_PERMALINK_USAGE' ); ?></div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="page_title" class="col-md-4">
+                    <label for="page_title" class="col-md-3">
                         <?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PAGE_TITLE'); ?>
 
                         <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PAGE_TITLE'); ?>"
                             data-content="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PAGE_TITLE_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
                     </label>
 
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <input class="form-control" id="title" name="title" value="<?php echo $this->html('string.escape', $author->title);?>" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="page_title" class="col-md-4">
+                    <label for="page_title" class="col-md-3">
                         <?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PAGE_DESCRIPTION'); ?>
 
                         <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PAGE_DESCRIPTION'); ?>"
                             data-content="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_PAGE_DESCRIPTION_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
                     </label>
 
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <textarea name="description" class="form-control"><?php echo $author->getDescription(true);?></textarea>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="page_title" class="col-md-4">
+                    <label for="page_title" class="col-md-3">
                         <?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_WEBSITE'); ?>
 
                         <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_WEBSITE'); ?>"
                             data-content="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_WEBSITE_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
                     </label>
 
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <input class="form-control" type="text" name="url" id="url" value="<?php echo $this->html('string.escape', $author->url);?>" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="page_title" class="col-md-4">
+                    <label for="page_title" class="col-md-3">
+                        <?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_BLOG_THEMES'); ?>
+
+                        <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_BLOG_THEMES'); ?>"
+                            data-content="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_BLOG_THEMES');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
+                    </label>
+                    
+                    <div class="col-md-8">
+                        <select name="theme" class="form-control">
+                            <option value="global"><?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_BLOG_THEMES_THEME_GLOBAL');?></option>
+                            <?php foreach ($multithemes->availableThemes as $theme) { ?>
+                                <option value="<?php echo $theme;?>"<?php echo $multithemes->selectedTheme == $theme ? ' selected="selected"' : '';?>><?php echo ucfirst($theme);?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="page_title" class="col-md-3">
                         <?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_NICKNAME'); ?>
 
                         <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_NICKNAME'); ?>"
                             data-content="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_NICKNAME_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
                     </label>
 
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <input class="form-control" type="text" id="nickname" name="nickname" value="<?php echo $this->html('string.escape', $author->nickname);?>" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="page_title" class="col-md-4">
+                    <label for="page_title" class="col-md-3">
                         <?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_BIOGRAPHY_INFO'); ?>
 
                         <i data-html="true" data-placement="top" data-title="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_BIOGRAPHY_INFO'); ?>"
                             data-content="<?php echo JText::_('COM_EASYBLOG_BLOGGERS_EDIT_BIOGRAPHY_INFO_DESC');?>" data-eb-provide="popover" class="fa fa-question-circle pull-right"></i>
                     </label>
 
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <?php echo $editor->display('biography', $author->getBiography(true) , '100%', '200', '10', '10' , array('pagebreak','ninjazemanta','image','readmore' , 'article') ); ?>
                     </div>
                 </div>
@@ -118,7 +136,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         <div class="panel">
             <div class="panel-head">
                 <b><?php echo JText::_('COM_EASYBLOG_BLOGGERS_FORM_SOCIAL_FACEBOOK');?></b>

@@ -356,7 +356,7 @@ class SocialTableFile extends SocialTable
 	/**
 	 * Returns the absolute uri to the item.
 	 *
-	 * @since	1.0
+	 * @since	1.4
 	 * @access	public
 	 * @param	null
 	 * @return	string		The absolute URI to the current item.
@@ -364,18 +364,21 @@ class SocialTableFile extends SocialTable
 	public function getURI()
 	{
 		$config = ES::config();
-
-		if ($this->type == 'comments') {
-			$storagePath = rtrim(ES::cleanPath($config->get('comments.storage')), '/');	
-			$uri = rtrim(JURI::root(), '/');
-
-		} else {
-			$storagePath = rtrim(ES::cleanPath($config->get('files.storage.' . $this->type . '.container')), '/');
-			$uri = rtrim(JURI::root(), '/') . '/' . FD::cleanPath($config->get('files.storage.container'));
-		}
 		
-		$uri =  $uri . '/' . $storagePath . '/' . $this->uid . '/' . $this->hash;
-		
+		if ($this->storage != 'joomla') {
+
+			$storage = FD::storage($this->storage);
+			$path = $this->getStoragePath(true);
+			$path = $path . '/' . $this->hash;
+
+			return $storage->getPermalink($path);
+
+		} 
+
+		$path = $this->getStoragePath(true);
+		$path = $path . '/' . $this->hash;
+		$uri = rtrim(JURI::root(), '/') . $path;
+
 		return $uri;
 	}
 

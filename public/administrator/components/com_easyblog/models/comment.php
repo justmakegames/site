@@ -389,12 +389,11 @@ class EasyBlogModelComment extends EasyBlogAdminModel
 	 */
 	public static function like($id, $userId = null)
 	{
-		$config 	= EasyBlogHelper::getConfig();
-		$user   = JFactory::getUser($userId);
+		$config = EB::getConfig();
+		$user = JFactory::getUser($userId);
 		$userId = $user->id;
 
-
-		$date  = EB::date();
+		$date = EB::date();
 		$likes = EB::table('Likes');
 
 		// Check if the likes already exists
@@ -407,7 +406,7 @@ class EasyBlogModelComment extends EasyBlogAdminModel
 		$likes->type = 'comment';
 		$likes->content_id = $id;
 		$likes->created_by = $userId;
-		$likes->created    = $date->toSql();
+		$likes->created = $date->toSql();
 
 		$likes->store();
 
@@ -418,25 +417,25 @@ class EasyBlogModelComment extends EasyBlogAdminModel
 			$likeActor 	= EB::user($userId);
 
 			$model = EB::model('Comment');
-			$notification 	= EasyBlogHelper::getHelper( 'Notification' );
-			$commentObj		= $model->getComment($id);
-			$commentAuthor	= JFactory::getUser($commentObj->created_by);
+			$notification = EB::notification();
+			$commentObj	= $model->getComment($id);
+			$commentAuthor = JFactory::getUser($commentObj->created_by);
 
-			$obj 				= new stdClass();
-			$obj->unsubscribe	= false;
-			$obj->email 		= $commentAuthor->email;
+			$obj = new stdClass();
+			$obj->unsubscribe = false;
+			$obj->email = $commentAuthor->email;
 
-			$emails[ $commentAuthor->email ]	= $obj;
+			$emails[$commentAuthor->email] = $obj;
 
-			$data	= array(
-					'commentLikedActor'			=> $likeActor->getName(),
-					'commentContent'	=> $commentObj->comment,
+			$data = array(
+					'commentLikedActor' => $likeActor->getName(),
+					'commentContent' => $commentObj->comment,
 					'commentLikedActorAvatar' => $likeActor->getAvatar(),
-					'commentDate'		=> $date->toSql(),
-					'commentLink'		=> EasyBlogRouter::getRoutedURL( 'index.php?option=com_easyblog&view=entry&id='. $commentObj->post_id, false, true) . '#comment-' . $id
-				);
+					'commentDate' => $date->toSql(),
+					'commentLink' => EB::_('index.php?option=com_easyblog&view=entry&id='. $commentObj->post_id, false, true) . '#comment-' . $id
+			);
 
-			$notification->send( $emails , JText::_( 'COM_EASYBLOG_NOTIFICATION_NEW_LIKE' ) , 'email.comment.like' , $data );
+			$notification->send($emails ,JText::_('COM_EASYBLOG_NOTIFICATION_NEW_LIKE') ,'comment.like' ,$data);
 		}
 
 		return $likes;

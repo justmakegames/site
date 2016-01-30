@@ -71,4 +71,24 @@ class SocialTableStreamTags extends SocialTable
 					 'length' 	=> $this->length
 		 );
 	}
+
+	/**
+	 * Load stream tags by title
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function loadByTitle($title)
+	{
+		$db = FD::db();
+		$query = 'SELECT * FROM ' . $db->nameQuote($this->_tbl);
+		$query .= ' WHERE ' . $db->nameQuote('title') . '=' . $db->Quote($title);
+
+		$db->setQuery($query);
+		$data = $db->loadObject();
+
+		return parent::bind($data);
+	}
 }

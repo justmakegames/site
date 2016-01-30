@@ -55,6 +55,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<input class="form-control" id="url" type="text" name="url" size="50" value="<?php echo $this->escape($profile->url); ?>" />
 				</div>
 			</div>
+			<?php if ($this->acl->get('allow_user_permalink', 1)) { ?>
 			<div class="form-group">
 				<label  class="col-md-3 control-label"><?php echo JText::_('COM_EASYBLOG_DASHBOARD_BLOGGER_PERMALINK');?></label>
 				<div class="col-md-5">
@@ -65,6 +66,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<div class="small"><?php echo JText::_('COM_EASYBLOG_DASHBOARD_ACCOUNT_NOTICE_PERMALINK_USAGE')?></div>
 				</div>
 			</div>
+			<?php } ?>
 			<?php if ($multithemes->enable) { ?>
 			<div class="form-group">
 				<label  class="col-md-3 control-label"><?php echo JText::_('COM_EASYBLOG_DASHBOARD_BLOGGER_SELECT_THEME'); ?></label>

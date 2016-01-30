@@ -247,8 +247,10 @@ class SocialSearch
 					$obj->link		= JRoute::_( $row->route );
 				}
 
-				// ensure there is a leading slash.
-				$obj->link = '/'. ltrim($obj->link,'/');
+				// ensure there is a leading slash provided there is no protocol in the url
+				if (stristr($obj->link, 'http://') === false && stristr($obj->link, 'https://') === false) {
+					$obj->link = '/'. ltrim($obj->link,'/');
+				}
 
 
 				$obj->image 	= '';

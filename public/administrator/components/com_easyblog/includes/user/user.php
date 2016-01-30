@@ -234,13 +234,8 @@ class EasyBlogUser
 
 						$data = get_object_vars($user);
 
-						$jUser = new JUser();
-						$jUser->bind($data);
-
-						$obj->user = $jUser;
-
 						// JFactory::getUser() might load extra data that may not used in easyblog profile object. for now, we will jz use binding to bind the require data only.
-						// $obj->user = JFactory::getUser($user->id);
+						$obj->user = JFactory::getUser($user->id);
 					}
 
 					EasyBlogUserStorage::$users[$user->id]	= $obj;

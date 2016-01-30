@@ -62,6 +62,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="form-group">
 				<input type="text" class="form-control" id="esusername" name="esusername" placeholder="<?php echo JText::_('COM_EASYBLOG_USERNAME', true);?>" data-comment-username/>
 			</div>
+
+			<div class="form-group">
+				<input type="password" class="form-control" id="espassword" name="espassword" placeholder="<?php echo JText::_('COM_EASYBLOG_PASSWORD', true);?>" data-comment-password/>
+			</div>
 			<?php } ?>
 
 			<div class="form-group">
@@ -95,8 +99,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php } ?>
 
 		<?php if ($subscribed) { ?>
-		<div class="eb-checkbox">
-			<div id="unsubscription-message" class="unsubscription-message"><?php echo JText::_('COM_EASYBLOG_ENTRY_AUTO_SUBSCRIBE_SUBSCRIBED_NOTE'); ?> <a href="javascript:void(0);" title="" data-blog-unsubscribe data-type="entry" data-id="<?php echo $blog->id;?>" data-email="<?php echo $this->my->email;?>"><?php echo JText::_('COM_EASYBLOG_UNSUBSCRIBE_BLOG'); ?></a></div>
+		<div>
+			<div id="unsubscription-message" class="unsubscription-message">
+				<?php echo JText::_('COM_EASYBLOG_ENTRY_AUTO_SUBSCRIBE_SUBSCRIBED_NOTE'); ?> 
+				<a href="javascript:void(0);" title="" data-blog-unsubscribe data-type="entry" data-subscription-id="<?php echo $subscribed;?>"><?php echo JText::_('COM_EASYBLOG_UNSUBSCRIBE_BLOG'); ?></a>
+			</div>
 		</div>
 		<?php } ?>
 

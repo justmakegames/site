@@ -70,7 +70,8 @@ class EasyBlogControllerAddonsInstallPlugin extends EasyBlogSetupController
             $plugin = JTable::getInstance('Extension');
             $plugin->load($options);
 
-            $plugin->state = true;
+            // set the state to 0 means 'installed'.
+            $plugin->state = 0;
             $plugin->enabled = ($group == 'easyblog' && $element == 'autoarticle') ? false : true;
             $plugin->store();
         }

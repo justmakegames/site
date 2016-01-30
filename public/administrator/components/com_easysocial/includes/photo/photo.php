@@ -20,56 +20,53 @@ class SocialPhoto
 	 * The current unique owner of the item
 	 * @var	int
 	 */
-	public $uid 	= null;
+	public $uid = null;
 
 	/**
 	 * The current unique string of the item
 	 * @var	string
 	 */
-	public $type 	= null;
+	public $type = null;
 
 	/**
 	 * The adapter for photo
 	 * @var	string
 	 */
-	public $adapter 	= null;
+	public $adapter = null;
 
 	/**
 	 * The album's library
 	 * @var	SocialAlbums
 	 */
-	public $albumLib 	= null;
+	public $albumLib = null;
 
 	/**
 	 * The table mapping for the photo.
 	 * @var	SocialTablePhoto
 	 */
-	public $data		= null;
+	public $data = null;
 
 	/**
 	 * The error message
 	 * @var	string
 	 */
-	public $error		= null;
+	public $error = null;
 
-	public function __construct( $uid , $type , $id = null )
+	public function __construct($uid, $type, $id = null)
 	{
-		if( $id instanceof SocialTablePhoto )
-		{
-			$this->data 	= $id;
-		}
-		else
-		{
-			$table	= FD::table( 'Photo' );
-			$table->load( $id );
+		if ($id instanceof SocialTablePhoto) {
+			$this->data = $id;
+		} else {
+			$table = FD::table('Photo');
+			$table->load($id);
 
-			$this->data 	= $table;
+			$this->data = $table;
 		}
 
-		$this->uid 		= $uid;
-		$this->type 	= $type;
+		$this->uid = $uid;
+		$this->type = $type;
 		$this->albumLib = $this->album();
-		$this->adapter 	= $this->getAdapter( $type );
+		$this->adapter = $this->getAdapter($type);
 
 		// Update renderItemOptions to reflect configurable options
 		$config = FD::config();

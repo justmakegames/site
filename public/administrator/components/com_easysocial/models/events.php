@@ -230,7 +230,7 @@ class EasySocialModelEvents extends EasySocialModel
 
         // Time filter
         // Filter by past, ongoing, or upcoming
-        $now = FD::date()->toSql();
+        $now = FD::date()->toSql(true);
         if (!empty($options['past'])) {
             $q[] = "AND (";
 
@@ -467,7 +467,7 @@ class EasySocialModelEvents extends EasySocialModel
 
         // Time filter
         // Filter by past, ongoing, or upcoming
-        $now = FD::date()->toSql();
+        $now = FD::date()->toSql(true);
         if (!empty($options['past'])) {
             $sql->where('(');
 

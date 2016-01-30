@@ -459,7 +459,7 @@ class SocialFieldsUserJoomla_fullname extends SocialFieldItem
 		$this->displayForm($post, $default);
 
 		$error = $this->getError($errors);
-		
+
 
 		$this->set('error', $error);
 
@@ -516,7 +516,7 @@ class SocialFieldsUserJoomla_fullname extends SocialFieldItem
 
 		// linkage to advanced search page.
 		$field = $this->field;
-		if ($field->searchable) {
+		if ($field->type == SOCIAL_FIELDS_GROUP_USER &&  $field->searchable) {
 			$params = array( 'layout' => 'advanced' );
 			$params['criterias[]'] = $field->unique_key . '|' . $field->element;
             $params['datakeys[]'] = 'first';

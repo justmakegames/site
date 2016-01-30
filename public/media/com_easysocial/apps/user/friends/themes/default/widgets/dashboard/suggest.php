@@ -19,7 +19,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
 	</div>
 	<div class="es-widget-body<?php echo !$friends ? ' is-empty' : '';?>">
 		<?php if( $friends ){ ?>
-		<ul class="widget-list es-nav es-nav-stacked es-friends-suggestion-list">
+		<ul class="widget-list es-friends-suggestion-list">
 			<?php foreach( $friends as $item ){
 
 				$cntText = '';

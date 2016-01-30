@@ -110,7 +110,8 @@ class SocialGroupAppEvents extends SocialAppItem
         // Set a default params for this event first
         $event->params = '{"photo":{"albums":true},"news":true,"discussions":true,"allownotgoingguest":false,"allowmaybe":true,"guestlimit":0}';
 
-        $event->type = SOCIAL_EVENT_TYPE_PUBLIC;
+        // event type will always follow group type
+        $event->type = FD::group($template->cluster_id)->type;
         $event->creator_uid = $my->id;
         $event->creator_type = SOCIAL_TYPE_USER;
         $event->category_id = $categoryid;

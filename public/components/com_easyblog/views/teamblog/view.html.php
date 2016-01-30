@@ -109,9 +109,6 @@ class EasyBlogViewTeamBlog extends EasyBlogView
 		// Get the pagination
 		$pagination	= $model->getPagination();
 
-		// Retrieve team's information
-		$members = $model->getTeamMembers($team->id);
-
 		// Determines if the team blog is featured
 		$team->isFeatured = EB::isFeatured('teamblog', $team->id);
 
@@ -127,7 +124,6 @@ class EasyBlogViewTeamBlog extends EasyBlogView
 
 		$this->set('return', $return);
 		$this->set('team', $team);
-		$this->set('members', $members);
 		$this->set('pagination', $pagination->getPagesLinks());
 		$this->set('posts', $posts);
 		$this->set('isTeamSubscribed', $isTeamSubscribed);

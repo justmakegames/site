@@ -67,7 +67,7 @@ if (isset($id) && $id) {
 				data-type="latest"
 				class="btn btn-es<?php echo $sort == 'latest' ? ' active' : '';?>">
 				<i class="fa fa-fire "></i>
-				Recently Registered
+				<?php echo JText::_('COM_EASYSOCIAL_USERS_SORT_RECENTLY_REGISTERED');?>
 			</a>
 			<a href="<?php echo FRoute::users( array_merge( array( 'filter' => $filter , 'sort' => 'lastlogin' ), $idArray) );?>"
 				data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_USERS_SORT_LASTLOGIN' );?>"
@@ -77,7 +77,7 @@ if (isset($id) && $id) {
 				data-type="lastlogin"
 				class="btn btn-es<?php echo $sort == 'lastlogin' ? ' active' : '';?>">
 				<i class="fa fa-sign-in "></i>
-				Recently Logged In
+				<?php echo JText::_('COM_EASYSOCIAL_USERS_SORT_RECENTLY_LOGGED_IN');?>
 			</a>
 			<a href="<?php echo FRoute::users( array_merge( array( 'filter' => $filter , 'sort' => 'alphabetical' ), $idArray) );?>"
 				data-original-title="<?php echo JText::_( 'COM_EASYSOCIAL_USERS_SORT_ALPHABETICAL' );?>"
@@ -88,7 +88,7 @@ if (isset($id) && $id) {
 				data-apps-sort=""
 				class="btn btn-es trending<?php echo $sort == 'alphabetical' ? ' active' : '';?>">
 				<i class="fa fa-sort-alpha-asc"></i>
-				Name
+				<?php echo JText::_('COM_EASYSOCIAL_USERS_SORT_NAME');?>
 			</a>
 		</div>
 	</div>

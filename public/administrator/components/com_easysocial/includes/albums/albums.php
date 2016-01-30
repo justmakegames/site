@@ -155,6 +155,14 @@ class SocialAlbums extends JObject
 		return $albums;
 	}
 
+	/**
+	 * Retrieves photos
+	 *
+	 * @since	1.4.6
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function getPhotos( $albumId, $options = array() )
 	{
 		$config	= FD::config();
@@ -163,7 +171,7 @@ class SocialAlbums extends JObject
 
 		$limit = isset( $options['limit'] ) ? $options['limit'] : $config->get( 'photos.pagination.photo' );
 
-		$model = FD::model( 'photos' );
+		$model = FD::model('photos');
 
 		$counter = 0;
 
@@ -171,13 +179,10 @@ class SocialAlbums extends JObject
 
 		$photos = array();
 
-		$privacy 	= FD::privacy( FD::user()->id );
-
 		$isPrivacyRequired = isset($options['privacy']) ? $options['privacy'] : false;
 
+		while ($counter < $limit) {
 
-		while( $counter < $limit )
-		{
 			$tmpLimit = $isPrivacyRequired ? $limit + 1 : $limit;
 			$newPhotos = $model->getPhotos( array( 'album_id' => $albumId, 'start' => $nextStart, 'limit' => $tmpLimit , 'state' => SOCIAL_STATE_PUBLISHED, 'privacy' => $isPrivacyRequired ) );
 

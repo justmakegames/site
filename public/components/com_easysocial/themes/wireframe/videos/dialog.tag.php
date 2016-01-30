@@ -28,7 +28,8 @@ defined('_JEXEC') or die('Unauthorized Access');
             // Implement friend suggest.
             this.suggest()
                 .addController("EasySocial.Controller.Friends.Suggest", {
-                    includeSelf: true
+                    includeSelf: true,
+                    showNonFriend: false
                     <?php if ($exclusion) { ?>
                     ,exclusion: <?php echo FD::json()->encode($exclusion); ?>
                     <?php } ?>

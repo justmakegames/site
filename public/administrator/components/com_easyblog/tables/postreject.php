@@ -1,4 +1,4 @@
-<?php
+ktes<?php
 /**
 * @package		EasyBlog
 * @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
@@ -78,12 +78,15 @@ class EasyBlogTablePostReject extends EasyBlogTable
 
 		// Get the author
 		$author = $this->getAuthor();
+		
+		$blogEditLink = rtrim(JURI::root(), '/') . '/' . $post->getEditLink(false);
 
 		$data = array();
 		$data['blogTitle'] = $post->title;
 		$data['blogAuthor'] = $author->getName();
 		$data['blogAuthorAvatar'] = $author->getAvatar();
-		$data['blogEditLink'] = $post->getEditLink(false);
+		$data['blogLink'] = $post->getExternalPermalink();
+		$data['blogEditLink'] = $blogEditLink;
 		$data['blogAuthorEmail'] = $author->user->email;
 		$data['rejectMessage'] = $this->message;
 

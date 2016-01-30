@@ -266,15 +266,24 @@ class EasyBlogModelTeamBlogs extends EasyBlogAdminModel
 	{
 		$db = EB::db();
 		$userId = JFactory::getUser($id)->id;
+		$groupIds = EB::getUserGids($userId);
 
 		$query = array();
-		$query[] = 'SELECT b.* FROM ' . $db->quoteName('#__easyblog_team_users') . ' AS a';
-		$query[] = 'LEFT JOIN ' . $db->quoteName('#__easyblog_team') . ' AS b';
-		$query[] = 'ON a.' . $db->quoteName('team_id') . '= b.' . $db->quoteName('id');
-		$query[] = 'WHERE a.' . $db->quoteName('user_id') . '=' . $db->Quote($userId);
-		$query[] = 'AND b.' . $db->quoteName('published') . '=' . $db->Quote(1);
+
+		$query[] = 'SELECT a.* FROM ' . $db->qn('#__easyblog_team') . ' AS a';
+		$query[] = 'LEFT JOIN ' . $db->qn('#__easyblog_team_users') . ' AS b';
+		$query[] = 'ON b.' . $db->qn('team_id') . ' = a.' . $db->qn('id');
+		$query[] = 'LEFT JOIN ' . $db->qn('#__easyblog_team_groups') . ' AS c';
+		$query[] = 'ON a.' . $db->qn('id') . ' = c.' . $db->qn('team_id');
+		$query[] = 'WHERE (';
+		$query[] = 'b.' . $db->qn('user_id') . '=' . $db->Quote($userId) . ' OR c.' . $db->qn('group_id') . ' IN(' . implode(',', $groupIds) . ')';
+		$query[] = ')';
+		$query[] = 'AND a.' . $db->qn('published') . '=' . $db->Quote(1);
 
 		$query = implode(' ', $query);
+
+		// echo str_ireplace('#__', 'jos_', $query);
+		// exit;
 
 		$db->setQuery($query);
 		$result = $db->loadObjectList();

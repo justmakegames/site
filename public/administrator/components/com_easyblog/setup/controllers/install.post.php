@@ -42,6 +42,9 @@ class EasyBlogControllerInstallPost extends EasyBlogSetupController
 		// Create blog category
 		$results[] = $this->createDefaultCategory();
 
+		// Check and assign default blog category.
+		$results[] = $this->assignDefaultCategory();
+
 		// Install blocks
 		$results[] = $this->installBlocks();
 
@@ -316,15 +319,74 @@ class EasyBlogControllerInstallPost extends EasyBlogSetupController
 		$category->created_by = $my->id;
 		$category->created = EB::date()->toSql();
 		$category->status = true;
-		$category->published = true;
+		$category->published = 1;
 		$category->ordering = 1;
 		$category->lft = 1;
 		$category->rgt = 2;
-		$category->default = true;
+		$category->default = 1;
 
 		$category->store();
 		return $this->getResultObj(JText::_('COM_EASYBLOG_INSTALLATION_DEFAULT_CATEGORY_CREATED'), true );
 	}
+
+
+	/**
+	 * Check and assign a default category for the site.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function assignDefaultCategory()
+	{
+		$this->engine();
+
+		// Skip this when we are on development mode
+		if ($this->isDevelopment()) {
+			return;
+		}
+
+		// Check if there are already categories created
+        $state = true;
+		$db = EB::db();
+
+        // lets check if there is any default category assigned or not.
+        $query = "select a.`id` from `#__easyblog_category` as a where a.`published` = 1 and a.`default` = 1";
+        $db->setQuery($query);
+
+        $result = $db->loadResult();
+
+        if (! $result) {
+            $query = "select a.`id`, count(b.`id`) as `cnt` from `#__easyblog_category` as a";
+            $query .= " left join `#__easyblog_post_category` as b on a.`id` = b.`category_id`";
+            $query .= " where a.`published` = 1";
+            $query .= " group by a.`id`";
+            $query .= " order by cnt desc";
+            $query .= " limit 1";
+
+            $db->setQuery($query);
+            $id = $db->loadResult();
+
+            // now we make sure no other categories which previously marked as default but its unpublished.
+            $update = "update `#__easyblog_category` set `default` = 0";
+            $db->setQuery($update);
+
+            // now let update this category as default category
+            $update = "update `#__easyblog_category` set `default` = 1 where `id` = " . $db->Quote($id);
+            $db->setQuery($update);
+            $state = $db->query();
+        }
+
+        $msg = 'COM_EASYBLOG_INSTALLATION_DEFAULT_CATEGORY_ASSIGNED';
+        if (! $state) {
+        	$mg = 'COM_EASYBLOG_INSTALLATION_DEFAULT_CATEGORY_ASSIGN_FAILED';
+        }
+
+		return $this->getResultObj(JText::_($msg), true );
+	}
+
+
 
 	/**
 	 * Create a sample post on the site
@@ -413,6 +475,8 @@ class EasyBlogControllerInstallPost extends EasyBlogSetupController
 		$data->doctype = 'ebd';
 		$data->source_type = 'easyblog.sitewide';
 
+		$post->create();
+
 		$post->bind($data);
 
 		$options = array('validateData' => false,
@@ -443,6 +507,18 @@ class EasyBlogControllerInstallPost extends EasyBlogSetupController
 		}
 
 		$db = EB::db();
+
+		// Intelligent fix to delete all records from the #__easyblog_acl_group when it contains ridiculous amount of entries
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__easyblog_acl_group');
+		$db->setQuery($query);
+
+		$total = $db->loadResult();
+
+		if ($total > 20000) {
+			$query = 'DELETE FROM ' . $db->nameQuote('#__easyblog_acl_group');
+			$db->setQuery($query);
+			$db->Query();
+		}
 
 		// First, remove all records from the acl table.
 		$query = 'DELETE FROM ' . $db->nameQuote('#__easyblog_acl');

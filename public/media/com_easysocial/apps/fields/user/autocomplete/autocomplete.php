@@ -205,4 +205,78 @@ class SocialFieldsUserAutocomplete extends SocialFieldItem
 
 		return $this->display();
 	}
+
+	/**
+	 * To get the correct field value based on the input value.
+	 *
+	 * @since	1.4
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function onEditBeforeSave(&$post, &$user)
+	{
+		$post[$this->inputName] = $this->autoCompleteSave($post);
+		return true;
+	}
+
+	public function onRegisterBeforeSave(&$post, &$user)
+	{
+		$post[$this->inputName] = $this->autoCompleteSave($post);
+		return true;
+	}
+
+	public function onAdminBeforeSave(&$post, &$user)
+	{
+		$post[$this->inputName] = $this->autoCompleteSave($post);
+		return true;
+	}
+
+
+	public function autoCompleteSave($post)
+	{
+		$value = isset($post[$this->inputName]) ? $post[$this->inputName] : '';
+
+		if (!$value) {
+			return false;
+		}
+
+		// Since all the value is being set as the field id, we need to get the proper value
+		$valueObj = json_decode($value);
+
+		// If the value is not a proper json string, we should just skip this
+		if (!$valueObj) {
+			return false;
+		}
+
+		$result = array();
+
+		if (is_array($valueObj)) {
+
+			foreach ($valueObj as $optionValue) {
+				if ($optionValue) {
+
+					// Check if the id is valid integer
+					$optionId = (int) $optionValue;
+
+					// If null, that's mean the value is string and we should respect that.
+					if (!$optionId) {
+						$result[] = $optionValue;
+						continue;
+					}
+
+					// If the id is integer, try to get the correct value based on option id.
+					$option = ES::table('FieldOptions');
+					$option->load(array('id' => $optionId, 'parent_id' => $this->field->id));
+
+					// Append the value in array.
+					$result[] = $option->value;
+				}
+			}
+		}
+
+		// Encode the data into json string.
+		$result = json_encode($result);
+		return $result;
+	}
 }

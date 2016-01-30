@@ -980,6 +980,11 @@ class EasySocialModelFields extends EasySocialModel
 			$sql->where('b.group', $options['appgroup']);
 		}
 
+		// Test for unique key.
+		if (isset($options['element'])) {
+			$sql->where('b.element', $options['element']);
+		}
+
 		// Ordering should by default ordered by `ordering` column.
 		$sql->order( 'd.sequence' );
 		$sql->order( 'a.ordering' );

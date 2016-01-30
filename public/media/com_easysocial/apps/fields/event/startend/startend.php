@@ -277,8 +277,8 @@ class SocialFieldsEventStartend extends SocialFieldItem
 
         $timezone = !empty($post['startendTimezone']) ? $post['startendTimezone'] : '';
 
-        // Check for timezone
-        if (!empty($timezone) && $timezone !== 'UTC') {
+        // Check for timezone. If the timezone has been changed, get the new startend date
+        if ((!empty($timezone) && $timezone !== 'UTC') && $timezone != $node->getEventTimezone()) {
             $dtz = new DateTimeZone($timezone);
 
             // Creates a new datetime string with user input timezone as predefined timezone

@@ -96,7 +96,7 @@ class SocialFieldsGroupPermalink extends SocialFieldItem
 	 * @param	string
 	 * @return
 	 */
-	public function validate($post, $group = null)
+	public function validate($post, $group = null, $isCopy = false)
 	{
 		$key 	= $this->inputName;
 
@@ -135,6 +135,21 @@ class SocialFieldsGroupPermalink extends SocialFieldItem
 			}
 		}
 
+		if ($isCopy) {
+			// lets auto append the alias so that there will not be any conflict.
+			$i = 0;
+			$iterate = true;
+			do {
+				if (SocialFieldsGroupPermalinkHelper::exists($value)) {
+					$value = $value . '-' . ++$i;
+				} else {
+					$iterate = false;
+				}
+			} while ($iterate);
+
+			// var_dump($value);
+		}
+
 		if (SocialFieldsGroupPermalinkHelper::exists($value)) {
 			$this->setError(JText::_('PLG_FIELDS_GROUP_PERMALINK_NOT_AVAILABLE'));
 
@@ -145,6 +160,11 @@ class SocialFieldsGroupPermalink extends SocialFieldItem
 			$this->setError(JText::_('PLG_FIELDS_GROUP_PERMALINK_INVALID_PERMALINK'));
 
 			return false;
+		}
+
+		// now lets reset the value is this is a copy operation.
+		if ($isCopy) {
+			$post[$key] = $value;
 		}
 
 		return true;
@@ -179,9 +199,9 @@ class SocialFieldsGroupPermalink extends SocialFieldItem
 	 *
 	 * @author	Jason Rey <jasonrey@stackideas.com>
 	 */
-	public function onEditValidate(&$post, &$group)
+	public function onEditValidate(&$post, &$group, $isCopy = false)
 	{
-		$state 	= $this->validate($post, $group);
+		$state 	= $this->validate($post, $group, $isCopy);
 
 		return $state;
 	}

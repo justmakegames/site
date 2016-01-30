@@ -132,6 +132,14 @@ class EasySocialControllerLikes extends EasySocialController
 			if ($state && $useStreamId) {
 				$stream = ES::stream();
 				$stream->revertLastAction($streamId, $this->my->id, SOCIAL_STREAM_LAST_ACTION_LIKE);
+
+				// Assign unlike points to the stream author.
+				$streamActor = $stream->getStreamActor($streamId);
+
+				// Check if user trying to unlike his own post, do not deduct the points.
+				if ($streamActor->id != $this->my->id) {
+					ES::points()->assign('post.unlike', 'com_easysocial', $streamActor->id);
+				}
 			}
 
 		} else {
@@ -157,6 +165,14 @@ class EasySocialControllerLikes extends EasySocialController
 				if ($doUpdate) {
 					$stream = ES::stream();
 					$stream->updateModified($streamId, $this->my->id, SOCIAL_STREAM_LAST_ACTION_LIKE);
+
+					// Assign like points to the stream author.
+					$streamActor = $stream->getStreamActor($streamId);
+
+					// Check if user trying to like his own post, do not add points.
+					if ($streamActor->id != $this->my->id) {
+						ES::points()->assign('post.like', 'com_easysocial', $streamActor->id);
+					}
 				}
 			}
 		}

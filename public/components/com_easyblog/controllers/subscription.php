@@ -23,9 +23,6 @@ class EasyBlogControllerSubscription extends EasyBlogController
 	 */
 	public function unsubscribe()
 	{
-		// Check for request forgeries
-		EB::checkToken();
-
 		// Default redirection url
 		$redirect = EBR::_('index.php?option=com_easyblog&view=subscription', false);
 
@@ -34,9 +31,15 @@ class EasyBlogControllerSubscription extends EasyBlogController
 			$redirect = EBR::_('index.php?option=com_easyblog', false);
 		}
 
-		$return = $this->getReturnURL();
+		$return = $this->input->get('return', '', 'raw');
 
 		if ($return) {
+
+			// Check if the url is base64 encoded, we need to decode it.
+			if (base64_encode(base64_decode($return, true)) === $return){
+				$return = base64_decode($return);
+			}
+
 			$redirect = $return;
 		}
 
@@ -46,6 +49,12 @@ class EasyBlogControllerSubscription extends EasyBlogController
 
 		// Load up the subscription if id is provided
 		if ($id) {
+
+			// we now this is coming from frontend manage subscription page. lets check for the token.
+			// Check for request forgeries
+			EB::checkToken();
+
+			// lets load the subscription details.
 			$subscription->load($id);
 
 			// Verify if the user really has access to unsubscribe for guests

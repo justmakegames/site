@@ -26,6 +26,7 @@ class JFormFieldCover extends EasyBlogFormField
 		$full = (int) $this->element['full'];
 		$width = (int) $this->element['defaultwidth'];
 		$height = (int) $this->element['defaultheight'];
+		$alignment = (string) $this->element['alignment'];
 
 		$hideFull = (int) $this->element['disablefull'];
 
@@ -45,6 +46,10 @@ class JFormFieldCover extends EasyBlogFormField
 
 			if (isset($this->value['full'])) {
 				$full = true;
+			}
+
+			if (isset($this->value['alignment'])) {
+				$alignment = (string) $this->value['alignment'];
 			}
 
 			// User did not want to crop.
@@ -69,6 +74,7 @@ class JFormFieldCover extends EasyBlogFormField
 		$theme->set('crop', $crop);
 		$theme->set('width', $width);
 		$theme->set('height', $height);
+		$theme->set('alignment', $alignment);
 
 		$output = $theme->output('admin/elements/cover');
 

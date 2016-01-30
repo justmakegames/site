@@ -58,7 +58,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
             </h4>
 
             <p class="mb-10 mt-10 blog-description">
-                <?php echo $this->html('string.truncater', $event->getDescription(), 250);?>
+                <?php echo $this->html('string.truncater', strip_tags($event->getDescription()), 250);?>
             </p>
 
             <div class="stream-apps-meta mt-5">

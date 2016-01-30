@@ -107,7 +107,7 @@ class PlgContentEasySocial extends JPlugin
 		$itemId = $this->app->input->get('id', 0, 'int');
 
 		if (!empty($ip) && !empty($itemId) && $view == 'article') {
-			
+
 			$token = md5($ip . $itemId);
 			$session = JFactory::getSession();
 			$exists	= $session->get($token , false);
@@ -151,9 +151,9 @@ class PlgContentEasySocial extends JPlugin
 	 * @since	1.4
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
-	public function onContentAfterTitle($context, &$article, &$params) 
+	public function onContentAfterTitle($context, &$article, &$params)
 	{
 		$pluginParams = $this->getPluginParams();
 
@@ -172,9 +172,9 @@ class PlgContentEasySocial extends JPlugin
 	 * @since	1.4
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
-	public function onContentBeforeDisplay($context, &$article, &$params) 
+	public function onContentBeforeDisplay($context, &$article, &$params)
 	{
 		$pluginParams = $this->getPluginParams();
 
@@ -193,7 +193,7 @@ class PlgContentEasySocial extends JPlugin
 	 * @since	1.4
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	/**
 	 * Renders the author's box at the end of the article
@@ -201,7 +201,7 @@ class PlgContentEasySocial extends JPlugin
 	 * @since	1.4
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function onContentAfterDisplay($context, &$article, &$params)
 	{
@@ -229,7 +229,7 @@ class PlgContentEasySocial extends JPlugin
 		if ($pluginParams->get('placement', 1) != 4) {
 			return;
 		}
-		
+
 		$contents = $this->getAttachData($context, $article, $params);
 
 		return $contents;
@@ -257,7 +257,7 @@ class PlgContentEasySocial extends JPlugin
 
 		// Only assign points to viewer when they are not a guest and not the owner of the article
 		if ($my->id && $my->id != $article->created_by && $view == 'article' && !$this->sessionExists()) {
-			
+
 			// Assign points to viewer
 			$this->assignPoints('read.article', $my->id);
 
@@ -281,19 +281,20 @@ class PlgContentEasySocial extends JPlugin
 		FD::language()->loadSite();
 
 		// If configured to display comemnts
-		if ($my->id && $pluginParams->get('load_comments', false)) {
+		if ($pluginParams->get('load_comments', false)) {
+			if ($my->id || (!$my->id && $pluginParams->get('guest_viewcomments', true))) {
+				$url = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias, $article->catid);
 
-			$url = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias, $article->catid);
-
-			$comments = FD::comments($article->id, 'article', 'create', SOCIAL_APPS_GROUP_USER, array('url' => $url));
-			$comments = $comments->getHtml();
+				$comments = FD::comments($article->id, 'article', 'create', SOCIAL_APPS_GROUP_USER, array('url' => $url));
+				$comments = $comments->getHtml();
+			}
 		}
 
 		// Get the author of the article
 		if (isset($article->created_by)) {
-			
+
 			$author = FD::user($article->created_by);
-			
+
 			$displayInfo = $pluginParams->get('display_info', false);
 
 			// Get a list of badges the author has
@@ -302,9 +303,9 @@ class PlgContentEasySocial extends JPlugin
 			ob_start();
 			require_once(dirname(__FILE__) . '/tmpl/article.php');
 			$contents = ob_get_contents();
-			ob_end_clean();	
+			ob_end_clean();
 
-			return $contents;			
+			return $contents;
 		}
 	}
 
@@ -452,7 +453,7 @@ class PlgContentEasySocial extends JPlugin
 		if (!$this->exists()) {
 			return;
 		}
-		
+
 		// Delete the items from the stream.
 		$stream 	= FD::stream();
 		$stream->delete( $data->id , 'article' );

@@ -498,7 +498,7 @@ class EasyBlogCache extends EasyBlog
 	public function cacheComments($postIds = array())
 	{
 		// we only cache the comment if built-in comment enabled.
-		if (! EB::comment()->isBuiltin()) {
+		if (!EB::comment()->isBuiltin()) {
 			return;
 		}
 
@@ -522,8 +522,8 @@ class EasyBlogCache extends EasyBlog
 	 */
 	public function cacheCommentCount($postIds = array())
 	{
-		// we only cache the comment if built-in comment enabled.
-		if (! EB::comment()->isBuiltin()) {
+		// Only get count if comments are built int.
+		if (!EB::comment()->isBuiltin()) {
 			return;
 		}
 
@@ -535,11 +535,10 @@ class EasyBlogCache extends EasyBlog
 		$builtIn = EB::comment()->isBuiltin();
 
 		foreach ($postIds as $id) {
+			$total = isset($counters[$id]) ? $counters[$id] : 0;
 
-			// We can only cache this if the comment is built in
-			if ($builtIn) {
-				$total = isset($counters[$id]) ? $counters[$id] : 0;
-			} else {
+			// We can only retrieve the comment counter if it is not built in.
+			if (!$builtIn) {
 				$post = $this->get($id, 'post');
 				$tmppost = EB::post();
 				$tmppost->bind($post, array('force' => true));

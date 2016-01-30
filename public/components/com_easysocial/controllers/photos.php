@@ -1015,81 +1015,85 @@ class EasySocialControllerPhotos extends EasySocialController
     public function createAvatar()
     {
         // Check for request forgeries
-        FD::checkToken();
+        $this->checkToken();
 
         // Only registered users should be allowed to upload photos
-        FD::requireLogin();
-
-        // Get the current view
-        $view   = $this->getCurrentView();
+        $this->requireLogin();
 
         // Get the photo id
-        $id     = JRequest::getInt( 'id' );
+        $id = $this->input->get('id', 0, 'int');
 
         // Try to load the photo.
-        $photo  = FD::table( 'Photo' );
-        $photo->load( $id );
+        $photo = ES::table('Photo');
+        $photo->load($id);
 
         // Try to load the photo with the provided id.
-        if( !$id || !$photo->id )
-        {
-            $view->setMessage( JText::_( 'COM_EASYSOCIAL_PHOTOS_INVALID_ID_PROVIDED' ) , SOCIAL_MSG_ERROR );
+        if (!$id || !$photo->id) {
+            $this->view->setMessage('COM_EASYSOCIAL_PHOTOS_INVALID_ID_PROVIDED', SOCIAL_MSG_ERROR);
 
-            return $view->call( __FUNCTION__ );
+            return $this->view->call(__FUNCTION__);
         }
 
         // Get the photos lib
-        $lib        = FD::photo( $photo->uid , $photo->type , $photo );
+        $lib = ES::photo($photo->uid, $photo->type, $photo);
 
-        if( !$lib->canUseAvatar() )
-        {
-            $view->setMessage( JText::_( 'COM_EASYSOCIAL_PHOTOS_NO_PERMISSION_TO_USE_PHOTO_AS_AVATAR' ) , SOCIAL_MSG_ERROR );
-            return $view->call( __FUNCTION__ );
+        if (!$lib->canUseAvatar()) {
+            $this->view->setMessage('COM_EASYSOCIAL_PHOTOS_NO_PERMISSION_TO_USE_PHOTO_AS_AVATAR', SOCIAL_MSG_ERROR);
+            return $this->view->call(__FUNCTION__);
         }
 
         // Get the image object for the photo
         // Use "original" not "stock" because it might be rotated before this.
-        $image      = $photo->getImageObject( 'stock' );
+        $image = $photo->getImageObject('stock');
 
         if ($image === false) {
-            $image      = $photo->getImageObject( 'original' );
+            $image = $photo->getImageObject('original');
         }
 
         // Need to rotate as necessary here because we're loading up using the stock photo and the stock photo
         // is as is when the user initially uploaded.
-        $image->rotate( $photo->getAngle() );
+        $image->rotate($photo->getAngle());
 
-        $tmp        = JFactory::getConfig()->get( 'tmp_path' );
-        $tmpPath    = $tmp . '/' . md5( $photo->id ) . $image->getExtension();
+        $jConfig = ES::jConfig();
 
-        $image->save( $tmpPath );
-        unset( $image );
+        // Store the image temporarily
+        $tmp = $jConfig->getValue('tmp_path');
+        $tmpPath = $tmp . '/' . md5($photo->id) . $image->getExtension();
 
-        $image      = FD::image();
-        $image->load( $tmpPath );
+        // If the temporary file exists, we need to delete it first
+        if (JFile::exists($tmpPath)) {
+            JFile::delete($tmpPath);
+        }
+        $image->save($tmpPath);
+        unset($image);
 
-        // Get the current user.
-        $my         = FD::user();
+        // If photo was stored remotely, we need to delete the downloaded files
+        if ($photo->isStoredRemotely()) {
+            $photo->deletePhotoFolder();
+        }
+        
+        $image = ES::image();
+        $image->load($tmpPath);
 
         // Load up the avatar library
-        $avatar     = FD::avatar( $image , $photo->uid , $photo->type );
+        $avatar = ES::avatar($image, $photo->uid, $photo->type);
 
         // Crop the image to follow the avatar format. Get the dimensions from the request.
-        $width      = JRequest::getVar( 'width' );
-        $height     = JRequest::getVar( 'height' );
-        $top        = JRequest::getVar( 'top' );
-        $left       = JRequest::getVar( 'left' );
+        $width = JRequest::getVar('width');
+        $height = JRequest::getVar('height');
+        $top = JRequest::getVar('top');
+        $left = JRequest::getVar('left');
 
         // We need to get the temporary path so that we can delete it later once everything is done.
-        $avatar->crop( $top , $left , $width , $height );
+        $avatar->crop($top, $left, $width, $height);
 
         // Create the avatars now
-        $avatar->store( $photo );
+        $avatar->store($photo);
 
         // Delete the temporary file.
-        JFile::delete( $tmpPath );
+        JFile::delete($tmpPath);
 
-        return $view->call( __FUNCTION__ , $photo );
+        return $this->view->call(__FUNCTION__, $photo);
     }
 
     /**

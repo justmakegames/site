@@ -47,7 +47,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 				</div>
 
-				<a href="<?php echo $post->getPermalink();?>#comment-<?php echo $comment->id; ?>" class="eb-post-comment-date text-muted"><?php echo $comment->getCreated()->format(JText::_('COM_EASYBLOG_DATE_FORMAT_STATISTICS')); ?></a>
+				<a href="<?php echo $post->getPermalink();?>#comment-<?php echo $comment->id; ?>" class="eb-post-comment-date text-muted">
+					<?php echo JHTML::date($comment->created, JText::_('DATE_FORMAT_LC2')); ?>
+				</a>
 			</div>
 		</div>
 		<?php } ?>

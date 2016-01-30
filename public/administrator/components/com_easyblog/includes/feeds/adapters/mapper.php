@@ -110,6 +110,7 @@ class EasyBlogFeedAdapterMapper extends EasyBlog
 		// Try to fetch the contents remotely
 		if ($feed->item_get_fulltext) {
 			$url = urldecode(@$item->get_link());
+			$url = str_ireplace('&amp;', '&', $url);
 
 			$connector = EB::connector();
 			$connector->addUrl($url);

@@ -42,7 +42,7 @@ defined( '_JEXEC' ) or die( 'Unauthorized Access' );
     <!--IF EMPTY -->
     <div class="empty empty-hero">
         <i class="ies-pie"></i>
-        <div>No polls found in this section.</div>
+        <div><?php echo JText::_('APP_POLLS_NOT_FOUND_ANY_POLL_CREATED');?></div>
     </div>
 <?php } ?>
 

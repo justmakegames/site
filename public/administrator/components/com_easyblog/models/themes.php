@@ -73,7 +73,9 @@ class EasyBlogModelThemes extends EasyBlogAdminModel
 		$destination = JPATH_ROOT . '/tmp/' . $fileName . $fileExtension;
 
 		// Upload the zip archive
-		$state = JFile::upload($source, $destination);
+		// argument in JFile::upload($src, $dest, $use_streams, $allow_unsafe, $safeFileOptions)
+		// allow_unsafe = true. We need this to let files containing PHP code to upload. See JInputFiles::get.
+		$state = JFile::upload($source, $destination, false, true);
 
 		if (!$state) {
 			$this->setError( JText::_( 'COM_EASYBLOG_THEMES_INSTALLER_ERROR_COPY_FROM_PHP' ) );

@@ -108,14 +108,10 @@ class EasyBlogComment extends EasyBlog
 	 */
 	public function isBuiltin()
 	{
-		if ($this->config->get('comment_easyblog', 1)) {
+		// If comments is enabled, we always treat it as built in.
+		if ($this->config->get('main_comment')) {
 			return true;
 		}
-
-		// // @rule: If the default comments and multiple comments are enabled, we assume that it is built in.
-		// if ($this->config->get('comment_easyblog') && $this->config->get('main_comment_multiple')) {
-		// 	return true;
-		// }
 
 		if ($this->config->get('intensedebate')) {
 			return false;
@@ -202,7 +198,7 @@ class EasyBlogComment extends EasyBlog
 		}
 
 		// easyblog builtin comment
-		if ($this->config->get('comment_easyblog', 1)) {
+		if ($this->config->get('main_comment')) {
 			$adapter = $this->getAdapter('easyblog');
 		}
 
@@ -295,7 +291,6 @@ class EasyBlogComment extends EasyBlog
 
 		// Facebook comments
 		if ($this->config->get('comment_facebook')) {
-
 			$types['FACEBOOK']	= $this->getAdapter('facebook')->html($blog);
 
 			// If the system is configured to only display a single comment source
@@ -414,12 +409,14 @@ class EasyBlogComment extends EasyBlog
 		}
 
 		// Built in comments
-		if ($this->config->get('comment_easyblog', 1)) {
+		if ($this->config->get('main_comment', 1) && !$multiple) {
 			$types['EASYBLOGCOMMENTS'] = $this->getAdapter('easyblog')->html($blog, $comments, $pagination);
+			return $types['EASYBLOGCOMMENTS'];
+		}
 
-			if (!$multiple) {
-				return $types['EASYBLOGCOMMENTS'];
-			}
+		// If multiple comments are enabled, we should check if the user wants to have EasyBlog.
+		if ($multiple && $this->config->get('main_comment') && $this->config->get('comment_easyblog')) {
+			$types['EASYBLOGCOMMENTS'] = $this->getAdapter('easyblog')->html($blog, $comments, $pagination);
 		}
 
 		// If there's 1 system only, there's no point loading the tabs.

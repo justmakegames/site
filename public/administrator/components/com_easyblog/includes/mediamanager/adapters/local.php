@@ -223,13 +223,9 @@ class EasyBlogMediaManagerLocalSource extends EasyBlogMediaManagerAbstractSource
 		// Create image variations for the image
 		$isImage = @getimagesize($filepath) !== false;
 
-		if ($isImage && $file['type'] != 'application/x-shockwave-flash') {
-			EB::imageset()->initDimensions($filepath);
-		}
-
 		// Should we resize the original image?
-		if ($config->get('main_resize_original_image')) {
-		
+		if ($isImage && $file['type'] != 'application/x-shockwave-flash' && $config->get('main_resize_original_image')) {
+			
 			$original = EB::simpleimage();
 			$original->load($filepath);
 
@@ -238,6 +234,10 @@ class EasyBlogMediaManagerLocalSource extends EasyBlogMediaManagerAbstractSource
 
 			// Save the image 
 			$original->write($filepath, $config->get('main_original_image_quality'));
+		}
+		
+		if ($isImage && $file['type'] != 'application/x-shockwave-flash') {
+			EB::imageset()->initDimensions($filepath);
 		}
 
 		// Construct item

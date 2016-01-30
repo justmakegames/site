@@ -72,7 +72,6 @@ class EasyBlogAcl extends EasyBlog
 				$groups[$item->content_id][] = $item;
 			}
 
-
 			// Allow explicit overrides in the groups
 			// If user A is in group A (allow) and group B (not allowed) , user A should be allowed
 			$result = array();

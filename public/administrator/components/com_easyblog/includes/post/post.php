@@ -556,7 +556,15 @@ class EasyBlogPost extends EasyBlog
 	{
 		$workbench = $this->revision->getContent();
 
-		$this->setWorkbench($workbench);
+		if (! $workbench) {
+
+			// somehow the revision id is exists but the revisions.content is empty.
+			// we need to regenerate the revisions.content.
+			$this->checkoutFromPost();
+
+		} else {
+			$this->setWorkbench($workbench);
+		}
 
 		$this->revision_id = $this->revision->id;
 	}
@@ -771,7 +779,7 @@ class EasyBlogPost extends EasyBlog
 		$this->publish_down	= '0000-00-00 00:00:00';
 
 		// We do not want to run any validation since it's going to be trashed.
-		$options = array('validateData' => false);
+		$options = array('validateData' => false, 'normalizeData' => false);
 
 		return $this->save($options);
 	}
@@ -852,7 +860,7 @@ class EasyBlogPost extends EasyBlog
 		$data = $this->toData();
 
 		$data->id = null;
-		$data->published = EASYBLOG_POST_PUBLISHED;
+		$data->published = EASYBLOG_POST_UNPUBLISHED;
 		$data->title = JText::sprintf('COM_EASYBLOG_DUPLICATE_OF_POST', $this->title);
 		$data->revision_id = null;
 		$data->autoposting = null;
@@ -937,7 +945,7 @@ class EasyBlogPost extends EasyBlog
 		$this->state = EASYBLOG_POST_NORMAL;
 
 		// Set the save options
-		$options = array_merge(array(), array('validateData' => false), $options);
+		$options = array_merge(array(), array('validateData' => false, 'normalizeData' => false), $options);
 
 		return $this->save($options);
 	}
@@ -1091,7 +1099,7 @@ class EasyBlogPost extends EasyBlog
 
 		// Execute pre-saving routines
 		$this->preSave($debug);
-
+		
 		// This needs to happen prior to saving the post so that the new revision get's created first.
 		// If this post is going to be a draft and the existing revision is already finalized we should create a new revision and assign to this post first
 		$createNewRevision = $this->isBeingDrafted() || $this->isBeingSubmittedForApproval();
@@ -1636,7 +1644,7 @@ class EasyBlogPost extends EasyBlog
 		$tags = $this->tags;
 
 		// Assuming that this is the current copy.
-		if ($this->isReady() && !empty($this->tags)) {
+		if (!empty($this->tags)) {
 
 			// Ensure that the tags are in an array
 			$tags = explode(',', $this->tags);
@@ -2309,6 +2317,15 @@ class EasyBlogPost extends EasyBlog
 			$author = $this->getAuthor();
 			$category = $this->getPrimaryCategory();
 
+			$blogIntro = $this->getIntro();
+			$blogContent = $this->getContent();
+
+			// Truncate the content inside email.
+			if ($this->config->get('notification_blog_truncate', false)) {
+				$blogIntro = JHTML::_('string.truncate', $blogIntro, $this->config->get('notification_blog_truncate_limit', 300));
+				$blogContent = JHTML::_('string.truncate', $blogContent, $this->config->get('notification_blog_truncate_limit', 300));
+			}
+
 			// Send email notifications to subscribers
 			$data = array(
 						'blogTitle' => $this->title,
@@ -2316,11 +2333,12 @@ class EasyBlogPost extends EasyBlog
 						'blogAuthorAvatar' => $author->getAvatar(),
 						'blogAuthorLink' => $author->getExternalPermalink(),
 						'blogAuthorEmail' => $author->user->email,
-						'blogIntro' => $this->getIntro(),
-						'blogContent' => $this->getContent(),
+						'blogIntro' => $blogIntro,
+						'blogContent' => $blogContent,
 						'blogCategory' => $category->getTitle(),
 						'blogLink' => $this->getExternalPermalink(),
-						'blogDate' => $this->getCreationDate()->format(JText::_('DATE_FORMAT_LC'))
+						'blogDate' => $this->getCreationDate()->format(JText::_('DATE_FORMAT_LC')),
+						'blogCover' => $this->getImage('original', false, true)
 					);
 
 			// if user upload photo from eb media manager
@@ -2333,7 +2351,7 @@ class EasyBlogPost extends EasyBlog
 
 			foreach ($matches as $match) {
 
-				if ($match) { 
+				if ($match) {
 					$data['blogIntro'] = str_replace('src="//', 'src="' . $scheme . '//', $data['blogIntro']);
 					$data['blogContent'] = str_replace('src="//', 'src="' . $scheme . '//', $data['blogContent']);
 				}
@@ -2410,10 +2428,11 @@ class EasyBlogPost extends EasyBlog
 		$this->normalizeFrontpage();
 		$this->normalizePrivacy();
 		$this->normalizeState();
-		$this->normalizeNewState();
 
 		// Normalizes publishing state
 		$this->normalizePublishingState();
+
+		$this->normalizeNewState();
 
 		$this->normalizeOthers();
 	}
@@ -2557,7 +2576,8 @@ class EasyBlogPost extends EasyBlog
 
 		// We might not need this already since @normalizeContent already fixes things?
 		// TODO: Translate document into intro & content.
-		// $this->intro   = $document->getIntro();
+		// Open back this intro is because when the user create post using composer, it will not store post introtext in the db when use readmore block
+		$this->intro   = $document->getIntro();
 		// $this->content = $document->getContent();
 	}
 
@@ -2794,12 +2814,6 @@ class EasyBlogPost extends EasyBlog
 			$this->keywords = '';
 		}
 
-		if ($this->isBlank()) {
-			$this->allowcomment = $this->config->get('main_comment', 1);
-			$this->send_notification_emails = $this->config->get('main_sendemailnotifications', 1);
-			$this->subscription = $this->config->get('main_subscription', 1);
-		}
-
 		$checkACL = isset($this->saveOptions['checkAcl']) ? $this->saveOptions['checkAcl'] : true;
 		if ($checkACL) {
 			// Determines if comments are allowed for this post.
@@ -2810,6 +2824,12 @@ class EasyBlogPost extends EasyBlog
 			if ($this->hasChanged('subscription') && !$this->acl->get('change_setting_subscription')) {
 				$this->subscription = $this->original->subscription;
 			}
+		}
+
+		if ($this->isBlank()) {
+			$this->allowcomment = $this->config->get('main_defaultallowcomment', 1);
+			$this->send_notification_emails = $this->config->get('main_sendemailnotifications', 1);
+			$this->subscription = $this->config->get('main_subscription', 1);
 		}
 	}
 
@@ -3452,11 +3472,20 @@ class EasyBlogPost extends EasyBlog
 			return $this->formattedIntros[$index];
 		}
 
+		// We need to specify if this post has a cover picture or not to avoid 
+		// multiple images being shown on the "listings"
+		if (!isset($options['hasCover'])) {
+			$options['hasCover'] = $this->hasImage();
+		}
+
 		// If this is an EBD document, we need to render the contents using blocks
 		if ($this->isEbd()) {
-			$doc = EB::document($this->document);
 
-			return $doc->getIntro($stripTags, $limit, $options);
+			$doc = EB::document($this->document);
+			$intro = $doc->getIntro($stripTags, $limit, $options);
+
+			$this->formattedIntros[$index] = $intro;
+			return $this->formattedIntros[$index];
 		}
 
 		// Set the text attribute first
@@ -4319,7 +4348,7 @@ class EasyBlogPost extends EasyBlog
 		if (EB::user()->id == $this->getAuthor()->id) {
 			return true;
 		}
-		
+
 		$session = JFactory::getSession();
 		$password = $session->get('PROTECTEDBLOG_' . $this->id, '', 'EASYBLOG');
 
@@ -4559,13 +4588,15 @@ class EasyBlogPost extends EasyBlog
 
 			// If blog post is being posted from the back end and SH404 is installed, we should just use the raw urls.
 			$sh404 = EBR::isSh404Enabled();
+			$url = 'index.php?option=com_easyblog&view=entry&id=' . $this->id;
 
-			$link[$this->id] = EBR::getRoutedURL('index.php?option=com_easyblog&view=entry&id=' . $this->id, true, true);
+			$link[$this->id] = EBR::getRoutedURL($url, true, true);
 			$app = JFactory::getApplication();
 
 			// If this is being submitted from the back end we do not want to use the sef links because the URL will be invalid
 			if ($app->isAdmin() && $sh404) {
-				$link[$this->id] = rtrim(JURI::root(), '/') . $link[$this->id];
+				$link[$this->id] = $url;
+				$link[$this->id] = rtrim(JURI::root(), '/') . '/' . $link[$this->id];
 			}
 		}
 
@@ -4804,9 +4835,12 @@ class EasyBlogPost extends EasyBlog
 			$arrCatParams = $catParams->toArray();
 
 			if (empty($arrCatParams)) {
-				// look like the params in category is empty. let try to get from xml file.
-				$catParams = $this->category->getDefaultParams();
-				$arrCatParams = $catParams->toArray();
+				// look like the params in category is empty. let try to get from Entry xml file.
+				// Because this is entry view. Previously, we get from category listing xml.
+				// $catParams = $this->category->getDefaultParams();
+				
+				$tmpParams = $model->getDefaultEntryXMLParams();
+				$arrCatParams = $tmpParams->toArray();
 			}
 
 			foreach($arrCatParams as $key => $val) {
@@ -4826,6 +4860,12 @@ class EasyBlogPost extends EasyBlog
 
 				$params = $model->getMenuParamsById($menuId);
 				$arrParams = $params->toArray();
+
+				if (! isset($arrParams['show_intro'])) {
+					// this mean this menu item created prior to 5.0. we will use category param.
+					$items[$this->id] = $catParams;
+					return $items[$this->id];
+				}
 
 				foreach($arrParams as $key => $val) {
 					if ($val == '-1') {
@@ -5480,7 +5520,7 @@ class EasyBlogPost extends EasyBlog
 		// Get the page title
 		$title = EB::getPageTitle($this->config->get('main_title'));
 
-		if ($title) {
+		if ($this->config->get('main_pagetitle_autoappend_entry') && $title) {
 			$this->doc->setTitle($postTitle . ' - ' . $title );
 		}
 
@@ -5598,12 +5638,16 @@ class EasyBlogPost extends EasyBlog
 		}
 
 		if ($published) {
-			$notification->sendSubscribers($subject, 'post.new', $data, $this, $ignored);
-
 			// Send custom emails
 			if ($emails) {
 				$notification->send($emails, $subject, 'post.new', $data);
+
+				foreach($emails as $el => $obj) {
+					$ignored[] = $el;
+				}
 			}
+
+			$notification->sendSubscribers($subject, 'post.new', $data, $this, $ignored);
 		}
 
 		// If the blog post is featured, send notification to the author
@@ -5663,6 +5707,23 @@ class EasyBlogPost extends EasyBlog
 		$this->frontpage = 0;
 
 		return $this->save();
+	}
+
+	/**
+	 * Reset post hits
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function resetHits()
+	{
+		$this->hits = 0;
+
+		$options = array('validateData' => false, 'normalizeData' => false);
+
+		return $this->save($options);
 	}
 
 	/**

@@ -143,6 +143,18 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 							<div class="list-group-item">
 								<div class="eb-radio">
+									<input type="radio" value="simplecategory" id="simpleCategoryEntry" name="main_sef" <?php echo $this->config->get('main_sef') == 'simplecategory' ? ' checked="checked"' : '';?> class="hide" />
+									<label for="simpleCategoryEntry">
+										<b class="form-control-static list-group-item-heading"><?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_SEF_FORMAT_SIMPLE_CATEGORY_TYPE');?></b>
+										<p class="list-group-item-text">
+											http://yoursite.com/menu/category/title
+										</p>
+									</label>
+								</div>
+							</div>
+
+							<div class="list-group-item">
+								<div class="eb-radio">
 									<input type="radio" value="custom" id="customEntry" name="main_sef" <?php echo $this->config->get('main_sef') == 'custom' ? ' checked="checked"' : '';?> class="hide" />
 									<label for="customEntry">
 										<b class="form-control-static list-group-item-heading"><?php echo JText::_('COM_EASYBLOG_SETTINGS_WORKFLOW_SEF_CUSTOM_TYPE');?></b>

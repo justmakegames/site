@@ -1,10 +1,5 @@
 EasySocial.require()
 .script('admin/profiles/form')
-.language('COM_EASYSOCIAL_PROFILES_FORM_FIELDS_SAVE_ERROR',
-		  'COM_EASYSOCIAL_MAXUPLOADSIZE_ERROR_PHOTOS_MAXSIZE',
-		  'COM_EASYSOCIAL_MAXUPLOADSIZE_ERROR_FILES_MAXSIZE',
-		  'COM_EASYSOCIAL_MAXUPLOADSIZE_ERROR_VIDEOS_MAXSIZE',
-		  'COM_EASYSOCIAL_MAXUPLOADSIZE_ERROR_PHOTOS_UPLOADER_MAXSIZE')
 .done(function($){
 
 	$('[data-profile-form]').addController('EasySocial.Controller.Profiles.Profile', {
@@ -51,29 +46,26 @@ EasySocial.require()
 			var hasError = false;
 
 			$('[data-maxupload-check]').each(function(idx, ele) {
+
 				var maxvalue = $(this).data('maxupload');
 				var key = $(this).data('maxupload-key');
 				var curvalue = $(this).val();
 
 				if (curvalue > maxvalue) {
-					// console.log('invalid value for ' + label);
 
 					hasError = true;
 
-					var errorText = 'COM_EASYSOCIAL_MAXUPLOADSIZE_ERROR_' + key;
-
 					EasySocial.dialog({
-						content: $.language(errorText)
+						content: EasySocial.ajax('admin/views/profiles/getAclErrorDialog', {"key": key})
 					});
 				}
 			});
 
 			if (hasError) {
 				return false;
-			} else {
-				return true;
 			}
 
+			return true;
 		}
 
 		if (task == 'save' || task == 'savenew' || task == 'apply') {

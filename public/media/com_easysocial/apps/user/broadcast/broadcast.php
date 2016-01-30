@@ -70,9 +70,9 @@ class SocialUserAppBroadcast extends SocialAppItem
 		
 		// To check if user select via notification, save to notification table instead.				
 		if ($type == 'popup') {
-			$id = $model->broadcast($profileId, $content, $this->my->id, $title, $link);
+			$id = $model->broadcast($profileId, nl2br($content), $this->my->id, $title, $link);
 		} else {
-			$id = $model->notifyBroadcast($profileId, $title, $content, $link, $this->my->id);
+			$id = $model->notifyBroadcast($profileId, $title, $content, $link, $this->my->id, $streamItem);
 		}
 		
 		$streamItem->context_id = $id;
@@ -124,7 +124,6 @@ class SocialUserAppBroadcast extends SocialAppItem
 
 		$this->set('broadcast', $broadcast);
 		$this->set('actor', $actor);
-
 
 		$stream->title = parent::display('streams/title.create');
 		$stream->content = parent::display('streams/content.create');

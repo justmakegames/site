@@ -187,6 +187,16 @@ class EasyBlogViewBloggers extends EasyBlogAdminView
 		// Get the params
 		$bloggerParams	= $author->getParams();
 
+		// Allow admin edit user multiple theme option from backend
+		$multithemes = new stdClass();
+		$multithemes->enable = $this->config->get('layout_enablebloggertheme', true);
+
+		if( !is_array($this->config->get('layout_availablebloggertheme'))) {
+			$multithemes->availableThemes = explode('|', $this->config->get('layout_availablebloggertheme'));
+		}
+
+		$multithemes->selectedTheme = $bloggerParams->get('theme', 'global');
+
 		// Load up joomla's user forms
 		require_once(JPATH_ADMINISTRATOR . '/components/com_users/models/user.php');
 
@@ -220,6 +230,7 @@ class EasyBlogViewBloggers extends EasyBlogAdminView
 		$this->set('linkedin', $linkedin);
 		$this->set('isNew', $isNew);
 		$this->set('post', $post);
+		$this->set('multithemes', $multithemes);
 
 		parent::display('bloggers/form');
 	}

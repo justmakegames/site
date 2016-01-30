@@ -55,11 +55,13 @@ $isGuest = ( FD::user()->id == 0 ) ? true : false;
 		</li>
 		<?php } ?>
 
-		<?php if (isset($sharing) && $sharing && $this->config->get('stream.sharing.enabled')) { ?>
+		<?php if (!$isGuest && isset($sharing) && $sharing && $this->config->get('stream.sharing.enabled')) { ?>
 		<li class="action-title-social streamAction"
 			data-key="social"
 			data-streamItem-actions>
-			<?php echo $sharing->getHTML(); ?>
+			<span class="fd-small">
+				<?php echo $sharing->getHTML(); ?>
+			</span>
 		</li>
 		<?php } ?>
 

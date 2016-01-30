@@ -165,7 +165,7 @@ class EasyBlogClientFacebook extends EasyBlogFacebookConsumer
 		$redirect = urlencode($redirect);
 		$from = rtrim(JURI::root(), '/') . '/administrator/index.php?option=com_easyblog';
 
-		$url = 'https://facebook.com/dialog/oauth?scope=' . $scopes . '&client_id=' . $this->apiKey . '&redirect_uri=' . $redirect . '&response_type=code&display=popup&state=' . base64_encode($from);
+		$url = 'https://facebook.com/dialog/oauth?scope=' . $scopes . '&client_id=' . $this->apiKey . '&redirect_uri=' . $redirect . '&response_type=code&display=popup';
 
 		return $url;
 	}
@@ -252,7 +252,7 @@ class EasyBlogClientFacebook extends EasyBlogFacebookConsumer
 		$data->content = strip_tags($data->content);
 
 		// Get the blog's image to be pushed to Facebook
-		$data->image = $post->getImage('thumbnail', true , true);
+		$data->image = $post->getImage('thumbnail', false , true);
 
 		// var_dump($data->image);exit;
 
@@ -293,6 +293,9 @@ class EasyBlogClientFacebook extends EasyBlogFacebookConsumer
 
 		if ($this->app->isAdmin() && $sh404exists) {
 			$data->url = EB::getExternalLink('index.php?option=com_easyblog&view=entry&id='. $post->id);
+
+			// We need to remove the /administrator/ from the link
+			$data->url = str_ireplace('/administrator/', '/', $data->url);
 		}
 
 		return $data;
@@ -455,7 +458,7 @@ class EasyBlogClientFacebook extends EasyBlogFacebookConsumer
 	public function getPages()
 	{
 		// Get a list of accounts associated to this user
-		$result	= parent::api('/me/accounts', array('access_token' => $this->token));
+		$result	= parent::api('/me/accounts', array('access_token' => $this->token, 'limit' => 500));
 
 		$pages 	= array();
 

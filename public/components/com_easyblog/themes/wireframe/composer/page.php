@@ -68,7 +68,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <span id="permalink-url" data-permalink-data><?php echo $post->permalink;?></span>
 
                     <?php if ($this->config->get('layout_composer_permalink')) { ?>
-                    <a href="javascript:void(0);" class="btn btn-default btn-xs" style="display: inline;" data-permalink-edit><?php echo JText::_('COM_EASYBLOG_EDIT'); ?></a>
+                    <a href="javascript:void(0);" class="btn btn-default btn-xs" style="display: inline;" data-permalink-edit><?php echo JText::_('COM_EASYBLOG_EDIT_POST_PERMALINK'); ?></a>
                     <?php } ?>
                 </div>
 
